@@ -28,12 +28,10 @@
 
 /* pacman */
 #include "log.h"
-#include "list.h"
-#include "conf.h"
 
 #define LOG_STR_LEN 256
 
-extern config_t *config;
+extern unsigned short pmo_verbose;
 
 static int neednl; /* for cleaner message output */
 
@@ -41,7 +39,7 @@ static int neednl; /* for cleaner message output */
  */
 void cb_log(unsigned short level, char *msg)
 {
-	char str[9] = "";
+	char str[8] = "";
 
 	switch(level) {
 		case PM_LOG_DEBUG:
@@ -103,16 +101,13 @@ void vprint(char *fmt, ...)
 {
 	va_list args;
 
-	if(config->verbose > 1) {
+	if(pmo_verbose > 1) {
 		if(neednl == 1) {
 			fprintf(stdout, "\n");
 			neednl = 0;
 		}
 		va_start(args, fmt);
-		/* ORE
-		commented for now: it produces corruption
-		pm_fprintf(stdout, NL, fmt, args); */
-		vprintf(fmt, args);
+		pm_fprintf(stdout, NL, fmt, args);
 		va_end(args);
 	}
 }

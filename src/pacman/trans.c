@@ -29,35 +29,24 @@
 
 #include <alpm.h>
 /* pacman */
-#include "util.h"
 #include "log.h"
 #include "trans.h"
 
-#define LOG_STR_LEN 256
-
 /* Callback to handle transaction events
  */
-void cb_trans_evt(unsigned char event, void *data1, void *data2)
+void cb_trans(unsigned short event, void *data1, void *data2)
 {
-	char str[LOG_STR_LEN] = "";
+	char str[256] = "";
 
 	switch(event) {
-		case PM_TRANS_EVT_CHECKDEPS_START:
+		case PM_TRANS_EVT_DEPS_START:
 			MSG(NL, "checking dependencies... ");
 		break;
-		case PM_TRANS_EVT_FILECONFLICTS_START:
+		case PM_TRANS_EVT_CONFLICTS_START:
 			MSG(NL, "checking for file conflicts... ");
 		break;
-		case PM_TRANS_EVT_RESOLVEDEPS_START:
-			MSG(NL, "resolving dependencies... ");
-		break;
-		case PM_TRANS_EVT_INTERCONFLICTS_START:
-			MSG(NL, "looking for inter-conflicts... ");
-		break;
-		case PM_TRANS_EVT_CHECKDEPS_DONE:
-		case PM_TRANS_EVT_FILECONFLICTS_DONE:
-		case PM_TRANS_EVT_RESOLVEDEPS_DONE:
-		case PM_TRANS_EVT_INTERCONFLICTS_DONE:
+		case PM_TRANS_EVT_DEPS_DONE:
+		case PM_TRANS_EVT_CONFLICTS_DONE:
 			MSG(CL, "done.\n");
 		break;
 		case PM_TRANS_EVT_ADD_START:
@@ -65,7 +54,7 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 		break;
 		case PM_TRANS_EVT_ADD_DONE:
 			MSG(CL, "done.\n");
-			snprintf(str, LOG_STR_LEN, "installed %s (%s)",
+			snprintf(str, 256, "installed %s (%s)",
 			                   (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
 			                   (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
 			alpm_logaction(str);
@@ -75,7 +64,7 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 		break;
 		case PM_TRANS_EVT_REMOVE_DONE:
 			MSG(CL, "done.\n");
-			snprintf(str, LOG_STR_LEN, "removed %s (%s)",
+			snprintf(str, 256, "removed %s (%s)",
 			         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
 			         (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
 			alpm_logaction(str);
@@ -85,7 +74,7 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 		break;
 		case PM_TRANS_EVT_UPGRADE_DONE:
 			MSG(CL, "done.\n");
-			snprintf(str, LOG_STR_LEN, "upgraded %s (%s -> %s)",
+			snprintf(str, 256, "upgraded %s (%s -> %s)",
 			                   (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
 			                   (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION),
 			                   (char *)alpm_pkg_getinfo(data2, PM_PKG_VERSION));
@@ -94,37 +83,5 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 	}
 }
 
-void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, int *response)
-{
-	char str[LOG_STR_LEN] = "";
-
-	switch(event) {
-		case PM_TRANS_CONV_INSTALL_IGNOREPKG:
-			snprintf(str, LOG_STR_LEN, ":: %s requires %s, but it is in IgnorePkg.  Install anyway? [Y/n] ",
-					(char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-					(char *)alpm_pkg_getinfo(data2, PM_PKG_NAME));
-			*response = yesno(str);
-		break;
-		case PM_TRANS_CONV_REPLACE_PKG:
-			snprintf(str, LOG_STR_LEN, ":: Replace %s with %s/%s? [Y/n] ",
-					(char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-					(char *)data3,
-					(char *)alpm_pkg_getinfo(data2, PM_PKG_NAME));
-			*response = yesno(str);
-		break;
-		case PM_TRANS_CONV_LOCAL_NEWER:
-			snprintf(str, LOG_STR_LEN, ":: %s-%s: local version is newer. Upgrade anyway? [Y/n] ",
-					(char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-					(char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
-			*response = yesno(str);
-		break;
-		case PM_TRANS_CONV_LOCAL_UPTODATE:
-			snprintf(str, LOG_STR_LEN, ":: %s-%s: local version is up to date. Upgrade anyway? [Y/n] ",
-					(char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-					(char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
-			*response = yesno(str);
-		break;
-	}
-}
 
 /* vim: set ts=2 sw=2 noet: */

@@ -37,26 +37,6 @@
 #define PM_OP_SYNC    6
 #define PM_OP_DEPTEST 7
 
-#define MSG(line, fmt, args...) pm_fprintf(stdout, line, fmt, ##args)
-#define ERR(line, fmt, args...) do { \
-	pm_fprintf(stderr, line, "error: "); \
-	pm_fprintf(stderr, CL, fmt, ##args); \
-} while(0)
-#define DBG(line, fmt, args...) do { \
-	char str[256]; \
-	snprintf(str, 256, fmt, ##args); \
-	cb_log(PM_LOG_DEBUG, str); \
-} while(0)
-
-enum {
-	NL, /* new line */
-	CL /* current line */
-};
-/* callback to handle messages/notifications from pacman library */
-void cb_log(unsigned short level, char *msg);
-/* callback to handle messages/notifications from pacman transactions */
-void cb_trans(unsigned short event, void *data1, void *data2);
-
 void cleanup(int signum);
 
 int pacman_deptest(list_t *targets);
@@ -64,11 +44,10 @@ int pacman_deptest(list_t *targets);
 int parseargs(int argc, char **argv);
 
 void usage(int op, char *myname);
+
 void version();
 
 char *buildstring(list_t *strlist);
-void vprint(char *fmt, ...);
-void pm_fprintf(FILE *file, unsigned short line, char *fmt, ...);
 
 #endif /* _PM_PACMAN_H */
 
