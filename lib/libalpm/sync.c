@@ -27,8 +27,6 @@
 #ifdef CYGWIN
 #include <limits.h> /* PATH_MAX */
 #endif
-#include <libtar.h>
-#include <zlib.h>
 /* pacman */
 #include "log.h"
 #include "util.h"
@@ -103,29 +101,32 @@ PMList *sync_load_dbarchive(char *archive)
 {
 	PMList *lp = NULL;
 	DIR *dir = NULL;
-	TAR *tar = NULL;
-	tartype_t gztype = {
-		(openfunc_t)_alpm_gzopen_frontend,
-		(closefunc_t)gzclose,
-		(readfunc_t)gzread,
-		(writefunc_t)gzwrite
-	};
-
-	if(tar_open(&tar, archive, &gztype, O_RDONLY, 0, TAR_GNU) == -1) {
-		pm_errno = PM_ERR_NOT_A_FILE;
+	register struct archive *_archive;
+	struct archive_entry *entry;
+	
+        if ((_archive = archive_read_new ()) == NULL) {
+		pm_errno = PM_ERR_LIBARCHIVE_ERROR;
 		goto error;
 	}
+	
+        archive_read_support_compression_all(_archive);
+        archive_read_support_format_all (_archive);
+
+        if (archive_read_open_file (_archive, archive, 10240) != ARCHIVE_OK) {
+		pm_errno = PM_ERR_NOT_A_FILE;
+		goto error;
+        }
 
 	/* readdir tmp_dir */
 	/* for each subdir, parse %s/desc and %s/depends */
 
-	tar_close(tar);
+	archive_read_finish(_archive);
 
 	return(lp);
 
 error:
-	if(tar) {
-		tar_close(tar);
+	if(_archive) {
+		archive_read_finish(_archive);
 	}
 	if(dir) {
 		closedir(dir);

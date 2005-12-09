@@ -22,6 +22,8 @@
 #define _ALPM_UTIL_H
 
 #include <stdio.h>
+#include <archive.h>
+#include <archive_entry.h>
 
 #define MALLOC(p, b) { \
 	if((b) > 0) { \
@@ -43,7 +45,9 @@
 	s1[(len)-1] = 0; \
 } while(0)
 
-long _alpm_gzopen_frontend(char *pathname, int oflags, int mode);
+#define ARCHIVE_EXTRACT_FLAGS ARCHIVE_EXTRACT_OWNER | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_TIME
+
+int _alpm_archive_read_entry_data_into_fd (struct archive *archive, int file);
 int _alpm_makepath(char *path);
 int _alpm_copyfile(char *src, char *dest);
 char *_alpm_strtoupper(char *str);

@@ -25,8 +25,6 @@
 #include <limits.h>
 #include <fcntl.h>
 #include <string.h>
-#include <libtar.h>
-#include <zlib.h>
 /* pacman */
 #include "log.h"
 #include "util.h"
@@ -248,26 +246,26 @@ pmpkg_t *pkg_load(char *pkgfile)
 	int config = 0;
 	int filelist = 0;
 	int scriptcheck = 0;
-	TAR *tar;
+	register struct archive *archive;
+	struct archive_entry *entry;
 	pmpkg_t *info = NULL;
-	tartype_t gztype = {
-		(openfunc_t)_alpm_gzopen_frontend,
-		(closefunc_t)gzclose,
-		(readfunc_t)gzread,
-		(writefunc_t)gzwrite
-	};
 
 	if(pkgfile == NULL || strlen(pkgfile) == 0) {
 		RET_ERR(PM_ERR_WRONG_ARGS, NULL);
 	}
 
-	if(tar_open(&tar, pkgfile, &gztype, O_RDONLY, 0, TAR_GNU) == -1) {
-		RET_ERR(PM_ERR_NOT_A_FILE, NULL);
-	}
+	if ((archive = archive_read_new ()) == NULL)
+		RET_ERR(PM_ERR_LIBARCHIVE_ERROR, NULL);
+
+	archive_read_support_compression_all (archive);
+	archive_read_support_format_all (archive);
+
+	if (archive_read_open_file (archive, pkgfile, 10240) != ARCHIVE_OK)
+		RET_ERR(PM_ERR_PKG_OPEN, -1);
 
 	info = pkg_new();
 	if(info == NULL) {
-		tar_close(tar);
+		archive_read_finish (archive);
 		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
 
@@ -276,7 +274,7 @@ pmpkg_t *pkg_load(char *pkgfile)
 	 * by using pkg_splitname()
 	 */
 
-	for(i = 0; !th_read(tar); i++) {
+	for(i = 0; archive_read_next_header (archive, &entry) == ARCHIVE_OK; i++) {
 		if(config && filelist && scriptcheck) {
 			/* we have everything we need */
 			break;
@@ -288,7 +286,7 @@ pmpkg_t *pkg_load(char *pkgfile)
 			/* extract this file into /tmp. it has info for us */
 			descfile = strdup("/tmp/alpm_XXXXXX");
 			fd = mkstemp(descfile);
-			tar_extract_file(tar, descfile);
+			_alpm_archive_read_entry_data_into_fd (archive, file);
 			/* parse the info file */
 			if(parse_descfile(descfile, info, 0) == -1) {
 				_alpm_log(PM_LOG_ERROR, "could not parse the package description file");
@@ -319,10 +317,10 @@ pmpkg_t *pkg_load(char *pkgfile)
 			FREE(descfile);
 			close(fd);
 			continue;
-		} else if(!strcmp(th_get_pathname(tar), "._install") || !strcmp(th_get_pathname(tar), ".INSTALL")) {
+		} else if(!strcmp(archive_entry_pathname (entry), "._install") || !strcmp(archive_entry_pathname (entry),  ".INSTALL")) {
 			info->scriptlet = 1;
 			scriptcheck = 1;
-		} else if(!strcmp(th_get_pathname(tar), ".FILELIST")) {
+		} else if(!strcmp(archive_entry_pathname (entry), ".FILELIST")) {
 			/* Build info->files from the filelist */
 			FILE *fp;
 			char *fn;
@@ -332,7 +330,7 @@ pmpkg_t *pkg_load(char *pkgfile)
 			MALLOC(str, PATH_MAX);
 			fn = strdup("/tmp/alpm_XXXXXX");
 			fd = mkstemp(fn);
-			tar_extract_file(tar, fn);
+			_alpm_archive_read_entry_data_into_fd (archive, fd);
 			fp = fopen(fn, "r");
 			while(!feof(fp)) {
 				if(fgets(str, PATH_MAX, fp) == NULL) {
@@ -355,18 +353,18 @@ pmpkg_t *pkg_load(char *pkgfile)
 			if(!filelist) {
 				/* no .FILELIST present in this package..  build the filelist the */
 				/* old-fashioned way, one at a time */
-				expath = strdup(th_get_pathname(tar));
+				expath = strdup(archive_entry_pathname (entry));
 				info->files = pm_list_add(info->files, expath);
 			}
 		}
 
-		if(TH_ISREG(tar) && tar_skip_regfile(tar)) {
+		if(archive_read_data_skip (archive)) {
 			_alpm_log(PM_LOG_ERROR, "bad package file in %s", pkgfile);
 			goto error;
 		}
 		expath = NULL;
 	}
-	tar_close(tar);
+	archive_read_finish (archive);
 
 	if(!config) {
 		_alpm_log(PM_LOG_ERROR, "missing package info file in %s", pkgfile);
@@ -382,7 +380,7 @@ pmpkg_t *pkg_load(char *pkgfile)
 
 error:
 	FREEPKG(info);
-	tar_close(tar);
+	archive_read_finish (archive);
 
 	return(NULL);
 }
