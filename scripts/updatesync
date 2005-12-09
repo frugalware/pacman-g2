@@ -27,21 +27,21 @@ usage() {
 	echo "updatesync $myver"
 	echo "usage: $0 <action> <destfile> <option> [package_directory]"
 	echo
-	echo "updatesync will update a sync database by reading a PKGBUILD and"
+	echo "updatesync will update a sync database by reading a FrugalBuild and"
 	echo "modifying the destfile. updatesync updates the database in a temporary"
 	echo "directory and then compresses it to <destfile>."
 	echo
 	echo "There are two types of actions:"
 	echo
 	echo "upd - Will update a package's entry or create it if it doesn't exist."
-	echo "      It takes the package's PKGBUILD as an option."
+	echo "      It takes the package's FrugalBuild as an option."
 	echo "del - Will remove a package's entry from the db."
 	echo "      It takes the package's name as an option."
 	echo
 	echo "updatesync will calculate md5sums of packages in the same directory as"
 	echo "<destfile>, unless an alternate [package_directory] is specified."
 	echo
-	echo "example:  updatesync upd /home/mypkgs/custom.fdb PKGBUILD"
+	echo "example:  updatesync upd /home/mypkgs/custom.fdb FrugalBuild"
 	echo
 	echo
 	exit 0
@@ -141,7 +141,7 @@ db_write_entry()
 
 delete_entry()
 {
-	echo $1 | grep PKGBUILD 2>&1 >/dev/null
+	echo $1 | grep FrugalBuild 2>&1 >/dev/null
 	if [ $? -eq 0 ]; then
 		source $1
 	else

@@ -17,17 +17,17 @@ the whole thing up for \fBpacman\fP to use.
 entire build tree.  See \fBmakeworld --help\fP for syntax.
 .SH BUILD PROCESS (or How To Build Your Own Packages)
 Start in an isolated directory (ie, it's not used for anything other
-than building this package).  The build script should be called PKGBUILD
+than building this package).  The build script should be called FrugalBuild
 and it should bear resemblance to the example below.
 
 \fBNOTE:\fP If you have a local copy of the Arch Build System (ABS) tree
-on your computer, you can copy the PKGBUILD.proto file to your new package
+on your computer, you can copy the FrugalBuild.proto file to your new package
 build directory and edit it from there.  To acquire/sync the ABS tree, use
 the \fBabs\fP script included with pacman/makepkg.
 
 .TP
 .TP
-.SH PKGBUILD Example:
+.SH FrugalBuild Example:
 .RS
 .nf
 pkgname=modutils
@@ -59,7 +59,7 @@ As you can see, the setup is fairly simple.  The first three lines define
 the package name and version info.  They also define the final package name
 which will be of the form \fI$pkgname-$pkgver-$pkgrel.fpm\fP.  The fourth
 line provides a brief description of the package.  These four lines should
-be present in every PKGBUILD script.
+be present in every FrugalBuild script.
 
 The line with \fIbackup=\fP specifies files that should be treated specially
 when removing or upgrading packages.  See \fBHANDLING CONFIG FILES\fP in
@@ -75,7 +75,7 @@ The \fIsource\fP array tells makepkg which files to download/extract before comp
 begins.  The \fImd5sums\fP array provides md5sums for each of these files.  These
 are used to validate the integrity of the source files.
 
-Once your PKGBUILD is created, you can run \fImakepkg\fP from the build directory.
+Once your FrugalBuild is created, you can run \fImakepkg\fP from the build directory.
 makepkg will then check dependencies and look for the source files required to
 build.  If some are missing it will attempt to download them, provided there is
 a fully-qualified URL in the \fIsource\fP array.
@@ -145,7 +145,7 @@ script is run right after files are removed.
 
 .RE
 To use this feature, just create a file (eg, pkgname.install) and put it in
-the same directory as the PKGBUILD script.  Then use the \fIinstall\fP directive:
+the same directory as the FrugalBuild script.  Then use the \fIinstall\fP directive:
 .RS
 .nf
 install=pkgname.install
@@ -217,7 +217,7 @@ $op $*
 
 This template is also available in your ABS tree (/var/abs/install.proto).
 
-.SH PKGBUILD Directives
+.SH FrugalBuild Directives
 .TP
 .B pkgname
 The name of the package.  This has be a unix-friendly name as it will be
@@ -253,14 +253,14 @@ option is still in development and may change in the future)
 .TP
 .B install
 Specifies a special install script that is to be included in the package.
-This file should reside in the same directory as the PKGBUILD, and will be
+This file should reside in the same directory as the FrugalBuild, and will be
 copied into the package by makepkg.  It does not need to be included in the
 \fIsource\fP array.  (eg, install=modutils.install)
 
 .TP
 .B source \fI(array)\fP 
 The \fIsource\fP line is an array of source files required to build the
-package.  Source files must reside in the same directory as the PKGBUILD
+package.  Source files must reside in the same directory as the FrugalBuild
 file, unless they have a fully-qualified URL.  Then if the source file
 does not already exist in /var/cache/pacman/src, the file is downloaded
 by wget.
@@ -270,8 +270,8 @@ by wget.
 If this field is present, it should contain an MD5 hash for every source file
 specified in the \fIsource\fP array (in the same order).  makepkg will use
 this to verify source file integrity during subsequent builds.  To easily
-generate md5sums, first build using the PKGBUILD then run
-\fBmakepkg -g >>PKGBILD\fP.  Then you can edit the PKGBUILD and move the
+generate md5sums, first build using the FrugalBuild then run
+\fBmakepkg -g >>PKGBILD\fP.  Then you can edit the FrugalBuild and move the
 \fImd5sums\fP line from the bottom to an appropriate location.
 
 .TP
@@ -295,7 +295,7 @@ in this list should be surrounded with single quotes and contain at least the
 package name.  They can also include a version requirement of the form
 \fBname<>version\fP, where <> is one of these three comparisons: \fB>=\fP
 (greater than equal to), \fB<=\fP (less than or equal to), or \fB=\fP (equal to).
-See the PKGBUILD example above for an example of the \fIdepends\fP directive.
+See the FrugalBuild example above for an example of the \fIdepends\fP directive.
 
 .TP
 .B makedepends \fI(array)\fP
@@ -326,7 +326,7 @@ to the differing package names.  \fIreplaces\fP handles this.
 .TP
 .B "\-b, \-\-builddeps"
 Build missing dependencies from source.  When makepkg finds missing build-time or
-run-time dependencies, it will look for the dependencies' PKGBUILD files under
+run-time dependencies, it will look for the dependencies' FrugalBuild files under
 $ABSROOT (set in your /etc/makepkg.conf).  If it finds them it will
 run another copy of makepkg to build and install the missing dependencies.
 The child makepkg calls will be made with the \fB-b\fP and \fB-i\fP options.
@@ -349,8 +349,8 @@ the \fB--force\fP switch.
 .TP
 .B "\-g, \-\-genmd5"
 Download all source files (if required) and use \fImd5sum\fP to generate md5 hashes
-for each of them.  You can then redirect the output into your PKGBUILD for source
-validation (makepkg -g >>PKGBUILD).
+for each of them.  You can then redirect the output into your FrugalBuild for source
+validation (makepkg -g >>FrugalBuild).
 .TP
 .B "\-h, \-\-help"
 Output syntax and commandline options.
@@ -372,7 +372,7 @@ Do not strip binaries and libraries.
 Download and extract files only, do not build.
 .TP
 .B "\-p <buildscript>"
-Read the package script \fI<buildscript>\fP instead of the default (\fIPKGBUILD\fP).
+Read the package script \fI<buildscript>\fP instead of the default (\fIFrugalBuild\fP).
 .TP
 .B "\-r, \-\-rmdeps"
 Upon successful build, remove any dependencies installed by makepkg/pacman during

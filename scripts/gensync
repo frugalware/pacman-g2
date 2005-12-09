@@ -26,7 +26,7 @@ usage() {
   echo "gensync $myver"
   echo "usage: $0 <root> <destfile> [package_directory]"
 	echo
-	echo "gensync will generate a sync database by reading all PKGBUILD files"
+	echo "gensync will generate a sync database by reading all FrugalBuild files"
 	echo "from <root>.  gensync builds the database in a temporary directory"
 	echo "and then compresses it to <destfile>."
 	echo
@@ -162,7 +162,7 @@ gstmpdir=$(mktemp -d /tmp/gensync.XXXXXXXXXX) || exit 1
 [ ! -d $rootdir ] && die "invalid root dir: $rootdir"
 echo "gensync: building database entries, generating md5sums..." >&2
 cd `dirname $2`
-for file in `find $rootdir/* -name PKGBUILD`; do
+for file in `find $rootdir/* -name FrugalBuild`; do
 	source $file || die "errors parsing $file"
 	if [ "$pkgdir" != "" ]; then
 		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel.fpm"

@@ -158,7 +158,7 @@ handledeps() {
 				fi
 				success=0
 				for pkgdir in $candidates; do
-					if [ -f $pkgdir/PKGBUILD ]; then
+					if [ -f $pkgdir/FrugalBuild ]; then
 						cd $pkgdir
 						if [ "$RMDEPS" = "1" ]; then
 							makepkg -i -c -b -r -w $PKGDEST
@@ -208,20 +208,20 @@ usage() {
 	echo "  -m, --nocolor    Disable colorized output messages"
 	echo "  -n, --nostrip    Do not strip binaries/libraries"
 	echo "  -o, --nobuild    Download and extract files only"
-	echo "  -p <buildscript> Use an alternate build script (instead of PKGBUILD)"
+	echo "  -p <buildscript> Use an alternate build script (instead of FrugalBuild)"
 	echo "  -r, --rmdeps     Remove installed dependencies after a successful build"
 	echo "  -s, --syncdeps   Install missing dependencies with pacman"
 	echo "  -S, --sudosync   Install missing dependencies with pacman and sudo"
 	echo "  -w <destdir>     Write package to <destdir> instead of the working dir"
 	echo
-	echo "  if -p is not specified, makepkg will look for a PKGBUILD"
+	echo "  if -p is not specified, makepkg will look for a FrugalBuild"
 	echo "  file in the current directory."
 	echo
 }
 
 
 # Options
-BUILDSCRIPT="./PKGBUILD"
+BUILDSCRIPT="./FrugalBuild"
 CLEANUP=0
 CLEANCACHE=0
 DEP_BIN=0

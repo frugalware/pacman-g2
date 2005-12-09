@@ -113,8 +113,8 @@ sd=`date +"[%b %d %H:%M]"`
 for category in $*; do
 	for port in `find $toplevel/$category -maxdepth 1 -mindepth 1 -type d | sort`; do
 		cd $port
-		if [ -f PKGBUILD ]; then
-			. PKGBUILD
+		if [ -f FrugalBuild ]; then
+			. FrugalBuild
 			buildstatus=0
 			if [ ! -f $dest/$pkgname-$pkgver-$pkgrel.fpm ]; then
 				makepkg $MAKEPKG_OPTS -m -w $dest 2>>$toplevel/makepkg.log
