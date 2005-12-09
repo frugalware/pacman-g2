@@ -657,7 +657,7 @@ builddate=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
 if [ "$PACKAGER" != "" ]; then
 	packager="$PACKAGER"
 else
-	packager="Arch Linux (http://www.archlinux.org)"
+	packager="Frugalware Linux (http://frugalware.org)"
 fi
 size=`du -cb $startdir/pkg | tail -n 1 | awk '{print $1}'`
 
