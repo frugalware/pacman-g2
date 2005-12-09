@@ -437,6 +437,7 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 		case PM_PKG_REPLACES:    data = pkg->replaces; break;
 		case PM_PKG_MD5SUM:      data = pkg->md5sum; break;
 		case PM_PKG_DEPENDS:     data = pkg->depends; break;
+		case PM_PKG_REMOVES:     data = pkg->removes; break;
 		case PM_PKG_REQUIREDBY:  data = pkg->requiredby; break;
 		case PM_PKG_PROVIDES:    data = pkg->provides; break;
 		case PM_PKG_CONFLICTS:   data = pkg->conflicts; break;

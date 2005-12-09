@@ -58,6 +58,7 @@ typedef struct __pmpkg_t {
 	PMList *files;
 	PMList *backup;
 	PMList *depends;
+	PMList *removes;
 	PMList *requiredby;
 	PMList *conflicts;
 	PMList *provides;

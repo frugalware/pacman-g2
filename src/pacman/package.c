@@ -75,6 +75,7 @@ void dump_pkg_full(PM_PKG *pkg, int level)
 
 	PM_LIST_display("Provides       :", alpm_pkg_getinfo(pkg, PM_PKG_PROVIDES));
 	PM_LIST_display("Depends On     :", alpm_pkg_getinfo(pkg, PM_PKG_DEPENDS));
+	PM_LIST_display("Removes        :", alpm_pkg_getinfo(pkg, PM_PKG_REMOVES));
 	PM_LIST_display("Required By    :", alpm_pkg_getinfo(pkg, PM_PKG_REQUIREDBY));
 	PM_LIST_display("Conflicts With :", alpm_pkg_getinfo(pkg, PM_PKG_CONFLICTS));
 
@@ -134,6 +135,7 @@ void dump_pkg_sync(PM_PKG *pkg, char *treename)
 	PM_LIST_display("Groups            :", alpm_pkg_getinfo(pkg, PM_PKG_GROUPS));
 	PM_LIST_display("Provides          :", alpm_pkg_getinfo(pkg, PM_PKG_PROVIDES));
 	PM_LIST_display("Depends On        :", alpm_pkg_getinfo(pkg, PM_PKG_DEPENDS));
+	PM_LIST_display("Removes           :", alpm_pkg_getinfo(pkg, PM_PKG_REMOVES));
 	PM_LIST_display("Conflicts With    :", alpm_pkg_getinfo(pkg, PM_PKG_CONFLICTS));
 	PM_LIST_display("Replaces          :", alpm_pkg_getinfo(pkg, PM_PKG_REPLACES));
 

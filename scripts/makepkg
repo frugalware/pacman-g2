@@ -334,7 +334,7 @@ if [ "$CLEANCACHE" = "1" ]; then
 fi
 
 unset pkgname pkgver pkgrel pkgdesc url license groups provides md5sums force
-unset replaces depends conflicts backup source install build makedepends
+unset replaces depends removes conflicts backup source install build makedepends
 unset LC_ALL LANG
 umask 0022
 
@@ -690,6 +690,9 @@ for it in "${groups[@]}"; do
 done
 for it in "${depends[@]}"; do
 	echo "depend = $it" >>.PKGINFO
+done
+for it in "${removes[@]}"; do
+	echo "remove = $it" >>.PKGINFO
 done
 for it in "${conflicts[@]}"; do
 	echo "conflict = $it" >>.PKGINFO

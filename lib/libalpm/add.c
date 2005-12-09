@@ -191,7 +191,9 @@ error:
 int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 {
 	PMList *lp;
-	PMList *skiplist = NULL;
+	PMList *skiplist = NULL, *rmlist = NULL;
+	char rm_fname[PATH_MAX];
+	pmpkg_t *info = NULL;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -263,6 +265,19 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
+
+	/* Cleaning up
+	 */
+	EVENT(trans, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
+	_alpm_log(PM_LOG_FLOW1, "cleaning up");
+	for (lp=trans->packages; lp!=NULL; lp=lp->next) {
+		info=(pmpkg_t *)lp->data;
+		for (rmlist=info->removes; rmlist!=NULL; rmlist=rmlist->next) {
+			snprintf(rm_fname, PATH_MAX, "%s%s", handle->root, (char *)rmlist->data);
+			remove(rm_fname);
+		}
+	}
+	EVENT(trans, PM_TRANS_EVT_CLEANUP_DONE, NULL, NULL);
 
 	/* Check for file conflicts
 	 */

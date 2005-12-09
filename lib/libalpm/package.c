@@ -60,6 +60,7 @@ pmpkg_t *pkg_new()
 	pkg->files          = NULL;
 	pkg->backup         = NULL;
 	pkg->depends        = NULL;
+	pkg->removes        = NULL;
 	pkg->groups         = NULL;
 	pkg->provides       = NULL;
 	pkg->replaces       = NULL;
@@ -119,6 +120,7 @@ void pkg_free(pmpkg_t *pkg)
 	FREELIST(pkg->files);
 	FREELIST(pkg->backup);
 	FREELIST(pkg->depends);
+	FREELIST(pkg->removes);
 	FREELIST(pkg->conflicts);
 	FREELIST(pkg->requiredby);
 	FREELIST(pkg->groups);
@@ -216,8 +218,10 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 				info->size = atol(tmp);
 			} else if(!strcmp(key, "DEPEND")) {
 				info->depends = pm_list_add(info->depends, strdup(ptr));
-			} else if(!strcmp(key, "CONFLICT")) {
+			} else if(!strcmp(key, "REMOVE")) {
 				info->conflicts = pm_list_add(info->conflicts, strdup(ptr));
+			} else if(!strcmp(key, "CONFLICT")) {
+				info->removes = pm_list_add(info->removes, strdup(ptr));
 			} else if(!strcmp(key, "REPLACES")) {
 				info->replaces = pm_list_add(info->replaces, strdup(ptr));
 			} else if(!strcmp(key, "PROVIDES")) {
