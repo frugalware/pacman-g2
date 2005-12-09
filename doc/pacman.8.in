@@ -210,9 +210,9 @@ original=\fBX\fP, current=\fBY\fP, new=\fBY\fP
 The new one is identical to the current one.  Win win.  Install the new file.
 .TP
 original=\fBX\fP, current=\fBY\fP, new=\fBZ\fP
-All three files are different.  So we install the new file, but back up the
-old one to a .pacsave extension.  This way the user can move the old configuration
-file back into place if he wishes.
+All three files are different.  So we extract the new new file with a .pacnew
+extension, and keep the old one. This way the user can overwrite the old
+configuration with the new one if he wishes.
 .SH CONFIGURATION
 pacman will attempt to read \fI/etc/pacman.conf\fP each time it is invoked.  This
 configuration file is divided into sections or \fIrepositories\fP.  Each section

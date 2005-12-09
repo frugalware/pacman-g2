@@ -527,15 +527,15 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 							installnew = 1;
 						} else {
 							char newpath[PATH_MAX];
-							_alpm_log(PM_LOG_DEBUG, "action: saving current file and installing new one");
-							installnew = 1;
-							snprintf(newpath, PATH_MAX, "%s.pacsave", expath);
-							if(rename(expath, newpath)) {
-								_alpm_log(PM_LOG_ERROR, "could not rename %s (%s)", pathname, strerror(errno));
-								alpm_logaction("error: could not rename %s (%s)", expath, strerror(errno));
+							_alpm_log(PM_LOG_DEBUG, "action: keeping current file and installing new one with .pacnew ending\n");
+							installnew = 0;
+							snprintf(newpath, PATH_MAX, "%s.pacnew", expath);
+							if(_alpm_copyfile(temp, newpath)) {
+								_alpm_log(PM_LOG_ERROR, "could not install %s as %s: %s", expath, newpath, strerror(errno));
+								alpm_logaction(stderr, "error: could not install %s as %s: %s", expath, newpath, strerror(errno));
 							} else {
-								_alpm_log(PM_LOG_WARNING, "%s saved as %s.pacsave", pathname, pathname);
-								alpm_logaction("warning: %s saved as %s", expath, newpath);
+								_alpm_log(PM_LOG_WARNING, "%s installed as %s", expath, newpath);
+								alpm_logaction("warning: %s installed as %s", expath, newpath);
 							}
 						}
 
