@@ -158,8 +158,8 @@ This option is analogous to a backwards --sync operation.
 .SH QUERY OPTIONS
 .TP
 .B "\-e, \-\-orphans"
-List all packages that were explicitly installed (ie, not pulled in
-as a dependency by other packages) and are not required by any other
+List all packages that were installed as a dependency (ie, not
+installed explicitly) and are not required by any other
 packages.
 .TP
 .B "\-g, \-\-groups"

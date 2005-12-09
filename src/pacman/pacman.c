@@ -531,7 +531,7 @@ void usage(int op, char *myname)
 		} else if(op == PM_OP_QUERY) {
 			printf("usage:  %s {-Q --query} [options] [package]\n", myname);
 			printf("options:\n");
-			printf("  -e, --orphans       list all packages that were explicitly installed\n");
+			printf("  -e, --orphans       list all packages that were installed as a dependency\n");
 			printf("                      and are not required by any other packages\n");
 			printf("  -g, --groups        view all members of a package group\n");
 			printf("  -i, --info          view package information\n");
