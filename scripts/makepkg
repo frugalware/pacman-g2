@@ -358,10 +358,10 @@ if [ "$install" -a ! -f "$install" ]; then
 	exit 1
 fi
 
-if [ -f $PKGDEST/${pkgname}-${pkgver}-${pkgrel}.pkg.tar.gz -a "$FORCE" = "0" -a "$GENMD5" = "0" ]; then
+if [ -f $PKGDEST/${pkgname}-${pkgver}-${pkgrel}.fpm -a "$FORCE" = "0" -a "$GENMD5" = "0" ]; then
 	if [ "$INSTALL" = "1" ]; then
 		warning "a package has already been built, installing existing package."
-		pacman --upgrade $PKGDEST/${pkgname}-${pkgver}-${pkgrel}.pkg.tar.gz
+		pacman --upgrade $PKGDEST/${pkgname}-${pkgver}-${pkgrel}.fpm
 		exit $?
 	else
 		error "a package has already been built.  (use -f to overwrite)"
@@ -715,9 +715,9 @@ tar cvf /dev/null * | sort >.FILELIST
 msg "Compressing package..."
 cd $startdir/pkg
 if [ -f $startdir/pkg/.INSTALL ]; then
-	cmd="tar czvf $PKGDEST/$pkgname-$pkgver-$pkgrel.pkg.tar.gz .PKGINFO .FILELIST .INSTALL *"
+	cmd="tar czvf $PKGDEST/$pkgname-$pkgver-$pkgrel.fpm .PKGINFO .FILELIST .INSTALL *"
 else
-	cmd="tar czvf $PKGDEST/$pkgname-$pkgver-$pkgrel.pkg.tar.gz .PKGINFO .FILELIST *"
+	cmd="tar czvf $PKGDEST/$pkgname-$pkgver-$pkgrel.fpm .PKGINFO .FILELIST *"
 fi
 $cmd | sort >../filelist
 
@@ -747,7 +747,7 @@ msg "Finished making: $pkgname  (`date`)"
 
 if [ "$INSTALL" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
 	msg "Running pacman --upgrade..."
-	pacman --upgrade $PKGDEST/${pkgname}-${pkgver}-${pkgrel}.pkg.tar.gz
+	pacman --upgrade $PKGDEST/${pkgname}-${pkgver}-${pkgrel}.fpm
 	exit $?
 fi
 

@@ -31,7 +31,7 @@
 #define PM_DBPATH   "var/lib/pacman"
 #define PM_CACHEDIR "var/cache/pacman/pkg"
 
-#define PM_EXT_PKG ".pkg.tar.gz"
+#define PM_EXT_PKG ".fpm"
 #define PM_EXT_DB  ".db.tar.gz"
 
 /* 

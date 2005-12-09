@@ -57,9 +57,9 @@ die()
 get_md5checksum()
 {
 	if [ "$pkgdir" != "" ]; then
-		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel.pkg.tar.gz"
+		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel.fpm"
 	else
-		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel.pkg.tar.gz"
+		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel.fpm"
 	fi
 	if [ -f $pkgfile ]; then
 		md5line=`md5sum $pkgfile`
@@ -206,9 +206,9 @@ if [ "$action" = "upd" ]; then
 
 	source $option || die "errors parsing $option"
 	if [ "$pkgdir" != "" ]; then
-		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel.pkg.tar.gz"
+		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel.fpm"
 	else
-		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel.pkg.tar.gz"
+		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel.fpm"
 	fi
 	if [ -f $pkgfile ]; then
 		csize=`du -b $pkgfile | cut -f1`
