@@ -297,13 +297,13 @@ in the \fI/home/pkgs\fP directory so pacman can find it when run with --refresh.
 
 .RS
 .nf
-# gensync /var/abs/local /home/pkgs/custom.db.tar.gz
+# gensync /var/abs/local /home/pkgs/custom.fdb
 .fi
 .RE
 
 The above command will read all PKGBUILD files in /var/abs/local and generate a compressed
-database called /home/pkgs/custom.db.tar.gz.  Note that the database must be of the form
-\fI{treename}.db.tar.gz\fP, where {treename} is the name of the section defined in the
+database called /home/pkgs/custom.fdb.  Note that the database must be of the form
+\fI{treename}.fdb\fP, where {treename} is the name of the section defined in the
 configuration file.
 That's it!  Now configure your \fIcustom\fP section in the configuration file as shown in the
 config example above.  Pacman will now use your package repository.  If you add new packages to

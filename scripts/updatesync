@@ -41,7 +41,7 @@ usage() {
 	echo "updatesync will calculate md5sums of packages in the same directory as"
 	echo "<destfile>, unless an alternate [package_directory] is specified."
 	echo
-	echo "example:  updatesync upd /home/mypkgs/custom.db.tar.gz PKGBUILD"
+	echo "example:  updatesync upd /home/mypkgs/custom.fdb PKGBUILD"
 	echo
 	echo
 	exit 0

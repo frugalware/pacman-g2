@@ -32,7 +32,7 @@
 #define PM_CACHEDIR "var/cache/pacman/pkg"
 
 #define PM_EXT_PKG ".fpm"
-#define PM_EXT_DB  ".db.tar.gz"
+#define PM_EXT_DB  ".fdb"
 
 /* 
  * Structures (opaque)
