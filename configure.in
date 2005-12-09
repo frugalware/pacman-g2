@@ -139,12 +139,12 @@ Makefile
 
 echo "
 pacman-$VERSION:
-                                                                                
+
         prefix:                   ${prefix}
         source code location:     ${srcdir}
         compiler:                 ${CC}
         compiler flags:           ${CFLAGS}
 	libalpm version:          ${PM_VERSION}
-                                                                                
+
 	debug support:            ${debug}
 "
