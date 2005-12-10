@@ -267,7 +267,7 @@ int db_read(pmdb_t *db, char *name, unsigned int inforeq, pmpkg_t *info)
 	}
 
 	if(info->name[0] == 0) {
-		if(pkg_splitname(name, info->name, info->version) == -1) {
+		if(pkg_splitname(name, info->name, info->version, PM_PKG_WITHOUT_ARCH) == -1) {
 			return(-1);
 		}
 	}

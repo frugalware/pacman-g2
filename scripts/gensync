@@ -22,6 +22,9 @@
 
 myver='2.9.7'
 
+[ -z "$arch" ] && arch=`arch`
+CARCH="$arch"
+
 usage() {
   echo "gensync $myver"
   echo "usage: $0 <root> <destfile> [package_directory]"
@@ -54,9 +57,9 @@ die() {
 get_md5checksum()
 {
 	if [ "$pkgdir" != "" ]; then
-		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel.fpm"
+		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
 	else
-		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel.fpm"
+		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
 	fi
 	if [ -f $pkgfile ]; then
 		md5line=`md5sum $pkgfile`
@@ -84,6 +87,9 @@ db_write_entry()
 	echo "" >>desc
 	echo "%DESC%" >>desc
 	echo "$pkgdesc" >>desc
+	echo "" >>desc
+	echo "%ARCH%" >>desc
+	echo "$arch" >>desc
 	echo "" >>desc
 	echo "%CSIZE%" >>desc
 	echo "$csize" >>desc
@@ -138,6 +144,19 @@ db_write_entry()
 	touch -r $1 desc depends
 }
 
+in_array()
+{
+	needle=$1
+	shift 1
+	# backward compatibility: if array() undefined, it's available for all archs
+	[ -z "$1" ] && return 0
+	for i in $*
+	do
+		[ "$i" == "$needle" ] && return 0
+	done
+	return 1
+}
+
 if [ $# -lt 2 ]; then
 	usage
 	exit 1
@@ -163,13 +182,15 @@ gstmpdir=$(mktemp -d /tmp/gensync.XXXXXXXXXX) || exit 1
 echo "gensync: building database entries, generating md5sums..." >&2
 cd `dirname $2`
 for file in `find $rootdir/* -name FrugalBuild`; do
-	unset nobuild
+	unset nobuild archs
 	source $file || die "errors parsing $file"
-	[ "$nobuild" ] && continue
+	if ! in_array $arch ${archs[@]} || [ "$nobuild" ]; then
+		continue
+	fi
 	if [ "$pkgdir" != "" ]; then
-		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel.fpm"
+		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
 	else
-		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel.fpm"
+		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
 	fi
 	if [ -f $pkgfile ]; then
 		csize=`du -b $pkgfile | cut -f1`

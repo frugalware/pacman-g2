@@ -23,6 +23,9 @@
 
 myver='2.9.7'
 
+[ -z "$arch" ] && arch=`arch`
+CARCH="$arch"
+
 usage() {
 	echo "updatesync $myver"
 	echo "usage: $0 <action> <destfile> <option> [package_directory]"
@@ -57,9 +60,9 @@ die()
 get_md5checksum()
 {
 	if [ "$pkgdir" != "" ]; then
-		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel.fpm"
+		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
 	else
-		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel.fpm"
+		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
 	fi
 	if [ -f $pkgfile ]; then
 		md5line=`md5sum $pkgfile`
@@ -87,6 +90,9 @@ db_write_entry()
 	echo "" >>desc
 	echo "%DESC%" >>desc
 	echo "$pkgdesc" >>desc
+	echo "" >>desc
+	echo "%ARCH%" >>desc
+	echo "$arch" >>desc
 	echo "" >>desc
 	echo "%CSIZE%" >>desc
 	echo "$csize" >>desc
@@ -207,9 +213,9 @@ if [ "$action" = "upd" ]; then
 	source $option || die "errors parsing $option"
 	if [ ! "$nobuild" ]; then
 	if [ "$pkgdir" != "" ]; then
-		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel.fpm"
+		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
 	else
-		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel.fpm"
+		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
 	fi
 	if [ -f $pkgfile ]; then
 		csize=`du -b $pkgfile | cut -f1`

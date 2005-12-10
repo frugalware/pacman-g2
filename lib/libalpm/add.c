@@ -113,7 +113,7 @@ int add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 
 	_alpm_log(PM_LOG_FLOW2, "loading target %s", name);
 
-	if(pkg_splitname(name, pkgname, pkgver) == -1) {
+	if(pkg_splitname(name, pkgname, pkgver, PM_PKG_WITH_ARCH) == -1) {
 		pm_errno = PM_ERR_PKG_INVALID_NAME;
 		goto error;
 	}

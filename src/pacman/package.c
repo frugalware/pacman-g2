@@ -180,6 +180,10 @@ int split_pkgname(char *target, char *name, char *version)
 	if((p = strstr(tmp, PM_EXT_PKG))) {
 		*p = 0;
 	}
+	/* trim architecture */
+	if((p = strrchr(tmp, '-'))) {
+		*p = 0;
+	}
 
 	p = tmp + strlen(tmp);
 

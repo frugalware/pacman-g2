@@ -414,7 +414,7 @@ int pkg_isin(pmpkg_t *needle, PMList *haystack)
 	return(0);
 }
 
-int pkg_splitname(char *target, char *name, char *version)
+int pkg_splitname(char *target, char *name, char *version, int *witharch)
 {
 	char tmp[PKG_FULLNAME_LEN+7];
 	char *p, *q;
@@ -433,6 +433,12 @@ int pkg_splitname(char *target, char *name, char *version)
 	/* trim file extension (if any) */
 	if((p = strstr(tmp, PM_EXT_PKG))) {
 		*p = 0;
+	}
+	if(witharch) {
+		/* trim architecture */
+		if((p = strrchr(tmp, '-'))) {
+			*p = 0;
+		}
 	}
 
 	p = tmp + strlen(tmp);

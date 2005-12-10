@@ -607,14 +607,15 @@ int pacman_sync(list_t *targets)
 			if(current->db == dbs) {
 				struct stat buf;
 				char path[PATH_MAX];
-				char *pkgname, *pkgver;
+				char *pkgname, *pkgver, *pkgarch;
 
 				pkgname = alpm_pkg_getinfo(spkg, PM_PKG_NAME);
 				pkgver = alpm_pkg_getinfo(spkg, PM_PKG_VERSION);
+				pkgarch = alpm_pkg_getinfo(spkg, PM_PKG_ARCH);
 
 				if(config->op_s_printuris) {
 					server_t *server = (server_t*)current->servers->data;
-					snprintf(path, PATH_MAX, "%s-%s" PM_EXT_PKG, pkgname, pkgver);
+					snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG, pkgname, pkgver, pkgarch);
 					if(!strcmp(server->protocol, "file")) {
 						MSG(NL, "%s://%s%s\n", server->protocol, server->path, path);
 					} else {
@@ -622,13 +623,13 @@ int pacman_sync(list_t *targets)
 						    server->server, server->path, path);
 					}
 				} else {
-					snprintf(path, PATH_MAX, "%s/%s-%s" PM_EXT_PKG, ldir, pkgname, pkgver);
+					snprintf(path, PATH_MAX, "%s/%s-%s-%s" PM_EXT_PKG, ldir, pkgname, pkgver, pkgarch);
 					if(stat(path, &buf)) {
 						/* file is not in the cache dir, so add it to the list */
-						snprintf(path, PATH_MAX, "%s-%s" PM_EXT_PKG, pkgname, pkgver);
+						snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG, pkgname, pkgver, pkgarch);
 						files = list_add(files, strdup(path));
 					} else {
-						vprint(" %s-%s" PM_EXT_PKG " is already in the cache\n", pkgname, pkgver);
+						vprint(" %s-%s-%s" PM_EXT_PKG " is already in the cache\n", pkgname, pkgver, pkgarch);
 					}
 				}
 			}
@@ -674,9 +675,10 @@ int pacman_sync(list_t *targets)
 		char str[PATH_MAX], pkgname[PATH_MAX];
 		char *md5sum1, *md5sum2;
 
-		snprintf(pkgname, PATH_MAX, "%s-%s" PM_EXT_PKG,
+		snprintf(pkgname, PATH_MAX, "%s-%s.%s" PM_EXT_PKG,
 		                            (char *)alpm_pkg_getinfo(spkg, PM_PKG_NAME),
-		                            (char *)alpm_pkg_getinfo(spkg, PM_PKG_VERSION));
+		                            (char *)alpm_pkg_getinfo(spkg, PM_PKG_VERSION),
+		                            (char *)alpm_pkg_getinfo(spkg, PM_PKG_ARCH));
 		md5sum1 = alpm_pkg_getinfo(spkg, PM_PKG_MD5SUM);
 		if(md5sum1 == NULL) {
 			ERR(NL, "can't get md5 checksum for package %s\n", pkgname);

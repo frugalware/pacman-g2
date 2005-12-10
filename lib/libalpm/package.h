@@ -93,7 +93,7 @@ void pkg_free(pmpkg_t *pkg);
 pmpkg_t* pkg_dummy(const char *name, const char *version);
 pmpkg_t *pkg_load(char *pkgfile);
 int pkg_isin(pmpkg_t *needle, PMList *haystack);
-int pkg_splitname(char *target, char *name, char *version);
+int pkg_splitname(char *target, char *name, char *version, int *witharch);
 
 #endif /* _ALPM_PACKAGE_H */
 

@@ -39,6 +39,7 @@ url="http://www.kernel.org"
 backup=(etc/modules.conf)
 makedepends=('bash' 'mawk')
 depends=('glibc' 'zlib')
+archs=('i686')
 source=(ftp://ftp.kernel.org/pub/linux/utils/kernel/$pkgname/v2.4/$pkgname-$pkgver.tar.bz2 \\
         modules.conf)
 md5sums=('2c0cca3ef6330a187c6ef4fe41ecaa4d' \\
@@ -58,7 +59,7 @@ build() {
 
 As you can see, the setup is fairly simple.  The first three lines define
 the package name and version info.  They also define the final package name
-which will be of the form \fI$pkgname-$pkgver-$pkgrel.fpm\fP.  The fourth
+which will be of the form \fI$pkgname-$pkgver-$pkgrel-$arch.fpm\fP.  The fourth
 line provides a brief description of the package.  These four lines should
 be present in every FrugalBuild script.
 
@@ -111,7 +112,7 @@ file.  Finally, it will compress everything into a .fpm file and leave it
 in the directory you ran \fBmakepkg\fP from.
 
 At this point you should have a package file in the current directory, named
-something like name-version-release.fpm.  Done!
+something like name-version-release-arch.fpm.  Done!
 
 .SH Install/Upgrade/Remove Scripting
 Pacman has the ability to store and execute a package-specific script when it
@@ -285,6 +286,12 @@ you to install multiple packages by requesting a single target.  For example,
 one could install all KDE packages by installing the 'kde' group.
 
 .TP
+.B archs \fI(array)\fP
+This array defines on which architectures the given package is avalibable.
+If it's not available, that will mean that gensync will skip it when generating
+package databases.
+
+.TP
 .B backup \fI(array)\fP 
 A space-delimited array of filenames (without a preceding slash). The
 \fIbackup\fP line will be propagated to the package meta-info file for
@@ -347,7 +354,7 @@ dependencies required.  There's a good chance this option will break the build
 process if all of the dependencies aren't installed.
 .TP
 .B "\-f, \-\-force"
-\fBmakepkg\fP will not build a package if a \fIpkgname-pkgver-pkgrel.fpm\fP
+\fBmakepkg\fP will not build a package if a \fIpkgname-pkgver-pkgrel-arch.fpm\fP
 file already exists in the build directory.  You can override this behaviour with
 the \fB--force\fP switch.
 .TP

@@ -157,6 +157,10 @@ enum {
 #define PM_PKG_REASON_EXPLICIT  0  /* explicitly requested by the user              */
 #define PM_PKG_REASON_DEPEND    1  /* installed as a dependency for another package */
 
+/* package name formats */
+#define PM_PKG_WITHOUT_ARCH 0 /* pkgname-pkgver-pkgrel, used under PM_DBPATH */
+#define PM_PKG_WITH_ARCH    1 /* ie, pkgname-pkgver-pkgrel-arch, used under PM_CACHEDIR */
+
 void *alpm_pkg_getinfo(PM_PKG *pkg, unsigned char parm);
 int alpm_pkg_load(char *filename, PM_PKG **pkg);
 int alpm_pkg_free(PM_PKG *pkg);

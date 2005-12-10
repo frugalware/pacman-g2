@@ -548,7 +548,7 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local)
 		pmsyncpkg_t *sync = i->data;
 		pmpkg_t *spkg = sync->pkg;
 		char str[PATH_MAX];
-		snprintf(str, PATH_MAX, "%s%s/%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name, spkg->version);
+		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name, spkg->version, spkg->arch);
 		if(trans_addtarget(tr, str) == -1) {
 			goto error;
 		}
