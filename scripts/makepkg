@@ -194,6 +194,7 @@ usage() {
 	echo "makepkg version $myver"
 	echo "usage: $0 [options]"
 	echo "options:"
+	echo "  -a, --searchdeps Search for package dependencies automatically"
 	echo "  -b, --builddeps  Build missing dependencies from source"
 	echo "  -B, --noccache   Do not use ccache during build"
 	echo "  -c, --clean      Clean up work files after build"
@@ -245,6 +246,7 @@ ARGLIST=$@
 
 while [ "$#" -ne "0" ]; do
 	case $1 in
+		--searchdeps) SEARCHDEPS=1 ;;
 		--clean)      CLEANUP=1 ;;
 		--cleancache) CLEANCACHE=1 ;;
 		--syncdeps)   DEP_BIN=1 ;;
@@ -271,8 +273,9 @@ while [ "$#" -ne "0" ]; do
 			exit 1
 			;;
 		-*)
-			while getopts "bBcCdefghij:Lmnop:rsSw:-" opt; do
+			while getopts "abBcCdefghij:Lmnop:rsSw:-" opt; do
 				case $opt in
+					a) SEARCHDEPS=1 ;;
 					b) DEP_SRC=1 ;;
 					B) NOCCACHE=1 ;;
 					c) CLEANUP=1 ;;
@@ -766,6 +769,19 @@ fi
 $cmd | sort >../filelist
 
 cd $startdir
+if [ "$SEARCHDEPS" == "1" ]; then
+	if [ -x /usr/bin/chkdep ]; then
+		msg "Searching for depends..."
+		warning "Do not use this information without thinking!"
+		chkdep -d pkg/ -n $pkgname -i
+	else
+		warning "Chkdep is not installed and is required to search depends."
+		plain "Install the pacman-tools package, wich contains chkdep."
+		plain ""
+		sleep 1
+	fi
+fi
+
 if [ "$CLEANUP" = "1" ]; then
 	msg "Cleaning up..."
 	rm -rf src pkg filelist
