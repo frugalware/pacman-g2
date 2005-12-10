@@ -217,6 +217,7 @@ usage() {
 	echo "  -r, --rmdeps     Remove installed dependencies after a successful build"
 	echo "  -s, --syncdeps   Install missing dependencies with pacman"
 	echo "  -S, --sudosync   Install missing dependencies with pacman and sudo"
+	echo "  -u, --noup2date  Do not check for newer version"
 	echo "  -w <destdir>     Write package to <destdir> instead of the working dir"
 	echo "  --gzip           Use gzip compression for a package instead of bzip2"
 	echo
@@ -243,6 +244,7 @@ NODEPS=0
 NOEXTRACT=0
 NOSTRIP=0
 RMDEPS=0
+NOUP2DATE=0
 GZIP=0
 
 ARGLIST=$@
@@ -266,6 +268,7 @@ while [ "$#" -ne "0" ]; do
 		--nocolor)    USE_COLOR="n" ;;
 		--genmd5)     GENMD5=1 ;;
 		--rmdeps)     RMDEPS=1 ;;
+		--noup2date)  NOUP2DATE=1 ;;
 		--gzip)       GZIP=1 ;;
 		--help)
 			usage
@@ -276,7 +279,7 @@ while [ "$#" -ne "0" ]; do
 			exit 1
 			;;
 		-*)
-			while getopts "abBcCdefghij:Lmnop:rsSw:-" opt; do
+			while getopts "abBcCdefghij:Lmnop:ursSw:-" opt; do
 				case $opt in
 					a) SEARCHDEPS=1 ;;
 					b) DEP_SRC=1 ;;
@@ -301,6 +304,7 @@ while [ "$#" -ne "0" ]; do
 					r) RMDEPS=1 ;;
 					s) DEP_BIN=1 ;;
 					S) DEP_SUDO=1 ;;
+					u) NOUP2DATE=1 ;;
 					w) PKGDEST=$OPTARG ;;
 					-)
 						OPTIND=0
@@ -439,6 +443,32 @@ else
 fi
 
 cd $startdir
+
+# version checking
+if [ "$NOUP2DATE" = "0" ]; then
+	msg "Checking for newer version..."
+	if echo "$up2date"|grep -q " "; then
+		cmd=`echo "$up2date"|sed 's/^\([^ ]*\) .*/\1/'`
+		if type -p $cmd &>/dev/null; then
+			up2date=`eval "$up2date"`
+		else
+			warning "The $cmd program is missing.  Cannot check for newer version!"
+			up2date=""
+			sleep 1
+		fi
+	fi
+	if [ -z "$up2date" ]; then
+		warning "Version checking informations are missing. Cannot check for newer version."
+	else
+		if [ "$pkgver" != "$up2date" ]; then
+			echo "   FAILED" >&2
+			error "Newer version available! ($pkgver < $up2date)"
+			exit 1
+		else
+		echo "   Passed" >&2
+		fi
+	fi
+fi
 
 # retrieve sources
 msg "Retrieving Sources..."
