@@ -280,14 +280,14 @@ pmpkg_t *pkg_load(char *pkgfile)
 			/* we have everything we need */
 			break;
 		}
-		if(!strcmp(th_get_pathname(tar), ".PKGINFO")) {
+		if(!strcmp(archive_entry_pathname (entry), ".PKGINFO")) {
 			char *descfile;
 			int fd;
 
 			/* extract this file into /tmp. it has info for us */
 			descfile = strdup("/tmp/alpm_XXXXXX");
 			fd = mkstemp(descfile);
-			_alpm_archive_read_entry_data_into_fd (archive, file);
+			_alpm_archive_read_entry_data_into_fd (archive, fd);
 			/* parse the info file */
 			if(parse_descfile(descfile, info, 0) == -1) {
 				_alpm_log(PM_LOG_ERROR, "could not parse the package description file");
