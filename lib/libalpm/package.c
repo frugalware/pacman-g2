@@ -98,6 +98,7 @@ pmpkg_t *pkg_dup(pmpkg_t *pkg)
 	newpkg->files      = _alpm_list_strdup(pkg->files);
 	newpkg->backup     = _alpm_list_strdup(pkg->backup);
 	newpkg->depends    = _alpm_list_strdup(pkg->depends);
+	newpkg->removes    = _alpm_list_strdup(pkg->removes);
 	newpkg->groups     = _alpm_list_strdup(pkg->groups);
 	newpkg->provides   = _alpm_list_strdup(pkg->provides);
 	newpkg->replaces   = _alpm_list_strdup(pkg->replaces);
@@ -217,9 +218,9 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 			} else if(!strcmp(key, "DEPEND")) {
 				info->depends = pm_list_add(info->depends, strdup(ptr));
 			} else if(!strcmp(key, "REMOVE")) {
-				info->conflicts = pm_list_add(info->conflicts, strdup(ptr));
-			} else if(!strcmp(key, "CONFLICT")) {
 				info->removes = pm_list_add(info->removes, strdup(ptr));
+			} else if(!strcmp(key, "CONFLICT")) {
+				info->conflicts = pm_list_add(info->conflicts, strdup(ptr));
 			} else if(!strcmp(key, "REPLACES")) {
 				info->replaces = pm_list_add(info->replaces, strdup(ptr));
 			} else if(!strcmp(key, "PROVIDES")) {
