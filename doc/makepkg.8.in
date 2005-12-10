@@ -104,8 +104,7 @@ Notice that the "/usr" portion should be present with "prefix", but not "DESTDIR
 "prefix" only when "DESTDIR" is unavailable.
 
 Once the package is successfully installed into the package root, \fImakepkg\fP
-will remove some directories (as per Arch Linux package guidelines; if you use
-this elsewhere, feel free to change it) like /usr/doc and /usr/info.  It will
+will prepare some documentation. It will
 then strip debugging info from libraries and binaries and generate a meta-info
 file.  Finally, it will compress everything into a .fpm file and leave it
 in the directory you ran \fBmakepkg\fP from.
