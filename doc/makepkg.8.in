@@ -20,10 +20,11 @@ Start in an isolated directory (ie, it's not used for anything other
 than building this package).  The build script should be called FrugalBuild
 and it should bear resemblance to the example below.
 
-\fBNOTE:\fP If you have a local copy of the Arch Build System (ABS) tree
-on your computer, you can copy the FrugalBuild.proto file to your new package
-build directory and edit it from there.  To acquire/sync the ABS tree, use
-the \fBabs\fP script included with pacman/makepkg.
+\fBNOTE:\fP If you have a local copy of the Frugalware Source Tree (FST)
+on your computer, you can copy the source/apps/cabextract/FrugalBuild
+file to your new package
+build directory and edit it from there.  To acquire/sync the FST, use
+the \fBrepoman upd\fP command provided by the pacman-tools package.
 
 .TP
 .TP
@@ -214,8 +215,6 @@ $op $*
 .fi
 .RE
 
-This template is also available in your ABS tree (/var/abs/install.proto).
-
 .SH FrugalBuild Directives
 .TP
 .B pkgname
@@ -326,7 +325,7 @@ to the differing package names.  \fIreplaces\fP handles this.
 .B "\-b, \-\-builddeps"
 Build missing dependencies from source.  When makepkg finds missing build-time or
 run-time dependencies, it will look for the dependencies' FrugalBuild files under
-$ABSROOT (set in your /etc/makepkg.conf).  If it finds them it will
+$fst_root (set in your /etc/repoman.conf).  If it finds them it will
 run another copy of makepkg to build and install the missing dependencies.
 The child makepkg calls will be made with the \fB-b\fP and \fB-i\fP options.
 .TP
