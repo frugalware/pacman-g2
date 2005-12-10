@@ -618,11 +618,36 @@ if [ $? -gt 0 ]; then
 	exit 2
 fi
 
-# remove info/doc files
+# documentation
+msg "Preparing package documentation..."
 cd $startdir
-rm -rf pkg/usr/info pkg/usr/share/info
-rm -rf pkg/usr/doc pkg/usr/share/doc
-rm -rf pkg/{usr,opt/gnome}/share/gtk-doc
+if [ -d pkg/usr/doc ]; then
+	mkdir -p pkg/usr/share/doc
+	cp -a pkg/usr/doc/* pkg/usr/share/doc/
+	rm -rf pkg/usr/doc
+fi
+mkdir -p pkg/usr/share/doc/$pkgname-$pkgver
+for i in `find src -maxdepth 2 -name ANNOUNCE -o -name AUTHORS -o -name *BUGS* -o -name CHANGES -o -name CONFIGURATION -o -name *COPYING* -o -name *COPYRIGHT* -o -name CREDITS -o -name ChangeLog -o -name Changelog -o -name CHANGELOG -o -name CONTRIBUTORS -o -name *FAQ* -o -name FEATURES -o -name FILES -o -name HACKING -o -name History -o -name HISTORY -o -name INSTALL* -o -name LICENSE -o -name LSM -o -name MANIFEST -o -name NEWS -o -name *README* -o -name *Readme* -o -name SITES -o -name *RELEASE* -o -name RELNOTES -o -name THANKS -o -name TIPS -o -name TODO -o -name VERSION -o -name CONFIGURATION* -o -name GPLLicense`
+do
+	cp -a $i pkg/usr/share/doc/$pkgname-$pkgver/
+done
+
+# remove /usr/share/doc/$pkgname-$pkgver directory if empty
+if [ -z "`ls -1 pkg/usr/share/doc/$pkgname-$pkgver`" ]; then
+	rmdir pkg/usr/share/doc/$pkgname-$pkgver
+fi
+
+# remove /usr/share/doc/ directory if empty
+if [ -z "`ls -1 pkg/usr/share/doc`" ]; then
+	rmdir pkg/usr/share/doc
+fi
+
+# move /usr/share/info files to /usr/info
+if [ -d pkg/usr/share/info ]; then
+	mkdir -p pkg/usr/info
+	cp -a pkg/usr/share/info/* pkg/usr/info/
+	rm -rf pkg/usr/share/info
+fi
 
 # move /usr/share/man files to /usr/man
 if [ -d pkg/usr/share/man ]; then
