@@ -751,6 +751,9 @@ for it in "${backup[@]}"; do
 done
 
 # check for an install script
+if [ "$install" == "" ]; then
+	[ -e $startdir/$pkgname.install ] && install=$pkgname.install
+fi
 if [ "$install" != "" ]; then
 	msg "Copying install script..."
 	cp $startdir/$install $startdir/pkg/.INSTALL
