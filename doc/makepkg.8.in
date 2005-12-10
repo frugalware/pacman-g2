@@ -321,6 +321,14 @@ An array of packages that this package depends on to build (ie, not required
 to run).  Packages in this list should follow the same format as \fIdepends\fP.
 
 .TP
+.B rodepends \fI(array)\fP
+An array of packages that this package depends on to run (ie, not required to
+build). Generally \fIrodepends\fP should be avoided in favour of \fIdepends\fP
+except where this will create circular dependency chains. (For example building
+logrotate doesn't requires to have dcron installed.) Packages in this list
+should follow the same format as \fIdepends\fP.
+
+.TP
 .B conflicts \fI(array)\fP 
 An array of packages that will conflict with this package (ie, they cannot both
 be installed at the same time).  This directive follows the same format as

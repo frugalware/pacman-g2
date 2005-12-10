@@ -76,7 +76,7 @@ get_md5checksum()
 db_write_entry()
 {
 	unset pkgname pkgver pkgrel pkgdesc force
-	unset groups replaces provides depends conflicts
+	unset groups replaces provides depends rodepends conflicts
 	source $1 || return 1
 	cd $gstmpdir
 	mkdir $pkgname-$pkgver-$pkgrel || return 1
@@ -123,9 +123,9 @@ db_write_entry()
 	fi
 	# depends
 	: >depends
-	if [ ${#depends[*]} -gt 0 ]; then
+	if [ ${#depends[*]} -gt 0 -o ${#rodepends[*]} -gt 0 ]; then
 		echo "%DEPENDS%" >>depends
-		for it in "${depends[@]}"; do
+		for it in "${depends[@]}" "${rodepends[@]}"; do
 		  echo "$it" >>depends
 		done
 		echo "" >>depends

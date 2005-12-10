@@ -355,6 +355,7 @@ fi
 
 unset pkgname pkgver pkgrel pkgdesc url license groups provides md5sums force
 unset replaces depends removes conflicts backup source install makedepends
+unset rodepends
 unset LC_ALL LANG
 umask 0022
 
@@ -809,6 +810,9 @@ for it in "${groups[@]}"; do
 	echo "group = $it" >>.PKGINFO
 done
 for it in "${depends[@]}"; do
+	echo "depend = $it" >>.PKGINFO
+done
+for it in "${rodepends[@]}"; do
 	echo "depend = $it" >>.PKGINFO
 done
 for it in "${removes[@]}"; do
