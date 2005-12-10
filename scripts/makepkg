@@ -25,6 +25,9 @@ startdir=`pwd`
 PKGDEST=$startdir
 USE_COLOR="n"
 
+# Frugalware extensions to makepkg
+[ -e /usr/lib/frugalware/fwmakepkg ] && . /usr/lib/frugalware/fwmakepkg
+
 # source Arch's abs.conf if it's present
 [ -f /etc/abs/abs.conf ] && source /etc/abs/abs.conf
 
@@ -344,7 +347,7 @@ if [ "$CLEANCACHE" = "1" ]; then
 fi
 
 unset pkgname pkgver pkgrel pkgdesc url license groups provides md5sums force
-unset replaces depends removes conflicts backup source install build makedepends
+unset replaces depends removes conflicts backup source install makedepends
 unset LC_ALL LANG
 umask 0022
 

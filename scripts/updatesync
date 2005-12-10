@@ -57,6 +57,10 @@ die()
 	exit 1
 }
 
+error() { return 0; }
+Fdie() { return 0; }
+Finclude() { return 0; }
+
 get_md5checksum()
 {
 	if [ "$pkgdir" != "" ]; then
