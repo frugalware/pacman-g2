@@ -307,6 +307,7 @@ int alpm_list_free(PM_LIST *entry);
  */
  
 char *alpm_get_md5sum(char *name);
+int alpm_progressbar(char *pkgname, int percent, int howmany, int remain);
 
 /*
  * Errors

@@ -302,11 +302,13 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 
 int add_commit(pmtrans_t *trans, pmdb_t *db)
 {
-	int i, ret = 0, errors = 0;
+	int i, ret = 0, errors = 0, needdisp = 0;
+	double percent;
 	register struct archive *archive;
 	struct archive_entry *entry;
 	char expath[PATH_MAX];
 	time_t t;
+	char *what;
 	PMList *targ, *lp;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -331,6 +333,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 			if(local) {
 				EVENT(trans, PM_TRANS_EVT_UPGRADE_START, info, NULL);
 				_alpm_log(PM_LOG_FLOW1, "upgrading package %s-%s", info->name, info->version);
+				asprintf(&what, "%s", info->name);
 
 				/* we'll need to save some record for backup checks later */
 				oldpkg = pkg_new();
@@ -385,6 +388,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 		if(!pmo_upgrade) {
 			EVENT(trans, PM_TRANS_EVT_ADD_START, info, NULL);
 			_alpm_log(PM_LOG_FLOW1, "adding package %s-%s", info->name, info->version);
+			asprintf(&what, "%s", info->name);
 
 			/* pre_install scriptlet */
 			if(info->scriptlet) {
@@ -418,6 +422,12 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 				struct stat buf;
 
 				STRNCPY(pathname, archive_entry_pathname (entry), PATH_MAX);
+
+				if (info->size != 0)
+		    			percent = (double)archive_position_uncompressed(archive) / info->size;
+				if (needdisp == 0) {
+					needdisp = alpm_progressbar(what, (int)(percent * 100), pm_list_count(trans->packages), (pm_list_count(trans->packages) - pm_list_count(targ) +1));
+				}
 
 				if(!strcmp(pathname, ".PKGINFO") || !strcmp(pathname, ".FILELIST")) {
 					archive_read_data_skip (archive);
@@ -703,6 +713,12 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 				_alpm_log(PM_LOG_ERROR, "could not update 'requiredby' database entry %s/%s-%s", db->treename, depinfo->name, depinfo->version);
 			}
 		}
+
+		alpm_progressbar(what, 100, pm_list_count(trans->packages), (pm_list_count(trans->packages) - pm_list_count(targ) +1));
+		needdisp = 0;
+		printf("\n");
+		fflush(stdout);
+		FREE(what);
 
 		/* run the post-install script if it exists  */
 		if(info->scriptlet) {

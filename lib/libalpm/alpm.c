@@ -756,4 +756,36 @@ char *alpm_get_md5sum(char *name)
 }
 /* @} */
 
+/** @defgroup misc ProgressBar Fuunctions
+ * @{
+ */
+
+int alpm_progressbar(char *pkgname, int percent, int howmany, int remain) {
+	int i, hash;
+
+	if (!pkgname)
+		return(1);
+
+	if (percent > 100) 
+		return (1);
+	hash = percent/6.25;
+
+	printf("(%d/%d) %s", remain, howmany, pkgname);
+	if (strlen(pkgname)<35)
+		for (i=35-strlen(pkgname)-1; i>0; i--)
+			printf(" ");
+
+	printf("[");
+	for (i = 16; i > 0; i--) {
+		if (i >= 16 - hash)
+			printf("#");
+		else
+			printf("-");
+	}
+
+	printf("] %3d%%\r", percent);
+	fflush(stdout);
+	return(0);
+}
+
 /* vim: set ts=2 sw=2 noet: */
