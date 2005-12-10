@@ -227,7 +227,7 @@ This is the version of the software as released from the author (eg, 2.7.1).
 
 .TP
 .B pkgrel
-This is the release number specific to Arch Linux packages.
+This is the release number specific to Frugalware Linux packages.
 
 .TP
 .B pkgdesc
@@ -400,9 +400,10 @@ your exported variables.  Some of them are flaky...
 .SH SEE ALSO
 \fBpacman\fP is the package manager that uses packages built by makepkg.
 
-See the Arch Linux Documentation for package-building guidelines if you wish
-to contribute packages to the Arch Linux project.
+See the Frugalware Linux Documentation for package-building guidelines if you
+wish to contribute packages to the Frugalware Linux project.
 .SH AUTHOR
 .nf
 Judd Vinet <jvinet@zeroflux.org>
+and the Frugalware developers <frugalware-devel@frugalware.org>
 .fi

@@ -313,4 +313,5 @@ the repository, remember to re-generate the database and use pacman's --refresh 
 .SH AUTHOR
 .nf
 Judd Vinet <jvinet@zeroflux.org>
+and the Frugalware developers <frugalware-devel@frugalware.org>
 .fi
