@@ -391,6 +391,9 @@ the MAKEFLAGS setting in /etc/makepkg.conf.
 .B "\-L, \-\-nolastmod"
 Disable updating the Last modified line.
 .TP
+.B "\-k, \-\-logging"
+Logging package build process
+.TP
 .B "\-l <pkgname>"
 Download the package's buildscript before starting the build.  This is useful
 if you do not want to do a full 'repoman upd' nor want to download manually the
