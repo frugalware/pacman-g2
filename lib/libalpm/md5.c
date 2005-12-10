@@ -49,8 +49,6 @@ documentation and/or software.
 static void MD5Transform(UINT4 [4], unsigned char [64]);
 static void Encode(unsigned char *, UINT4 *, unsigned int);
 static void Decode(UINT4 *, unsigned char *, unsigned int);
-/* static void MD5_memcpy(POINTER, POINTER, unsigned int); */
-/* static void MD5_memset(POINTER, int, unsigned int); */
 
 static unsigned char PADDING[64] = {
   0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -305,32 +303,4 @@ unsigned int len;
    (((UINT4)input[j+2]) << 16) | (((UINT4)input[j+3]) << 24);
 }
 
-/* Note: Replace "for loop" with standard memcpy if possible.
- */
-
-/* static void MD5_memcpy (output, input, len)
-POINTER output;
-POINTER input;
-unsigned int len;
-{
-  unsigned int i;
-
-  for (i = 0; i < len; i++)
-
- output[i] = input[i];
-}
-*/
-/* Note: Replace "for loop" with standard memset if possible.
- */
-/* static void MD5_memset (output, value, len)
-POINTER output;
-int value;
-unsigned int len;
-{
-  unsigned int i;
-
-  for (i = 0; i < len; i++)
- ((char *)output)[i] = (char)value;
-}
-*/
 /* vim: set ts=2 sw=2 noet: */
