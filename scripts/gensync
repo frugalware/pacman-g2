@@ -163,7 +163,9 @@ gstmpdir=$(mktemp -d /tmp/gensync.XXXXXXXXXX) || exit 1
 echo "gensync: building database entries, generating md5sums..." >&2
 cd `dirname $2`
 for file in `find $rootdir/* -name FrugalBuild`; do
+	unset nobuild
 	source $file || die "errors parsing $file"
+	[ "$nobuild" ] && continue
 	if [ "$pkgdir" != "" ]; then
 		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel.fpm"
 	else

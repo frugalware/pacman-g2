@@ -239,6 +239,12 @@ This is used to force the package to be upgraded by \fB--sysupgrade\fP, even
 if its an older version.
 
 .TP
+.B nobuild
+If this directive set, gensync will ignore this package, so users must build
+these packages on their machines, they will not be able to install them with
+\fBpacman -S\fP. Useful for closed-source, but freeware programs.
+
+.TP
 .B url
 This field contains an optional URL that is associated with the piece of software
 being packaged.  This is typically the project's website.

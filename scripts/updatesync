@@ -205,6 +205,7 @@ if [ "$action" = "upd" ]; then
 	delete_entry $option
 
 	source $option || die "errors parsing $option"
+	if [ ! "$nobuild" ]; then
 	if [ "$pkgdir" != "" ]; then
 		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel.fpm"
 	else
@@ -218,6 +219,7 @@ if [ "$action" = "upd" ]; then
 		db_write_entry $option || die "error writing entry for $option"
 	else
 		echo "updatesync: missing package: $pkgfile" >&2
+	fi
 	fi
 else
 	# DELETE
