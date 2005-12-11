@@ -68,6 +68,8 @@ static int sync_cleancache(int level)
 		list_t *clean = NULL;
 		list_t *i, *j;
 
+		if(!yesno("Do you want to remove old packages from cache? [Y/n] "))
+			return(0);
 		MSG(NL, "removing old packages from cache... ");
 		dir = opendir(dirpath);
 		if(dir == NULL) {
@@ -131,6 +133,8 @@ static int sync_cleancache(int level)
 		FREELIST(clean);
 	} else {
 		/* full cleanup */
+		if(!yesno("Do you want to remove all packages from cache? [Y/n] "))
+			return(0);
 		MSG(NL, "removing all packages from cache... ");
 
 		if(rmrf(dirpath)) {
