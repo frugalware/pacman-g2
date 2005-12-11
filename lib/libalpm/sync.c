@@ -335,7 +335,7 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 	PMList *deps = NULL;
 	PMList *list = NULL;
 	PMList *trail = NULL;
-	PMList *i;
+	PMList *i, *j, *k;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -369,6 +369,30 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 				trans->packages = pm_list_add(trans->packages, sync);
 			}
 		}
+
+		/* remove original targets from final if requested */
+		if((trans->flags & PM_TRANS_FLAG_DEPENDSONLY)) {
+			k = NULL;
+			for(i = trans->packages; i; i = i->next)
+			{
+				pmsyncpkg_t *s = (pmsyncpkg_t*)i->data;
+				int keepit = 1;
+				for(j = list; j; j = j->next)
+				{
+					if(!strcmp(j->data, s->pkg->name))
+					{
+						FREE(i->data);
+						keepit = 0;
+					}
+					if(keepit)
+						k = pm_list_add(k, s);
+					i->data = NULL;
+				}
+			}
+			FREELIST(trans->packages);
+			trans->packages = k;
+		}
+
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
 
 		/* check for inter-conflicts and whatnot */

@@ -376,6 +376,7 @@ int parseargs(int argc, char *argv[])
 		{"changelog",  no_argument,       0, 'c'},
 		{"clean",      no_argument,       0, 'c'},
 		{"nodeps",     no_argument,       0, 'd'},
+		{"dependsonly",no_argument,       0, 'e'},
 		{"orphans",    no_argument,       0, 'e'},
 		{"force",      no_argument,       0, 'f'},
 		{"groups",     no_argument,       0, 'g'},
@@ -437,7 +438,7 @@ int parseargs(int argc, char *argv[])
 			break;
 			case 'c': config->op_s_clean++; config->flags |= PM_TRANS_FLAG_CASCADE; config->op_q_changelog = 1; break;
 			case 'd': config->flags |= PM_TRANS_FLAG_NODEPS; break;
-			case 'e': config->op_q_orphans = 1; break;
+			case 'e': config->op_q_orphans = 1; config->flags |= PM_TRANS_FLAG_DEPENDSONLY; break;
 			case 'f': config->flags |= PM_TRANS_FLAG_FORCE; break;
 			case 'g': config->group = 1; break;
 			case 'h': config->help = 1; break;
@@ -547,6 +548,7 @@ void usage(int op, char *myname)
 			printf("options:\n");
 			printf("  -c, --clean         remove old packages from cache directory (use -cc for all)\n");
 			printf("  -d, --nodeps        skip dependency checks\n");
+			printf("  -e, --dependsonly   install dependencies only\n");
 			printf("  -f, --force         force install, overwrite conflicting files\n");
 			printf("  -g, --groups        view all members of a package group\n");
 			printf("  -p, --print-uris    print out URIs for given packages and their dependencies\n");

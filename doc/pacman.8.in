@@ -95,6 +95,11 @@ diskspace, you can remove these packages by using the --clean option.
 Using one --clean (or -c) switch will only remove \fIold\fP packages.
 Use it twice to remove \fIall\fP packages from the cache.
 .TP
+.B "\-e, \-\-dependsonly"
+Don't install the packages itself, only their dependencies. This can be
+handy if you want to install the packages themselves with different
+options or from source.
+.TP
 .B "\-g, \-\-groups"
 Display all the members for each package group specified.  If no group
 names are provided, all groups will be listed.
