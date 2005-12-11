@@ -373,6 +373,7 @@ int parseargs(int argc, char *argv[])
 		{"vertest",    no_argument,       0, 'Y'}, /* does the same as the 'vercmp' binary */
 		{"dbpath",     required_argument, 0, 'b'},
 		{"cascade",    no_argument,       0, 'c'},
+		{"changelog",  no_argument,       0, 'c'},
 		{"clean",      no_argument,       0, 'c'},
 		{"nodeps",     no_argument,       0, 'd'},
 		{"orphans",    no_argument,       0, 'e'},
@@ -434,7 +435,7 @@ int parseargs(int argc, char *argv[])
 				}
 				config->dbpath = strdup(optarg);
 			break;
-			case 'c': config->op_s_clean++; config->flags |= PM_TRANS_FLAG_CASCADE; break;
+			case 'c': config->op_s_clean++; config->flags |= PM_TRANS_FLAG_CASCADE; config->op_q_changelog = 1; break;
 			case 'd': config->flags |= PM_TRANS_FLAG_NODEPS; break;
 			case 'e': config->op_q_orphans = 1; break;
 			case 'f': config->flags |= PM_TRANS_FLAG_FORCE; break;
@@ -531,6 +532,7 @@ void usage(int op, char *myname)
 		} else if(op == PM_OP_QUERY) {
 			printf("usage:  %s {-Q --query} [options] [package]\n", myname);
 			printf("options:\n");
+			printf("  -c, --changelog     view the changelog of a package\n");
 			printf("  -e, --orphans       list all packages that were installed as a dependency\n");
 			printf("                      and are not required by any other packages\n");
 			printf("  -g, --groups        view all members of a package group\n");

@@ -434,9 +434,20 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 					continue;
 				}
 
-				if(!strcmp(pathname, "._install") || !strcmp(pathname, ".INSTALL")) {
-					/* the install script goes inside the db */
-					snprintf(expath, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
+				//if(!strcmp(pathname, "._install") || !strcmp(pathname, ".INSTALL")) {
+				//	/* the install script goes inside the db */
+				//	snprintf(expath, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
+				if(!strcmp(pathname, "._install") || !strcmp(pathname, ".INSTALL") ||
+					!strcmp(pathname, ".CHANGELOG")) {
+					if(!strcmp(pathname, ".CHANGELOG")) {
+						/* the changelog goes inside the db */
+						snprintf(expath, PATH_MAX, "%s/%s-%s/changelog", db->path,
+							info->name, info->version);
+					} else {
+						/* the install script goes inside the db */
+						snprintf(expath, PATH_MAX, "%s/%s-%s/install", db->path,
+							info->name, info->version);
+					}
 				} else {
 					/* build the new pathname relative to handle->root */
 					snprintf(expath, PATH_MAX, "%s%s", handle->root, pathname);

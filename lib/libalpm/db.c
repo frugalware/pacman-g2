@@ -575,6 +575,9 @@ int db_remove(pmdb_t *db, pmpkg_t *info)
 	/* INSTALL */
 	snprintf(file, PATH_MAX, "%s/install", topdir);
 	unlink(file);
+	/* CHANGELOG */
+	snprintf(file, PATH_MAX, "%s/changelog", topdir);
+	unlink(file);
 
 	/* Package directory */
 	if(rmdir(topdir) == -1) {

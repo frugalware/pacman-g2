@@ -119,7 +119,6 @@ void dump_pkg_full(PM_PKG *pkg, int level)
 	printf("\n");
 }
 
-
 /* Display the content of a sync package
  */
 void dump_pkg_sync(PM_PKG *pkg, char *treename)
@@ -158,6 +157,31 @@ void dump_pkg_files(PM_PKG *pkg)
 	}
 
 	fflush(stdout);
+}
+
+/* Display the changelog of an installed package
+ */
+void dump_pkg_changelog(char *clfile)
+{
+	FILE* fp = NULL;
+	char line[PATH_MAX+1];
+
+	if((fp = fopen(clfile, "r")) == NULL)
+	{
+		perror(clfile);
+		return(1);
+	}
+	else
+	{
+		while(!feof(fp))
+		{
+			fgets(line, PATH_MAX, fp);
+			printf("%s", line);
+			line[0] = '\0';
+		}
+		fclose(fp);
+		return(0);
+	}
 }
 
 int split_pkgname(char *target, char *name, char *version)

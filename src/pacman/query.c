@@ -203,7 +203,7 @@ int pacman_query(list_t *targets)
 				}
 			}
 		} else {
-			char *pkgname, *pkgver;
+			char *pkgname, *pkgver, changelog[PATH_MAX];
 
 			info = alpm_db_readpkg(db_local, package);
 			if(info == NULL) {
@@ -212,7 +212,15 @@ int pacman_query(list_t *targets)
 			}
 
 			/* find a target */
-			if(config->op_q_info || config->op_q_list) {
+			if(config->op_q_changelog || config->op_q_info || config->op_q_list) {
+				if(config->op_q_changelog) {
+					snprintf(changelog, PATH_MAX, "%s%s/%s/%s-%s/changelog",
+						config->root, config->dbpath,
+						(char*)alpm_db_getinfo(db_local, PM_DB_TREENAME),
+						(char*)alpm_pkg_getinfo(info, PM_PKG_NAME),
+						(char*)alpm_pkg_getinfo(info, PM_PKG_VERSION));
+					dump_pkg_changelog(changelog);
+				}
 				if(config->op_q_info) {
 					dump_pkg_full(info, config->op_q_info);
 				}

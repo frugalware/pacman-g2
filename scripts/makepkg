@@ -847,15 +847,29 @@ msg "Generating .FILELIST file..."
 cd $startdir/pkg
 tar cvf /dev/null * | sort >.FILELIST
 
+# changelog
+if darcs --commands 2>&1|grep -q add || [ -e $startdir/Changelog ]; then
+	msg "Generating .CHANGELOG file..."
+	cd $startdir
+	if darcs --commands 2>&1|grep -q add; then
+		cmd="darcs changes $BUILDSCRIPT"
+	else
+		cmd="cat Changelog"
+	fi
+	$cmd |sed sed "s|\(.*\)source/\(.*\)/FrugalBuild\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" >pkg/.CHANGELOG
+fi
+
 # tar it up
 msg "Compressing package..."
 cd $startdir/pkg
 if [ -f $startdir/pkg/.INSTALL ]; then
-	cmd="tar czvf $PKGDEST/$pkgname-$pkgver-$pkgrel-$CARCH.fpm .PKGINFO .FILELIST .INSTALL *"
-else
-	cmd="tar czvf $PKGDEST/$pkgname-$pkgver-$pkgrel-$CARCH.fpm .PKGINFO .FILELIST *"
+	extra=".INSTALL"
 fi
-$cmd | sort >../filelist
+if [ -f $startdir/pkg/.CHANGELOG ]; then
+	extra="$extra .CHANGELOG"
+fi
+tar czvf $PKGDEST/$pkgname-$pkgver-$pkgrel-$CARCH.fpm .PKGINFO .FILELIST \
+	$extra * | sort >../filelist
 
 cd $startdir
 if [ "$SEARCHDEPS" == "1" ]; then

@@ -26,6 +26,9 @@ build date, size).  This can be run against the local package
 database or can be used on individual .tar.gz packages.  See
 \fBQUERY OPTIONS\fP below.
 .TP
+.B "\-c, \-\-changelog"
+View the changelog of a package.
+.TP
 .B "\-R, \-\-remove"
 Remove a package from the system.  Files belonging to the
 specified package will be deleted, and the database will
