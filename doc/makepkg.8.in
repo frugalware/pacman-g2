@@ -283,7 +283,7 @@ If this field is present, it should contain an MD5 hash for every source file
 specified in the \fIsource\fP array (in the same order).  makepkg will use
 this to verify source file integrity during subsequent builds.  To easily
 generate md5sums, first build using the FrugalBuild then run
-\fBmakepkg -g >>PKGBILD\fP.  Then you can edit the FrugalBuild and move the
+\fBmakepkg -G >>PKGBILD\fP.  Then you can edit the FrugalBuild and move the
 \fImd5sums\fP line from the bottom to an appropriate location.
 
 .TP
@@ -292,7 +292,7 @@ If this field is present, it should contain an SHA1 hash for every source file
 specified in the \fIsource\fP array (in the same order).  makepkg will use
 this to verify source file integrity during subsequent builds.  To easily
 generate sha1sums, first build using the FrugalBuild then run
-\fBmakepkg -G >>FrugalBuild\fP.  Then you can edit the FrugalBuild and move the
+\fBmakepkg -g >>FrugalBuild\fP.  Then you can edit the FrugalBuild and move the
 \fIsha1sums\fP line from the bottom to an appropriate location.
 
 .TP
@@ -434,15 +434,15 @@ process if all of the dependencies aren't installed.
 file already exists in the build directory.  You can override this behaviour with
 the \fB--force\fP switch.
 .TP
-.B "\-g, \-\-genmd5"
+.B "\-G, \-\-genmd5"
 Download all source files (if required) and use \fImd5sum\fP to generate md5 hashes
 for each of them.  You can then redirect the output into your FrugalBuild for source
-validation (makepkg -g >>FrugalBuild).
+validation (makepkg -G >>FrugalBuild).
 .TP
-.B "\-G, \-\-gensha1"
+.B "\-g, \-\-gensha1"
 Download all source files (if required) and use \fIsha1sum\fP to generate sha1 hashes
 for each of them.  You can then redirect the output into your FrugalBuild for source
-validation (makepkg -G >>FrugalBuild).
+validation (makepkg -g >>FrugalBuild).
 .TP
 .B "\-h, \-\-help"
 Output syntax and commandline options.
