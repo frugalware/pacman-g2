@@ -682,7 +682,6 @@ else
 	warning "pacman was not found in PATH. skipping dependency checks."
 fi
 
-
 cd $startdir
 
 # version checking
