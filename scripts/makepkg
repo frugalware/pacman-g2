@@ -682,13 +682,6 @@ else
 	warning "pacman was not found in PATH. skipping dependency checks."
 fi
 
-if [ "$GZIP" == "1" ]; then
-    tarargs="czvf"
-    msg "Compression type: GZIP"
-else
-    tarargs="cjvf"
-    msg "Compression type: BZIP2 (default)"
-fi
 
 cd $startdir
 
@@ -1050,6 +1043,7 @@ if darcs --commands 2>&1|grep -q add || [ -e $startdir/Changelog ]; then
 	$cmd |sed sed "s|\(.*\)source/\(.*\)/FrugalBuild\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" >pkg/.CHANGELOG
 fi
 
+
 # tar it up
 msg "Compressing package..."
 cd $startdir/pkg
@@ -1059,12 +1053,21 @@ fi
 if [ -f $startdir/pkg/.CHANGELOG ]; then
 	extra="$extra .CHANGELOG"
 fi
+
+if [ "$GZIP" == "1" ]; then
+    tarargs="czvf"
+    msg "Compression type: GZIP"
+else
+    tarargs="cjvf"
+    msg "Compression type: BZIP2 (default)"
+fi
+
 if [ "$INCHROOT" != "1" ]; then
-tar czvf $PKGDEST/$pkgname-$pkgver-$pkgrel-$CARCH.fpm .PKGINFO .FILELIST \
+    tar $tarargs $PKGDEST/$pkgname-$pkgver-$pkgrel-$CARCH.fpm .PKGINFO .FILELIST \
 	$extra * | sort >../filelist
 else
-	tar czvf ../$pkgname-$pkgver-$pkgrel-$CARCH.fpm .PKGINFO .FILELIST \
-		$extra * | sort >../filelist
+    tar $tarargs ../$pkgname-$pkgver-$pkgrel-$CARCH.fpm .PKGINFO .FILELIST \
+	$extra * | sort >../filelist
 fi
 
 cd $startdir
