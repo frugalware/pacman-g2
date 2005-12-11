@@ -287,6 +287,15 @@ generate md5sums, first build using the FrugalBuild then run
 \fImd5sums\fP line from the bottom to an appropriate location.
 
 .TP
+.B sha1sums \fI(array)\fP
+If this field is present, it should contain an SHA1 hash for every source file
+specified in the \fIsource\fP array (in the same order).  makepkg will use
+this to verify source file integrity during subsequent builds.  To easily
+generate sha1sums, first build using the FrugalBuild then run
+\fBmakepkg -G >>FrugalBuild\fP.  Then you can edit the FrugalBuild and move the
+\fIsha1sums\fP line from the bottom to an appropriate location.
+
+.TP
 .B groups \fI(array)\fP
 This is an array of symbolic names that represent groups of packages, allowing
 you to install multiple packages by requesting a single target.  For example,
@@ -429,6 +438,11 @@ the \fB--force\fP switch.
 Download all source files (if required) and use \fImd5sum\fP to generate md5 hashes
 for each of them.  You can then redirect the output into your FrugalBuild for source
 validation (makepkg -g >>FrugalBuild).
+.TP
+.B "\-G, \-\-gensha1"
+Download all source files (if required) and use \fIsha1sum\fP to generate sha1 hashes
+for each of them.  You can then redirect the output into your FrugalBuild for source
+validation (makepkg -G >>FrugalBuild).
 .TP
 .B "\-h, \-\-help"
 Output syntax and commandline options.
