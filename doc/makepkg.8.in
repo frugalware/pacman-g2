@@ -348,6 +348,58 @@ renamed/combined packages.  For example, if the kernel package gets renamed
 to kernel-ide, then subsequent 'pacman -Syu' calls will not pick up the upgrade, due
 to the differing package names.  \fIreplaces\fP handles this.
 
+.SH  What is the process of chrooted build ?
+
+First, what is chroot? We currently use fakeroot to prevent build() from
+modifying the host system, and we use a prefix or DESTDIR directive to install
+everything to a directory and not under to the host system. This is good, but
+not enough.
+
+This system lacks of the ability to control the list of installed packages
+during the build on the system of a packager, the given compiled package maybe
+linked itself to an extra installed library. This way we can't really control
+the list of real dependencies. For example if libquicktime is installed from
+source on my system, then mplayer or any other program can link itself to that,
+and so that depends() will be incorrect. Or if I have the closed source binary
+NVidia drivers installed, some programs link tho NVidia's libraries.
+
+Of course there is a sollution to avoid this, to use a real chroot instead of a
+simple fakeroot. What is this means? The followings:
+
+When starting the build, a core chroot system is installed under /var/chroot.
+(Of course you can change this value under /etc/makepkg.conf.) The core system
+contains ~60 packages which are must installed to build any package in
+a chrooted environment. These packages (for example gcc, kernel-headers, make)
+should not be mentioned in makedepends(). 'pacman -Sg core chroot-core
+devel-core' should show you the actial list. (We try to change this list rarely
+of course.)
+
+When you start building with makepkg -R, pacman will install these packages to
+/var/chroot if necessary. This will produce a fully "clean" Frugalware system,
+that consits of base packages only. This /var/chroot is fully separated from
+the host system so that this will solve the problems mentioned above.
+(Linking to a library installed from source, etc.)
+
+Here comes the fun part. The packages listed in depends() and makedepends() are
+installed to this clean (/var/chroot) system. From this point, this chroot is
+capable to build the specified package in it without any unnecessary package
+installed, fully separated from the host system.
+
+After this the chroot should be cleaned up which means the removal of the
+installed depends() and makedepends(). This ensures us not to build from
+scratch the core chroot.
+
+This way we can prevent lots of dependency problems and it is even possible to
+build packages for a different Frugalware version. This is quite efficent when
+building security updates or fixing critical bugs in the -stable tree.
+
+If the build is failed, the working directory will not be deleted, you can find
+it under /var/chroot/var/tmp/fst. Later if you want to clean your chroot
+(delete the working directory and remove unnecessary packages) you can use 'makepkg -CR'.
+
+To activate building in a chroot, you should run makepkg as root at least with
+the -R option.
+
 .SH MAKEPKG OPTIONS
 .TP
 .B "\-b, \-\-builddeps"
@@ -414,6 +466,9 @@ Read the package script \fI<buildscript>\fP instead of the default (\fIFrugalBui
 .B "\-r, \-\-rmdeps"
 Upon successful build, remove any dependencies installed by makepkg/pacman during
 dependency auto-resolution (using \fB-b\fP or \fB-s\fP).
+.TP
+.B "\-R, \-\-chroot"
+Build the package in a chroot environment.
 .TP
 .B "\-s, \-\-syncdeps"
 Install missing dependencies using pacman.  When makepkg finds missing build-time
