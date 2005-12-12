@@ -33,7 +33,7 @@ usage() {
 	echo "from <root>.  gensync builds the database in a temporary directory"
 	echo "and then compresses it to <destfile>."
 	echo
-	echo "gensync will calculate md5sums of packages in the same directory as"
+	echo "gensync will calculate sha1sums of packages in the same directory as"
 	echo "<destfile>, unless an alternate [package_directory] is specified."
 	echo
 	echo "note: The <destfile> name is important.  It must be of the form"
@@ -58,7 +58,7 @@ error() { return 0; }
 Fdie() { return 0; }
 Finclude() { return 0; }
 
-get_md5checksum()
+get_md5checksum() # Need for backward compatibility
 {
 	if [ "$pkgdir" != "" ]; then
 		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
@@ -69,6 +69,21 @@ get_md5checksum()
 		md5line=`md5sum $pkgfile`
 		[ ! -z "$md5line" ] && pkgmd5sum=${md5line%  *}
 		echo $pkgmd5sum
+	fi
+	return 0
+}
+
+get_sha1checksum()
+{
+	if [ "$pkgdir" != "" ]; then
+		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
+	else
+		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
+	fi
+	if [ -f $pkgfile ]; then
+		sha1line=`sha1sum $pkgfile`
+		[ ! -z "$sha1line" ] && pkgsha1sum=${sha1line%  *}
+		echo $pkgsha1sum
 	fi
 	return 0
 }
@@ -101,6 +116,11 @@ db_write_entry()
 	if [ ! -z $pkgmd5sum ]; then
 		echo "%MD5SUM%" >>desc
 		echo "$pkgmd5sum" >>desc
+		echo "" >>desc
+	fi
+	if [ ! -z $pkgsha1sum ]; then
+		echo "%SHA1SUM%" >>desc
+		echo "$pkgsha1sum" >>desc
 		echo "" >>desc
 	fi
 	if [ ${#groups[*]} -gt 0 ]; then
@@ -183,7 +203,7 @@ fi
 gstmpdir=$(mktemp -d /tmp/gensync.XXXXXXXXXX) || exit 1
 
 [ ! -d $rootdir ] && die "invalid root dir: $rootdir"
-echo "gensync: building database entries, generating md5sums..." >&2
+echo "gensync: building database entries, generating sha1sums..." >&2
 cd `dirname $2`
 for file in `find $rootdir/* -name FrugalBuild`; do
 	unset nobuild archs
@@ -198,8 +218,13 @@ for file in `find $rootdir/* -name FrugalBuild`; do
 	fi
 	if [ -f $pkgfile ]; then
 		csize=`du -b $pkgfile | cut -f1`
+	if [ "$pkgname" == "pacman" ]; then
 		pkgmd5sum=`get_md5checksum $pkgfile`
-		[ -z $pkgmd5sum ] && die "error generating checksum for $pkgfile"
+		[ -z $pkgmd5sum ] && die "error generating md5 checksum for $pkgfile"
+	else
+		pkgsha1sum=`get_sha1checksum $pkgfile`
+		[ -z $pkgsha1sum ] && die "error generating sha1 checksum for $pkgfile"
+	fi
 		db_write_entry $file || die "error writing entry for $file"
 	else
 		echo "gensync: missing package: $pkgfile" >&2
