@@ -35,6 +35,7 @@
 #include "error.h"
 #include "rpmvercmp.h"
 #include "md5.h"
+#include "sha1.h"
 #include "log.h"
 #include "backup.h"
 #include "package.h"
@@ -168,9 +169,11 @@ int remove_commit(pmtrans_t *trans, pmdb_t *db)
 				int nb = 0;
 				char *file = lp->data;
 				char *md5 =_alpm_needbackup(lp->data, info->backup);
-				if(md5) {
+				char *sha1 =_alpm_needbackup(lp->data, info->backup);
+				if(md5 && sha1) {
 					nb = 1;
-					free(md5);
+					FREE(md5);
+					FREE(sha1);
 				}
 				if(!nb && trans->type == PM_TRANS_TYPE_UPGRADE) {
 					/* check noupgrade */

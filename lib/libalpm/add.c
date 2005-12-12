@@ -35,6 +35,7 @@
 #include "cache.h"
 #include "rpmvercmp.h"
 #include "md5.h"
+#include "sha1.h"
 #include "log.h"
 #include "backup.h"
 #include "package.h"
@@ -418,6 +419,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 				int nb = 0;
 				int notouch = 0;
 				char *md5_orig = NULL;
+				char *sha1_orig = NULL;
 				char pathname[PATH_MAX];
 				struct stat buf;
 
@@ -434,9 +436,9 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 					continue;
 				}
 
-				//if(!strcmp(pathname, "._install") || !strcmp(pathname, ".INSTALL")) {
-				//	/* the install script goes inside the db */
-				//	snprintf(expath, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
+				/*if(!strcmp(pathname, "._install") || !strcmp(pathname, ".INSTALL")) {
+				*	 the install script goes inside the db 
+				*	snprintf(expath, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version); */
 				if(!strcmp(pathname, "._install") || !strcmp(pathname, ".INSTALL") ||
 					!strcmp(pathname, ".CHANGELOG")) {
 					if(!strcmp(pathname, ".CHANGELOG")) {
@@ -474,7 +476,8 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 						} else {
 							/* op == PM_TRANS_TYPE_UPGRADE */
 							md5_orig = _alpm_needbackup(pathname, oldpkg->backup);
-							if(md5_orig) {
+							sha1_orig = _alpm_needbackup(pathname, oldpkg->backup);
+							if(md5_orig || sha1_orig) {
 								nb = 1;
 							}
 						}
@@ -484,6 +487,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 				if(nb) {
 					char *temp;
 					char *md5_local, *md5_pkg;
+					char *sha1_local, *sha1_pkg;
 					int fd;
 
 					/* extract the package's version to a temporary file and md5 it */
@@ -502,7 +506,9 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 					}
 					md5_local = MDFile(expath);
 					md5_pkg = MDFile(temp);
-					/* append the new md5 hash to it's respective entry in info->backup
+					sha1_local = SHAFile(expath);
+					sha1_pkg = SHAFile(temp);
+					/* append the new md5 or sha1 hash to it's respective entry in info->backup
 					 * (it will be the new orginal)
 					 */
 					for(lp = info->backup; lp; lp = lp->next) {
@@ -511,27 +517,44 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 
 						if(!file) continue;
 						if(!strcmp(file, pathname)) {
+						    if(info->sha1sum != NULL && info->sha1sum != '\0') {
 							/* 32 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
 							MALLOC(fn, strlen(file)+34);
 							sprintf(fn, "%s\t%s", file, md5_pkg);
 							FREE(file);
 							lp->data = fn;
+						    } else {
+							/* 41 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
+							MALLOC(fn, strlen(file)+43);
+							sprintf(fn, "%s\t%s", file, sha1_pkg);
+							FREE(file);
+							lp->data = fn;
+						    }
 						}
 					}
 
+					if (info->sha1sum != NULL && info->sha1sum != '\0') {
 					_alpm_log(PM_LOG_DEBUG, "checking md5 hashes for %s", pathname);
 					_alpm_log(PM_LOG_DEBUG, "current:  %s", md5_local);
 					_alpm_log(PM_LOG_DEBUG, "new:      %s", md5_pkg);
 					if(md5_orig) {
 						_alpm_log(PM_LOG_DEBUG, "original: %s", md5_orig);
 					}
+					} else {
+                                        _alpm_log(PM_LOG_DEBUG, "checking sha1 hashes for %s", pathname);
+					_alpm_log(PM_LOG_DEBUG, "current:  %s", sha1_local);
+                                        _alpm_log(PM_LOG_DEBUG, "new:      %s", sha1_pkg);
+                                        if(sha1_orig) {
+                                        _alpm_log(PM_LOG_DEBUG, "original: %s", sha1_orig);
+					}
+					}
 
 					if(!pmo_upgrade) {
 						/* PM_ADD */
 
-						/* if a file already exists with a different md5 hash,
+						/* if a file already exists with a different md5 or sha1 hash,
 						 * then we rename it to a .pacorig extension and continue */
-						if(strcmp(md5_local, md5_pkg)) {
+						if(strcmp(md5_local, md5_pkg) || strcmp(sha1_local, sha1_pkg)) {
 							char newpath[PATH_MAX];
 							snprintf(newpath, PATH_MAX, "%s.pacorig", expath);
 							if(rename(expath, newpath)) {
@@ -550,22 +573,22 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 								alpm_logaction("warning: %s saved as %s", expath, newpath);
 							}
 						}
-					} else if(md5_orig) {
+					} else if(md5_orig || sha1_orig) {
 						/* PM_UPGRADE */
 						int installnew = 0;
 
 						/* the fun part */
-						if(!strcmp(md5_orig, md5_local)) {
-							if(!strcmp(md5_local, md5_pkg)) {
+						if(!strcmp(md5_orig, md5_local)|| !strcmp(sha1_orig, sha1_local)) {
+							if(!strcmp(md5_local, md5_pkg) || !strcmp(sha1_local, sha1_pkg)) {
 								_alpm_log(PM_LOG_DEBUG, "action: installing new file");
 								installnew = 1;
 							} else {
 								_alpm_log(PM_LOG_DEBUG, "action: installing new file");
 								installnew = 1;
 							}
-						} else if(!strcmp(md5_orig, md5_pkg)) {
+						} else if(!strcmp(md5_orig, md5_pkg) || !strcmp(sha1_orig, sha1_pkg)) {
 							_alpm_log(PM_LOG_DEBUG, "action: leaving existing file in place");
-						} else if(!strcmp(md5_local, md5_pkg)) {
+						} else if(!strcmp(md5_local, md5_pkg) || !strcmp(sha1_local, sha1_pkg)) {
 							_alpm_log(PM_LOG_DEBUG, "action: installing new file");
 							installnew = 1;
 						} else {
@@ -595,6 +618,9 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 					FREE(md5_local);
 					FREE(md5_pkg);
 					FREE(md5_orig);
+					FREE(sha1_local);
+					FREE(sha1_pkg);
+					FREE(sha1_orig);
 					unlink(temp);
 					FREE(temp);
 					close(fd);
@@ -622,20 +648,28 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 						alpm_logaction("could not extract %s (%s)", expath, strerror(errno));
 						errors++;
 					}
-					/* calculate an md5 hash if this is in info->backup */
+					/* calculate an md5 or sha1 hash if this is in info->backup */
 					for(lp = info->backup; lp; lp = lp->next) {
-						char *fn, *md5;
+						char *fn, *md5, *sha1;
 						char path[PATH_MAX];
 						char *file = lp->data;
 
 						if(!file) continue;
 						if(!strcmp(file, pathname)) {
 							snprintf(path, PATH_MAX, "%s%s", handle->root, file);
-							md5 = MDFile(path);
-							/* 32 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
-							MALLOC(fn, strlen(file)+34);
-							sprintf(fn, "%s\t%s", file, md5);
-							FREE(md5);
+							if (info->sha1sum != NULL && info->sha1sum != '\0') {
+							    md5 = MDFile(path);
+							    /* 32 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
+							    MALLOC(fn, strlen(file)+34);
+							    sprintf(fn, "%s\t%s", file, md5);
+							    FREE(md5);
+							} else {
+							    /* 41 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
+							    sha1 = SHAFile(path);
+							    MALLOC(fn, strlen(file)+43);
+							    sprintf(fn, "%s\t%s", file, sha1);
+							    FREE(sha1);
+							}
 							FREE(file);
 							lp->data = fn;
 						}

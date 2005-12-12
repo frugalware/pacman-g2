@@ -677,30 +677,34 @@ int pacman_sync(list_t *targets)
 		PM_SYNCPKG *sync = alpm_list_getdata(lp);
 		PM_PKG *spkg = alpm_sync_getinfo(sync, PM_SYNC_PKG);
 		char str[PATH_MAX], pkgname[PATH_MAX];
-		char *md5sum1, *md5sum2;
+		char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
 
 		snprintf(pkgname, PATH_MAX, "%s-%s.%s" PM_EXT_PKG,
 		                            (char *)alpm_pkg_getinfo(spkg, PM_PKG_NAME),
 		                            (char *)alpm_pkg_getinfo(spkg, PM_PKG_VERSION),
 		                            (char *)alpm_pkg_getinfo(spkg, PM_PKG_ARCH));
 		md5sum1 = alpm_pkg_getinfo(spkg, PM_PKG_MD5SUM);
-		if(md5sum1 == NULL) {
-			ERR(NL, "can't get md5 checksum for package %s\n", pkgname);
+		sha1sum1 = alpm_pkg_getinfo(spkg, PM_PKG_SHA1SUM);
+
+		if((md5sum1 == NULL) && (sha1sum1 == NULL)) {
+			ERR(NL, "can't get md5 or sha1 checksum for package %s\n", pkgname);
 			retval = 1;
 			continue;
 		}
 		snprintf(str, PATH_MAX, "%s/%s", ldir, pkgname);
 		md5sum2 = alpm_get_md5sum(str);
-		if(md5sum2 == NULL) {
-			ERR(NL, "can't get md5 checksum for package %s\n", pkgname);
+		sha1sum2 = alpm_get_sha1sum(str);
+		if(md5sum2 == NULL && sha1sum2 == NULL) {
+			ERR(NL, "can't get md5 or sha1 checksum for package %s\n", pkgname);
 			retval = 1;
 			continue;
 		}
-		if(strcmp(md5sum1, md5sum2) != 0) {
+		if((strcmp(md5sum1, md5sum2) != 0) && (strcmp(sha1sum1, sha1sum2) != 0)) {
 			retval = 1;
-			ERR(NL, "archive %s is corrupted\n", pkgname);
+			ERR(NL, "archive %s is corrupted (bad MD5 or SHA1 checksum)\n", pkgname);
 		}
 		FREE(md5sum2);
+		FREE(sha1sum2);
 	}
 	if(retval) {
 		goto cleanup;

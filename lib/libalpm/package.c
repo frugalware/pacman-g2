@@ -48,6 +48,7 @@ pmpkg_t *pkg_new()
 	pkg->installdate[0] = '\0';
 	pkg->packager[0]    = '\0';
 	pkg->md5sum[0]      = '\0';
+	pkg->sha1sum[0]     = '\0';
 	pkg->arch[0]        = '\0';
 	pkg->size           = 0;
 	pkg->scriptlet      = 0;
@@ -87,6 +88,7 @@ pmpkg_t *pkg_dup(pmpkg_t *pkg)
 	STRNCPY(newpkg->installdate, pkg->installdate, PKG_DATE_LEN);
 	STRNCPY(newpkg->packager, pkg->packager, PKG_PACKAGER_LEN);
 	STRNCPY(newpkg->md5sum, pkg->md5sum, PKG_MD5SUM_LEN);
+	STRNCPY(newpkg->sha1sum, pkg->sha1sum, PKG_SHA1SUM_LEN);
 	STRNCPY(newpkg->arch, pkg->arch, PKG_ARCH_LEN);
 	newpkg->size       = pkg->size;
 	newpkg->force      = pkg->force;

@@ -4,6 +4,7 @@ AM_CFLAGS = $(DEFINES)
 
 TARGETS = md5driver.c \
 	md5.c \
+	sha1.c \
 	util.c \
 	list.c \
 	log.c \

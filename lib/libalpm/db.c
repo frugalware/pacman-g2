@@ -348,6 +348,12 @@ int db_read(pmdb_t *db, char *name, unsigned int inforeq, pmpkg_t *info)
 				if(fgets(info->md5sum, sizeof(info->md5sum), fp) == NULL) {
 					return(-1);
 				}
+			} else if(!strcmp(line, "%SHA1SUM%")) {
+				/* SHA1SUM tag only appears in sync repositories,
+				 * not the local one.  */
+				 if((fgets(info->sha1sum, sizeof(info->sha1sum), fp) == NULL)) {
+					return(-1);
+				}
 			}
 		}
 		fclose(fp);

@@ -36,6 +36,7 @@
 #include "error.h"
 #include "rpmvercmp.h"
 #include "md5.h"
+#include "sha1.h"
 #include "list.h"
 #include "package.h"
 #include "group.h"
@@ -382,6 +383,7 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 			case PM_PKG_SIZE:
 			case PM_PKG_REASON:
 			case PM_PKG_MD5SUM:
+			case PM_PKG_SHA1SUM:
 				if(!(pkg->infolevel & INFRQ_DESC)) {
 					char target[PKG_FULLNAME_LEN];
 					snprintf(target, PKG_FULLNAME_LEN, "%s-%s", pkg->name, pkg->version);
@@ -436,6 +438,7 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 		case PM_PKG_LICENSE:     data = pkg->license; break;
 		case PM_PKG_REPLACES:    data = pkg->replaces; break;
 		case PM_PKG_MD5SUM:      data = pkg->md5sum; break;
+		case PM_PKG_SHA1SUM:     data = pkg->sha1sum; break;
 		case PM_PKG_DEPENDS:     data = pkg->depends; break;
 		case PM_PKG_REMOVES:     data = pkg->removes; break;
 		case PM_PKG_REQUIREDBY:  data = pkg->requiredby; break;
@@ -753,6 +756,13 @@ char *alpm_get_md5sum(char *name)
 	ASSERT(name != NULL, return(NULL));
 
 	return(MDFile(name));
+}
+
+char *alpm_get_sha1sum(char *name)
+{
+	ASSERT(name != NULL, return(NULL));
+
+	return(SHAFile(name));
 }
 /* @} */
 

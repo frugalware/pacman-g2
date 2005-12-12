@@ -137,6 +137,7 @@ enum {
 	PM_PKG_SIZE,
 	PM_PKG_REASON,
 	PM_PKG_MD5SUM, /* Sync DB only */
+	PM_PKG_SHA1SUM, /* Sync DB only */
 	/* Depends entry */
 	PM_PKG_DEPENDS,
 	PM_PKG_REMOVES,
@@ -308,6 +309,7 @@ int alpm_list_free(PM_LIST *entry);
  */
  
 char *alpm_get_md5sum(char *name);
+char *alpm_get_sha1sum(char *name);
 int alpm_progressbar(char *pkgname, int percent, int howmany, int remain);
 
 /*

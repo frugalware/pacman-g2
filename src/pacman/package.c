@@ -102,13 +102,18 @@ void dump_pkg_full(PM_PKG *pkg, int level)
 			snprintf(path, PATH_MAX-1, "%s%s", root, str);
 			if(!stat(path, &buf)) {
 				char *md5sum = alpm_get_md5sum(path);
-				if(md5sum == NULL) {
-					ERR(NL, "error calculating md5sum for %s\n", path);
+				char *sha1sum = alpm_get_sha1sum(path);
+				if(md5sum == NULL && sha1sum == NULL) {
+					ERR(NL, "error calculating md5sum or sha1sum for %s\n", path);
 					FREE(str);
 					continue;
 				}
-				printf("%sMODIFIED\t%s\n", strcmp(md5sum, ptr) ? "" : "NOT ", path);
+				if (!sha1sum) 
+				    printf("%sMODIFIED\t%s\n", strcmp(md5sum, ptr) ? "" : "NOT ", path);
+				if (!md5sum)
+				    printf("%sMODIFIED\t%s\n", strcmp(sha1sum, ptr) ? "" : "NOT ", path);
 				FREE(md5sum);
+				FREE(sha1sum);
 			} else {
 				printf("MISSING\t\t%s\n", path);
 			}
@@ -142,6 +147,7 @@ void dump_pkg_sync(PM_PKG *pkg, char *treename)
 	printf("Description       : ");
 	indentprint(alpm_pkg_getinfo(pkg, PM_PKG_DESC), 20);
 	printf("\nMD5 Sum           : %s\n", (char *)alpm_pkg_getinfo(pkg, PM_PKG_MD5SUM));
+	printf("\nSHA1 Sum           : %s\n", (char *)alpm_pkg_getinfo(pkg, PM_PKG_SHA1SUM));
 }
 
 void dump_pkg_files(PM_PKG *pkg)
