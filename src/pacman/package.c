@@ -128,6 +128,7 @@ void dump_pkg_full(PM_PKG *pkg, int level)
  */
 void dump_pkg_sync(PM_PKG *pkg, char *treename)
 {
+	char *tmp1, *tmp2;
 	if(pkg == NULL) {
 		return;
 	}
@@ -146,8 +147,15 @@ void dump_pkg_sync(PM_PKG *pkg, char *treename)
 	printf("Size (compressed) : %ld\n", (long)alpm_pkg_getinfo(pkg, PM_PKG_SIZE));
 	printf("Description       : ");
 	indentprint(alpm_pkg_getinfo(pkg, PM_PKG_DESC), 20);
-	printf("\nMD5 Sum           : %s\n", (char *)alpm_pkg_getinfo(pkg, PM_PKG_MD5SUM));
-	printf("\nSHA1 Sum           : %s\n", (char *)alpm_pkg_getinfo(pkg, PM_PKG_SHA1SUM));
+	tmp1 = (char *)alpm_pkg_getinfo(pkg, PM_PKG_MD5SUM);
+	if (tmp1 != NULL && tmp1[0] != '\0') {
+	    printf("\nMD5 Sum           : %s", (char *)alpm_pkg_getinfo(pkg, PM_PKG_MD5SUM));
+	    }
+	tmp2 = (char *)alpm_pkg_getinfo(pkg, PM_PKG_SHA1SUM);
+	if (tmp2 != NULL && tmp2[0] != '\0') {
+	    printf("\nSHA1 Sum          : %s", (char *)alpm_pkg_getinfo(pkg, PM_PKG_SHA1SUM));
+	}
+	printf("\n");
 }
 
 void dump_pkg_files(PM_PKG *pkg)
