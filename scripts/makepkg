@@ -28,8 +28,8 @@ USE_COLOR="n"
 # Frugalware extensions to makepkg
 [ -e /usr/lib/frugalware/fwmakepkg ] && . /usr/lib/frugalware/fwmakepkg
 
-# source Arch's abs.conf if it's present
-[ -f /etc/abs/abs.conf ] && source /etc/abs/abs.conf
+# repoman.conf for $fst_root
+[ -f /etc/repoman.conf ] && source /etc/repoman.conf
 
 # makepkg configuration
 [ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
@@ -152,17 +152,17 @@ handledeps() {
 			# TODO: check deps again to make sure they were resolved
 		elif [ "$DEP_SRC" = "1" ]; then
 			# install missing deps by building them from source.
-			# we look for each package name in $ABSROOT and build it.
-			if [ "$ABSROOT" = "" ]; then
-				error "The ABSROOT environment variable is not defined."
+			# we look for each package name in $fst_root and build it.
+			if [ "$fst_root" = "" ]; then
+				error "The fst_root environment variable is not defined, check your /etc/repoman.conf!"
 				exit 1
 			fi
 			# TODO: handle version comparators (eg, glibc>=2.2.5)
 			msg "Building missing dependencies..."
 			for dep in $deplist; do
-				candidates=`find $ABSROOT -type d -name "$dep"`
+				candidates=`find $fst_root -type d -name "$dep"`
 				if [ "$candidates" = "" ]; then
-					error "Could not find \"$dep\" under $ABSROOT"
+					error "Could not find \"$dep\" under $fst_root"
 					exit 1
 				fi
 				success=0
