@@ -263,6 +263,19 @@ int parseconfig(char *file, config_t *config)
 						FREE(config->xfercommand);
 						config->xfercommand = strndup(ptr, PATH_MAX);
 						vprint("config: xfercommand: %s\n", config->xfercommand);
+					} else if (!strcmp(key, "UPGRADEDELAY")) {
+						/* The config value is in days, we use seconds */
+						vprint("config: UpgradeDelay: %i\n", (60*60*24) * atol(ptr));
+						if(alpm_set_option(PM_OPT_UPGRADEDELAY, (60*60*24) * atol(ptr)) == -1) {
+							ERR(NL, "failed to set option UPGRADEDELAY (%s)\n", alpm_strerror(pm_errno));
+							return(1);
+						}
+						/* Warn when the delay is rather high (two months for now) */
+						if (atol(ptr) > 60)
+							MSG(NL, "Warning: UpgradeDelay is very high.\n"
+								"If a package is updated often it will never be upgraded.\n"
+								"Manually update such packages or use a lower value "
+								"to avoid this problem.\n");
 					} else if (!strcmp(key, "PROXYSERVER")) {
 						char *p;
 						if(config->proxyhost) {

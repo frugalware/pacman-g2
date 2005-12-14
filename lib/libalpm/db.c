@@ -252,17 +252,12 @@ pmpkg_t *db_scan(pmdb_t *db, char *target, unsigned int inforeq)
 int db_read(pmdb_t *db, char *name, unsigned int inforeq, pmpkg_t *info)
 {
 	FILE *fp = NULL;
-	struct stat buf;
+	int fd;
+	struct stat st;
 	char path[PATH_MAX];
 	char line[512];
 
 	if(db == NULL || name == NULL || info == NULL) {
-		return(-1);
-	}
-
-	snprintf(path, PATH_MAX, "%s/%s", db->path, name);
-	if(stat(path, &buf)) {
-		/* directory doesn't exist or can't be opened */
 		return(-1);
 	}
 
@@ -276,10 +271,12 @@ int db_read(pmdb_t *db, char *name, unsigned int inforeq, pmpkg_t *info)
 	if(inforeq & INFRQ_DESC) {
 		snprintf(path, PATH_MAX, "%s/%s/desc", db->path, name);
 		fp = fopen(path, "r");
-		if(fp == NULL) {
+		fd = fileno(fp);
+		if(fp == NULL || fstat(fd, &st)) {
 			_alpm_log(PM_LOG_ERROR, "%s (%s)", path, strerror(errno));
 			return(-1);
 		}
+		info->date = st.st_mtime;
 		while(!feof(fp)) {
 			if(fgets(line, 256, fp) == NULL) {
 				break;
@@ -427,7 +424,7 @@ int db_read(pmdb_t *db, char *name, unsigned int inforeq, pmpkg_t *info)
 	/* INSTALL */
 	if(inforeq & INFRQ_SCRIPLET) {
 		snprintf(path, PATH_MAX, "%s/%s/install", db->path, name);
-		if(!stat(path, &buf)) {
+		if(!stat(path, &st)) {
 			info->scriptlet = 1;
 		}
 	}

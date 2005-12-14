@@ -264,6 +264,10 @@ will ask for confirmation before proceeding.
 Instructs pacman to ignore any upgrades for this package when performing a
 \fB--sysupgrade\fP.
 .TP
+.B "UpgradeDelay = <number>"
+Upgrade only the packages that are at least <number> days old when
+performing a \fB--sysupgrade\fP.
+.TP
 .B "Include = <path>"
 Include another config file.  This config file can include repositories or
 general configuration options.

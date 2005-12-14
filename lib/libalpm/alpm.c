@@ -49,6 +49,7 @@
 #include "remove.h"
 #include "sync.h"
 #include "handle.h"
+#include "provide.h"
 #include "alpm.h"
 
 #define PM_LOCK   "/tmp/pacman.lck"

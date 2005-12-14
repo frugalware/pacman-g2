@@ -182,6 +182,9 @@ int handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long data)
 		case PM_OPT_LOGCB:
 			pm_logcb = (alpm_cb_log)data;
 		break;
+		case PM_OPT_UPGRADEDELAY:
+			handle->upgradedelay = data;
+		break;
 		case PM_OPT_LOGMASK:
 			pm_logmask = (unsigned char)data;
 			_alpm_log(PM_LOG_FLOW2, "PM_OPT_LOGMASK set to '%02x'", (unsigned char)data);

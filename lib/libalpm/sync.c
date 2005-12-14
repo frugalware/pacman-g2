@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <time.h>
 #ifdef CYGWIN
 #include <limits.h> /* PATH_MAX */
 #endif
@@ -40,6 +41,7 @@
 #include "sync.h"
 #include "rpmvercmp.h"
 #include "handle.h"
+#include "util.h"
 
 extern pmhandle_t *handle;
 
@@ -225,6 +227,10 @@ int sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync)
 			/* package should be ignored (IgnorePkg) */
 			_alpm_log(PM_LOG_FLOW1, "%s-%s: ignoring package upgrade (%s)",
 				local->name, local->version, spkg->version);
+		} else if(sync_istoonew(spkg)) {
+			/* package too new (UpgradeDelay) */
+			_alpm_log(PM_LOG_FLOW1, "%s-%s: delaying upgrade of package (%s)\n",
+					local->name, local->version, spkg->version);
 		} else {
 			pmpkg_t *dummy = pkg_new();
 			STRNCPY(dummy->name, local->name, PKG_NAME_LEN);
@@ -245,6 +251,15 @@ int sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync)
 
 error:
 	return(-1);
+}
+
+int sync_istoonew(pmpkg_t *pkg)
+{
+	time_t t;
+	if (!handle->upgradedelay)
+		return 0;
+	time(&t);
+	return((pkg->date + handle->upgradedelay) > t);
 }
 
 int sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, char *name)

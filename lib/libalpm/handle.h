@@ -48,6 +48,7 @@ typedef struct __pmhandle_t {
 	PMList *noextract; /* List of strings */
 	PMList *ignorepkg; /* List of strings */
 	unsigned char usesyslog;
+	time_t upgradedelay;
 } pmhandle_t;
 
 #define FREEHANDLE(p) do { if (p) { handle_free(p); p = NULL; } } while (0)

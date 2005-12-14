@@ -53,6 +53,7 @@ typedef struct __pmpkg_t {
 	unsigned long size;
 	unsigned char scriptlet;
 	unsigned char force;
+	time_t date;
 	unsigned char reason;
 	PMList *license;
 	PMList *replaces;

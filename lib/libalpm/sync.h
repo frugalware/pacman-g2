@@ -39,6 +39,7 @@ void sync_free(pmsyncpkg_t *sync);
 PMList *sync_load_dbarchive(char *archive);
 
 int sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync);
+int sync_istoonew(pmpkg_t *pkg);
 int sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, char *name);
 int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **data);
 int sync_commit(pmtrans_t *trans, pmdb_t *db_local);
