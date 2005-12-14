@@ -334,6 +334,16 @@ PMList *alpm_db_getpkgcache(pmdb_t *db)
 	return(db_get_pkgcache(db));
 }
 
+PMList *alpm_db_whatprovides(pmdb_t *db, char *name)
+{
+	/* Sanity checks */
+	ASSERT(handle != NULL, return(NULL));
+	ASSERT(db != NULL, return(NULL));
+	ASSERT(name != NULL && strlen(name) != 0, return(NULL));
+
+	return(_alpm_db_whatprovides(db, name));
+}
+
 pmgrp_t *alpm_db_readgrp(pmdb_t *db, char *name)
 {
 	/* Sanity checks */

@@ -113,6 +113,7 @@ int alpm_db_update(PM_DB *db, char *archive, char *ts);
 
 PM_PKG *alpm_db_readpkg(PM_DB *db, char *name);
 PM_LIST *alpm_db_getpkgcache(PM_DB *db);
+PM_LIST *alpm_db_whatprovides(PM_DB *db, char *name);
 
 PM_GRP *alpm_db_readgrp(PM_DB *db, char *name);
 PM_LIST *alpm_db_getgrpcache(PM_DB *db);

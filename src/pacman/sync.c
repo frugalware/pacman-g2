@@ -492,9 +492,24 @@ int pacman_sync(list_t *targets)
 					}
 				}
 				if(grp == NULL) {
-					ERR(NL, "could not add target '%s': not found in sync db\n", targ);
-					retval = 1;
-					goto cleanup;
+					/* targ not found in sync db, searching for providers... */
+					PM_LIST *k = NULL;
+					PM_PKG *pkg;
+					char *pname;
+					for(j = pmc_syncs; j && !k; j = j->next) {
+						sync_t *sync = j->data;
+						k = alpm_db_whatprovides(sync->db, targ);
+						pkg = (PM_PKG*)alpm_list_getdata(alpm_list_first(k));
+						pname = (char*)alpm_pkg_getinfo(pkg, PM_PKG_NAME);
+					}
+					if(pname != NULL) {
+						/* targ is provided by pname */
+						targets = list_add(targets, strdup(pname));
+					} else {
+						ERR(NL, "could not add target '%s': not found in sync db\n", targ);
+						retval = 1;
+						goto cleanup;
+					}
 				}
 			}
 		}
