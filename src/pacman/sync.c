@@ -694,7 +694,7 @@ int pacman_sync(list_t *targets)
 		char str[PATH_MAX], pkgname[PATH_MAX];
 		char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
 
-		snprintf(pkgname, PATH_MAX, "%s-%s.%s" PM_EXT_PKG,
+		snprintf(pkgname, PATH_MAX, "%s-%s-%s" PM_EXT_PKG,
 		                            (char *)alpm_pkg_getinfo(spkg, PM_PKG_NAME),
 		                            (char *)alpm_pkg_getinfo(spkg, PM_PKG_VERSION),
 		                            (char *)alpm_pkg_getinfo(spkg, PM_PKG_ARCH));
