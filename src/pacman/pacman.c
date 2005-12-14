@@ -385,7 +385,7 @@ int parseargs(int argc, char *argv[])
 		{"dbonly",     no_argument,       0, 'k'},
 		{"list",       no_argument,       0, 'l'},
 		{"nosave",     no_argument,       0, 'n'},
-		{"mypkgs",     no_argument,       0, 'm'},
+		{"foreign",    no_argument,       0, 'm'},
 		{"owns",       no_argument,       0, 'o'},
 		{"file",       no_argument,       0, 'p'},
 		{"print-uris", no_argument,       0, 'p'},
@@ -446,7 +446,7 @@ int parseargs(int argc, char *argv[])
 			case 'i': config->op_q_info++; config->op_s_info++; break;
 			case 'k': config->flags |= PM_TRANS_FLAG_DBONLY; break;
 			case 'l': config->op_q_list = 1; break;
-			case 'm': config->op_q_mypkgs = 1; break;
+			case 'm': config->op_q_foreign = 1; break;
 			case 'n': config->flags |= PM_TRANS_FLAG_NOSAVE; break;
 			case 'o': config->op_q_owns = 1; break;
 			case 'p': config->op_q_isfile = 1; config->op_s_printuris = 1; break;
@@ -541,7 +541,7 @@ void usage(int op, char *myname)
 			printf("  -g, --groups        view all members of a package group\n");
 			printf("  -i, --info          view package information\n");
 			printf("  -l, --list          list the contents of the queried package\n");
-			printf("  -m, --mypkgs        list all packages that were not found in the sync db(s)\n");
+			printf("  -m, --foreign       list all packages that were not found in the sync db(s)\n");
 			printf("  -o, --owns <file>   query the package that owns <file>\n");
 			printf("  -p, --file          pacman will query the package file [package] instead of\n");
 			printf("                      looking in the database\n");

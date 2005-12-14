@@ -113,7 +113,7 @@ dependencies, conflicts, etc.
 List all files in the specified repositories.  Multiple repositories can
 be specified on the command line.
 .TP
-.B "\-m, \-\-mypkgs"
+.B "\-m, \-\-foreign"
 List all packages that were not found in the sync database(s). Probably
 you installed these packages by hand.
 .TP

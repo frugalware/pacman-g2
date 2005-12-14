@@ -436,6 +436,7 @@ fi
 unset pkgname pkgver pkgrel pkgdesc url license groups provides md5sums force
 unset replaces depends removes conflicts backup source install makedepends
 unset rodepends
+# some applications (eg, blackbox) will not build with some languages
 unset LC_ALL LANG
 umask 0022
 

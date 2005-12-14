@@ -105,7 +105,7 @@ int pacman_query(list_t *targets)
 		return(0);
 	}
 
-	if(config->op_q_mypkgs) {
+	if(config->op_q_foreign) {
 		if(pmc_syncs == NULL || !list_count(pmc_syncs)) {
 			ERR(NL, "no usable package repositories configured.\n");
 			return(1);
@@ -204,14 +204,14 @@ int pacman_query(list_t *targets)
 				pkgname = alpm_pkg_getinfo(tmpp, PM_PKG_NAME);
 				pkgver = alpm_pkg_getinfo(tmpp, PM_PKG_VERSION);
 
-				if(config->op_q_list || config->op_q_orphans || config->op_q_mypkgs) {
+				if(config->op_q_list || config->op_q_orphans || config->op_q_foreign) {
 					info = alpm_db_readpkg(db_local, pkgname);
 					if(info == NULL) {
 						/* something weird happened */
 						ERR(NL, "package \"%s\" not found\n", pkgname);
 						return(1);
 					}
-					if(config->op_q_mypkgs) {
+					if(config->op_q_foreign) {
 						int match = 0;
 						for(i = pmc_syncs; i; i = i->next) {
 							sync_t *sync = (sync_t *)i->data;
