@@ -141,13 +141,13 @@ handledeps() {
 				unset FAKEROOTKEY
 			fi
 			sudo pacman -D $deplist
-			if [ "$INFAKEROOT" = "1" ]; then
-				export FAKEROOTKEY=$FAKEROOTKEY2
-				unset FAKEROOTKEY2
-			fi
 			if [ "$?" = "127" ]; then
 				error "Failed to install missing dependencies."
 				exit 1
+			fi
+			if [ "$INFAKEROOT" = "1" ]; then
+				export FAKEROOTKEY=$FAKEROOTKEY2
+				unset FAKEROOTKEY2
 			fi
 			# TODO: check deps again to make sure they were resolved
 		elif [ "$DEP_SRC" = "1" ]; then
