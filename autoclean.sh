@@ -28,3 +28,5 @@ rm -rf compile
 rm -rf libtool
 rm -rf scripts/.deps/
 rm -rf scripts/Makefile.in
+rm -rf etc/Makefile.in
+rm -rf etc/Makefile

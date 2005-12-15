@@ -20,11 +20,12 @@
  */
 #ifndef _PM_PACMAN_H
 #define _PM_PACMAN_H
+#include "config.h"
 
 #define PACROOT  "/"
 #define PACDB    "var/lib/pacman"
 #define PACCACHE "var/cache/pacman"
-#define PACCONF  "/etc/pacman.conf"
+/* #define PACCONF  "/etc/pacman.conf" */ /* Comes from configure now */
 
 /* Operations */
 #define PM_OP_MAIN    1

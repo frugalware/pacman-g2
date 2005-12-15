@@ -26,6 +26,10 @@ dnl Define here the pacman binary program version number
 PACMAN_VERSION=2.9.99.0
 AC_SUBST(PACMAN_VERSION)
 
+dnl Define the default config file path for pacman.conf
+PACCONF=/etc/pacman.conf
+AC_DEFINE_UNQUOTED([PACCONF], ["$PACCONF"], [pacman.conf location])
+
 dnl Put out version numbers to config.h
 AC_DEFINE_UNQUOTED([PM_VERSION], ["$PM_VERSION"], [libalpm version number])
 AC_DEFINE_UNQUOTED([PACMAN_VERSION], ["$PACMAN_VERSION"], [pacman version number])
@@ -138,6 +142,7 @@ src/pacman/Makefile
 src/util/Makefile
 scripts/Makefile
 doc/Makefile
+etc/Makefile
 Makefile
 ])
 
@@ -149,6 +154,7 @@ pacman-$VERSION:
         compiler:                 ${CC}
         compiler flags:           ${CFLAGS}
 	libalpm version:          ${PM_VERSION}
+	pacman.conf location:     ${PACCONF}
 
 	debug support:            ${debug}
 "
