@@ -139,7 +139,21 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 		if (percent > 100)
 		  break;
 		hash = percent/6.25;
-		MSG(CL, "(%d/%d) installing %s", remain, howmany, pkgname);
+		if (howmany < 10) {
+		    MSG(CL, "(%d/%d) installing %s", remain, howmany, pkgname);
+		} else if ((howmany > 10) && (remain < 10)) {
+		    MSG(CL, "( %d/%d) installing %s", remain, howmany, pkgname);
+		} else if ((howmany > 10) && (remain > 10)) {
+		    MSG(CL, "(%d/%d) installing %s", remain, howmany, pkgname);
+		} else if ((howmany > 100) && (remain < 10)) {
+		    MSG(CL, "(  %d/%d) installing %s", remain, howmany, pkgname);
+		} else if ((howmany > 100) && (remain < 100)) {
+		    MSG(CL, "( %d/%d) installing %s", remain, howmany, pkgname);
+		} else if ((howmany > 100) && (remain < 100)) {
+		    MSG(CL, "(%d/%d) installing %s", remain, howmany, pkgname);
+		} else {
+		    MSG(CL, "(%d/%d) installing %s", remain, howmany, pkgname);
+		}
 		if (strlen(pkgname)<35)
 		    for (i=35-strlen(pkgname)-1; i>0; i--)
 			MSG(CL, " ");
@@ -152,13 +166,28 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 		    }
 		MSG(CL, "] %3d%%\r", percent);
 	    break;
+
 	    case PM_TRANS_PROGRESS_UPGRADE_START:
 		if (!pkgname)
 		  break;
 		if (percent > 100)
 		  break;
 		hash = percent/6.25;
-		MSG(CL, "(%d/%d) upgrading %s", remain, howmany, pkgname);
+		if (howmany < 10) {
+		    MSG(CL, "(%d/%d) upgrading %s", remain, howmany, pkgname);
+		} else if ((howmany > 10) && (remain < 10)) {
+		    MSG(CL, "( %d/%d) upgrading %s", remain, howmany, pkgname);
+		} else if ((howmany > 10) && (remain > 10)) {
+		    MSG(CL, "(%d/%d) upgrading %s", remain, howmany, pkgname);
+		} else if ((howmany > 100) && (remain < 10)) {
+		    MSG(CL, "(  %d/%d) upgrading %s", remain, howmany, pkgname);
+		} else if ((howmany > 100) && (remain < 100)) {
+		    MSG(CL, "( %d/%d) upgrading %s", remain, howmany, pkgname);
+		} else if ((howmany > 100) && (remain < 100)) {
+		    MSG(CL, "(%d/%d) upgrading %s", remain, howmany, pkgname);
+		} else {
+		    MSG(CL, "(%d/%d) upgrading %s", remain, howmany, pkgname);
+		}
 		if (strlen(pkgname)<35)
 		    for (i=35-strlen(pkgname)-1; i>0; i--)
 			MSG(CL, " ");
