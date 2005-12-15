@@ -263,7 +263,7 @@ typedef void (*alpm_trans_cb_event)(unsigned char, void *, void *);
 typedef void (*alpm_trans_cb_conv)(unsigned char, void *, void *, void *, int *);
 
 /* Transaction Progress callback */
-typedef void (*alpm_trans_cb_progress)(unsigned char, char *, int *, int *, int *);
+typedef void (*alpm_trans_cb_progress)(unsigned char, char *, int, int, int);
 
 /* Info parameters */
 enum {
