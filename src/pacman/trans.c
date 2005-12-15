@@ -61,10 +61,10 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			MSG(CL, "done.\n");
 		break;
 		case PM_TRANS_EVT_ADD_START:
-			MSG(NL, "installing %s... ", (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME));
+/*			MSG(NL, "installing %s... ", (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME)); */
 		break;
 		case PM_TRANS_EVT_ADD_DONE:
-			MSG(CL, "done.\n");
+/*			MSG(CL, "done.\n"); */
 			snprintf(str, LOG_STR_LEN, "installed %s (%s)",
 			                   (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
 			                   (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
@@ -81,10 +81,10 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			alpm_logaction(str);
 		break;
 		case PM_TRANS_EVT_UPGRADE_START:
-			MSG(NL, "upgrading %s... ", (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME));
+/*			MSG(NL, "upgrading %s... ", (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME)); */
 		break;
 		case PM_TRANS_EVT_UPGRADE_DONE:
-			MSG(CL, "done.\n");
+/*			MSG(CL, "done.\n"); */ /* Not needed because progressbar */
 			snprintf(str, LOG_STR_LEN, "upgraded %s (%s -> %s)",
 			                   (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
 			                   (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION),
@@ -129,7 +129,6 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 
 void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howmany, int remain)
 {
-	fprintf(stderr, "Az elejen leptunk le... %c\n", event);
 	char str[LOG_STR_LEN] = "";
 	int i, hash;
 
@@ -152,14 +151,11 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 			    MSG(CL, "-");
 		    }
 		MSG(CL, "] %3d%%\r", percent);
-//		fflush(stdout);
 	    break;
 	    case PM_TRANS_PROGRESS_UPGRADE_START:
 		if (!pkgname)
-		  sprintf(stderr, "pkgname-nel leptunk le...\n");
 		  break;
 		if (percent > 100)
-		  sprintf(stderr, "percentnel leptunk le\n");
 		  break;
 		hash = percent/6.25;
 		MSG(CL, "(%d/%d) upgrading %s", remain, howmany, pkgname);
@@ -174,7 +170,6 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 			    MSG(CL, "-");
 		    }
 		MSG(CL, "] %3d%%\r", percent);
-//		fflush(stdout);
 	    break;
 	}
 }
