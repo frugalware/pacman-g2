@@ -573,7 +573,7 @@ void *alpm_trans_getinfo(unsigned char parm)
 	return(data);
 }
 
-int alpm_trans_init(unsigned char type, unsigned char flags, alpm_trans_cb_event event, alpm_trans_cb_conv conv)
+int alpm_trans_init(unsigned char type, unsigned char flags, alpm_trans_cb_event event, alpm_trans_cb_conv conv, alpm_trans_cb_progress progress)
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -585,7 +585,7 @@ int alpm_trans_init(unsigned char type, unsigned char flags, alpm_trans_cb_event
 		RET_ERR(PM_ERR_MEMORY, -1);
 	}
 
-	return(trans_init(handle->trans, type, flags, event, conv));
+	return(trans_init(handle->trans, type, flags, event, conv, progress));
 }
 
 int alpm_trans_sysupgrade()
@@ -776,37 +776,5 @@ char *alpm_get_sha1sum(char *name)
 	return(SHAFile(name));
 }
 /* @} */
-
-/** @defgroup misc ProgressBar Fuunctions
- * @{
- */
-
-int alpm_progressbar(char *pkgname, int percent, int howmany, int remain) {
-	int i, hash;
-
-	if (!pkgname)
-		return(1);
-
-	if (percent > 100) 
-		return (1);
-	hash = percent/6.25;
-
-	printf("(%d/%d) %s", remain, howmany, pkgname);
-	if (strlen(pkgname)<35)
-		for (i=35-strlen(pkgname)-1; i>0; i--)
-			printf(" ");
-
-	printf("[");
-	for (i = 16; i > 0; i--) {
-		if (i >= 16 - hash)
-			printf("#");
-		else
-			printf("-");
-	}
-
-	printf("] %3d%%\r", percent);
-	fflush(stdout);
-	return(0);
-}
 
 /* vim: set ts=2 sw=2 noet: */

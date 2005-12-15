@@ -127,4 +127,56 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 	}
 }
 
+void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howmany, int remain)
+{
+	fprintf(stderr, "Az elejen leptunk le... %c\n", event);
+	char str[LOG_STR_LEN] = "";
+	int i, hash;
+
+	switch (event) {
+	    case PM_TRANS_PROGRESS_ADD_START:
+		if (!pkgname)
+		  break;
+		if (percent > 100)
+		  break;
+		hash = percent/6.25;
+		MSG(CL, "(%d/%d) installing %s", remain, howmany, pkgname);
+		if (strlen(pkgname)<35)
+		    for (i=35-strlen(pkgname)-1; i>0; i--)
+			MSG(CL, " ");
+		    MSG(CL, "[");
+		    for (i = 16; i > 0; i--) {
+			if (i >= 16 - hash)
+			    MSG(CL, "#");
+			else
+			    MSG(CL, "-");
+		    }
+		MSG(CL, "] %3d%%\r", percent);
+//		fflush(stdout);
+	    break;
+	    case PM_TRANS_PROGRESS_UPGRADE_START:
+		if (!pkgname)
+		  sprintf(stderr, "pkgname-nel leptunk le...\n");
+		  break;
+		if (percent > 100)
+		  sprintf(stderr, "percentnel leptunk le\n");
+		  break;
+		hash = percent/6.25;
+		MSG(CL, "(%d/%d) upgrading %s", remain, howmany, pkgname);
+		if (strlen(pkgname)<35)
+		    for (i=35-strlen(pkgname)-1; i>0; i--)
+			MSG(CL, " ");
+		    MSG(CL, "[");
+		    for (i = 16; i > 0; i--) {
+			if (i >= 16 - hash)
+			    MSG(CL, "#");
+			else
+			    MSG(CL, "-");
+		    }
+		MSG(CL, "] %3d%%\r", percent);
+//		fflush(stdout);
+	    break;
+	}
+}
+
 /* vim: set ts=2 sw=2 noet: */

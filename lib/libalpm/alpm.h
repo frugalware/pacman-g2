@@ -250,11 +250,20 @@ enum {
 	PM_TRANS_CONV_LOCAL_UPTODATE
 };
 
+/* Transaction Progress */
+enum {
+	PM_TRANS_PROGRESS_ADD_START,
+	PM_TRANS_PROGRESS_UPGRADE_START
+};
+
 /* Transaction Event callback */
 typedef void (*alpm_trans_cb_event)(unsigned char, void *, void *);
 
 /* Transaction Conversation callback */
 typedef void (*alpm_trans_cb_conv)(unsigned char, void *, void *, void *, int *);
+
+/* Transaction Progress callback */
+typedef void (*alpm_trans_cb_progress)(unsigned char, char *, int *, int *, int *);
 
 /* Info parameters */
 enum {
@@ -265,7 +274,7 @@ enum {
 };
 
 void *alpm_trans_getinfo(unsigned char parm);
-int alpm_trans_init(unsigned char type, unsigned char flags, alpm_trans_cb_event cb_event, alpm_trans_cb_conv conv);
+int alpm_trans_init(unsigned char type, unsigned char flags, alpm_trans_cb_event cb_event, alpm_trans_cb_conv conv, alpm_trans_cb_progress cb_progress);
 int alpm_trans_sysupgrade(void);
 int alpm_trans_addtarget(char *target);
 int alpm_trans_prepare(PM_LIST **data);
@@ -312,7 +321,6 @@ int alpm_list_free(PM_LIST *entry);
  
 char *alpm_get_md5sum(char *name);
 char *alpm_get_sha1sum(char *name);
-int alpm_progressbar(char *pkgname, int percent, int howmany, int remain);
 
 /*
  * Errors

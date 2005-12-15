@@ -39,6 +39,7 @@ typedef struct __pmtrans_t {
 	PMList *skiplist;    /* PMList of (char *) */
 	alpm_trans_cb_event cb_event;
 	alpm_trans_cb_conv cb_conv;
+	alpm_trans_cb_progress cb_progress;
 } pmtrans_t;
 
 #define FREETRANS(p) \
@@ -60,10 +61,16 @@ do { \
 		(t)->cb_conv(q, d1, d2, d3, r); \
 	} \
 } while(0)
+#define PROGRESS(t, e, p, per, h, r) \
+do { \
+	if((t) && (t)->cb_progress) { \
+		(t)->cb_progress(e, p, per, h, r); \
+	} \
+} while(0)
 
 pmtrans_t *trans_new(void);
 void trans_free(pmtrans_t *trans);
-int trans_init(pmtrans_t *trans, unsigned char type, unsigned char flags, alpm_trans_cb_event event, alpm_trans_cb_conv conv);
+int trans_init(pmtrans_t *trans, unsigned char type, unsigned char flags, alpm_trans_cb_event event, alpm_trans_cb_conv conv, alpm_trans_cb_progress progress);
 int trans_sysupgrade(pmtrans_t *trans);
 int trans_addtarget(pmtrans_t *trans, char *target);
 int trans_prepare(pmtrans_t *trans, PMList **data);

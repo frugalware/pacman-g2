@@ -308,8 +308,10 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 	register struct archive *archive;
 	struct archive_entry *entry;
 	char expath[PATH_MAX];
+	unsigned char cb_state;
 	time_t t;
 	char *what;
+//	alpm_trans_cb_progress *progress;
 	PMList *targ, *lp;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -333,6 +335,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 			pmpkg_t *local = db_get_pkgfromcache(db, info->name);
 			if(local) {
 				EVENT(trans, PM_TRANS_EVT_UPGRADE_START, info, NULL);
+				cb_state = PM_TRANS_EVT_UPGRADE_START;
 				_alpm_log(PM_LOG_FLOW1, "upgrading package %s-%s", info->name, info->version);
 				asprintf(&what, "%s", info->name);
 
@@ -360,7 +363,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 					if(tr == NULL) {
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
-					if(trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags, NULL, NULL) == -1) {
+					if(trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags, NULL, NULL, NULL) == -1) {
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
@@ -388,6 +391,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 		}
 		if(!pmo_upgrade) {
 			EVENT(trans, PM_TRANS_EVT_ADD_START, info, NULL);
+			cb_state = PM_TRANS_EVT_ADD_START;
 			_alpm_log(PM_LOG_FLOW1, "adding package %s-%s", info->name, info->version);
 			asprintf(&what, "%s", info->name);
 
@@ -428,7 +432,8 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 				if (info->size != 0)
 		    			percent = (double)archive_position_uncompressed(archive) / info->size;
 				if (needdisp == 0) {
-					needdisp = alpm_progressbar(what, (int)(percent * 100), pm_list_count(trans->packages), (pm_list_count(trans->packages) - pm_list_count(targ) +1));
+/*					fprintf(stderr, "WE ARE IN PROGRESS\n"); */
+					PROGRESS(trans, PM_TRANS_PROGRESS_ADD_START, what, (int)(percent * 100), pm_list_count(trans->packages), (pm_list_count(trans->packages) - pm_list_count(targ) +1));
 				}
 
 				if(!strcmp(pathname, ".PKGINFO") || !strcmp(pathname, ".FILELIST")) {
@@ -759,7 +764,8 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 			}
 		}
 
-		alpm_progressbar(what, 100, pm_list_count(trans->packages), (pm_list_count(trans->packages) - pm_list_count(targ) +1));
+//		alpm_progressbar(what, 100, pm_list_count(trans->packages), (pm_list_count(trans->packages) - pm_list_count(targ) +1));
+		PROGRESS(trans, PM_TRANS_PROGRESS_ADD_START, what, 100, pm_list_count(trans->packages), (pm_list_count(trans->packages) - pm_list_count(targ) +1));
 		needdisp = 0;
 		printf("\n");
 		fflush(stdout);

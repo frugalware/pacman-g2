@@ -578,7 +578,7 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local)
 		pm_errno = PM_ERR_XXX;
 		goto error;
 	}
-	if(trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, NULL, NULL) == -1) {
+	if(trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, NULL, NULL, NULL) == -1) {
 		_alpm_log(PM_LOG_ERROR, "could not initialize transaction");
 		pm_errno = PM_ERR_XXX;
 		goto error;
@@ -609,6 +609,7 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local)
 	}
 	/* we want the frontend to be aware of commit details */
 	tr->cb_event = trans->cb_event;
+	tr->cb_progress = trans->cb_progress;
 	if(trans_commit(tr) == -1) {
 		_alpm_log(PM_LOG_ERROR, "could not commit transaction");
 		pm_errno = PM_ERR_XXX;

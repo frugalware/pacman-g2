@@ -75,7 +75,7 @@ int pacman_remove(list_t *targets)
 
 	/* Step 1: create a new transaction
 	 */
-	if(alpm_trans_init(PM_TRANS_TYPE_REMOVE, config->flags, cb_trans_evt, cb_trans_conv) == -1) {
+	if(alpm_trans_init(PM_TRANS_TYPE_REMOVE, config->flags, cb_trans_evt, cb_trans_conv, NULL) == -1) {
 		ERR(NL, "failed to init transaction (%s)\n", alpm_strerror(pm_errno));
 		goto error;
 	}
