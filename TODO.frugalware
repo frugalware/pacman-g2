@@ -1,3 +1,2 @@
 - Make progressbar and package counter work for remove too !
 - Respect dependencies while installing packages (ie. not in alpabetical order)
-- Makepkg --noconfirm actually work
