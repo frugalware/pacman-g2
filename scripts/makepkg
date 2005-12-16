@@ -1114,7 +1114,7 @@ if darcs --commands 2>&1|grep -q add || [ -e $startdir/Changelog ]; then
 	else
 		cmd="cat Changelog"
 	fi
-	$cmd |sed sed "s|\(.*\)source/\(.*\)/FrugalBuild\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" >pkg/.CHANGELOG
+	$cmd |sed "s|\(.*\)source/\(.*\)/FrugalBuild\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" >pkg/.CHANGELOG
 fi
 
 
