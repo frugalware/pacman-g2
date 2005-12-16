@@ -791,9 +791,10 @@ if [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 				for netfile in ${source[@]}; do
 					file=`strip_url $netfile`
 					echo -n "    $file ... " >&2
-					echo "${md5sums[$idx]}  $file" | md5sum -c - >/dev/null 2>&1+                                       if [ $? -ne 0 ]; then
-					echo "FAILED" >&2
-					errors=1
+					echo "${md5sums[$idx]}  $file" | md5sum -c - >/dev/null 2>&1
+					if [ $? -ne 0 ]; then
+						echo "FAILED" >&2
+						errors=1
 					else
 						echo "Passed" >&2
 					fi
