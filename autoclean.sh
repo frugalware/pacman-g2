@@ -1,6 +1,6 @@
 #!/bin/sh -xu
 
-make distclean
+[ -f Makefile ] && make distclean
 rm -rf autom4te.cache
 rm -rf Makefile
 rm -rf Makefile.in

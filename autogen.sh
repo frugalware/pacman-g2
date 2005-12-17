@@ -1,4 +1,4 @@
-#!/bin/sh -exu
+#!/bin/sh -ex
 
 if [ "$1" == "--dist" ]; then
 	ver=`grep ^PACMAN_VERSION configure.in|sed 's/.*=//'`
