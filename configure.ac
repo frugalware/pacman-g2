@@ -48,6 +48,31 @@ AC_ARG_ENABLE(man2html,
     AC_HELP_STRING([--enable-man2html], [Build html docs via man2html]),
     [wantman2html=$enableval], [wantman2html=no])
 
+dnl Check for architecture
+case "$host" in
+    i?86-* | x86_64-*)
+	case "$host" in
+	    i386-* | i486-* | i586-*) AC_MSG_ERROR([Only i686 supported]);;
+	    i686-*) AC_DEFINE_UNQUOTED([CARCH], ["i686"], [Architecture])
+		    AC_DEFINE_UNQUOTED([CARCHFLAGS], ["i686"], [Architecture])
+		    CARCH="i686"
+		    CARCHFLAGS="i686"
+		    CHOST="${host}";;
+	    x86_64-*) AC_DEFINE_UNQUOTED([CARCH], ["x86_64"], [Architecture])
+		    AC_DEFINE_UNQUOTED([CARCHFLAGS], ["k8"], [Architecture])
+		    CARCH="x86_64"
+		    CARCHFLAGS="k8"
+		    CHOST="${host}";;
+	esac
+	;;
+    ppc-* | powerpc-*)
+	AC_MSG_ERROR([PPC isn't supported now]);;
+esac
+
+AC_SUBST(CARCH)
+AC_SUBST(CARCHFLAGS)
+AC_SUBST(CHOST)
+
 dnl Help line for more-warnings
 AC_ARG_ENABLE(more-warnings, 
     AC_HELP_STRING([--disable-more-warnings], [Minimum compiler warnings]),
@@ -154,12 +179,17 @@ Makefile
 echo "
 pacman-$VERSION:
 
-        prefix:                   ${prefix}
-        source code location:     ${srcdir}
-        compiler:                 ${CC}
-        compiler flags:           ${CFLAGS}
-	libalpm version:          ${PM_VERSION}
-	pacman.conf location:     ${PACCONF}
+        prefix                   : ${prefix}
+        source code location     : ${srcdir}
+        compiler                 : ${CC}
+        compiler flags           : ${CFLAGS}
 
-	debug support:            ${debug}
+	libalpm version          : ${PM_VERSION}
+	pacman.conf location     : ${PACCONF}
+
+	Architecture CARCH       : ${CARCH}
+	Architecture used cflag  : -${CARCHFLAGS}
+	Architecture CHOST       : ${CHOST}
+
+	debug support            : ${debug}
 "
