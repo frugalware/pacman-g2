@@ -42,6 +42,7 @@
 #include "rpmvercmp.h"
 #include "handle.h"
 #include "util.h"
+#include "alpm.h"
 
 extern pmhandle_t *handle;
 
@@ -345,6 +346,13 @@ int sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, char *n
 	return(0);
 }
 
+/* Helper function for _alpm_list_remove
+ */
+static int ptr_cmp(const void *s1, const void *s2)
+{
+	return((s1 == s2));
+}
+
 int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **data)
 {
 	PMList *deps = NULL;
@@ -432,7 +440,7 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 		deps = checkdeps(db_local, PM_TRANS_TYPE_UPGRADE, list);
 		if(deps) {
 			int found;
-			PMList *j, *k, *exfinal = NULL;
+			PMList *j, *k, *asked=NULL;
 			int errorout = 0;
 			_alpm_log(PM_LOG_FLOW1, "looking for unresolvable dependencies");
 			for(i = deps; i; i = i->next) {
@@ -463,10 +471,6 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 				if(miss->type != PM_DEP_TYPE_CONFLICT) {
 					continue;
 				}
-				/* make sure this package wasn't already removed from the final list */
-				if(pm_list_is_in(miss->target, exfinal)) {
-					continue;
-				}
 
 				/* check if the conflicting package is one that's about to be removed/replaced.
 				 * if so, then just ignore it
@@ -485,8 +489,103 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 					}
 				}
 
-				/* ORE
-				if we didn't find it in any sync->replaces lists, then it's a conflict */
+				/* if we didn't find it in any sync->replaces lists, then it's a conflict */
+				if(!found) {
+					int solved = 0;
+					pmsyncpkg_t *sync = find_pkginsync(miss->target, trans->packages);
+					for(j = sync->pkg->provides; j && j->data && !solved; j = j->next) {
+						if(!strcmp(j->data, miss->depend.name)) {
+							/* this package also "provides" the package it's conflicting with,
+							 * so just treat it like a "replaces" item so the REQUIREDBY
+							 * fields are inherited properly.
+							 */
+
+							/* we save the dependency info so we can move p's requiredby stuff
+							 * over to the replacing package
+							 */
+							pmpkg_t *q = db_scan(db_local, miss->depend.name, INFRQ_DESC | INFRQ_DEPENDS);
+							if(q) {
+								/* append to the replaces list */
+								pmsyncpkg_t *spkg = sync_new(PM_SYNC_TYPE_REPLACE, q, NULL);
+								trans->packages = pm_list_add(trans->packages, spkg);
+								solved = 1;
+							} else {
+								char *rmpkg = NULL;
+								/* hmmm, depend.name isn't installed, so it must be conflicting
+								 * with another package in our final list.  For example:
+								 *
+								 *     pacman -S blackbox xfree86
+								 *
+								 * If no x-servers are installed and blackbox pulls in xorg, then
+								 * xorg and xfree86 will conflict with each other.  In this case,
+								 * we should follow the user's preference and rip xorg out of final,
+								 * opting for xfree86 instead.
+								 */
+
+								/* figure out which one was requested in targets.  If they both were,
+								 * then it's still an unresolvable conflict. */
+								if(pm_list_is_in(miss->depend.name, trans->targets) && !pm_list_is_in(miss->target, trans->targets)) {
+									/* remove miss->target */
+									rmpkg = strdup(miss->target);
+								} else if(pm_list_is_in(miss->target, trans->targets) && !pm_list_is_in(miss->depend.name, trans->targets)) {
+									/* remove miss->depend.name */
+									rmpkg = strdup(miss->depend.name);
+								} else {
+									/* something's not right, bail out with a conflict error */
+								}
+								if(rmpkg) {
+									for(k= trans->packages; k; k=k->next) {
+										pmsyncpkg_t *sync = k->data;
+										if(!strcmp(sync->pkg->name, rmpkg))
+											trans->packages = _alpm_list_remove(trans->packages, sync, ptr_cmp, (void **)&data);
+									}
+									solved = 1;
+								}
+							}
+						}
+					}
+					if(!solved) {
+						/* It's a conflict -- see if they want to remove it
+						 */
+						pmpkg_t *p,*q = NULL;
+						int pkgfound=0;
+						for(k=db_get_pkgcache(db_local); k; k=k->next) {
+							p = k->data;
+							if(!strcmp(p->name, miss->depend.name)) {
+								pkgfound=1;
+								break;
+							}
+						}
+						if(pkgfound) {
+							int doremove = 0;
+							if(!pm_list_is_strin(miss->depend.name, asked)) {
+								QUESTION(trans, PM_TRANS_CONV_CONFLICT_PKG, miss->target, miss->depend.name, NULL, &doremove);
+								asked = pm_list_add(asked, strdup(miss->depend.name));
+								if(doremove) {
+									/* remove miss->depend.name */
+									k=pm_list_new();
+									q=pkg_new();
+									strcpy(q->name, p->name);
+									k = pm_list_add(k, q);
+									for(l = trans->packages; l; l=l->next) {
+										pmsyncpkg_t *s = l->data;
+										if(!strcmp(s->pkg->name, miss->target)) {
+											s->data = k;
+											s->type = PM_SYNC_TYPE_REPLACE;
+										}
+									}
+								} else {
+									/* abort */
+									_alpm_log(PM_LOG_ERROR, "package conflicts detected");
+									errorout=1;
+								}
+							}
+						} else {
+							_alpm_log(PM_LOG_ERROR, "%s conflicts with %s", miss->target, miss->depend.name);
+							errorout = 1;
+						}
+					}
+				}
 			}
 
 			if(errorout) {
@@ -551,8 +650,7 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local)
 		goto error;
 	}
 
-	/* ORE
-	trans_init(PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAGS_NODEPS); */
+	trans_init(tr, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, trans->cb_event, trans->cb_conv, trans->cb_progress);
 
 	for(i = trans->packages; i; i = i->next) {
 		pmsyncpkg_t *sync = i->data;
