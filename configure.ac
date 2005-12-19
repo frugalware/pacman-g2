@@ -11,7 +11,7 @@ dnl Define here the libalpm version number
 PM_MAJOR_VERSION=0
 PM_MINOR_VERSION=1
 PM_MICRO_VERSION=0
-PM_MICRO_VERSION_SUFFIX=.1
+PM_MICRO_VERSION_SUFFIX=.2
 PM_VERSION=$PM_MAJOR_VERSION.$PM_MINOR_VERSION.$PM_MICRO_VERSION$PM_MICRO_VERSION_SUFFIX
 dnl Needed for libtool to create proper shared lib version
 PM_VERSION_INFO=`expr $PM_MAJOR_VERSION + $PM_MINOR_VERSION`:$PM_MICRO_VERSION:$PM_MINOR_VERSION
@@ -23,7 +23,7 @@ AC_SUBST(PM_VERSION)
 AC_SUBST(PM_VERSION_INFO)
 
 dnl Define here the pacman binary program version number
-PACMAN_VERSION=2.9.99.1
+PACMAN_VERSION=2.9.99.2
 AC_SUBST(PACMAN_VERSION)
 
 dnl Define the default config file path for pacman.conf
