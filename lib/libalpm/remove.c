@@ -29,7 +29,6 @@
 #include <limits.h> /* PATH_MAX */
 #endif
 #include <zlib.h>
-#include <libtar.h>
 /* pacman */
 #include "util.h"
 #include "error.h"
