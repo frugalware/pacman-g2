@@ -366,7 +366,7 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 	/* save the cwd so we can restore it later */
 	getcwd(cwd, PATH_MAX);
 	/* just in case our cwd was removed in the upgrade operation */
-	chdir("/");
+	chdir(root);
 
 	_alpm_log(PM_LOG_FLOW2, "executing %s script...", script);
 
