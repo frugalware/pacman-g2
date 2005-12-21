@@ -347,6 +347,8 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 						db_read(db, name, INFRQ_FILES, local);
 					}
 					oldpkg->backup = _alpm_list_strdup(local->backup);
+					strncpy(oldpkg->name, local->name, PKG_NAME_LEN);
+					strncpy(oldpkg->version, local->version, PKG_VERSION_LEN);
 				}
 
 				/* pre_upgrade scriptlet */
@@ -778,12 +780,9 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 		}
 
 		if(pmo_upgrade) {
-			EVENT(trans, PM_TRANS_EVT_UPGRADE_DONE, info, NULL);
-			alpm_logaction("upgraded %s (%s -> %s)", info->name,
-				oldpkg ? oldpkg->version : NULL, info->version);
+			EVENT(trans, PM_TRANS_EVT_UPGRADE_DONE, oldpkg, info);
 		} else {
 			EVENT(trans, PM_TRANS_EVT_ADD_DONE, info, NULL);
-			alpm_logaction("installed %s (%s)", info->name, info->version);
 		}
 
 		FREEPKG(oldpkg);
