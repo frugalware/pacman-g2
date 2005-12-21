@@ -79,9 +79,7 @@ AC_ARG_ENABLE(more-warnings,
     [set_more_warnings="${enableval}"], [warnings_default=yes])
 
 dnl Help line for debug
-AC_ARG_ENABLE(debug,
-    AC_HELP_STRING([--disable-debug], [Disable debugging support]),
-    [debug=$enableval], [debug=yes])
+AC_ARG_ENABLE(debug, [  --enable-debug    Enable debugging support], debug=yes)
 
 dnl Check for man2html binary
 AC_MSG_CHECKING(for support man2html)
@@ -105,7 +103,7 @@ dnl Enable or disable Warning FLAGS during compile
 AC_MSG_CHECKING(for more compiler warnings)
 if test "$GCC" = "yes" -a "$set_more_warnings" != "no"; then
     AC_MSG_RESULT(yes)
-    CFLAGS="-Wall -Wchar-subscripts -Wmissing-declarations -Wmissing-prototypes \
+    CFLAGS="$CFLAGS -Wall -Wchar-subscripts -Wmissing-declarations -Wmissing-prototypes \
     -Wnested-externs -Wsign-compare"
     for option in -Wno-sign-compare; do
 	SAVE_CFLAGS="$CFLAGS"
@@ -124,21 +122,19 @@ if test "$GCC" = "yes" -a "$set_more_warnings" != "no"; then
     unset option
 else
     AC_MSG_RESULT(no)
-    unset CFLAGS
 fi
 
-dnl Enable or disable debug code (-g)
+dnl Enable or disable debug code
 AC_MSG_CHECKING(for debug mode request)
 if test x$debug = xyes ; then
     AC_DEFINE([PACMAN_DEBUG], [TRUE], [Enable debugging support])
     AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xyes)
-    CFLAGS="$CFLAGS -g"
+	CFLAGS="-DPACMAN_DEBUG -Wall -W -O0 -fno-omit-frame-pointer -ggdb -g3"
     AC_MSG_RESULT(yes)
 else
     AC_DEFINE([PACMAN_DEBUG], [FALSE], [Disable debugging support])
-    if test -z "$ENV_CFLAGS"; then
-	ENV_CFLAGS="-O2"
-    fi
+    AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xno)
+	CFLAGS="$CFLAGS"
     AC_MSG_RESULT(no)
 fi
 
@@ -159,7 +155,7 @@ else
     AC_MSG_ERROR("libarchive is needed to compile pacman!");
 fi
 
-CFLAGS="$CFLAGS $ENV_CFLAGS"
+CFLAGS="$CFLAGS"
 
 dnl ==========================================================================
 
