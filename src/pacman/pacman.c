@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 		return(1);
 	}
   config->op    = PM_OP_MAIN;
-  config->debug |= PM_LOG_WARNING;
+  config->debug |= PM_LOG_WARNING | PM_LOG_ERROR;
   config->verbose = 1;
 
 	/* parse the command line */
