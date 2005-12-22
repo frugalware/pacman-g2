@@ -525,6 +525,15 @@ if [ -f $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm -a "$FORCE" = "0" -
 	fi
 fi
 
+# Generate the Changelog if necessary.
+# in case we're in a darcs repo, but the current dir is not yet part of it
+darcs add . >/dev/null 2>&1
+if darcs --commands 2>&1|grep -q add; then
+	if [ ! -e Changelog ] || [ `stat -c %Y Changelog` -lt `stat -c %Y $BUILDSCRIPT` ]; then
+		msg "Generating the Changelog..."
+		darcs changes $BUILDSCRIPT |sed "s|\(.*\)source/\(.*\)/FrugalBuild\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" >Changelog
+	fi
+fi
 # Build chroot environment if necessary.
 if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	if [ "`id -u`" != 0 ]; then
@@ -596,8 +605,6 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	# to make Finclude work
 	if darcs --commands 2>&1|grep -q add; then
 		[ -d $CHROOTDIR/var/tmp/fst/include/ ] || mkdir -p $CHROOTDIR/var/tmp/fst/include/
-		# in case we're in a darcs repo, but the current dir is not yet part of it
-		darcs add . >/dev/null 2>&1
 		if [ -d `darcs add . 2>&1|sed -n 's/[^/]*/../g; 4 p'`/source/include ]; then
 			cp `darcs add . 2>&1|sed -n 's/[^/]*/../g; 4 p'`/source/include/* $CHROOTDIR/var/tmp/fst/include/
 		elif [ -d $fst_root/$reponame/source/include ]; then
@@ -1100,23 +1107,15 @@ if [ "$install" != "" ]; then
 	cp $startdir/$install $startdir/pkg/.INSTALL
 fi
 
+if [ -f $startdir/pkg/.CHANGELOG ]; then
+	msg "Copying the Changelog..."
+	cp $startdir/Changelog $startdir/pkg/.CHANGELOG
+fi
+
 # build a filelist
 msg "Generating .FILELIST file..."
 cd $startdir/pkg
 tar cvf /dev/null * | sort >.FILELIST
-
-# changelog
-if darcs --commands 2>&1|grep -q add || [ -e $startdir/Changelog ]; then
-	msg "Generating .CHANGELOG file..."
-	cd $startdir
-	if darcs --commands 2>&1|grep -q add; then
-		cmd="darcs changes $BUILDSCRIPT"
-	else
-		cmd="cat Changelog"
-	fi
-	$cmd |sed "s|\(.*\)source/\(.*\)/FrugalBuild\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" >pkg/.CHANGELOG
-fi
-
 
 # tar it up
 msg "Compressing package..."
