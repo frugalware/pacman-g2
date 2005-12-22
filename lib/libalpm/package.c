@@ -187,7 +187,7 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 		ptr = line;
 		key = strsep(&ptr, "=");
 		if(key == NULL || ptr == NULL) {
-			_alpm_log(PM_LOG_ERROR, "%s: syntax error in description file line %d",
+			_alpm_log(PM_LOG_DEBUG, "%s: syntax error in description file line %d",
 				info->name[0] != '\0' ? info->name : "error", linenum);
 		} else {
 			_alpm_strtrim(key);
