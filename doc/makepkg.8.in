@@ -409,6 +409,43 @@ it under /var/chroot/var/tmp/fst. Later if you want to clean your chroot
 To activate building in a chroot, you should run makepkg as root at least with
 the -R option.
 
+.SH Package splitting
+
+Package splitting means moving out a list of specifed files to subpackages (like
+libmysql out of mysql) and then defining the properties of subpackages. The
+\fBsubpkgs()\fP array is to define the pkgnames of the subpackages. From now all
+the directives has their subfoo equivalent:
+.nf
+pkgname -> subpks()
+pkgdesc -> subdescs()
+license() -> sublicense()
+replaces() -> subreplaces()
+groups() -> subgroups()
+depends() -> subdepends()
+rodepends() -> subrodepends()
+removes() -> subremoves()
+confclicts() -> subconflicts()
+provides() -> subprovides()
+backup() -> subbackup()
+install -> subinstall()
+force -> subforce()
+.fi
+
+Also note that bash does not support two-dimensional arrays, so when defining the
+array of arrays, then quotes are the major separators and spaces are the minor ones.
+
+Simple example:
+.nf
+Add the followings to your bottom of your FrugalBuild
+subpkgs=('foo' 'bar')
+subdescs=('desc of foo' 'desc of bar')
+subdepends=('foodep1 foodep2' 'bardep1 bardep2')
+subgroups=('apps' 'apps')
+.fi
+
+You may define conflicts, replaces and other directives for your subpackages, but
+the requirement is only to define these 4 ones.
+
 .SH MAKEPKG OPTIONS
 .TP
 .B "\-b, \-\-builddeps"
