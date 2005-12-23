@@ -446,6 +446,20 @@ subgroups=('apps' 'apps')
 You may define conflicts, replaces and other directives for your subpackages, but
 the requirement is only to define these 4 ones.
 
+The second part is to move some files to the - just defined - subpackages. You
+should use the Fsplit command for this at the end of your build() function. You
+can read more about Fsplit in the fwmakepkg documentation, but here is a short
+example:
+.nf
+
+Fsplit subpkgname usr/share/
+
+.fi
+This will move the /usr/share dir of the package to the "subpkgname" subpackage.
+
+NOTE: never use a trailing slash when defining file patterns, especially if you
+use wildcards in it!
+
 .SH MAKEPKG OPTIONS
 .TP
 .B "\-b, \-\-builddeps"
