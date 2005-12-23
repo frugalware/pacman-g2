@@ -231,7 +231,7 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 			} else if(!strcmp(key, "BACKUP")) {
 				info->backup = pm_list_add(info->backup, strdup(ptr));
 			} else {
-				_alpm_log(PM_LOG_ERROR, "%s: syntax error in description file line %d",
+				_alpm_log(PM_LOG_DEBUG, "%s: syntax error in description file line %d",
 					info->name[0] != '\0' ? info->name : "error", linenum);
 			}
 		}
