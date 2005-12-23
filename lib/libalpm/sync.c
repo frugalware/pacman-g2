@@ -719,7 +719,7 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local)
 	}
 	if(trans_prepare(tr, &data) == -1) {
 		_alpm_log(PM_LOG_ERROR, "could not prepare transaction");
-		pm_errno = PM_ERR_XXX;
+		/* pm_errno is set by trans_prepare */
 		goto error;
 	}
 	/* we want the frontend to be aware of commit details */
