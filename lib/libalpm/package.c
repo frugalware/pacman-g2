@@ -118,6 +118,7 @@ void pkg_free(pmpkg_t *pkg)
 		return;
 	}
 
+	FREELIST(pkg->license);
 	FREELIST(pkg->files);
 	FREELIST(pkg->backup);
 	FREELIST(pkg->depends);
