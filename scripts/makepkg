@@ -323,31 +323,31 @@ create_pkg()
 		echo "arch = $CARCH" >>.PKGINFO
 	fi
 
-	for it in "${license[@]}"; do
+	for it in ${license[@]}; do
 		echo "license = $it" >>.PKGINFO
 	done
-	for it in "${replaces[@]}"; do
+	for it in ${replaces[@]}; do
 		echo "replaces = $it" >>.PKGINFO
 	done
-	for it in "${groups[@]}"; do
+	for it in ${groups[@]}; do
 		echo "group = $it" >>.PKGINFO
 	done
-	for it in "${depends[@]}"; do
+	for it in ${depends[@]}; do
 		echo "depend = $it" >>.PKGINFO
 	done
-	for it in "${rodepends[@]}"; do
+	for it in ${rodepends[@]}; do
 		echo "depend = $it" >>.PKGINFO
 	done
-	for it in "${removes[@]}"; do
+	for it in ${removes[@]}; do
 		echo "remove = $it" >>.PKGINFO
 	done
-	for it in "${conflicts[@]}"; do
+	for it in ${conflicts[@]}; do
 		echo "conflict = $it" >>.PKGINFO
 	done
-	for it in "${provides[@]}"; do
+	for it in ${provides[@]}; do
 		echo "provides = $it" >>.PKGINFO
 	done
-	for it in "${backup[@]}"; do
+	for it in ${backup[@]}; do
 		echo "backup = $it" >>.PKGINFO
 	done
 
@@ -1201,10 +1201,62 @@ fi
 
 create_pkg $pkgname
 if [ ! -z "$subpkgs" ]; then
-	for i in "${subpkgs[@]}"
-	do
-		create_pkg $i
-	done
+	goodsubpkgs=1
+	if [ "${#subdescs[@]}" != 0 ] && [ "${#subdescs[@]}" != "${#subpkgs[@]}" ]; then
+		goodsubpkgs=0
+	fi
+	if [ "${#sublicense[@]}" != 0 ] && [ "${#sublicense[@]}" != "${#subpkgs[@]}" ]; then
+		goodsubpkgs=0
+	fi
+	if [ "${#subreplaces[@]}" != 0 ] && [ "${#subreplaces[@]}" != "${#subpkgs[@]}" ]; then
+		goodsubpkgs=0
+	fi
+	if [ "${#subgroups[@]}" != 0 ] && [ "${#subgroups[@]}" != "${#subpkgs[@]}" ]; then
+		goodsubpkgs=0
+	fi
+	if [ "${#subdepends[@]}" != 0 ] && [ "${#subdepends[@]}" != "${#subpkgs[@]}" ]; then
+		goodsubpkgs=0
+	fi
+	if [ "${#subrodepends[@]}" != 0 ] && [ "${#subrodepends[@]}" != "${#subpkgs[@]}" ]; then
+		goodsubpkgs=0
+	fi
+	if [ "${#subremoves[@]}" != 0 ] && [ "${#subremoves[@]}" != "${#subpkgs[@]}" ]; then
+		goodsubpkgs=0
+	fi
+	if [ "${#subconflicts[@]}" != 0 ] && [ "${#subconflicts[@]}" != "${#subpkgs[@]}" ]; then
+		goodsubpkgs=0
+	fi
+	if [ "${#subprovides[@]}" != 0 ] && [ "${#subprovides[@]}" != "${#subpkgs[@]}" ]; then
+		goodsubpkgs=0
+	fi
+	if [ "${#subbackup[@]}" != 0 ] && [ "${#subbackup[@]}" != "${#subpkgs[@]}" ]; then
+		goodsubpkgs=0
+	fi
+	if [ "${#subinstall[@]}" != 0 ] && [ "${#subinstall[@]}" != "${#subpkgs[@]}" ]; then
+		goodsubpkgs=0
+	fi
+	if [ $goodsubpkgs -eq 1 ]; then
+		i=0
+		for subpkg in "${subpkgs[@]}"
+		do
+			unset pkgdesc license replaces groups depends rodepends removes conflicts provides backup install
+			pkgdesc="${subdescs[$i]}"
+			license="${sublicense[$i]}"
+			replaces="${subreplaces[$i]}"
+			groups="${subgroups[$i]}"
+			depends="${subdepends[$i]}"
+			rodepends="${subrodepends[$i]}"
+			removes="${subremoves[$i]}"
+			conflicts="${subconflicts[$i]}"
+			provides="${subprovides[$i]}"
+			backup="${subbackup[$i]}"
+			install="${subinstall[$i]}"
+			create_pkg $subpkg
+			i=$(($i+1))
+		done
+	else
+		warning "Subpackage infos are incomplete. Cannot create subpackages."
+	fi
 fi
 
 cd $startdir
