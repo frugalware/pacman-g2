@@ -93,16 +93,26 @@ get_sha1checksum()
 
 db_write_entry()
 {
-	unset pkgname pkgver pkgrel pkgdesc force
-	unset groups replaces provides depends rodepends conflicts
-	source $1 || return 1
+	if [ "$pkgdir" != "" ]; then
+		pkgfile="$pkgdir/$1-$pkgver-$pkgrel-$arch.fpm"
+	else
+		pkgfile="$destdir/$1-$pkgver-$pkgrel-$arch.fpm"
+	fi
+		csize=`du -b $pkgfile | cut -f1`
+	if [ "$1" == "pacman" ]; then
+		pkgmd5sum=`get_md5checksum $pkgfile`
+		[ -z $pkgmd5sum ] && die "gensync: missing package: $pkgfile"
+	else
+		pkgsha1sum=`get_sha1checksum $pkgfile`
+		[ -z $pkgsha1sum ] && die "gensync: missing package: $pkgfile"
+	fi
 	cd $ustmpdir
-	mkdir $pkgname-$pkgver-$pkgrel || return 1
-	cd $pkgname-$pkgver-$pkgrel
+	mkdir $1-$pkgver-$pkgrel || return 1
+	cd $1-$pkgver-$pkgrel
 	# desc
 	: >desc
 	echo "%NAME%" >>desc
-	echo "$pkgname" >>desc
+	echo "$1" >>desc
 	echo "" >>desc
 	echo "%VERSION%" >>desc
 	echo "$pkgver-$pkgrel" >>desc
@@ -128,14 +138,14 @@ db_write_entry()
 	fi
 	if [ ${#groups[*]} -gt 0 ]; then
 		echo "%GROUPS%" >>desc
-		for it in "${groups[@]}"; do
+		for it in ${groups[@]}; do
 			echo "$it" >>desc
 		done
 		echo "" >>desc
 	fi
 	if [ ${#replaces[*]} -gt 0 ]; then
 		echo "%REPLACES%" >>desc
-		for it in "${replaces[@]}"; do
+		for it in ${replaces[@]}; do
 			echo "$it" >>desc
 		done
 		echo "" >>desc
@@ -148,21 +158,21 @@ db_write_entry()
 	: >depends
 	if [ ${#depends[*]} -gt 0 -o ${#rodepends[*]} -gt 0 ]; then
 		echo "%DEPENDS%" >>depends
-		for it in "${depends[@]}" "${rodepends[@]}"; do
+		for it in ${depends[@]} ${rodepends[@]}; do
 		  echo "$it" >>depends
 		done
 		echo "" >>depends
 	fi
 	if [ ${#conflicts[*]} -gt 0 ]; then
 		echo "%CONFLICTS%" >>depends
-		for it in "${conflicts[@]}"; do
+		for it in ${conflicts[@]}; do
 		  echo "$it" >>depends
 		done
 		echo "" >>depends
 	fi
 	if [ ${#provides[*]} -gt 0 ]; then
 		echo "%PROVIDES%" >>depends
-		for it in "${provides[@]}"; do
+		for it in ${provides[@]}; do
 		  echo "$it" >>depends
 		done
 		echo "" >>depends
@@ -236,25 +246,30 @@ if [ "$action" = "upd" ]; then
 
 	source $option || die "errors parsing $option"
 	if [ ! "$nobuild" ]; then
-	if [ "$pkgdir" != "" ]; then
-		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
-	else
-		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
-	fi
-	if [ -f $pkgfile ]; then
-		csize=`du -b $pkgfile | cut -f1`
-	if [ "$pkgname" == "pacman" ]; then
-		pkgmd5sum=`get_md5checksum $pkgfile`
-		[ -z $pkgmd5sum ] && die "error generating md5 checksum for $pkgfile"
-	else
-		pkgsha1sum=`get_sha1checksum $pkgfile`
-		[ -z $pkgsha1sum ] && die "error generating sha1 checksum for $pkgfile"
-	fi
-		echo "updatesync: creating entry for $option" >&2
-		db_write_entry $option || die "error writing entry for $option"
-	else
-		echo "updatesync: missing package: $pkgfile" >&2
-	fi
+		unset pkgname pkgver pkgrel pkgdesc force
+		unset groups replaces provides depends rodepends conflicts
+		unset subpkgs subdescs sublicense subreplaces subgroups
+		unset subdepends subrodepends subremoves subconflicts
+		unset subprovides subbackup subinstall
+		source $file || return 1
+		db_write_entry $pkgname || die "error writing entry for $pkgname ($file)"
+		if [ ! -z "$subpkgs" ]; then
+			i=0
+			for subpkg in "${subpkgs[@]}"
+			do
+				unset pkgdesc groups replaces force depends rodepends conflicts provides
+				pkgdesc="${subdescs[$i]}"
+				groups="${subgroups[$i]}"
+				replaces="${subreplaces[$i]}"
+				force="${subforce[$i]}"
+				depends="${subdepends[$i]}"
+				rodepends="${subrodepends[$i]}"
+				conflicts="${subconflicts[$i]}"
+				provides="${subprovides[$i]}"
+				db_write_entry $subpkg || die "error writing entry for $subpkg ($file)"
+				i=$(($i+1))
+			done
+		fi
 	fi
 else
 	# DELETE
