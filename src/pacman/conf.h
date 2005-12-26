@@ -46,6 +46,7 @@ typedef struct __config_t {
 	unsigned short op_s_clean;
 	unsigned short op_s_dependsonly;
 	unsigned short op_s_downloadonly;
+	list_t *op_s_ignore;
 	unsigned short op_s_info;
 	unsigned short op_s_printuris;
 	unsigned short op_s_sync;

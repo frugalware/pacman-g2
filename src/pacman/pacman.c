@@ -93,12 +93,6 @@ int main(int argc, char *argv[])
   config->debug |= PM_LOG_WARNING | PM_LOG_ERROR;
   config->verbose = 1;
 
-	/* initialize pm library */
-	if(alpm_initialize(config->root) == -1) {
-		ERR(NL, "failed to initilize alpm library (%s)\n", alpm_strerror(pm_errno));
-		cleanup(1);
-	}
-
 	/* parse the command line */
 	ret = parseargs(argc, argv);
 	if(ret != 0) {
@@ -139,6 +133,12 @@ int main(int argc, char *argv[])
 		strcat(ptr, "/");
 		FREE(config->root);
 		config->root = ptr;
+	}
+
+	/* initialize pm library */
+	if(alpm_initialize(config->root) == -1) {
+		ERR(NL, "failed to initilize alpm library (%s)\n", alpm_strerror(pm_errno));
+		cleanup(1);
 	}
 
 	if(config->configfile == NULL) {
@@ -418,12 +418,7 @@ int parseargs(int argc, char *argv[])
 				}
 				config->configfile = strndup(optarg, PATH_MAX);
 				break;
-			case 1002:
-				if(alpm_set_option(PM_OPT_IGNOREPKG, (long)optarg) == -1) {
-					ERR(NL, "failed to set option IGNOREPKG (%s)\n", alpm_strerror(pm_errno));
-					return(1);
-				}
-				break;
+			case 1002: config->op_s_ignore = list_add(config->op_s_ignore, strdup(optarg)); break;
 			case 1003:
 				config->debug = atoi(optarg);
 				break;

@@ -62,6 +62,7 @@ int config_free(config_t *config)
 	FREE(config->dbpath);
 	FREE(config->cachedir);
 	FREE(config->configfile);
+	FREELIST(config->op_s_ignore);
 	FREE(config->proxyhost);
 	FREE(config->xfercommand);
 	FREELIST(config->holdpkg);
