@@ -93,6 +93,7 @@ get_sha1checksum()
 
 db_write_entry()
 {
+	echo "updatesync: writing $1" >&2
 	if [ "$pkgdir" != "" ]; then
 		pkgfile="$pkgdir/$1-$pkgver-$pkgrel-$arch.fpm"
 	else
@@ -101,10 +102,10 @@ db_write_entry()
 		csize=`du -b $pkgfile | cut -f1`
 	if [ "$1" == "pacman" ]; then
 		pkgmd5sum=`get_md5checksum $pkgfile`
-		[ -z $pkgmd5sum ] && die "gensync: missing package: $pkgfile"
+		[ -z $pkgmd5sum ] && die "missing package: $pkgfile"
 	else
 		pkgsha1sum=`get_sha1checksum $pkgfile`
-		[ -z $pkgsha1sum ] && die "gensync: missing package: $pkgfile"
+		[ -z $pkgsha1sum ] && die "missing package: $pkgfile"
 	fi
 	cd $ustmpdir
 	mkdir $1-$pkgver-$pkgrel || return 1
@@ -188,7 +189,7 @@ delete_entry()
 		pkgname=$1
 	fi
 	for i in *; do
-		if [ "${i%-*-*}" = "$pkgname" ]; then
+		if (for i in $pkgname ${subpkgs[@]}; do echo $i; done)|grep -q "^${i%-*-*}$"; then
 			echo "updatesync: deleting $i" >&2
 			rm -rf $i
 		fi
@@ -251,8 +252,8 @@ if [ "$action" = "upd" ]; then
 		unset subpkgs subdescs sublicense subreplaces subgroups
 		unset subdepends subrodepends subremoves subconflicts
 		unset subprovides subbackup subinstall
-		source $file || return 1
-		db_write_entry $pkgname || die "error writing entry for $pkgname ($file)"
+		source $option || die "error parsing $option"
+		db_write_entry $pkgname || die "error writing entry for $pkgname ($option)"
 		if [ ! -z "$subpkgs" ]; then
 			i=0
 			for subpkg in "${subpkgs[@]}"
@@ -266,7 +267,7 @@ if [ "$action" = "upd" ]; then
 				rodepends="${subrodepends[$i]}"
 				conflicts="${subconflicts[$i]}"
 				provides="${subprovides[$i]}"
-				db_write_entry $subpkg || die "error writing entry for $subpkg ($file)"
+				db_write_entry $subpkg || die "error writing entry for $subpkg ($option)"
 				i=$(($i+1))
 			done
 		fi
