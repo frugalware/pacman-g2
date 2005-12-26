@@ -127,12 +127,10 @@ fi
 dnl Enable or disable debug code
 AC_MSG_CHECKING(for debug mode request)
 if test x$debug = xyes ; then
-    AC_DEFINE([PACMAN_DEBUG], [TRUE], [Enable debugging support])
     AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xyes)
 	CFLAGS="-DPACMAN_DEBUG -Wall -W -O0 -fno-omit-frame-pointer -ggdb -g3"
     AC_MSG_RESULT(yes)
 else
-    AC_DEFINE([PACMAN_DEBUG], [FALSE], [Disable debugging support])
     AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xno)
 	CFLAGS="$CFLAGS"
     AC_MSG_RESULT(no)
