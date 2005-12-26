@@ -233,9 +233,7 @@ int sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync)
 			_alpm_log(PM_LOG_FLOW1, "%s-%s: delaying upgrade of package (%s)\n",
 					local->name, local->version, spkg->version);
 		} else {
-			pmpkg_t *dummy = pkg_new();
-			STRNCPY(dummy->name, local->name, PKG_NAME_LEN);
-			STRNCPY(dummy->version, local->version, PKG_VERSION_LEN);
+			pmpkg_t *dummy = pkg_dummy(local->name, local->version);
 			sync = sync_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
 			if(sync == NULL) {
 				FREEPKG(dummy);
