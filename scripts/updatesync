@@ -61,21 +61,6 @@ error() { return 0; }
 Fdie() { return 0; }
 Finclude() { return 0; }
 
-get_md5checksum() # For backward compatibility (Need to md5sum the pacman package)
-{
-	if [ "$pkgdir" != "" ]; then
-		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
-	else
-		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
-	fi
-	if [ -f $pkgfile ]; then
-		md5line=`md5sum $pkgfile`
-		[ ! -z "$md5line" ] && pkgmd5sum=${md5line%  *}
-		echo $pkgmd5sum
-	fi
-	return 0
-}
-
 get_sha1checksum()
 {
 	if [ "$pkgdir" != "" ]; then
@@ -99,13 +84,15 @@ db_write_entry()
 	else
 		pkgfile="$destdir/$1-$pkgver-$pkgrel-$arch.fpm"
 	fi
-		csize=`du -b $pkgfile | cut -f1`
-	if [ "$1" == "pacman" ]; then
-		pkgmd5sum=`get_md5checksum $pkgfile`
-		[ -z $pkgmd5sum ] && die "missing package: $pkgfile"
-	else
-		pkgsha1sum=`get_sha1checksum $pkgfile`
-		[ -z $pkgsha1sum ] && die "missing package: $pkgfile"
+	csize=`du -b $pkgfile | cut -f1`
+	pkgsha1sum=`get_sha1checksum $pkgfile`
+	if [ -z $pkgsha1sum ]; then
+		if [ ! "$force" ]; then
+			die "missing package: $pkgfile"
+		else
+			echo "updatesync: missing package: $pkgfile" >&2
+			return 0
+		fi
 	fi
 	cd $ustmpdir
 	mkdir $1-$pkgver-$pkgrel || return 1
@@ -127,11 +114,6 @@ db_write_entry()
 	echo "%CSIZE%" >>desc
 	echo "$csize" >>desc
 	echo "" >>desc
-	if [ ! -z $pkgmd5sum ]; then
-		echo "%MD5SUM%" >>desc
-		echo "$pkgmd5sum" >>desc
-		echo "" >>desc
-	fi
 	if [ ! -z $pkgsha1sum ]; then
 		echo "%SHA1SUM%" >>desc
 		echo "$pkgsha1sum" >>desc
@@ -204,6 +186,10 @@ fi
 if [ "$1" = "-h" -o "$1" = "--help" ]; then
 	usage
 	exit 0
+fi
+
+if [ "$1" = "-f" -o "$1" = "--force" ]; then
+	force=1
 fi
 
 action=$1
