@@ -642,6 +642,10 @@ if darcs --commands 2>&1|grep -q add; then
 	if [ ! -e Changelog ] || [ `stat -c %Y Changelog` -lt `stat -c %Y $BUILDSCRIPT` ]; then
 		msg "Generating the Changelog..."
 		darcs changes $BUILDSCRIPT |sed "s|\(.*\)source/\(.*\)/FrugalBuild\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" >Changelog
+		if [ "`id -u`" = "0" ]; then
+			chown `stat -c %U:%G FrugalBuild` \
+				Changelog
+		fi
 	fi
 fi
 # Build chroot environment if necessary.
