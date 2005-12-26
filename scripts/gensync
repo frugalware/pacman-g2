@@ -80,10 +80,10 @@ db_write_entry()
 	else
 		pkgfile="$destdir/$1-$pkgver-$pkgrel-$arch.fpm"
 	fi
-	csize=`du -b $pkgfile | cut -f1`
+	csize=`du -b $pkgfile 2>/dev/null | cut -f1`
 	pkgsha1sum=`get_sha1checksum $pkgfile`
 	if [ -z $pkgsha1sum ]; then
-		if [ ! "$force" ]; then
+		if [ ! "$forcepkgs" ]; then
 			die "missing package: $pkgfile"
 		else
 			echo "gensync: missing package: $pkgfile" >&2
@@ -184,7 +184,8 @@ if [ "$1" = "-h" -o "$1" = "--help" ]; then
 fi
 
 if [ "$1" = "-f" -o "$1" = "--force" ]; then
-	force=1
+	forcepkgs=1
+	shift 1
 fi
 
 d=`dirname $1`
