@@ -348,7 +348,6 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 		snprintf(scriptfn, PATH_MAX, "%s/.INSTALL", tmpdir);
 		/* chop off the root so we can find the tmpdir in the chroot */
 		scriptpath = scriptfn + strlen(root) - 1;
-		return(0);
 	} else {
 		STRNCPY(scriptfn, installfn, PATH_MAX);
 		/* chop off the root so we can find the tmpdir in the chroot */
