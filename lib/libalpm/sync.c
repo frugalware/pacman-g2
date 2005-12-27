@@ -429,6 +429,7 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 				}
 			}
 		}
+		FREELISTPTR(trans->packages);
 		trans->packages = l;
 
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
