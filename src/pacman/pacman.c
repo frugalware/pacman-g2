@@ -63,6 +63,7 @@ int main(int argc, char *argv[])
 	int ret = 0;
 	char *cenv = NULL;
 	uid_t myuid;
+	list_t *lp;
 
 #ifndef CYGWIN
 	/* debug */
