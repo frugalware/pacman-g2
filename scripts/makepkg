@@ -638,7 +638,7 @@ fi
 # Generate the Changelog if necessary.
 # in case we're in a darcs repo, but the current dir is not yet part of it
 darcs add . >/dev/null 2>&1
-if darcs --commands 2>&1|grep -q add; then
+if darcs --commands 2>&1|grep -q add && [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 	if [ ! -e Changelog ] || [ `stat -c %Y Changelog` -lt `stat -c %Y $BUILDSCRIPT` ]; then
 		msg "Generating the Changelog..."
 		darcs changes $BUILDSCRIPT |sed "s|\(.*\)source/\(.*\)/FrugalBuild\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" >Changelog
