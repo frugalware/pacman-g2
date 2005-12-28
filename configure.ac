@@ -50,23 +50,28 @@ AC_ARG_ENABLE(man2html,
 
 dnl Check for architecture
 case "$host" in
-    i?86-* | x86_64-*)
-	case "$host" in
-	    i386-* | i486-* | i586-*) AC_MSG_ERROR([Only i686 supported]);;
-	    i686-*) AC_DEFINE_UNQUOTED([CARCH], ["i686"], [Architecture])
-		    AC_DEFINE_UNQUOTED([CARCHFLAGS], ["i686"], [Architecture])
-		    CARCH="i686"
-		    CARCHFLAGS="i686"
-		    CHOST="${host}";;
-	    x86_64-*) AC_DEFINE_UNQUOTED([CARCH], ["x86_64"], [Architecture])
-		    AC_DEFINE_UNQUOTED([CARCHFLAGS], ["k8"], [Architecture])
-		    CARCH="x86_64"
-		    CARCHFLAGS="k8"
-		    CHOST="${host}";;
-	esac
-	;;
-    ppc-* | powerpc-*)
-	AC_MSG_ERROR([PPC isn't supported now]);;
+	i686-*) AC_DEFINE_UNQUOTED([CARCH], ["i686"], [Architecture])
+		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["i686"], [Architecture])
+		CARCH="i686"
+		CARCHFLAGS="i686"
+		CHOST="${host}"
+		;;
+	x86_64-*) AC_DEFINE_UNQUOTED([CARCH], ["x86_64"], [Architecture])
+		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["k8"], [Architecture])
+		CARCH="x86_64"
+		CARCHFLAGS="k8"
+		CHOST="${host}"
+		;;
+	ppc-* | powerpc-*)
+		AC_DEFINE_UNQUOTED([CARCH], ["ppc"], [Architecture])
+		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["750"], [Architecture])
+		CARCH="ppc"
+		CARCHFLAGS="750"
+		CHOST="${host}"
+		;;
+	*)
+		AC_MSG_ERROR([Your architecture is not supported])
+		;;
 esac
 
 AC_SUBST(CARCH)
@@ -182,7 +187,7 @@ pacman-$VERSION:
 	pacman.conf location     : ${PACCONF}
 
 	Architecture CARCH       : ${CARCH}
-	Architecture used cflag  : -${CARCHFLAGS}
+	Architecture used cflag  : ${CARCHFLAGS}
 	Architecture CHOST       : ${CHOST}
 
 	debug support            : ${debug}
