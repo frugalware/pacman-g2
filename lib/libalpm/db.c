@@ -271,7 +271,9 @@ int db_read(pmdb_t *db, char *name, unsigned int inforeq, pmpkg_t *info)
 	if(inforeq & INFRQ_DESC) {
 		snprintf(path, PATH_MAX, "%s/%s/desc", db->path, name);
 		fp = fopen(path, "r");
-		fd = fileno(fp);
+		if(fp != NULL) {
+			fd = fileno(fp);
+		}
 		if(fp == NULL || fstat(fd, &st)) {
 			_alpm_log(PM_LOG_ERROR, "%s (%s)", path, strerror(errno));
 			return(-1);
