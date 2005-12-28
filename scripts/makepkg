@@ -996,70 +996,70 @@ if [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 	fi
 else
 # generate md5 hashes
-    if [ "$GENMD5" = "1" ]; then
-	if [ ! `type -p md5sum` ]; then
-		error "Cannot find the md5sum program."
-		exit 1
-  fi
-	msg "Generating MD5sums for source files"
-	plain ""
-	ct=0
-	newline=0
-	numsrc=${#source[@]}
-	for netfile in ${source[@]}; do
-		file=`strip_url $netfile`
-		sum=`md5sum $file | cut -d' ' -f 1`
-		if [ $ct -eq 0 ]; then
-			echo -n "md5sums=("
-		else
-			if [ $newline -eq 0 ]; then
-				echo -n "         "
-			fi
-		fi
-		echo -n "'$sum'"
-		ct=$(($ct+1))
-		if [ $ct -eq $numsrc ]; then
-			echo ')'
-		else
-			if [ $newline -eq 1 ]; then
-				echo '\'
-				newline=0
-			else
-				echo -n ' '
-				newline=1
-			fi
-		fi
-	done
-	plain ""
-	exit 0
-    # generate sha1 hashes
-    elif [ "$GENSHA1" = "1" ]; then
-	if [ ! `type -p sha1sum` ]; then
-		error "Cannot find the sha1sum program."
-		exit 1
+	if [ "$GENMD5" = "1" ]; then
+		if [ ! `type -p md5sum` ]; then
+			error "Cannot find the md5sum program."
+			exit 1
 	fi
-	msg "Generating SHA1sums for source files"
-	plain ""
-	ct=0
-	newline=0
-	numsrc=${#source[@]}
-	for netfile in ${source[@]}; do
-		file=`strip_url $netfile`
-		sum=`sha1sum $file | cut -d' ' -f 1`
-		if [ $ct -eq 0 ]; then
-			echo -n "sha1sums=("
-		else
-			echo -ne "\t  "
+		msg "Generating MD5sums for source files"
+		plain ""
+		ct=0
+		newline=0
+		numsrc=${#source[@]}
+		for netfile in ${source[@]}; do
+			file=`strip_url $netfile`
+			sum=`md5sum $file | cut -d' ' -f 1`
+			if [ $ct -eq 0 ]; then
+				echo -n "md5sums=("
+			else
+				if [ $newline -eq 0 ]; then
+					echo -n "         "
+				fi
+			fi
+			echo -n "'$sum'"
+			ct=$(($ct+1))
+			if [ $ct -eq $numsrc ]; then
+				echo ')'
+			else
+				if [ $newline -eq 1 ]; then
+					echo '\'
+					newline=0
+				else
+					echo -n ' '
+					newline=1
+				fi
+			fi
+		done
+		plain ""
+		exit 0
+	# generate sha1 hashes
+	elif [ "$GENSHA1" = "1" ]; then
+		if [ ! `type -p sha1sum` ]; then
+			error "Cannot find the sha1sum program."
+			exit 1
 		fi
-		echo -n "'$sum'"
-		ct=$(($ct+1))
-		if [ $ct -eq $numsrc ]; then
-			echo ')'
-		else
-			echo ' \'
-			newline=0
-		fi
-	done
+		msg "Generating SHA1sums for source files"
+		plain ""
+		ct=0
+		newline=0
+		numsrc=${#source[@]}
+		for netfile in ${source[@]}; do
+			file=`strip_url $netfile`
+			sum=`sha1sum $file | cut -d' ' -f 1`
+			if [ $ct -eq 0 ]; then
+				echo -n "sha1sums=("
+			else
+				echo -ne "\t  "
+			fi
+			echo -n "'$sum'"
+			ct=$(($ct+1))
+			if [ $ct -eq $numsrc ]; then
+				echo ')'
+			else
+				echo ' \'
+				newline=0
+			fi
+		done
 	plain ""
 	exit 0
     fi
