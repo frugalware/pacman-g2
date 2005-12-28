@@ -1,5 +1,5 @@
 /*
- *  rpmvercmp.h
+ *  versioncmp.h
  * 
  *  Copyright (c) 2002 by Judd Vinet <jvinet@zeroflux.org>
  * 
@@ -21,7 +21,7 @@
 #ifndef _PM_RPMVERCMP_H
 #define _PM_RPMVERCMP_H
 
-int rpmvercmp(const char *a, const char *b);
+int versioncmp(const char *a, const char *b);
 
 #endif
 

@@ -1,5 +1,5 @@
 /*
- *  rpmvercmp.c
+ *  versioncmp.c
  * 
  *  Copyright (c) 2002-2005 by Judd Vinet <jvinet@zeroflux.org>
  * 
@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <string.h>
 /* pacman */
-#include "rpmvercmp.h"
+#include "versioncmp.h"
 
 #ifndef HAVE_STRVERSCMP
 /* GNU's strverscmp() function, taken from glibc 2.3.2 sources
@@ -140,7 +140,7 @@ static int strverscmp (s1, s2)
 #endif
 
 /* this function was taken from rpm 4.0.4 and rewritten */
-int rpmvercmp(const char *a, const char *b)
+int versioncmp(const char *a, const char *b)
 {
 	char str1[64], str2[64];
 	char *ptr1, *ptr2;
@@ -228,7 +228,7 @@ int rpmvercmp(const char *a, const char *b)
 
 	if((!*one) && (!*two)) {
 		/* compare release numbers */
-		if(rel1 && rel2) return(rpmvercmp(rel1, rel2));
+		if(rel1 && rel2) return(versioncmp(rel1, rel2));
 		return(0);
 	}
 
