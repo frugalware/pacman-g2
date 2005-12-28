@@ -445,6 +445,7 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 			for(i = deps; i; i = i->next) {
 				pmdepmissing_t *miss = i->data;
 				if(miss->type == PM_DEP_TYPE_DEPEND || miss->type == PM_DEP_TYPE_REQUIRED) {
+					_alpm_log(PM_LOG_ERROR, "cannot satisfy dependency for \"%s\" (requires \"%s%s%s\")", miss->target, miss->depend.name, _alpm_strdep(miss->depend.mod), miss->depend.version);
 					if(!errorout) {
 						errorout = 1;
 					}
