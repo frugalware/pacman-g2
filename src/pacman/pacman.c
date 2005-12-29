@@ -576,7 +576,7 @@ void usage(int op, char *myname)
 void version()
 {
 	printf("\n");
-	printf(" .--.                  Pacman v%s - libalpm v%s\n", PACMAN_VERSION, PM_VERSION);
+	printf(" .--.                  Pacman v%s - libalpm v%s\n", PACKAGE_VERSION, PM_VERSION);
 	printf("/ _.-' .-.  .-.  .-.   Copyright (C) 2002-2005 Judd Vinet <jvinet@zeroflux.org>\n");
 	printf("\\  '-. '-'  '-'  '-'   & Frugalware developers <frugalware-devel@frugalware.org>\n");
 	printf(" '--'                  \n");

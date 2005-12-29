@@ -1,7 +1,7 @@
 ENV_CFLAGS=$CFLAGS
 
 AC_PREREQ(2.59)
-AC_INIT([Pacman package manager], 1.0, [bugreport@somemail.org], pacman)
+AC_INIT([Pacman package manager], 2.9.99.6, [bugreport@somemail.org], pacman)
 AC_LANG(C)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_SYSTEM
@@ -22,17 +22,12 @@ AC_SUBST(PM_MICRO_VERSION)
 AC_SUBST(PM_VERSION)
 AC_SUBST(PM_VERSION_INFO)
 
-dnl Define here the pacman binary program version number
-PACMAN_VERSION=2.9.99.6
-AC_SUBST(PACMAN_VERSION)
-
 dnl Define the default config file path for pacman.conf
 PACCONF=/etc/pacman.conf
 AC_DEFINE_UNQUOTED([PACCONF], ["$PACCONF"], [pacman.conf location])
 
 dnl Put out version numbers to config.h
 AC_DEFINE_UNQUOTED([PM_VERSION], ["$PM_VERSION"], [libalpm version number])
-AC_DEFINE_UNQUOTED([PACMAN_VERSION], ["$PACMAN_VERSION"], [pacman version number])
 
 dnl Configuration files
 AC_CONFIG_FILES([etc/makepkg.conf] [etc/pacman.conf])

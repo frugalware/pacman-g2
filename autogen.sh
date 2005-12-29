@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 
 if [ "$1" == "--dist" ]; then
-	ver=`grep ^PACMAN_VERSION configure.ac|sed 's/.*=//'`
+	ver=`grep AC_INIT configure.ac|sed 's/.*, \([0-9\.]*\), .*/\1/'`
 	darcs changes >_darcs/current/ChangeLog
 	darcs dist -d pacman-$ver
 	rm _darcs/current/ChangeLog
