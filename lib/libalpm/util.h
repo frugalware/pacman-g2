@@ -60,7 +60,6 @@ int _alpm_rmrf(char *path);
 int _alpm_log_action(unsigned char usesyslog, FILE *f, char *fmt, ...);
 int _alpm_ldconfig(char *root);
 int _alpm_runscriptlet(char *util, char *installfn, char *script, char *ver, char *oldver);
-char *_alpm_strdep(int mod);
 
 #endif /* _ALPM_UTIL_H */
 

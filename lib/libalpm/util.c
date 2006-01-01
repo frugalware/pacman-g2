@@ -424,13 +424,4 @@ int _alpm_archive_read_entry_data_into_fd (struct archive *archive, int file) {
 	return ARCHIVE_OK;
 }
 
-char *_alpm_strdep(int mod) {
-	switch(mod) {
-		case PM_DEP_MOD_EQ: return("=");
-		case PM_DEP_MOD_GE: return(">=");
-		case PM_DEP_MOD_LE: return("<=");
-	}
-	return(NULL);
-}
-
 /* vim: set ts=2 sw=2 noet: */
