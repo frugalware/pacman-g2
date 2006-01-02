@@ -72,7 +72,7 @@ void trans_free(pmtrans_t *trans)
 		FREELIST(trans->packages);
 		FREELIST(trans->skiplist);
 	} else {
-		FREELISTPTR(trans->packages);
+		FREELISTPKGS(trans->packages);
 	}
 
 	free(trans);
