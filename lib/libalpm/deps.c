@@ -528,7 +528,7 @@ PMList* removedeps(pmdb_t *db, PMList *targs)
 				asprintf(&name, "%s-%s", dep->name, dep->version);
 				/* add it to the target list */
 				db_read(db, name, INFRQ_ALL, dep);
-				newtargs = pm_list_add(newtargs, dep);
+				newtargs = pm_list_add(newtargs, pkg_dup(dep));
 				newtargs = removedeps(db, newtargs);
 				FREE(name);
 			}
