@@ -149,13 +149,15 @@ int add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 		pmpkg_t *pkg = i->data;
 		if(strcmp(pkg->name, pkgname) == 0) {
 			if(versioncmp(pkg->version, pkgver) < 0) {
+				pmpkg_t *newpkg;
 				_alpm_log(PM_LOG_WARNING, "replacing older version of %s %s by %s in target list", pkg->name, pkg->version, pkgver);
-				FREEPKG(i->data);
-				i->data = pkg_load(name);
-				if(i->data == NULL) {
+				newpkg = pkg_load(name);
+				if(newpkg == NULL) {
 					/* pm_errno is already set by pkg_load() */
 					goto error;
 				}
+				FREEPKG(i->data);
+				i->data = newpkg;
 			}
 			return(0);
 		}
@@ -190,7 +192,7 @@ error:
 int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 {
 	PMList *lp;
-	PMList *skiplist = NULL, *rmlist = NULL;
+	PMList *rmlist = NULL;
 	char rm_fname[PATH_MAX];
 	pmpkg_t *info = NULL;
 
@@ -203,13 +205,12 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 	/* Check dependencies
 	 */
 	if(!(trans->flags & PM_TRANS_FLAG_NODEPS)) {
-		PMList *i;
-
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 
 		_alpm_log(PM_LOG_FLOW1, "looking for conflicts or unsatisfied dependencies");
 		lp = checkdeps(db, trans->type, trans->packages);
 		if(lp != NULL) {
+			PMList *i;
 			int errorout = 0;
 
 			/* look for unsatisfied dependencies */
@@ -248,11 +249,10 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 					*data = pm_list_add(*data, miss);
 				}
 			}
+			FREELIST(lp);
 			if(errorout) {
-				FREELIST(lp);
 				RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
 			}
-			FREELIST(lp);
 		}
 
 		/* re-order w.r.t. dependencies */
@@ -281,6 +281,8 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 	/* Check for file conflicts
 	 */
 	if(!(trans->flags & PM_TRANS_FLAG_FORCE)) {
+		PMList *skiplist = NULL;
+
 		EVENT(trans, PM_TRANS_EVT_FILECONFLICTS_START, NULL, NULL);
 
 		_alpm_log(PM_LOG_FLOW1, "looking for file conflicts");
@@ -289,6 +291,7 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 			for(;lp;lp=lp->next) {
 				_alpm_log(PM_LOG_ERROR, lp->data);
 			}
+			FREELIST(skiplist);
 			RET_ERR(PM_ERR_FILE_CONFLICTS, -1);
 		}
 
@@ -296,6 +299,7 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 		for(lp = skiplist; lp; lp = lp->next) {
 			trans->skiplist = pm_list_add(trans->skiplist, lp->data);
 		}
+		FREELISTPTR(skiplist);
 
 		EVENT(trans, PM_TRANS_EVT_FILECONFLICTS_DONE, NULL, NULL);
 	}
@@ -379,7 +383,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 					}
 					/* copy the skiplist over */
 					for(lp = trans->skiplist; lp; lp = lp->next) {
-						pm_list_add(tr->skiplist, lp->data);
+						tr->skiplist = pm_list_add(tr->skiplist, strdup(lp->data));
 					}
 					if(remove_commit(tr, db) == -1) {
 						FREETRANS(tr);
@@ -509,6 +513,8 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 						errors++;
 						unlink(temp);
 						FREE(temp);
+						FREE(md5_orig);
+						FREE(sha1_orig);
 						close(fd);
 						continue;
 					}
@@ -783,11 +789,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 			}
 		}
 
-		if(pmo_upgrade) {
-			EVENT(trans, PM_TRANS_EVT_UPGRADE_DONE, oldpkg, info);
-		} else {
-			EVENT(trans, PM_TRANS_EVT_ADD_DONE, info, NULL);
-		}
+		EVENT(trans, (pmo_upgrade) ? PM_TRANS_EVT_UPGRADE_DONE : PM_TRANS_EVT_ADD_DONE, info, oldpkg);
 
 		FREEPKG(oldpkg);
 	}

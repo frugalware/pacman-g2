@@ -326,8 +326,9 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 	char tmpdir[PATH_MAX] = "";
 	char *scriptpath;
 	struct stat buf;
-	char cwd[PATH_MAX];
+	char cwd[PATH_MAX] = "";
 	pid_t pid;
+	int retval = 0;
 
 	if(stat(installfn, &buf)) {
 		/* not found */
@@ -356,14 +357,16 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 
 	if(!_alpm_grep(scriptfn, script)) {
 		/* script not found in scriptlet file */
-		if(strlen(tmpdir) && _alpm_rmrf(tmpdir)) {
-			_alpm_log(PM_LOG_WARNING, "could not remove tmpdir %s", tmpdir);
-		}
-		return(0);
+		goto cleanup;
 	}
 
 	/* save the cwd so we can restore it later */
-	getcwd(cwd, PATH_MAX);
+	if(getcwd(cwd, PATH_MAX) == NULL) {
+		_alpm_log(PM_LOG_ERROR, "could not get current working directory");
+		/* in case of error, cwd content is undefined: so we set it to something */
+		cwd[0] = 0;
+	}
+
 	/* just in case our cwd was removed in the upgrade operation */
 	chdir(root);
 
@@ -381,15 +384,15 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 	pid = fork();
 	if(pid == -1) {
 		_alpm_log(PM_LOG_ERROR, "could not fork a new process (%s)", strerror(errno));
-		chdir(cwd);
-		return(1);
+		retval = 1;
+		goto cleanup;
 	}
 
 	if(pid == 0) {
 		_alpm_log(PM_LOG_DEBUG, "chrooting in %s", root);
 		if(chroot(root) != 0) {
 			_alpm_log(PM_LOG_ERROR, "could not change the root directory (%s)", strerror(errno));
-			return (1);
+			return(1);
 		}
 		umask(0022);
 		_alpm_log(PM_LOG_DEBUG, "executing \"%s\"", cmdline);
@@ -398,17 +401,20 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 	} else {
 		if(waitpid(pid, 0, 0) == -1) {
 			_alpm_log(PM_LOG_ERROR, "call to waitpid failed (%s)", strerror(errno));
-			chdir(cwd);
-			return(1);
+			retval = 1;
+			goto cleanup;
 		}
 	}
 
+cleanup:
 	if(strlen(tmpdir) && _alpm_rmrf(tmpdir)) {
 		_alpm_log(PM_LOG_WARNING, "could not remove tmpdir %s", tmpdir);
 	}
+	if(strlen(cwd)) {
+		chdir(cwd);
+	}
 
-	chdir(cwd);
-	return(0);
+	return(retval);
 }
 
 int _alpm_archive_read_entry_data_into_fd (struct archive *archive, int file) {

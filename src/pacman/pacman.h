@@ -22,8 +22,6 @@
 #define _PM_PACMAN_H
 #include "config.h"
 
-/* #define PACCONF  "/etc/pacman.conf" */ /* Comes from configure now */
-
 /* Operations */
 #define PM_OP_MAIN    1
 #define PM_OP_ADD     2

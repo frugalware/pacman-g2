@@ -642,7 +642,6 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local)
 
 	/* remove to-be-replaced packages */
 	tr = trans_new();
-
 	if(tr == NULL) {
 		_alpm_log(PM_LOG_ERROR, "could not create removal transaction");
 		pm_errno = PM_ERR_XXX;
@@ -694,7 +693,6 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local)
 	}
 	if(trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, NULL, NULL, NULL) == -1) {
 		_alpm_log(PM_LOG_ERROR, "could not initialize transaction");
-		pm_errno = PM_ERR_XXX;
 		goto error;
 	}
 	for(i = trans->packages; i; i = i->next) {
@@ -726,7 +724,6 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local)
 	tr->cb_progress = trans->cb_progress;
 	if(trans_commit(tr) == -1) {
 		_alpm_log(PM_LOG_ERROR, "could not commit transaction");
-		pm_errno = PM_ERR_XXX;
 		goto error;
 	}
 	FREETRANS(tr);

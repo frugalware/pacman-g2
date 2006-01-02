@@ -46,22 +46,22 @@ void cb_log(unsigned short level, char *msg)
 
 	switch(level) {
 		case PM_LOG_DEBUG:
-			sprintf(str, "DEBUG");
+			sprintf(str, "debug");
 		break;
 		case PM_LOG_ERROR:
-			sprintf(str, "ERROR");
+			sprintf(str, "error");
 		break;
 		case PM_LOG_WARNING:
-			sprintf(str, "WARNING");
+			sprintf(str, "warning");
 		break;
 		case PM_LOG_FLOW1:
-			sprintf(str, "FLOW1");
+			sprintf(str, "flow1");
 		break;
 		case PM_LOG_FLOW2:
-			sprintf(str, "FLOW2");
+			sprintf(str, "flow2");
 		break;
 		case PM_LOG_FUNCTION:
-			sprintf(str, "FUNCTION");
+			sprintf(str, "function");
 		break;
 		default:
 			sprintf(str, "???");
@@ -104,7 +104,7 @@ void vprint(char *fmt, ...)
 {
 	va_list args;
 
-	if(config->verbose > 1) {
+	if(config->verbose > 0) {
 		if(neednl == 1) {
 			fprintf(stdout, "\n");
 			neednl = 0;
