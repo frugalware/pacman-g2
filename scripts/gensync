@@ -60,11 +60,6 @@ Finclude() { return 0; }
 
 get_sha1checksum()
 {
-	if [ "$pkgdir" != "" ]; then
-		pkgfile="$pkgdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
-	else
-		pkgfile="$destdir/$pkgname-$pkgver-$pkgrel-$arch.fpm"
-	fi
 	if [ -f $pkgfile ]; then
 		sha1line=`sha1sum $pkgfile`
 		[ ! -z "$sha1line" ] && pkgsha1sum=${sha1line%  *}
