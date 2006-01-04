@@ -501,12 +501,7 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 							 * over to the replacing package
 							 */
 							pmpkg_t *q = db_scan(db_local, miss->depend.name, INFRQ_DESC | INFRQ_DEPENDS);
-							if(q) {
-								/* append to the replaces list */
-								pmsyncpkg_t *spkg = sync_new(PM_SYNC_TYPE_REPLACE, q, NULL);
-								trans->packages = pm_list_add(trans->packages, spkg);
-								solved = 1;
-							} else {
+							if(!q) {
 								char *rmpkg = NULL;
 								/* hmmm, depend.name isn't installed, so it must be conflicting
 								 * with another package in our final list.  For example:
