@@ -1,7 +1,7 @@
 /*
  *  sync.c
  * 
- *  Copyright (c) 2002-2005 by Judd Vinet <jvinet@zeroflux.org>
+ *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -180,7 +180,7 @@ static int sync_synctree(list_t *syncs)
 
 		snprintf(path, PATH_MAX, "%s%s", root, dbpath);
 
-		ret = downloadfiles_forreal(sync->servers, path, files, (const char *)&lastupdate, newmtime);
+		ret = downloadfiles_forreal(sync->servers, path, files, lastupdate, newmtime);
 		vprint("sync: new mtime for %s: %s\n", sync->treename, newmtime);
 		FREELIST(files);
 		if(ret > 0) {
@@ -452,7 +452,6 @@ int pacman_sync(list_t *targets)
 				MSG(NL, "::\n");
 				if(!yesno(":: Upgrade anyway? [Y/n] ")) {
 					retval = 0;
-					alpm_trans_release();
 					goto cleanup;
 				}
 			}

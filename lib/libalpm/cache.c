@@ -1,7 +1,7 @@
 /*
  *  cache.c
  * 
- *  Copyright (c) 2002-2005 by Judd Vinet <jvinet@zeroflux.org>
+ *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -130,7 +130,6 @@ int db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg)
 	}
 
 	db->pkgcache = _alpm_list_remove(db->pkgcache, pkg, pkg_cmp, (void **)&data);
-
 	if(data == NULL) {
 		/* package not found */
 		return(-1);
