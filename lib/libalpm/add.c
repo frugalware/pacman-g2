@@ -440,7 +440,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 				if (info->size != 0)
 		    			percent = (double)archive_position_uncompressed(archive) / info->size;
 				if (needdisp == 0) {
-					PROGRESS(trans, cb_state, what, (int)(percent * 100), pm_list_count(trans->packages), (pm_list_count(trans->packages) - pm_list_count(targ) +1));
+					PROGRESS(trans, cb_state, what, (int)(percent * 100), _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
 				}
 
 				if(!strcmp(pathname, ".PKGINFO") || !strcmp(pathname, ".FILELIST")) {
@@ -773,7 +773,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 			}
 		}
 
-		PROGRESS(trans, cb_state, what, 100, pm_list_count(trans->packages), (pm_list_count(trans->packages) - pm_list_count(targ) +1));
+		PROGRESS(trans, cb_state, what, 100, _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
 		needdisp = 0;
 		printf("\n");
 		fflush(stdout);

@@ -354,9 +354,9 @@ static int ptr_cmp(const void *s1, const void *s2)
 int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **data)
 {
 	PMList *deps = NULL;
-	PMList *list = NULL;
-	PMList *trail = NULL;
-	PMList *asked = NULL;
+	PMList *list = NULL; /* list allowing checkdeps usage with data from trans->packages */
+	PMList *trail = NULL; /* breadcrum list to avoid running into circles */
+	PMList *asked = NULL; 
 	PMList *i, *j, *k, *l;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -370,7 +370,7 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 			pmsyncpkg_t *sync = i->data;
 			list = pm_list_add(list, sync->pkg);
 		}
-		trail = pm_list_new();
+		trail = _alpm_list_new();
 
 		/* Resolve targets dependencies */
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
@@ -440,7 +440,6 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 		deps = checkdeps(db_local, PM_TRANS_TYPE_UPGRADE, list);
 		if(deps) {
 			int found = 0;
-			PMList *j, *k;
 			int errorout = 0;
 			_alpm_log(PM_LOG_FLOW1, "looking for unresolvable dependencies");
 			for(i = deps; i; i = i->next) {
@@ -467,6 +466,7 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 			_alpm_log(PM_LOG_FLOW1, "looking for conflicts");
 			for(i = deps; i && !errorout; i = i->next) {
 				pmdepmissing_t *miss = i->data;
+				PMList *k;
 				if(miss->type != PM_DEP_TYPE_CONFLICT) {
 					continue;
 				}
@@ -476,7 +476,7 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 				 */
 				for(j = trans->packages; j && !found; j = j->next) {
 					pmsyncpkg_t *sync = j->data;
-					if(sync->type == PM_SYNC_TYPE_REPLACE || sync->type == PM_SYNC_TYPE_REMOVE) {
+					if(sync->type == PM_SYNC_TYPE_REPLACE) {
 						for(k = sync->data; k && !found; k = k->next) {
 							pmpkg_t *p = k->data;
 							if(!strcmp(p->name, miss->depend.name)) {
@@ -497,11 +497,7 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 							 * fields are inherited properly.
 							 */
 
-							/* we save the dependency info so we can move p's requiredby stuff
-							 * over to the replacing package
-							 */
-							pmpkg_t *q = db_scan(db_local, miss->depend.name, INFRQ_DESC | INFRQ_DEPENDS);
-							if(!q) {
+							if(db_get_pkgfromcache(db_local, miss->depend.name) == NULL) {
 								char *rmpkg = NULL;
 								/* hmmm, depend.name isn't installed, so it must be conflicting
 								 * with another package in our final list.  For example:
@@ -543,25 +539,16 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 					if(!solved) {
 						/* It's a conflict -- see if they want to remove it
 						 */
-						pmpkg_t *p,*q = NULL;
-						int pkgfound=0;
-						for(k=db_get_pkgcache(db_local); k; k=k->next) {
-							p = k->data;
-							if(!strcmp(p->name, miss->depend.name)) {
-								pkgfound=1;
-								break;
-							}
-						}
-						if(pkgfound) {
+						if(db_get_pkgfromcache(db_local, miss->depend.name)) {
 							int doremove = 0;
 							if(!pm_list_is_strin(miss->depend.name, asked)) {
 								QUESTION(trans, PM_TRANS_CONV_CONFLICT_PKG, miss->target, miss->depend.name, NULL, &doremove);
 								asked = pm_list_add(asked, strdup(miss->depend.name));
 								if(doremove) {
 									/* remove miss->depend.name */
-									k=pm_list_new();
-									q=pkg_new();
-									strcpy(q->name, p->name);
+									k=_alpm_list_new();
+									pmpkg_t *q = pkg_new();
+									STRNCPY(q->name, miss->depend.name, PKG_NAME_LEN);
 									k = pm_list_add(k, q);
 									for(l = trans->packages; l; l=l->next) {
 										pmsyncpkg_t *s = l->data;
@@ -594,26 +581,41 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 		FREELISTPTR(list);
 		FREELISTPTR(trail);
 		FREELIST(asked);
+
+		/* XXX: this fails for cases where a requested package wants
+		 *      a dependency that conflicts with an older version of
+		 *      the package.  It will be removed from final, and the user
+		 *      has to re-request it to get it installed properly.
+		 *
+		 *      Not gonna happen very often, but should be dealt with...
+		 */
+
+		/* Check dependencies of packages in rmtargs and make sure
+		 * we won't be breaking anything by removing them.
+		 * If a broken dep is detected, make sure it's not from a
+		 * package that's in our final (upgrade) list.
+		 */
+		/*EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
+		for(i = trans->packages; i; i = i->next) {
+			pmsyncpkg_t *sync = i->data;
+			if(sync->type == PM_SYNC_TYPE_REPLACE) {
+				for(j = sync->data; j; j = j->next) {
+					list = pm_list_add(list, j->data);
+				}
+			}
+		}
+
+		_alpm_log(PM_LOG_DEBUG, "checking dependencies of packages designated for removal");
+		deps = checkdeps(db_local, PM_TRANS_TYPE_REMOVE, list);
+		if(deps) {
+			*data = deps;
+			pm_errno = PM_ERR_UNSATISFIED_DEPS;
+			goto error;
+		}
+
+		FREELISTPTR(list);
+		/*EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
 	}
-
-	/* any packages in rmtargs need to be removed from final. */
-	/* rather than ripping out nodes from final, we just copy over */
-	/* our "good" nodes to a new list and reassign. */
-
-	/* XXX: this fails for cases where a requested package wants
-	 *      a dependency that conflicts with an older version of
-	 *      the package.  It will be removed from final, and the user
-	 *      has to re-request it to get it installed properly.
-	 *
-	 *      Not gonna happen very often, but should be dealt with...
-	 */
-
-	/* ORE
-	Check dependencies of packages in rmtargs and make sure
-	we won't be breaking anything by removing them.
-	If a broken dep is detected, make sure it's not from a
-	package that's in our final (upgrade) list. */
-	/*_alpm_log(PM_LOG_DEBUG, "checking dependencies of packages designated for removal");*/
 
 	return(0);
 
@@ -640,11 +642,14 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local)
 	tr = trans_new();
 	if(tr == NULL) {
 		_alpm_log(PM_LOG_ERROR, "could not create removal transaction");
-		pm_errno = PM_ERR_XXX;
+		pm_errno = PM_ERR_MEMORY;
 		goto error;
 	}
 
-	trans_init(tr, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, NULL, NULL, NULL);
+	if(trans_init(tr, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, NULL, NULL, NULL) == -1) {
+		_alpm_log(PM_LOG_ERROR, "could not initialize the removal transaction");
+		goto error;
+	}
 
 	for(i = trans->packages; i; i = i->next) {
 		pmsyncpkg_t *sync = i->data;
@@ -706,9 +711,9 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local)
 		if(trans_addtarget(tr, str) == -1) {
 			goto error;
 		}
-		/* using list_last() is ok because addtarget() adds the new target at the
+		/* using _alpm_list_last() is ok because addtarget() adds the new target at the
 		 * end of the tr->packages list */
-		spkg = pm_list_last(tr->packages)->data;
+		spkg = _alpm_list_last(tr->packages)->data;
 		if(sync->type == PM_SYNC_TYPE_DEPEND) {
 			/* ORE
 			 * if called from makepkg, reason should be set to PM_PKG_REASON_DEPEND */
