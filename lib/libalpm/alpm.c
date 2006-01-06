@@ -816,6 +816,13 @@ int alpm_list_free(PMList *entry)
 
 	return(0);
 }
+
+int alpm_list_count(PMList *list)
+{
+	ASSERT(list != NULL, return(NULL));
+
+	return(_alpm_list_count(list));
+}
 /** @} */
 
 /** @defgroup alpm_misc Miscellaneous Functions

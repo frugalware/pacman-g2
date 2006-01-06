@@ -363,6 +363,7 @@ int pacman_sync(list_t *targets)
 {
 	int confirm = 0;
 	int retval = 0;
+	int onlypacman = 0;
 	list_t *i;
 	PM_LIST *packages, *data, *lp;
 	char *root, *cachedir;
@@ -441,18 +442,27 @@ int pacman_sync(list_t *targets)
 		for(lp = alpm_list_first(data); lp; lp = alpm_list_next(lp)) {
 			PM_SYNCPKG *sync = alpm_list_getdata(lp);
 			PM_PKG *spkg = alpm_sync_getinfo(sync, PM_SYNC_PKG);
-			if(!strcmp("pacman", alpm_pkg_getinfo(spkg, PM_PKG_NAME))) {
+			if(!strcmp("pacman", alpm_pkg_getinfo(spkg, PM_PKG_NAME)) && alpm_list_count(data) > 1) {
 				MSG(NL, "\n:: pacman has detected a newer version of the \"pacman\" package.\n");
 				MSG(NL, ":: It is recommended that you allow pacman to upgrade itself\n");
 				MSG(NL, ":: first, then you can re-run the operation with the newer version.\n");
 				MSG(NL, "::\n");
-				if(!yesno(":: Upgrade anyway? [Y/n] ")) {
-					retval = 0;
-					goto cleanup;
+				if(yesno(":: Upgrade pacman first? [Y/n] ")) {
+					FREELIST(targets);
+					targets = list_add(NULL, "pacman");
+					onlypacman = 1;
+					alpm_trans_release();
+					if(alpm_trans_init(PM_TRANS_TYPE_SYNC, config->flags, cb_trans_evt, cb_trans_conv, cb_trans_progress) == -1) {
+						ERR(NL, "failed to init transaction (%s)\n", alpm_strerror(pm_errno));
+						retval = 1;
+						goto cleanup;
+					}
+					break;
 				}
 			}
 		}
-	} else {
+	}
+	if(!config->op_s_upgrade || onlypacman) {
 		/* process targets */
 		for(i = targets; i; i = i->next) {
 			char *targ = i->data;
