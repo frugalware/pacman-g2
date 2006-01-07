@@ -562,13 +562,6 @@ int pacman_sync(list_t *targets)
 				}
 				alpm_list_free(data);
 			break;
-			case PM_ERR_FILE_CONFLICTS:
-				for(lp = alpm_list_first(data); lp; lp = alpm_list_next(lp)) {
-					MSG(NL, ":: %s\n", (char *)alpm_list_getdata(lp));
-				}
-				alpm_list_free(data);
-				MSG(NL, "\nerrors occurred, no packages were upgraded.\n");
-			break;
 			default:
 			break;
 		}
@@ -789,8 +782,19 @@ int pacman_sync(list_t *targets)
 	}
 
 	/* Step 3: actually perform the installation */
-	if(alpm_trans_commit() == -1) {
+	if(alpm_trans_commit(&data) == -1) {
 		ERR(NL, "failed to commit transaction (%s)\n", alpm_strerror(pm_errno));
+		switch(pm_errno) {
+			case PM_ERR_FILE_CONFLICTS:
+				for(lp = alpm_list_first(data); lp; lp = alpm_list_next(lp)) {
+					MSG(NL, ":: %s\n", (char *)alpm_list_getdata(lp));
+				}
+				alpm_list_free(data);
+				MSG(NL, "\nerrors occurred, no packages were upgraded.\n");
+			break;
+			default:
+			break;
+		}
 		retval = 1;
 		goto cleanup;
 	}

@@ -292,9 +292,7 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 		_alpm_log(PM_LOG_FLOW1, "looking for file conflicts");
 		lp = db_find_conflicts(db, trans->packages, handle->root, &skiplist);
 		if(lp != NULL) {
-			for(;lp;lp=lp->next) {
-				_alpm_log(PM_LOG_ERROR, lp->data);
-			}
+			*data = lp;
 			FREELIST(skiplist);
 			RET_ERR(PM_ERR_FILE_CONFLICTS, -1);
 		}
