@@ -512,10 +512,12 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 
 								/* figure out which one was requested in targets.  If they both were,
 								 * then it's still an unresolvable conflict. */
-								if(pm_list_is_in(miss->depend.name, trans->targets) && !pm_list_is_in(miss->target, trans->targets)) {
+								if(pm_list_is_strin(miss->depend.name, trans->targets)
+								   && !pm_list_is_strin(miss->target, trans->targets)) {
 									/* remove miss->target */
 									rmpkg = strdup(miss->target);
-								} else if(pm_list_is_in(miss->target, trans->targets) && !pm_list_is_in(miss->depend.name, trans->targets)) {
+								} else if(pm_list_is_strin(miss->target, trans->targets)
+								          && !pm_list_is_strin(miss->depend.name, trans->targets)) {
 									/* remove miss->depend.name */
 									rmpkg = strdup(miss->depend.name);
 								} else {
@@ -561,20 +563,34 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 									/* abort */
 									_alpm_log(PM_LOG_ERROR, "package conflicts detected");
 									errorout=1;
+									if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
+										FREELIST(*data);
+										pm_errno = PM_ERR_MEMORY;
+										goto error;
+									}
+									*miss = *(pmdepmissing_t *)i->data;
+									*data = pm_list_add(*data, miss);
 								}
 							}
 						} else {
 							_alpm_log(PM_LOG_ERROR, "%s conflicts with %s", miss->target, miss->depend.name);
 							errorout = 1;
+							if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
+								FREELIST(*data);
+								pm_errno = PM_ERR_MEMORY;
+								goto error;
+							}
+							*miss = *(pmdepmissing_t *)i->data;
+							*data = pm_list_add(*data, miss);
 						}
 					}
 				}
 			}
-			FREELIST(deps);
 			if(errorout) {
 				pm_errno = PM_ERR_CONFLICTING_DEPS;
 				goto error;
 			}
+			FREELIST(deps);
 		}
 		EVENT(trans, PM_TRANS_EVT_INTERCONFLICTS_DONE, NULL, NULL);
 
@@ -696,7 +712,7 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local)
 	tr = trans_new();
 	if(tr == NULL) {
 		_alpm_log(PM_LOG_ERROR, "could not create transaction");
-		pm_errno = PM_ERR_XXX;
+		pm_errno = PM_ERR_MEMORY;
 		goto error;
 	}
 	if(trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, NULL, NULL, NULL) == -1) {
