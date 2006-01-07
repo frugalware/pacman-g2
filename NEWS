@@ -1,6 +1,44 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
-              - fix for regex searches with -Ss (Miklos Vanja)
+2.9.99.8      - if you have foo installed, and bar replaces + provides foo,
+                then remove foo, and install bar (now works again)
+              - upgrade only pacman first during a -Su
+              - removed duplicated error messages
+              - more verbose error message for conflicting files when using
+                -S
+2.9.99.7      - bugfix for -Sg
+              - if pacman can't create its cachedir, then use /tmp (bugfix)
+2.9.99.6      - bugfix for -Rs
+              - pre_install/pre_upgrade scripts are working again
+              - added a -f option to gensync/updatesync (don't die if the fpm
+                is missing)
+              - bugfix for --ignore
+              - added ppc support (to configure)
+              - handle broken databases (just print an error message, don't
+                segfault)
+              - more verbose error messages for unsatisfied dependencies
+2.9.99.5      - re-added SBU support to makepkg (which was accidently dropped
+                by 2.9.99.0)
+              - initial package splitting support
+              - memleak fixes
+              - more verbose error messages on file conflicts
+2.9.99.4      - fixed running scriptlets when -r is used
+              - don't die on up to date databases (when you do -Sy twice)
+              - more verbose error messages (ie. when there is a missing
+                dependency)
+2.9.99.3      - fixed -v option
+              - allow c++ usage in alpm.h
+              - fixed logging everything twice to pacman.log
+2.9.99.2      - makepkg -R works again if you haven't had a chroot yet (was a
+                pacman bug)
+              - output fix for -Sy
+              - if you have installed foo, and then you do a -S bar, then now
+                pacman offers you to remove foo (as it should)
+2.9.99.1      - fix makepkg -g
+              - makepkg: fixed changelog generation
+              - fixed --noconfirm
+2.9.99.0      - this is the first release which is based on pacman-lib
+                (converted the initial cvs repo to darcs)
 2.9.7         - fixed the dupe listings of packages when dealing w/ groups
               - patches from Miklos Vanja:
                 - add regexp search support for -Qs and -Ss
