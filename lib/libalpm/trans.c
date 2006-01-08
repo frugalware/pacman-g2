@@ -183,7 +183,8 @@ int trans_prepare(pmtrans_t *trans, PMList **data)
 
 int trans_commit(pmtrans_t *trans, PMList **data)
 {
-	*data = NULL;
+	if(data!=NULL)
+		*data = NULL;
 
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));

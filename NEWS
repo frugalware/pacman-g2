@@ -1,5 +1,7 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.9      - fixed -S/-U/-A segfault. hopefully not everybody upgraded
+                yet...
 2.9.99.8      - if you have foo installed, and bar replaces + provides foo,
                 then remove foo, and install bar (now works again)
               - upgrade only pacman first during a -Su
