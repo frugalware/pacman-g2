@@ -70,7 +70,7 @@ int add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 	 */
 	if(strchr(name, '|')) {
 		char *str, *ptr, *p;
-		dummy = pkg_new();
+		dummy = pkg_new(NULL, NULL);
 		if(dummy == NULL) {
 			pm_errno = PM_ERR_MEMORY;
 			goto error;
@@ -175,9 +175,9 @@ int add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 		goto error;
 	}
 
-	/* set the reason to EXPLICIT by default
-	 * it will be overwritten in the case of an upgrade or a sync operation */
-	info->reason = PM_PKG_REASON_EXPLICIT;
+	if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
+		info->reason = PM_PKG_REASON_DEPEND;
+	}
 
 	/* add the package to the transaction */
 	trans->packages = pm_list_add(trans->packages, info);
@@ -198,9 +198,10 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(data != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	*data = NULL;
+	if(data) {
+		*data = NULL;
+	}
 
 	/* Check dependencies
 	 */
@@ -222,13 +223,15 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 					if(!errorout) {
 						errorout = 1;
 					}
-					if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
-						FREELIST(lp);
-						FREELIST(*data);
-						RET_ERR(PM_ERR_MEMORY, -1);
+					if(data) {
+						if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
+							FREELIST(lp);
+							FREELIST(*data);
+							RET_ERR(PM_ERR_MEMORY, -1);
+						}
+						*miss = *(pmdepmissing_t*)i->data;
+						*data = pm_list_add(*data, miss);
 					}
-					*miss = *(pmdepmissing_t*)i->data;
-					*data = pm_list_add(*data, miss);
 				}
 			}
 			if(errorout) {
@@ -244,13 +247,15 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 					if(!errorout) {
 						errorout = 1;
 					}
-					if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
-						FREELIST(lp);
-						FREELIST(*data);
-						RET_ERR(PM_ERR_MEMORY, -1);
+					if(data) {
+						if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
+							FREELIST(lp);
+							FREELIST(*data);
+							RET_ERR(PM_ERR_MEMORY, -1);
+						}
+						*miss = *(pmdepmissing_t*)i->data;
+						*data = pm_list_add(*data, miss);
 					}
-					*miss = *(pmdepmissing_t*)i->data;
-					*data = pm_list_add(*data, miss);
 				}
 			}
 			FREELIST(lp);
@@ -292,7 +297,9 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 		_alpm_log(PM_LOG_FLOW1, "looking for file conflicts");
 		lp = db_find_conflicts(db, trans->packages, handle->root, &skiplist);
 		if(lp != NULL) {
-			*data = lp;
+			if(data) {
+				*data = lp;
+			}
 			FREELIST(skiplist);
 			RET_ERR(PM_ERR_FILE_CONFLICTS, -1);
 		}
@@ -346,10 +353,8 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 				asprintf(&what, "%s", info->name);
 
 				/* we'll need to save some record for backup checks later */
-				oldpkg = pkg_new();
+				oldpkg = pkg_new(local->name, local->version);
 				if(oldpkg) {
-					strncpy(oldpkg->name, local->name, PKG_NAME_LEN);
-					strncpy(oldpkg->version, local->version, PKG_VERSION_LEN);
 					if(!(local->infolevel & INFRQ_FILES)) {
 						char name[PKG_FULLNAME_LEN];
 						snprintf(name, PKG_FULLNAME_LEN, "%s-%s", local->name, local->version);

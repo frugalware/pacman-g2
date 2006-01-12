@@ -66,8 +66,8 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 		case PM_TRANS_EVT_ADD_DONE:
 /*			MSG(CL, "done.\n"); */
 			snprintf(str, LOG_STR_LEN, "installed %s (%s)",
-			                   (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-			                   (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
+			         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
+			         (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
 			alpm_logaction(str);
 		break;
 		case PM_TRANS_EVT_REMOVE_START:
@@ -86,9 +86,9 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 		case PM_TRANS_EVT_UPGRADE_DONE:
 /*			MSG(CL, "done.\n"); */ /* Not needed because progressbar */
 			snprintf(str, LOG_STR_LEN, "upgraded %s (%s -> %s)",
-			                   (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-			                   (char *)alpm_pkg_getinfo(data2, PM_PKG_VERSION),
-			                   (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
+			         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
+			         (char *)alpm_pkg_getinfo(data2, PM_PKG_VERSION),
+			         (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
 			alpm_logaction(str);
 		break;
 	}
@@ -100,35 +100,35 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 
 	switch(event) {
 		case PM_TRANS_CONV_INSTALL_IGNOREPKG:
-			snprintf(str, LOG_STR_LEN, ":: %s requires %s, but it is in IgnorePkg.  Install anyway? [Y/n] ",
-					(char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-					(char *)alpm_pkg_getinfo(data2, PM_PKG_NAME));
+			snprintf(str, LOG_STR_LEN, ":: %s requires %s, but it is in IgnorePkg. Install anyway? [Y/n] ",
+			         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
+			         (char *)alpm_pkg_getinfo(data2, PM_PKG_NAME));
 			*response = yesno(str);
 		break;
 		case PM_TRANS_CONV_REPLACE_PKG:
 			snprintf(str, LOG_STR_LEN, ":: Replace %s with %s/%s? [Y/n] ",
-					(char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-					(char *)data3,
-					(char *)alpm_pkg_getinfo(data2, PM_PKG_NAME));
+			         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
+			         (char *)data3,
+			         (char *)alpm_pkg_getinfo(data2, PM_PKG_NAME));
 			*response = yesno(str);
 		break;
 		case PM_TRANS_CONV_CONFLICT_PKG:
-			snprintf(str, LOG_STR_LEN, "\n:: %s conflicts with %s. Remove %s? [Y/n] ",
-					(char *)data1,
-					(char *)data2,
-					(char *)data2);
+			snprintf(str, LOG_STR_LEN, ":: %s conflicts with %s. Remove %s? [Y/n] ",
+			         (char *)data1,
+			         (char *)data2,
+			         (char *)data2);
 			*response = yesno(str);
 		break;
 		case PM_TRANS_CONV_LOCAL_NEWER:
 			snprintf(str, LOG_STR_LEN, ":: %s-%s: local version is newer. Upgrade anyway? [Y/n] ",
-					(char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-					(char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
+			         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
+			         (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
 			*response = yesno(str);
 		break;
 		case PM_TRANS_CONV_LOCAL_UPTODATE:
 			snprintf(str, LOG_STR_LEN, ":: %s-%s: local version is up to date. Upgrade anyway? [Y/n] ",
-					(char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-					(char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
+			         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
+			         (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
 			*response = yesno(str);
 		break;
 	}

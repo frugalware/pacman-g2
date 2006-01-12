@@ -159,7 +159,7 @@ enum {
 };
 
 /* reasons -- ie, why the package was installed */
-#define PM_PKG_REASON_EXPLICIT  0  /* explicitly requested by the user              */
+#define PM_PKG_REASON_EXPLICIT  0  /* explicitly requested by the user */
 #define PM_PKG_REASON_DEPEND    1  /* installed as a dependency for another package */
 
 /* package name formats */
@@ -191,8 +191,7 @@ void *alpm_grp_getinfo(PM_GRP *grp, unsigned char parm);
 enum {
 	PM_SYNC_TYPE_REPLACE = 1,
 	PM_SYNC_TYPE_UPGRADE,
-	PM_SYNC_TYPE_DEPEND,
-	PM_SYNC_TYPE_REMOVE
+	PM_SYNC_TYPE_DEPEND
 };
 /* Info parameters */
 enum {
@@ -224,6 +223,7 @@ enum {
 #define PM_TRANS_FLAG_RECURSE 0x20
 #define PM_TRANS_FLAG_DBONLY  0x40
 #define PM_TRANS_FLAG_DEPENDSONLY 0x80
+#define PM_TRANS_FLAG_ALLDEPS 0x100
 
 /* Transaction Events */
 enum {
@@ -389,7 +389,7 @@ extern enum __pmerrno_t {
 
 char *alpm_strerror(int err);
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 #endif /* _ALPM_H */

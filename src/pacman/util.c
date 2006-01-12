@@ -79,7 +79,6 @@ int rmrf(char *path)
 	int errflag = 0;
 	struct dirent *dp;
 	DIR *dirp;
-	char name[PATH_MAX];
 
 	if(!unlink(path)) {
 		return(0);
@@ -102,6 +101,7 @@ int rmrf(char *path)
 		}
 		for(dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
 			if(dp->d_ino) {
+				char name[PATH_MAX];
 				sprintf(name, "%s/%s", path, dp->d_name);
 				if(strcmp(dp->d_name, "..") && strcmp(dp->d_name, ".")) {
 					errflag += rmrf(name);
@@ -195,8 +195,10 @@ int yesno(char *fmt, ...)
 	char response[32];
 	va_list args;
 
-	if(!config->noconfirm)
-	{
+	if(config->noconfirm) {
+		return(1);
+	}
+
 	va_start(args, fmt);
 	vprintf(fmt, args);
 	va_end(args);
@@ -222,9 +224,6 @@ int yesno(char *fmt, ...)
 		}
 	}
 	return(0);
-	} else {
-		return(1);
-	}
 }
 
 /* match a string against a regular expression */

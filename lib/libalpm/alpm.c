@@ -781,7 +781,7 @@ int alpm_logaction(char *fmt, ...)
 	It allows to share the log file between several frontends and to actually 
 	know who does what */
 
-	return(_alpm_log_action(handle->usesyslog, handle->logfd, str));
+	return(_alpm_logaction(handle->usesyslog, handle->logfd, str));
 }
 /** @} */
 

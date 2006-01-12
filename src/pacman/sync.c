@@ -545,7 +545,7 @@ int pacman_sync(list_t *targets)
 					MSG(NL, ":: %s: requires %s", alpm_dep_getinfo(miss, PM_DEP_TARGET),
 					                              alpm_dep_getinfo(miss, PM_DEP_NAME));
 					switch((int)alpm_dep_getinfo(miss, PM_DEP_MOD)) {
-						case PM_DEP_MOD_EQ: MSG(CL, "=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION));  break;
+						case PM_DEP_MOD_EQ: MSG(CL, "=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION)); break;
 						case PM_DEP_MOD_GE: MSG(CL, ">=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION)); break;
 						case PM_DEP_MOD_LE: MSG(CL, "<=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION)); break;
 					}
@@ -625,7 +625,7 @@ int pacman_sync(list_t *targets)
 		MSG(NL, "\nTargets: ");
 		str = buildstring(list_install);
 		indentprint(str, 9);
-		MSG(NL, "Total Package Size:   %.1f MB\n", mb);
+		MSG(NL, "\nTotal Package Size:   %.1f MB\n", mb);
 		FREELIST(list_install);
 		FREE(str);
 
@@ -652,7 +652,6 @@ int pacman_sync(list_t *targets)
 			}
 		}
 		if(!confirm) {
-			retval = 1;
 			goto cleanup;
 		}
 	}

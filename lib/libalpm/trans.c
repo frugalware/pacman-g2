@@ -70,10 +70,11 @@ void trans_free(pmtrans_t *trans)
 			FREESYNC(i->data);
 		}
 		FREELIST(trans->packages);
-		FREELIST(trans->skiplist);
 	} else {
 		FREELISTPKGS(trans->packages);
 	}
+
+	FREELIST(trans->skiplist);
 
 	free(trans);
 }
@@ -82,10 +83,6 @@ int trans_init(pmtrans_t *trans, unsigned char type, unsigned char flags, alpm_t
 {
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-
-	/* ORE
-	perform sanity checks on type and flags:
-	for instance, we can't set UPGRADE and FRESHEN at the same time */
 
 	trans->type = type;
 	trans->flags = flags;
