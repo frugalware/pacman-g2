@@ -32,7 +32,7 @@ enum {
 
 typedef struct __pmtrans_t {
 	unsigned char type;
-	unsigned char flags;
+	unsigned int flags;
 	unsigned char state;
 	PMList *targets;     /* PMList of (char *) */
 	PMList *packages;    /* PMList of (pmpkg_t *) or (pmsyncpkg_t *) */
@@ -70,7 +70,7 @@ do { \
 
 pmtrans_t *trans_new(void);
 void trans_free(pmtrans_t *trans);
-int trans_init(pmtrans_t *trans, unsigned char type, unsigned char flags, alpm_trans_cb_event event, alpm_trans_cb_conv conv, alpm_trans_cb_progress progress);
+int trans_init(pmtrans_t *trans, unsigned char type, unsigned int flags, alpm_trans_cb_event event, alpm_trans_cb_conv conv, alpm_trans_cb_progress progress);
 int trans_sysupgrade(pmtrans_t *trans);
 int trans_addtarget(pmtrans_t *trans, char *target);
 int trans_prepare(pmtrans_t *trans, PMList **data);

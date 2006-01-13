@@ -224,6 +224,7 @@ enum {
 #define PM_TRANS_FLAG_DBONLY  0x40
 #define PM_TRANS_FLAG_DEPENDSONLY 0x80
 #define PM_TRANS_FLAG_ALLDEPS 0x100
+#define PM_TRANS_FLAG_DOWNLOADONLY 0x200
 
 /* Transaction Events */
 enum {
@@ -242,7 +243,9 @@ enum {
 	PM_TRANS_EVT_REMOVE_START,
 	PM_TRANS_EVT_REMOVE_DONE,
 	PM_TRANS_EVT_UPGRADE_START,
-	PM_TRANS_EVT_UPGRADE_DONE
+	PM_TRANS_EVT_UPGRADE_DONE,
+	PM_TRANS_EVT_INTEGRITY_START,
+	PM_TRANS_EVT_INTEGRITY_DONE
 };
 
 /* Transaction Conversations (ie, questions) */
@@ -278,7 +281,7 @@ enum {
 };
 
 void *alpm_trans_getinfo(unsigned char parm);
-int alpm_trans_init(unsigned char type, unsigned char flags, alpm_trans_cb_event cb_event, alpm_trans_cb_conv conv, alpm_trans_cb_progress cb_progress);
+int alpm_trans_init(unsigned char type, unsigned int flags, alpm_trans_cb_event cb_event, alpm_trans_cb_conv conv, alpm_trans_cb_progress cb_progress);
 int alpm_trans_sysupgrade(void);
 int alpm_trans_addtarget(char *target);
 int alpm_trans_prepare(PM_LIST **data);
@@ -373,6 +376,7 @@ extern enum __pmerrno_t {
 	PM_ERR_PKG_INSTALLED,
 	PM_ERR_PKG_CANT_FRESH,
 	PM_ERR_PKG_INVALID_NAME,
+	PM_ERR_PKG_CORRUPTED,
 	/* Groups */
 	PM_ERR_GRP_NOT_FOUND,
 	/* Dependencies */

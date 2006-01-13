@@ -43,6 +43,8 @@
 #include "handle.h"
 #include "util.h"
 #include "alpm.h"
+#include "md5.h"
+#include "sha1.h"
 
 extern pmhandle_t *handle;
 
@@ -683,10 +685,60 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 {
 	PMList *i;
 	pmtrans_t *tr = NULL;
-	int replaces = 0;
+	int replaces = 0, retval = 0;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+
+	/* Check integrity of files */
+	EVENT(trans, PM_TRANS_EVT_INTEGRITY_START, NULL, NULL);
+
+	for(i = trans->packages; i; i = i->next) {
+		pmsyncpkg_t *sync = i->data;
+		pmpkg_t *spkg = sync->pkg;
+		char str[PATH_MAX], pkgname[PATH_MAX];
+		char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
+		char *ptr=NULL;
+
+		snprintf(pkgname, PATH_MAX, "%s-%s-%s" PM_EXT_PKG,
+			spkg->name, spkg->version, spkg->arch);
+		md5sum1 = spkg->md5sum;
+		sha1sum1 = spkg->sha1sum;
+
+		if((md5sum1 == NULL) && (sha1sum1 == NULL)) {
+			MALLOC(ptr, 512);
+			snprintf(ptr, 512, "can't get md5 or sha1 checksum for package %s\n", pkgname);
+			*data = pm_list_add(*data, ptr);
+			retval = 1;
+			continue;
+		}
+		snprintf(str, PATH_MAX, "%s/%s/%s", handle->root, handle->cachedir, pkgname);
+		md5sum2 = MDFile(str);
+		sha1sum2 = SHAFile(str);
+		if(md5sum2 == NULL && sha1sum2 == NULL) {
+			MALLOC(ptr, 512);
+			snprintf(ptr, 512, "can't get md5 or sha1 checksum for package %s\n", pkgname);
+			*data = pm_list_add(*data, ptr);
+			retval = 1;
+			continue;
+		}
+		if((strcmp(md5sum1, md5sum2) != 0) && (strcmp(sha1sum1, sha1sum2) != 0)) {
+			MALLOC(ptr, 512);
+			snprintf(ptr, 512, "archive %s is corrupted (bad MD5 or SHA1 checksum)\n", pkgname);
+			*data = pm_list_add(*data, ptr);
+			retval = 1;
+		}
+		FREE(md5sum2);
+		FREE(sha1sum2);
+	}
+	if(retval) {
+		pm_errno = PM_ERR_PKG_CORRUPTED;
+		goto error;
+	}
+	EVENT(trans, PM_TRANS_EVT_INTEGRITY_DONE, NULL, NULL);
+	if(trans->flags & PM_TRANS_FLAG_DOWNLOADONLY) {
+		return(0);
+	}
 
 	/* remove conflicting and to-be-replaced packages */
 	tr = trans_new();

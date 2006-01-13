@@ -385,7 +385,10 @@ int parseargs(int argc, char *argv[])
 			break;
 			case 'u': config->op_s_upgrade = 1; break;
 			case 'v': config->verbose++; break;
-			case 'w': config->op_s_downloadonly = 1; break;
+			case 'w':
+				config->op_s_downloadonly = 1;
+				config->flags |= PM_TRANS_FLAG_DOWNLOADONLY;
+			break;
 			case 'y': config->op_s_sync = 1; break;
 			case '?': return(1);
 			default: return(1);

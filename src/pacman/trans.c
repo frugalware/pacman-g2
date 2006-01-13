@@ -91,6 +91,12 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			         (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
 			alpm_logaction(str);
 		break;
+		case PM_TRANS_EVT_INTEGRITY_START:
+			MSG(NL, "checking package integrity... ");
+		break;
+		case PM_TRANS_EVT_INTEGRITY_DONE:
+			MSG(CL, "done.\n");
+		break;
 	}
 }
 

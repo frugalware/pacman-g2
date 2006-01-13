@@ -97,6 +97,8 @@ char *alpm_strerror(int err)
 			return "package not installed or lesser version";
 		case PM_ERR_PKG_INVALID_NAME:
 			return "package name is not valid";
+		case PM_ERR_PKG_CORRUPTED:
+			return "corrupted package";
 		/* Groups */
 		case PM_ERR_GRP_NOT_FOUND:
 			return "group not found";
