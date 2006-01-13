@@ -677,7 +677,6 @@ error:
 	FREELISTPTR(list);
 	FREELISTPTR(trail);
 	FREELIST(asked);
-	FREELIST(deps);
 	return(-1);
 }
 
