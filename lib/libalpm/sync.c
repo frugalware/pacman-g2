@@ -202,6 +202,7 @@ int sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync)
 	/* match installed packages with the sync dbs and compare versions */
 	for(i = db_get_pkgcache(db_local); i; i = i->next) {
 		int cmp;
+		int replace=0;
 		pmpkg_t *local = i->data;
 		pmpkg_t *spkg = NULL;
 		pmsyncpkg_t *sync;
@@ -218,22 +219,26 @@ int sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync)
 			/*_alpm_log(PM_LOG_ERROR, "%s: not found in sync db -- skipping.", local->name);*/
 			continue;
 		}
-
-		/* compare versions and see if we need to upgrade */
-		cmp = versioncmp(local->version, spkg->version);
+	
 		/* we don't care about a to-be-replaced package's newer version */
-		for(j = trans->packages; j; j=j->next) {
+		for(j = trans->packages; j && !replace; j=j->next) {
 			sync = j->data;
 			if(sync->type == PM_SYNC_TYPE_REPLACE) {
-				for(k=sync->data; k; k=k->next) {
+				for(k=sync->data; k && !replace; k=k->next) {
 					if(!strcmp(((pmpkg_t*)k->data)->name, spkg->name)) {
-						_alpm_log(PM_LOG_DEBUG, "%s is already elected for removal -- skipping",
-								local->name);
-						continue;
+						replace=1;
 					}
 				}
 			}
 		}
+		if(replace) {
+			_alpm_log(PM_LOG_DEBUG, "%s is already elected for removal -- skipping",
+								local->name);
+			continue;
+		}
+
+		/* compare versions and see if we need to upgrade */
+		cmp = versioncmp(local->version, spkg->version);
 		if(cmp > 0 && !spkg->force) {
 			/* local version is newer */
 			_alpm_log(PM_LOG_FLOW1, "%s-%s: local version is newer",
