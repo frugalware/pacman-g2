@@ -795,7 +795,7 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 		pm_errno = PM_ERR_MEMORY;
 		goto error;
 	}
-	if(trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, NULL, NULL, NULL) == -1) {
+	if(trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, trans->cb_event, trans->cb_conv, trans->cb_progress) == -1) {
 		_alpm_log(PM_LOG_ERROR, "could not initialize transaction");
 		goto error;
 	}
