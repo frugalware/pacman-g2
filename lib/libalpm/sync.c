@@ -201,7 +201,7 @@ int sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync)
 
 	/* match installed packages with the sync dbs and compare versions */
 	for(i = db_get_pkgcache(db_local); i; i = i->next) {
-		int cmp, replace=0;
+		int cmp;
 		pmpkg_t *local = i->data;
 		pmpkg_t *spkg = NULL;
 		pmsyncpkg_t *sync;
@@ -227,7 +227,9 @@ int sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync)
 			if(sync->type == PM_SYNC_TYPE_REPLACE) {
 				for(k=sync->data; k; k=k->next) {
 					if(!strcmp(((pmpkg_t*)k->data)->name, spkg->name)) {
-						replace=1;
+						_alpm_log(PM_LOG_DEBUG, "%s is already elected for removal -- skipping",
+								local->name);
+						continue;
 					}
 				}
 			}
@@ -246,10 +248,6 @@ int sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync)
 			/* package too new (UpgradeDelay) */
 			_alpm_log(PM_LOG_FLOW1, "%s-%s: delaying upgrade of package (%s)\n",
 					local->name, local->version, spkg->version);
-		} else if(replace) {
-			/* this package is to be replaced, ignore newer version */
-			_alpm_log(PM_LOG_DEBUG, "%s is already elected for removal -- skipping",
-					local->name);
 		} else {
 			pmpkg_t *dummy = pkg_new(local->name, local->version);
 			sync = sync_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
