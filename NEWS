@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.10     - fixed -Sg output - now frugalpkg works again
+              - fixed a double free() when installing conflicting packages
+              - fixed an annoying bug with progressbar, now works as it did
+                in the pacman 2.x times
+              - don't care about a to-be-replaced package's newer version
 2.9.99.9      - fixed -S/-U/-A segfault. hopefully not everybody upgraded
                 yet...
 2.9.99.8      - if you have foo installed, and bar replaces + provides foo,
