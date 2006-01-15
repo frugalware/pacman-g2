@@ -186,19 +186,19 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 			break;
 		hash = percent/6.25;
 		if (howmany < 10) {
-			printf("(%d/%d) upgrading %s", remain, howmany, pkgname);
+			printf("(%d/%d) upgrading  %s", remain, howmany, pkgname);
 		} else if ((howmany > 10) && (remain < 10)) {
-			printf("( %d/%d) upgrading %s", remain, howmany, pkgname);
+			printf("( %d/%d) upgrading  %s", remain, howmany, pkgname);
 		} else if ((howmany > 10) && (remain > 10)) {
-			printf("(%d/%d) upgrading %s", remain, howmany, pkgname);
+			printf("(%d/%d) upgrading  %s", remain, howmany, pkgname);
 		} else if ((howmany > 100) && (remain < 10)) {
-			printf("(  %d/%d) upgrading %s", remain, howmany, pkgname);
+			printf("(  %d/%d) upgrading  %s", remain, howmany, pkgname);
 		} else if ((howmany > 100) && (remain < 100)) {
-			printf("( %d/%d) upgrading %s", remain, howmany, pkgname);
+			printf("( %d/%d) upgrading  %s", remain, howmany, pkgname);
 		} else if ((howmany > 100) && (remain < 100)) {
-			printf("(%d/%d) upgrading %s", remain, howmany, pkgname);
+			printf("(%d/%d) upgrading  %s", remain, howmany, pkgname);
 		} else {
-			printf("(%d/%d) upgrading %s", remain, howmany, pkgname);
+			printf("(%d/%d) upgrading  %s", remain, howmany, pkgname);
 		}
 		if (strlen(pkgname)<35)
 			for (i=35-strlen(pkgname)-1; i>0; i--)
