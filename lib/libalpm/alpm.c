@@ -429,6 +429,11 @@ PMList *alpm_db_getgrpcache(pmdb_t *db)
  * @{
  */
 
+/** Get informations about a package.
+ * @param db package pointer
+ * @param parm name of the info to get
+ * @return a char* on success (the value), NULL on error
+ */
 void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 {
 	void *data = NULL;
@@ -527,6 +532,11 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 	return(data);
 }
 
+/** Create a package from a file.
+ * @param filename location of the package tarball
+ * @param pkg address of the package pointer
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
 int alpm_pkg_load(char *filename, pmpkg_t **pkg)
 {
 	/* Sanity checks */
@@ -542,6 +552,10 @@ int alpm_pkg_load(char *filename, pmpkg_t **pkg)
 	return(0);
 }
 
+/** Free a package.
+ * @param pkg package pointer to free
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
 int alpm_pkg_free(pmpkg_t *pkg)
 {
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
@@ -552,6 +566,12 @@ int alpm_pkg_free(pmpkg_t *pkg)
 	return(0);
 }
 
+/** Compare versions.
+ * @param ver1 first version
+ * @param ver2 secont version
+ * @return postive, 0 or negative if ver1 is less, equal or more
+ * than ver2, respectively.
+ */
 int alpm_pkg_vercmp(const char *ver1, const char *ver2)
 {
 	return(versioncmp(ver1, ver2));
@@ -562,6 +582,11 @@ int alpm_pkg_vercmp(const char *ver1, const char *ver2)
  * @{
  */
 
+/** Get informations about a group.
+ * @param grp group pointer
+ * @param parm name of the info to get
+ * @return a char* on success (the value), NULL on error
+ */
 void *alpm_grp_getinfo(pmgrp_t *grp, unsigned char parm)
 {
 	void *data = NULL;
@@ -585,6 +610,11 @@ void *alpm_grp_getinfo(pmgrp_t *grp, unsigned char parm)
  * @{
  */
 
+/** Get informations about a sync.
+ * @param sync pointer
+ * @param parm name of the info to get
+ * @return a char* on success (the value), NULL on error
+ */
 void *alpm_sync_getinfo(pmsyncpkg_t *sync, unsigned char parm)
 {
 	void *data;
@@ -609,6 +639,10 @@ void *alpm_sync_getinfo(pmsyncpkg_t *sync, unsigned char parm)
  * @{
  */
 
+/** Get informations about the transaction.
+ * @param parm name of the info to get
+ * @return a char* on success (the value), NULL on error
+ */
 void *alpm_trans_getinfo(unsigned char parm)
 {
 	pmtrans_t *trans;
@@ -633,6 +667,14 @@ void *alpm_trans_getinfo(unsigned char parm)
 	return(data);
 }
 
+/** Initialize the transaction.
+ * @param type type of the transaction
+ * @param flags flags of the transaction (like nodeps, etc)
+ * @param event event callback function pointer
+ * @param conv question callback function pointer
+ * @param progress progress callback function pointer
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
 int alpm_trans_init(unsigned char type, unsigned int flags, alpm_trans_cb_event event, alpm_trans_cb_conv conv, alpm_trans_cb_progress progress)
 {
 	/* Sanity checks */
@@ -648,6 +690,9 @@ int alpm_trans_init(unsigned char type, unsigned int flags, alpm_trans_cb_event 
 	return(trans_init(handle->trans, type, flags, event, conv, progress));
 }
 
+/** Search for packages to upgrade and add them to the transaction.
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
 int alpm_trans_sysupgrade()
 {
 	pmtrans_t *trans;
@@ -662,6 +707,10 @@ int alpm_trans_sysupgrade()
 	return(trans_sysupgrade(trans));
 }
 
+/** Add a target to the transaction.
+ * @param target the name of the target to add
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
 int alpm_trans_addtarget(char *target)
 {
 	pmtrans_t *trans;
@@ -677,6 +726,11 @@ int alpm_trans_addtarget(char *target)
 	return(trans_addtarget(trans, target));
 }
 
+/** Prepare a transaction.
+ * @param data the address of a PM_LIST where detailed description
+ * of an error can be dumped (ie. list of conflicting files)
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
 int alpm_trans_prepare(PMList **data)
 {
 	pmtrans_t *trans;
@@ -692,6 +746,11 @@ int alpm_trans_prepare(PMList **data)
 	return(trans_prepare(handle->trans, data));
 }
 
+/** Commit a transaction.
+ * @param data the address of a PM_LIST where detailed description
+ * of an error can be dumped (ie. list of conflicting files)
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
 int alpm_trans_commit(PMList **data)
 {
 	pmtrans_t *trans;
@@ -709,6 +768,9 @@ int alpm_trans_commit(PMList **data)
 	return(trans_commit(handle->trans, data));
 }
 
+/** Release a transaction.
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
 int alpm_trans_release()
 {
 	pmtrans_t *trans;
