@@ -792,6 +792,11 @@ int alpm_trans_release()
  * @{
  */
 
+/** Get informations about a dependency.
+ * @param db dependency pointer
+ * @param parm name of the info to get
+ * @return a char* on success (the value), NULL on error
+ */
 void *alpm_dep_getinfo(pmdepmissing_t *miss, unsigned char parm)
 {
 	void *data;
@@ -818,6 +823,10 @@ void *alpm_dep_getinfo(pmdepmissing_t *miss, unsigned char parm)
  * @{
  */
 
+/** A printf-like function for logging.
+ * @param fmt output format
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
 int alpm_logaction(char *fmt, ...)
 {
 	char str[LOG_STR_LEN];
@@ -851,11 +860,19 @@ int alpm_logaction(char *fmt, ...)
  * @{
  */
 
+/** Get the first element of a list.
+ * @param list the list
+ * @return the first element
+ */
 PMList *alpm_list_first(PMList *list)
 {
 	return(list);
 }
 
+/** Get the next element of a list.
+ * @param entry the list entry
+ * @return the next element on success, NULL on error
+ */
 PMList *alpm_list_next(PMList *entry)
 {
 	ASSERT(entry != NULL, return(NULL));
@@ -863,6 +880,10 @@ PMList *alpm_list_next(PMList *entry)
 	return(entry->next);
 }
 
+/** Get the data of a list entry.
+ * @param entry the list entry
+ * @return the data on success, NULL on error
+ */
 void *alpm_list_getdata(PMList *entry)
 {
 	ASSERT(entry != NULL, return(NULL));
@@ -870,6 +891,10 @@ void *alpm_list_getdata(PMList *entry)
 	return(entry->data);
 }
 
+/** Free a list.
+ * @param entry list to free
+ * @return 0 on success, -1 on error
+ */
 int alpm_list_free(PMList *entry)
 {
 	ASSERT(entry != NULL, return(-1));
@@ -879,6 +904,10 @@ int alpm_list_free(PMList *entry)
 	return(0);
 }
 
+/** Count the entries in a list.
+ * @param list the list to count
+ * @return number of entries on success, NULL on error
+ */
 int alpm_list_count(PMList *list)
 {
 	ASSERT(list != NULL, return(NULL));
@@ -891,6 +920,10 @@ int alpm_list_count(PMList *list)
  * @{
  */
 
+/** Get the md5 sum of file.
+ * @param name name of the file
+ * @return the checksum on success, NULL on error
+ */
 char *alpm_get_md5sum(char *name)
 {
 	ASSERT(name != NULL, return(NULL));
@@ -898,6 +931,10 @@ char *alpm_get_md5sum(char *name)
 	return(MDFile(name));
 }
 
+/** Get the sha1 sum of file.
+ * @param name name of the file
+ * @return the checksum on success, NULL on error
+ */
 char *alpm_get_sha1sum(char *name)
 {
 	ASSERT(name != NULL, return(NULL));
