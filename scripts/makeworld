@@ -128,11 +128,12 @@ for category in $*; do
 			. FrugalBuild
 			buildstatus=0
 			if [ ! -f $dest/$pkgname-$pkgver-$pkgrel-$CARCH.fpm ]; then
-				sudo makepkg $MAKEPKG_OPTS -R -L -u -k -m -w $dest 2>>$toplevel/makepkg.log
+				sudo makepkg $MAKEPKG_OPTS -R -L -u -k -m 2>>$toplevel/makepkg.log
 				if [ $? -gt 0 ]; then
 					buildstatus=2
 				else
 					buildstatus=1
+					mv $pkgname-$pkgver-$pkgrel-$CARCH.fpm $dest/
 				fi
 			fi
 			d=`date +"[%b %d %H:%M]"`
