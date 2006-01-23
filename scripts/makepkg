@@ -752,11 +752,14 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		fi
 		rm -rf $CHROOTDIR/var/tmp/fst/*
 		chroot_clean
+		ret=0
+	else
+		ret=1
 	fi
 
 	chroot_umount
 	rm -f $CHROOTDIR/var/tmp/fst/lock
-	exit 0
+	exit $ret
 fi
 
 # Enter the fakeroot environment if necessary.  This will call the makepkg script again
