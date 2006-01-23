@@ -738,6 +738,11 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			/bin/su - fst -c "$0 --inchroot -S $ARGLIST"
 	fi
 
+	# save the build log if necessary
+	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log ]; then
+		mv $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log ./
+	fi
+
 	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm ]; then
 		mv $CHROOTDIR/var/tmp/fst/*-${pkgver}-${pkgrel}-${CARCH}.fpm $PKGDEST
 		if [ "`id -u`" = "0" ]; then
@@ -746,10 +751,6 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		fi
 		# copy back the buildscript, maybe modified
 		cp $CHROOTDIR/var/tmp/fst/FrugalBuild ./
-		# save the build log if necessary
-		if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log ]; then
-			mv $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log ./
-		fi
 		rm -rf $CHROOTDIR/var/tmp/fst/*
 		chroot_clean
 		ret=0
