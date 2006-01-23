@@ -123,7 +123,7 @@ for category in $*; do
 			. FrugalBuild
 			buildstatus=0
 			if [ ! -f $dest/$pkgname-$pkgver-$pkgrel-$CARCH.fpm ]; then
-				makepkg $MAKEPKG_OPTS -k -m -w $dest 2>>$toplevel/makepkg.log
+				makepkg $MAKEPKG_OPTS -R -L -u -k -m -w $dest 2>>$toplevel/makepkg.log
 				if [ $? -gt 0 ]; then
 					buildstatus=2
 				else
