@@ -26,6 +26,11 @@ toplevel=`pwd`
 # makepkg configuration, mainly for $CARCH
 [ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
 
+# the usual fake functions
+error() { return 0; }
+Fdie() { return 0; }
+Finclude() { return 0; }
+
 usage() {
 	echo "makeworld version $version"
 	echo "usage: $0 [options] <destdir> <category> [category] ..."
