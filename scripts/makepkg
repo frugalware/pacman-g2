@@ -1312,6 +1312,17 @@ if [ "$INSTALL" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
 	msg "Running pacman --upgrade..."
 	pacman --upgrade $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm
 	exit $?
+elif [ "$INSTALL" = "1" -a "$DEP_SUDO" = "1" ]; then
+	msg "Running pacman --upgrade..."
+	if [ "$INFAKEROOT" = "1" ]; then
+		FAKEROOTKEY2=$FAKEROOTKEY
+		unset FAKEROOTKEY
+	fi
+	sudo pacman --upgrade $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm
+	if [ "$INFAKEROOT" = "1" ]; then
+		export FAKEROOTKEY=$FAKEROOTKEY2
+		unset FAKEROOTKEY2
+	fi
 fi
 
 exit 0
