@@ -23,6 +23,9 @@
 version="2.9.7"
 toplevel=`pwd`
 
+# makepkg configuration, mainly for $CARCH
+[ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
+
 usage() {
 	echo "makeworld version $version"
 	echo "usage: $0 [options] <destdir> <category> [category] ..."
@@ -119,8 +122,8 @@ for category in $*; do
 		if [ -f FrugalBuild ]; then
 			. FrugalBuild
 			buildstatus=0
-			if [ ! -f $dest/$pkgname-$pkgver-$pkgrel.fpm ]; then
-				makepkg $MAKEPKG_OPTS -m -w $dest 2>>$toplevel/makepkg.log
+			if [ ! -f $dest/$pkgname-$pkgver-$pkgrel-$CARCH.fpm ]; then
+				makepkg $MAKEPKG_OPTS -k -m -w $dest 2>>$toplevel/makepkg.log
 				if [ $? -gt 0 ]; then
 					buildstatus=2
 				else
