@@ -430,7 +430,7 @@ PMList *alpm_db_getgrpcache(pmdb_t *db)
  */
 
 /** Get informations about a package.
- * @param db package pointer
+ * @param pkg package pointer
  * @param parm name of the info to get
  * @return a char* on success (the value), NULL on error
  */
@@ -793,7 +793,7 @@ int alpm_trans_release()
  */
 
 /** Get informations about a dependency.
- * @param db dependency pointer
+ * @param miss dependency pointer
  * @param parm name of the info to get
  * @return a char* on success (the value), NULL on error
  */
