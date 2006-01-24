@@ -1,5 +1,12 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.11     - fixed progressbar when installing and upgrading packages at
+                the same time
+              - in general, modified makeworld to work properly on Frugalware
+              - makepkg: if build fails, save the buildlog when using -R
+              - sudo improvements for makepkg & makeworld
+              - display "checking for conflicting files..." during -S
+              - initial doxygen support
 2.9.99.10     - fixed -Sg output - now frugalpkg works again
               - fixed a double free() when installing conflicting packages
               - fixed an annoying bug with progressbar, now works as it did
