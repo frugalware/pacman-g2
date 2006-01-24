@@ -14,8 +14,6 @@ global
 
 - Add i18n (gettext) support to configure.in and create the 'po' directory (half ready) -krix
 
-- Add doxygen support to configure.in to generate code documentation automatically
-
 - Add libarchive depends instead of libtar. libtar isn't developed, but libarchive is.
   libarchive is a powerfuller thing than libtar and not much bigger. It supports many
   archive formats, eg .tar.gz, .tar.bz2, zip, etc..
@@ -36,4 +34,4 @@ libalpm and codechanges
 
 Christian Hamar alias krix <krics@linuxforum.hu> 
 
-2005. oct. 13., wed, 22.38.32 CEST
+2006. jan. 24., Wed, 02.02.41 CET
