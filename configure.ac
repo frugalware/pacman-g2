@@ -93,6 +93,11 @@ AC_ARG_ENABLE(more-warnings,
 dnl Help line for debug
 AC_ARG_ENABLE(debug, [  --enable-debug    Enable debugging support], debug=yes)
 
+dnl Help line for fakeroot
+AC_ARG_ENABLE(fakeroot,
+    AC_HELP_STRING([--disable-fakeoot], [Disable fakeroot proof  support]),
+    [fakeroot=$enableval], [fakeroot=yes])
+
 dnl Check for man2html binary
 AC_MSG_CHECKING(for support man2html)
 if test x$wantman2html = xyes ; then
@@ -167,6 +172,15 @@ else
     AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xno)
 	CFLAGS="$CFLAGS"
     AC_MSG_RESULT(no)
+fi
+
+dnl Enable or disable fakeroot code
+AC_MSG_CHECKING(for fakeroot proof support)
+if test x$fakeroot = xyes ; then
+	AC_MSG_RESULT(yes)
+else
+	CFLAGS="$CFLAGS -DFAKEROOT"
+	AC_MSG_RESULT(no)
 fi
 
 dnl Check for bzip2

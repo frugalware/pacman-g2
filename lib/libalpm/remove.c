@@ -56,17 +56,16 @@ int remove_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(name != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	_alpm_log(PM_LOG_FLOW2, "loading target %s", name);
+	if(pkg_isin(name, trans->packages)) {
+		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
+	}
+
 	if((info = db_scan(db, name, INFRQ_ALL)) == NULL) {
 		_alpm_log(PM_LOG_ERROR, "could not find %s in database", name);
 		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 	}
 
-	if(pkg_isin(info, trans->packages)) {
-		FREEPKG(info);
-		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
-	}
-
+	_alpm_log(PM_LOG_FLOW2, "adding %s in the targets list", info->name);
 	trans->packages = pm_list_add(trans->packages, info);
 
 	return(0);
@@ -83,16 +82,20 @@ int remove_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 
 		_alpm_log(PM_LOG_FLOW1, "looking for unsatisfied dependencies");
-		if((lp = checkdeps(db, trans->type, trans->packages)) != NULL) {
+		lp = checkdeps(db, trans->type, trans->packages);
+		if(lp != NULL) {
 			if(trans->flags & PM_TRANS_FLAG_CASCADE) {
 				while(lp) {
-					PMList *j;
-					for(j = lp; j; j = j->next) {
-						pmdepmissing_t* miss = (pmdepmissing_t*)j->data;
-						pmpkg_t *info = db_get_pkgfromcache(db, miss->depend.name);
-						if(!pkg_isin(info, trans->packages)) {
-							info = db_scan(db, miss->depend.name, INFRQ_ALL);
+					PMList *i;
+					for(i = lp; i; i = i->next) {
+						pmdepmissing_t *miss = (pmdepmissing_t *)i->data;
+						pmpkg_t *info = db_scan(db, miss->depend.name, INFRQ_ALL);
+						if(info) {
+							_alpm_log(PM_LOG_FLOW2, "pulling %s in the targets list", info->name);
 							trans->packages = pm_list_add(trans->packages, info);
+						} else {
+							_alpm_log(PM_LOG_ERROR, "could not find %s in database -- skipping",
+							          miss->depend.name);
 						}
 					}
 					FREELIST(lp);
@@ -101,6 +104,8 @@ int remove_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 			} else {
 				if(data) {
 					*data = lp;
+				} else {
+					FREELIST(lp);
 				}
 				RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
 			}
@@ -200,7 +205,8 @@ int remove_commit(pmtrans_t *trans, pmdb_t *db)
 						}
 					}
 					if(skipit) {
-						_alpm_log(PM_LOG_FLOW2, "skipping removal of %s as it has moved to another package\n", file);
+						_alpm_log(PM_LOG_FLOW2, "skipping removal of %s as it has moved to another package",
+						          file);
 					} else {
 						/* if the file is flagged, back it up to .pacsave */
 						if(nb) {
@@ -244,7 +250,7 @@ int remove_commit(pmtrans_t *trans, pmdb_t *db)
 		_alpm_log(PM_LOG_FLOW1, "updating database");
 		_alpm_log(PM_LOG_FLOW2, "removing database entry %s", info->name);
 		if(db_remove(db, info) == -1) {
-			_alpm_log(PM_LOG_ERROR, "could not remove database entry %s/%s-%s", db->treename, info->name, info->version);
+			_alpm_log(PM_LOG_ERROR, "could not remove database entry %s-%s", info->name, info->version);
 		}
 		if(db_remove_pkgfromcache(db, info) == -1) {
 			_alpm_log(PM_LOG_ERROR, "could not remove entry %s from cache", info->name);
@@ -256,11 +262,16 @@ int remove_commit(pmtrans_t *trans, pmdb_t *db)
 			pmpkg_t *depinfo = NULL;
 			pmdepend_t depend;
 			char *data;
-
 			if(splitdep((char*)lp->data, &depend)) {
 				continue;
 			}
-
+			/* if this dependency is in the transaction targets, no need to update 
+			 * its requiredby info: it is in the process of being removed (if not 
+			 * already done!)
+			 */
+			if(pkg_isin(depend.name, trans->packages)) {
+				continue;
+			}
 			depinfo = db_get_pkgfromcache(db, depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
@@ -272,11 +283,10 @@ int remove_commit(pmtrans_t *trans, pmdb_t *db)
 					/* use the first one */
 					depinfo = db_get_pkgfromcache(db, ((pmpkg_t *)provides->data)->name);
 					FREELISTPTR(provides);
-					if(depinfo == NULL) {
-						/* wtf */
-						continue;
-					}
-				} else {
+				}
+				if(depinfo == NULL) {
+					_alpm_log(PM_LOG_ERROR, "could not find dependency %s", depend.name);
+					/* wtf */
 					continue;
 				}
 			}
@@ -285,7 +295,8 @@ int remove_commit(pmtrans_t *trans, pmdb_t *db)
 			FREE(data);
 			_alpm_log(PM_LOG_DEBUG, "updating 'requiredby' field for package %s", depinfo->name);
 			if(db_write(db, depinfo, INFRQ_DEPENDS)) {
-				_alpm_log(PM_LOG_ERROR, "could not update 'requiredby' database entry %s/%s-%s", db->treename, depinfo->name, depinfo->version);
+				_alpm_log(PM_LOG_ERROR, "could not update 'requiredby' database entry %s-%s",
+				          depinfo->name, depinfo->version);
 			}
 		}
 

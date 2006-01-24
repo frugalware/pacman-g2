@@ -152,7 +152,7 @@ static int sync_cleancache(int level)
 	return(0);
 }
 
-static int sync_synctree(list_t *syncs)
+static int sync_synctree(int level, list_t *syncs)
 {
 	char *root, *dbpath;
 	char path[PATH_MAX];
@@ -181,9 +181,6 @@ static int sync_synctree(list_t *syncs)
 		snprintf(path, PATH_MAX, "%s%s", root, dbpath);
 
 		ret = downloadfiles_forreal(sync->servers, path, files, lastupdate, newmtime);
-		if(strlen(newmtime)) {
-			vprint("sync: new mtime for %s: %s\n", sync->treename, newmtime);
-		}
 		FREELIST(files);
 		if(ret > 0) {
 			ERR(NL, "failed to synchronize %s\n", sync->treename);
@@ -191,10 +188,13 @@ static int sync_synctree(list_t *syncs)
 		} else if(ret < 0) {
 			MSG(NL, " %s is up to date\n", sync->treename);
 		} else {
+			if(strlen(newmtime)) {
+				vprint("sync: new mtime for %s: %s\n", sync->treename, newmtime);
+			}
 			snprintf(path, PATH_MAX, "%s%s/%s" PM_EXT_DB, root, dbpath, sync->treename);
 			if(alpm_db_update(sync->db, path, newmtime) == -1) {
 				if(pm_errno != PM_ERR_DB_UPTODATE) {
-					ERR(NL, "failed to synchronize %s (%s)\n", sync->treename, alpm_strerror(pm_errno));
+					ERR(NL, "failed to update %s (%s)\n", sync->treename, alpm_strerror(pm_errno));
 					success--;
 				} else if(!strlen(newmtime)){
 					MSG(NL, ":: %s is up to date\n", sync->treename);
@@ -234,7 +234,7 @@ static int sync_search(list_t *syncs, list_t *targets)
 	return(0);
 }
 
-static int sync_group(list_t *syncs, list_t *targets)
+static int sync_group(int level, list_t *syncs, list_t *targets)
 {
 	list_t *i, *j;
 	
@@ -259,7 +259,7 @@ static int sync_group(list_t *syncs, list_t *targets)
 				PM_GRP *grp = alpm_list_getdata(lp);
 
 				MSG(NL, "%s\n", (char *)alpm_grp_getinfo(grp, PM_GRP_NAME));
-				if(config->verbose > 0) {
+				if(level > 1) {
 					PM_LIST_display("   ", alpm_grp_getinfo(grp, PM_GRP_PKGNAMES));
 				}
 			}
@@ -393,7 +393,7 @@ int pacman_sync(list_t *targets)
 		/* grab a fresh package list */
 		MSG(NL, ":: Synchronizing package databases...\n");
 		alpm_logaction("synchronizing package lists");
-		if(sync_synctree(pmc_syncs)) {
+		if(sync_synctree(config->op_s_sync, pmc_syncs)) {
 			return(1);
 		}
 	}
@@ -403,7 +403,7 @@ int pacman_sync(list_t *targets)
 	}
 
 	if(config->group) {
-		return(sync_group(pmc_syncs, targets));
+		return(sync_group(config->group, pmc_syncs, targets));
 	}
 
 	if(config->op_s_info) {
@@ -534,16 +534,17 @@ int pacman_sync(list_t *targets)
 		}
 	}
 
-	/* Step 2: "compute" the transaction based on targets and flags */
+	/* Step 2: "compute" the transaction based on targets and flags
+	 */
 	if(alpm_trans_prepare(&data) == -1) {
 		ERR(NL, "failed to prepare transaction (%s)\n", alpm_strerror(pm_errno));
 		switch(pm_errno) {
 			case PM_ERR_UNSATISFIED_DEPS:
 				for(lp = alpm_list_first(data); lp; lp = alpm_list_next(lp)) {
 					PM_DEPMISS *miss = alpm_list_getdata(lp);
-
-					MSG(NL, ":: %s: requires %s", alpm_dep_getinfo(miss, PM_DEP_TARGET),
-					                              alpm_dep_getinfo(miss, PM_DEP_NAME));
+					MSG(NL, ":: %s: %s %s", alpm_dep_getinfo(miss, PM_DEP_TARGET),
+					    alpm_dep_getinfo(miss, PM_DEP_TYPE) == PM_DEP_TYPE_DEPEND ? "requires" : "is required by",
+					    alpm_dep_getinfo(miss, PM_DEP_NAME));
 					switch((int)alpm_dep_getinfo(miss, PM_DEP_MOD)) {
 						case PM_DEP_MOD_EQ: MSG(CL, "=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION)); break;
 						case PM_DEP_MOD_GE: MSG(CL, ">=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION)); break;
@@ -585,6 +586,9 @@ int pacman_sync(list_t *targets)
 
 		for(lp = alpm_list_first(packages); lp; lp = alpm_list_next(lp)) {
 			PM_SYNCPKG *sync = alpm_list_getdata(lp);
+			PM_PKG *pkg = alpm_sync_getinfo(sync, PM_SYNC_PKG);
+			char *pkgname, *pkgver;
+
 			if((int)alpm_sync_getinfo(sync, PM_SYNC_TYPE) == PM_SYNC_TYPE_REPLACE) {
 				PM_LIST *j, *data;
 				data = alpm_sync_getinfo(sync, PM_SYNC_DATA);
@@ -596,6 +600,13 @@ int pacman_sync(list_t *targets)
 					}
 				}
 			}
+
+			pkgname = alpm_pkg_getinfo(pkg, PM_PKG_NAME);
+			pkgver = alpm_pkg_getinfo(pkg, PM_PKG_VERSION);
+			totalsize += (int)alpm_pkg_getinfo(pkg, PM_PKG_SIZE);
+
+			asprintf(&str, "%s-%s", pkgname, pkgver);
+			list_install = list_add(list_install, str);
 		}
 		if(list_remove) {
 			MSG(NL, "\nRemove:  ");
@@ -604,18 +615,6 @@ int pacman_sync(list_t *targets)
 			MSG(CL, "\n");
 			FREELIST(list_remove);
 			FREE(str);
-		}
-		for(lp = alpm_list_first(packages); lp; lp = alpm_list_next(lp)) {
-			char *pkgname, *pkgver;
-			PM_SYNCPKG *sync = alpm_list_getdata(lp);
-			PM_PKG *pkg = alpm_sync_getinfo(sync, PM_SYNC_PKG);
-
-			pkgname = alpm_pkg_getinfo(pkg, PM_PKG_NAME);
-			pkgver = alpm_pkg_getinfo(pkg, PM_PKG_VERSION);
-			totalsize += (int)alpm_pkg_getinfo(pkg, PM_PKG_SIZE);
-
-			asprintf(&str, "%s-%s", pkgname, pkgver);
-			list_install = list_add(list_install, str);
 		}
 		mb = (double)(totalsize / 1048576.0);
 		/* round up to 0.1 */
@@ -735,7 +734,8 @@ int pacman_sync(list_t *targets)
 	}
 	MSG(NL, "\n");
 
-	/* Step 3: actually perform the installation */
+	/* Step 3: actually perform the installation
+	 */
 	if(alpm_trans_commit(&data) == -1) {
 		ERR(NL, "failed to commit transaction (%s)\n", alpm_strerror(pm_errno));
 		switch(pm_errno) {
@@ -764,7 +764,6 @@ int pacman_sync(list_t *targets)
 cleanup:
 	alpm_trans_release();
 	return(retval);
-
 }
 
 /* vim: set ts=2 sw=2 noet: */

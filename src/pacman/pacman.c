@@ -101,10 +101,12 @@ int main(int argc, char *argv[])
 #ifndef CYGWIN
 	/* see if we're root or not */
 	myuid = geteuid();
+#ifndef FAKEROOT
 	if(!myuid && getenv("FAKEROOTKEY")) {
 		/* fakeroot doesn't count, we're non-root */
 		myuid = 99;
 	}
+#endif
 
 	/* check if we have sufficient permission for the requested operation */
 	if(myuid > 0) {
@@ -353,7 +355,7 @@ int parseargs(int argc, char *argv[])
 			case 'd': config->flags |= PM_TRANS_FLAG_NODEPS; break;
 			case 'e': config->op_q_orphans = 1; config->flags |= PM_TRANS_FLAG_DEPENDSONLY; break;
 			case 'f': config->flags |= PM_TRANS_FLAG_FORCE; break;
-			case 'g': config->group = 1; break;
+			case 'g': config->group++; break;
 			case 'h': config->help = 1; break;
 			case 'i':
 				config->op_q_info++;
@@ -389,7 +391,7 @@ int parseargs(int argc, char *argv[])
 				config->op_s_downloadonly = 1;
 				config->flags |= PM_TRANS_FLAG_DOWNLOADONLY;
 			break;
-			case 'y': config->op_s_sync = 1; break;
+			case 'y': config->op_s_sync++; break;
 			case '?': return(1);
 			default: return(1);
 		}

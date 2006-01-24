@@ -29,7 +29,149 @@
 #include <sys/stat.h>
 /* pacman */
 #include "util.h"
+#include "log.h"
+#include "cache.h"
+#include "deps.h"
 #include "conflict.h"
+
+/* Returns a PMList* of missing_t pointers.
+ *
+ * conflicts are always name only
+ */
+PMList *checkconflicts(pmdb_t *db, PMList *packages)
+{
+	pmpkg_t *info = NULL;
+	PMList *i, *j, *k;
+	PMList *baddeps = NULL;
+	pmdepmissing_t *miss = NULL;
+
+	if(db == NULL) {
+		return(NULL);
+	}
+
+	for(i = packages; i; i = i->next) {
+		pmpkg_t *tp = i->data;
+		if(tp == NULL) {
+			continue;
+		}
+
+		for(j = tp->conflicts; j; j = j->next) {
+			if(!strcmp(tp->name, j->data)) {
+				/* a package cannot conflict with itself -- that's just not nice */
+				continue;
+			}
+			/* CHECK 1: check targets against database */
+			for(k = db_get_pkgcache(db); k; k = k->next) {
+				pmpkg_t *dp = (pmpkg_t *)k->data;
+				if(!strcmp(dp->name, tp->name)) {
+					/* a package cannot conflict with itself -- that's just not nice */
+					continue;
+				}
+				if(!strcmp(j->data, dp->name)) {
+					/* conflict */
+					_alpm_log(PM_LOG_DEBUG, "targs vs db: adding %s as a conflict for %s",
+					          dp->name, tp->name);
+					miss = depmiss_new(tp->name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, dp->name, NULL);
+					if(!depmiss_isin(miss, baddeps)) {
+						baddeps = pm_list_add(baddeps, miss);
+					} else {
+						FREE(miss);
+					}
+				} else {
+					/* see if dp provides something in tp's conflict list */
+					PMList *m;
+					for(m = dp->provides; m; m = m->next) {
+						if(!strcmp(m->data, j->data)) {
+							/* confict */
+							_alpm_log(PM_LOG_DEBUG, "targs vs db: found %s as a conflict for %s",
+							          dp->name, tp->name);
+							miss = depmiss_new(tp->name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, dp->name, NULL);
+							if(!depmiss_isin(miss, baddeps)) {
+								baddeps = pm_list_add(baddeps, miss);
+							} else {
+								FREE(miss);
+							}
+						}
+					}
+				}
+			}
+			/* CHECK 2: check targets against targets */
+			for(k = packages; k; k = k->next) {
+				pmpkg_t *otp = (pmpkg_t *)k->data;
+				if(!strcmp(otp->name, tp->name)) {
+					/* a package cannot conflict with itself -- that's just not nice */
+					continue;
+				}
+				if(!strcmp(otp->name, (char *)j->data)) {
+					/* otp is listed in tp's conflict list */
+					_alpm_log(PM_LOG_DEBUG, "targs vs targs: found %s as a conflict for %s",
+					          otp->name, tp->name);
+					miss = depmiss_new(tp->name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, otp->name, NULL);
+					if(!depmiss_isin(miss, baddeps)) {
+						baddeps = pm_list_add(baddeps, miss);
+					} else {
+						FREE(miss);
+					}
+				} else {
+					/* see if otp provides something in tp's conflict list */ 
+					PMList *m;
+					for(m = otp->provides; m; m = m->next) {
+						if(!strcmp(m->data, j->data)) {
+							_alpm_log(PM_LOG_DEBUG, "targs vs targs: found %s as a conflict for %s",
+							          otp->name, tp->name);
+							miss = depmiss_new(tp->name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, otp->name, NULL);
+							if(!depmiss_isin(miss, baddeps)) {
+								baddeps = pm_list_add(baddeps, miss);
+							} else {
+								FREE(miss);
+							}
+						}
+					}
+				}
+			}
+		}
+		/* CHECK 3: check database against targets */
+		for(k = db_get_pkgcache(db); k; k = k->next) {
+			info = k->data;
+			if(!strcmp(info->name, tp->name)) {
+				/* a package cannot conflict with itself -- that's just not nice */
+				continue;
+			}
+			for(j = info->conflicts; j; j = j->next) {
+				if(!strcmp((char *)j->data, tp->name)) {
+					_alpm_log(PM_LOG_DEBUG, "db vs targs: found %s as a conflict for %s",
+					          info->name, tp->name);
+					miss = depmiss_new(tp->name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name, NULL);
+					if(!depmiss_isin(miss, baddeps)) {
+						baddeps = pm_list_add(baddeps, miss);
+					} else {
+						FREE(miss);
+					}
+				} else {
+					/* see if the db package conflicts with something we provide */
+					PMList *m;
+					for(m = info->conflicts; m; m = m->next) {
+						PMList *n;
+						for(n = tp->provides; n; n = n->next) {
+							if(!strcmp(m->data, n->data)) {
+								_alpm_log(PM_LOG_DEBUG, "db vs targs: adding %s as a conflict for %s",
+								          info->name, tp->name);
+								miss = depmiss_new(tp->name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name, NULL);
+								if(!depmiss_isin(miss, baddeps)) {
+									baddeps = pm_list_add(baddeps, miss);
+								} else {
+									FREE(miss);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return(baddeps);
+}
 
 PMList *db_find_conflicts(pmdb_t *db, PMList *targets, char *root, PMList **skip_list)
 {

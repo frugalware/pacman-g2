@@ -20,10 +20,34 @@
 #   USA.
 #
 
-myver='2.9.7'
+myver='2.9.8'
 startdir=`pwd`
 PKGDEST=$startdir
 USE_COLOR="n"
+
+# Options
+BUILDSCRIPT="./FrugalBuild"
+CLEANUP=0
+CLEANCACHE=0
+DEP_BIN=0
+DEP_SRC=0
+DEP_SUDO=0
+FORCE=0
+GENSHA1=0
+GENMD5=0
+INSTALL=0
+DOWNLOAD=""
+NOLASTMOD=0
+NOBUILD=0
+NOCCACHE=0
+NODEPS=0
+NOEXTRACT=0
+NOSTRIP=0
+RMDEPS=0
+CHROOT=0
+LOGGING=0
+NOUP2DATE=0
+GZIP=0
 
 # Frugalware extensions to makepkg
 [ -e /usr/lib/frugalware/fwmakepkg ] && . /usr/lib/frugalware/fwmakepkg
@@ -79,6 +103,18 @@ error() {
 
 strip_url() {
 	echo $1 | sed 's|^.*://.*/||g'
+}
+
+check_option() {
+	local i
+	for i in ${options[@]}; do
+		local uc=`echo $i | tr [:lower:] [:upper:]`
+		local lc=`echo $i | tr [:upper:] [:lower:]`
+		if [ "$uc" = "$1" -o "$lc" = "$1" ]; then
+			echo $1
+			return
+		fi
+	done
 }
 
 checkdeps() {
@@ -408,30 +444,6 @@ create_pkg()
 	fi
 }
 
-# Options
-BUILDSCRIPT="./FrugalBuild"
-CLEANUP=0
-CLEANCACHE=0
-DEP_BIN=0
-DEP_SRC=0
-DEP_SUDO=0
-FORCE=0
-GENSHA1=0
-GENMD5=0
-INSTALL=0
-DOWNLOAD=""
-NOLASTMOD=0
-NOBUILD=0
-NOCCACHE=0
-NODEPS=0
-NOEXTRACT=0
-NOSTRIP=0
-RMDEPS=0
-CHROOT=0
-LOGGING=0
-NOUP2DATE=0
-GZIP=0
-
 ARGLIST=$@
 
 while [ "$#" -ne "0" ]; do
@@ -545,7 +557,7 @@ fi
 
 unset pkgname pkgver pkgrel pkgdesc url license groups provides md5sums force
 unset replaces depends removes conflicts backup source install makedepends
-unset rodepends
+unset rodepends options
 # some applications (eg, blackbox) will not build with some languages
 unset LC_ALL LANG
 umask 0022
@@ -1134,11 +1146,13 @@ if [ -d pkg/usr/doc ]; then
 	cp -a pkg/usr/doc/* pkg/usr/share/doc/
 	rm -rf pkg/usr/doc
 fi
-mkdir -p pkg/usr/share/doc/$pkgname-$pkgver
-for i in `find src -maxdepth 2 -name ANNOUNCE -o -name AUTHORS -o -name *BUGS* -o -name CHANGES -o -name CONFIGURATION -o -name *COPYING* -o -name *COPYRIGHT* -o -name CREDITS -o -name ChangeLog -o -name Changelog -o -name CHANGELOG -o -name CONTRIBUTORS -o -name *FAQ* -o -name FEATURES -o -name FILES -o -name HACKING -o -name History -o -name HISTORY -o -name INSTALL* -o -name LICENSE -o -name LSM -o -name MANIFEST -o -name NEWS -o -name *README* -o -name *Readme* -o -name SITES -o -name *RELEASE* -o -name RELNOTES -o -name THANKS -o -name TIPS -o -name TODO -o -name VERSION -o -name CONFIGURATION* -o -name GPLLicense`
-do
-	cp -a $i pkg/usr/share/doc/$pkgname-$pkgver/
-done
+if [ ! "`check_option NODOCS`" -a "$NODOCS" = "0" ]; then
+	mkdir -p pkg/usr/share/doc/$pkgname-$pkgver
+	for i in `find src -maxdepth 2 -name ANNOUNCE -o -name AUTHORS -o -name *BUGS* -o -name CHANGES -o -name CONFIGURATION -o -name *COPYING* -o -name *COPYRIGHT* -o -name CREDITS -o -name ChangeLog -o -name Changelog -o -name CHANGELOG -o -name CONTRIBUTORS -o -name *FAQ* -o -name FEATURES -o -name FILES -o -name HACKING -o -name History -o -name HISTORY -o -name INSTALL* -o -name LICENSE -o -name LSM -o -name MANIFEST -o -name NEWS -o -name *README* -o -name *Readme* -o -name SITES -o -name *RELEASE* -o -name RELNOTES -o -name THANKS -o -name TIPS -o -name TODO -o -name VERSION -o -name CONFIGURATION* -o -name GPLLicense`
+	do
+		cp -a $i pkg/usr/share/doc/$pkgname-$pkgver/
+	done
+fi
 
 # remove /usr/share/doc/$pkgname-$pkgver directory if empty
 if [ -z "`ls -1 pkg/usr/share/doc/$pkgname-$pkgver`" ]; then
@@ -1188,7 +1202,7 @@ find $startdir/pkg*/{usr{,/local,/share},opt/*}/man -type f 2>/dev/null | while 
 done
 
 # strip binaries
-if [ "$NOSTRIP" = "0" ]; then
+if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
 	msg "Stripping debugging symbols from libraries..."
 	find pkg*/{,usr,usr/local,opt/*}/lib -type f -not -name "*.dll" -not -name "*.exe" \
 		-exec /usr/bin/strip --strip-debug '{}' \; 2>&1 \

@@ -21,7 +21,7 @@
 #   USA.
 #
 
-myver='2.9.7'
+myver='2.9.8'
 
 [ -z "$arch" ] && arch=`arch`
 CARCH="$arch"
@@ -60,6 +60,18 @@ die()
 error() { return 0; }
 Fdie() { return 0; }
 Finclude() { return 0; }
+
+check_option() {
+	local i
+	for i in ${options[@]}; do
+		local uc=`echo $i | tr [:lower:] [:upper:]`
+		local lc=`echo $i | tr [:upper:] [:lower:]`
+		if [ "$uc" = "$1" -o "$lc" = "$1" ]; then
+			echo $1
+			return
+		fi
+	done
+}
 
 get_sha1checksum()
 {
@@ -128,7 +140,7 @@ db_write_entry()
 		done
 		echo "" >>desc
 	fi
-	if [ "$force" = "y" -o "$force" = "Y" ]; then
+	if [ "$force" = "y" -o "$force" = "Y" -o "`check_option FORCE`" ]; then
 		echo "%FORCE%" >>desc
 		echo "" >>desc
 	fi
@@ -230,9 +242,9 @@ if [ "$action" = "upd" ]; then
 	source $option || die "errors parsing $option"
 	if [ ! "$nobuild" ]; then
 		unset pkgname pkgver pkgrel pkgdesc force
-		unset groups replaces provides depends rodepends conflicts
+		unset groups replaces provides depends rodepends conflicts options
 		unset subpkgs subdescs sublicense subreplaces subgroups
-		unset subdepends subrodepends subremoves subconflicts
+		unset subdepends subrodepends subremoves subconflicts suboptions
 		unset subprovides subbackup subinstall
 		source $option || die "error parsing $option"
 		db_write_entry $pkgname || die "error writing entry for $pkgname ($option)"
@@ -240,7 +252,7 @@ if [ "$action" = "upd" ]; then
 			i=0
 			for subpkg in "${subpkgs[@]}"
 			do
-				unset pkgdesc groups replaces force depends rodepends conflicts provides
+				unset pkgdesc groups replaces force depends rodepends conflicts provides options
 				pkgdesc="${subdescs[$i]}"
 				groups="${subgroups[$i]}"
 				replaces="${subreplaces[$i]}"
@@ -249,6 +261,7 @@ if [ "$action" = "upd" ]; then
 				rodepends="${subrodepends[$i]}"
 				conflicts="${subconflicts[$i]}"
 				provides="${subprovides[$i]}"
+				options="${suboptions[$i]}"
 				db_write_entry $subpkg || die "error writing entry for $subpkg ($option)"
 				i=$(($i+1))
 			done

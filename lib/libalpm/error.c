@@ -57,9 +57,6 @@ char *alpm_strerror(int err)
 			return "could not update database";
 		case PM_ERR_DB_UPTODATE:
 			return "database is up to date";
-		/* Cache */
-		case PM_ERR_CACHE_NULL:
-			return "cache not initialized";
 		/* Configuration */
 		case PM_ERR_OPT_LOGFILE:
 		case PM_ERR_OPT_DBPATH:
@@ -107,8 +104,6 @@ char *alpm_strerror(int err)
 			return "could not satisfy dependencies";
 		case PM_ERR_CONFLICTING_DEPS:
 			return "conflicting dependencies";
-		case PM_ERR_UNRESOLVABLE_DEPS:
-			return "could not resolve dependencies";
 		case PM_ERR_FILE_CONFLICTS:
 			return "conflicting files";
 		/* Miscellaenous */

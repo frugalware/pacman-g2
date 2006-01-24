@@ -107,12 +107,12 @@ int add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 		return(0);
 	}
 
+	_alpm_log(PM_LOG_FLOW2, "loading target %s", name);
+
 	if(stat(name, &buf)) {
 		pm_errno = PM_ERR_NOT_A_FILE;
 		goto error;
 	}
-
-	_alpm_log(PM_LOG_FLOW2, "loading target %s", name);
 
 	if(pkg_splitname(name, pkgname, pkgver, PM_PKG_WITH_ARCH) == -1) {
 		pm_errno = PM_ERR_PKG_INVALID_NAME;
@@ -199,69 +199,33 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if(data) {
-		*data = NULL;
-	}
-
 	/* Check dependencies
 	 */
 	if(!(trans->flags & PM_TRANS_FLAG_NODEPS)) {
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 
-		_alpm_log(PM_LOG_FLOW1, "looking for conflicts or unsatisfied dependencies");
+		/* look for unsatisfied dependencies */
+		_alpm_log(PM_LOG_FLOW1, "looking for unsatisfied dependencies");
 		lp = checkdeps(db, trans->type, trans->packages);
 		if(lp != NULL) {
-			PMList *i;
-			int errorout = 0;
-
-			/* look for unsatisfied dependencies */
-			_alpm_log(PM_LOG_FLOW2, "looking for unsatisfied dependencies");
-			for(i = lp; i; i = i->next) {
-				pmdepmissing_t* miss = i->data;
-
-				if(miss->type == PM_DEP_TYPE_DEPEND || miss->type == PM_DEP_TYPE_REQUIRED) {
-					if(!errorout) {
-						errorout = 1;
-					}
-					if(data) {
-						if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
-							FREELIST(lp);
-							FREELIST(*data);
-							RET_ERR(PM_ERR_MEMORY, -1);
-						}
-						*miss = *(pmdepmissing_t*)i->data;
-						*data = pm_list_add(*data, miss);
-					}
-				}
-			}
-			if(errorout) {
+			if(data) {
+				*data = lp;
+			} else {
 				FREELIST(lp);
-				RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
 			}
+			RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
+		}
 
-			/* no unsatisfied deps, so look for conflicts */
-			_alpm_log(PM_LOG_FLOW2, "looking for conflicts");
-			for(i = lp; i; i = i->next) {
-				pmdepmissing_t* miss = (pmdepmissing_t *)i->data;
-				if(miss->type == PM_DEP_TYPE_CONFLICT) {
-					if(!errorout) {
-						errorout = 1;
-					}
-					if(data) {
-						if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
-							FREELIST(lp);
-							FREELIST(*data);
-							RET_ERR(PM_ERR_MEMORY, -1);
-						}
-						*miss = *(pmdepmissing_t*)i->data;
-						*data = pm_list_add(*data, miss);
-					}
-				}
+		/* no unsatisfied deps, so look for conflicts */
+		_alpm_log(PM_LOG_FLOW1, "looking for conflicts");
+		lp = checkconflicts(db, trans->packages);
+		if(lp != NULL) {
+			if(data) {
+				*data = lp;
+			} else {
+				FREELIST(lp);
 			}
-			FREELIST(lp);
-			if(errorout) {
-				RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
-			}
+			RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
 		}
 
 		/* re-order w.r.t. dependencies */
@@ -299,16 +263,15 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
+			} else {
+				FREELIST(lp);
 			}
 			FREELIST(skiplist);
 			RET_ERR(PM_ERR_FILE_CONFLICTS, -1);
 		}
 
 		/* copy the file skiplist into the transaction */
-		for(lp = skiplist; lp; lp = lp->next) {
-			trans->skiplist = pm_list_add(trans->skiplist, lp->data);
-		}
-		FREELISTPTR(skiplist);
+		trans->skiplist = skiplist;
 
 		EVENT(trans, PM_TRANS_EVT_FILECONFLICTS_DONE, NULL, NULL);
 	}
@@ -389,9 +352,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
 					/* copy the skiplist over */
-					for(lp = trans->skiplist; lp; lp = lp->next) {
-						tr->skiplist = pm_list_add(tr->skiplist, strdup(lp->data));
-					}
+					tr->skiplist = _alpm_list_strdup(trans->skiplist);
 					if(remove_commit(tr, db) == -1) {
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
@@ -738,7 +699,8 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 		_alpm_log(PM_LOG_FLOW1, "updating database");
 		_alpm_log(PM_LOG_FLOW2, "adding database entry %s", info->name);
 		if(db_write(db, info, INFRQ_ALL)) {
-			_alpm_log(PM_LOG_ERROR, "could not update database entry %s/%s-%s", db->treename, info->name, info->version);
+			_alpm_log(PM_LOG_ERROR, "could not update database entry %s-%s",
+			          info->name, info->version);
 			alpm_logaction(NULL, "error updating database for %s-%s!", info->name, info->version);
 			RET_ERR(PM_ERR_DB_WRITE, -1);
 		}
@@ -765,18 +727,18 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 					/* use the first one */
 					depinfo = db_get_pkgfromcache(db, ((pmpkg_t *)provides->data)->name);
 					FREELISTPTR(provides);
-					if(depinfo == NULL) {
-						/* wtf */
-						continue;
-					}
-				} else {
+				}
+				if(depinfo == NULL) {
+					_alpm_log(PM_LOG_ERROR, "could not find dependency %s", depend.name);
+					/* wtf */
 					continue;
 				}
 			}
 			depinfo->requiredby = pm_list_add(depinfo->requiredby, strdup(info->name));
 			_alpm_log(PM_LOG_DEBUG, "updating 'requiredby' field for package %s", depinfo->name);
 			if(db_write(db, depinfo, INFRQ_DEPENDS)) {
-				_alpm_log(PM_LOG_ERROR, "could not update 'requiredby' database entry %s/%s-%s", db->treename, depinfo->name, depinfo->version);
+				_alpm_log(PM_LOG_ERROR, "could not update 'requiredby' database entry %s-%s",
+				          depinfo->name, depinfo->version);
 			}
 		}
 
