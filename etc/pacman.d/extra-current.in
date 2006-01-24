@@ -1,0 +1,10 @@
+#
+# extra-current repository
+#
+
+[extra-current]
+
+Server = ftp://ftp5.frugalware.org/packages/frugalware/pub/frugalware/frugalware-current/extra/frugalware-@CARCH@
+Server = ftp://ftp4.frugalware.org/pub/linux/distributions/frugalware/frugalware-current/extra/frugalware-@CARCH@
+Server = http://www7.frugalware.org/pub/frugalware/frugalware-current/extra/frugalware-@CARCH@
+Server = ftp://ftp3.frugalware.org/mirrors/frugalware/frugalware/frugalware-current/extra/frugalware-@CARCH@
