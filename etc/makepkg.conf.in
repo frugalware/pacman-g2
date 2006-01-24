@@ -46,3 +46,7 @@ export USE_COLOR="y"
 # If you want your name to show up in the packages you build, set this.
 #export PACKAGER="John Doe <john@doe.com>"
 
+# Don't strip symbols from binaries/libraries
+#export NOSTRIP="1"
+# Don't prepare documentation
+#export NODOCS="1"
