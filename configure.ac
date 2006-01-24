@@ -50,6 +50,11 @@ AC_ARG_ENABLE(man2html,
     AC_HELP_STRING([--enable-man2html], [Build html docs via man2html]),
     [wantman2html=$enableval], [wantman2html=no])
 
+dnl Help line for doxygen
+AC_ARG_ENABLE(doxygen,
+    AC_HELP_STRING([--disable-doxygen], [Build API docs via Doxygen]),
+    [wantdoxygen=$enableval], [wantdoxygen=yes])
+
 dnl Check for architecture
 case "$host" in
 	i686-*) AC_DEFINE_UNQUOTED([CARCH], ["i686"], [Architecture])
@@ -104,6 +109,27 @@ else
     AM_CONDITIONAL(HAS_MAN2HTML, test $MAN2HTML)
     AC_DEFINE([HAS_MAN2HTML], [FALSE], [Not specified at configure line])
     AC_MSG_RESULT(not requested by configure)
+fi
+
+dnl Check for doxygen support
+AC_MSG_CHECKING(for support Doxygen)
+if test x$wantdoxygen = xyes ; then
+    AC_CHECK_PROGS([DOXYGEN], [doxygen] [doxygen binary])
+    AM_CONDITIONAL(HAS_DOXYGEN, test $DOXYGEN)
+    if test $DOXYGEN ; then
+        AC_DEFINE([HAS_DOXYGEN], [TRUE], [Enabled Doxygen Support])
+	AC_MSG_RESULT(yes)
+	DOXYSTATUS="yes, path: `which $DOXYGEN`"
+    else
+        AC_DEFINE([HAS_DOXYGEN], [FALSE], [Disabled Doxygen support])
+	AC_MSG_RESULT(no, doxygen missing)
+	DOXYSTATUS="doxygen binary not found"
+    fi
+else
+    AM_CONDITIONAL(HAS_DOXYGEN, test $DOXYGEN)
+    AC_DEFINE([HAS_DOXYGEN], [FALSE], [Not specified at configure line])
+    AC_MSG_RESULT(not requested by configure)
+    DOXYSTATUS="disabled by configure"
 fi
 
 dnl Enable or disable Warning FLAGS during compile
@@ -191,6 +217,8 @@ pacman-$VERSION:
 	Architecture CARCH       : ${CARCH}
 	Architecture used cflag  : ${CARCHFLAGS}
 	Architecture CHOST       : ${CHOST}
+
+	Doxygen support          : ${DOXYSTATUS}
 
 	debug support            : ${debug}
 "
