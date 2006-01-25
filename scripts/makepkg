@@ -48,6 +48,8 @@ CHROOT=0
 LOGGING=0
 NOUP2DATE=0
 GZIP=0
+NOSTRIP=0
+NODOCS=0
 
 # Frugalware extensions to makepkg
 [ -e /usr/lib/frugalware/fwmakepkg ] && . /usr/lib/frugalware/fwmakepkg
@@ -1155,13 +1157,17 @@ if [ ! "`check_option NODOCS`" -a "$NODOCS" = "0" ]; then
 fi
 
 # remove /usr/share/doc/$pkgname-$pkgver directory if empty
-if [ -z "`ls -1 pkg/usr/share/doc/$pkgname-$pkgver`" ]; then
-	rmdir pkg/usr/share/doc/$pkgname-$pkgver
+if [ -d pkg/usr/share/doc/$pkgname-$pkgver ]; then
+	if [ -z "`ls -1 pkg/usr/share/doc/$pkgname-$pkgver`" ]; then
+		rmdir pkg/usr/share/doc/$pkgname-$pkgver
+	fi
 fi
 
 # remove /usr/share/doc/ directory if empty
-if [ -z "`ls -1 pkg/usr/share/doc`" ]; then
-	rmdir pkg/usr/share/doc
+if [ -d pkg/usr/share/doc ]; then
+	if [ -z "`ls -1 pkg/usr/share/doc`" ]; then
+		rmdir pkg/usr/share/doc
+	fi
 fi
 
 # move /usr/share/info files to /usr/info
