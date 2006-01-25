@@ -1,5 +1,7 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.12     - fixed preparing docs, 2.9.99.11 always supposed we want to
+                disable that feature
 2.9.99.11     - fixed progressbar when installing and upgrading packages at
                 the same time
               - in general, modified makeworld to work properly on Frugalware
