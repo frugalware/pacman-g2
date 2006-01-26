@@ -42,7 +42,7 @@ usage() {
 	echo "      generated database must reside in the same directory as your"
 	echo "      custom packages (also configured in /etc/pacman.conf)"
 	echo
-	echo "example:  gensync /var/abs/local /home/mypkgs/custom.fdb"
+	echo "example:  gensync /var/fst/local /home/mypkgs/custom.fdb"
 	echo
   echo
   exit 0
