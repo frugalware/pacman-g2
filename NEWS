@@ -1,5 +1,9 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.13     - Allow queries (-Q, -Si, etc) during an other pacman is
+                running (ie. -Syu)
+              - Two bugfixes in connection with provides
+              - Improved makepkg output for subpackages (crazy)
 2.9.99.12     - fixed preparing docs, 2.9.99.11 always supposed we want to
                 disable that feature
 2.9.99.11     - fixed progressbar when installing and upgrading packages at
