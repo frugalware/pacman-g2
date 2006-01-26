@@ -93,7 +93,7 @@ int depmiss_isin(pmdepmissing_t *needle, PMList *haystack)
 PMList *sortbydeps(PMList *targets, int mode)
 {
 	PMList *newtargs = NULL;
-	PMList *i, *j, *k;
+	PMList *i, *j, *k, *l;
 	int change = 1;
 	int numscans = 0;
 	int numtargs = 0;
@@ -135,6 +135,15 @@ PMList *sortbydeps(PMList *targets, int mode)
 							tmptargs = pm_list_add(tmptargs, q);
 						}
 						break;
+					}
+					for(l = q->provides; l; l = l->next) {
+						if(!strcmp(dep.name, (char*)l->data)) {
+							if(!pkg_isin((char*)l->data, tmptargs)) {
+								change = 1;
+								tmptargs = pm_list_add(tmptargs, q);
+							}
+							break;
+						}
 					}
 				}
 			}
