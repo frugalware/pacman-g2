@@ -45,10 +45,10 @@ usage() {
 	echo "  -s, --syncdeps   Install missing dependencies with pacman"
 	echo "  -S, --sudosync   Install missing dependencies with pacman and sudo"
 	echo
-	echo "  where <category> is one or more directory names under the ABS root"
+	echo "  where <category> is one or more directory names under the FST root"
 	echo "  eg: makeworld -c /packages base lib editors"
 	echo
-	echo "  this should be run from the toplevel directory of ABS (usually /var/abs)"
+	echo "  this should be run from the toplevel directory of FST (usually /var/fst)"
 }
 
 if [ $# -lt 2 ]; then
