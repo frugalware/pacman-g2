@@ -88,6 +88,15 @@ msg() {
 		echo "==> $1" >&2
 	fi
 }
+
+msg2() {
+        if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
+                echo -e "   \033[1;34m->\033[1;0m \033[1;1m$1\033[1;0m" >&2
+        else
+                echo "   -> $1" >&2
+        fi
+}
+
 warning() {
 	if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
 		echo -e "\033[1;33m==> WARNING:\033[1;0m \033[1;1m$1\033[1;0m" >&2
@@ -338,9 +347,9 @@ chroot_clean()
 
 create_pkg()
 {
-	msg "Generating $1-$pkgver-$pkgrel-$CARCH.fpm"
+	msg "Generating files for $1 :"
 	# write the .PKGINFO file
-	echo "    .PKGINFO file... " >&2
+	msg2 ".PKGINFO file... " >&2
 	if [ "$1" = "$pkgname" ]; then
 		cd $startdir/pkg
 	else
@@ -394,21 +403,21 @@ create_pkg()
 		[ -e $startdir/$1.install ] && install=$1.install
 	fi
 	if [ "$install" != "" ]; then
-		echo "    .INSTALL file... " >&2
+		msg2 ".INSTALL file... " >&2
 		cp $startdir/$install .INSTALL
 	fi
 
 	if [ -f $startdir/Changelog ]; then
-		echo "    .CHANGELOG file... " >&2
+		msg2 ".CHANGELOG file... " >&2
 		cp $startdir/Changelog .CHANGELOG
 	fi
 
 	# build a filelist
-	echo "    .FILELIST file... " >&2
+	msg2 ".FILELIST file... " >&2
 	tar cvf /dev/null * | sort >.FILELIST
 
 	# tar it up
-	echo "    Compressing package... " >&2
+	msg2 "Compressing $1-$pkgver-$pkgrel-$CARCH.fpm " >&2
 	unset extra
 	if [ -f .INSTALL ]; then
 		extra=".INSTALL"
