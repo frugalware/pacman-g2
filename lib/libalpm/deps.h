@@ -40,7 +40,7 @@ pmdepmissing_t *depmiss_new(const char *target, unsigned char type, unsigned cha
                             const char *depname, const char *depversion);
 int depmiss_isin(pmdepmissing_t *needle, PMList *haystack);
 PMList *sortbydeps(PMList *targets, int mode);
-PMList *checkdeps(pmdb_t *db, unsigned char op, PMList *packages);
+PMList *checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, PMList *packages);
 int splitdep(char *depstr, pmdepend_t *depend);
 PMList *removedeps(pmdb_t *db, PMList *targs);
 int resolvedeps(pmdb_t *local, PMList *dbs_sync, pmpkg_t *syncpkg, PMList *list,

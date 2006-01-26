@@ -459,7 +459,7 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 		EVENT(trans, PM_TRANS_EVT_INTERCONFLICTS_START, NULL, NULL);
 
 		_alpm_log(PM_LOG_FLOW1, "looking for unresolvable dependencies");
-		deps = checkdeps(db_local, PM_TRANS_TYPE_UPGRADE, list);
+		deps = checkdeps(trans, db_local, PM_TRANS_TYPE_UPGRADE, list);
 		if(deps) {
 			if(data) {
 				*data = deps;
@@ -633,7 +633,7 @@ int sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PMList **
 		}
 		if(list) {
 			_alpm_log(PM_LOG_FLOW1, "checking dependencies of packages designated for removal");
-			deps = checkdeps(db_local, PM_TRANS_TYPE_REMOVE, list);
+			deps = checkdeps(trans, db_local, PM_TRANS_TYPE_REMOVE, list);
 			if(deps) {
 				int errorout = 0;
 				for(i = deps; i; i = i->next) {

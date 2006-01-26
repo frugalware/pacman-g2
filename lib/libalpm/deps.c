@@ -171,7 +171,7 @@ PMList *sortbydeps(PMList *targets, int mode)
  * dependencies can include versions with depmod operators.
  *
  */
-PMList *checkdeps(pmdb_t *db, unsigned char op, PMList *packages)
+PMList *checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, PMList *packages)
 {
 	pmdepend_t depend;
 	PMList *i, *j, *k;
@@ -376,14 +376,25 @@ PMList *checkdeps(pmdb_t *db, unsigned char op, PMList *packages)
 				continue;
 			}
 
+			found=0;
 			for(j = tp->requiredby; j; j = j->next) {
 				if(!pm_list_is_strin((char *)j->data, packages)) {
-					_alpm_log(PM_LOG_DEBUG, "checkdeps: found %s as required by %s", (char *)j->data, tp->name);
-					miss = depmiss_new(tp->name, PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, j->data, NULL);
-					if(!depmiss_isin(miss, baddeps)) {
-						baddeps = pm_list_add(baddeps, miss);
-					} else {
-						FREE(miss);
+					/* check if a package in trans->packages provides this package */
+					for(k=trans->packages; !found && k; k=k->next) {
+						pmsyncpkg_t *sync = k->data;
+						pmpkg_t *spkg = sync->pkg;
+						if(pm_list_is_strin(tp->name, spkg->provides)) {
+							found=1;
+						}
+					}
+					if(!found) {
+						_alpm_log(PM_LOG_DEBUG, "checkdeps: found %s as required by %s", (char *)j->data, tp->name);
+						miss = depmiss_new(tp->name, PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, j->data, NULL);
+						if(!depmiss_isin(miss, baddeps)) {
+							baddeps = pm_list_add(baddeps, miss);
+						} else {
+							FREE(miss);
+						}
 					}
 				}
 			}
@@ -531,7 +542,7 @@ int resolvedeps(pmdb_t *local, PMList *dbs_sync, pmpkg_t *syncpkg, PMList *list,
 	}
 
 	targ = pm_list_add(NULL, syncpkg);
-	deps = checkdeps(local, PM_TRANS_TYPE_ADD, targ);
+	deps = checkdeps(trans, local, PM_TRANS_TYPE_ADD, targ);
 	FREELISTPTR(targ);
 
 	if(deps == NULL) {

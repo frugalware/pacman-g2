@@ -206,7 +206,7 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 
 		/* look for unsatisfied dependencies */
 		_alpm_log(PM_LOG_FLOW1, "looking for unsatisfied dependencies");
-		lp = checkdeps(db, trans->type, trans->packages);
+		lp = checkdeps(trans, db, trans->type, trans->packages);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
