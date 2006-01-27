@@ -381,9 +381,14 @@ PMList *checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, PMList *packag
 				if(!pm_list_is_strin((char *)j->data, packages)) {
 					/* check if a package in trans->packages provides this package */
 					for(k=trans->packages; !found && k; k=k->next) {
+						pmpkg_t *spkg = NULL;
+					if(trans->type == PM_TRANS_TYPE_SYNC) {
 						pmsyncpkg_t *sync = k->data;
-						pmpkg_t *spkg = sync->pkg;
-						if(pm_list_is_strin(tp->name, spkg->provides)) {
+						spkg = sync->pkg;
+					} else {
+						spkg = k->data;
+					}
+						if(spkg && pm_list_is_strin(tp->name, spkg->provides)) {
 							found=1;
 						}
 					}
