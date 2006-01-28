@@ -666,7 +666,7 @@ if darcs --commands 2>&1|grep -q add && [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ];
 		msg "Generating the Changelog..."
 		darcs changes $BUILDSCRIPT |sed "s|\(.*\)source/\(.*\)/FrugalBuild\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" >Changelog
 		if [ "`id -u`" = "0" ]; then
-			chown `stat -c %U:%G FrugalBuild` \
+			chown `stat -c %u:%g FrugalBuild` \
 				Changelog
 		fi
 	fi
@@ -769,7 +769,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm ]; then
 		mv $CHROOTDIR/var/tmp/fst/*-${pkgver}-${pkgrel}-${CARCH}.fpm $PKGDEST
 		if [ "`id -u`" = "0" ]; then
-			chown `stat -c %U:%G FrugalBuild` \
+			chown `stat -c %u:%g FrugalBuild` \
 				*-${pkgver}-${pkgrel}-${CARCH}.fpm
 		fi
 		# copy back the buildscript, maybe modified
