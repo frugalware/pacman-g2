@@ -135,6 +135,9 @@ int pacman_remove(list_t *targets)
 
 	/* Step 4: cleanup */
 	FREELIST(finaltargs);
+	if(alpm_trans_release() == -1) {
+		ERR(NL, "failed to release transaction (%s)\n", alpm_strerror(pm_errno));
+	}
 
 	return(0);
 
