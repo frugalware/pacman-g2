@@ -191,6 +191,14 @@ else
     AC_MSG_ERROR("bzip2 devel stuff needed to compile pacman!");
 fi
 
+dnl Check for math
+AC_CHECK_LIB([m], [log10], [AC_CHECK_HEADER([math.h], [LIBM='-lm'])])
+if test -n "$LIBM"; then
+    LDFLAGS="$LDFLAGS $LIBM"
+else
+    AC_MSG_ERROR("math library not found!");
+fi
+
 dnl Check for libarchive
 AC_CHECK_LIB([archive], [archive_read_data], [AC_CHECK_HEADER([archive.h], [LIBARCHIVE='-larchive'])])
 if test -n "$LIBARCHIVE"; then

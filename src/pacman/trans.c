@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <math.h>
 
 #include <alpm.h>
 /* pacman */
@@ -142,77 +143,47 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 
 void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howmany, int remain)
 {
-	int i, hash;
+	int i, hash, maxpkglen;
+	char addstr[] = "installing";
+	char upgstr[] = "upgrading";
+	char *ptr;
+
+	if (!pkgname)
+		return;
+	if (percent > 100)
+		return;
 
 	switch (event) {
 		case PM_TRANS_PROGRESS_ADD_START:
-		if (!pkgname)
-			break;
-		if (percent > 100)
-			break;
-		hash = percent/6.25;
-		if (howmany < 10) {
-			printf("(%d/%d) installing %s", remain, howmany, pkgname);
-		} else if ((howmany > 10) && (remain < 10)) {
-			printf("( %d/%d) installing %s", remain, howmany, pkgname);
-		} else if ((howmany > 10) && (remain > 10)) {
-			printf("(%d/%d) installing %s", remain, howmany, pkgname);
-		} else if ((howmany > 100) && (remain < 10)) {
-			printf("(  %d/%d) installing %s", remain, howmany, pkgname);
-		} else if ((howmany > 100) && (remain < 100)) {
-			printf("( %d/%d) installing %s", remain, howmany, pkgname);
-		} else if ((howmany > 100) && (remain < 100)) {
-			printf("(%d/%d) installing %s", remain, howmany, pkgname);
-		} else {
-			printf("(%d/%d) installing %s", remain, howmany, pkgname);
-		}
-		if (strlen(pkgname)<35)
-			for (i=35-strlen(pkgname)-1; i>0; i--)
-				printf(" ");
-		printf("[");
-		for (i = 16; i > 0; i--) {
-			if (i >= 16 - hash)
-				printf("#");
-			else
-				printf("-");
-			}
-		MSG(CL, "] %3d%%\r", percent);
+			ptr = addstr;
 		break;
 
 		case PM_TRANS_PROGRESS_UPGRADE_START:
-		if (!pkgname)
-			break;
-		if (percent > 100)
-			break;
-		hash = percent/6.25;
-		if (howmany < 10) {
-			printf("(%d/%d) upgrading  %s", remain, howmany, pkgname);
-		} else if ((howmany > 10) && (remain < 10)) {
-			printf("( %d/%d) upgrading  %s", remain, howmany, pkgname);
-		} else if ((howmany > 10) && (remain > 10)) {
-			printf("(%d/%d) upgrading  %s", remain, howmany, pkgname);
-		} else if ((howmany > 100) && (remain < 10)) {
-			printf("(  %d/%d) upgrading  %s", remain, howmany, pkgname);
-		} else if ((howmany > 100) && (remain < 100)) {
-			printf("( %d/%d) upgrading  %s", remain, howmany, pkgname);
-		} else if ((howmany > 100) && (remain < 100)) {
-			printf("(%d/%d) upgrading  %s", remain, howmany, pkgname);
-		} else {
-			printf("(%d/%d) upgrading  %s", remain, howmany, pkgname);
-		}
-		if (strlen(pkgname)<35)
-			for (i=35-strlen(pkgname)-1; i>0; i--)
-				printf(" ");
-		printf("[");
-		for (i = 16; i > 0; i--) {
-			if (i >= 16 - hash)
-				printf("#");
-			else
-				printf("-");
-		}
-		MSG(CL, "] %3d%%\r", percent);
+			ptr = upgstr;
 		break;
 	}
+	hash = percent/6.25;
+
+	// if the package name is too long, then slice the ending
+	maxpkglen=46-strlen(ptr)-(3+2*(int)log10(howmany));
+	if(strlen(pkgname)>maxpkglen)
+		pkgname[maxpkglen]='\0';
+
+	putchar('(');
+	for(i=0;i<(int)log10(howmany)-(int)log10(remain);i++)
+		putchar(' ');
+	printf("%d/%d) %s %s ", remain, howmany, ptr, pkgname);
+	if (strlen(pkgname)<maxpkglen)
+		for (i=maxpkglen-strlen(pkgname)-1; i>0; i--)
+			putchar(' ');
+	printf("[");
+	for (i = 16; i > 0; i--) {
+		if (i >= 16 - hash)
+			printf("#");
+		else
+			printf("-");
+	}
+	MSG(CL, "] %3d%%\r", percent);
 }
 
 /* vim: set ts=2 sw=2 noet: */
