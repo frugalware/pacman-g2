@@ -1,5 +1,11 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.14     - documentation: improved libalpm manpages an added a main
+                libalpm(3) manpage
+              - yet another bugfix for the install/upgrade progressbar
+              - remove stale lockfile after -R/-A
+              - fixed a segfault when removing a package that is reqired by
+                other packages
 2.9.99.13     - Allow queries (-Q, -Si, etc) during an other pacman is
                 running (ie. -Syu)
               - Two bugfixes in connection with provides
