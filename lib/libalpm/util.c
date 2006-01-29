@@ -188,7 +188,10 @@ int _alpm_lckmk(char *file)
  */
 int _alpm_lckrm(char *file)
 {
-	return(unlink(file) == -1);
+	if(unlink(file) == -1 && errno != ENOENT) {
+		return(-1);
+	}
+	return(0);
 }
 
 /* Compression functions

@@ -254,7 +254,7 @@ int alpm_db_unregister(pmdb_t *db)
 /** Get informations about a database.
  * @param db database pointer
  * @param parm name of the info to get
- * @return a char* on success (the value), NULL on error
+ * @return a void* on success (the value), NULL on error
  */
 void *alpm_db_getinfo(PM_DB *db, unsigned char parm)
 {
@@ -667,12 +667,9 @@ int alpm_trans_init(unsigned char type, unsigned int flags, alpm_trans_cb_event 
 	ASSERT(handle->trans == NULL, RET_ERR(PM_ERR_TRANS_NOT_NULL, -1));
 
 	/* lock db */
-	if(handle->access == PM_ACCESS_RW) {
-		handle->lckfd = _alpm_lckmk(PM_LOCK);
-		if(handle->lckfd == -1) {
-			FREE(handle);
-			RET_ERR(PM_ERR_HANDLE_LOCK, -1);
-		}
+	handle->lckfd = _alpm_lckmk(PM_LOCK);
+	if(handle->lckfd == -1) {
+		RET_ERR(PM_ERR_HANDLE_LOCK, -1);
 	}
 
 	handle->trans = trans_new();
@@ -778,15 +775,13 @@ int alpm_trans_release()
 	FREETRANS(handle->trans);
 
 	/* unlock db */
-	if(handle->access == PM_ACCESS_RW) {
-		if(handle->lckfd != -1) {
-			close(handle->lckfd);
-			handle->lckfd = -1;
-		}
-		if(_alpm_lckrm(PM_LOCK)) {
-			_alpm_log(PM_LOG_WARNING, "could not remove lock file %s", PM_LOCK);
-			alpm_logaction("warning: could not remove lock file %s", PM_LOCK);
-		}
+	if(handle->lckfd != -1) {
+		close(handle->lckfd);
+		handle->lckfd = -1;
+	}
+	if(_alpm_lckrm(PM_LOCK)) {
+		_alpm_log(PM_LOG_WARNING, "could not remove lock file %s", PM_LOCK);
+		alpm_logaction("warning: could not remove lock file %s", PM_LOCK);
 	}
 
 	return(0);
