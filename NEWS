@@ -1,5 +1,6 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.15     - fix 'error: transaction already initialized' when using -D
 2.9.99.14     - documentation: improved libalpm manpages an added a main
                 libalpm(3) manpage
               - yet another bugfix for the install/upgrade progressbar
