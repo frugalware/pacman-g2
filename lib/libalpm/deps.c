@@ -136,13 +136,15 @@ PMList *sortbydeps(PMList *targets, int mode)
 						}
 						break;
 					}
-					for(l = q->provides; l; l = l->next) {
-						if(!strcmp(dep.name, (char*)l->data)) {
-							if(!pkg_isin((char*)l->data, tmptargs)) {
-								change = 1;
-								tmptargs = pm_list_add(tmptargs, q);
+					if(!change) {
+						for(l = q->provides; l; l = l->next) {
+							if(!strcmp(dep.name, (char*)l->data)) {
+								if(!pkg_isin((char*)l->data, tmptargs)) {
+									change = 1;
+									tmptargs = pm_list_add(tmptargs, q);
+								}
+								break;
 							}
-							break;
 						}
 					}
 				}
