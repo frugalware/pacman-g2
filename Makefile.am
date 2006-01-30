@@ -6,3 +6,6 @@ EXTRA_DIST =		\
 	README 		\
 	TODO 		\
 	TODO.autoconf
+
+check:
+	cd testsuite; sh runtests.sh

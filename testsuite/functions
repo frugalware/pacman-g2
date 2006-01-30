@@ -1,0 +1,46 @@
+#!/bin/sh
+
+has_distro()
+{
+	if [ ! -e /etc/frugalware-release -a "$1" = "arch" ]; then
+		return 0
+	elif [ -e /etc/frugalware-release -a "$1" = "frugalware" ]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+pkg_ext()
+{
+	if has_distro arch; then
+		echo .pkg.tar.gz
+	elif has_distro frugalware; then
+		echo -`uname -m`.fpm
+	fi
+}
+
+# $1: pkgname
+# $2: pkgver
+pkg_new()
+{
+	local ct extra
+
+	if [ -e .INSTALL ]; then
+		extra=".INSTALL"
+	fi
+	if has_distro arch; then
+		ct="z"
+	elif has_distro frugalware; then
+		ct="j"
+		if [ -e .CHANGELOG ]; then
+			extra="$extra .CHANGELOG"
+		fi
+	fi
+
+	tar cvf /dev/null * | sort >.FILELIST
+	( echo "pkgname = $1"
+	echo "pkgver = $2"
+	echo "arch = `uname -m`" ) >.PKGINFO
+	tar c${ct}f $1-$2`pkg_ext` .PKGINFO .FILELIST $extra *
+}
