@@ -171,8 +171,8 @@ in_array()
 {
 	needle=$1
 	shift 1
-	# backward compatibility: if array() undefined, it's available for all archs
-	[ -z "$1" ] && return 0
+	# array() undefined
+	[ -z "$1" ] && return 1
 	for i in $*
 	do
 		[ "$i" == "$needle" ] && return 0
