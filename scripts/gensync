@@ -219,7 +219,7 @@ for file in `find $rootdir/* -name FrugalBuild`; do
 	unset groups replaces provides depends rodepends conflicts options
 	unset subpkgs subdescs sublicense subreplaces subgroups
 	unset subdepends subrodepends subremoves subconflicts
-	unset subprovides subbackup subinstall
+	unset subprovides subbackup subinstall suboptions
 	source $file || return 1
 	db_write_entry $pkgname || die "error writing entry for $pkgname ($file)"
 	if [ ! -z "$subpkgs" ]; then
@@ -235,6 +235,7 @@ for file in `find $rootdir/* -name FrugalBuild`; do
 			rodepends="${subrodepends[$i]}"
 			conflicts="${subconflicts[$i]}"
 			provides="${subprovides[$i]}"
+			options="${suboptions[$i]}"
 			db_write_entry $subpkg || die "error writing entry for $subpkg ($file)"
 			i=$(($i+1))
 		done

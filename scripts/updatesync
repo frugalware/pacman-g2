@@ -245,7 +245,7 @@ if [ "$action" = "upd" ]; then
 		unset groups replaces provides depends rodepends conflicts options
 		unset subpkgs subdescs sublicense subreplaces subgroups
 		unset subdepends subrodepends subremoves subconflicts suboptions
-		unset subprovides subbackup subinstall
+		unset subprovides subbackup subinstall suboptions
 		source $option || die "error parsing $option"
 		db_write_entry $pkgname || die "error writing entry for $pkgname ($option)"
 		if [ ! -z "$subpkgs" ]; then
