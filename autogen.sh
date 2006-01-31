@@ -15,3 +15,7 @@ aclocal --force
 autoheader -f
 autoconf -f
 automake -a -c --gnu --foreign
+
+if [ "$1" == "--darcs" ]; then
+	rm -rf autom4te.cache
+fi
