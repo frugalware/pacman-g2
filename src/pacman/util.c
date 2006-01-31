@@ -41,6 +41,7 @@
 
 extern int maxcols;
 extern config_t *config;
+extern int neednl;
 
 /* does the same thing as 'mkdir -p' */
 int makepath(char *path)
@@ -203,6 +204,7 @@ int yesno(char *fmt, ...)
 	vprintf(fmt, args);
 	va_end(args);
 	fflush(stdout);
+	neednl=1;
 	if(fgets(response, 32, stdin)) {
 		/* trim whitespace and newlines */
 		char *pch = response;
