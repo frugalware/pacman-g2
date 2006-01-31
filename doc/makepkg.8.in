@@ -430,6 +430,7 @@ backup() -> subbackup()
 install -> subinstall()
 force -> subforce()
 options -> suboptions()
+archs -> subarchs()
 .fi
 
 Also note that bash does not support two-dimensional arrays, so when defining the

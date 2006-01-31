@@ -212,32 +212,37 @@ cd `dirname $2`
 for file in `find $rootdir/* -name FrugalBuild`; do
 	unset nobuild archs
 	source $file || die "errors parsing $file"
-	if ! in_array $arch ${archs[@]} || [ "$nobuild" ]; then
-		continue
+	if in_array $arch ${archs[@]} || [ "$nobuild" ]; then
+		unset pkgname pkgver pkgrel pkgdesc force
+		unset groups replaces provides depends rodepends conflicts options
+		unset subpkgs subdescs sublicense subreplaces subgroups
+		unset subdepends subrodepends subremoves subconflicts
+		unset subprovides subbackup subinstall suboptions
+		source $file || return 1
+		db_write_entry $pkgname || die "error writing entry for $pkgname ($file)"
 	fi
-	unset pkgname pkgver pkgrel pkgdesc force
-	unset groups replaces provides depends rodepends conflicts options
-	unset subpkgs subdescs sublicense subreplaces subgroups
-	unset subdepends subrodepends subremoves subconflicts
-	unset subprovides subbackup subinstall suboptions
-	source $file || return 1
-	db_write_entry $pkgname || die "error writing entry for $pkgname ($file)"
-	if [ ! -z "$subpkgs" ]; then
+	if [ ! -z "$subpkgs" ] || [ "$nobuild" ]; then
 		i=0
 		for subpkg in "${subpkgs[@]}"
 		do
 			unset pkgdesc groups replaces force depends rodepends conflicts provides
-			pkgdesc="${subdescs[$i]}"
-			groups="${subgroups[$i]}"
-			replaces="${subreplaces[$i]}"
-			force="${subforce[$i]}"
-			depends="${subdepends[$i]}"
-			rodepends="${subrodepends[$i]}"
-			conflicts="${subconflicts[$i]}"
-			provides="${subprovides[$i]}"
-			options="${suboptions[$i]}"
-			db_write_entry $subpkg || die "error writing entry for $subpkg ($file)"
-			i=$(($i+1))
+			# special case: if subarchs() is not set, then defaults to archs()
+			if [ ! -z "$subarchs" ]; then
+				archs="${subarchs[$i]}"
+			fi
+			if in_array $arch ${archs[@]}; then
+				pkgdesc="${subdescs[$i]}"
+				groups="${subgroups[$i]}"
+				replaces="${subreplaces[$i]}"
+				force="${subforce[$i]}"
+				depends="${subdepends[$i]}"
+				rodepends="${subrodepends[$i]}"
+				conflicts="${subconflicts[$i]}"
+				provides="${subprovides[$i]}"
+				options="${suboptions[$i]}"
+				db_write_entry $subpkg || die "error writing entry for $subpkg ($file)"
+				i=$(($i+1))
+			fi
 		done
 	fi
 done
