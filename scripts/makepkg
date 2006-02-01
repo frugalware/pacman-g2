@@ -759,8 +759,13 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		error "chroot was not found."
 	else
 		msg "Entering chroot environment"
-		/usr/sbin/chroot $CHROOTDIR \
-			/bin/su - fst -c "$0 --inchroot -S $ARGLIST"
+		if [ ! "`check_option NOFAKEROOT`" ]; then
+			/usr/sbin/chroot $CHROOTDIR \
+				/bin/su - fst -c "$0 --inchroot -S $ARGLIST"
+		else
+			echo "cd /var/tmp/fst/; $0 --inchroot -s $ARGLIST" | \
+				/usr/sbin/chroot $CHROOTDIR /bin/sh
+		fi
 	fi
 
 	# save the build log if necessary
