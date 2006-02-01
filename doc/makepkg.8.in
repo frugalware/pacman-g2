@@ -422,7 +422,7 @@ libmysql out of mysql) and then defining the properties of subpackages. The
 \fBsubpkgs()\fP array is to define the pkgnames of the subpackages. From now all
 the directives has their subfoo equivalent:
 .nf
-pkgname -> subpks()
+pkgname -> subpkgs()
 pkgdesc -> subdescs()
 license() -> sublicense()
 replaces() -> subreplaces()
