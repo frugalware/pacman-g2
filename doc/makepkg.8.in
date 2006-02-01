@@ -236,17 +236,6 @@ This is the release number specific to Frugalware Linux packages.
 This should be a brief description of the package and its functionality.
 
 .TP
-.B force
-This is used to force the package to be upgraded by \fB--sysupgrade\fP, even
-if its an older version.
-
-.TP
-.B nobuild
-If this directive set, gensync will ignore this package, so users must build
-these packages on their machines, they will not be able to install them with
-\fBpacman -S\fP. Useful for closed-source, but freeware programs.
-
-.TP
 .B url
 This field contains an optional URL that is associated with the piece of software
 being packaged.  This is typically the project's website.
@@ -357,6 +346,23 @@ renamed/combined packages.  For example, if the kernel package gets renamed
 to kernel-ide, then subsequent 'pacman -Syu' calls will not pick up the upgrade, due
 to the differing package names.  \fIreplaces\fP handles this.
 
+.TP
+.B options \fI(array)\fP
+This is an array of various boolean options. The possible values are:
+.nf
+nodocs     Don't add any documentation automatically (ie. when there'll be
+           a separate documentation subpackage).
+nostrip    Don't strip binaries/libraries.
+force      This is used to force the package to be upgraded by --sysupgrade,
+           even if its an older version.
+nobuild    If this directive set, gensync will ignore this package, so users
+           must build  these packages on their machines, they will not be able
+           to install them with pacman -S. Useful for closed-source, but
+           freeware programs.
+nofakeroot Don't drop privileges after chrooting. Required by some broken
+           packages.
+.fi
+
 .SH  What is the process of chrooted build ?
 
 First, what is chroot? We currently use fakeroot to prevent build() from
@@ -428,7 +434,6 @@ confclicts() -> subconflicts()
 provides() -> subprovides()
 backup() -> subbackup()
 install -> subinstall()
-force -> subforce()
 options -> suboptions()
 archs -> subarchs()
 .fi
