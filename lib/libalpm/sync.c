@@ -253,6 +253,9 @@ int sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync)
 			/* package too new (UpgradeDelay) */
 			_alpm_log(PM_LOG_FLOW1, "%s-%s: delaying upgrade of package (%s)\n",
 					local->name, local->version, spkg->version);
+		/* check if spkg->name is already in the packages list. */
+		} else if (sync = find_pkginsync(spkg->name, trans->packages)) {
+			/* found it -- just ignore the package */
 		} else {
 			pmpkg_t *dummy = pkg_new(local->name, local->version);
 			sync = sync_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
