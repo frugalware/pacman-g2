@@ -1,7 +1,7 @@
 ENV_CFLAGS=$CFLAGS
 
 AC_PREREQ(2.59)
-AC_INIT([Pacman package manager], 2.9.99.15, [pacman-dev@archlinux.org], pacman)
+AC_INIT([Pacman package manager], 2.9.99.16, [pacman-dev@archlinux.org], pacman)
 AC_LANG(C)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_SYSTEM

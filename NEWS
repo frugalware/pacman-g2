@@ -1,5 +1,11 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.16     - fixed a possible infinite loop during -S
+              - remove stale lockfile when pacman is interrupted
+              - new directive: added suboptions() and subarchs() for
+                FrugalBuilds
+              - added 'nofakeroot' to options()
+              - new makepkg witch: -RCC, now -RC only cleans the chroot
 2.9.99.15     - fix 'error: transaction already initialized' when using -D
 2.9.99.14     - documentation: improved libalpm manpages an added a main
                 libalpm(3) manpage
