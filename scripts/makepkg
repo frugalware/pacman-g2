@@ -463,7 +463,7 @@ while [ "$#" -ne "0" ]; do
 	case $1 in
 		--searchdeps) SEARCHDEPS=1 ;;
 		--clean)      CLEANUP=1 ;;
-		--cleancache) CLEANCACHE=1 ;;
+		--cleancache) CLEANCACHE=$(($CLEANCACHE+1)) ;;
 		--syncdeps)   DEP_BIN=1 ;;
 		--sudosync)   DEP_SUDO=1 ;;
 		--builddeps)  DEP_SRC=1 ;;
@@ -498,7 +498,7 @@ while [ "$#" -ne "0" ]; do
 					b) DEP_SRC=1 ;;
 					B) NOCCACHE=1 ;;
 					c) CLEANUP=1 ;;
-					C) CLEANCACHE=1 ;;
+					C) CLEANCACHE=$(($CLEANCACHE+1)) ;;
 					d) NODEPS=1 ;;
 					e) NOEXTRACT=1 ;;
 					f) FORCE=1 ;;
@@ -556,10 +556,12 @@ fi
 PKGDEST=`pwd`
 cd $OLDPWD
 
-if [ "$CLEANCACHE" = "1" ]; then
+if [ $CLEANCACHE -ge 1 ]; then
 	if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
-		msg "Cleaning up source files from the cache."
-		rm -rf /var/cache/pacman/src/*
+		if [ $CLEANCACHE -ge 2 ]; then
+			msg "Cleaning up source files from the cache."
+			rm -rf /var/cache/pacman/src/*
+		fi
 		chroot_clean
 		exit 0
 	else
