@@ -227,13 +227,6 @@ PMList *db_find_conflicts(pmdb_t *db, PMList *targets, char *root, PMList **skip
 			}
 			if(!lstat(path, &buf)) {
 				int ok = 0;
-				if(!S_ISLNK(buf.st_mode) && ((isdir && !S_ISDIR(buf.st_mode)) || (!isdir && S_ISDIR(buf.st_mode)))) {
-					/* if the package target is a directory, and the filesystem target
-					 * is not (or vice versa) then it's a conflict
-					 */
-					ok = 0;
-					goto donecheck;
-				}
 				/* re-fetch with stat() instead of lstat() */
 				stat(path, &buf);
 				if(S_ISDIR(buf.st_mode)) {
