@@ -448,10 +448,11 @@ subpkgs=('foo' 'bar')
 subdescs=('desc of foo' 'desc of bar')
 subdepends=('foodep1 foodep2' 'bardep1 bardep2')
 subgroups=('apps' 'apps')
+subarchs=('i686 x86_64' 'i686 x86_64')
 .fi
 
 You may define conflicts, replaces and other directives for your subpackages, but
-the requirement is only to define these 4 ones.
+the requirement is only to define these 5 ones.
 
 The second part is to move some files to the - just defined - subpackages. You
 should use the Fsplit command for this at the end of your build() function. You
