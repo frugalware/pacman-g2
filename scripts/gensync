@@ -226,23 +226,20 @@ for file in `find $rootdir/* -name FrugalBuild`; do
 		for subpkg in "${subpkgs[@]}"
 		do
 			unset pkgdesc groups replaces force depends rodepends conflicts provides
-			# special case: if subarchs() is not set, then defaults to archs()
-			if [ ! -z "$subarchs" ]; then
-				archs="${subarchs[$i]}"
-			fi
+			pkgdesc="${subdescs[$i]}"
+			groups="${subgroups[$i]}"
+			archs="${subarchs[$i]}"
+			replaces="${subreplaces[$i]}"
+			force="${subforce[$i]}"
+			depends="${subdepends[$i]}"
+			rodepends="${subrodepends[$i]}"
+			conflicts="${subconflicts[$i]}"
+			provides="${subprovides[$i]}"
+			options="${suboptions[$i]}"
 			if in_array $arch ${archs[@]}; then
-				pkgdesc="${subdescs[$i]}"
-				groups="${subgroups[$i]}"
-				replaces="${subreplaces[$i]}"
-				force="${subforce[$i]}"
-				depends="${subdepends[$i]}"
-				rodepends="${subrodepends[$i]}"
-				conflicts="${subconflicts[$i]}"
-				provides="${subprovides[$i]}"
-				options="${suboptions[$i]}"
 				db_write_entry $subpkg || die "error writing entry for $subpkg ($file)"
-				i=$(($i+1))
 			fi
+			i=$(($i+1))
 		done
 	fi
 done
