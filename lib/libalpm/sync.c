@@ -721,7 +721,9 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 		sha1sum1 = spkg->sha1sum;
 
 		if((md5sum1 == NULL) && (sha1sum1 == NULL)) {
-			MALLOC(ptr, 512);
+			if((ptr = (char *)malloc(512)) == NULL) {
+				RET_ERR(PM_ERR_MEMORY, -1);
+			}
 			snprintf(ptr, 512, "can't get md5 or sha1 checksum for package %s\n", pkgname);
 			*data = pm_list_add(*data, ptr);
 			retval = 1;
@@ -731,14 +733,18 @@ int sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 		md5sum2 = MDFile(str);
 		sha1sum2 = SHAFile(str);
 		if(md5sum2 == NULL && sha1sum2 == NULL) {
-			MALLOC(ptr, 512);
+			if((ptr = (char *)malloc(512)) == NULL) {
+				RET_ERR(PM_ERR_MEMORY, -1);
+			}
 			snprintf(ptr, 512, "can't get md5 or sha1 checksum for package %s\n", pkgname);
 			*data = pm_list_add(*data, ptr);
 			retval = 1;
 			continue;
 		}
 		if((strcmp(md5sum1, md5sum2) != 0) && (strcmp(sha1sum1, sha1sum2) != 0)) {
-			MALLOC(ptr, 512);
+			if((ptr = (char *)malloc(512)) == NULL) {
+				RET_ERR(PM_ERR_MEMORY, -1);
+			}
 			snprintf(ptr, 512, "archive %s is corrupted (bad MD5 or SHA1 checksum)\n", pkgname);
 			*data = pm_list_add(*data, ptr);
 			retval = 1;

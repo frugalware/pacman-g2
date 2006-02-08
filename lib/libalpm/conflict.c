@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 /* pacman */
 #include "util.h"
+#include "error.h"
 #include "log.h"
 #include "cache.h"
 #include "deps.h"
@@ -202,7 +203,9 @@ PMList *db_find_conflicts(pmdb_t *db, PMList *targets, char *root, PMList **skip
 						continue;
 					}
 					if(pm_list_is_strin(filestr, p2->files)) {
-						MALLOC(str, 512);
+						if((str = (char *)malloc(512)) == NULL) {
+							RET_ERR(PM_ERR_MEMORY, -1);
+						}
 						snprintf(str, 512, "%s: exists in \"%s\" (target) and \"%s\" (target)",
 							filestr, p1->name, p2->name);
 						conflicts = pm_list_add(conflicts, str);
@@ -290,7 +293,9 @@ PMList *db_find_conflicts(pmdb_t *db, PMList *targets, char *root, PMList **skip
 				}
 donecheck:
 				if(!ok) {
-					MALLOC(str, 512);
+					if ((str = malloc(512)) == NULL) {
+						RET_ERR(PM_ERR_MEMORY, -1);
+					}
 					snprintf(str, 512, "%s: %s: exists in filesystem", p->name, path);
 					conflicts = pm_list_add(conflicts, str);
 				}

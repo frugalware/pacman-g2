@@ -37,7 +37,9 @@ pmpkg_t *pkg_new(const char *name, const char *version)
 {
 	pmpkg_t* pkg = NULL;
 
-	MALLOC(pkg, sizeof(pmpkg_t));
+	if((pkg = (pmpkg_t *)malloc(sizeof(pmpkg_t))) == NULL) {
+		RET_ERR(PM_ERR_MEMORY, -1);
+	}
 
 	if(name && name[0] != 0) {
 		STRNCPY(pkg->name, name, PKG_NAME_LEN);
@@ -318,7 +320,9 @@ pmpkg_t *pkg_load(char *pkgfile)
 			char *str;
 			int fd;
 			
-			MALLOC(str, PATH_MAX);
+			if((str = (char *)malloc(PATH_MAX)) == NULL) {
+				RET_ERR(PM_ERR_MEMORY, -1);
+			}
 			fn = strdup("/tmp/alpm_XXXXXX");
 			fd = mkstemp(fn);
 			_alpm_archive_read_entry_data_into_fd (archive, fd);

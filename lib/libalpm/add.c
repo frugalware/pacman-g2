@@ -501,13 +501,17 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 						if(!strcmp(file, pathname)) {
 						    if(info->sha1sum != NULL && info->sha1sum != '\0') {
 							/* 32 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
-							MALLOC(fn, strlen(file)+34);
+							if((fn = (char *)malloc(strlen(file)+34)) == NULL) {
+								RET_ERR(PM_ERR_MEMORY, -1);
+							}
 							sprintf(fn, "%s\t%s", file, md5_pkg);
 							FREE(file);
 							lp->data = fn;
 						    } else {
 							/* 41 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
-							MALLOC(fn, strlen(file)+43);
+							if((fn = (char *)malloc(strlen(file)+43)) == NULL) {
+								RET_ERR(PM_ERR_MEMORY, -1);
+							}
 							sprintf(fn, "%s\t%s", file, sha1_pkg);
 							FREE(file);
 							lp->data = fn;
@@ -642,13 +646,17 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 							if (info->sha1sum != NULL && info->sha1sum != '\0') {
 							    md5 = MDFile(path);
 							    /* 32 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
-							    MALLOC(fn, strlen(file)+34);
+							    if((fn = (char *)malloc(strlen(file)+34)) == NULL) {
+										RET_ERR(PM_ERR_MEMORY, -1);
+									}
 							    sprintf(fn, "%s\t%s", file, md5);
 							    FREE(md5);
 							} else {
 							    /* 41 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
 							    sha1 = SHAFile(path);
-							    MALLOC(fn, strlen(file)+43);
+							    if((fn = (char *)malloc(strlen(file)+43)) == NULL) {
+										RET_ERR(PM_ERR_MEMORY, -1);
+									}
 							    sprintf(fn, "%s\t%s", file, sha1);
 							    FREE(sha1);
 							}
