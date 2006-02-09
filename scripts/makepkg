@@ -179,7 +179,6 @@ handledeps() {
 				error "Failed to install missing dependencies."
 				exit 1
 			fi
-			# TODO: check deps again to make sure they were resolved
 		elif [ "$DEP_SUDO" = "1" ]; then
 			# install missing deps from binary packages (using pacman -S and sudo)
 			msg "Installing missing dependencies..."
@@ -198,7 +197,6 @@ handledeps() {
 				export FAKEROOTKEY=$FAKEROOTKEY2
 				unset FAKEROOTKEY2
 			fi
-			# TODO: check deps again to make sure they were resolved
 		elif [ "$DEP_SRC" = "1" ]; then
 			# install missing deps by building them from source.
 			# we look for each package name in $fst_root and build it.
@@ -234,7 +232,6 @@ handledeps() {
 					exit 1
 				fi
 			done
-			# TODO: check deps again to make sure they were resolved
 		else
 			missingdeps=1
 		fi
@@ -830,6 +827,12 @@ if [ `type -p pacman` -a "$NODEPS" = "0" ]; then
 	deplist=`checkdeps ${depends[@]}`
 	handledeps $deplist
 	if [ $? -gt 0 ]; then
+		exit 1
+	fi
+	# check deps again to make sure they were resolved
+	deplist=`checkdeps ${depends[@]}`
+	if [ ! -z "$deplist" ]; then
+		error "Failed to install missing dependencies."
 		exit 1
 	fi
 	msg "Checking Buildtime Dependencies..."
