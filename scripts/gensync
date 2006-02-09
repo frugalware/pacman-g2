@@ -215,7 +215,7 @@ for file in `find $rootdir/* -name FrugalBuild`; do
 	if in_array $arch ${archs[@]} || [ "$nobuild" -o "`check_option NOBUILD`" ]; then
 		unset pkgname pkgver pkgrel pkgdesc force
 		unset groups replaces provides depends rodepends conflicts options
-		unset subpkgs subdescs sublicense subreplaces subgroups
+		unset subpkgs subdescs sublicense subreplaces subgroups subarchs
 		unset subdepends subrodepends subremoves subconflicts
 		unset subprovides subbackup subinstall suboptions
 		source $file || return 1
@@ -225,7 +225,7 @@ for file in `find $rootdir/* -name FrugalBuild`; do
 		i=0
 		for subpkg in "${subpkgs[@]}"
 		do
-			unset pkgdesc groups replaces force depends rodepends conflicts provides
+			unset pkgdesc groups archs replaces force depends rodepends conflicts provides options
 			pkgdesc="${subdescs[$i]}"
 			groups="${subgroups[$i]}"
 			archs="${subarchs[$i]}"
