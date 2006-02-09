@@ -235,13 +235,6 @@ handledeps() {
 		else
 			missingdeps=1
 		fi
-	# rerun any additional sh scripts found in /etc/profile.d/
-	for i in /etc/profile.d/*.sh
-	do
-		if [ -x $i ]; then
-			. $i &>/dev/null
-		fi
-	done
 	elif [ "$deplist" != "" -a $haveperm -eq 0 ]; then
 		if [ "$DEP_SRC" = "1" -o "$DEP_BIN" = "1" ]; then
 			warning "Cannot auto-install missing dependencies as a normal user without sudo!"
@@ -249,6 +242,13 @@ handledeps() {
 		fi
 		missingdeps=1
 	fi
+	# rerun any additional sh scripts found in /etc/profile.d/
+	for i in /etc/profile.d/*.sh
+	do
+		if [ -x $i ]; then
+			. $i &>/dev/null
+		fi
+	done
 	return $missingdeps
 }
 
