@@ -1,5 +1,11 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.17     - support for having subpkgs in an other repo. this affects
+                gensync and updatesync, also makepkg's manpage is updated
+              - support for handle version comparators in makepkg
+              - bugfix for Finclude in makepkg
+              - removed exit() calls from libalpm
+              - bugfix for nobuild packages in sync
 2.9.99.16     - fixed a possible infinite loop during -S
               - remove stale lockfile when pacman is interrupted
               - new directive: added suboptions() and subarchs() for
