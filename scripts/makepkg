@@ -403,7 +403,11 @@ create_pkg()
 	fi
 	if [ "$install" != "" ]; then
 		msg2 ".INSTALL file... " >&2
-		cp $startdir/$install .INSTALL
+		if [ "`echo $install |sed 's/^\(.\).*/\1/'`" = "/" ]; then
+			cp $install .INSTALL
+		else
+			cp $startdir/$install .INSTALL
+		fi
 	fi
 
 	if [ -f $startdir/Changelog ]; then
