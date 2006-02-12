@@ -50,3 +50,9 @@ export USE_COLOR="y"
 #export NOSTRIP="1"
 # Don't prepare documentation
 #export NODOCS="1"
+
+# The Standard Build Unit of this machine
+# If 1, then the build time will be displayed in seconds
+# Build the "binutils" package, and then write here the result you got,
+# so that makepkg will could the right SBU value for you.
+SBU="1"
