@@ -165,13 +165,15 @@ static int sync_synctree(int level, list_t *syncs)
 	for(i = syncs; i; i = i->next) {
 		list_t *files = NULL;
 		char newmtime[16] = "";
-		char *lastupdate;
+		char lastupdate[16] = "";
 		sync_t *sync = (sync_t *)i->data;
 
-		/* get the lastupdate time */
-		lastupdate = alpm_db_getinfo(sync->db, PM_DB_LASTUPDATE);
-		if(strlen(lastupdate) == 0) {
-			vprint("failed to get lastupdate time for %s (no big deal)\n", sync->treename);
+		if(level < 2) {
+			/* get the lastupdate time */
+			db_getlastupdate(sync->db, lastupdate);
+			if(strlen(lastupdate) == 0) {
+				vprint("failed to get lastupdate time for %s (no big deal)\n", sync->treename);
+			}
 		}
 
 		/* build a one-element list */
@@ -190,15 +192,11 @@ static int sync_synctree(int level, list_t *syncs)
 		} else {
 			if(strlen(newmtime)) {
 				vprint("sync: new mtime for %s: %s\n", sync->treename, newmtime);
+				db_setlastupdate(sync->db, newmtime);
 			}
 			snprintf(path, PATH_MAX, "%s%s/%s" PM_EXT_DB, root, dbpath, sync->treename);
-			if(alpm_db_update(sync->db, path, newmtime) == -1) {
-				if(pm_errno != PM_ERR_DB_UPTODATE) {
-					ERR(NL, "failed to update %s (%s)\n", sync->treename, alpm_strerror(pm_errno));
-					success--;
-				} else if(!strlen(newmtime)){
-					MSG(NL, ":: %s is up to date\n", sync->treename);
-				}
+			if(alpm_db_update(sync->db, path) == -1) {
+				ERR(NL, "failed to update %s (%s)\n", sync->treename, alpm_strerror(pm_errno));
 			}
 			/* remove the .tar.gz */
 			unlink(path);
@@ -711,13 +709,13 @@ int pacman_sync(list_t *targets)
 			fflush(stdout);
 			if(stat(ldir, &buf)) {
 				/* no cache directory.... try creating it */
-				MSG(NL, "warning: no %s cache exists.  creating...\n", ldir);
+				WARN(NL, "no %s cache exists.  creating...\n", ldir);
 				alpm_logaction("warning: no %s cache exists.  creating...", ldir);
 				if(makepath(ldir)) {
 					/* couldn't mkdir the cache directory, so fall back to /tmp and unlink
 					 * the package afterwards.
 					 */
-					MSG(NL, "warning: couldn't create package cache, using /tmp instead");
+					WARN(NL, "couldn't create package cache, using /tmp instead");
 					alpm_logaction("warning: couldn't create package cache, using /tmp instead");
 					snprintf(ldir, PATH_MAX, "/tmp");
 					if(alpm_set_option(PM_OPT_CACHEDIR, (long)ldir) == -1) {
@@ -748,7 +746,20 @@ int pacman_sync(list_t *targets)
 			case PM_ERR_FILE_CONFLICTS:
 			case PM_ERR_PKG_CORRUPTED:
 				for(lp = alpm_list_first(data); lp; lp = alpm_list_next(lp)) {
-					MSG(NL, ":: %s\n", (char *)alpm_list_getdata(lp));
+					PM_CONFLICT *conflict = alpm_list_getdata(lp);
+					switch((int)alpm_conflict_getinfo(conflict, PM_CONFLICT_TYPE)) {
+						case PM_CONFLICT_TYPE_TARGET:
+							MSG(NL, "%s exists in \"%s\" (target) and \"%s\" (target)",
+							        (char *)alpm_conflict_getinfo(conflict, PM_CONFLICT_FILE),
+							        (char *)alpm_conflict_getinfo(conflict, PM_CONFLICT_TARGET),
+							        (char *)alpm_conflict_getinfo(conflict, PM_CONFLICT_CTARGET));
+						break;
+						case PM_CONFLICT_TYPE_FILE:
+							MSG(NL, "%s: %s exists in filesystem",
+							        (char *)alpm_conflict_getinfo(conflict, PM_CONFLICT_TARGET),
+							        (char *)alpm_conflict_getinfo(conflict, PM_CONFLICT_FILE));
+						break;
+					}
 				}
 				alpm_list_free(data);
 				MSG(NL, "\nerrors occurred, no packages were upgraded.\n");

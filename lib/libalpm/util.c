@@ -142,31 +142,6 @@ char *_alpm_strtrim(char *str)
 	return(str);
 }
 
-/* A cheap grep for text files, returns 1 if a substring
- * was found in the text file fn, 0 if it wasn't
- */
-int _alpm_grep(const char *fn, const char *needle)
-{
-	FILE *fp;
-
-	if((fp = fopen(fn, "r")) == NULL) {
-		return(0);
-	}
-	while(!feof(fp)) {
-		char line[1024];
-		fgets(line, 1024, fp);
-		if(feof(fp)) {
-			continue;
-		}
-		if(strstr(line, needle)) {
-			fclose(fp);
-			return(1);
-		}
-	}
-	fclose(fp);
-	return(0);
-}
-
 /* Create a lock file
  */
 int _alpm_lckmk(char *file)
@@ -324,6 +299,31 @@ int _alpm_ldconfig(char *root)
 	return(0);
 }
 
+/* A cheap grep for text files, returns 1 if a substring
+ * was found in the text file fn, 0 if it wasn't
+ */
+static int grep(const char *fn, const char *needle)
+{
+	FILE *fp;
+
+	if((fp = fopen(fn, "r")) == NULL) {
+		return(0);
+	}
+	while(!feof(fp)) {
+		char line[1024];
+		fgets(line, 1024, fp);
+		if(feof(fp)) {
+			continue;
+		}
+		if(strstr(line, needle)) {
+			fclose(fp);
+			return(1);
+		}
+	}
+	fclose(fp);
+	return(0);
+}
+
 int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, char *oldver)
 {
 	char scriptfn[PATH_MAX];
@@ -360,7 +360,7 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 		scriptpath = scriptfn + strlen(root) - 1;
 	}
 
-	if(!_alpm_grep(scriptfn, script)) {
+	if(!grep(scriptfn, script)) {
 		/* script not found in scriptlet file */
 		goto cleanup;
 	}
@@ -373,7 +373,9 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 	}
 
 	/* just in case our cwd was removed in the upgrade operation */
-	chdir(root);
+	if(chdir(root) != 0) {
+		_alpm_log(PM_LOG_ERROR, "could not change directory to %s (%s)", root, strerror(errno));
+	}
 
 	_alpm_log(PM_LOG_FLOW2, "executing %s script...", script);
 
@@ -397,6 +399,10 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 		_alpm_log(PM_LOG_DEBUG, "chrooting in %s", root);
 		if(chroot(root) != 0) {
 			_alpm_log(PM_LOG_ERROR, "could not change the root directory (%s)", strerror(errno));
+			return(1);
+		}
+		if(chdir("/") != 0) {
+			_alpm_log(PM_LOG_ERROR, "could not change directory to / (%s)", strerror(errno));
 			return(1);
 		}
 		umask(0022);

@@ -23,8 +23,17 @@
 
 #include "db.h"
 
-PMList *checkconflicts(pmdb_t *db, PMList *packages);
-PMList *db_find_conflicts(pmdb_t *db, PMList *targets, char *root, PMList **skip_list);
+#define CONFLICT_FILE_LEN 512
+
+typedef struct __pmconflict_t {
+	char target[PKG_NAME_LEN];
+	unsigned char type;
+	char file[CONFLICT_FILE_LEN];
+	char ctarget[PKG_NAME_LEN];
+} pmconflict_t;
+
+PMList *_alpm_checkconflicts(pmdb_t *db, PMList *packages);
+PMList *_alpm_db_find_conflicts(pmdb_t *db, PMList *targets, char *root, PMList **skip_list);
 
 #endif /* _ALPM_CONFLICT_H */
 

@@ -33,7 +33,7 @@
 #include "package.h"
 #include "alpm.h"
 
-pmpkg_t *pkg_new(const char *name, const char *version)
+pmpkg_t *_alpm_pkg_new(const char *name, const char *version)
 {
 	pmpkg_t* pkg = NULL;
 
@@ -81,7 +81,7 @@ pmpkg_t *pkg_new(const char *name, const char *version)
 	return(pkg);
 }
 
-pmpkg_t *pkg_dup(pmpkg_t *pkg)
+pmpkg_t *_alpm_pkg_dup(pmpkg_t *pkg)
 {
 	pmpkg_t* newpkg = NULL;
 
@@ -122,7 +122,7 @@ pmpkg_t *pkg_dup(pmpkg_t *pkg)
 	return(newpkg);
 }
 
-void pkg_free(pmpkg_t *pkg)
+void _alpm_pkg_free(pmpkg_t *pkg)
 {
 	if(pkg == NULL) {
 		return;
@@ -154,7 +154,7 @@ void pkg_free(pmpkg_t *pkg)
 static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 {
 	FILE* fp = NULL;
-	char line[PATH_MAX+1];
+	char line[PATH_MAX];
 	char* ptr = NULL;
 	char* key = NULL;
 	int linenum = 0;
@@ -190,11 +190,11 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 			} else if(!strcmp(key, "PKGDESC")) {
 				STRNCPY(info->desc, ptr, sizeof(info->desc));
 			} else if(!strcmp(key, "GROUP")) {
-				info->groups = pm_list_add(info->groups, strdup(ptr));
+				info->groups = _alpm_list_add(info->groups, strdup(ptr));
 			} else if(!strcmp(key, "URL")) {
 				STRNCPY(info->url, ptr, sizeof(info->url));
 			} else if(!strcmp(key, "LICENSE")) {
-				info->license = pm_list_add(info->license, strdup(ptr));
+				info->license = _alpm_list_add(info->license, strdup(ptr));
 			} else if(!strcmp(key, "BUILDDATE")) {
 				STRNCPY(info->builddate, ptr, sizeof(info->builddate));
 			} else if(!strcmp(key, "INSTALLDATE")) {
@@ -208,17 +208,17 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 				STRNCPY(tmp, ptr, sizeof(tmp));
 				info->size = atol(tmp);
 			} else if(!strcmp(key, "DEPEND")) {
-				info->depends = pm_list_add(info->depends, strdup(ptr));
+				info->depends = _alpm_list_add(info->depends, strdup(ptr));
 			} else if(!strcmp(key, "REMOVE")) {
-				info->removes = pm_list_add(info->removes, strdup(ptr));
+				info->removes = _alpm_list_add(info->removes, strdup(ptr));
 			} else if(!strcmp(key, "CONFLICT")) {
-				info->conflicts = pm_list_add(info->conflicts, strdup(ptr));
+				info->conflicts = _alpm_list_add(info->conflicts, strdup(ptr));
 			} else if(!strcmp(key, "REPLACES")) {
-				info->replaces = pm_list_add(info->replaces, strdup(ptr));
+				info->replaces = _alpm_list_add(info->replaces, strdup(ptr));
 			} else if(!strcmp(key, "PROVIDES")) {
-				info->provides = pm_list_add(info->provides, strdup(ptr));
+				info->provides = _alpm_list_add(info->provides, strdup(ptr));
 			} else if(!strcmp(key, "BACKUP")) {
-				info->backup = pm_list_add(info->backup, strdup(ptr));
+				info->backup = _alpm_list_add(info->backup, strdup(ptr));
 			} else {
 				_alpm_log(PM_LOG_DEBUG, "%s: syntax error in description file line %d",
 					info->name[0] != '\0' ? info->name : "error", linenum);
@@ -232,7 +232,7 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 	return(0);
 }
 
-pmpkg_t *pkg_load(char *pkgfile)
+pmpkg_t *_alpm_pkg_load(char *pkgfile)
 {
 	char *expath;
 	int i;
@@ -256,7 +256,7 @@ pmpkg_t *pkg_load(char *pkgfile)
 	if (archive_read_open_file (archive, pkgfile, 10240) != ARCHIVE_OK)
 		RET_ERR(PM_ERR_PKG_OPEN, -1);
 
-	info = pkg_new(NULL, NULL);
+	info = _alpm_pkg_new(NULL, NULL);
 	if(info == NULL) {
 		archive_read_finish (archive);
 		RET_ERR(PM_ERR_MEMORY, NULL);
@@ -332,7 +332,7 @@ pmpkg_t *pkg_load(char *pkgfile)
 					continue;
 				}
 				_alpm_strtrim(str);
-				info->files = pm_list_add(info->files, strdup(str));
+				info->files = _alpm_list_add(info->files, strdup(str));
 			}
 			FREE(str);
 			fclose(fp);
@@ -349,7 +349,7 @@ pmpkg_t *pkg_load(char *pkgfile)
 				/* no .FILELIST present in this package..  build the filelist the */
 				/* old-fashioned way, one at a time */
 				expath = strdup(archive_entry_pathname (entry));
-				info->files = pm_list_add(info->files, expath);
+				info->files = _alpm_list_add(info->files, expath);
 			}
 		}
 
@@ -383,7 +383,7 @@ error:
 /* Test for existence of a package in a PMList*
  * of pmpkg_t*
  */
-pmpkg_t *pkg_isin(char *needle, PMList *haystack)
+pmpkg_t *_alpm_pkg_isin(char *needle, PMList *haystack)
 {
 	PMList *lp;
 
@@ -401,7 +401,7 @@ pmpkg_t *pkg_isin(char *needle, PMList *haystack)
 	return(NULL);
 }
 
-int pkg_splitname(char *target, char *name, char *version, int *witharch)
+int _alpm_pkg_splitname(char *target, char *name, char *version, int *witharch)
 {
 	char tmp[PKG_FULLNAME_LEN+7];
 	char *p, *q;

@@ -49,6 +49,7 @@ typedef struct __pmgrp_t PM_GRP;
 typedef struct __pmsyncpkg_t PM_SYNCPKG;
 typedef struct __pmtrans_t PM_TRANS;
 typedef struct __pmdepmissing_t PM_DEPMISS;
+typedef struct __pmconflict_t PM_CONFLICT;
 
 /*
  * Library
@@ -105,8 +106,7 @@ int alpm_get_option(unsigned char parm, long *data);
 
 /* Info parameters */
 enum {
-	PM_DB_TREENAME = 1,
-	PM_DB_LASTUPDATE
+	PM_DB_TREENAME = 1
 };
 
 PM_DB *alpm_db_register(char *treename);
@@ -114,7 +114,7 @@ int alpm_db_unregister(PM_DB *db);
 
 void *alpm_db_getinfo(PM_DB *db, unsigned char parm);
 
-int alpm_db_update(PM_DB *db, char *archive, char *ts);
+int alpm_db_update(PM_DB *db, char *archive);
 
 PM_PKG *alpm_db_readpkg(PM_DB *db, char *name);
 PM_LIST *alpm_db_getpkgcache(PM_DB *db);
@@ -171,6 +171,7 @@ enum {
 void *alpm_pkg_getinfo(PM_PKG *pkg, unsigned char parm);
 int alpm_pkg_load(char *filename, PM_PKG **pkg);
 int alpm_pkg_free(PM_PKG *pkg);
+int alpm_pkg_checkmd5sum(PM_PKG *pkg);
 int alpm_pkg_vercmp(const char *ver1, const char *ver2);
 
 /*
@@ -291,7 +292,7 @@ int alpm_trans_commit(PM_LIST **data);
 int alpm_trans_release(void);
 
 /*
- * Dependencies
+ * Dependencies and conflicts
  */
 
 enum {
@@ -315,6 +316,24 @@ enum {
 };
 
 void *alpm_dep_getinfo(PM_DEPMISS *miss, unsigned char parm);
+
+/*
+ * File conflicts
+ */
+
+enum {
+	PM_CONFLICT_TYPE_TARGET = 1,
+	PM_CONFLICT_TYPE_FILE
+};
+/* Info parameters */
+enum {
+	PM_CONFLICT_TARGET = 1,
+	PM_CONFLICT_TYPE,
+	PM_CONFLICT_FILE,
+	PM_CONFLICT_CTARGET
+};
+
+void *alpm_conflict_getinfo(PM_CONFLICT *conflict, unsigned char parm);
 
 /*
  * Helpers
@@ -352,6 +371,7 @@ extern enum __pmerrno_t {
 	PM_ERR_DB_NOT_NULL,
 	PM_ERR_DB_NOT_FOUND,
 	PM_ERR_DB_WRITE,
+	PM_ERR_DB_REMOVE,
 	PM_ERR_DB_UPTODATE,
 	/* Configuration */
 	PM_ERR_OPT_LOGFILE,
@@ -363,10 +383,10 @@ extern enum __pmerrno_t {
 	PM_ERR_TRANS_NOT_NULL,
 	PM_ERR_TRANS_NULL,
 	PM_ERR_TRANS_DUP_TARGET,
-	PM_ERR_TRANS_INITIALIZED,
 	PM_ERR_TRANS_NOT_INITIALIZED,
 	PM_ERR_TRANS_NOT_PREPARED,
 	PM_ERR_TRANS_ABORT,
+	PM_ERR_TRANS_TYPE,
 	/* Packages */
 	PM_ERR_PKG_NOT_FOUND,
 	PM_ERR_PKG_INVALID,
@@ -385,8 +405,7 @@ extern enum __pmerrno_t {
 	/* Misc */
 	PM_ERR_USER_ABORT,
 	PM_ERR_INTERNAL_ERROR,
-	PM_ERR_LIBARCHIVE_ERROR,
-	PM_ERR_XXX
+	PM_ERR_LIBARCHIVE_ERROR
 } pm_errno;
 
 char *alpm_strerror(int err);

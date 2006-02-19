@@ -86,10 +86,6 @@ int main(int argc, char *argv[])
 
 	/* init config data */
 	config = config_new();
-	if(config == NULL) {
-		ERR(NL, "could not allocate memory for pacman config data.\n");
-		return(1);
-	}
 	config->op = PM_OP_MAIN;
 	config->debug |= PM_LOG_WARNING;
 
@@ -119,6 +115,7 @@ int main(int argc, char *argv[])
 				/* special case:  PM_OP_SYNC can be used w/ config->op_s_search by any user */
 			} else {
 				ERR(NL, "you cannot perform this operation unless you are root.\n");
+				config_free(config);
 				exit(1);
 			}
 		}
@@ -196,6 +193,13 @@ int main(int argc, char *argv[])
 		cleanup(1);
 	}
 
+	if(list_count(pm_targets) == 0 && !(config->op == PM_OP_QUERY || (config->op == PM_OP_SYNC
+	   && (config->op_s_sync || config->op_s_upgrade || config->op_s_clean || config->group 
+	   || config->op_q_list)))) {
+		ERR(NL, "no targets specified (use -h for help)\n");
+		cleanup(1);
+	}
+
 	/* start the requested operation */
 	switch(config->op) {
 		case PM_OP_ADD:     ret = pacman_add(pm_targets);     break;
@@ -208,9 +212,6 @@ int main(int argc, char *argv[])
 			ERR(NL, "no operation specified (use -h for help)\n");
 			ret = 1;
 	}
-	if(ret != 0 && config->op_d_vertest == 0) {
-		MSG(NL, "\n");
-	}
 
 	cleanup(ret);
 	/* not reached */
@@ -220,6 +221,10 @@ int main(int argc, char *argv[])
 void cleanup(int signum)
 {
 	list_t *lp;
+
+	if(signum != 0 && config->op_d_vertest == 0) {
+		fprintf(stderr, "\n");
+	}
 
 	/* free alpm library resources */
 	if(alpm_release() == -1) {
@@ -251,6 +256,9 @@ void cleanup(int signum)
 	if(neednl)
 		putchar('\n');
 
+	if(neednl) {
+		putchar('\n');
+	}
 	fflush(stdout);
 
 	exit(signum);

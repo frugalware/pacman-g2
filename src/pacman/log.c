@@ -23,10 +23,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <ctype.h>
 #include <time.h>
 
 #include <alpm.h>
-
 /* pacman */
 #include "log.h"
 #include "list.h"
@@ -107,15 +107,51 @@ void vprint(char *fmt, ...)
 	char str[LOG_STR_LEN];
 
 	if(config->verbose > 0) {
-		if(neednl == 1) {
-			fprintf(stdout, "\n");
-			neednl = 0;
-		}
 		va_start(args, fmt);
 		vsnprintf(str, LOG_STR_LEN, fmt, args);
 		va_end(args);
 		pm_fprintf(stdout, NL, str);
 	}
+}
+
+/* presents a prompt and gets a Y/N answer
+ */
+int yesno(char *fmt, ...)
+{
+	char str[LOG_STR_LEN];
+	char response[32];
+	va_list args;
+
+	if(config->noconfirm) {
+		return(1);
+	}
+
+	va_start(args, fmt);
+	vsnprintf(str, LOG_STR_LEN, fmt, args);
+	va_end(args);
+	MSG(NL, str);
+
+	if(fgets(response, 32, stdin)) {
+		/* trim whitespace and newlines */
+		char *pch = response;
+		while(isspace(*pch)) {
+			pch++;
+		}
+		if(pch != response) {
+			memmove(response, pch, strlen(pch) + 1);
+		}
+		pch = response + strlen(response) - 1;
+		while(isspace(*pch)) {
+			pch--;
+		}
+		*++pch = 0;
+		strtrim(response);
+
+		if(!strcasecmp(response, "Y") || !strcasecmp(response, "YES") || !strlen(response)) {
+			return(1);
+		}
+	}
+	return(0);
 }
 
 /* vim: set ts=2 sw=2 noet: */

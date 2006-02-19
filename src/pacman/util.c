@@ -38,6 +38,7 @@
 #include "util.h"
 #include "list.h"
 #include "conf.h"
+#include "log.h"
 
 extern int maxcols;
 extern config_t *config;
@@ -189,45 +190,6 @@ char *strtrim(char *str)
 	return str;
 }
 
-/* presents a prompt and gets a Y/N answer
- */
-int yesno(char *fmt, ...)
-{
-	char response[32];
-	va_list args;
-
-	if(config->noconfirm) {
-		return(1);
-	}
-
-	va_start(args, fmt);
-	vprintf(fmt, args);
-	va_end(args);
-	fflush(stdout);
-	neednl=1;
-	if(fgets(response, 32, stdin)) {
-		/* trim whitespace and newlines */
-		char *pch = response;
-		while(isspace(*pch)) {
-			pch++;
-		}
-		if(pch != response) {
-			memmove(response, pch, strlen(pch) + 1);
-		}
-		pch = response + strlen(response) - 1;
-		while(isspace(*pch)) {
-			pch--;
-		}
-		*++pch = 0;
-		strtrim(response);
-
-		if(!strcasecmp(response, "Y") || !strcasecmp(response, "YES") || !strlen(response)) {
-			return(1);
-		}
-	}
-	return(0);
-}
-
 /* match a string against a regular expression */
 int reg_match(char *string, char *pattern)
 {
@@ -235,7 +197,7 @@ int reg_match(char *string, char *pattern)
 	regex_t reg;
 
 	if(regcomp(&reg, pattern, REG_EXTENDED | REG_NOSUB | REG_ICASE) != 0) {
-		fprintf(stderr, "error: %s is not a valid regular expression.\n", pattern);
+		ERR(NL, "%s is not a valid regular expression.\n", pattern);
 		return(-1);
 	}
 	result = regexec(&reg, string, 0, 0, 0);

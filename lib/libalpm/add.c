@@ -50,7 +50,53 @@
 
 extern pmhandle_t *handle;
 
-int add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
+static int add_faketarget(pmtrans_t *trans, char *name)
+{
+	char *ptr, *p;
+	char *str = NULL;
+	pmpkg_t *dummy = NULL;
+
+	if((dummy = _alpm_pkg_new(NULL, NULL)) == NULL) {
+		RET_ERR(PM_ERR_MEMORY, -1);
+	}
+
+	/* Format: field1=value1|field2=value2|...
+	 * Valid fields are "name", "version" and "depend"
+	 */
+	str = strdup(name);
+	ptr = str;
+	while((p = strsep(&ptr, "|")) != NULL) {
+		char *q;
+		if(p[0] == 0) {
+			continue;
+		}
+		q = strchr(p, '=');
+		if(q == NULL) { /* not a valid token */
+			continue;
+		}
+		if(strncmp("name", p, q-p) == 0) {
+			STRNCPY(dummy->name, q+1, PKG_NAME_LEN);
+		} else if(strncmp("version", p, q-p) == 0) {
+			STRNCPY(dummy->version, q+1, PKG_VERSION_LEN);
+		} else if(strncmp("depend", p, q-p) == 0) {
+			dummy->depends = _alpm_list_add(dummy->depends, strdup(q+1));
+		} else {
+			_alpm_log(PM_LOG_ERROR, "could not parse token %s", p);
+		}
+	}
+	FREE(str);
+	if(dummy->name[0] == 0 || dummy->version[0] == 0) {
+		FREEPKG(dummy);
+		RET_ERR(PM_ERR_PKG_INVALID_NAME, -1);
+	}
+
+	/* add the package to the transaction */
+	trans->packages = _alpm_list_add(trans->packages, dummy);
+
+	return(0);
+}
+
+int _alpm_add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 {
 	pmpkg_t *info = NULL;
 	pmpkg_t *dummy;
@@ -62,59 +108,19 @@ int add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(name != NULL && strlen(name) != 0, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	/* Check if we need to add a fake target to the transaction.
-	 * format: field1=value1|field2=value2|...
-	 * Supported fields are "name", "version", "depend"
-	 * A fake package is created with the given tokens (name and version are
-	 * required).
-	 */
+	/* Check if we need to add a fake target to the transaction. */
 	if(strchr(name, '|')) {
-		char *str, *ptr, *p;
-		dummy = pkg_new(NULL, NULL);
-		if(dummy == NULL) {
-			pm_errno = PM_ERR_MEMORY;
-			goto error;
-		}
-		str = strdup(name);
-		ptr = str;
-		while((p = strsep(&ptr, "|")) != NULL) {
-			char *q;
-			if(p[0] == 0) {
-				continue;
-			}
-			q = strchr(p, '=');
-			if(q == NULL) { /* not a valid token */
-				continue;
-			}
-			if(strncmp("name", p, q-p) == 0) {
-				STRNCPY(dummy->name, q+1, PKG_NAME_LEN);
-			} else if(strncmp("version", p, q-p) == 0) {
-				STRNCPY(dummy->version, q+1, PKG_VERSION_LEN);
-			} else if(strncmp("depend", p, q-p) == 0) {
-				dummy->depends = pm_list_add(dummy->depends, strdup(q+1));
-			} else {
-				_alpm_log(PM_LOG_ERROR, "could not parse token %s", p);
-			}
-		}
-		FREE(str);
-		if(dummy->name[0] == 0 || dummy->version[0] == 0) {
-			pm_errno = PM_ERR_PKG_INVALID_NAME;
-			FREEPKG(dummy);
-			goto error;
-		}
-		/* add the package to the transaction */
-		trans->packages = pm_list_add(trans->packages, dummy);
-		return(0);
+		return(add_faketarget(trans, name));
 	}
 
-	_alpm_log(PM_LOG_FLOW2, "loading target %s", name);
+	_alpm_log(PM_LOG_FLOW2, "loading target '%s'", name);
 
 	if(stat(name, &buf)) {
 		pm_errno = PM_ERR_NOT_A_FILE;
 		goto error;
 	}
 
-	if(pkg_splitname(name, pkgname, pkgver, PM_PKG_WITH_ARCH) == -1) {
+	if(_alpm_pkg_splitname(name, pkgname, pkgver, PM_PKG_WITH_ARCH) == -1) {
 		pm_errno = PM_ERR_PKG_INVALID_NAME;
 		goto error;
 	}
@@ -127,16 +133,15 @@ int add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 
 	if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 		/* only install this package if it is not already installed */
-		dummy = db_get_pkgfromcache(db, pkgname);
-		if(dummy) {
+		if(_alpm_db_get_pkgfromcache(db, pkgname)) {
 			pm_errno = PM_ERR_PKG_INSTALLED;
 			goto error;
 		}
 	} else {
 		if(trans->flags & PM_TRANS_FLAG_FRESHEN) {
 			/* only upgrade/install this package if it is already installed and at a lesser version */
-			dummy = db_get_pkgfromcache(db, pkgname);
-			if(dummy == NULL || versioncmp(dummy->version, pkgver) >= 0) {
+			dummy = _alpm_db_get_pkgfromcache(db, pkgname);
+			if(dummy == NULL || _alpm_versioncmp(dummy->version, pkgver) >= 0) {
 				pm_errno = PM_ERR_PKG_CANT_FRESH;
 				goto error;
 			}
@@ -148,23 +153,26 @@ int add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 	for(i = trans->packages; i; i = i->next) {
 		pmpkg_t *pkg = i->data;
 		if(strcmp(pkg->name, pkgname) == 0) {
-			if(versioncmp(pkg->version, pkgver) < 0) {
+			if(_alpm_versioncmp(pkg->version, pkgver) < 0) {
 				pmpkg_t *newpkg;
-				_alpm_log(PM_LOG_WARNING, "replacing older version of %s %s by %s in target list", pkg->name, pkg->version, pkgver);
-				newpkg = pkg_load(name);
-				if(newpkg == NULL) {
+				_alpm_log(PM_LOG_WARNING, "replacing older version %s-%s by %s in target list",
+				          pkg->name, pkg->version, pkgver);
+				if((newpkg = _alpm_pkg_load(name)) == NULL) {
 					/* pm_errno is already set by pkg_load() */
 					goto error;
 				}
 				FREEPKG(i->data);
 				i->data = newpkg;
+			} else {
+				_alpm_log(PM_LOG_WARNING, "newer version %s-%s is in the target list -- skipping",
+				          pkg->name, pkg->version, pkgver);
 			}
 			return(0);
 		}
 	}
 
-	_alpm_log(PM_LOG_FLOW2, "reading %s", name);
-	info = pkg_load(name);
+	_alpm_log(PM_LOG_FLOW2, "reading '%s' metadata", pkgname);
+	info = _alpm_pkg_load(name);
 	if(info == NULL) {
 		/* pm_errno is already set by pkg_load() */
 		goto error;
@@ -180,7 +188,7 @@ int add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 	}
 
 	/* add the package to the transaction */
-	trans->packages = pm_list_add(trans->packages, info);
+	trans->packages = _alpm_list_add(trans->packages, info);
 
 	return(0);
 
@@ -189,7 +197,7 @@ error:
 	return(-1);
 }
 
-int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
+int _alpm_add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 {
 	PMList *lp;
 	PMList *rmlist = NULL;
@@ -206,7 +214,7 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 
 		/* look for unsatisfied dependencies */
 		_alpm_log(PM_LOG_FLOW1, "looking for unsatisfied dependencies");
-		lp = checkdeps(trans, db, trans->type, trans->packages);
+		lp = _alpm_checkdeps(trans, db, trans->type, trans->packages);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -218,7 +226,7 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 
 		/* no unsatisfied deps, so look for conflicts */
 		_alpm_log(PM_LOG_FLOW1, "looking for conflicts");
-		lp = checkconflicts(db, trans->packages);
+		lp = _alpm_checkconflicts(db, trans->packages);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -230,7 +238,7 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 
 		/* re-order w.r.t. dependencies */
 		_alpm_log(PM_LOG_FLOW1, "sorting by dependencies");
-		lp = sortbydeps(trans->packages, PM_TRANS_TYPE_ADD);
+		lp = _alpm_sortbydeps(trans->packages, PM_TRANS_TYPE_ADD);
 		/* free the old alltargs */
 		FREELISTPTR(trans->packages);
 		trans->packages = lp;
@@ -259,7 +267,7 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 		EVENT(trans, PM_TRANS_EVT_FILECONFLICTS_START, NULL, NULL);
 
 		_alpm_log(PM_LOG_FLOW1, "looking for file conflicts");
-		lp = db_find_conflicts(db, trans->packages, handle->root, &skiplist);
+		lp = _alpm_db_find_conflicts(db, trans->packages, handle->root, &skiplist);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -279,7 +287,7 @@ int add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 	return(0);
 }
 
-int add_commit(pmtrans_t *trans, pmdb_t *db)
+int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 {
 	int i, ret = 0, errors = 0, needdisp = 0;
 	double percent;
@@ -308,7 +316,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 
 		/* see if this is an upgrade.  if so, remove the old package first */
 		if(pmo_upgrade) {
-			pmpkg_t *local = db_get_pkgfromcache(db, info->name);
+			pmpkg_t *local = _alpm_db_get_pkgfromcache(db, info->name);
 			if(local) {
 				EVENT(trans, PM_TRANS_EVT_UPGRADE_START, info, NULL);
 				cb_state = PM_TRANS_PROGRESS_UPGRADE_START;
@@ -316,13 +324,13 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 				asprintf(&what, "%s", info->name);
 
 				/* we'll need to save some record for backup checks later */
-				oldpkg = pkg_new(local->name, local->version);
+				oldpkg = _alpm_pkg_new(local->name, local->version);
 				if(oldpkg) {
 					if(!(local->infolevel & INFRQ_FILES)) {
 						char name[PKG_FULLNAME_LEN];
 						snprintf(name, PKG_FULLNAME_LEN, "%s-%s", local->name, local->version);
 						_alpm_log(PM_LOG_DEBUG, "loading FILES info for %s", local->name);
-						db_read(db, name, INFRQ_FILES, local);
+						_alpm_db_read(db, name, INFRQ_FILES, local);
 					}
 					oldpkg->backup = _alpm_list_strdup(local->backup);
 					strncpy(oldpkg->name, local->name, PKG_NAME_LEN);
@@ -337,23 +345,23 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 				if(oldpkg) {
 					pmtrans_t *tr;
 					_alpm_log(PM_LOG_FLOW1, "removing old package first (%s-%s)", oldpkg->name, oldpkg->version);
-					tr = trans_new();
+					tr = _alpm_trans_new();
 					if(tr == NULL) {
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
-					if(trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags, NULL, NULL, NULL) == -1) {
+					if(_alpm_trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags, NULL, NULL, NULL) == -1) {
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
 					/* copy over the install reason */
 					info->reason = local->reason;
-					if(remove_loadtarget(tr, db, info->name) == -1) {
+					if(_alpm_remove_loadtarget(tr, db, info->name) == -1) {
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
 					/* copy the skiplist over */
 					tr->skiplist = _alpm_list_strdup(trans->skiplist);
-					if(remove_commit(tr, db) == -1) {
+					if(_alpm_remove_commit(tr, db) == -1) {
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
@@ -376,7 +384,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 				_alpm_runscriptlet(handle->root, info->data, "pre_install", info->version, NULL);
 			}
 		} else {
-			_alpm_log(PM_LOG_FLOW1, "adding new package (%s-%s)", info->name, info->version);
+			_alpm_log(PM_LOG_FLOW1, "adding new package %s-%s", info->name, info->version);
 		}
 
 		if(!(trans->flags & PM_TRANS_FLAG_DBONLY)) {
@@ -448,7 +456,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 				 * eg, /home/httpd/html/index.html may be removed so index.php
 				 * could be used.
 				 */
-				if(pm_list_is_strin(pathname, handle->noextract)) {
+				if(_alpm_list_is_strin(pathname, handle->noextract)) {
 					alpm_logaction("notice: %s is in NoExtract -- skipping extraction", pathname);
 					archive_read_data_skip (archive);
 					continue;
@@ -456,11 +464,11 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 
 				if(!stat(expath, &buf) && !S_ISDIR(buf.st_mode)) {
 					/* file already exists */
-					if(pm_list_is_strin(pathname, handle->noupgrade)) {
+					if(_alpm_list_is_strin(pathname, handle->noupgrade)) {
 						notouch = 1;
 					} else {
 						if(!pmo_upgrade || oldpkg == NULL) {
-							nb = pm_list_is_strin(pathname, info->backup) ? 1 : 0;
+							nb = _alpm_list_is_strin(pathname, info->backup);
 						} else {
 							/* op == PM_TRANS_TYPE_UPGRADE */
 							md5_orig = _alpm_needbackup(pathname, oldpkg->backup);
@@ -587,7 +595,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 							installnew = 1;
 						} else {
 							char newpath[PATH_MAX];
-							_alpm_log(PM_LOG_DEBUG, "action: keeping current file and installing new one with .pacnew ending\n");
+							_alpm_log(PM_LOG_DEBUG, "action: keeping current file and installing new one with .pacnew ending");
 							installnew = 0;
 							snprintf(newpath, PATH_MAX, "%s.pacnew", expath);
 							if(_alpm_copyfile(temp, newpath)) {
@@ -600,7 +608,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 						}
 
 						if(installnew) {
-							/*_alpm_log(PM_LOG_FLOW2, "  %s", expath);*/
+							_alpm_log(PM_LOG_FLOW2, "extracting %s", pathname);
 							if(_alpm_copyfile(temp, expath)) {
 								_alpm_log(PM_LOG_ERROR, "could not copy %s to %s (%s)", temp, pathname, strerror(errno));
 								errors++;
@@ -639,7 +647,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 					archive_entry_set_pathname (entry, expath);
 					if(archive_read_extract (archive, entry, ARCHIVE_EXTRACT_FLAGS) != ARCHIVE_OK) {
 						_alpm_log(PM_LOG_ERROR, "could not extract %s (%s)", expath, strerror(errno));
-						alpm_logaction("could not extract %s (%s)", expath, strerror(errno));
+						alpm_logaction("error: could not extract %s (%s)", expath, strerror(errno));
 						errors++;
 					}
 					/* calculate an md5 or sha1 hash if this is in info->backup */
@@ -650,6 +658,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 
 						if(!file) continue;
 						if(!strcmp(file, pathname)) {
+							_alpm_log(PM_LOG_DEBUG, "appending backup entry");
 							snprintf(path, PATH_MAX, "%s%s", handle->root, file);
 							if (info->sha1sum != NULL && info->sha1sum != '\0') {
 							    md5 = MDFile(path);
@@ -693,7 +702,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 
 		/* Update the requiredby field by scanning the whole database 
 		 * looking for packages depending on the package to add */
-		for(lp = db_get_pkgcache(db); lp; lp = lp->next) {
+		for(lp = _alpm_db_get_pkgcache(db); lp; lp = lp->next) {
 			pmpkg_t *tmpp = lp->data;
 			PMList *tmppm = NULL;
 			if(tmpp == NULL) {
@@ -701,12 +710,12 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 			}
 			for(tmppm = tmpp->depends; tmppm; tmppm = tmppm->next) {
 				pmdepend_t depend;
-				if(splitdep(tmppm->data, &depend)) {
+				if(_alpm_splitdep(tmppm->data, &depend)) {
 					continue;
 				}
 				if(tmppm->data && !strcmp(depend.name, info->name)) {
 					_alpm_log(PM_LOG_DEBUG, "adding '%s' in requiredby field for '%s'", tmpp->name, info->name);
-					info->requiredby = pm_list_add(info->requiredby, strdup(tmpp->name));
+					info->requiredby = _alpm_list_add(info->requiredby, strdup(tmpp->name));
 				}
 			}
 		}
@@ -718,14 +727,14 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 
 		_alpm_log(PM_LOG_FLOW1, "updating database");
 		_alpm_log(PM_LOG_FLOW2, "adding database entry '%s'", info->name);
-		if(db_write(db, info, INFRQ_ALL)) {
-			_alpm_log(PM_LOG_ERROR, "could not update database entry '%s-%s'",
+		if(_alpm_db_write(db, info, INFRQ_ALL)) {
+			_alpm_log(PM_LOG_ERROR, "could not update database entry %s-%s",
 			          info->name, info->version);
 			alpm_logaction(NULL, "error updating database for %s-%s!", info->name, info->version);
 			RET_ERR(PM_ERR_DB_WRITE, -1);
 		}
-		if(db_add_pkgincache(db, info) == -1) {
-			_alpm_log(PM_LOG_ERROR, "could not add entry %s in cache", info->name);
+		if(_alpm_db_add_pkgincache(db, info) == -1) {
+			_alpm_log(PM_LOG_ERROR, "could not add entry '%s' in cache", info->name);
 		}
 
 		/* update dependency packages' REQUIREDBY fields */
@@ -735,10 +744,10 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 		for(lp = info->depends; lp; lp = lp->next) {
 			pmpkg_t *depinfo;
 			pmdepend_t depend;
-			if(splitdep(lp->data, &depend)) {
+			if(_alpm_splitdep(lp->data, &depend)) {
 				continue;
 			}
-			depinfo = db_get_pkgfromcache(db, depend.name);
+			depinfo = _alpm_db_get_pkgfromcache(db, depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
 				PMList *provides = _alpm_db_whatprovides(db, depend.name);
@@ -747,7 +756,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 					 *       the first one.
 					 */
 					/* use the first one */
-					depinfo = db_get_pkgfromcache(db, ((pmpkg_t *)provides->data)->name);
+					depinfo = _alpm_db_get_pkgfromcache(db, ((pmpkg_t *)provides->data)->name);
 					FREELISTPTR(provides);
 				}
 				if(depinfo == NULL) {
@@ -757,9 +766,9 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 				}
 			}
 			_alpm_log(PM_LOG_DEBUG, "adding '%s' in requiredby field for '%s'", info->name, depinfo->name);
-			depinfo->requiredby = pm_list_add(depinfo->requiredby, strdup(info->name));
-			if(db_write(db, depinfo, INFRQ_DEPENDS)) {
-				_alpm_log(PM_LOG_ERROR, "could not update 'requiredby' database entry '%s-%s'",
+			depinfo->requiredby = _alpm_list_add(depinfo->requiredby, strdup(info->name));
+			if(_alpm_db_write(db, depinfo, INFRQ_DEPENDS)) {
+				_alpm_log(PM_LOG_ERROR, "could not update 'requiredby' database entry %s-%s",
 				          depinfo->name, depinfo->version);
 			}
 		}
