@@ -458,6 +458,19 @@ create_pkg()
 	fi
 }
 
+in_array()
+{
+	needle=$1
+	shift 1
+	# array() undefined
+	[ -z "$1" ] && return 1
+	for i in $*
+	do
+		[ "$i" == "$needle" ] && return 0
+	done
+	return 1
+}
+
 ARGLIST=$@
 
 while [ "$#" -ne "0" ]; do
@@ -645,6 +658,10 @@ if [ `echo $pkgver | grep '-'` ]; then
 fi
 if [ `echo $pkgrel | grep '-'` ]; then
 	error "pkgrel is not allowed to contain hyphens."
+	exit 1
+fi
+if ! in_array $CARCH ${archs[@]}; then
+	error "$pkgname is not available on $CARCH."
 	exit 1
 fi
 if [ "$install" -a ! -f "$install" ]; then
