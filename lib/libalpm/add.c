@@ -285,7 +285,7 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 	double percent;
 	register struct archive *archive;
 	struct archive_entry *entry;
-	char expath[PATH_MAX], *what;
+	char expath[PATH_MAX], cwd[PATH_MAX] = "", *what;
 	unsigned char cb_state;
 	time_t t;
 	PMList *targ, *lp;
@@ -393,6 +393,14 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 				RET_ERR(PM_ERR_PKG_OPEN, -1);
 			}
 
+			/* save the cwd so we can restore it later */
+			if(getcwd(cwd, PATH_MAX) == NULL) {
+				_alpm_log(PM_LOG_ERROR, "could not get current working directory");
+				/* in case of error, cwd content is undefined: so we set it to something */
+				cwd[0] = 0;
+			}
+
+			/* libarchive requires this for extracting hard links */
 			chdir(handle->root);
 
 			for(i = 0; archive_read_next_header (archive, &entry) == ARCHIVE_OK; i++) {
@@ -665,6 +673,9 @@ int add_commit(pmtrans_t *trans, pmdb_t *db)
 						}
 					}
 				}
+			}
+			if(strlen(cwd)) {
+				chdir(cwd);
 			}
 			archive_read_finish (archive);
 
