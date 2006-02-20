@@ -132,14 +132,6 @@ int pacman_deptest(list_t *targets)
 			break;
 		}
 
-		if(config->op_d_resolve) {
-			if(alpm_trans_release() == -1) {
-				ERR(NL, "failed to release transaction (%s)\n", alpm_strerror(pm_errno));
-				retval = 1;
-				goto cleanup;
-			}
-		}
-
 		/* attempt to resolve missing dependencies */
 		/* TODO: handle version comparators (eg, glibc>=2.2.5) */
 		if(retval == 126 && synctargs != NULL) {
