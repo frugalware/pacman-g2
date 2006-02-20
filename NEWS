@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.18     - makepkg now allows to inherit install scriptlets from a
+                scheme
+              - allow multiple packages to be installed at once with -U
+              - added SBU variable to makepkg.conf
+              - 3 major bugfixes from upstream
 2.9.99.17     - support for having subpkgs in an other repo. this affects
                 gensync and updatesync, also makepkg's manpage is updated
               - support for handle version comparators in makepkg
