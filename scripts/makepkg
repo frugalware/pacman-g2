@@ -600,8 +600,6 @@ fi
 unset pkgname pkgver pkgrel pkgdesc url license groups provides md5sums force
 unset replaces depends removes conflicts backup source install makedepends
 unset rodepends options
-# some applications (eg, blackbox) will not build with some languages
-unset LC_ALL LANG
 umask 0022
 
 # download buildscript if necessary
@@ -881,6 +879,9 @@ elif [ "$NODEPS" = "1" ]; then
 else
 	warning "pacman was not found in PATH. skipping dependency checks."
 fi
+
+# some applications (eg, blackbox) will not build with some languages
+unset LC_ALL LANG
 
 cd $startdir
 
