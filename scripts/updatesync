@@ -267,7 +267,7 @@ if [ "$action" = "upd" ]; then
 		i=0
 		for subpkg in "${subpkgs[@]}"
 		do
-			unset pkgdesc groups replaces force depends rodepends conflicts provides options
+			unset pkgdesc groups archs replaces force depends rodepends conflicts provides options
 			pkgdesc="${subdescs[$i]}"
 			groups="${subgroups[$i]}"
 			archs="${subarchs[$i]}"
