@@ -744,7 +744,6 @@ int pacman_sync(list_t *targets)
 		ERR(NL, "failed to commit transaction (%s)\n", alpm_strerror(pm_errno));
 		switch(pm_errno) {
 			case PM_ERR_FILE_CONFLICTS:
-			case PM_ERR_PKG_CORRUPTED:
 				for(lp = alpm_list_first(data); lp; lp = alpm_list_next(lp)) {
 					PM_CONFLICT *conflict = alpm_list_getdata(lp);
 					switch((int)alpm_conflict_getinfo(conflict, PM_CONFLICT_TYPE)) {
@@ -760,6 +759,13 @@ int pacman_sync(list_t *targets)
 							        (char *)alpm_conflict_getinfo(conflict, PM_CONFLICT_FILE));
 						break;
 					}
+				}
+				alpm_list_free(data);
+				MSG(NL, "\nerrors occurred, no packages were upgraded.\n");
+			break;
+			case PM_ERR_PKG_CORRUPTED:
+				for(lp = alpm_list_first(data); lp; lp = alpm_list_next(lp)) {
+					MSG(NL, "%s", (char*)alpm_list_getdata(lp));
 				}
 				alpm_list_free(data);
 				MSG(NL, "\nerrors occurred, no packages were upgraded.\n");
