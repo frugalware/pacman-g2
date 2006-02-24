@@ -523,17 +523,22 @@ Do not use ccache during build.
 Clean up leftover work files/directories after a successful build.
 .TP
 .B "\-C, \-\-cleancache"
-Removes all source files from the cache directory to free up diskspace.
+Used with --chroot cleans up the chroot which means removing unnecessary
+packages from it. If used twice, then it removes all source files from
+the cache directory and cleans up the full compiler cache to free up diskspace.
 .TP
 .B "\-d, \-\-nodeps"
 Do not perform any dependency checks.  This will let you override/ignore any
 dependencies required.  There's a good chance this option will break the build
 process if all of the dependencies aren't installed.
+.TP
+.B "\-D <pkgname>"
+Clean up only one package's compiler cache. (Uses ccache -C.)
+.TP
 .B "\-e, \-\-noextract"
 Do not extract source files.  Instead, use whatever already exists in the
 src/ directory.  This is handy if you want to go into src and manually
 patch/tweak code, then make a package out of the result.
-.TP
 .TP
 .B "\-f, \-\-force"
 \fBmakepkg\fP will not build a package if a \fIpkgname-pkgver-pkgrel-arch.fpm\fP
