@@ -30,6 +30,7 @@ USE_COLOR="n"
 BUILDSCRIPT="./FrugalBuild"
 CLEANUP=0
 CLEANCACHE=0
+CLEANCCACHE=""
 DEP_BIN=0
 DEP_SRC=0
 DEP_SUDO=0
@@ -267,6 +268,7 @@ usage() {
 	echo "  -c, --clean      Clean up work files after build"
 	echo "  -C, --cleancache Clean up source files from the cache"
 	echo "  -d, --nodeps     Skip all dependency checks"
+	echo "  -D <pkgname>     Clean up the compiler cache for a package"
 	echo "  -e, --noextract  Do not extract source files (use existing src/ dir)"
 	echo "  -f, --force      Overwrite existing package"
 	echo "  -g, --gensha1    Generate SHA1sums for source files"
@@ -519,7 +521,7 @@ while [ "$#" -ne "0" ]; do
 			exit 1
 			;;
 		-*)
-			while getopts "abBcCdefgGhij:kl:Lmnop:urRsSw:-" opt; do
+			while getopts "abBcCdD:efgGhij:kl:Lmnop:urRsSw:-" opt; do
 				case $opt in
 					a) SEARCHDEPS=1 ;;
 					b) DEP_SRC=1 ;;
@@ -527,6 +529,7 @@ while [ "$#" -ne "0" ]; do
 					c) CLEANUP=1 ;;
 					C) CLEANCACHE=$(($CLEANCACHE+1)) ;;
 					d) NODEPS=1 ;;
+					D) CLEANCCACHE=$OPTARG ;;
 					e) NOEXTRACT=1 ;;
 					f) FORCE=1 ;;
 					g) GENSHA1=1 ;;
@@ -583,7 +586,18 @@ fi
 PKGDEST=`pwd`
 cd $OLDPWD
 
+if [ ! -z "$CLEANCCACHE" ]; then
+	export CCACHE_DIR=/var/cache/ccache/$CLEANCCACHE
+	ccache -C
+	exit 0
+fi
+
 if [ $CLEANCACHE -ge 1 ]; then
+	if [ $CLEANCACHE -ge 2 ]; then
+		msg "Cleaning up the compiler cache."
+		export CCACHE_DIR=/var/cache/ccache
+		ccache -C
+	fi
 	if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
 		if [ $CLEANCACHE -ge 2 ]; then
 			msg "Cleaning up source files from the cache."
