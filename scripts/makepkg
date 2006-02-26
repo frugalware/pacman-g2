@@ -707,8 +707,6 @@ if [ -f $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm -a "$FORCE" = "0" -
 fi
 
 # Generate the Changelog if necessary.
-# in case we're in a darcs repo, but the current dir is not yet part of it
-darcs add . >/dev/null 2>&1
 if darcs --commands 2>&1|grep -q add && [ "$GENMD5" = "0" -a "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
 	if [ ! -e Changelog ] || [ `stat -c %Y Changelog` -lt `stat -c %Y $BUILDSCRIPT` ]; then
 		msg "Generating the Changelog..."
@@ -789,8 +787,18 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	fi
 	# to make Finclude work
 	[ -d $CHROOTDIR/var/tmp/fst/include/ ] || mkdir -p $CHROOTDIR/var/tmp/fst/include/
-	if darcs --commands 2>&1|grep -q add && [ -d `darcs add . 2>&1|sed -n 's/[^/]*/../g; 4 p'`/source/include ]; then
-		cp `darcs add . 2>&1|sed -n 's/[^/]*/../g; 4 p'`/source/include/* $CHROOTDIR/var/tmp/fst/include/
+	i=`pwd`
+	while true
+	do
+		if [ -e "$i/_darcs" ]; then
+			break
+		elif [ "$i" == "" ]; then
+			break
+		fi
+		i=`echo $i|sed 's|\(.*\)/.*|\1|'`
+	done
+	if darcs --commands 2>&1|grep -q add && [ "$i" -a -d "$i"/source/include ]; then
+		cp $i/source/include/* $CHROOTDIR/var/tmp/fst/include/
 	elif [ -d $fst_root/$reponame/source/include ]; then
 		cp $fst_root/$reponame/source/include/* $CHROOTDIR/var/tmp/fst/include/
 	fi
