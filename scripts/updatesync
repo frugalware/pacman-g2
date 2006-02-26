@@ -57,9 +57,9 @@ die()
 	exit 1
 }
 
-error() { return 0; }
-Fdie() { return 0; }
-Finclude() { return 0; }
+# Frugalware functions
+CHROOT=1
+[ -e /usr/lib/frugalware/fwmakepkg ] && . /usr/lib/frugalware/fwmakepkg
 
 check_option() {
 	local i
@@ -187,7 +187,10 @@ delete_entry()
 {
 	echo $1 | grep FrugalBuild 2>&1 >/dev/null
 	if [ $? -eq 0 ]; then
+		cd `dirname $1`
+		startdir=`pwd`
 		source $1
+		cd - >/dev/null
 	else
 		pkgname=$1
 	fi
@@ -253,7 +256,10 @@ if [ "$action" = "upd" ]; then
 	# INSERT / UPDATE
 	delete_entry $option
 
+	cd `dirname $option`
+	startdir=`pwd`
 	source $option || die "errors parsing $option"
+	cd - >/dev/null
 	group="${groups[0]}"
 	if in_array $arch ${archs[@]} || [ "$nobuild" -o "`check_option NOBUILD`" ]; then
 		unset pkgname pkgver pkgrel pkgdesc force
@@ -261,7 +267,10 @@ if [ "$action" = "upd" ]; then
 		unset subpkgs subdescs sublicense subreplaces subgroups
 		unset subdepends subrodepends subremoves subconflicts suboptions
 		unset subprovides subbackup subinstall suboptions
+		cd `dirname $option`
+		startdir=`pwd`
 		source $option || die "error parsing $option"
+		cd - >/dev/null
 		db_write_entry $pkgname || die "error writing entry for $pkgname ($option)"
 	fi
 	if [ ! -z "$subpkgs" ] || [ "$nobuild" -o "`check_option NOBUILD`" ]; then

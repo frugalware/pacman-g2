@@ -55,9 +55,9 @@ die() {
 	exit 1
 }
 
-error() { return 0; }
-Fdie() { return 0; }
-Finclude() { return 0; }
+# Frugalware functions
+CHROOT=1
+[ -e /usr/lib/frugalware/fwmakepkg ] && . /usr/lib/frugalware/fwmakepkg
 
 check_option() {
 	local i
@@ -217,14 +217,20 @@ echo "gensync: building database entries, generating sha1sums..." >&2
 cd `dirname $2`
 for file in `find $rootdir/* -name FrugalBuild`; do
 	unset nobuild archs
+	cd `dirname $file`
+	startdir=`pwd`
 	source $file || die "errors parsing $file"
+	cd - >/dev/null
 	if in_array $arch ${archs[@]} && [ ! "$nobuild" -a ! "`check_option NOBUILD`" ]; then
 		unset pkgname pkgver pkgrel pkgdesc force
 		unset groups replaces provides depends rodepends conflicts options
 		unset subpkgs subdescs sublicense subreplaces subgroups subarchs
 		unset subdepends subrodepends subremoves subconflicts
 		unset subprovides subbackup subinstall suboptions
+		cd `dirname $file`
+		startdir=`pwd`
 		source $file || return 1
+		cd - >/dev/null
 		db_write_entry $pkgname || die "error writing entry for $pkgname ($file)"
 	fi
 	if [ ! -z "$subpkgs" ] && [ ! "$nobuild" -a ! "`check_option NOBUILD`" ]; then
