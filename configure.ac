@@ -1,7 +1,7 @@
 ENV_CFLAGS=$CFLAGS
 
 AC_PREREQ(2.59)
-AC_INIT([Pacman package manager], 2.9.99.18, [pacman-dev@archlinux.org], pacman)
+AC_INIT([Pacman package manager], 2.9.99.19, [pacman-dev@archlinux.org], pacman)
 AC_LANG(C)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_SYSTEM
@@ -18,7 +18,7 @@ dnl Define here the libalpm version number
 PM_MAJOR_VERSION=0
 PM_MINOR_VERSION=1
 PM_MICRO_VERSION=0
-PM_MICRO_VERSION_SUFFIX=.18
+PM_MICRO_VERSION_SUFFIX=.19
 PM_VERSION=$PM_MAJOR_VERSION.$PM_MINOR_VERSION.$PM_MICRO_VERSION$PM_MICRO_VERSION_SUFFIX
 dnl Needed for libtool to create proper shared lib version
 PM_VERSION_INFO=`expr $PM_MAJOR_VERSION + $PM_MINOR_VERSION`:$PM_MICRO_VERSION:$PM_MINOR_VERSION

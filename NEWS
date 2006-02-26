@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.19     - more verbose error messages on corrupted packages
+              - makepkg: added support for clearing the cache of ccache
+                         slice warnings for LANG!=C
+              - gen/updatesync: bugfix for subdescs() and subarchs()
+                                no longer ignore the Finclude function call
 2.9.99.18     - makepkg now allows to inherit install scriptlets from a
                 scheme
               - allow multiple packages to be installed at once with -U
