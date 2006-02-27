@@ -775,8 +775,7 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 
 		PROGRESS(trans, cb_state, what, 100, _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
 		needdisp = 0;
-		printf("\n");
-		fflush(stdout);
+		EVENT(trans, PM_TRANS_EVT_EXTRACT_DONE, NULL, NULL);
 		FREE(what);
 
 		/* run the post-install script if it exists  */
