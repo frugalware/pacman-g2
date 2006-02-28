@@ -482,6 +482,45 @@ in_array()
 	return 1
 }
 
+install_pkg()
+{
+	if [ "$INSTALL" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
+		msg "Installing package(s) with pacman -U..."
+		targs="$PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm"
+		if [ ! -z "$subpkgs" ]; then
+			i=0
+			for subpkg in "${subpkgs[@]}"
+			do
+				targs="$targs $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.fpm"
+			done
+		fi
+		pacman $PACMAN_OPTS -U $targs || exit $?
+	elif [ "$INSTALL" = "1" -a "$DEP_SUDO" = "1" ]; then
+		msg "Installing package(s) with sudo pacman -U..."
+		targs="$PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm"
+		if [ ! -z "$subpkgs" ]; then
+			i=0
+			for subpkg in "${subpkgs[@]}"
+			do
+				targs="$targs $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.fpm"
+			done
+		fi
+		if [ "$INFAKEROOT" = "1" ]; then
+			FAKEROOTKEY2=$FAKEROOTKEY
+			unset FAKEROOTKEY
+		fi
+		sudo pacman $PACMAN_OPTS -U $targs || exit $?
+		if [ "$INFAKEROOT" = "1" ]; then
+			export FAKEROOTKEY=$FAKEROOTKEY2
+			unset FAKEROOTKEY2
+		fi
+	else
+		warning "Cannot auto-install packages as a normal user without sudo!"
+		plain "Run makepkg as root or with -S to install packages automatically."
+	fi
+	exit 0
+}
+
 ARGLIST=$@
 
 while [ "$#" -ne "0" ]; do
@@ -697,9 +736,7 @@ fi
 if [ -f $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm -a "$FORCE" = "0" -a "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 	if [ "$INSTALL" = "1" ]; then
 		warning "a package has already been built, installing existing package."
-		echo pacman $PACMAN_OPTS -U $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm
-		pacman $PACMAN_OPTS -U $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm
-		exit $?
+		install_pkg
 	else
 		error "a package has already been built.  (use -f to overwrite)"
 		exit 1
@@ -1414,21 +1451,6 @@ fi
 
 msg "Finished making: $pkgname  (`date`)"
 
-if [ "$INSTALL" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
-	msg "Installing package with pacman -U..."
-	pacman $PACMAN_OPTS -U $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm
-	exit $?
-elif [ "$INSTALL" = "1" -a "$DEP_SUDO" = "1" ]; then
-	msg "Installing package with pacman -U..."
-	if [ "$INFAKEROOT" = "1" ]; then
-		FAKEROOTKEY2=$FAKEROOTKEY
-		unset FAKEROOTKEY
-	fi
-	sudo pacman $PACMAN_OPTS -U $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm
-	if [ "$INFAKEROOT" = "1" ]; then
-		export FAKEROOTKEY=$FAKEROOTKEY2
-		unset FAKEROOTKEY2
-	fi
-fi
+install_pkg
 
 exit 0
