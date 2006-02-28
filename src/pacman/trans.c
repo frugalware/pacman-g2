@@ -40,6 +40,8 @@
 
 extern config_t *config;
 
+int prevpercent=0; /* for less progressbar output */
+
 /* Callback to handle transaction events
  */
 void cb_trans_evt(unsigned char event, void *data1, void *data2)
@@ -181,7 +183,10 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 		return;
 	if (percent > 100)
 		return;
+	if(percent == prevpercent)
+		return;
 
+	prevpercent=percent;
 	switch (event) {
 		case PM_TRANS_PROGRESS_ADD_START:
 			ptr = addstr;
