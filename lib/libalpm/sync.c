@@ -807,7 +807,20 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 			if((ptr = (char *)malloc(512)) == NULL) {
 				RET_ERR(PM_ERR_MEMORY, -1);
 			}
-			snprintf(ptr, 512, "archive %s is corrupted (bad MD5 or SHA1 checksum)\n", pkgname);
+			int doremove=0;
+			if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
+				doremove=1;
+			} else {
+				QUESTION(trans, PM_TRANS_CONV_CORRUPTED_PKG, pkgname, NULL, NULL, &doremove);
+			}
+			if(doremove) {
+				char str[PATH_MAX];
+				snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name, spkg->version, spkg->arch);
+				unlink(str);
+				snprintf(ptr, 512, "archive %s was corrupted (bad MD5 or SHA1 checksum)\n", pkgname);
+			} else {
+				snprintf(ptr, 512, "archive %s is corrupted (bad MD5 or SHA1 checksum)\n", pkgname);
+			}
 			*data = _alpm_list_add(*data, ptr);
 			retval = 1;
 		}

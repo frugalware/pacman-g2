@@ -165,6 +165,15 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 				*response = 1;
 			}
 		break;
+		case PM_TRANS_CONV_CORRUPTED_PKG:
+			if(!config->noconfirm) {
+				snprintf(str, LOG_STR_LEN, ":: Archive %s is corrupted. Do you want to delete it? [Y/n] ",
+			         (char *)data1);
+				*response = yesno(str);
+			} else {
+				*response = 1;
+			}
+		break;
 	}
 }
 
