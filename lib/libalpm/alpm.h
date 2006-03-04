@@ -228,6 +228,7 @@ enum {
 #define PM_TRANS_FLAG_DEPENDSONLY 0x80
 #define PM_TRANS_FLAG_ALLDEPS 0x100
 #define PM_TRANS_FLAG_DOWNLOADONLY 0x200
+#define PM_TRANS_FLAG_NOSCRIPTLET 0x400
 
 /* Transaction Events */
 enum {
