@@ -178,7 +178,11 @@ handledeps() {
 		if [ "$DEP_BIN" = "1" ]; then
 			# install missing deps from binary packages (using pacman -S)
 			msg "Installing missing dependencies..."
-			pacman $PACMAN_OPTS -D $deplist
+			if [ "$INCHROOT" != "1" ]; then
+				pacman $PACMAN_OPTS -D $deplist
+			else
+				pacman $PACMAN_OPTS --noscriptlet -D $deplist
+			fi
 			if [ "$?" = "127" ]; then
 				error "Failed to install missing dependencies."
 				exit 1
@@ -192,7 +196,11 @@ handledeps() {
 				FAKEROOTKEY2=$FAKEROOTKEY
 				unset FAKEROOTKEY
 			fi
-			sudo pacman $PACMAN_OPTS -D $deplist
+			if [ "$INCHROOT" != "1" ]; then
+				sudo pacman $PACMAN_OPTS -D $deplist
+			else
+				sudo pacman $PACMAN_OPTS --noscriptlet -D $deplist
+			fi
 			if [ "$?" = "127" ]; then
 				error "Failed to install missing dependencies."
 				exit 1
