@@ -365,7 +365,7 @@ chroot_clean()
 
 create_pkg()
 {
-	msg "Generating files for $1 :"
+	msg "Generating files for $1:"
 	# write the .PKGINFO file
 	msg2 ".PKGINFO file... " >&2
 	if [ "$1" = "$pkgname" ]; then
