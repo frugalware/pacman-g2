@@ -823,7 +823,9 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	cp -pf /etc/group $CHROOTDIR/etc >/dev/null &
 	cp -pf /etc/ld.so.conf $CHROOTDIR/etc >/dev/null &
 	cp -pf /etc/hosts $CHROOTDIR/etc > /dev/null &
+	chmod 644 $CHROOTDIR/etc/sudoers
 	echo "fst ALL=(ALL)       NOPASSWD: ALL" >$CHROOTDIR/etc/sudoers
+	chmod 440 $CHROOTDIR/etc/sudoers
 	cp -Ppf /etc/localtime $CHROOTDIR/etc >/dev/null &
 	cp -pf /etc/services $CHROOTDIR/etc > /dev/null &
 	if [ "$?" != "0" ]; then
