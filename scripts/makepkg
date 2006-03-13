@@ -522,7 +522,7 @@ install_pkg()
 			export FAKEROOTKEY=$FAKEROOTKEY2
 			unset FAKEROOTKEY2
 		fi
-	else
+	elif [ "$INSTALL" = "1" ]; then
 		warning "Cannot auto-install packages as a normal user without sudo!"
 		plain "Run makepkg as root or with -S to install packages automatically."
 	fi
