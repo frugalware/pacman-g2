@@ -27,6 +27,7 @@
 #include "error.h"
 #include "package.h"
 #include "util.h"
+#include "log.h"
 #include "list.h"
 #include "handle.h"
 #include "add.h"
@@ -41,6 +42,7 @@ pmtrans_t *_alpm_trans_new()
 	pmtrans_t *trans;
 
 	if((trans = (pmtrans_t *)malloc(sizeof(pmtrans_t))) == NULL) {
+		_alpm_log(PM_LOG_ERROR, "malloc failure: could not allocate %d bytes", sizeof(pmtrans_t));
 		return(NULL);
 	}
 
@@ -57,8 +59,10 @@ pmtrans_t *_alpm_trans_new()
 	return(trans);
 }
 
-void _alpm_trans_free(pmtrans_t *trans)
+void _alpm_trans_free(void *data)
 {
+	pmtrans_t *trans = data;
+
 	if(trans == NULL) {
 		return;
 	}

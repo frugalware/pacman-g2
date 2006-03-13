@@ -23,9 +23,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#ifdef CYGWIN
-#include <limits.h> /* PATH_MAX */
-#endif
+#include <limits.h>
 #include <sys/stat.h>
 /* pacman */
 #include "util.h"
@@ -62,6 +60,7 @@ PMList *_alpm_checkconflicts(pmdb_t *db, PMList *packages)
 				continue;
 			}
 			/* CHECK 1: check targets against database */
+			_alpm_log(PM_LOG_DEBUG, "checkconflicts: targ '%s' vs db", tp->name);
 			for(k = _alpm_db_get_pkgcache(db); k; k = k->next) {
 				pmpkg_t *dp = (pmpkg_t *)k->data;
 				if(!strcmp(dp->name, tp->name)) {
@@ -97,6 +96,7 @@ PMList *_alpm_checkconflicts(pmdb_t *db, PMList *packages)
 				}
 			}
 			/* CHECK 2: check targets against targets */
+			_alpm_log(PM_LOG_DEBUG, "checkconflicts: targ '%s' vs targs", tp->name);
 			for(k = packages; k; k = k->next) {
 				pmpkg_t *otp = (pmpkg_t *)k->data;
 				if(!strcmp(otp->name, tp->name)) {
@@ -132,13 +132,32 @@ PMList *_alpm_checkconflicts(pmdb_t *db, PMList *packages)
 			}
 		}
 		/* CHECK 3: check database against targets */
+		_alpm_log(PM_LOG_DEBUG, "checkconflicts: db vs targ '%s'", tp->name);
 		for(k = _alpm_db_get_pkgcache(db); k; k = k->next) {
+			PMList *conflicts = NULL;
+			int usenewconflicts = 0;
+
 			info = k->data;
 			if(!strcmp(info->name, tp->name)) {
 				/* a package cannot conflict with itself -- that's just not nice */
 				continue;
 			}
-			for(j = info->conflicts; j; j = j->next) {
+			/* If this package (*info) is also in our packages PMList, use the
+			 * conflicts list from the new package, not the old one (*info)
+			 */
+			for(j = packages; j; j = j->next) {
+				pmpkg_t *pkg = j->data;
+				if(!strcmp(pkg->name, info->name)) {
+					// Use the new, to-be-installed package's conflicts
+					conflicts = pkg->conflicts;
+					usenewconflicts = 1;
+				}
+			}
+			if(!usenewconflicts) {
+				/* Use the old package's conflicts, it's the only set we have */
+				conflicts = info->conflicts;
+			}
+			for(j = conflicts; j; j = j->next) {
 				if(!strcmp((char *)j->data, tp->name)) {
 					_alpm_log(PM_LOG_DEBUG, "db vs targs: found %s as a conflict for %s",
 					          info->name, tp->name);
@@ -151,7 +170,7 @@ PMList *_alpm_checkconflicts(pmdb_t *db, PMList *packages)
 				} else {
 					/* see if the db package conflicts with something we provide */
 					PMList *m;
-					for(m = info->conflicts; m; m = m->next) {
+					for(m = conflicts; m; m = m->next) {
 						PMList *n;
 						for(n = tp->provides; n; n = n->next) {
 							if(!strcmp(m->data, n->data)) {
@@ -203,6 +222,11 @@ PMList *_alpm_db_find_conflicts(pmdb_t *db, PMList *targets, char *root, PMList 
 					}
 					if(_alpm_list_is_strin(filestr, p2->files)) {
 						pmconflict_t *conflict = malloc(sizeof(pmconflict_t));
+						if(conflict == NULL) {
+							_alpm_log(PM_LOG_ERROR, "malloc failure: could not allocate %d bytes",
+							                        sizeof(pmconflict_t));
+							continue;
+						}
 						conflict->type = PM_CONFLICT_TYPE_TARGET;
 						STRNCPY(conflict->target, p1->name, PKG_NAME_LEN);
 						STRNCPY(conflict->file, filestr, CONFLICT_FILE_LEN);
@@ -236,7 +260,11 @@ PMList *_alpm_db_find_conflicts(pmdb_t *db, PMList *targets, char *root, PMList 
 					ok = 1;
 				} else {
 					if(dbpkg == NULL) {
-						dbpkg = _alpm_db_scan(db, p->name, INFRQ_DESC | INFRQ_FILES);
+						dbpkg = _alpm_db_get_pkgfromcache(db, p->name);
+					}
+					if(dbpkg && !(dbpkg->infolevel & INFRQ_FILES)) {
+						_alpm_log(PM_LOG_DEBUG, "loading FILES info for '%s'", dbpkg->name);
+						_alpm_db_read(db, INFRQ_FILES, dbpkg);
 					}
 					if(dbpkg && _alpm_list_is_strin(j->data, dbpkg->files)) {
 						ok = 1;
@@ -263,7 +291,11 @@ PMList *_alpm_db_find_conflicts(pmdb_t *db, PMList *targets, char *root, PMList 
 							/* As long as they're not the current package */
 							if(strcmp(p1->name, p->name)) {
 								pmpkg_t *dbpkg2 = NULL;
-								dbpkg2 = _alpm_db_scan(db, p1->name, INFRQ_DESC | INFRQ_FILES);
+								dbpkg2 = _alpm_db_get_pkgfromcache(db, p1->name);
+								if(dbpkg2 && !(dbpkg2->infolevel & INFRQ_FILES)) {
+									_alpm_log(PM_LOG_DEBUG, "loading FILES info for '%s'", dbpkg2->name);
+									_alpm_db_read(db, INFRQ_FILES, dbpkg2);
+								}
 								/* If it used to exist in there, but doesn't anymore */
 								if(dbpkg2 && !_alpm_list_is_strin(filestr, p1->files) && _alpm_list_is_strin(filestr, dbpkg2->files)) {
 									ok = 1;
@@ -285,7 +317,6 @@ PMList *_alpm_db_find_conflicts(pmdb_t *db, PMList *targets, char *root, PMList 
 									 */
 									*skip_list = _alpm_list_add(*skip_list, strdup(filestr));
 								}
-								FREEPKG(dbpkg2);
 							}
 						}
 					}
@@ -293,6 +324,11 @@ PMList *_alpm_db_find_conflicts(pmdb_t *db, PMList *targets, char *root, PMList 
 donecheck:
 				if(!ok) {
 					pmconflict_t *conflict = malloc(sizeof(pmconflict_t));
+					if(conflict == NULL) {
+						_alpm_log(PM_LOG_ERROR, "malloc failure: could not allocate %d bytes",
+						                        sizeof(pmconflict_t));
+						continue;
+					}
 					conflict->type = PM_CONFLICT_TYPE_FILE;
 					STRNCPY(conflict->target, p->name, PKG_NAME_LEN);
 					STRNCPY(conflict->file, filestr, CONFLICT_FILE_LEN);
@@ -301,7 +337,6 @@ donecheck:
 				}
 			}
 		}
-		FREEPKG(dbpkg);
 	}
 
 	return(conflicts);

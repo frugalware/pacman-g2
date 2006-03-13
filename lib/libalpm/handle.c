@@ -46,6 +46,7 @@ pmhandle_t *handle_new()
 
 	handle = (pmhandle_t *)malloc(sizeof(pmhandle_t));
 	if(handle == NULL) {
+		_alpm_log(PM_LOG_ERROR, "malloc failure: could not allocate %d bytes", sizeof(pmhandle_t));
 		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
 
@@ -75,6 +76,9 @@ pmhandle_t *handle_new()
 #else
 	handle->access = PM_ACCESS_RW;
 #endif
+
+	handle->dbpath = strdup(PM_DBPATH);
+	handle->cachedir = strdup(PM_CACHEDIR);
 
 	return(handle);
 }

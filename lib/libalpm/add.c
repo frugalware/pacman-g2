@@ -25,9 +25,7 @@
 #include <time.h>
 #include <fcntl.h>
 #include <string.h>
-#ifdef CYGWIN
-#include <limits.h> /* PATH_MAX */
-#endif
+#include <limits.h>
 /* pacman */
 #include "util.h"
 #include "error.h"
@@ -56,7 +54,8 @@ static int add_faketarget(pmtrans_t *trans, char *name)
 	char *str = NULL;
 	pmpkg_t *dummy = NULL;
 
-	if((dummy = _alpm_pkg_new(NULL, NULL)) == NULL) {
+	dummy = _alpm_pkg_new(NULL, NULL);
+	if(dummy == NULL) {
 		RET_ERR(PM_ERR_MEMORY, -1);
 	}
 
@@ -327,15 +326,20 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 				oldpkg = _alpm_pkg_new(local->name, local->version);
 				if(oldpkg) {
 					if(!(local->infolevel & INFRQ_FILES)) {
-						char name[PKG_FULLNAME_LEN];
-						snprintf(name, PKG_FULLNAME_LEN, "%s-%s", local->name, local->version);
-						_alpm_log(PM_LOG_DEBUG, "loading FILES info for %s", local->name);
-						_alpm_db_read(db, name, INFRQ_FILES, local);
+						_alpm_log(PM_LOG_DEBUG, "loading FILES info for '%s'", local->name);
+						_alpm_db_read(db, INFRQ_FILES, local);
 					}
 					oldpkg->backup = _alpm_list_strdup(local->backup);
 					strncpy(oldpkg->name, local->name, PKG_NAME_LEN);
 					strncpy(oldpkg->version, local->version, PKG_VERSION_LEN);
 				}
+
+				/* copy over the install reason */
+				if(!(local->infolevel & INFRQ_DESC)) {
+					_alpm_log(PM_LOG_DEBUG, "loading DESC info for '%s'", local->name);
+					_alpm_db_read(db, INFRQ_DESC, local);
+				}
+				info->reason = local->reason;
 
 				/* pre_upgrade scriptlet */
 				if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
@@ -353,8 +357,6 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
-					/* copy over the install reason */
-					info->reason = local->reason;
 					if(_alpm_remove_loadtarget(tr, db, info->name) == -1) {
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);

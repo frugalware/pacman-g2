@@ -152,12 +152,6 @@ int main(int argc, char *argv[])
 	if(parseconfig(config->configfile, config) == -1) {
 		cleanup(1);
 	}
-	if(config->dbpath == NULL) {
-		config->dbpath = strdup(PM_DBPATH);
-	}
-	if(config->cachedir == NULL) {
-		config->cachedir = strdup(PM_CACHEDIR);
-	}
 
 	/* set library parameters */
 	if(alpm_set_option(PM_OPT_LOGMASK, (long)config->debug) == -1) {
@@ -411,6 +405,7 @@ int parseargs(int argc, char *argv[])
 			case 'w':
 				config->op_s_downloadonly = 1;
 				config->flags |= PM_TRANS_FLAG_DOWNLOADONLY;
+				config->flags |= PM_TRANS_FLAG_NOCONFLICTS;
 			break;
 			case 'y': config->op_s_sync++; break;
 			case '?': return(1);

@@ -104,12 +104,12 @@ int alpm_release()
 
 	/* close local database */
 	if(handle->db_local) {
-		_alpm_db_close(handle->db_local);
+		alpm_db_unregister(handle->db_local);
 		handle->db_local = NULL;
 	}
 	/* and also sync ones */
 	for(i = handle->dbs_sync; i; i = i->next) {
-		_alpm_db_close(i->data);
+		alpm_db_unregister(i->data);
 		i->data = NULL;
 	}
 
@@ -163,7 +163,6 @@ int alpm_get_option(unsigned char parm, long *data)
  */
 pmdb_t *alpm_db_register(char *treename)
 {
-	char path[PATH_MAX];
 	struct stat buf;
 	pmdb_t *db;
 	int found = 0;
@@ -191,16 +190,23 @@ pmdb_t *alpm_db_register(char *treename)
 		RET_ERR(PM_ERR_DB_NOT_NULL, NULL);
 	}
 
+	_alpm_log(PM_LOG_FLOW1, "registering database '%s'", treename);
+
+	db = _alpm_db_new(handle->root, handle->dbpath, treename);
+	if(db == NULL) {
+		return(NULL);
+	}
+
 	/* make sure the database directory exists */
-	snprintf(path, PATH_MAX, "%s%s", handle->root, handle->dbpath);
-	if(stat(path, &buf) != 0 || !S_ISDIR(buf.st_mode)) {
-		if(_alpm_makepath(path) != 0) {
+	if(stat(db->path, &buf) != 0 || !S_ISDIR(buf.st_mode)) {
+		if(_alpm_makepath(db->path) != 0) {
 			RET_ERR(PM_ERR_SYSTEM, NULL);
 		}
 	}
 
-	db = _alpm_db_open(path, treename, DB_O_CREATE);
-	if(db == NULL) {
+	_alpm_log(PM_LOG_DEBUG, "opening database '%s'", db->treename);
+	if(_alpm_db_open(db, DB_O_CREATE) == -1) {
+		_alpm_db_free(db);
 		RET_ERR(PM_ERR_DB_OPEN, NULL);
 	}
 
@@ -211,18 +217,6 @@ pmdb_t *alpm_db_register(char *treename)
 	}
 
 	return(db);
-}
-
-/** Helper function for comparing databases
- * @param db1 first database
- * @param db2 second database
- * @return an integer less than, equal to, or greater than zero if the name of
- * db1 is found, respectively, to be less than, to match, or be greater than
- * the name of db2.
- */
-static int db_cmp(const void *db1, const void *db2)
-{
-	return(strcmp(((pmdb_t *)db1)->treename, ((pmdb_t *)db2)->treename));
 }
 
 /** Unregister a package database
@@ -240,14 +234,12 @@ int alpm_db_unregister(pmdb_t *db)
 	ASSERT(handle->trans == NULL, RET_ERR(PM_ERR_TRANS_NOT_NULL, -1));
 
 	if(db == handle->db_local) {
-		_alpm_db_close(handle->db_local);
 		handle->db_local = NULL;
 		found = 1;
 	} else {
 		pmdb_t *data;
-		handle->dbs_sync = _alpm_list_remove(handle->dbs_sync, db, db_cmp, (void **)&data);
+		handle->dbs_sync = _alpm_list_remove(handle->dbs_sync, db, _alpm_db_cmp, (void **)&data);
 		if(data) {
-			_alpm_db_close(data);
 			found = 1;
 		}
 	}
@@ -255,6 +247,16 @@ int alpm_db_unregister(pmdb_t *db)
 	if(!found) {
 		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
 	}
+
+	_alpm_log(PM_LOG_FLOW1, "unregistering database '%s'", db->treename);
+
+	/* Cleanup */
+	_alpm_db_free_pkgcache(db);
+
+	_alpm_log(PM_LOG_DEBUG, "closing database '%s'", db->treename);
+	_alpm_db_close(db);
+
+	_alpm_db_free(db);
 
 	return(0);
 }
@@ -289,6 +291,7 @@ void *alpm_db_getinfo(PM_DB *db, unsigned char parm)
 int alpm_db_update(PM_DB *db, char *archive)
 {
 	PMList *lp;
+	char path[PATH_MAX];
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -319,8 +322,9 @@ int alpm_db_update(PM_DB *db, char *archive)
 	/* ORE
 	we should not simply unpack the archive, but better parse it and 
 	db_write each entry (see sync_load_dbarchive to get archive content) */
+	snprintf(path, PATH_MAX, "%s/%s", db->path, db->treename);
 	_alpm_log(PM_LOG_FLOW2, "unpacking %s", archive);
-	if(_alpm_unpack(archive, db->path, NULL)) {
+	if(_alpm_unpack(archive, path, NULL)) {
 		RET_ERR(PM_ERR_SYSTEM, -1);
 	}
 
@@ -421,9 +425,8 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 	if(pkg->origin == PKG_FROM_CACHE) {
 		switch(parm) {
 			/* Desc entry */
-			/* not needed: the cache is loaded with DESC by default
-			case PM_PKG_NAME:
-			case PM_PKG_VERSION:
+			/*case PM_PKG_NAME:
+			case PM_PKG_VERSION:*/
 			case PM_PKG_DESC:
 			case PM_PKG_GROUPS:
 			case PM_PKG_URL:
@@ -437,11 +440,10 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 			case PM_PKG_MD5SUM:
 			case PM_PKG_SHA1SUM:
 				if(!(pkg->infolevel & INFRQ_DESC)) {
-					char target[PKG_FULLNAME_LEN];
-					snprintf(target, PKG_FULLNAME_LEN, "%s-%s", pkg->name, pkg->version);
-					db_read(pkg->data, target, INFRQ_DESC, pkg);
+					_alpm_log(PM_LOG_DEBUG, "loading DESC info for '%s'", pkg->name);
+					_alpm_db_read(pkg->data, INFRQ_DESC, pkg);
 				}
-			break;*/
+			break;
 			/* Depends entry */
 			/* not needed: the cache is loaded with DEPENDS by default
 			case PM_PKG_DEPENDS:
@@ -450,26 +452,23 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 			case PM_PKG_PROVIDES:
 			case PM_PKG_REPLACES:
 				if(!(pkg->infolevel & INFRQ_DEPENDS)) {
-					char target[PKG_FULLNAME_LEN];
-					snprintf(target, PKG_FULLNAME_LEN, "%s-%s", pkg->name, pkg->version);
-					_alpm_db_read(pkg->data, target, INFRQ_DEPENDS, pkg);
+					_alpm_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", pkg->name);
+					_alpm_db_read(pkg->data, INFRQ_DEPENDS, pkg);
 				}
 			break;*/
 			/* Files entry */
 			case PM_PKG_FILES:
 			case PM_PKG_BACKUP:
 				if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_FILES)) {
-					char target[PKG_FULLNAME_LEN];
-					snprintf(target, PKG_FULLNAME_LEN, "%s-%s", pkg->name, pkg->version);
-					_alpm_db_read(pkg->data, target, INFRQ_FILES, pkg);
+					_alpm_log(PM_LOG_DEBUG, "loading FILES info for '%s'", pkg->name);
+					_alpm_db_read(pkg->data, INFRQ_FILES, pkg);
 				}
 			break;
 			/* Scriptlet */
 			case PM_PKG_SCRIPLET:
 				if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_SCRIPLET)) {
-					char target[PKG_FULLNAME_LEN];
-					snprintf(target, PKG_FULLNAME_LEN, "%s-%s", pkg->name, pkg->version);
-					_alpm_db_read(pkg->data, target, INFRQ_SCRIPLET, pkg);
+					_alpm_log(PM_LOG_DEBUG, "loading SCRIPLET info for '%s'", pkg->name);
+					_alpm_db_read(pkg->data, INFRQ_SCRIPLET, pkg);
 				}
 			break;
 		}
@@ -544,7 +543,55 @@ int alpm_pkg_free(pmpkg_t *pkg)
 	return(0);
 }
 
-/** Check the integrity of a package from the sync cache.
+/** Check the integrity (with sha1) of a package from the sync cache.
+ * @param pkg package pointer
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
+int alpm_pkg_checksha1sum(pmpkg_t *pkg)
+{
+	char *path = NULL;
+	char *sha1sum = NULL;
+	int retval = 0;
+
+	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	/* We only inspect packages from sync repositories */
+	ASSERT(pkg->origin == PKG_FROM_CACHE, RET_ERR(PM_ERR_PKG_INVALID, -1));
+	ASSERT(pkg->data != handle->db_local, RET_ERR(PM_ERR_PKG_INVALID, -1));
+
+	asprintf(&path, "%s%s/%s-%s" PM_EXT_PKG,
+	                handle->root, handle->cachedir,
+	                pkg->name, pkg->version);
+
+	sha1sum = SHAFile(path);
+	if(sha1sum == NULL) {
+		_alpm_log(PM_LOG_ERROR, "could not get sha1 checksum for package %s-%s\n",
+		          pkg->name, pkg->version);
+		pm_errno = PM_ERR_NOT_A_FILE;
+		retval = -1;
+	} else {
+		if(!(pkg->infolevel & INFRQ_DESC)) {
+			_alpm_log(PM_LOG_DEBUG, "loading DESC info for '%s'", pkg->name);
+			_alpm_db_read(pkg->data, INFRQ_DESC, pkg);
+		}
+
+		if(strcmp(sha1sum, pkg->sha1sum) == 0) {
+			_alpm_log(PM_LOG_FLOW1, "checksums for package %s-%s are matching",
+			                        pkg->name, pkg->version);
+		} else {
+			_alpm_log(PM_LOG_ERROR, "sha1sums do not match for package %s-%s\n",
+			                        pkg->name, pkg->version);
+			pm_errno = PM_ERR_PKG_INVALID;
+			retval = -1;
+		}
+	}
+
+	FREE(path);
+	FREE(sha1sum);
+
+	return(retval);
+}
+
+/** Check the integrity (with md5) of a package from the sync cache.
  * @param pkg package pointer
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
@@ -555,7 +602,9 @@ int alpm_pkg_checkmd5sum(pmpkg_t *pkg)
 	int retval = 0;
 
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(pkg->md5sum[0] != 0, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	/* We only inspect packages from sync repositories */
+	ASSERT(pkg->origin == PKG_FROM_CACHE, RET_ERR(PM_ERR_PKG_INVALID, -1));
+	ASSERT(pkg->data != handle->db_local, RET_ERR(PM_ERR_PKG_INVALID, -1));
 
 	asprintf(&path, "%s%s/%s-%s" PM_EXT_PKG,
 	                handle->root, handle->cachedir,
@@ -568,7 +617,15 @@ int alpm_pkg_checkmd5sum(pmpkg_t *pkg)
 		pm_errno = PM_ERR_NOT_A_FILE;
 		retval = -1;
 	} else {
-		if(strcmp(md5sum, pkg->md5sum) != 0) {
+		if(!(pkg->infolevel & INFRQ_DESC)) {
+			_alpm_log(PM_LOG_DEBUG, "loading DESC info for '%s'", pkg->name);
+			_alpm_db_read(pkg->data, INFRQ_DESC, pkg);
+		}
+
+		if(strcmp(md5sum, pkg->md5sum) == 0) {
+			_alpm_log(PM_LOG_FLOW1, "checksums for package %s-%s are matching",
+			                        pkg->name, pkg->version);
+		} else {
 			_alpm_log(PM_LOG_ERROR, "md5sums do not match for package %s-%s\n",
 			                        pkg->name, pkg->version);
 			pm_errno = PM_ERR_PKG_INVALID;

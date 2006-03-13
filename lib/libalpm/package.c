@@ -87,7 +87,8 @@ pmpkg_t *_alpm_pkg_dup(pmpkg_t *pkg)
 
 	newpkg = (pmpkg_t *)malloc(sizeof(pmpkg_t));
 	if(newpkg == NULL) {
-		return(NULL);
+		_alpm_log(PM_LOG_ERROR, "malloc failure: could not allocate %d bytes", sizeof(pmpkg_t));
+		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
 
 	STRNCPY(newpkg->name, pkg->name, PKG_NAME_LEN);
@@ -122,8 +123,10 @@ pmpkg_t *_alpm_pkg_dup(pmpkg_t *pkg)
 	return(newpkg);
 }
 
-void _alpm_pkg_free(pmpkg_t *pkg)
+void _alpm_pkg_free(void *data)
 {
+	pmpkg_t *pkg = data;
+
 	if(pkg == NULL) {
 		return;
 	}
@@ -144,6 +147,13 @@ void _alpm_pkg_free(pmpkg_t *pkg)
 	free(pkg);
 
 	return;
+}
+
+/* Helper function for comparing packages
+ */
+int _alpm_pkg_cmp(const void *p1, const void *p2)
+{
+	return(strcmp(((pmpkg_t *)p1)->name, ((pmpkg_t *)p2)->name));
 }
 
 /* Parses the package description file for the current package
@@ -261,11 +271,6 @@ pmpkg_t *_alpm_pkg_load(char *pkgfile)
 		archive_read_finish (archive);
 		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
-
-	/* ORE
-	 * We should get the name and version information from the file name
-	 * by using pkg_splitname()
-	 */
 
 	for(i = 0; archive_read_next_header (archive, &entry) == ARCHIVE_OK; i++) {
 		if(config && filelist && scriptcheck) {
