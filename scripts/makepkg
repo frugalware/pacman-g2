@@ -815,6 +815,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	chmod 1777 $CHROOTDIR/tmp
 	
 	msg "Copying config files to chroot"
+	cp -pf /etc/pacman.d/* $CHROOTDIR/etc/pacman.d >/dev/null &
 	cp -pf /etc/makepkg.conf $CHROOTDIR/etc >/dev/null &
 	cp -pf /etc/resolv.conf $CHROOTDIR/etc >/dev/null &
 	cp -pf /etc/passwd $CHROOTDIR/etc >/dev/null &
