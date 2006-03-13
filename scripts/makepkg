@@ -788,7 +788,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 
 	chroot_mount
 
-	if [ ! -d "$CHROOTDIR/usr" ]; then
+	if [ ! -d "$CHROOTDIR/usr" -o ! -e "$CHROOTDIR/etc/pacman.conf" ]; then
 		msg "Building chroot environment"
 		pacman -Syf $COREPKGS -r "$CHROOTDIR" --noconfirm
 		if [ "$?" != "0" ]; then
@@ -801,8 +801,8 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	else
 		msg "Updating the chroot environment"
 		# run pacman -Su twice in case pacman updated
-		pacman -Syu -r "$CHROOTDIR" --noconfirm && \
-			pacman -Su -r "$CHROOTDIR" --noconfirm
+		pacman -Syu -r "$CHROOTDIR" --noconfirm --config $CHROOTDIR/etc/pacman.conf && \
+			pacman -Su -r "$CHROOTDIR" --noconfirm --config $CHROOTDIR/etc/pacman.conf
 		if [ "$?" != "0" ]; then
 			error "Failed to update chroot environment."
 			chroot_umount
