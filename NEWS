@@ -1,5 +1,15 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.20     - handle --noprogress on install/upgrade, too
+              - disable progressbar by default if the output is redirected
+              - offer deleting a packages if it is corrupted
+              - makepkg: install subpackages with -i, too
+                         in chroot sync /etc/pacman.d/* from the host system
+                         use the chroot's pacman.conf when it's available
+              - new pacman option: --noscriptlet for disabling install
+                scriptlets
+              - new variable in makepkg: $FCC in case the package would use
+                gcc directly (not from $PATH)
 2.9.99.19     - more verbose error messages on corrupted packages
               - makepkg: added support for clearing the cache of ccache
                          slice warnings for LANG!=C
