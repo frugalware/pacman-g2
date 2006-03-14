@@ -1,5 +1,6 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.21     - bugfix release
 2.9.99.20     - handle --noprogress on install/upgrade, too
               - disable progressbar by default if the output is redirected
               - offer deleting a packages if it is corrupted
