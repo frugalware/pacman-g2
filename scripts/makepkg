@@ -178,7 +178,7 @@ handledeps() {
 		if [ "$DEP_BIN" = "1" ]; then
 			# install missing deps from binary packages (using pacman -S)
 			msg "Installing missing dependencies..."
-			if [ "$INCHROOT" != "1" ]; then
+			if [ "$INCHROOT" != "1" -o "`check_option SCRIPTLET`" ]; then
 				pacman $PACMAN_OPTS -D $deplist
 			else
 				pacman $PACMAN_OPTS --noscriptlet -D $deplist
@@ -196,7 +196,7 @@ handledeps() {
 				FAKEROOTKEY2=$FAKEROOTKEY
 				unset FAKEROOTKEY
 			fi
-			if [ "$INCHROOT" != "1" ]; then
+			if [ "$INCHROOT" != "1" -o "`check_option SCRIPTLET`" ]; then
 				sudo pacman $PACMAN_OPTS -D $deplist
 			else
 				sudo pacman $PACMAN_OPTS --noscriptlet -D $deplist
