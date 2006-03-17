@@ -345,7 +345,7 @@ chroot_clean()
 		msg "Removing unnecessary packages."
 		for i in "$COREPKGS"
 		do
-			corelist="$corelist `pacman -r $CHROOTDIR -Sg $i|grep -v '^\w'`"
+			corelist="$corelist `pacman -r $CHROOTDIR -Sg $i --config $CHROOTDIR/etc/pacman.conf |grep -v '^\w'`"
 		done
 		for i in `pacman -r $CHROOTDIR -Q|sed 's/\([^ ]*\) .*/\1/'`
 		do
