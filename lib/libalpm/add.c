@@ -445,8 +445,8 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 							info->name, info->version);
 					} else {
 						/* the install script goes inside the db */
-						snprintf(expath, PATH_MAX, "%s/%s/%s-%s/install", db->path,
-							db->treename, info->name, info->version);
+						snprintf(expath, PATH_MAX, "%s/%s-%s/install", db->path,
+							info->name, info->version);
 					}
 				} else {
 					/* build the new pathname relative to handle->root */
