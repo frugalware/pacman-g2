@@ -325,7 +325,7 @@ int alpm_db_update(PM_DB *db, char *archive)
 	/* ORE
 	we should not simply unpack the archive, but better parse it and 
 	db_write each entry (see sync_load_dbarchive to get archive content) */
-	snprintf(path, PATH_MAX, "%s/%s", db->path, db->treename);
+	snprintf(path, PATH_MAX, "%s", db->path);
 	_alpm_log(PM_LOG_FLOW2, "unpacking %s", archive);
 	if(_alpm_unpack(archive, path, NULL)) {
 		RET_ERR(PM_ERR_SYSTEM, -1);
