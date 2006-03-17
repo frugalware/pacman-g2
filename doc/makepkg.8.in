@@ -361,6 +361,7 @@ nobuild    If this directive set, gensync will ignore this package, so users
            freeware programs.
 nofakeroot Don't drop privileges after chrooting. Required by some broken
            packages.
+scriptlet Don't skip executing scriptlets even if we're in chroot.
 .fi
 
 .SH  What is the process of chrooted build ?
