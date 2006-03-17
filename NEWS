@@ -1,5 +1,11 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.22     - new feature: options=('scriptlet') to force executing the
+                install scriptlets even if one builds in a chroot
+              - makepkg -RC now uses the chroot's pacman.conf to determine
+                what packages need to be removed. this is especially useful
+                if you use unofficial repos only in chroot
+              - the testsuite is replaced by pactest, see HACKING
 2.9.99.21     - bugfix release
 2.9.99.20     - handle --noprogress on install/upgrade, too
               - disable progressbar by default if the output is redirected
