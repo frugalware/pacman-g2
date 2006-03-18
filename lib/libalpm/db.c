@@ -57,7 +57,7 @@ pmdb_t *_alpm_db_new(char *root, char* dbpath, char *treename)
 	}
 	sprintf(db->path, "%s%s/%s", root, dbpath, treename);
 
-	STRNCPY(db->treename, treename, DB_TREENAME_LEN);
+	STRNCPY(db->treename, treename, PATH_MAX);
 
 	db->pkgcache = NULL;
 	db->grpcache = NULL;

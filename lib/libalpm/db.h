@@ -21,6 +21,7 @@
 #ifndef _ALPM_DB_H
 #define _ALPM_DB_H
 
+#include <limits.h>
 #include "package.h"
 
 /* Database entries */
@@ -31,14 +32,12 @@
 #define INFRQ_SCRIPLET 0x08
 #define INFRQ_ALL      0xFF
 
-#define DB_TREENAME_LEN 128
-
 #define DB_O_CREATE 0x01
 
 /* Database */
 typedef struct __pmdb_t {
 	char *path;
-	char treename[DB_TREENAME_LEN];
+	char treename[PATH_MAX];
 	void *handle;
 	PMList *pkgcache;
 	PMList *grpcache;
