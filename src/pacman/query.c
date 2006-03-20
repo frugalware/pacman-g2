@@ -259,12 +259,14 @@ int pacman_query(list_t *targets)
 			/* find a target */
 			if(config->op_q_changelog || config->op_q_info || config->op_q_list) {
 				if(config->op_q_changelog) {
+					char *dbpath;
+					alpm_get_option(PM_OPT_DBPATH, (long *)&dbpath);
 					snprintf(changelog, PATH_MAX, "%s%s/%s/%s-%s/changelog",
-						config->root, config->dbpath,
+						config->root, dbpath,
 						(char*)alpm_db_getinfo(db_local, PM_DB_TREENAME),
 						(char*)alpm_pkg_getinfo(info, PM_PKG_NAME),
 						(char*)alpm_pkg_getinfo(info, PM_PKG_VERSION));
-					dump_pkg_changelog(changelog);
+					dump_pkg_changelog(changelog, (char*)alpm_pkg_getinfo(info, PM_PKG_NAME));
 				}
 				if(config->op_q_info) {
 					dump_pkg_full(info, config->op_q_info);

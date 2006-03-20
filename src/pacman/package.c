@@ -175,15 +175,15 @@ void dump_pkg_files(PM_PKG *pkg)
 
 /* Display the changelog of an installed package
  */
-void dump_pkg_changelog(char *clfile)
+void dump_pkg_changelog(char *clfile, char *pkgname)
 {
 	FILE* fp = NULL;
 	char line[PATH_MAX+1];
 
 	if((fp = fopen(clfile, "r")) == NULL)
 	{
-		perror(clfile);
-		return(1);
+		ERR(NL, "No changelog available for '%s'.\n", pkgname);
+		return;
 	}
 	else
 	{
@@ -194,7 +194,7 @@ void dump_pkg_changelog(char *clfile)
 			line[0] = '\0';
 		}
 		fclose(fp);
-		return(0);
+		return;
 	}
 }
 
