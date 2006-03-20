@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.24     - fixed the location of the locally installed packages'
+                install/changelog file (so that pre/post_remove and -Qc works
+                perfectly again)
+              - allow repo names to be longer than 128 chars
+              - fixed pacman -v output (not a bug just it was ugly)
 2.9.99.23     - bugfix for -Sy
               - gensync: ignore _darcs/ directories
 2.9.99.22     - new feature: options=('scriptlet') to force executing the
