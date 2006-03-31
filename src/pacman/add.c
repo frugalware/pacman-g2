@@ -115,14 +115,16 @@ int pacman_add(list_t *targets)
 					PM_CONFLICT *conflict = alpm_list_getdata(i);
 					switch((int)alpm_conflict_getinfo(conflict, PM_CONFLICT_TYPE)) {
 						case PM_CONFLICT_TYPE_TARGET:
-							MSG(NL, "%s exists in \"%s\" (target) and \"%s\" (target)",
+							MSG(NL, "%s%s exists in \"%s\" (target) and \"%s\" (target)",
+											config->root,
 							        (char *)alpm_conflict_getinfo(conflict, PM_CONFLICT_FILE),
 							        (char *)alpm_conflict_getinfo(conflict, PM_CONFLICT_TARGET),
 							        (char *)alpm_conflict_getinfo(conflict, PM_CONFLICT_CTARGET));
 						break;
 						case PM_CONFLICT_TYPE_FILE:
-							MSG(NL, "%s: %s exists in filesystem",
+							MSG(NL, "%s: %s%s exists in filesystem",
 							        (char *)alpm_conflict_getinfo(conflict, PM_CONFLICT_TARGET),
+											config->root,
 							        (char *)alpm_conflict_getinfo(conflict, PM_CONFLICT_FILE));
 						break;
 					}
