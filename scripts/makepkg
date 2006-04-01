@@ -1442,7 +1442,7 @@ elif [ "$RMDEPS" = "1" -a "$DEP_SUDO" = "1" ]; then
 fi
 
 # check optimalization and write it to $BUILDSCRIPT
-msg "Checking for optimalization..."
+msg "Checking for optimization..."
 if grep -q -- "\($CFLAGS\|$CXXFLAGS\)" "${BUILDLOG}" ; then
 	if ! grep -q "# optimalization" "${BUILDSCRIPT}" ; then
 		echo -e "\n# optimalization OK" >> "${BUILDSCRIPT}"
