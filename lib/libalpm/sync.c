@@ -573,7 +573,9 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PML
 							/* remove miss->depend.name */
 							rmpkg = miss->depend.name;
 						} else {
-							/* something's not right, bail out with a conflict error */
+							/* miss->depend.name is not needed, miss->target already provides
+							 * it, let's resolve the conflict */
+							rmpkg = miss->depend.name;
 						}
 						if(rmpkg) {
 							pmsyncpkg_t *rsync = find_pkginsync(rmpkg, trans->packages);
