@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.25     - bugfix in the conflicts/provides handling code
+              - spelling fix in makepkg
+              - include the root string (ie. a slash) in file conflict error
+                messages
+              - gensync: bugfix for subpkgs
 2.9.99.24     - fixed the location of the locally installed packages'
                 install/changelog file (so that pre/post_remove and -Qc works
                 perfectly again)
