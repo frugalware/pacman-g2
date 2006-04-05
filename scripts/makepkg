@@ -1441,11 +1441,11 @@ elif [ "$RMDEPS" = "1" -a "$DEP_SUDO" = "1" ]; then
 	fi
 fi
 
-# check optimalization and write it to $BUILDSCRIPT
+# check optimization and write it to $BUILDSCRIPT
 msg "Checking for optimization..."
 if grep -q -- "\($CFLAGS\|$CXXFLAGS\)" "${BUILDLOG}" ; then
-	if ! grep -q "# optimalization" "${BUILDSCRIPT}" ; then
-		echo -e "\n# optimalization OK" >> "${BUILDSCRIPT}"
+	if ! grep -q "# optimization" "${BUILDSCRIPT}" ; then
+		echo -e "\n# optimization OK" >> "${BUILDSCRIPT}"
 	fi
 else
 	warning "This package isn't ${CARCH} optimized!"
