@@ -253,7 +253,11 @@ int parseconfig(char *file, config_t *config)
 						vprint("config: log file: %s\n", ptr);
 					} else if (!strcmp(key, "XFERCOMMAND")) {
 						FREE(config->xfercommand);
+						#if defined(__APPLE__) || defined(__OpenBSD__)
+						config->xfercommand = strdup(ptr);
+						#else
 						config->xfercommand = strndup(ptr, PATH_MAX);
+						#endif
 						vprint("config: xfercommand: %s\n", config->xfercommand);
 					} else if (!strcmp(key, "UPGRADEDELAY")) {
 						/* The config value is in days, we use seconds */
@@ -282,7 +286,11 @@ int parseconfig(char *file, config_t *config)
 							}
 							ptr = p;
 						}
+						#if defined(__APPLE__) || defined(__OpenBSD__)
+						config->proxyhost = strdup(ptr);
+						#else
 						config->proxyhost = strndup(ptr, PATH_MAX);
+						#endif
 						vprint("config: proxyserver: %s\n", config->proxyhost);
 					} else if (!strcmp(key, "PROXYPORT")) {
 						config->proxyport = (unsigned short)atoi(ptr);
