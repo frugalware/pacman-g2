@@ -583,7 +583,11 @@ char *fetch_pkgurl(char *target)
 	}
 
 	/* return the target with the raw filename, no URL */
+	#if defined(__OpenBSD__) || defined(__APPLE__)
+	return(strdup(fn));
+	#else
 	return(strndup(fn, PATH_MAX));
+	#endif
 }
 
 /* vim: set ts=2 sw=2 noet: */
