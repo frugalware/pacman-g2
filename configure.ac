@@ -59,21 +59,27 @@ dnl Check for architecture
 case "$host" in
 	i686-*) AC_DEFINE_UNQUOTED([CARCH], ["i686"], [Architecture])
 		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["i686"], [Architecture])
+		AC_DEFINE_UNQUOTED([MARCHFLAG], ["march"], [Architecture])
 		CARCH="i686"
 		CARCHFLAGS="i686"
+		MARCHFLAG="march"
 		CHOST="${host}"
 		;;
 	x86_64-*) AC_DEFINE_UNQUOTED([CARCH], ["x86_64"], [Architecture])
 		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["k8"], [Architecture])
+		AC_DEFINE_UNQUOTED([MARCHFLAG], ["march"], [Architecture])
 		CARCH="x86_64"
 		CARCHFLAGS="k8"
+		MARCHFLAG="march"
 		CHOST="${host}"
 		;;
 	ppc-* | powerpc-*)
 		AC_DEFINE_UNQUOTED([CARCH], ["ppc"], [Architecture])
 		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["750"], [Architecture])
+		AC_DEFINE_UNQUOTED([MARCHFLAG], ["mcpu"], [Architecture])
 		CARCH="ppc"
 		CARCHFLAGS="750"
+		MARCHFLAG="mcpu"
 		CHOST="${host}"
 		;;
 	*)
@@ -83,6 +89,7 @@ esac
 
 AC_SUBST(CARCH)
 AC_SUBST(CARCHFLAGS)
+AC_SUBST(MARCHFLAG)
 AC_SUBST(CHOST)
 
 dnl Help line for more-warnings
