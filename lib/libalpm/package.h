@@ -21,6 +21,9 @@
 #ifndef _ALPM_PACKAGE_H
 #define _ALPM_PACKAGE_H
 
+#if defined(__APPLE__)
+#include <time.h>
+#endif
 #include "list.h"
 
 enum {
