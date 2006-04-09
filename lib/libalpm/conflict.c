@@ -19,6 +19,10 @@
  *  USA.
  */
 
+#if defined(__APPLE__) || defined(__OpenBSD__)
+#include <sys/syslimits.h>
+#endif
+
 #include "config.h"
 #include <stdlib.h>
 #include <unistd.h>
