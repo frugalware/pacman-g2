@@ -27,10 +27,15 @@
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
-#ifndef CYGWIN
-#include <mcheck.h> /* debug */
-#else
+#if defined(__APPLE__)
+#include <malloc/malloc.h>
+#elif defined(__OpenBSD__) || defined(__APPLE__)
+#include <sys/malloc.h>
+#include <sys/types.h>
+#elif defined(CYGWIN)
 #include <libgen.h> /* basename */
+#else
+#include <mcheck.h> /* debug */
 #endif
 
 #include <alpm.h>
@@ -49,6 +54,10 @@
 #include "deptest.h"
 
 #define PACCONF "/etc/pacman.conf"
+
+#if defined(__OpenBSD__) || defined(__APPLE__)
+#define BSD
+#endif
 
 /* Operations */
 enum {
@@ -196,8 +205,10 @@ static void cleanup(int signum)
 	FREECONF(config);
 
 #ifndef CYGWIN
+#ifndef BSD
 	/* debug */
 	muntrace();
+#endif
 #endif
 
 	if(neednl)
@@ -279,7 +290,11 @@ static int parseargs(int argc, char *argv[])
 				if(config->configfile) {
 					free(config->configfile);
 				}
+				#if defined(__OpenBSD__) || defined(__APPLE__)
+				config->configfile = strdup(optarg);
+				#else
 				config->configfile = strndup(optarg, PATH_MAX);
+				#endif
 			break;
 			case 1002: config->op_s_ignore = list_add(config->op_s_ignore, strdup(optarg)); break;
 			case 1003: config->debug = atoi(optarg); break;
@@ -395,8 +410,10 @@ int main(int argc, char *argv[])
 	list_t *lp;
 
 #ifndef CYGWIN
+#ifndef BSD
 	/* debug */
 	mtrace();
+#endif
 #endif
 
 	cenv = getenv("COLUMNS");
