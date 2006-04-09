@@ -22,8 +22,13 @@
 #define _ALPM_UTIL_H
 
 #include <stdio.h>
+#if defined(__OpenBSD__)
+#include "/usr/local/include/archive.h"
+#include "/usr/local/include/archive_entry.h"
+#else
 #include <archive.h>
 #include <archive_entry.h>
+#endif
 
 #define FREE(p) do { if (p) { free(p); p = NULL; } } while(0)
 
