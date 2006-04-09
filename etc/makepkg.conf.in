@@ -12,8 +12,8 @@ export CHOST="@CHOST@"
 
 # Pentium Pro/Pentium II/Pentium III+/Pentium 4/Athlon exclusive (binaries
 # will use the P6 instruction set and only run on P6+ systems)
-export CFLAGS="-march=@CARCHFLAGS@ -O2 -pipe"
-export CXXFLAGS="-march=@CARCHFLAGS@ -O2 -pipe"
+export CFLAGS="-@MARCHFLAG@=@CARCHFLAGS@ -O2 -pipe"
+export CXXFLAGS="-@MARCHFLAG@=@CARCHFLAGS@ -O2 -pipe"
 # Pentium Pro/Pentium II/Pentium III+/Pentium 4/Athlon optimized (but binaries
 # will run on any x86 system)
 #export CFLAGS="-mcpu=i686 -O2 -pipe"
