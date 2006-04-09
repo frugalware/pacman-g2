@@ -82,6 +82,14 @@ case "$host" in
 		MARCHFLAG="mcpu"
 		CHOST="${host}"
 		;;
+	i386-*) AC_DEFINE_UNQUOTED([CARCH], ["i386"], [Architecture])
+		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["i386"], [Architecture])
+		AC_DEFINE_UNQUOTED([MARCHFLAG], ["march"], [Architecture])
+		CARCH="i386"
+		CARCHFLAGS="i386"
+		MARCHFLAG="march"
+		CHOST="${host}"
+		;;
 	*)
 		AC_MSG_ERROR([Your architecture is not supported])
 		;;
