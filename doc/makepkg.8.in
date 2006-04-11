@@ -602,6 +602,11 @@ or run-time dependencies, it will run pacman to try and resolve them.  If succes
 pacman will download the missing packages from a package repository and
 install them for you.
 .TP
+.B "\-t <tree>"
+When building in a chroot (using -R) you may want to build packages for a
+version other than the host one. Using this option, it's possible to build
+packages for "stable" while the host system is "current" and vica versa.
+.TP
 .B "\-u, \-\-noup2date"
 Do not check for newer version before starting build. Normally makepkg will
 prevent you from building obsolete source by mistake. If you know what you are

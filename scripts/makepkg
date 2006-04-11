@@ -52,6 +52,7 @@ NOUP2DATE=0
 GZIP=0
 NOSTRIP=0
 NODOCS=0
+TREE="current"
 
 PACMAN_OPTS=
 
@@ -296,6 +297,7 @@ usage() {
 	echo "  -s, --syncdeps   Install missing dependencies with pacman"
 	echo "  -S, --sudosync   Install missing dependencies with pacman and sudo"
 	echo "  -u, --noup2date  Do not check for newer version"
+	echo "  -t <tree>        Use the given tree's chroot to build in"
 	echo "  -w <destdir>     Write package to <destdir> instead of the working dir"
 	echo "  --gzip           Use gzip compression for a package instead of bzip2"
 	echo
@@ -568,7 +570,7 @@ while [ "$#" -ne "0" ]; do
 			exit 1
 			;;
 		-*)
-			while getopts "abBcCdD:efgGhij:kl:Lmnop:urRsSw:-" opt; do
+			while getopts "abBcCdD:efgGhij:kl:Lmnop:urRsSt:w:-" opt; do
 				case $opt in
 					a) SEARCHDEPS=1 ;;
 					b) DEP_SRC=1 ;;
@@ -598,6 +600,7 @@ while [ "$#" -ne "0" ]; do
 					R) CHROOT=1 ;;
 					s) DEP_BIN=1 ;;
 					S) DEP_SUDO=1 ;;
+					t) TREE="$OPTARG" ;;
 					u) NOUP2DATE=1 ;;
 					w) PKGDEST=$OPTARG ;;
 					-)
@@ -772,6 +775,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		error "The CHROOTDIR environment variable is not defined."
 		exit 1
 	fi
+	CHROOTDIR="$CHROOTDIR/$TREE"
 
 	mkdir -p $CHROOTDIR/{dev,etc,proc,sys,var/cache/pacman,var/tmp/fst}
 
@@ -789,15 +793,40 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	chroot_mount
 
 	if [ ! -d "$CHROOTDIR/usr" -o ! -e "$CHROOTDIR/etc/pacman.conf" ]; then
-		msg "Building chroot environment"
-		pacman -Syf $COREPKGS -r "$CHROOTDIR" --noconfirm
+		msg "Building a '-$TREE' chroot environment"
+		_F_makepkg_pacconf=`mktemp`
+		if grep -q ^Include.*current$ /etc/pacman.conf; then
+			if [ "$TREE" = "current" ]; then
+				# host: current, chroot: current
+				cat /etc/pacman.conf >$_F_makepkg_pacconf
+			else
+				# host: current, chroot: stable
+				cat /etc/pacman.conf |sed 's|^\(Include = /etc/pacman.d/frugalware-current$\)|#\1|
+					s|^\(Include = /etc/pacman.d/extra-current$\)|#\1|
+					s|^#\(Include = /etc/pacman.d/frugalware$\)|\1|
+					s|^#\(Include = /etc/pacman.d/extra$\)|\1|' >$_F_makepkg_pacconf
+			fi
+		else
+			if [ "$TREE" = "current" ]; then
+				# host: stable, chroot: current
+				cat /etc/pacman.conf |sed 's|^#\(Include = /etc/pacman.d/frugalware-current$\)|\1|
+					s|^#\(Include = /etc/pacman.d/extra-current$\)|\1|
+					s|^\(Include = /etc/pacman.d/frugalware$\)|#\1|
+					s|^\(Include = /etc/pacman.d/extra$\)|#\1|' >$_F_makepkg_pacconf
+			else
+				# host: stable, chroot: stable
+				cat /etc/pacman.conf >$_F_makepkg_pacconf
+			fi
+		fi
+		pacman -Syf $COREPKGS -r "$CHROOTDIR" --noconfirm --config $_F_makepkg_pacconf
 		if [ "$?" != "0" ]; then
 			error "Failed to build chroot environment."
 			chroot_umount
 			msg "Removing lock file..."
-			rm -f $CHROOTDIR/var/tmp/fst/lock
+			rm -f $CHROOTDIR/var/tmp/fst/lock $_F_makepkg_pacconf
 			exit 1
 		fi
+		rm -f $_F_makepkg_pacconf
 	else
 		msg "Updating the chroot environment"
 		# run pacman -Su twice in case pacman updated
