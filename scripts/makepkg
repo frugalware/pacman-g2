@@ -342,6 +342,7 @@ chroot_mount() {
 chroot_clean()
 {
 	if [ "$CHROOT" = "1" ]; then
+		echo $CHROOTDIR |grep -q $TREE$ || CHROOTDIR="$CHROOTDIR/$TREE"
 		msg "Cleaning chroot."
 		rm -rf $CHROOTDIR/var/tmp/fst/*
 		msg "Removing unnecessary packages."
