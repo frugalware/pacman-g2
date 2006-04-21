@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.26     - makepkg: new option -t (to be used with -R)
+              - added i386, OpenBSD and OS X support
+              - updated mirror list
+              - spelling fixes
+              - bugfix in pacman (dbpath initialization)
 2.9.99.25     - bugfix in the conflicts/provides handling code
               - spelling fix in makepkg
               - include the root string (ie. a slash) in file conflict error
