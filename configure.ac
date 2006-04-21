@@ -1,6 +1,7 @@
 ENV_CFLAGS=$CFLAGS
 
 AC_PREREQ(2.59)
+dnl Update it right before the release since $pkgver_foo are all _post_ release snapshots
 AC_INIT([Pacman package manager], 2.9.99.26, [frugalware-devel@frugalware.org], pacman)
 AC_LANG(C)
 AM_CONFIG_HEADER(config.h)
