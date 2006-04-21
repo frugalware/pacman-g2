@@ -19,7 +19,7 @@ if [ "$1" == "--dist" ]; then
 	mv pacman-$ver.tar.gz $dest
 	if [ ! "$release" ]; then
 		sed "s/@PACKAGE_VERSION@/$ver/;
-			s/@SHA1SUM/`sha1sum $dest/pacman-$ver.tar.gz|sed 's/  .*//'`/" \
+			s/@SHA1SUM@/`sha1sum $dest/pacman-$ver.tar.gz|sed 's/  .*//'`/" \
 			dist/FrugalBuild.in > dist/FrugalBuild
 		echo "Now type: 'cd dist; makepkg -ci'."
 	fi
