@@ -37,3 +37,4 @@ rm -rf etc/pacman.d/extra
 rm -rf etc/pacman.d/extra-current
 rm -rf etc/pacman.d/frugalware
 rm -rf etc/pacman.d/frugalware-current
+rm -f dist/FrugalBuild
