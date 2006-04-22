@@ -112,7 +112,7 @@ PMList *_alpm_sortbydeps(PMList *targets, int mode)
 		PMList *tmptargs = NULL;
 		change = 0;
 		if(numscans > numtargs) {
-			_alpm_log(PM_LOG_WARNING, "possible dependency cycle detected");
+			_alpm_log(PM_LOG_DEBUG, "possible dependency cycle detected");
 			continue;
 		}
 		numscans++;
