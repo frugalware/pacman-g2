@@ -170,7 +170,7 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 		snprintf(path, PATH_MAX, "%s/%s-%s/desc", db->path, info->name, info->version);
 		fp = fopen(path, "r");
 		if(fp == NULL) {
-			_alpm_log(PM_LOG_ERROR, "%s (%s)", path, strerror(errno));
+			_alpm_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
 			goto error;
 		}
 		while(!feof(fp)) {
@@ -272,7 +272,7 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 		snprintf(path, PATH_MAX, "%s/%s-%s/files", db->path, info->name, info->version);
 		fp = fopen(path, "r");
 		if(fp == NULL) {
-			_alpm_log(PM_LOG_ERROR, "%s (%s)", path, strerror(errno));
+			_alpm_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
 			goto error;
 		}
 		while(fgets(line, 256, fp)) {
@@ -296,7 +296,7 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 		snprintf(path, PATH_MAX, "%s/%s-%s/depends", db->path, info->name, info->version);
 		fp = fopen(path, "r");
 		if(fp == NULL) {
-			_alpm_log(PM_LOG_ERROR, "%s (%s)", path, strerror(errno));
+			_alpm_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
 			goto error;
 		}
 		while(!feof(fp)) {
