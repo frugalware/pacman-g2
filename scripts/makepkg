@@ -851,7 +851,6 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	cp -pf /etc/passwd $CHROOTDIR/etc >/dev/null &
 	cp -pf /etc/shadow $CHROOTDIR/etc >/dev/null &
 	cp -pf /etc/group $CHROOTDIR/etc >/dev/null &
-	cp -pf /etc/ld.so.conf $CHROOTDIR/etc >/dev/null &
 	cp -pf /etc/hosts $CHROOTDIR/etc > /dev/null &
 	chmod 644 $CHROOTDIR/etc/sudoers
 	echo "fst ALL=(ALL)       NOPASSWD: ALL" >$CHROOTDIR/etc/sudoers
