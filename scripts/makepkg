@@ -118,7 +118,7 @@ error() {
 }
 
 strip_url() {
-	echo $1 | sed 's|^.*://.*/||g'
+	echo "$1" | sed 's|^.*://.*/||g'
 }
 
 check_option() {
@@ -1040,32 +1040,32 @@ fi
 msg "Retrieving Sources..."
 mkdir -p src
 cd $startdir/src
-for netfile in ${source[@]}; do
-	file=`strip_url $netfile`
-	if [ -f ../$file ]; then
-		msg "    Found $file in build dir"
-		cp ../$file .
-	elif [ -f /var/cache/pacman/src/$file ]; then
+for netfile in "${source[@]}"; do
+	file=`strip_url "$netfile"`
+	if [ -f "../$file" ]; then
+		msg "    Found "$file" in build dir"
+		cp "../$file" .
+	elif [ -f "/var/cache/pacman/src/$file" ]; then
 		msg "    Using local copy of $file"
-		cp /var/cache/pacman/src/$file .
+		cp "/var/cache/pacman/src/$file" .
 	else
-		proto=`echo $netfile | sed 's|://.*||'`
+		proto=`echo "$netfile" | sed 's|://.*||'`
 		if [ "$proto" != "ftp" -a "$proto" != "http" -a "$proto" != "https" ]; then
 			error "$netfile was not found in the build directory and is not a proper URL."
 			msg "Aborting..."
 			exit 1
 		fi
 		msg "    Downloading $file"
-		$FTPAGENT $netfile 2>&1
-		if [ ! -f $file ]; then
+		$FTPAGENT "$netfile" 2>&1
+		if [ ! -f "$file" ]; then
 			error "Failed to download $file"
 			msg "Aborting..."
 			exit 1
 		fi
 		if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
-			mkdir -p /var/cache/pacman/src && cp $file /var/cache/pacman/src
+			mkdir -p /var/cache/pacman/src && cp "$file" /var/cache/pacman/src
 		else
-			cp $file ..
+			cp "$file" ..
 		fi
 	fi
 done
@@ -1081,7 +1081,7 @@ if [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 				msg "Validating source files with SHA1sums"
 				errors=0
 				idx=0
-				for netfile in ${source[@]}; do
+				for netfile in "${source[@]}"; do
 					file=`strip_url $netfile`
 					echo -n "    $file ... " >&2
 					echo "${sha1sums[$idx]}  $file" | sha1sum -c - >/dev/null 2>&1
@@ -1107,7 +1107,7 @@ if [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 				msg "Validating source files with MD5sums"
 				errors=0
 				idx=0
-				for netfile in ${source[@]}; do
+				for netfile in "${source[@]}"; do
 					file=`strip_url $netfile`
 					echo -n "    $file ... " >&2
 					echo "${md5sums[$idx]}  $file" | md5sum -c - >/dev/null 2>&1
@@ -1133,7 +1133,7 @@ if [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 
 		# extract sources
 		msg "Extracting Sources..."
-		for netfile in ${source[@]}; do
+		for netfile in "${source[@]}"; do
 			unziphack=0
 			file=`strip_url $netfile`
 			unset cmd
@@ -1178,7 +1178,7 @@ else
 		ct=0
 		newline=0
 		numsrc=${#source[@]}
-		for netfile in ${source[@]}; do
+		for netfile in "${source[@]}"; do
 			file=`strip_url $netfile`
 			sum=`md5sum $file | cut -d' ' -f 1`
 			if [ $ct -eq 0 ]; then
@@ -1215,9 +1215,9 @@ else
 		ct=0
 		newline=0
 		numsrc=${#source[@]}
-		for netfile in ${source[@]}; do
-			file=`strip_url $netfile`
-			sum=`sha1sum $file | cut -d' ' -f 1`
+		for netfile in "${source[@]}"; do
+			file=`strip_url "$netfile"`
+			sum=`sha1sum "$file" | cut -d' ' -f 1`
 			if [ $ct -eq 0 ]; then
 				echo -n "sha1sums=("
 			else
