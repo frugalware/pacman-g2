@@ -1043,7 +1043,7 @@ cd $startdir/src
 for netfile in "${source[@]}"; do
 	file=`strip_url "$netfile"`
 	if [ -f "../$file" ]; then
-		msg "    Found "$file" in build dir"
+		msg "    Found $file in build dir"
 		cp "../$file" .
 	elif [ -f "/var/cache/pacman/src/$file" ]; then
 		msg "    Using local copy of $file"
@@ -1082,7 +1082,7 @@ if [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 				errors=0
 				idx=0
 				for netfile in "${source[@]}"; do
-					file=`strip_url $netfile`
+					file=`strip_url "$netfile"`
 					echo -n "    $file ... " >&2
 					echo "${sha1sums[$idx]}  $file" | sha1sum -c - >/dev/null 2>&1
 					if [ $? -ne 0 ]; then
@@ -1108,7 +1108,7 @@ if [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 				errors=0
 				idx=0
 				for netfile in "${source[@]}"; do
-					file=`strip_url $netfile`
+					file=`strip_url "$netfile"`
 					echo -n "    $file ... " >&2
 					echo "${md5sums[$idx]}  $file" | md5sum -c - >/dev/null 2>&1
 					if [ $? -ne 0 ]; then
