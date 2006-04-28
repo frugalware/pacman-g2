@@ -1135,26 +1135,26 @@ if [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 		msg "Extracting Sources..."
 		for netfile in "${source[@]}"; do
 			unziphack=0
-			file=`strip_url $netfile`
+			file=`strip_url "$netfile"`
 			unset cmd
-			case $file in
+			case "$file" in
 				*.tar.gz|*.tar.Z|*.tgz)
-				cmd="tar --use-compress-program=gzip -xf $file" ;;
+				cmd="tar --use-compress-program=gzip -xf" ;;
 				*.tar.bz2|*.tbz2)
-				cmd="tar --use-compress-program=bzip2 -xf $file" ;;
+				cmd="tar --use-compress-program=bzip2 -xf" ;;
 				*.tar)
-				cmd="tar -xf $file" ;;
+				cmd="tar -xf" ;;
 				*.zip)
 				unziphack=1
-				cmd="unzip -qqo $file" ;;
+				cmd="unzip -qqo" ;;
 				*.gz)
-				cmd="gunzip $file" ;;
+				cmd="gunzip" ;;
 				*.bz2)
-				cmd="bunzip2 $file" ;;
+				cmd="bunzip2" ;;
 			esac
 			if [ "$cmd" != "" ]; then
 				msg "    $cmd"
-				$cmd
+				$cmd "$file"
 				if [ $? -ne 0 ]; then
 					# unzip will return a 1 as a warning, it is not an error
 					if [ "$unziphack" != "1" -o $? -ne 1 ]; then
