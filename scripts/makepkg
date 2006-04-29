@@ -121,18 +121,6 @@ strip_url() {
 	echo "$1" | sed 's|^.*://.*/||g'
 }
 
-check_option() {
-	local i
-	for i in ${options[@]}; do
-		local uc=`echo $i | tr [:lower:] [:upper:]`
-		local lc=`echo $i | tr [:upper:] [:lower:]`
-		if [ "$uc" = "$1" -o "$lc" = "$1" ]; then
-			echo $1
-			return
-		fi
-	done
-}
-
 checkdeps() {
 	local missdep=""
 	local deplist=""

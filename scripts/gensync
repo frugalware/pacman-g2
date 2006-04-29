@@ -59,18 +59,6 @@ die() {
 CHROOT=1
 [ -e /usr/lib/frugalware/fwmakepkg ] && . /usr/lib/frugalware/fwmakepkg
 
-check_option() {
-	local i
-	for i in ${options[@]}; do
-		local uc=`echo $i | tr [:lower:] [:upper:]`
-		local lc=`echo $i | tr [:upper:] [:lower:]`
-		if [ "$uc" = "$1" -o "$lc" = "$1" ]; then
-			echo $1
-			return
-		fi
-	done
-}
-
 get_sha1checksum()
 {
 	if [ -f $pkgfile ]; then
