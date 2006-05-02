@@ -25,7 +25,9 @@
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
+#include <libintl.h>
 
+#include "util.h"
 #include "sha1.h"
 
 #include <sys/types.h>
@@ -453,7 +455,7 @@ char* SHAFile(char *filename) {
     char *ret;
     
     if((file = fopen(filename, "rb")) == NULL) {
-	fprintf(stderr, "%s can't be opened\n", filename);
+	fprintf(stderr, _("%s can't be opened\n"), filename);
     } else {
 	sha_init_ctx(&context);
 	while((len = fread(buffer, 1, 1024, file))) {
