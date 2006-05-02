@@ -1,5 +1,9 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.9.99.27     - scripts: cleanup, they now require util.sh from FST
+              - makepkg: handle spaces in source filenames
+              - makepkg: spelling fixes
+              - libalpm: fixed a few messages' verbosity level
               - ./autogen.sh --dist now allows to build a snapshot fpm
 2.9.99.26     - makepkg: new option -t (to be used with -R)
               - added i386, OpenBSD and OS X support
