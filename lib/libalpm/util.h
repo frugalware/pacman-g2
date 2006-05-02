@@ -41,6 +41,8 @@
 
 #define ARCHIVE_EXTRACT_FLAGS ARCHIVE_EXTRACT_OWNER | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_TIME
 
+#define _(str) dgettext ("libalpm", str)
+
 int _alpm_archive_read_entry_data_into_fd (struct archive *archive, int file);
 int _alpm_makepath(char *path);
 int _alpm_copyfile(char *src, char *dest);
