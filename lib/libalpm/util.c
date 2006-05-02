@@ -37,6 +37,7 @@
 #include <time.h>
 #include <syslog.h>
 #include <sys/wait.h>
+#include <libintl.h>
 #ifdef CYGWIN
 #include <limits.h> /* PATH_MAX */
 #endif
@@ -201,7 +202,7 @@ int _alpm_unpack(char *archive, const char *prefix, const char *fn)
 		snprintf(expath, PATH_MAX, "%s/%s", prefix, archive_entry_pathname (entry));
 		archive_entry_set_pathname (entry, expath);
 		if (archive_read_extract (_archive, entry, ARCHIVE_EXTRACT_FLAGS) != ARCHIVE_OK) {
-			fprintf(stderr, "could not extract %s: %s\n", archive_entry_pathname (entry), archive_error_string (_archive));
+			fprintf(stderr, _("could not extract %s: %s\n"), archive_entry_pathname (entry), archive_error_string (_archive));
 			 return(1);
 		}
 
@@ -352,7 +353,7 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 		}
 		snprintf(tmpdir, PATH_MAX, "%stmp/alpm_XXXXXX", root);
 		if(mkdtemp(tmpdir) == NULL) {
-			_alpm_log(PM_LOG_ERROR, "could not create temp directory");
+			_alpm_log(PM_LOG_ERROR, _("could not create temp directory"));
 			return(1);
 		}
 		_alpm_unpack(installfn, tmpdir, ".INSTALL");
@@ -372,17 +373,17 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 
 	/* save the cwd so we can restore it later */
 	if(getcwd(cwd, PATH_MAX) == NULL) {
-		_alpm_log(PM_LOG_ERROR, "could not get current working directory");
+		_alpm_log(PM_LOG_ERROR, _("could not get current working directory"));
 		/* in case of error, cwd content is undefined: so we set it to something */
 		cwd[0] = 0;
 	}
 
 	/* just in case our cwd was removed in the upgrade operation */
 	if(chdir(root) != 0) {
-		_alpm_log(PM_LOG_ERROR, "could not change directory to %s (%s)", root, strerror(errno));
+		_alpm_log(PM_LOG_ERROR, _("could not change directory to %s (%s)"), root, strerror(errno));
 	}
 
-	_alpm_log(PM_LOG_FLOW2, "executing %s script...", script);
+	_alpm_log(PM_LOG_FLOW2, _("executing %s script..."), script);
 
 	if(oldver) {
 		snprintf(cmdline, PATH_MAX, "source %s %s %s %s",
@@ -395,28 +396,28 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 
 	pid = fork();
 	if(pid == -1) {
-		_alpm_log(PM_LOG_ERROR, "could not fork a new process (%s)", strerror(errno));
+		_alpm_log(PM_LOG_ERROR, _("could not fork a new process (%s)"), strerror(errno));
 		retval = 1;
 		goto cleanup;
 	}
 
 	if(pid == 0) {
-		_alpm_log(PM_LOG_DEBUG, "chrooting in %s", root);
+		_alpm_log(PM_LOG_DEBUG, _("chrooting in %s"), root);
 		if(chroot(root) != 0) {
-			_alpm_log(PM_LOG_ERROR, "could not change the root directory (%s)", strerror(errno));
+			_alpm_log(PM_LOG_ERROR, _("could not change the root directory (%s)"), strerror(errno));
 			return(1);
 		}
 		if(chdir("/") != 0) {
-			_alpm_log(PM_LOG_ERROR, "could not change directory to / (%s)", strerror(errno));
+			_alpm_log(PM_LOG_ERROR, _("could not change directory to / (%s)"), strerror(errno));
 			return(1);
 		}
 		umask(0022);
-		_alpm_log(PM_LOG_DEBUG, "executing \"%s\"", cmdline);
+		_alpm_log(PM_LOG_DEBUG, _("executing \"%s\""), cmdline);
 		execl("/bin/sh", "sh", "-c", cmdline, (char *)0);
 		exit(0);
 	} else {
 		if(waitpid(pid, 0, 0) == -1) {
-			_alpm_log(PM_LOG_ERROR, "call to waitpid failed (%s)", strerror(errno));
+			_alpm_log(PM_LOG_ERROR, _("call to waitpid failed (%s)"), strerror(errno));
 			retval = 1;
 			goto cleanup;
 		}
@@ -424,7 +425,7 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 
 cleanup:
 	if(strlen(tmpdir) && _alpm_rmrf(tmpdir)) {
-		_alpm_log(PM_LOG_WARNING, "could not remove tmpdir %s", tmpdir);
+		_alpm_log(PM_LOG_WARNING, _("could not remove tmpdir %s"), tmpdir);
 	}
 	if(strlen(cwd)) {
 		chdir(cwd);
