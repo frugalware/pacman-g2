@@ -1141,7 +1141,7 @@ if [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 				cmd="bunzip2" ;;
 			esac
 			if [ "$cmd" != "" ]; then
-				msg "    $cmd"
+				msg "    $cmd $file"
 				$cmd "$file"
 				if [ $? -ne 0 ]; then
 					# unzip will return a 1 as a warning, it is not an error
