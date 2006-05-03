@@ -181,9 +181,9 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howmany, int remain)
 {
 	int i, hash, maxpkglen;
-	char addstr[] = _("installing");
-	char upgstr[] = _("upgrading");
-	char *ptr;
+	char *addstr, *upgstr, *ptr;
+	addstr = strdup(_("installing"));
+	upgstr = strdup(_("upgrading"));
 
 	if(config->noprogressbar) {
 		return;
@@ -228,6 +228,8 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 			printf("-");
 	}
 	MSG(CL, "] %3d%%\r", percent);
+	FREE(addstr);
+	FREE(upgstr);
 }
 
 /* vim: set ts=2 sw=2 noet: */
