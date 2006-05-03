@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <libintl.h>
 /* pacman */
+#include "util.h"
 #include "list.h"
 
 extern int maxcols;
