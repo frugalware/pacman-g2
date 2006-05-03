@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <libintl.h>
 /* pacman */
 #include "list.h"
 
@@ -138,7 +139,7 @@ void list_display(const char *title, list_t *list)
 		}
 		printf("\n");
 	} else {
-		printf("None\n");
+		printf(_("None\n"));
 	}
 }
 
@@ -166,7 +167,7 @@ void PM_LIST_display(const char *title, PM_LIST *list)
 		}
 		printf("\n");
 	} else {
-		printf("None\n");
+		printf(_("None\n"));
 	}
 }
 
