@@ -26,7 +26,6 @@ if [ "$1" == "--dist" ]; then
 	exit 0
 fi
 
-#intltoolize -f -c
 libtoolize -f -c
 aclocal --force
 autoheader -f
