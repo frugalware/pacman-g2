@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-05-04 01:01+0200\n"
+"POT-Creation-Date: 2006-05-04 23:18+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -404,11 +404,6 @@ msgstr ""
 msgid "function"
 msgstr ""
 
-#: ../log.c:69
-#, c-format
-msgid "???"
-msgstr ""
-
 #: ../log.c:152
 msgid "Y"
 msgstr ""
@@ -436,11 +431,6 @@ msgstr ""
 msgid "Packager       : %s\n"
 msgstr ""
 
-#: ../package.c:52
-#, c-format
-msgid "URL            : %s\n"
-msgstr ""
-
 #: ../package.c:53
 msgid "License        :"
 msgstr ""
@@ -458,10 +448,6 @@ msgstr ""
 #: ../package.c:58
 #, c-format
 msgid "Build Date     : %s %s\n"
-msgstr ""
-
-#: ../package.c:58 ../package.c:60
-msgid "UTC"
 msgstr ""
 
 #: ../package.c:60
@@ -607,20 +593,6 @@ msgstr ""
 msgid ""
 "\n"
 "SHA1 Sum          : %s"
-msgstr ""
-
-#: ../package.c:159 ../pacman.c:168
-#, c-format
-msgid "\n"
-msgstr ""
-
-#: ../package.c:171
-#, c-format
-msgid "%s %s\n"
-msgstr ""
-
-#: ../package.c:184
-msgid "r"
 msgstr ""
 
 #: ../package.c:186
@@ -889,30 +861,6 @@ msgstr ""
 msgid "  -b, --dbpath <path> set an alternate database location\n"
 msgstr ""
 
-#: ../pacman.c:169
-#, c-format
-msgid " .--.                  Pacman v%s - libalpm v%s\n"
-msgstr ""
-
-#: ../pacman.c:170
-#, c-format
-msgid ""
-"/ _.-' .-.  .-.  .-.   Copyright (C) 2002-2006 Judd Vinet <jvinet@zeroflux."
-"org>\n"
-msgstr ""
-
-#: ../pacman.c:171
-#, c-format
-msgid ""
-"\\  '-. '-'  '-'  '-'   & Frugalware developers <frugalware-devel@frugalware."
-"org>\n"
-msgstr ""
-
-#: ../pacman.c:172
-#, c-format
-msgid " '--'                  \n"
-msgstr ""
-
 #: ../pacman.c:173
 #, c-format
 msgid "                       This program may be freely redistributed under\n"
@@ -921,11 +869,6 @@ msgstr ""
 #: ../pacman.c:174
 #, c-format
 msgid "                       the terms of the GNU General Public License\n"
-msgstr ""
-
-#: ../pacman.c:188
-#, c-format
-msgid "%s\n"
 msgstr ""
 
 #: ../pacman.c:355
@@ -963,16 +906,6 @@ msgstr ""
 #: ../pacman.c:517 ../sync.c:724
 #, c-format
 msgid "failed to set option CACHEDIR (%s)\n"
-msgstr ""
-
-#: ../pacman.c:531
-#, c-format
-msgid "Root  : %s\n"
-msgstr ""
-
-#: ../pacman.c:532
-#, c-format
-msgid "DBPath: %s\n"
 msgstr ""
 
 #: ../pacman.c:533
@@ -1134,13 +1067,6 @@ msgstr ""
 #: ../sync.c:201
 #, c-format
 msgid "failed to update %s (%s)\n"
-msgstr ""
-
-#: ../sync.c:227
-#, c-format
-msgid ""
-"%s/%s %s\n"
-"    "
 msgstr ""
 
 #: ../sync.c:295
