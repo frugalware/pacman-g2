@@ -1,8 +1,6 @@
 GLOBAL
 ======
 
-- add i18n (gettext) support
-
 - get ride of "ORE" tags.
 
 
