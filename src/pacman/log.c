@@ -66,7 +66,7 @@ void cb_log(unsigned short level, char *msg)
 			sprintf(str, _("function"));
 		break;
 		default:
-			sprintf(str, _("???"));
+			sprintf(str, "???");
 		break;
 	}
 

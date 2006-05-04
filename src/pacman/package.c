@@ -49,15 +49,15 @@ void dump_pkg_full(PM_PKG *pkg, int level)
 	PM_LIST_display(_("Groups         :"), alpm_pkg_getinfo(pkg, PM_PKG_GROUPS));
 
 	printf(_("Packager       : %s\n"), (char *)alpm_pkg_getinfo(pkg, PM_PKG_PACKAGER));
-	printf(_("URL            : %s\n"), (char *)alpm_pkg_getinfo(pkg, PM_PKG_URL));
+	printf("URL            : %s\n", (char *)alpm_pkg_getinfo(pkg, PM_PKG_URL));
 	PM_LIST_display(_("License        :"), alpm_pkg_getinfo(pkg, PM_PKG_LICENSE));
 	printf(_("Architecture   : %s\n"), (char *)alpm_pkg_getinfo(pkg, PM_PKG_ARCH));
 	printf(_("Size           : %ld\n"), (long int)alpm_pkg_getinfo(pkg, PM_PKG_SIZE));
 
 	date = alpm_pkg_getinfo(pkg, PM_PKG_BUILDDATE);
-	printf(_("Build Date     : %s %s\n"), date, strlen(date) ? _("UTC") : "");
+	printf(_("Build Date     : %s %s\n"), date, strlen(date) ? "UTC" : "");
 	date = alpm_pkg_getinfo(pkg, PM_PKG_INSTALLDATE);
-	printf(_("Install Date   : %s %s\n"), date, strlen(date) ? _("UTC") : "");
+	printf(_("Install Date   : %s %s\n"), date, strlen(date) ? "UTC" : "");
 
 	printf(_("Install Script : %s\n"), alpm_pkg_getinfo(pkg, PM_PKG_SCRIPLET) ? _("Yes") : _("No"));
 
@@ -156,7 +156,7 @@ void dump_pkg_sync(PM_PKG *pkg, char *treename)
 	if (tmp2 != NULL && tmp2[0] != '\0') {
 	    printf(_("\nSHA1 Sum          : %s"), (char *)alpm_pkg_getinfo(pkg, PM_PKG_SHA1SUM));
 	}
-	printf(_("\n"));
+	printf("\n");
 }
 
 void dump_pkg_files(PM_PKG *pkg)
@@ -168,7 +168,7 @@ void dump_pkg_files(PM_PKG *pkg)
 	pkgfiles = alpm_pkg_getinfo(pkg, PM_PKG_FILES);
 
 	for(i = pkgfiles; i; i = alpm_list_next(i)) {
-		fprintf(stdout, _("%s %s\n"), (char *)pkgname, (char *)alpm_list_getdata(i));
+		fprintf(stdout, "%s %s\n", (char *)pkgname, (char *)alpm_list_getdata(i));
 	}
 
 	fflush(stdout);
@@ -181,7 +181,7 @@ void dump_pkg_changelog(char *clfile, char *pkgname)
 	FILE* fp = NULL;
 	char line[PATH_MAX+1];
 
-	if((fp = fopen(clfile, _("r"))) == NULL)
+	if((fp = fopen(clfile, "r")) == NULL)
 	{
 		ERR(NL, _("No changelog available for '%s'.\n"), pkgname);
 		return;

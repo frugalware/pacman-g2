@@ -165,11 +165,11 @@ static void usage(int op, char *myname)
  */
 static void version()
 {
-	printf(_("\n"));
-	printf(_(" .--.                  Pacman v%s - libalpm v%s\n"), PACKAGE_VERSION, PM_VERSION);
-	printf(_("/ _.-' .-.  .-.  .-.   Copyright (C) 2002-2006 Judd Vinet <jvinet@zeroflux.org>\n"));
-	printf(_("\\  '-. '-'  '-'  '-'   & Frugalware developers <frugalware-devel@frugalware.org>\n"));
-	printf(_(" '--'                  \n"));
+	printf("\n");
+	printf(" .--.                  Pacman v%s - libalpm v%s\n", PACKAGE_VERSION, PM_VERSION);
+	printf("/ _.-' .-.  .-.  .-.   Copyright (C) 2002-2006 Judd Vinet <jvinet@zeroflux.org>\n");
+	printf("\\  '-. '-'  '-'  '-'   & Frugalware developers <frugalware-devel@frugalware.org>\n");
+	printf(" '--'                  \n");
 	printf(_("                       This program may be freely redistributed under\n"));
 	printf(_("                       the terms of the GNU General Public License\n"));
 	printf("\n");
@@ -185,7 +185,7 @@ static void cleanup(int signum)
 
 	/* free alpm library resources */
 	if(alpm_release() == -1) {
-		ERR(NL, _("%s\n"), alpm_strerror(pm_errno));
+		ERR(NL, "%s\n", alpm_strerror(pm_errno));
 	}
 
 	/* free memory */
@@ -528,8 +528,8 @@ int main(int argc, char *argv[])
 	alpm_get_option(PM_OPT_DBPATH, (long *)config->dbpath);
 	
 	if(config->verbose > 0) {
-		printf(_("Root  : %s\n"), config->root);
-		printf(_("DBPath: %s\n"), config->dbpath);
+		printf("Root  : %s\n", config->root);
+		printf("DBPath: %s\n", config->dbpath);
 		list_display(_("Targets:"), pm_targets);
 	}
 

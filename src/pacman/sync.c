@@ -224,7 +224,7 @@ static int sync_search(list_t *syncs, list_t *targets)
 			for(lp = alpm_db_getpkgcache(sync->db); lp; lp = alpm_list_next(lp)) {
 				PM_PKG *pkg = alpm_list_getdata(lp);
 
-				MSG(NL, _("%s/%s %s\n    "), sync->treename, (char *)alpm_pkg_getinfo(pkg, PM_PKG_NAME), (char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION));
+				MSG(NL, "%s/%s %s\n    ", sync->treename, (char *)alpm_pkg_getinfo(pkg, PM_PKG_NAME), (char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION));
 				indentprint(alpm_pkg_getinfo(pkg, PM_PKG_DESC), 4);
 				MSG(NL, "\n");
 			}
