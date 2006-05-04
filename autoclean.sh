@@ -38,3 +38,15 @@ rm -rf etc/pacman.d/extra-current
 rm -rf etc/pacman.d/frugalware
 rm -rf etc/pacman.d/frugalware-current
 rm -f dist/FrugalBuild
+
+rm -rf src/pacman/po/Makefile
+rm -rf src/pacman/po/Makefile.in
+rm -rf src/pacman/po/POTFILES
+rm -rf src/pacman/po/stamp-po
+rm -rf src/pacman/po/*.gmo
+
+rm -rf lib/libalpm/po/Makefile
+rm -rf lib/libalpm/po/Makefile.in
+rm -rf lib/libalpm/po/POTFILES
+rm -rf lib/libalpm/po/stamp-po
+rm -rf lib/libalpm/po/*.gmo
