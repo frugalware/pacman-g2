@@ -354,7 +354,9 @@ msgstr "Konnte Download nicht fortsetzen - Starte neu\n"
 msgid ""
 "\n"
 "failed downloading %s from %s: %s\n"
-msgstr "Konnte %s nicht von %s herunterladen: %s\n"
+msgstr ""
+"\n"
+"Konnte %s nicht von %s herunterladen: %s\n"
 
 #: ../download.c:483
 #, c-format
@@ -633,9 +635,7 @@ msgstr "        %s {-A --add}     [Optionen] <Datei>\n"
 #: ../pacman.c:96
 #, c-format
 msgid "        %s {-R --remove}  [options] <package>\n"
-msgstr ""
-"        %s {-R --remove   [Optionen] <Paket>\n"
-"}"
+msgstr "        %s {-R --remove   [Optionen] <Paket>\n"
 
 #: ../pacman.c:97
 #, c-format
@@ -1381,11 +1381,4 @@ msgstr ""
 #: ../util.c:232
 #, c-format
 msgid "%s is not a valid regular expression.\n"
-msgstr "%s ist kein gültiger regulärer Ausdruck"
-
-#~ msgid ""
-#~ "\\  '-. '-'  '-'  '-'   & Frugalware developers <frugalware-"
-#~ "devel@frugalware.org>\n"
-#~ msgstr ""
-#~ "\\  '-. '-'  '-'  '-'   & Frugalware Entwickler <frugalware-"
-#~ "devel@frugalware.org>\n"
+msgstr "%s ist kein gültiger regulärer Ausdruck\n"
