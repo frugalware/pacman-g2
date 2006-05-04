@@ -7,12 +7,12 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bmh 1980\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-05-04 01:01+0200\n"
+"POT-Creation-Date: 2006-05-04 23:18+0200\n"
 "PO-Revision-Date: 2006-05-04 17:10+0200\n"
 "Last-Translator: Marcus Habermehl <bmh1980@frugalware.org>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ASCII\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -109,8 +109,7 @@ msgstr "Konfiguration: Zeile %d: Syntaxfehler\n"
 #, c-format
 msgid "config: line %d: all directives must belong to a section\n"
 msgstr ""
-"Konfiguration: Zeile %d: Alle Anweisungen müssen zu einem Abschnitt "
-"gehören\n"
+"Konfiguration: Zeile %d: Alle Anweisungen müssen zu einem Abschnitt gehören\n"
 
 #: ../conf.c:146
 msgid "config: nopassiveftp\n"
@@ -355,8 +354,7 @@ msgstr "Konnte Download nicht fortsetzen - Starte neu\n"
 msgid ""
 "\n"
 "failed downloading %s from %s: %s\n"
-msgstr ""
-"Konnte %s nicht von %s herunterladen: %s\n"
+msgstr "Konnte %s nicht von %s herunterladen: %s\n"
 
 #: ../download.c:483
 #, c-format
@@ -417,11 +415,6 @@ msgstr ""
 msgid "function"
 msgstr "Funktion"
 
-#: ../log.c:69
-#, c-format
-msgid "???"
-msgstr ""
-
 #: ../log.c:152
 msgid "Y"
 msgstr "J"
@@ -449,11 +442,6 @@ msgstr "Gruppen        :"
 msgid "Packager       : %s\n"
 msgstr "Paketersteller : %s\n"
 
-#: ../package.c:52
-#, c-format
-msgid "URL            : %s\n"
-msgstr ""
-
 #: ../package.c:53
 msgid "License        :"
 msgstr "Lizenz         :"
@@ -472,10 +460,6 @@ msgstr "Größe          : %ld\n"
 #, c-format
 msgid "Build Date     : %s %s\n"
 msgstr "Erstellt       : %s %s\n"
-
-#: ../package.c:58 ../package.c:60
-msgid "UTC"
-msgstr ""
 
 #: ../package.c:60
 #, c-format
@@ -626,20 +610,6 @@ msgstr ""
 "\n"
 "SHA1 Summe        : %s"
 
-#: ../package.c:159 ../pacman.c:168
-#, c-format
-msgid "\n"
-msgstr ""
-
-#: ../package.c:171
-#, c-format
-msgid "%s %s\n"
-msgstr ""
-
-#: ../package.c:184
-msgid "r"
-msgstr ""
-
 #: ../package.c:186
 #, c-format
 msgid "No changelog available for '%s'.\n"
@@ -663,7 +633,9 @@ msgstr "        %s {-A --add}     [Optionen] <Datei>\n"
 #: ../pacman.c:96
 #, c-format
 msgid "        %s {-R --remove}  [options] <package>\n"
-msgstr "        %s {-R --remove   [Optionen] <Paket>\n}"
+msgstr ""
+"        %s {-R --remove   [Optionen] <Paket>\n"
+"}"
 
 #: ../pacman.c:97
 #, c-format
@@ -743,7 +715,8 @@ msgstr "  -n, --nosave        Auch Konfigurationsdateien entfernen\n"
 msgid ""
 "  -s, --recursive     remove dependencies also (that won't break packages)\n"
 msgstr ""
-"  -s, --recursive     Auch Abhängigkeiten entfernen (beschädigt keine Pakete)\n"
+"  -s, --recursive     Auch Abhängigkeiten entfernen (beschädigt keine "
+"Pakete)\n"
 
 #: ../pacman.c:118
 #, c-format
@@ -770,17 +743,20 @@ msgstr "  -c, --changelog     Das Changelog des Paketes anzeigen\n"
 msgid ""
 "  -e, --orphans       list all packages that were installed as a dependency\n"
 msgstr ""
-"  -e, --orphans        Listet alle Pakete auf, die als Abhängigkeit installiert\n"
+"  -e, --orphans        Listet alle Pakete auf, die als Abhängigkeit "
+"installiert\n"
 
 #: ../pacman.c:130
 #, c-format
 msgid "                      and are not required by any other packages\n"
-msgstr "                      wurden und nicht von anderen Paketen benötigt werden\n"
+msgstr ""
+"                      wurden und nicht von anderen Paketen benötigt werden\n"
 
 #: ../pacman.c:131 ../pacman.c:146
 #, c-format
 msgid "  -g, --groups        view all members of a package group\n"
-msgstr "  -g, --groups        Zeige alle Pakete an, die zu einer Gruppe gehören\n"
+msgstr ""
+"  -g, --groups        Zeige alle Pakete an, die zu einer Gruppe gehören\n"
 
 #: ../pacman.c:132
 #, c-format
@@ -812,7 +788,8 @@ msgid ""
 "  -p, --file          pacman will query the package file [package] instead "
 "of\n"
 msgstr ""
-"  -p, --file          pacman frag die Paketdatei [Paket] ab, anstelle in der\n"
+"  -p, --file          pacman frag die Paketdatei [Paket] ab, anstelle in "
+"der\n"
 
 #: ../pacman.c:137
 #, c-format
@@ -857,7 +834,9 @@ msgstr ""
 #: ../pacman.c:148
 #, c-format
 msgid "  -s, --search        search remote repositories for matching strings\n"
-msgstr "  -s, --search        Durchsuche entferne Repositories Pakete nach einem Wort\n"
+msgstr ""
+"  -s, --search        Durchsuche entferne Repositories Pakete nach einem "
+"Wort\n"
 
 #: ../pacman.c:149
 #, c-format
@@ -869,21 +848,22 @@ msgstr "  -u, --sysupgrade    Alle veralteten Pakete aktuallisieren\n"
 msgid ""
 "  -w, --downloadonly  download packages but do not install/upgrade anything\n"
 msgstr ""
-"  -w, --downloadonly  Lade Pakete herunter, aber nichts installieren/aktuallisieren\n"
+"  -w, --downloadonly  Lade Pakete herunter, aber nichts installieren/"
+"aktuallisieren\n"
 
 #: ../pacman.c:151
 #, c-format
 msgid ""
 "  -y, --refresh       download fresh package databases from the server\n"
-msgstr ""
-"  -y, --refresh       Lade frische Paketdatenbank vom Server\n"
+msgstr "  -y, --refresh       Lade frische Paketdatenbank vom Server\n"
 
 #: ../pacman.c:152
 #, c-format
 msgid ""
 "      --ignore <pkg>  ignore a package upgrade (can be used more than once)\n"
 msgstr ""
-"      --ignore <pkg>  Ignoriere ein neues Paket (kann mehrfach genutzt werden)\n"
+"      --ignore <pkg>  Ignoriere ein neues Paket (kann mehrfach genutzt "
+"werden)\n"
 
 #: ../pacman.c:154
 #, c-format
@@ -907,8 +887,7 @@ msgstr ""
 #, c-format
 msgid ""
 "      --noscriptlet   do not execute the install scriptlet if there is any\n"
-msgstr ""
-"      --noscriptlet   Installationskript nicht ausführen\n"
+msgstr "      --noscriptlet   Installationskript nicht ausführen\n"
 
 #: ../pacman.c:158
 #, c-format
@@ -927,32 +906,6 @@ msgstr ""
 msgid "  -b, --dbpath <path> set an alternate database location\n"
 msgstr "  -b, --dbpath <path> Einen anderen Ort für die Datenbank verwenden\n"
 
-#: ../pacman.c:169
-#, c-format
-msgid " .--.                  Pacman v%s - libalpm v%s\n"
-msgstr ""
-
-#: ../pacman.c:170
-#, c-format
-msgid ""
-"/ _.-' .-.  .-.  .-.   Copyright (C) 2002-2006 Judd Vinet <jvinet@zeroflux."
-"org>\n"
-msgstr ""
-
-#: ../pacman.c:171
-#, c-format
-msgid ""
-"\\  '-. '-'  '-'  '-'   & Frugalware developers <frugalware-devel@frugalware."
-"org>\n"
-msgstr ""
-"\\  '-. '-'  '-'  '-'   & Frugalware Entwickler <frugalware-devel@frugalware."
-"org>\n"
-
-#: ../pacman.c:172
-#, c-format
-msgid " '--'                  \n"
-msgstr ""
-
 #: ../pacman.c:173
 #, c-format
 msgid "                       This program may be freely redistributed under\n"
@@ -961,11 +914,6 @@ msgstr ""
 #: ../pacman.c:174
 #, c-format
 msgid "                       the terms of the GNU General Public License\n"
-msgstr ""
-
-#: ../pacman.c:188
-#, c-format
-msgid "%s\n"
 msgstr ""
 
 #: ../pacman.c:355
@@ -1006,16 +954,6 @@ msgstr "Konnte Option DBPATH nicht setzen (%s)\n"
 msgid "failed to set option CACHEDIR (%s)\n"
 msgstr "Konnte Option CACHEDIR nicht setzen (%s)\n"
 
-#: ../pacman.c:531
-#, c-format
-msgid "Root  : %s\n"
-msgstr ""
-
-#: ../pacman.c:532
-#, c-format
-msgid "DBPath: %s\n"
-msgstr ""
-
 #: ../pacman.c:533
 msgid "Targets:"
 msgstr "Ziele:"
@@ -1031,7 +969,7 @@ msgstr "Keine Ziele angegeben (benutzen Sie -h für Hilfe)\n"
 
 #: ../pacman.c:559
 msgid "no operation specified (use -h for help)\n"
-msgstr "Keine Operation angegeben (benutzen Sie -h für Hilfe)\"
+msgstr "Keine Operation angegeben (benutzen Sie -h für Hilfe)\n"
 
 #: ../query.c:56
 msgid "no file was specified for --owns\n"
@@ -1109,7 +1047,8 @@ msgstr "  %s: wird benötigt von %s\n"
 msgid ""
 "\n"
 "Targets:"
-msgstr "\n"
+msgstr ""
+"\n"
 "Ziele:"
 
 #. get confirmation
@@ -1117,7 +1056,8 @@ msgstr "\n"
 msgid ""
 "\n"
 "Do you want to remove these packages? [Y/n] "
-msgstr "\n"
+msgstr ""
+"\n"
 "Möchten Sie all diese Pakete entfernen? [Y/n] "
 
 #: ../sync.c:73
@@ -1179,13 +1119,6 @@ msgstr ""
 msgid "failed to update %s (%s)\n"
 msgstr "Konnte %s nicht aktuallisieren (%s)\n"
 
-#: ../sync.c:227
-#, c-format
-msgid ""
-"%s/%s %s\n"
-"    "
-msgstr ""
-
 #: ../sync.c:295
 #, c-format
 msgid "package \"%s\" was not found.\n"
@@ -1217,7 +1150,8 @@ msgstr "Starte komplette Systemaktuallisierung"
 msgid ""
 "\n"
 ":: pacman has detected a newer version of the \"pacman\" package.\n"
-msgstr "\n"
+msgstr ""
+"\n"
 ":: pacman hat eine neuere Version des \"pacman\" Paketes gefunden.\n"
 
 #: ../sync.c:449
@@ -1263,14 +1197,16 @@ msgstr "wird benötigt von"
 msgid ""
 "\n"
 "Remove:  "
-msgstr "\n"
+msgstr ""
+"\n"
 "Entfernen: "
 
 #: ../sync.c:630
 msgid ""
 "\n"
 "Targets: "
-msgstr "\n"
+msgstr ""
+"\n"
 "Ziele:   "
 
 #: ../sync.c:633
@@ -1278,14 +1214,16 @@ msgstr "\n"
 msgid ""
 "\n"
 "Total Package Size:   %.1f MB\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "Gesamtgröße:          %.1f MB\n"
 
 #: ../sync.c:639
 msgid ""
 "\n"
 "Beginning download...\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "Beginne download ...\n"
 
 #: ../sync.c:643
@@ -1296,7 +1234,8 @@ msgstr "Download fortsezen? [Y/n] "
 msgid ""
 "\n"
 "Beginning upgrade process...\n"
-msgstr "\n"
+msgstr ""
+"\n"
 "Beginne Aktuallisierungsprozess ...\n"
 
 #: ../sync.c:655
@@ -1313,7 +1252,8 @@ msgstr "%s-%s-%s%s ist bereits im Cache\n"
 msgid ""
 "\n"
 ":: Retrieving packages from %s...\n"
-msgstr "\n"
+msgstr ""
+"\n"
 ":: Empfange Pakete von %s ...\n"
 
 #. no cache directory.... try creating it
@@ -1397,7 +1337,8 @@ msgstr "Prüfe Paketintegrität ..."
 #, c-format
 msgid ":: %s requires %s, but it is in IgnorePkg. Install anyway? [Y/n] "
 msgstr ""
-":: %s ist in IgnorePkg, wird aber von %s benötigt. Trotzdem installieren? [Y/n] "
+":: %s ist in IgnorePkg, wird aber von %s benötigt. Trotzdem installieren? [Y/"
+"n] "
 
 #: ../trans.c:136
 #, c-format
@@ -1441,3 +1382,10 @@ msgstr ""
 #, c-format
 msgid "%s is not a valid regular expression.\n"
 msgstr "%s ist kein gültiger regulärer Ausdruck"
+
+#~ msgid ""
+#~ "\\  '-. '-'  '-'  '-'   & Frugalware developers <frugalware-"
+#~ "devel@frugalware.org>\n"
+#~ msgstr ""
+#~ "\\  '-. '-'  '-'  '-'   & Frugalware Entwickler <frugalware-"
+#~ "devel@frugalware.org>\n"
