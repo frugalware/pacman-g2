@@ -489,7 +489,7 @@ msgstr "Grund          : "
 #: ../package.c:67
 #, c-format
 msgid "Explicitly installed\n"
-msgstr "Umfassend installiert\n"
+msgstr "Ausdrücklich installiert\n"
 
 #: ../package.c:70
 #, c-format
