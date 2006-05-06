@@ -44,7 +44,7 @@ int neednl; /* for cleaner message output */
  */
 void cb_log(unsigned short level, char *msg)
 {
-	char str[9] = "";
+	char str[LOG_STR_LEN] = "";
 
 	switch(level) {
 		case PM_LOG_DEBUG:
