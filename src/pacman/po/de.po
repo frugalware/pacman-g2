@@ -484,7 +484,7 @@ msgstr "Nein"
 #: ../package.c:64
 #, c-format
 msgid "Reason:        : "
-msgstr "Grund         : "
+msgstr "Grund          : "
 
 #: ../package.c:67
 #, c-format
