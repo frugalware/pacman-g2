@@ -536,8 +536,6 @@ int main(int argc, char *argv[])
 			cleanup(1);
 		}
 	}
-	/* query dbpath */
-	alpm_get_option(PM_OPT_DBPATH, (long *)config->dbpath);
 	
 	if(config->verbose > 0) {
 		printf("Root  : %s\n", config->root);
