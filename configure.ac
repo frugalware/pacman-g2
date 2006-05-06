@@ -239,9 +239,6 @@ src/pacman/po/Makefile.in
 src/util/Makefile
 scripts/Makefile
 doc/Makefile
-doc/makepkg.8
-doc/pacman.8
-doc/libalpm.3
 etc/Makefile
 etc/pacman.d/Makefile
 etc/pacman.d/frugalware
