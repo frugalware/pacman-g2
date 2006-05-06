@@ -61,7 +61,7 @@ void dump_pkg_full(PM_PKG *pkg, int level)
 
 	printf(_("Install Script : %s\n"), alpm_pkg_getinfo(pkg, PM_PKG_SCRIPLET) ? _("Yes") : _("No"));
 
-	printf(_("Reason:        : "));
+	printf(_("Reason         : "));
 	switch((int)alpm_pkg_getinfo(pkg, PM_PKG_REASON)) {
 		case PM_PKG_REASON_EXPLICIT:
 			printf(_("Explicitly installed\n"));
