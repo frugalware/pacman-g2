@@ -29,5 +29,5 @@ EXTRA_DIST = $(man_MANS)
 po4a:
 if HAS_PO4A
 	@$(NORMAL_INSTALL)
-	po4a -k 0 --variable "srcdir=$(srcdir)/" $(srcdir)/po4a.cfg
+	po4a -k 0 po4a.cfg
 endif
