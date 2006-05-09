@@ -23,7 +23,6 @@ rm -rf ltmain.sh
 rm -rf doc/Makefile
 rm -rf doc/Makefile.in
 rm -rf doc/html/*
-rm -rf doc/*.8
 rm -rf doc/man3/*
 rm -rf compile
 rm -rf libtool
