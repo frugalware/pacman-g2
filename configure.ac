@@ -239,6 +239,7 @@ src/pacman/po/Makefile.in
 src/util/Makefile
 scripts/Makefile
 doc/Makefile
+doc/hu/Makefile
 etc/Makefile
 etc/pacman.d/Makefile
 etc/pacman.d/frugalware

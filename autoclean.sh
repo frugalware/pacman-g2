@@ -24,6 +24,8 @@ rm -rf doc/Makefile
 rm -rf doc/Makefile.in
 rm -rf doc/html/*
 rm -rf doc/man3/*
+rm -rf doc/hu/*.8
+rm -rf doc/hu/*.in
 rm -rf compile
 rm -rf libtool
 rm -rf mkinstalldirs

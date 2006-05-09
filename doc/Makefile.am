@@ -1,4 +1,6 @@
-all: makepkg.8 pacman.8
+SUBDIRS = hu
+
+all: makepkg.8 pacman.8 po4a
 
 if HAS_MAN2HTML
 makepkg.8:
@@ -11,7 +13,6 @@ pacman.8:
 endif
 
 clean:
-	rm -rf *.8
 	rm -rf html/*
 
 man_MANS = pacman.8 makepkg.8 libalpm.3
@@ -21,3 +22,7 @@ man_MANS += man3/*.3
 endif
 
 EXTRA_DIST = $(man_MANS)
+
+po4a:
+	@$(NORMAL_INSTALL)
+	po4a -k 0 --variable "srcdir=$(srcdir)/" $(srcdir)/po4a.cfg
