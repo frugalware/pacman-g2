@@ -29,6 +29,7 @@ rm -rf doc/hu/*.in
 rm -rf compile
 rm -rf libtool
 rm -rf mkinstalldirs
+rm -rf config.rpath
 rm -rf scripts/.deps/
 rm -rf scripts/Makefile.in
 rm -rf etc/Makefile.in
