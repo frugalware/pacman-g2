@@ -37,6 +37,7 @@ rm -rf etc/pacman.d/extra
 rm -rf etc/pacman.d/extra-current
 rm -rf etc/pacman.d/frugalware
 rm -rf etc/pacman.d/frugalware-current
+rm -f dist/Changelog
 rm -f dist/FrugalBuild
 rm -f dist/pacman-*.tar.gz
 rm -f dist/pacman-*.fpm
