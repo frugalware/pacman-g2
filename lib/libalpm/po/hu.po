@@ -39,7 +39,7 @@ msgstr "az újabb verzió (%s-%s) már elérhetõ a cél listában -- kihagyás"
 #: ../add.c:179
 #, c-format
 msgid "reading '%s' metadata"
-msgstr "'%s' metadata olvasása"
+msgstr "'%s' metaadat olvasása"
 
 #. look for unsatisfied dependencies
 #: ../add.c:221 ../remove.c:88
@@ -62,7 +62,7 @@ msgstr "tisztítás"
 
 #: ../add.c:274
 msgid "looking for file conflicts"
-msgstr "file-konfliktusok keresése"
+msgstr "fájl konfliktusok keresése"
 
 #: ../add.c:328
 #, c-format
@@ -96,7 +96,7 @@ msgstr "új csomag hozzáadása %s-%s"
 
 #: ../add.c:399
 msgid "extracting files"
-msgstr "file-ok kifejtése"
+msgstr "fájlok kifejtése"
 
 #: ../add.c:414 ../util.c:376
 msgid "could not get current working directory"
@@ -105,17 +105,17 @@ msgstr "a jelenlegi munkakönyvtár nem kapható meg"
 #: ../add.c:468
 #, c-format
 msgid "notice: %s is in NoExtract -- skipping extraction"
-msgstr "figyelmeztetés: %s a NoExtract-ben van -- kifejtés kihagyása"
+msgstr "figyelmeztetés: %s a NoExtractben van -- kifejtés kihagyása"
 
 #: ../add.c:504 ../add.c:657
 #, c-format
 msgid "could not extract %s (%s)"
-msgstr "nemsikerült kifejteni: %s (%s)"
+msgstr "nem sikerült kifejteni: %s (%s)"
 
 #: ../add.c:547
 #, c-format
 msgid "checking md5 hashes for %s"
-msgstr "md5 hash-ek vizsgálata a %s számára"
+msgstr "md5 összegek vizsgálata a %s számára"
 
 #: ../add.c:548 ../add.c:555
 #, c-format
@@ -135,27 +135,27 @@ msgstr "eredeti:  %s"
 #: ../add.c:554
 #, c-format
 msgid "checking sha1 hashes for %s"
-msgstr "sha1 hash-ek vizsgálata a %s számára"
+msgstr "sha1 összegek vizsgálata a %s számára"
 
 #: ../add.c:572
 #, c-format
 msgid "could not rename %s (%s)"
-msgstr "nemsikerült átnevezni: %s (%s)"
+msgstr "nem sikerült átnevezni: %s (%s)"
 
 #: ../add.c:573
 #, c-format
 msgid "error: could not rename %s (%s)"
-msgstr "hiba: nemsikerült átnevezni: %s (%s)"
+msgstr "hiba: nem sikerült átnevezni: %s (%s)"
 
 #: ../add.c:577 ../add.c:621
 #, c-format
 msgid "could not copy %s to %s (%s)"
-msgstr "nemsikerült másolni: %s (%s)"
+msgstr "nem sikerült másolni: %s (%s)"
 
 #: ../add.c:578
 #, c-format
 msgid "error: could not copy %s to %s (%s)"
-msgstr "hiba: nemsikerült másolni: %s (%s)"
+msgstr "hiba: nem sikerült másolni: %s (%s)"
 
 #: ../add.c:582
 #, c-format
@@ -169,25 +169,25 @@ msgstr "figyelmeztetés: a %s elmentve %s néven"
 
 #: ../add.c:593 ../add.c:596 ../add.c:602
 msgid "action: installing new file"
-msgstr "folyamat: az új file telepítése"
+msgstr "folyamat: az új fájl telepítése"
 
 #: ../add.c:600
 msgid "action: leaving existing file in place"
-msgstr "folyamat: a jelenlegi file megtartása"
+msgstr "folyamat: a jelenlegi fájl megtartása"
 
 #: ../add.c:606
 msgid "action: keeping current file and installing new one with .pacnew ending"
-msgstr "folyamat: a jelenlegi file megtartása es az új .pacnew végzõdéssel való telepítése"
+msgstr "folyamat: a jelenlegi fájl megtartása és az új .pacnew végzõdéssel való telepítése"
 
 #: ../add.c:610
 #, c-format
 msgid "could not install %s as %s: %s"
-msgstr "nemsikerült telepiteni a %s-t %s-ként: %s"
+msgstr "nem sikerült telepíteni a %s-t %s-ként: %s"
 
 #: ../add.c:611
 #, c-format
 msgid "error: could not install %s as %s: %s"
-msgstr "hiba: nemsikerült telepiteni a %s-t %s-ként: %s"
+msgstr "hiba: nem sikerült telepíteni a %s-t %s-ként: %s"
 
 #: ../add.c:613
 #, c-format
@@ -222,7 +222,7 @@ msgstr "figyelmeztetés: %s kifejtése %s.pacnew néven"
 #: ../add.c:658
 #, c-format
 msgid "error: could not extract %s (%s)"
-msgstr "hiba: nemsikerült kifejteni: %s (%s)"
+msgstr "hiba: nem sikerült kifejteni: %s (%s)"
 
 #: ../add.c:669
 msgid "appending backup entry"
@@ -269,7 +269,7 @@ msgstr "hiba a %s-%s adatbázis-frissítése során"
 #: ../add.c:745
 #, c-format
 msgid "could not add entry '%s' in cache"
-msgstr "sikeretelen a '%s' bejegyzés hozzáadása a gyorsítótárhoz"
+msgstr "sikertelen a '%s' bejegyzés hozzáadása a gyorsítótárhoz"
 
 #. update dependency packages' REQUIREDBY fields
 #: ../add.c:750 ../remove.c:264
@@ -341,37 +341,37 @@ msgstr "a SCRIPLET infó betöltése a '%s' számára"
 #: ../alpm.c:571
 #, c-format
 msgid "could not get sha1 checksum for package %s-%s\n"
-msgstr "sikertelen az sha1 ellenörzõ összeg elérésa a %s-%s csomag számára\n"
+msgstr "sikertelen az sha1 ellenõrzõ összeg elérése a %s-%s csomag számára\n"
 
 #: ../alpm.c:582 ../alpm.c:630
 #, c-format
 msgid "checksums for package %s-%s are matching"
-msgstr "a %s-%s csomag ellenörzõ összegei megegyeznek"
+msgstr "a %s-%s csomag ellenõrzõ összegei megegyeznek"
 
 #: ../alpm.c:585
 #, c-format
 msgid "sha1sums do not match for package %s-%s\n"
-msgstr "%s-%s csomag sha1 ellenörzõ összegei nem egyeznek meg\n"
+msgstr "%s-%s csomag sha1 ellenõrzõ összegei nem egyeznek meg\n"
 
 #: ../alpm.c:619
 #, c-format
 msgid "could not get md5 checksum for package %s-%s\n"
-msgstr "sikertelen az md5 ellenörzõ összeg elérésa a %s-%s csomag számára\n"
+msgstr "sikertelen az md5 ellenõrzõ összeg elérése a %s-%s csomag számára\n"
 
 #: ../alpm.c:633
 #, c-format
 msgid "md5sums do not match for package %s-%s\n"
-msgstr "%s-%s csomag md5 ellenörzõ összegei nem egyeznek meg\n"
+msgstr "%s-%s csomag md5 ellenõrzõ összegei nem egyeznek meg\n"
 
 #: ../alpm.c:879
 #, c-format
 msgid "could not remove lock file %s"
-msgstr "nemsikerült a lock file (%s) eltávolítása"
+msgstr "nem sikerült a zároló fájl (%s) eltávolítása"
 
 #: ../alpm.c:880
 #, c-format
 msgid "warning: could not remove lock file %s"
-msgstr "figyelmeztetés: nemsikerült a lock file (%s) eltávolítása"
+msgstr "figyelmeztetés: nem sikerült a zároló fájl (%s) eltávolítása"
 
 #: ../be_files.c:142
 #, c-format
@@ -381,42 +381,42 @@ msgstr "érvénytelen név a '%s' adatbázis-bejegyzés számára"
 #: ../be_files.c:385
 #, c-format
 msgid "db_write: could not open file %s/desc"
-msgstr "db_write: sikertelen a %s/desc file megnyitása"
+msgstr "db_write: sikertelen a %s/desc fájl megnyitása"
 
 #: ../be_files.c:459
 #, c-format
 msgid "db_write: could not open file %s/files"
-msgstr "db_write: sikertelen a %s/files file megnyitása"
+msgstr "db_write: sikertelen a %s/files fájl megnyitása"
 
 #: ../be_files.c:485
 #, c-format
 msgid "db_write: could not open file %s/depends"
-msgstr "db_write: sikertelen a %s/depends file megnyitása"
+msgstr "db_write: sikertelen a %s/depends fájl megnyitása"
 
 #: ../cache.c:55
 #, c-format
 msgid "loading package cache (infolevel=%#x) for repository '%s'"
-msgstr ""
+msgstr "csomagok gyorsítótárának betöltése (infószint=%#x) a '%s' repó számára"
 
 #: ../cache.c:75
 #, c-format
 msgid "freeing package cache for repository '%s'"
-msgstr ""
+msgstr "csomagok gyorsítótárának felszabadítása a '%s' repó számára"
 
 #: ../cache.c:110
 #, c-format
 msgid "adding entry '%s' in '%s' cache"
-msgstr ""
+msgstr "a '%s' bejegyzés hozzáadása a '%s' gyorsítótárhoz"
 
 #: ../cache.c:132
 #, c-format
 msgid "removing entry '%s' from '%s' cache"
-msgstr ""
+msgstr "a '%s' bejegyzés eltávolítása a '%s' gyorsítótárból"
 
 #: ../cache.c:163
 #, c-format
 msgid "loading group cache for repository '%s'"
-msgstr ""
+msgstr "csoportgyorsítótár betöltése a '%s' repó számára"
 
 #. CHECK 1: check targets against database
 #: ../conflict.c:68
@@ -429,7 +429,7 @@ msgstr ""
 #: ../conflict.c:77 ../conflict.c:91
 #, c-format
 msgid "targs vs db: found %s as a conflict for %s"
-msgstr ""
+msgstr "targs vs db: a %s ütközik a következõvel: %s"
 
 #. CHECK 2: check targets against targets
 #: ../conflict.c:104
@@ -441,7 +441,7 @@ msgstr ""
 #: ../conflict.c:113 ../conflict.c:126
 #, c-format
 msgid "targs vs targs: found %s as a conflict for %s"
-msgstr ""
+msgstr "targs vs targs: a %s ütközik a következõvel: %s"
 
 #. CHECK 3: check database against targets
 #: ../conflict.c:140
@@ -452,38 +452,38 @@ msgstr ""
 #: ../conflict.c:167 ../conflict.c:182
 #, c-format
 msgid "db vs targs: found %s as a conflict for %s"
-msgstr ""
+msgstr "db vs targs: a %s ütközik a következõvel: %s"
 
 #: ../conflict.c:231 ../conflict.c:333 ../deps.c:48 ../deps.c:595
 #: ../deps.c:635 ../group.c:40 ../handle.c:50 ../package.c:91 ../sync.c:60
 #: ../sync.c:631 ../sync.c:647 ../sync.c:743 ../trans.c:46
 #, c-format
 msgid "malloc failure: could not allocate %d bytes"
-msgstr ""
+msgstr "malloc probléma: nem sikerült allokálni %d byte-ot"
 
 #: ../db.c:52 ../db.c:59
 #, c-format
 msgid "malloc failed: could not allocate %d bytes"
-msgstr ""
+msgstr "malloc probléma: nem sikerült allokálni %d byte-ot"
 
 #: ../deps.c:116
 msgid "possible dependency cycle detected"
-msgstr ""
+msgstr "lehetséges körkörös függõségi probléma észlelve"
 
 #: ../deps.c:254 ../deps.c:400
 #, c-format
 msgid "checkdeps: found %s as required by %s"
-msgstr ""
+msgstr "checkdeps: a %s igényelt a %s által"
 
 #: ../deps.c:364
 #, c-format
 msgid "checkdeps: found %s as a dependency for %s"
-msgstr ""
+msgstr "checkdeps: a %s egy függõség a %s számára"
 
 #: ../deps.c:488
 #, c-format
 msgid "cannot find package \"%s\" or anything that provides it!"
-msgstr ""
+msgstr "nem található a \"%s\" csomag és nem is szolgáltatja semmi!"
 
 #: ../deps.c:493
 msgid "dep is NULL!"
@@ -492,295 +492,296 @@ msgstr ""
 #: ../deps.c:505
 #, c-format
 msgid "excluding %s -- explicitly installed"
-msgstr ""
+msgstr "a %s kihagyása -- explicit módon lett telepítve"
 
 #. add it to the target list
 #: ../deps.c:522
 #, c-format
 msgid "loading ALL info for '%s'"
-msgstr ""
+msgstr "minden infó betöltése a '%s' számára"
 
 #: ../deps.c:525
 #, c-format
 msgid "adding '%s' to the targets"
-msgstr ""
+msgstr "a '%s' hozzáadása a célcsomagokhoz"
 
 #: ../deps.c:567
 #, c-format
 msgid "%s provides dependency %s -- skipping"
-msgstr ""
+msgstr "a %s szolgáltatja a %s függõséget -- kihagyás"
 
 #: ../deps.c:591
 #, c-format
 msgid ""
 "cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"
 msgstr ""
+"nem sikerült a függõségek feloldása a \"%s\" számára (nem található a \"%s\" a csomagok között)"
 
 #. this dep is already in the target list
 #: ../deps.c:608
 #, c-format
 msgid "dependency %s is already in the target list -- skipping"
-msgstr ""
+msgstr "a %s függõség már a célcsomagok között szerepel -- kihagyás"
 
 #: ../deps.c:628
 #, c-format
 msgid "pulling dependency %s (needed by %s)"
-msgstr ""
+msgstr "a %s függõség behozása (a %s igényli)"
 
 #: ../deps.c:632
 #, c-format
 msgid "cannot resolve dependencies for \"%s\""
-msgstr ""
+msgstr "nemsikerült feloldani a függõségeket a \"%s\" számára"
 
 #. cycle detected -- skip it
 #: ../deps.c:648
 #, c-format
 msgid "dependency cycle detected: %s"
-msgstr ""
+msgstr "körkörös függõség észlelve: %s"
 
 #: ../error.c:31
 msgid "out of memory!"
-msgstr ""
+msgstr "elfogyott a memória!"
 
 #: ../error.c:33 ../error.c:119
 msgid "unexpected error"
-msgstr ""
+msgstr "nemvárt hiba"
 
 #: ../error.c:35
 msgid "insufficient privileges"
-msgstr ""
+msgstr "elégtelen jogosultságok"
 
 #: ../error.c:37
 msgid "wrong or NULL argument passed"
-msgstr ""
+msgstr "rossz vagy NULL argumentum érkezett"
 
 #: ../error.c:39
 msgid "could not find or read file"
-msgstr ""
+msgstr "nem található vagy nem olvasható a fájl"
 
 #: ../error.c:42
 msgid "library not initialized"
-msgstr ""
+msgstr "a könyvtár nem inicializált"
 
 #: ../error.c:44
 msgid "library already initialized"
-msgstr ""
+msgstr "a könyvtár már inicializált"
 
 #: ../error.c:46
 msgid "unable to lock database"
-msgstr ""
+msgstr "nem sikerült zárolni az adatbázist"
 
 #: ../error.c:49
 msgid "could not open database"
-msgstr ""
+msgstr "nem sikerült megnyitni az adatbázist"
 
 #: ../error.c:51
 msgid "could not create database"
-msgstr ""
+msgstr "nem sikerült létrehozni az adatbázist"
 
 #: ../error.c:53
 msgid "database not initialized"
-msgstr ""
+msgstr "az adatbázis nem inicializált"
 
 #: ../error.c:55
 msgid "database already registered"
-msgstr ""
+msgstr "az adatbázis már regisztrált"
 
 #: ../error.c:57
 msgid "could not find database"
-msgstr ""
+msgstr "nem található az adatbázis"
 
 #: ../error.c:59
 msgid "could not update database"
-msgstr ""
+msgstr "nem sikerült megnyitni az adatbázist"
 
 #: ../error.c:61
 msgid "could not remove database entry"
-msgstr ""
+msgstr "nem sikerült eltávolítani az adatbázis-bejegyzést"
 
 #: ../error.c:68
 msgid "could not set parameter"
-msgstr ""
+msgstr "nem sikerült beállítani a paramétert"
 
 #: ../error.c:71 ../error.c:77
 msgid "transaction not initialized"
-msgstr ""
+msgstr "a tranzakció nem inicializált"
 
 #: ../error.c:73
 msgid "transaction already initialized"
-msgstr ""
+msgstr "a tranzakció már inicializált"
 
 #: ../error.c:75
 msgid "duplicate target"
-msgstr ""
+msgstr "két azonos célcsomag"
 
 #: ../error.c:79
 msgid "transaction not prepared"
-msgstr ""
+msgstr "a tranzakció nincs elõkészítve"
 
 #: ../error.c:81
 msgid "transaction aborted"
-msgstr ""
+msgstr "a tranzakció félbeszakítva"
 
 #: ../error.c:83
 msgid "operation not compatible with the transaction type"
-msgstr ""
+msgstr "a mûvelet nem egyeztethetõ össze a jelenlegi tranzakciótípussal"
 
 #: ../error.c:86
 msgid "could not find or read package"
-msgstr ""
+msgstr "nem található vagy nem olvasható a csomag"
 
 #: ../error.c:88
 msgid "invalid or corrupted package"
-msgstr ""
+msgstr "nem érvényes vagy sérült csomag"
 
 #: ../error.c:90
 msgid "cannot open package file"
-msgstr ""
+msgstr "nem sikerült megnyitni a csomagfájlt"
 
 #: ../error.c:92
 msgid "cannot load package data"
-msgstr ""
+msgstr "nem sikerült betölteni a csomagadatokat"
 
 #: ../error.c:94
 msgid "package already installed"
-msgstr ""
+msgstr "a csomag már telepítve van"
 
 #: ../error.c:96
 msgid "package not installed or lesser version"
-msgstr ""
+msgstr "a csomag nincs telepítve vagy kisebb verziójú"
 
 #: ../error.c:98
 msgid "package name is not valid"
-msgstr ""
+msgstr "nem érvényes a csomagnév"
 
 #: ../error.c:100
 msgid "corrupted package"
-msgstr ""
+msgstr "sérült csomag"
 
 #: ../error.c:103
 msgid "group not found"
-msgstr ""
+msgstr "a csoport nem található"
 
 #: ../error.c:106
 msgid "could not satisfy dependencies"
-msgstr ""
+msgstr "nem sikerült kielégíteni a függõségeket"
 
 #: ../error.c:108
 msgid "conflicting dependencies"
-msgstr ""
+msgstr "ütközõ függõségek"
 
 #: ../error.c:110
 msgid "conflicting files"
-msgstr ""
+msgstr "ütközõ fájlok"
 
 #: ../error.c:113
 msgid "user aborted"
-msgstr ""
+msgstr "felhasználói megszakítás"
 
 #: ../error.c:115
 msgid "libarchive error"
-msgstr ""
+msgstr "libarchive hiba"
 
 #: ../error.c:117
 msgid "internal error"
-msgstr ""
+msgstr "belsõ hiba"
 
 #: ../handle.c:127
 #, c-format
 msgid "PM_OPT_DBPATH set to '%s'"
-msgstr ""
+msgstr "PM_OPT_DBPATH beállítva a '%s' értékre"
 
 #: ../handle.c:134
 #, c-format
 msgid "PM_OPT_CACHEDIR set to '%s'"
-msgstr ""
+msgstr "PM_OPT_CACHEDIR beállítva a '%s' értékre"
 
 #: ../handle.c:151
 #, c-format
 msgid "can't open log file %s"
-msgstr ""
+msgstr "nemsikerült megnyitni a %s naplófile-t"
 
 #: ../handle.c:155
 #, c-format
 msgid "PM_OPT_LOGFILE set to '%s'"
-msgstr ""
+msgstr "PM_OPT_LOGFILE beállítva a '%s' értékre"
 
 #: ../handle.c:160
 #, c-format
 msgid "'%s' added to PM_OPT_NOUPGRADE"
-msgstr ""
+msgstr "'%s' hozzáadva a PM_OPT_NOUPGRADE listához"
 
 #: ../handle.c:163
 msgid "PM_OPT_NOUPGRADE flushed"
-msgstr ""
+msgstr "a PM_OPT_NOUPGRADE lista ürítve"
 
 #: ../handle.c:169
 #, c-format
 msgid "'%s' added to PM_OPT_NOEXTRACT"
-msgstr ""
+msgstr "'%s' hozzáadva a PM_OPT_NOEXTRACT listához"
 
 #: ../handle.c:172
 msgid "PM_OPT_NOEXTRACT flushed"
-msgstr ""
+msgstr "a PM_OPT_NOEXTRACT lista ürítve"
 
 #: ../handle.c:178
 #, c-format
 msgid "'%s' added to PM_OPT_IGNOREPKG"
-msgstr ""
+msgstr "'%s' hozzáadva a PM_OPT_IGNOREPKG listához"
 
 #: ../handle.c:181
 msgid "PM_OPT_IGNOREPKG flushed"
-msgstr ""
+msgstr "a PM_OPT_IGNOREPKG lista ürítve"
 
 #: ../handle.c:197
 #, c-format
 msgid "PM_OPT_USESYSLOG set to '%d'"
-msgstr ""
+msgstr "PM_OPT_USESYSLOG beállítva a '%s' értékre"
 
 #: ../handle.c:207
 #, c-format
 msgid "PM_OPT_LOGMASK set to '%02x'"
-msgstr ""
+msgstr "PM_OPT_LOGMASK beállítva a '%02x' értékre"
 
 #: ../md5driver.c:48 ../sha1.c:458
 #, c-format
 msgid "%s can't be opened\n"
-msgstr ""
+msgstr "nemsikerült megnyitni a következõt: %s\n"
 
 #: ../package.c:174
 #, c-format
 msgid "could not open file %s"
-msgstr ""
+msgstr "nem sikerült megnyitni a %s fájlt"
 
 #: ../package.c:191 ../package.c:234
 #, c-format
 msgid "%s: syntax error in description file line %d"
-msgstr ""
+msgstr "%s: szintaktikai hiba a leírófájl %d. sorában"
 
 #: ../package.c:291
 msgid "could not parse the package description file"
-msgstr ""
+msgstr "nemsikerült értelmezni a csomagleíró fájlt"
 
 #: ../package.c:299
 #, c-format
 msgid "missing package name in %s"
-msgstr ""
+msgstr "hiányzó csomagnév itt: %s"
 
 #: ../package.c:307
 #, c-format
 msgid "missing package version in %s"
-msgstr ""
+msgstr "hiányzó csomagverzió itt: %s"
 
 #: ../package.c:346
 #, c-format
 msgid "could not remove tempfile %s"
-msgstr ""
+msgstr "nem sikerült eltávolítani a %s ideiglenes fájlt"
 
 #: ../package.c:363
 #, c-format
 msgid "bad package file in %s"
-msgstr ""
+msgstr "rossz csomagfájl itt: %s"
 
 #: ../package.c:371
 #, c-format
@@ -790,198 +791,198 @@ msgstr ""
 #: ../remove.c:68
 #, c-format
 msgid "could not find %s in database"
-msgstr ""
+msgstr "nem található a %s az adatbázisban"
 
 #: ../remove.c:72
 #, c-format
 msgid "adding %s in the targets list"
-msgstr ""
+msgstr "a %s hozzáadása a céllistához"
 
 #: ../remove.c:98
 #, c-format
 msgid "pulling %s in the targets list"
-msgstr ""
+msgstr "a %s behozása a céllistába"
 
 #: ../remove.c:101
 #, c-format
 msgid "could not find %s in database -- skipping"
-msgstr ""
+msgstr "nem található a %s az adatbázisban -- kihagyás"
 
 #: ../remove.c:119
 msgid "finding removable dependencies"
-msgstr ""
+msgstr "eltávolítható függõségek keresése"
 
 #: ../remove.c:159
 #, c-format
 msgid "removing package %s-%s"
-msgstr ""
+msgstr "a %s-%s csomag eltávolítása"
 
 #: ../remove.c:169
 msgid "removing files"
-msgstr ""
+msgstr "fájlok törlése"
 
 #: ../remove.c:190
 #, c-format
 msgid "file %s does not exist"
-msgstr ""
+msgstr "a %s fájl nemlétezik"
 
 #. this is okay, other packages are probably using it.
 #: ../remove.c:196
 #, c-format
 msgid "keeping directory %s"
-msgstr ""
+msgstr "a %s könyvtár megtartása"
 
 #: ../remove.c:198
 #, c-format
 msgid "removing directory %s"
-msgstr ""
+msgstr "a %s könyvtár törlése"
 
 #: ../remove.c:212
 #, c-format
 msgid "skipping removal of %s as it has moved to another package"
-msgstr ""
+msgstr "a %s törlésének kihagyása, mivel az egy másik csomagba került át"
 
 #: ../remove.c:224 ../remove.c:225
 #, c-format
 msgid "%s saved as %s"
-msgstr ""
+msgstr "a %s elmentve %s néven"
 
 #: ../remove.c:227 ../remove.c:234
 #, c-format
 msgid "unlinking %s"
-msgstr ""
+msgstr "a %s törlése"
 
 #: ../remove.c:229 ../remove.c:236
 #, c-format
 msgid "cannot remove file %s"
-msgstr ""
+msgstr "nem sikerült eltávolítani a %s fájlt"
 
 #: ../remove.c:255
 #, c-format
 msgid "removing database entry '%s'"
-msgstr ""
+msgstr "a '%s' adatbázis-bejegyzés eltávolítása"
 
 #: ../remove.c:257
 #, c-format
 msgid "could not remove database entry %s-%s"
-msgstr ""
+msgstr "nem sikerült eltávolítani a %s-%s adatbázis-bejegyzést"
 
 #: ../remove.c:260
 #, c-format
 msgid "could not remove entry '%s' from cache"
-msgstr ""
+msgstr "nem sikerült eltávolítani a %s-%s bejegyzést a gyorsítótárból"
 
 #: ../remove.c:300
 #, c-format
 msgid "updating 'requiredby' field for package '%s'"
-msgstr ""
+msgstr "a '%s' csomag 'függ tõle' mezõjének frissítése"
 
 #. check for "recommended" package replacements
 #: ../sync.c:156
 msgid "checking for package replacements"
-msgstr ""
+msgstr "csomagcserék ellenõrzése"
 
 #: ../sync.c:165
 #, c-format
 msgid "checking replacement '%s' for package '%s'"
-msgstr ""
+msgstr "csere vizsgálata: '%s' -> '%s'"
 
 #: ../sync.c:167
 #, c-format
 msgid "%s-%s: ignoring package upgrade (to be replaced by %s-%s)"
-msgstr ""
+msgstr "%s-%s: frissítés figyelmen kívül hagyása (a %s-%s fogja lecserélni)"
 
 #: ../sync.c:201
 #, c-format
 msgid "%s-%s elected for upgrade (to be replaced by %s-%s)"
-msgstr ""
+msgstr "a %s-%s kiválasztva frissítésre (a %s-%s fogja lecserélni)"
 
 #. match installed packages with the sync dbs and compare versions
 #: ../sync.c:213
 msgid "checking for package upgrades"
-msgstr ""
+msgstr "csomagfrissítések vizsgálata"
 
 #: ../sync.c:225
 #, c-format
 msgid "'%s' not found in sync db -- skipping"
-msgstr ""
+msgstr "a '%s' nem található a távoli adatbázisban -- kihagyás"
 
 #: ../sync.c:239 ../sync.c:526
 #, c-format
 msgid "'%s' is already elected for removal -- skipping"
-msgstr ""
+msgstr "a '%s' már kijelölve eltávolításra -- kihagyás"
 
 #. local version is newer
 #: ../sync.c:248
 #, c-format
 msgid "%s-%s: local version is newer"
-msgstr ""
+msgstr "%s-%s: a helyi verzió újabb"
 
 #. package should be ignored (IgnorePkg)
 #: ../sync.c:254
 #, c-format
 msgid "%s-%s: ignoring package upgrade (%s)"
-msgstr ""
+msgstr "%s-%s: a csomagfrissítés figyelmen kívül hagyása (%s)"
 
 #. package too new (UpgradeDelay)
 #: ../sync.c:258
 #, c-format
 msgid "%s-%s: delaying upgrade of package (%s)\n"
-msgstr ""
+msgstr "%s-%s: a csomag frissítésének késleltetése (%s)\n"
 
 #: ../sync.c:262
 #, c-format
 msgid "%s-%s elected for upgrade (%s => %s)"
-msgstr ""
+msgstr "%s-%s kiválasztva frissítésre (%s => %s)"
 
 #. Search provides
 #: ../sync.c:313 ../sync.c:332
 #, c-format
 msgid "target '%s' not found -- looking for provisions"
-msgstr ""
+msgstr "a '%s' cél nem található -- csomagok keresése amik szolgáltatják"
 
 #: ../sync.c:318 ../sync.c:337
 #, c-format
 msgid "found '%s' as a provision for '%s'"
-msgstr ""
+msgstr "a '%s' szolgáltatja a következõt: '%s'"
 
 #: ../sync.c:356
 #, c-format
 msgid "%s-%s: local version is newer -- skipping"
-msgstr ""
+msgstr "%s-%s: a helyi verzió újabb -- kihagyás"
 
 #: ../sync.c:364
 #, c-format
 msgid "%s-%s is up to date -- skipping"
-msgstr ""
+msgstr "%s-%s naprakész -- kihagyás"
 
 #: ../sync.c:384
 #, c-format
 msgid "adding target '%s' to the transaction set"
-msgstr ""
+msgstr "a '%s' cél hozzáadása a tranzakcióhoz"
 
 #: ../sync.c:429
 msgid "resolving targets dependencies"
-msgstr ""
+msgstr "a célok függõségeinek feloldása"
 
 #: ../sync.c:449
 #, c-format
 msgid "adding package %s-%s to the transaction targets"
-msgstr ""
+msgstr "a %s-%s csomag hozzáadása a tranzakció céljaihoz"
 
 #: ../sync.c:481
 msgid "looking for unresolvable dependencies"
-msgstr ""
+msgstr "feloldhatatlan függõségek keresése"
 
 #: ../sync.c:511
 #, c-format
 msgid "package '%s' is conflicting with '%s'"
-msgstr ""
+msgstr "a '%s' csomag ütközik a '%s' csomaggal"
 
 #: ../sync.c:533
 #, c-format
 msgid "'%s' not found in transaction set -- skipping"
-msgstr ""
+msgstr "'%s' nem található meg a tranzakcióban -- kihagyás"
 
 #. so just treat it like a "replaces" item so the REQUIREDBY
 #. * fields are inherited properly.
@@ -989,170 +990,170 @@ msgstr ""
 #: ../sync.c:544
 #, c-format
 msgid "package '%s' provides its own conflict"
-msgstr ""
+msgstr "a '%s' csomag szolgáltatása ütközik a csomaggal"
 
 #: ../sync.c:567 ../sync.c:572
 #, c-format
 msgid "'%s' is in the target list -- keeping it"
-msgstr ""
+msgstr "a '%s' a céllistában van -- megtartás"
 
 #: ../sync.c:584 ../sync.c:621
 #, c-format
 msgid "removing '%s' from target list"
-msgstr ""
+msgstr "a '%s' eltávolítása a céllistából"
 
 #. It's a conflict -- see if they want to remove it
 #.
 #: ../sync.c:593
 #, c-format
 msgid "resolving package '%s' conflict"
-msgstr ""
+msgstr "a '%s' csomag ütközéseinek feloldása"
 
 #. append to the replaces list
 #: ../sync.c:616
 #, c-format
 msgid "electing '%s' for removal"
-msgstr ""
+msgstr "a '%s' kiválasztva eltávolításra"
 
 #. abort
 #: ../sync.c:627 ../sync.c:643
 msgid "unresolvable package conflicts detected"
-msgstr ""
+msgstr "feloldhatatlan csomagütközések észlelve"
 
 #: ../sync.c:695
 msgid "checking dependencies of packages designated for removal"
-msgstr ""
+msgstr "az eltávolításra szánt csomagok függõségeinek ellenõrzése"
 
 #: ../sync.c:709
 msgid "something has gone horribly wrong"
-msgstr ""
+msgstr "valami borzasztóan rossz történt"
 
 #. found matching provisio -- we're good to go
 #: ../sync.c:728
 #, c-format
 msgid "found '%s' as a provision for '%s' -- conflict aborted"
-msgstr ""
+msgstr "a '%s' szolgáltatja a következõt: '%s' -- az ütközés megszakítva"
 
 #: ../sync.c:802 ../sync.c:814
 #, c-format
 msgid "can't get md5 or sha1 checksum for package %s\n"
-msgstr ""
+msgstr "nem sikerült md5 vagy sha1 ellenõrzõ-összeget kapni a '%s' csomag számára\n"
 
 #: ../sync.c:833
 #, c-format
 msgid "archive %s was corrupted (bad MD5 or SHA1 checksum)\n"
-msgstr ""
+msgstr "a %s archívum sérült volt (rossz MD5 vagy SHA1 ellenõrzõösszeg)"
 
 #: ../sync.c:835
 #, c-format
 msgid "archive %s is corrupted (bad MD5 or SHA1 checksum)\n"
-msgstr ""
+msgstr "a %s archívum sérült (rossz MD5 vagy SHA1 ellenõrzõösszeg)"
 
 #: ../sync.c:855
 msgid "could not create removal transaction"
-msgstr ""
+msgstr "nem sikerült létrehozni az eltávolítási tranzakciót"
 
 #: ../sync.c:861
 msgid "could not initialize the removal transaction"
-msgstr ""
+msgstr "nem sikerült inicializálni az eltávolítási tranzakciót"
 
 #: ../sync.c:881
 msgid "removing conflicting and to-be-replaced packages"
-msgstr ""
+msgstr "az ütközõ vagy lecserélésre ítélt csomagok eltávolítása"
 
 #: ../sync.c:883
 msgid "could not prepare removal transaction"
-msgstr ""
+msgstr "nem sikerült elõkészíteni az eltávolítási tranzakciót"
 
 #: ../sync.c:889
 msgid "could not commit removal transaction"
-msgstr ""
+msgstr "nem sikerült végrehajtani az eltávolítási tranzakciót"
 
 #. install targets
 #: ../sync.c:896
 msgid "installing packages"
-msgstr ""
+msgstr "csomagok telepítése"
 
 #: ../sync.c:899
 msgid "could not create transaction"
-msgstr ""
+msgstr "nem sikerült létrehozni a tranzakciót"
 
 #: ../sync.c:904
 msgid "could not initialize transaction"
-msgstr ""
+msgstr "nem sikerült inicializálni a tranzakciót"
 
 #: ../sync.c:923
 msgid "could not prepare transaction"
-msgstr ""
+msgstr "nem sikerült elõkészíteni a tranzakciót"
 
 #: ../sync.c:928
 msgid "could not commit transaction"
-msgstr ""
+msgstr "nem sikerült végrehajtani a tranzakciót"
 
 #: ../sync.c:935
 msgid "updating database for replaced packages dependencies"
-msgstr ""
+msgstr "a lecserélt csomagok függõségeinek adatbázisának frissítése"
 
 #: ../sync.c:964
 #, c-format
 msgid "could not update requiredby for database entry %s-%s"
-msgstr ""
+msgstr "nem sikerült frissíteni a \"függ tõle\" mezõjét a %s-%s bejegyzésnek"
 
 #: ../sync.c:973
 #, c-format
 msgid "could not update new database entry %s-%s"
-msgstr ""
+msgstr "nem sikerült frissíteni az új adatbázis-bejegyzést: %s-%s"
 
 #: ../util.c:205
 #, c-format
 msgid "could not extract %s: %s\n"
-msgstr ""
+msgstr "nem sikerült kifejteni: %s (%s)\n"
 
 #: ../util.c:356
 msgid "could not create temp directory"
-msgstr ""
+msgstr "nem sikerült létrehozni az ideiglenes könyvtárat"
 
 #: ../util.c:383
 #, c-format
 msgid "could not change directory to %s (%s)"
-msgstr ""
+msgstr "nem sikerült könyvtárat váltani ide: %s (%s)"
 
 #: ../util.c:386
 #, c-format
 msgid "executing %s script..."
-msgstr ""
+msgstr "a %s szkript végrehajtása..."
 
 #: ../util.c:399
 #, c-format
 msgid "could not fork a new process (%s)"
-msgstr ""
+msgstr "nem sikerült forkolni egy új folyamatot (%s)"
 
 #: ../util.c:405
 #, c-format
 msgid "chrooting in %s"
-msgstr ""
+msgstr "chrootolás ide: %s"
 
 #: ../util.c:407
 #, c-format
 msgid "could not change the root directory (%s)"
-msgstr ""
+msgstr "nem sikerült megváltoztatni a gyökérkönyvtárat (%s)"
 
 #: ../util.c:411
 #, c-format
 msgid "could not change directory to / (%s)"
-msgstr ""
+msgstr "nem sikekrült könyvtárat váltani a /-be (%s)"
 
 #: ../util.c:415
 #, c-format
 msgid "executing \"%s\""
-msgstr ""
+msgstr "a \"%s\" végrehajtása"
 
 #: ../util.c:420
 #, c-format
 msgid "call to waitpid failed (%s)"
-msgstr ""
+msgstr "a waitpit hívás nem sikerült (%s)"
 
 #: ../util.c:428
 #, c-format
 msgid "could not remove tmpdir %s"
-msgstr ""
+msgstr "nem sikerült eltávolítani a %s ideiglenes könyvtárat"
