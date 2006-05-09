@@ -25,3 +25,18 @@ for example sync990:
 ./pactest.py --test=tests/sync990.py -p ../../src/pacman/pacman --debug=-1
 
 That's all.
+
+How to add new localized manpage to pacman (configure and all things)
+=====================================================================
+
+You need to create a dir under doc/ with lang name. Lets see an example. You want to do
+'de' translations. You need to create a doc/de/ <-- You need a Makefile.am here too.
+Copy it from hu/Makefile.am and modify it to fit your translation settings. Need to modify
+the install directory in here.
+
+Next, you need to modify configure.ac. Search for 'doc/hu/Makefile' and add a line after that like
+this: 'doc/de/Makefile'
+
+If you want you can add 'rm -rf de/*.8' to doc/Makefile.am too but that is not a neccessary thing.
+
+That's all. :P
