@@ -150,12 +150,12 @@ msgstr "hiba: nem sikerült átnevezni: %s (%s)"
 #: ../add.c:577 ../add.c:621
 #, c-format
 msgid "could not copy %s to %s (%s)"
-msgstr "nem sikerült másolni: %s (%s)"
+msgstr "nem sikerült másolni: %s-t ide: %s (%s)"
 
 #: ../add.c:578
 #, c-format
 msgid "error: could not copy %s to %s (%s)"
-msgstr "hiba: nem sikerült másolni: %s (%s)"
+msgstr "hiba: nem sikerült másolni: %s-t ide: %s (%s)"
 
 #: ../add.c:582
 #, c-format
@@ -217,7 +217,7 @@ msgstr "%s kifejtése %s.pacnew néven"
 #: ../add.c:644
 #, c-format
 msgid "warning: extracting %s%s as %s"
-msgstr "figyelmeztetés: %s kifejtése %s.pacnew néven"
+msgstr "figyelmeztetés: %s%s kifejtése %s.pacnew néven"
 
 #: ../add.c:658
 #, c-format
@@ -737,7 +737,7 @@ msgstr "a PM_OPT_IGNOREPKG lista ürítve"
 #: ../handle.c:197
 #, c-format
 msgid "PM_OPT_USESYSLOG set to '%d'"
-msgstr "PM_OPT_USESYSLOG beállítva a '%s' értékre"
+msgstr "PM_OPT_USESYSLOG beállítva a '%d' értékre"
 
 #: ../handle.c:207
 #, c-format
@@ -786,7 +786,7 @@ msgstr "rossz csomagfájl itt: %s"
 #: ../package.c:371
 #, c-format
 msgid "missing package info file in %s"
-msgstr ""
+msgstr "hiányzó csomaginformáció-fájl ebben: %s"
 
 #: ../remove.c:68
 #, c-format
@@ -870,7 +870,7 @@ msgstr "nem sikerült eltávolítani a %s-%s adatbázis-bejegyzést"
 #: ../remove.c:260
 #, c-format
 msgid "could not remove entry '%s' from cache"
-msgstr "nem sikerült eltávolítani a %s-%s bejegyzést a gyorsítótárból"
+msgstr "nem sikerült eltávolítani a '%s' bejegyzést a gyorsítótárból"
 
 #: ../remove.c:300
 #, c-format
