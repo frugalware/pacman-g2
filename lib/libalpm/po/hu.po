@@ -1042,12 +1042,12 @@ msgstr "nem sikerült md5 vagy sha1 ellenõrzõ-összeget kapni a '%s' csomag számár
 #: ../sync.c:833
 #, c-format
 msgid "archive %s was corrupted (bad MD5 or SHA1 checksum)\n"
-msgstr "a %s archívum sérült volt (rossz MD5 vagy SHA1 ellenõrzõösszeg)"
+msgstr "a %s archívum sérült volt (rossz MD5 vagy SHA1 ellenõrzõösszeg)\n"
 
 #: ../sync.c:835
 #, c-format
 msgid "archive %s is corrupted (bad MD5 or SHA1 checksum)\n"
-msgstr "a %s archívum sérült (rossz MD5 vagy SHA1 ellenõrzõösszeg)"
+msgstr "a %s archívum sérült (rossz MD5 vagy SHA1 ellenõrzõösszeg)\n"
 
 #: ../sync.c:855
 msgid "could not create removal transaction"
