@@ -932,7 +932,7 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 
 	/* propagate replaced packages' requiredby fields to their new owners */
 	if(replaces) {
-		_alpm_log(PM_LOG_FLOW1, _("updating database for replaced packages dependencies"));
+		_alpm_log(PM_LOG_FLOW1, _("updating database for replaced packages' dependencies"));
 		for(i = trans->packages; i; i = i->next) {
 			pmsyncpkg_t *sync = i->data;
 			if(sync->type == PM_SYNC_TYPE_REPLACE) {
