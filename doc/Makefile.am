@@ -16,6 +16,7 @@ endif
 
 clean:
 	rm -rf html/*
+	rm -rf hu/*.8
 
 man_MANS = pacman.8 makepkg.8 libalpm.3
 
