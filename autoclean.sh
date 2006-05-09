@@ -26,6 +26,7 @@ rm -rf doc/html/*
 rm -rf doc/man3/*
 rm -rf compile
 rm -rf libtool
+rm -rf mkinstalldirs
 rm -rf scripts/.deps/
 rm -rf scripts/Makefile.in
 rm -rf etc/Makefile.in
@@ -37,6 +38,8 @@ rm -rf etc/pacman.d/extra-current
 rm -rf etc/pacman.d/frugalware
 rm -rf etc/pacman.d/frugalware-current
 rm -f dist/FrugalBuild
+rm -f dist/pacman-*.tar.gz
+rm -f dist/pacman-*.fpm
 
 rm -rf src/pacman/po/Makefile
 rm -rf src/pacman/po/Makefile.in
