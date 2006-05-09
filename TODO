@@ -21,6 +21,32 @@ verbose mode, which usage for the library log callback, debug levels, ...)
 
 - add .lastupdate files support for "files" db downloads
 
+TRANSLATION
+===========
+
+po files
+--------
+cs.po - mail sent
+es.po - created by Matt, pending
+hu.po - we need somebody who'll do the work
+fr.po - mail sent
+nl.po - mail sent
+pl_PL.po - mail sent
+we need to mail them:
+pt_BR.po
+pt_PT.po
+ru.po
+sv.po
+zh_CN.po
+
+manpages
+--------
+we need to mail them:
+es
+hu - we need somebody who'll do the work
+pl_PL
+pt_BR
+zh_CN
 
 ADDITIONAL IDEAS FOR PERFORMANCE IMPROVEMENT
 ============================================
