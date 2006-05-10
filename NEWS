@@ -1,5 +1,7 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+2.8.88.28     - added gettext support
+              - added German and Hungarian translation for libalpm and pacman
 2.9.99.27     - scripts: cleanup, they now require util.sh from FST
               - makepkg: handle spaces in source filenames
               - makepkg: spelling fixes
