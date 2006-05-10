@@ -23,7 +23,7 @@ msgid ""
 "       you can remove %s\n"
 msgstr ""
 "       ha biztos, hogy nem fut egy csomagkezelõ, abban az esetben\n"
-"       eltávolíthatja a %s fáljt\n"
+"       eltávolíthatja a %s fájlt\n"
 
 #. and add targets to it
 #: ../add.c:76
@@ -33,7 +33,7 @@ msgstr "csomagadat betöltése... "
 #: ../add.c:79 ../remove.c:99
 #, c-format
 msgid "failed to add target '%s' (%s)\n"
-msgstr "nemsikerült a '%s' célt hozzáadni (%s)\n"
+msgstr "nem sikerült a '%s' célt hozzáadni (%s)\n"
 
 #: ../add.c:84
 msgid "done."
@@ -42,7 +42,7 @@ msgstr "kész."
 #: ../add.c:91 ../remove.c:109 ../sync.c:546
 #, c-format
 msgid "failed to prepare transaction (%s)\n"
-msgstr "nemsikerült elõkészíteni a tranzakciót (%s)\n"
+msgstr "nem sikerült elõkészíteni a tranzakciót (%s)\n"
 
 #: ../add.c:96
 #, c-format
@@ -79,7 +79,7 @@ msgstr "nem sikerült végrehajtani a tranzakciót (%s)\n"
 #: ../add.c:154 ../remove.c:159 ../sync.c:454 ../sync.c:795
 #, c-format
 msgid "failed to release transaction (%s)\n"
-msgstr "nem sikerült lezárni a tranzackiót (%s)\n"
+msgstr "nem sikerült lezárni a tranzakciót (%s)\n"
 
 #: ../conf.c:102
 #, c-format
@@ -225,7 +225,7 @@ msgstr "beállítások: proxyport: %u\n"
 #: ../conf.c:338 ../conf.c:353
 #, c-format
 msgid "could not allocate %d bytes\n"
-msgstr "nemsikerült allokálni %d bájtot\n"
+msgstr "nem sikerült allokálni %d bájtot\n"
 
 #: ../conf.c:359
 #, c-format
@@ -250,7 +250,7 @@ msgstr "cél hozzáadása: %s\n"
 #: ../deptest.c:90
 #, c-format
 msgid "could not add target (%s)\n"
-msgstr "nemsikerült hozzáadni a célt (%s)\n"
+msgstr "nem sikerült hozzáadni a célt (%s)\n"
 
 #: ../deptest.c:110
 #, c-format
@@ -284,11 +284,11 @@ msgstr "a névtelen bejelentkezés sikertelen\n"
 #: ../download.c:219
 #, c-format
 msgid "could not cwd to %s: %s\n"
-msgstr "nemsikerült könyvtárt váltani a %s címe: %s\n"
+msgstr "nem sikerült könyvtárt váltani a %s címe: %s\n"
 
 #: ../download.c:225
 msgid "failed to set passive mode\n"
-msgstr "nemsikerült beállítani a passzív módot\n"
+msgstr "nem sikerült beállítani a passzív módot\n"
 
 #: ../download.c:228
 msgid "FTP passive mode not set\n"
@@ -362,7 +362,7 @@ msgstr "a %s másolása ide: %s/%s\n"
 #: ../download.c:486
 #, c-format
 msgid "failed copying %s\n"
-msgstr "nemsikerült másolni a következõt: %s\n"
+msgstr "nem sikerült másolni a következõt: %s\n"
 
 #: ../download.c:502
 msgid "] 100%    LOCAL "
@@ -499,7 +499,7 @@ msgstr "Ismeretlen\n"
 
 #: ../package.c:77
 msgid "Provides       :"
-msgstr "Szolgáltaja    :"
+msgstr "Szolgáltatja    :"
 
 #: ../package.c:78
 msgid "Depends On     :"
@@ -656,7 +656,7 @@ msgid ""
 "use '%s --help' with other options for more syntax\n"
 msgstr ""
 "\n"
-"használja a '%s --help'-et más opciókkal további szintakszishoz\n"
+"használja a '%s --help'-et más opciókkal további szintaxishoz\n"
 
 #: ../pacman.c:105
 #, c-format
@@ -820,7 +820,7 @@ msgstr ""
 #: ../pacman.c:149
 #, c-format
 msgid "  -s, --search        search remote repositories for matching strings\n"
-msgstr "  -s, --search        keresés a távoli csomagadatbáziban\n"
+msgstr "  -s, --search        keresés a távoli csomagadatbázisban\n"
 
 #: ../pacman.c:150
 #, c-format
@@ -870,7 +870,7 @@ msgstr ""
 msgid ""
 "      --noscriptlet   do not execute the install scriptlet if there is any\n"
 msgstr ""
-"      --noscriptlet   ne futtassa le a telepítési szkriptlet ha van olyan\n"
+"      --noscriptlet   ne futtassa le a telepítési szkriptet ha van olyan\n"
 
 #: ../pacman.c:159
 #, c-format
@@ -895,7 +895,7 @@ msgstr "                       Ezt a programot bárki a General Public License-be
 #: ../pacman.c:175
 #, c-format
 msgid "                       the terms of the GNU General Public License\n"
-msgstr "                       foglaltak alapján szabadon terjeszheti\n"
+msgstr "                       foglaltak alapján szabadon terjesztheti\n"
 
 #: ../pacman.c:356
 msgid "bad root path"
@@ -1097,7 +1097,7 @@ msgstr "szinkronizálás: új módosítási dátum a %s számára: %s\n"
 #: ../sync.c:201
 #, c-format
 msgid "failed to update %s (%s)\n"
-msgstr "nem sikerült frissiteni a következõt: %s (%s)\n"
+msgstr "nem sikerült frissíteni a következõt: %s (%s)\n"
 
 #: ../sync.c:295
 #, c-format
@@ -1244,7 +1244,7 @@ msgstr "nem létezik a %s gyorsítótár.  létrehozás...\n"
 #: ../sync.c:715
 #, c-format
 msgid "warning: no %s cache exists.  creating..."
-msgstr "warning: no %s cache exists.  creating..."
+msgstr "figyelmeztetés: nem létezik a %s gyorsítótár.  létrehozás...\n"
 
 #. couldn't mkdir the cache directory, so fall back to /tmp and unlink
 #. * the package afterwards.
@@ -1260,7 +1260,7 @@ msgstr "figyelmeztetés: nem sikerült létrehozni a csomag-gyorsítótárat, a /tmp h
 #: ../sync.c:731
 #, c-format
 msgid "failed to retrieve some files from %s\n"
-msgstr "nem sikerült letölteni néheny fájlt a %s repóból\n"
+msgstr "nem sikerült letölteni néhány fájlt a %s repóból\n"
 
 #: ../trans.c:54
 msgid "checking dependencies... "
@@ -1272,7 +1272,7 @@ msgstr "fájlütközések vizsgálata... "
 
 #: ../trans.c:60
 msgid "resolving dependencies... "
-msgstr "függõságek feloldása... "
+msgstr "függõségek feloldása... "
 
 #: ../trans.c:63
 msgid "looking for inter-conflicts... "
