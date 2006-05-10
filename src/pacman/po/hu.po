@@ -69,6 +69,7 @@ msgid ""
 "\n"
 "errors occurred, no packages were upgraded.\n"
 msgstr ""
+"\n"
 "hibák léptek fel, nem frissült csomag.\n"
 
 #: ../add.c:147 ../remove.c:149 ../sync.c:746
@@ -89,7 +90,7 @@ msgstr "beállítások: új szekció '%s'\n"
 #: ../conf.c:104
 #, c-format
 msgid "config: line %d: bad section name\n"
-msgstr "beállítások: %s. sor: rossz szekciónév\n"
+msgstr "beállítások: %d. sor: rossz szekciónév\n"
 
 #: ../conf.c:108
 #, c-format
@@ -230,7 +231,7 @@ msgstr "nem sikerült allokálni %d bájtot\n"
 #: ../conf.c:359
 #, c-format
 msgid "config: line %d: protocol %s is not supported\n"
-msgstr "beállítások: %d. sor: a %d protokoll nem támogatott\n"
+msgstr "beállítások: %d. sor: a %s protokoll nem támogatott\n"
 
 #. add to the list
 #: ../conf.c:363
@@ -381,7 +382,7 @@ msgstr "nem sikerült letölteni: %s\n"
 #: ../list.c:143 ../list.c:171
 #, c-format
 msgid "None\n"
-msgstr "Nincs"
+msgstr "Nincs\n"
 
 #: ../log.c:51
 #, c-format
@@ -411,7 +412,7 @@ msgstr "információ2"
 #: ../log.c:66
 #, c-format
 msgid "function"
-msgstr ""
+msgstr "függvény"
 
 #: ../log.c:152
 msgid "Y"
@@ -596,6 +597,8 @@ msgid ""
 "\n"
 "MD5 Sum           : %s"
 msgstr ""
+"\n"
+"MD5 Sum           : %s"
 
 #: ../package.c:157
 #, c-format
@@ -603,6 +606,8 @@ msgid ""
 "\n"
 "SHA1 Sum          : %s"
 msgstr ""
+"\n"
+"SHA1 Sum          : %s"
 
 #: ../package.c:186
 #, c-format
@@ -779,8 +784,8 @@ msgstr ""
 
 #: ../pacman.c:138
 #, c-format
-msgid "                      hogy az adatbázisban keresne\n"
-msgstr ""
+msgid "                      looking in the database\n"
+msgstr "                      hogy az adatbázisban keresne\n"
 
 #: ../pacman.c:139
 #, c-format
@@ -945,11 +950,11 @@ msgstr "nem sikerült regisztrálni a 'local' adatbázist (%s)\n"
 
 #: ../pacman.c:558
 msgid "no targets specified (use -h for help)\n"
-msgstr "nincs megadva egyetlen cél se (használja a '-h'-t segítségért)"
+msgstr "nincs megadva egyetlen cél se (használja a '-h'-t segítségért)\n"
 
 #: ../pacman.c:571
 msgid "no operation specified (use -h for help)\n"
-msgstr "nincs megadva egyetlen mûvelet se (használja a '-h'-t segítségért)"
+msgstr "nincs megadva egyetlen mûvelet se (használja a '-h'-t segítségért)\n"
 
 #: ../query.c:56
 msgid "no file was specified for --owns\n"
@@ -992,7 +997,7 @@ msgstr "nem sikerült betölteni a '%s' csomagot (%s)\n"
 #: ../query.c:212 ../query.c:256
 #, c-format
 msgid "package \"%s\" not found\n"
-msgstr "a \"%s\" csomag nem található"
+msgstr "a \"%s\" csomag nem található\n"
 
 #: ../remove.c:64 ../sync.c:498
 #, c-format
@@ -1072,12 +1077,12 @@ msgstr "nemsikerült létrehozni az új gyorsítótár könyvtárát\n"
 #: ../sync.c:153 ../trans.c:69 ../trans.c:83 ../trans.c:94 ../trans.c:107
 #: ../trans.c:119
 msgid "done.\n"
-msgstr "kész."
+msgstr "kész.\n"
 
 #: ../sync.c:177
 #, c-format
 msgid "failed to get lastupdate time for %s (no big deal)\n"
-msgstr "nem sikerült megkapni az utolsó módosítási idõpontját a következõnek: %s (nincs sok esély)"
+msgstr "nem sikerült megkapni az utolsó módosítási idõpontját a következõnek: %s (nincs sok esély)\n"
 
 #: ../sync.c:190
 #, c-format
@@ -1131,6 +1136,7 @@ msgid ""
 "\n"
 ":: pacman has detected a newer version of the \"pacman\" package.\n"
 msgstr ""
+"\n"
 ":: a pacman egy újabb verzióját észlelte a \"pacman\" csomagnak.\n"
 
 #: ../sync.c:449
@@ -1244,7 +1250,7 @@ msgstr "nem létezik a %s gyorsítótár.  létrehozás...\n"
 #: ../sync.c:715
 #, c-format
 msgid "warning: no %s cache exists.  creating..."
-msgstr "figyelmeztetés: nem létezik a %s gyorsítótár.  létrehozás...\n"
+msgstr "figyelmeztetés: nem létezik a %s gyorsítótár.  létrehozás..."
 
 #. couldn't mkdir the cache directory, so fall back to /tmp and unlink
 #. * the package afterwards.
