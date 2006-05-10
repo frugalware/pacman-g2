@@ -28,7 +28,7 @@ msgstr ""
 #. and add targets to it
 #: ../add.c:76
 msgid "loading package data... "
-msgstr "csomagadat betöltése... "
+msgstr "csomag adatainak betöltése... "
 
 #: ../add.c:79 ../remove.c:99
 #, c-format
