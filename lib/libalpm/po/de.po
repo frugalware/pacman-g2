@@ -24,17 +24,17 @@ msgstr ""
 #: ../add.c:121
 #, c-format
 msgid "loading target '%s'"
-msgstr "Lade Ziel '%s'"
+msgstr "Lade Paket '%s'"
 
 #: ../add.c:163
 #, c-format
 msgid "replacing older version %s-%s by %s in target list"
-msgstr "Ersetze ältere Version %s-%s durch %s in der Zielliste"
+msgstr "Ersetze ältere Version %s-%s durch %s in der Paketliste"
 
 #: ../add.c:172
 #, c-format
 msgid "newer version %s-%s is in the target list -- skipping"
-msgstr "Neuere Version %s-%s ist in der Zielliste -- Überspringe"
+msgstr "Neuere Version %s-%s ist in der Paketliste -- Überspringe"
 
 #: ../add.c:179
 #, c-format
@@ -503,7 +503,7 @@ msgstr "Lade ALL Informationen für '%s'"
 #: ../deps.c:525
 #, c-format
 msgid "adding '%s' to the targets"
-msgstr "Füge '%s' zu den Zielen hinzu"
+msgstr "Füge '%s' zu den Paketen hinzu"
 
 #: ../deps.c:567
 #, c-format
@@ -521,7 +521,7 @@ msgstr ""
 #: ../deps.c:608
 #, c-format
 msgid "dependency %s is already in the target list -- skipping"
-msgstr "Abhängigkeit %s ist bereits in Zielliste -- Überspringe"
+msgstr "Abhängigkeit %s ist bereits in Paketliste -- Überspringe"
 
 #: ../deps.c:628
 #, c-format
@@ -613,7 +613,7 @@ msgstr ""
 
 #: ../error.c:75
 msgid "duplicate target"
-msgstr "Doppelte Ziele"
+msgstr "Doppelte Pakete"
 
 #: ../error.c:79
 msgid "transaction not prepared"
@@ -1000,7 +1000,7 @@ msgstr ""
 #: ../sync.c:584 ../sync.c:621
 #, c-format
 msgid "removing '%s' from target list"
-msgstr "Entferne '%s' von Zielliste"
+msgstr "Entferne '%s' von Paketliste"
 
 #. It's a conflict -- see if they want to remove it
 #.

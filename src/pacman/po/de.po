@@ -33,7 +33,7 @@ msgstr "Lade Paketdaten ..."
 #: ../add.c:79 ../remove.c:99
 #, c-format
 msgid "failed to add target '%s' (%s)\n"
-msgstr "Konnte Ziel '%s' nicht hinzufügen (%s)\n"
+msgstr "Konnte Paket '%s' nicht hinzufügen (%s)\n"
 
 #: ../add.c:84
 msgid "done."
@@ -57,7 +57,7 @@ msgstr ":: %s: Steht im Konflikt mit %s"
 #: ../add.c:120 ../sync.c:753
 #, c-format
 msgid "%s%s exists in \"%s\" (target) and \"%s\" (target)"
-msgstr "%s%s existiert in \"%s\" (Ziel) und \"%s\" (Ziel)"
+msgstr "%s%s existiert in \"%s\" (Paket) und \"%s\" (Paket)"
 
 #: ../add.c:127 ../sync.c:760
 #, c-format
@@ -249,12 +249,12 @@ msgstr ""
 #: ../deptest.c:87
 #, c-format
 msgid "add target %s\n"
-msgstr "Ziel hinzufügen %s\n"
+msgstr "Paket hinzufügen %s\n"
 
 #: ../deptest.c:90
 #, c-format
 msgid "could not add target (%s)\n"
-msgstr "Konnte Ziel nicht hinzufügen (%s)\n"
+msgstr "Konnte Paket nicht hinzufügen (%s)\n"
 
 #: ../deptest.c:110
 #, c-format
@@ -956,7 +956,7 @@ msgstr "Konnte Option CACHEDIR nicht setzen (%s)\n"
 
 #: ../pacman.c:545
 msgid "Targets:"
-msgstr "Ziele:"
+msgstr "Pakete:"
 
 #: ../pacman.c:551
 #, c-format
@@ -965,7 +965,7 @@ msgstr ""
 
 #: ../pacman.c:558
 msgid "no targets specified (use -h for help)\n"
-msgstr "Keine Ziele angegeben (benutzen Sie -h für Hilfe)\n"
+msgstr "Keine Pakete angegeben (benutzen Sie -h für Hilfe)\n"
 
 #: ../pacman.c:571
 msgid "no operation specified (use -h for help)\n"
@@ -1049,7 +1049,7 @@ msgid ""
 "Targets:"
 msgstr ""
 "\n"
-"Ziele:"
+"Pakete:"
 
 #. get confirmation
 #: ../remove.c:139
@@ -1169,7 +1169,7 @@ msgstr ":: Zuerst pacman aktuallisieren? [J/n] "
 #: ../sync.c:467 ../sync.c:487
 #, c-format
 msgid "could not add target '%s': %s\n"
-msgstr "Konnte Ziel '%s' nicht hinzufügen: %s\n"
+msgstr "Konnte Paket '%s' nicht hinzufügen: %s\n"
 
 #: ../sync.c:504
 msgid ":: Install whole content? [Y/n] "
@@ -1183,7 +1183,7 @@ msgstr ":: %s aus Gruppe %s installieren? [J/n] "
 #: ../sync.c:534
 #, c-format
 msgid "could not add target '%s': not found in sync db\n"
-msgstr "Konnte Ziel '%s' nicht hinzufügen: Nicht in sync db gefunden\n"
+msgstr "Konnte Paket '%s' nicht hinzufügen: Nicht in sync db gefunden\n"
 
 #: ../sync.c:552
 msgid "requires"
@@ -1207,7 +1207,7 @@ msgid ""
 "Targets: "
 msgstr ""
 "\n"
-"Ziele:   "
+"Pakete:   "
 
 #: ../sync.c:633
 #, c-format
