@@ -28,7 +28,7 @@ msgstr ""
 #. and add targets to it
 #: ../add.c:76
 msgid "loading package data... "
-msgstr "Lade Paketdaten ..."
+msgstr "Lade Paketdaten ... "
 
 #: ../add.c:79 ../remove.c:99
 #, c-format
@@ -1140,7 +1140,7 @@ msgstr "Synchronisiere Paketlisten"
 
 #: ../sync.c:429
 msgid ":: Starting local database upgrade...\n"
-msgstr ":: Starte aktuallisierung der lokalen Datanbank ...\n"
+msgstr ":: Starte Aktuallisierung der lokalen Datanbank ...\n"
 
 #: ../sync.c:430
 msgid "starting full system upgrade"
@@ -1293,7 +1293,7 @@ msgstr "Prüfe nach Dateikonflikten ... "
 
 #: ../trans.c:60
 msgid "resolving dependencies... "
-msgstr "Löse Abhängigkeiten auf ..."
+msgstr "Löse Abhängigkeiten auf ... "
 
 #: ../trans.c:63
 msgid "looking for inter-conflicts... "
@@ -1331,7 +1331,7 @@ msgstr "Aktuallisiert %s (%s -> %s)"
 
 #: ../trans.c:116
 msgid "checking package integrity... "
-msgstr "Prüfe Paketintegrität ..."
+msgstr "Prüfe Paketintegrität ... "
 
 #: ../trans.c:130
 #, c-format
