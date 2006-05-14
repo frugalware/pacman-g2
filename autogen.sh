@@ -13,6 +13,8 @@ if [ "$1" == "--dist" ]; then
 	rm _darcs/current/ChangeLog
 	if [ "$release" ]; then
 		dest="../releases"
+		gpg -ba -u 20F55619 pacman-$ver.tar.gz
+		mv pacman-$ver.tar.gz.asc $dest
 	else
 		dest="dist"
 	fi
