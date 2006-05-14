@@ -250,6 +250,9 @@ handledeps() {
 			. $i &>/dev/null
 		fi
 	done
+	# some applications (eg, blackbox) will not build with some languages
+	unset LC_ALL LANG
+
 	return $missingdeps
 }
 
@@ -939,6 +942,8 @@ if [ "`id -u`" != "0" ]; then
 	fi
 fi
 
+# some applications (eg, blackbox) will not build with some languages
+unset LC_ALL LANG
 msg "Making package: $pkgname $pkgver-$pkgrel (`date`)"
 
 unset deplist makedeplist
@@ -966,9 +971,6 @@ elif [ "$NODEPS" = "1" ]; then
 else
 	warning "pacman was not found in PATH. skipping dependency checks."
 fi
-
-# some applications (eg, blackbox) will not build with some languages
-unset LC_ALL LANG
 
 cd $startdir
 
