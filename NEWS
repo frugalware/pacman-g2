@@ -1,6 +1,9 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
-2.8.88.28     - added gettext support
+3.2.9         - seems that the original pacman3's release is dealied so it's
+                no good in waiting for it. changed the versioning scheme to
+                our usual x.y.z
+2.8.99.28     - added gettext support
               - added German and Hungarian translation for libalpm and pacman
 2.9.99.27     - scripts: cleanup, they now require util.sh from FST
               - makepkg: handle spaces in source filenames
