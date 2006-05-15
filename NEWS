@@ -3,6 +3,10 @@ VERSION         DESCRIPTION
 3.2.9         - seems that the original pacman3's release is dealied so it's
                 no good in waiting for it. changed the versioning scheme to
                 our usual x.y.z
+              - i18n fixes:
+                - in the german translation
+                - in makepkg
+              - gpg support in makepkg
 2.8.99.28     - added gettext support
               - added German and Hungarian translation for libalpm and pacman
 2.9.99.27     - scripts: cleanup, they now require util.sh from FST
