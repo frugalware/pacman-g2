@@ -285,6 +285,14 @@ generate sha1sums, first build using the FrugalBuild then run
 \fIsha1sums\fP line from the bottom to an appropriate location.
 
 .TP
+.B signatures \fI(array)\fP
+If this field is present, it should contain an array of gpg signatures required
+to validate the source files. Where there is no signature available just leave
+it empty, like:
+
+signatures=(${source[0]}.asc '')
+
+.TP
 .B groups \fI(array)\fP
 This is an array of symbolic names that represent groups of packages, allowing
 you to install multiple packages by requesting a single target.  For example,
