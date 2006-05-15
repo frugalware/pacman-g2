@@ -1,6 +1,6 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
-3.2.9         - seems that the original pacman3's release is dealied so it's
+3.2.9         - seems that the original pacman3's release is delayed so it's
                 no good in waiting for it. changed the versioning scheme to
                 our usual x.y.z
               - i18n fixes:
