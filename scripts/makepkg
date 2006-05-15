@@ -1030,7 +1030,8 @@ fi
 msg "Retrieving Sources..."
 mkdir -p src
 cd $startdir/src
-for netfile in "${source[@]}"; do
+for netfile in "${source[@]}" "${signatures[@]}"; do
+	[ -z "$netfile" ] && continue
 	file=`strip_url "$netfile"`
 	if [ -f "../$file" ]; then
 		msg "    Found $file in build dir"
@@ -1117,8 +1118,46 @@ if [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 				warning "The md5sum program is missing.  Cannot verify source files!"
 				sleep 1
 			fi
-		else
-			warning "MD5sums and SHA1sums are missing or incomplete.  Cannot verify source integrity."
+		elif [ ${#signatures[@]} -ne ${#source[@]} ]; then
+			warning "MD5sums, SHA1sums and signatures are missing or incomplete."
+			plain "Cannot verify source integrity."
+		fi
+		# gpg validation
+		if [ ${#signatures[@]} -eq ${#source[@]} ]; then
+			if [ `type -p gpg` ]; then
+				if [ ! -d ~/.gnupg ]; then
+					msg "Configuring gpg..."
+					gpg --list-keys
+					echo "keyserver-options auto-key-retrieve" >>~/.gnupg/gpg.conf
+				fi
+				msg "Validating source files with gpg"
+				errors=0
+				idx=0
+				for netfile in "${source[@]}"; do
+					file=`strip_url "$netfile"`
+					sig=`strip_url "${signatures[$idx]}"`
+					echo -n "    $file ... " >&2
+					if [ ! -z "$sig" ]; then
+						gpg --batch --verify $sig $file >/dev/null 2>&1
+						if [ $? -ne 0 ]; then
+							echo "FAILED" >&2
+							errors=1
+						else
+							echo "Passed" >&2
+						fi
+					else
+						echo "Skipping" >&2
+					fi
+					idx=$(($idx+1))
+				done
+				if [ $errors -gt 0 ]; then
+					error "One or more files did not pass the validity check!"
+					exit 1
+				fi
+			else
+				warning "The gpg program is missing.  Cannot verify source files!"
+				sleep 1
+			fi
 		fi
 
 		# extract sources
