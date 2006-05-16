@@ -67,7 +67,7 @@ msgstr "Suche nach Dateikonflikten"
 #: ../add.c:328
 #, c-format
 msgid "upgrading package %s-%s"
-msgstr "Aktuallisiere Paket %s-%s"
+msgstr "Aktualisiere Paket %s-%s"
 
 #: ../add.c:335 ../alpm.c:467 ../conflict.c:271 ../conflict.c:301
 #, c-format
@@ -212,7 +212,7 @@ msgstr "%s ist in NoUpgrade -- Überspringe"
 #: ../add.c:643
 #, c-format
 msgid "extracting %s as %s.pacnew"
-msgstr "Entpackage %s als %s.pacnew"
+msgstr "Entpacke %s als %s.pacnew"
 
 #: ../add.c:644
 #, c-format
@@ -235,7 +235,7 @@ msgstr "Fehler traten auf, während %s %s"
 
 #: ../add.c:702 ../add.c:704
 msgid "upgrading"
-msgstr "der Aktuallisierung von"
+msgstr "der Aktualisierung von"
 
 #: ../add.c:702 ../add.c:704
 msgid "installing"
@@ -249,7 +249,7 @@ msgstr "Füge '%s' zum requiredby Feld für '%s' hinzu"
 #. remove the package from the database
 #: ../add.c:736 ../remove.c:254
 msgid "updating database"
-msgstr "Aktuallisieren Datenbank"
+msgstr "Aktualisiere Datenbank"
 
 #: ../add.c:737
 #, c-format
@@ -259,12 +259,12 @@ msgstr "Füge Datenbankeintrag '%s' hinzu"
 #: ../add.c:739
 #, c-format
 msgid "could not update database entry %s-%s"
-msgstr "Konnte Datenbankeintrag %s-%s nicht aktuallisieren"
+msgstr "Konnte Datenbankeintrag %s-%s nicht aktualisieren"
 
 #: ../add.c:741
 #, c-format
 msgid "error updating database for %s-%s!"
-msgstr "Fehler beim aktuallisieren der Datenbank für %s-%s!"
+msgstr "Fehler beim aktualisieren der Datenbank für %s-%s!"
 
 #: ../add.c:745
 #, c-format
@@ -274,7 +274,7 @@ msgstr "Konnte Eintrag '%s' nicht zum Cache hinzufügen"
 #. update dependency packages' REQUIREDBY fields
 #: ../add.c:750 ../remove.c:264
 msgid "updating dependency packages 'requiredby' fields"
-msgstr "Aktuallisiere 'requiredby' Felder abhängiger Packete"
+msgstr "Aktualisiere 'requiredby' Felder abhängiger Pakete"
 
 #: ../add.c:771 ../remove.c:292
 #, c-format
@@ -284,7 +284,7 @@ msgstr "Konnte Abhängigkeit '%s' nicht finden"
 #: ../add.c:779 ../remove.c:302
 #, c-format
 msgid "could not update 'requiredby' database entry %s-%s"
-msgstr "Konnte 'requiredby' Eintrag %s-%s aktuallisieren"
+msgstr "Konnte 'requiredby' Eintrag %s-%s nicht aktualisieren"
 
 #. run ldconfig if it exists
 #: ../add.c:805 ../remove.c:314
@@ -331,7 +331,7 @@ msgstr "Konnte Datenbankeintrag %s/%s nicht entfernen"
 #: ../alpm.c:330
 #, c-format
 msgid "unpacking %s"
-msgstr "Entpackage %s"
+msgstr "Entpacke %s"
 
 #: ../alpm.c:474
 #, c-format
@@ -593,7 +593,7 @@ msgstr "Konnte Datenbank nicht finden"
 
 #: ../error.c:59
 msgid "could not update database"
-msgstr "Konnte Datenbank nicht aktuallisieren"
+msgstr "Konnte Datenbank nicht aktualisieren"
 
 #: ../error.c:61
 msgid "could not remove database entry"
@@ -791,7 +791,7 @@ msgstr "Fehlende Paketinfodatei in %s"
 #: ../remove.c:68
 #, c-format
 msgid "could not find %s in database"
-msgstr "Konnte %s nicht in der Datebank finden"
+msgstr "Konnte %s nicht in der Datenbank finden"
 
 #: ../remove.c:72
 #, c-format
@@ -806,7 +806,7 @@ msgstr ""
 #: ../remove.c:101
 #, c-format
 msgid "could not find %s in database -- skipping"
-msgstr "Konnte %s nicht in Datebank finden -- Überspringe"
+msgstr "Konnte %s nicht in Datenbank finden -- Überspringe"
 
 #: ../remove.c:119
 msgid "finding removable dependencies"
@@ -875,7 +875,7 @@ msgstr "Konnte Eintrag '%s' nicht aus dem Cache entfernen"
 #: ../remove.c:300
 #, c-format
 msgid "updating 'requiredby' field for package '%s'"
-msgstr "Aktuallisiere 'requiredby' Feld für Paket '%s'"
+msgstr "Aktualisiere 'requiredby' Feld für Paket '%s'"
 
 #. check for "recommended" package replacements
 #: ../sync.c:156
@@ -900,7 +900,7 @@ msgstr ""
 #. match installed packages with the sync dbs and compare versions
 #: ../sync.c:213
 msgid "checking for package upgrades"
-msgstr "Prüfe auf Paketaktuallisierungen"
+msgstr "Prüfe auf Paketaktualisierungen"
 
 #: ../sync.c:225
 #, c-format
@@ -922,7 +922,7 @@ msgstr "%s-%s: Lokale Version ist neuer"
 #: ../sync.c:254
 #, c-format
 msgid "%s-%s: ignoring package upgrade (%s)"
-msgstr "%s-%s: Ignoriere Paketaktuallisierung (%s)"
+msgstr "%s-%s: Ignoriere Paketaktualisierung (%s)"
 
 #. package too new (UpgradeDelay)
 #: ../sync.c:258
@@ -933,7 +933,7 @@ msgstr ""
 #: ../sync.c:262
 #, c-format
 msgid "%s-%s elected for upgrade (%s => %s)"
-msgstr "%s-%s ausgewählt für Aktuallisierung (%s => %s)"
+msgstr "%s-%s ausgewählt für Aktualisierung (%s => %s)"
 
 #. Search provides
 #: ../sync.c:313 ../sync.c:332
@@ -1092,17 +1092,17 @@ msgstr ""
 
 #: ../sync.c:935
 msgid "updating database for replaced packages dependencies"
-msgstr "Aktuallisiere Datenbank für ersetzte Paketabhängigkeiten"
+msgstr "Aktualisiere Datenbank für ersetzte Paketabhängigkeiten"
 
 #: ../sync.c:964
 #, c-format
 msgid "could not update requiredby for database entry %s-%s"
-msgstr "Konnte requiredby für Datenbankeintrag %s-%s nicht aktuallisieren"
+msgstr "Konnte requiredby für Datenbankeintrag %s-%s nicht aktualisieren"
 
 #: ../sync.c:973
 #, c-format
 msgid "could not update new database entry %s-%s"
-msgstr "Konnte neuen Datenbankeintrag %s-%s nicht aktuallisieren"
+msgstr "Konnte neuen Datenbankeintrag %s-%s nicht aktualisieren"
 
 #: ../util.c:205
 #, c-format
