@@ -70,7 +70,7 @@ msgid ""
 "errors occurred, no packages were upgraded.\n"
 msgstr ""
 "\n"
-"Fehler aufgetreten, kein Paket wird aktuallisiert.\n"
+"Fehler aufgetreten, kein Paket wird aktualisiert.\n"
 
 #: ../add.c:147 ../remove.c:149 ../sync.c:746
 #, c-format
@@ -207,8 +207,8 @@ msgid ""
 "Manually update such packages or use a lower value to avoid this problem.\n"
 msgstr ""
 "Warnung: UpgradeDelay ist sehr hoch.\n"
-"Wenn ein Paket oft erneuert wird, wird es niemals aktuallisiert.\n"
-"Aktuallisieren Sie so ein Paket manuell oder benutze Sie einen geringeren "
+"Wenn ein Paket oft erneuert wird, wird es niemals aktualisiert.\n"
+"Aktualisieren Sie so ein Paket manuell oder benutze Sie einen geringeren "
 "Wert um das Problem zu vermeiden.\n"
 
 #: ../conf.c:285 ../conf.c:315 ../conf.c:321
@@ -703,7 +703,7 @@ msgstr ""
 #: ../pacman.c:114
 #, c-format
 msgid "  -k, --dbonly        only remove database entry, do not remove files\n"
-msgstr "  -k, --dbonly        Nur Datenbankeintrag eintfernen, keine Dateien\n"
+msgstr "  -k, --dbonly        Nur Datenbankeintrag entfernen, keine Dateien\n"
 
 #: ../pacman.c:115
 #, c-format
@@ -774,7 +774,7 @@ msgid ""
 "  -m, --foreign       list all packages that were not found in the sync db"
 "(s)\n"
 msgstr ""
-"  -m, --foreign        Listes alle Pakete auf, die nicht in den Sync db(s)\n"
+"  -m, --foreign        Listet alle Pakete auf, die nicht in den Sync db(s)\n"
 "                       gefunden wurden\n"
 
 #: ../pacman.c:136
@@ -841,7 +841,7 @@ msgstr ""
 #: ../pacman.c:150
 #, c-format
 msgid "  -u, --sysupgrade    upgrade all packages that are out of date\n"
-msgstr "  -u, --sysupgrade    Alle veralteten Pakete aktuallisieren\n"
+msgstr "  -u, --sysupgrade    Alle veralteten Pakete aktualisieren\n"
 
 #: ../pacman.c:151
 #, c-format
@@ -849,7 +849,7 @@ msgid ""
 "  -w, --downloadonly  download packages but do not install/upgrade anything\n"
 msgstr ""
 "  -w, --downloadonly  Lade Pakete herunter, aber nichts installieren/"
-"aktuallisieren\n"
+"aktualisieren\n"
 
 #: ../pacman.c:152
 #, c-format
@@ -898,8 +898,8 @@ msgstr "  -v, --verbose       Sei gesprächig\n"
 #, c-format
 msgid "  -r, --root <path>   set an alternate installation root\n"
 msgstr ""
-"  -r, --root <path>   Benutze <path> als Installationsverzeichnis, anselle\n"
-"                      von /\n"
+"  -r, --root <path>   Benutze <path> als Installationsverzeichnis,\n"
+"                      anstelle von /\n"
 
 #: ../pacman.c:161
 #, c-format
@@ -927,7 +927,8 @@ msgstr ""
 #: ../pacman.c:475
 msgid "you cannot perform this operation unless you are root.\n"
 msgstr ""
-"Sie können diese Operation nicht ausführen, solange sie nicht root sind.\n"
+"Sie benötigen root Rechte um diese Operation ausführen zu können\n"
+
 
 #: ../pacman.c:499
 #, c-format
@@ -1117,7 +1118,7 @@ msgstr ""
 #: ../sync.c:201
 #, c-format
 msgid "failed to update %s (%s)\n"
-msgstr "Konnte %s nicht aktuallisieren (%s)\n"
+msgstr "Konnte %s nicht aktualisieren (%s)\n"
 
 #: ../sync.c:295
 #, c-format
@@ -1140,11 +1141,11 @@ msgstr "Synchronisiere Paketlisten"
 
 #: ../sync.c:429
 msgid ":: Starting local database upgrade...\n"
-msgstr ":: Starte Aktuallisierung der lokalen Datanbank ...\n"
+msgstr ":: Starte Aktualisierung der lokalen Datenbank ...\n"
 
 #: ../sync.c:430
 msgid "starting full system upgrade"
-msgstr "Starte komplette Systemaktuallisierung"
+msgstr "Starte komplette Systemaktualisierung"
 
 #: ../sync.c:448
 msgid ""
@@ -1156,15 +1157,15 @@ msgstr ""
 
 #: ../sync.c:449
 msgid ":: It is recommended that you allow pacman to upgrade itself\n"
-msgstr ":: Es wird empfohlen, dass zuerst pacman aktuallisieren und\n"
+msgstr ":: Es wird empfohlen, zuerst pacman zu aktualisieren und\n"
 
 #: ../sync.c:450
 msgid ":: first, then you can re-run the operation with the newer version.\n"
-msgstr ":: danach Ihre Eingabe mit der neueren Version wiederholen.\n"
+msgstr ":: danach Ihre Eingabe mit der neueren Version zu wiederholen.\n"
 
 #: ../sync.c:452
 msgid ":: Upgrade pacman first? [Y/n] "
-msgstr ":: Zuerst pacman aktuallisieren? [J/n] "
+msgstr ":: Zuerst pacman aktualisieren? [J/n] "
 
 #: ../sync.c:467 ../sync.c:487
 #, c-format
@@ -1228,7 +1229,7 @@ msgstr ""
 
 #: ../sync.c:643
 msgid "Proceed with download? [Y/n] "
-msgstr "Download fortsezen? [J/n] "
+msgstr "Download fortsetzen? [J/n] "
 
 #: ../sync.c:651
 msgid ""
@@ -1236,11 +1237,11 @@ msgid ""
 "Beginning upgrade process...\n"
 msgstr ""
 "\n"
-"Beginne Aktuallisierungsprozess ...\n"
+"Beginne Aktualisierungsprozess ...\n"
 
 #: ../sync.c:655
 msgid "Proceed with upgrade? [Y/n] "
-msgstr "Aktuallisierung fortsetzen? [J/n] "
+msgstr "Aktualisierung fortsetzen? [J/n] "
 
 #: ../sync.c:702
 #, c-format
@@ -1289,7 +1290,7 @@ msgstr "Prüfe Abhängigkeiten ... "
 
 #: ../trans.c:57
 msgid "checking for file conflicts... "
-msgstr "Prüfe nach Dateikonflikten ... "
+msgstr "Prüfe auf Dateikonflikte ... "
 
 #: ../trans.c:60
 msgid "resolving dependencies... "
@@ -1322,12 +1323,12 @@ msgstr "Entfernt %s (%s)"
 #: ../trans.c:102
 #, c-format
 msgid "upgrading %s... "
-msgstr "Aktuallisiere %s ... "
+msgstr "Aktualisiere %s ... "
 
 #: ../trans.c:109
 #, c-format
 msgid "upgraded %s (%s -> %s)"
-msgstr "Aktuallisiert %s (%s -> %s)"
+msgstr "Aktualisiert %s (%s -> %s)"
 
 #: ../trans.c:116
 msgid "checking package integrity... "
@@ -1352,12 +1353,12 @@ msgstr ":: %s steht im Konflikt mit %s. %s entfernen? [J/n] "
 #: ../trans.c:151
 #, c-format
 msgid ":: %s-%s: local version is newer. Upgrade anyway? [Y/n] "
-msgstr ":: %s-%s: Lokale Version ist neuer. Trotzdem aktuallisieren? [J/n] "
+msgstr ":: %s-%s: Lokale Version ist neuer. Trotzdem aktualisieren? [J/n] "
 
 #: ../trans.c:161
 #, c-format
 msgid ":: %s-%s: local version is up to date. Upgrade anyway? [Y/n] "
-msgstr ":: %s-%s: Lokale Version ist aktuell. Trotzdem aktuallisieren? [J/n] "
+msgstr ":: %s-%s: Lokale Version ist aktuell. Trotzdem aktualisieren? [J/n] "
 
 #: ../trans.c:171
 #, c-format
@@ -1370,7 +1371,7 @@ msgstr "installiere"
 
 #: ../trans.c:186
 msgid "upgrading"
-msgstr "aktuallisiere"
+msgstr "aktualisiere"
 
 #: ../util.c:178
 #, c-format
