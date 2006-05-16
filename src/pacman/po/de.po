@@ -1208,7 +1208,7 @@ msgid ""
 "Targets: "
 msgstr ""
 "\n"
-"Pakete:   "
+"Pakete:  "
 
 #: ../sync.c:633
 #, c-format
