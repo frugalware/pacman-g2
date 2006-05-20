@@ -192,7 +192,7 @@ msgstr "hiba: nem sikerült telepíteni a %s-t %s-ként: %s"
 #: ../add.c:613
 #, c-format
 msgid "%s installed as %s"
-msgstr "a %s néven %s lett telepítve"
+msgstr "a %s %s néven lett telepítve"
 
 #: ../add.c:614
 #, c-format
