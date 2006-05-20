@@ -58,6 +58,7 @@ typedef struct __pmpkg_t {
 	unsigned char force;
 	time_t date;
 	unsigned char reason;
+	PMList *desc_localized;
 	PMList *license;
 	PMList *replaces;
 	PMList *groups;

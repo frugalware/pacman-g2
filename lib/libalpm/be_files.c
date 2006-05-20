@@ -155,6 +155,9 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 	struct stat buf;
 	char path[PATH_MAX];
 	char line[512];
+	char *lang_tmp;
+	PMList *tmplist;
+	char *foo;
 
 	if(db == NULL || info == NULL || info->name[0] == 0 || info->version[0] == 0) {
 		return(-1);
@@ -180,10 +183,28 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 			}
 			_alpm_strtrim(line);
 			if(!strcmp(line, "%DESC%")) {
-				if(fgets(info->desc, sizeof(info->desc), fp) == NULL) {
-					goto error;
+				while(fgets(line, 512, fp) && strlen(_alpm_strtrim(line))) {
+					info->desc_localized = _alpm_list_add(info->desc_localized, strdup(line));
+				}
+
+				asprintf(&lang_tmp, "%s", setlocale(LC_ALL, ""));
+
+				if(!info->desc_localized->next) {
+				    snprintf(info->desc, 512, "%s", (char*)info->desc_localized->data);
+				} else {
+				    for (tmplist = info->desc_localized; tmplist; tmplist = tmplist->next) {
+					if (tmplist->data && strncmp(tmplist->data, lang_tmp, strlen(lang_tmp))) {
+					    snprintf(info->desc, 512, "%s", (char*)info->desc_localized->data);
+					} else {
+					    foo = strdup(tmplist->data);
+					    snprintf(info->desc, 512, "%s", foo+strlen(lang_tmp)+1);
+					    FREE(foo);
+					    break;
+					}
+				    }
 				}
 				_alpm_strtrim(info->desc);
+				FREE(lang_tmp);
 			} else if(!strcmp(line, "%GROUPS%")) {
 				while(fgets(line, 512, fp) && strlen(_alpm_strtrim(line))) {
 					info->groups = _alpm_list_add(info->groups, strdup(line));
@@ -389,8 +410,11 @@ int _alpm_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 		fprintf(fp, "%%NAME%%\n%s\n\n"
 			"%%VERSION%%\n%s\n\n", info->name, info->version);
 		if(info->desc[0]) {
-			fprintf(fp, "%%DESC%%\n"
-				"%s\n\n", info->desc);
+			fputs("%DESC%\n", fp);
+			for(lp = info->desc_localized; lp; lp = lp->next) {
+				fprintf(fp, "%s\n", (char *)lp->data);
+			}
+			fprintf(fp, "\n");
 		}
 		if(info->groups) {
 			fputs("%GROUPS%\n", fp);

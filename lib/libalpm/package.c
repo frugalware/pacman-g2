@@ -55,6 +55,7 @@ pmpkg_t *_alpm_pkg_new(const char *name, const char *version)
 	pkg->desc[0]        = '\0';
 	pkg->url[0]         = '\0';
 	pkg->license        = NULL;
+	pkg->desc_localized = NULL;
 	pkg->builddate[0]   = '\0';
 	pkg->installdate[0] = '\0';
 	pkg->packager[0]    = '\0';
@@ -107,6 +108,7 @@ pmpkg_t *_alpm_pkg_dup(pmpkg_t *pkg)
 	newpkg->scriptlet  = pkg->scriptlet;
 	newpkg->reason     = pkg->reason;
 	newpkg->license    = _alpm_list_strdup(pkg->license);
+	newpkg->desc_localized = _alpm_list_strdup(pkg->desc_localized);
 	newpkg->requiredby = _alpm_list_strdup(pkg->requiredby);
 	newpkg->conflicts  = _alpm_list_strdup(pkg->conflicts);
 	newpkg->files      = _alpm_list_strdup(pkg->files);
@@ -133,6 +135,7 @@ void _alpm_pkg_free(void *data)
 	}
 
 	FREELIST(pkg->license);
+	FREELIST(pkg->desc_localized);
 	FREELIST(pkg->files);
 	FREELIST(pkg->backup);
 	FREELIST(pkg->depends);
@@ -200,6 +203,7 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 				STRNCPY(info->version, ptr, sizeof(info->version));
 			} else if(!strcmp(key, "PKGDESC")) {
 				STRNCPY(info->desc, ptr, sizeof(info->desc));
+				info->desc_localized = _alpm_list_add(info->desc_localized, strdup(ptr));
 			} else if(!strcmp(key, "GROUP")) {
 				info->groups = _alpm_list_add(info->groups, strdup(ptr));
 			} else if(!strcmp(key, "URL")) {
