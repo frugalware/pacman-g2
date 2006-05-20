@@ -1192,7 +1192,7 @@ msgid ""
 "Targets: "
 msgstr ""
 "\n"
-"Célok: "
+"Célok:   "
 
 #: ../sync.c:633
 #, c-format
