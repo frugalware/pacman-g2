@@ -221,10 +221,8 @@ int pacman_query(list_t *targets)
 								char *haystack;
 								char *needle;
 								haystack = strdup(alpm_pkg_getinfo(pkg, PM_PKG_NAME));
-								strtoupper(haystack);
 								needle = strdup(alpm_pkg_getinfo(info, PM_PKG_NAME));
-								strtoupper(needle);
-								if(strstr(haystack, needle)) {
+								if(!strcmp(haystack, needle)) {
 									match = 1;
 								}
 								FREE(haystack);
