@@ -500,7 +500,7 @@ msgstr "Ismeretlen\n"
 
 #: ../package.c:77
 msgid "Provides       :"
-msgstr "Szolgáltatja    :"
+msgstr "Szolgáltatja   :"
 
 #: ../package.c:78
 msgid "Depends On     :"
