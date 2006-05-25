@@ -180,6 +180,13 @@ static void cleanup(int signum)
 {
 	list_t *lp;
 
+	if(signum==SIGSEGV)
+	{
+		fprintf(stderr, "Internal pacman error: Segmentation fault\n"
+			"Please submit a full bug report, with the given package if appropriate.\n"
+			"See <URL:http://wiki.frugalware.org/Bugs> for instructions.\n");
+		exit(signum);
+	}
 	if(signum != 0 && config->op_d_vertest == 0) {
 		fprintf(stderr, "\n");
 	}
@@ -426,6 +433,7 @@ int main(int argc, char *argv[])
 	/* set signal handlers */
 	signal(SIGINT, cleanup);
 	signal(SIGTERM, cleanup);
+	signal(SIGSEGV, cleanup);
 
 	/* i18n init */
 	lang=getenv("LC_ALL");
