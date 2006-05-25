@@ -489,7 +489,7 @@ int pacman_sync(list_t *targets)
 					goto cleanup;
 				}
 				/* target not found: check if it's a group */
-				for(j = pmc_syncs; j && !grp; j = j->next) {
+				for(j = pmc_syncs; j; j = j->next) {
 					sync_t *sync = j->data;
 					grp = alpm_db_readgrp(sync->db, targ);
 					if(grp) {
