@@ -9,11 +9,6 @@
 #
 [options]
 LogFile     = /var/log/pacman.log
-NoUpgrade   = etc/passwd etc/group etc/shadow etc/sudoers
-NoUpgrade   = etc/fstab etc/raidtab etc/ld.so.conf
-NoUpgrade   = etc/profile.d/lang.sh etc/rc.d/rc.local
-NoUpgrade   = etc/modprobe.conf etc/modules.conf etc/sysconfig/modules
-NoUpgrade   = etc/lilo.conf boot/grub/menu.lst
 HoldPkg     = pacman glibc bash coreutils chkconfig
 #XferCommand = /usr/bin/wget --passive-ftp -c -O %o %u
 
