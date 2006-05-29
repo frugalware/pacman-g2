@@ -479,6 +479,7 @@ int pacman_sync(list_t *targets)
 			if(alpm_trans_addtarget(targ) == -1) {
 				PM_GRP *grp = NULL;
 				list_t *j;
+				int found=0;
 				if(pm_errno == PM_ERR_TRANS_DUP_TARGET) {
 					/* just ignore duplicate targets */
 					continue;
@@ -495,6 +496,7 @@ int pacman_sync(list_t *targets)
 					if(grp) {
 						PM_LIST *pmpkgs;
 						list_t *k, *pkgs;
+						found++;
 						MSG(NL, _(":: group %s:\n"), targ);
 						pmpkgs = alpm_grp_getinfo(grp, PM_GRP_PKGNAMES);
 						/* remove dupe entries in case a package exists in multiple repos */
@@ -516,7 +518,7 @@ int pacman_sync(list_t *targets)
 						FREELIST(pkgs);
 					}
 				}
-				if(grp == NULL) {
+				if(!found) {
 					/* targ not found in sync db, searching for providers... */
 					PM_LIST *k = NULL;
 					PM_PKG *pkg;
