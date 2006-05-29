@@ -1274,7 +1274,7 @@ fi
 # check for existing pkg directory
 if [ -d $startdir/pkg ]; then
 	msg "Removing existing pkg/ directory..."
-	rm -rf $startdir/pkg
+	rm -rf $startdir/pkg*
 fi
 mkdir -p $startdir/pkg
 
