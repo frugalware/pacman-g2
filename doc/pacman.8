@@ -7,7 +7,7 @@ pacman \- package manager utility
 \fBpacman\fP is a \fIpackage management\fP utility that tracks installed
 packages on a linux system.  It has simple dependency support and the ability
 to connect to a remote ftp server and automatically upgrade packages on
-the local system.  pacman package are \fIgzipped tar\fP format.
+the local system.  pacman package are \fIbzipped tar\fP format.
 .SH OPERATIONS
 .TP
 .B "\-A, \-\-add"
@@ -23,7 +23,7 @@ Query the package database.  This operation allows you to
 view installed packages and their files, as well as meta-info
 about individual packages (dependencies, conflicts, install date,
 build date, size).  This can be run against the local package
-database or can be used on individual .tar.gz packages.  See
+database or can be used on individual .fpm packages.  See
 \fBQUERY OPTIONS\fP below.
 .TP
 .B "\-c, \-\-changelog"
