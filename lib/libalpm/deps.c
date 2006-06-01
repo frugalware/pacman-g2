@@ -110,6 +110,7 @@ PMList *_alpm_sortbydeps(PMList *targets, int mode)
 		numtargs++;
 	}
 
+	_alpm_log(PM_LOG_DEBUG, _("started sorting dependencies"));
 	while(change) {
 		PMList *tmptargs = NULL;
 		change = 0;
@@ -157,6 +158,7 @@ PMList *_alpm_sortbydeps(PMList *targets, int mode)
 		FREELISTPTR(newtargs);
 		newtargs = tmptargs;
 	}
+	_alpm_log(PM_LOG_DEBUG, _("sorting dependencies finished"));
 
 	if(mode == PM_TRANS_TYPE_REMOVE) {
 		/* we're removing packages, so reverse the order */
