@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <libintl.h>
+#include <math.h>
 /* pacman */
 #include "util.h"
 #include "log.h"
@@ -112,7 +113,7 @@ PMList *_alpm_sortbydeps(PMList *targets, int mode)
 	while(change) {
 		PMList *tmptargs = NULL;
 		change = 0;
-		if(numscans > numtargs) {
+		if(numscans > sqrt(numtargs)) {
 			_alpm_log(PM_LOG_DEBUG, _("possible dependency cycle detected"));
 			continue;
 		}
