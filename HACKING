@@ -1,7 +1,8 @@
 ./configure options
 ===================
 
-For developers, using --enable-debug --disable-doxygen --disable-fakeroot
+For developers, using
+--enable-debug --disable-doxygen --disable-fakeroot --disable-po4a
 is highly recommended.
 
 How to test pacman?
