@@ -1,5 +1,14 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.3.1         - initial support for pkgdesc localization
+              - bugfix for -Qi and -Qm
+              - fix -Sg for multiple repos
+              - drop the NoUpgrade lines from the default config
+              - makepkg: when removing the pkg dir, remove the subpkgs' pkg
+                dir, too
+              - significant speedup while sorting dependencies with libalpm
+              - fixes for pacman's -r option in pacman and libalpm
+              - initial support for uncompressed package sizes in a sync repo
 3.3.0         - minor fixes for de_DE, hu_HU and tr_TR
 3.2.9         - seems that the original pacman3's release is delayed so it's
                 no good in waiting for it. changed the versioning scheme to
