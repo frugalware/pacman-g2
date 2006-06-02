@@ -757,13 +757,16 @@ void *alpm_trans_getinfo(unsigned char parm)
  */
 int alpm_trans_init(unsigned char type, unsigned int flags, alpm_trans_cb_event event, alpm_trans_cb_conv conv, alpm_trans_cb_progress progress)
 {
+	char path[PATH_MAX];
+
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
 	ASSERT(handle->trans == NULL, RET_ERR(PM_ERR_TRANS_NOT_NULL, -1));
 
 	/* lock db */
-	handle->lckfd = _alpm_lckmk(PM_LOCK);
+	snprintf(path, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
+	handle->lckfd = _alpm_lckmk(path);
 	if(handle->lckfd == -1) {
 		RET_ERR(PM_ERR_HANDLE_LOCK, -1);
 	}
@@ -860,6 +863,7 @@ int alpm_trans_commit(PMList **data)
 int alpm_trans_release()
 {
 	pmtrans_t *trans;
+	char path[PATH_MAX];
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -875,9 +879,10 @@ int alpm_trans_release()
 		close(handle->lckfd);
 		handle->lckfd = -1;
 	}
-	if(_alpm_lckrm(PM_LOCK)) {
-		_alpm_log(PM_LOG_WARNING, _("could not remove lock file %s"), PM_LOCK);
-		alpm_logaction(_("warning: could not remove lock file %s"), PM_LOCK);
+	snprintf(path, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
+	if(_alpm_lckrm(path)) {
+		_alpm_log(PM_LOG_WARNING, _("could not remove lock file %s"), path);
+		alpm_logaction(_("warning: could not remove lock file %s"), path);
 	}
 
 	return(0);
