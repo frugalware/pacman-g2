@@ -719,7 +719,7 @@ int pacman_sync(list_t *targets)
 					/* couldn't mkdir the cache directory, so fall back to /tmp and unlink
 					 * the package afterwards.
 					 */
-					WARN(NL, _("couldn't create package cache, using /tmp instead"));
+					WARN(NL, _("couldn't create package cache, using /tmp instead\n"));
 					alpm_logaction(_("warning: couldn't create package cache, using /tmp instead"));
 					snprintf(ldir, PATH_MAX, "%s/tmp", config->root);
 					if(alpm_set_option(PM_OPT_CACHEDIR, (long)"/tmp") == -1) {
