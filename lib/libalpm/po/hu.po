@@ -1,20 +1,22 @@
+# translation of hu.po to Hungarian
 # Hungarian translations for libalpm package.
 # Copyright (C) 2006 THE libalpm'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the libalpm package.
-# Miklos Vajna <vmiklos@frugalware.org>, 2006.
 #
+# Miklos Vajna <vmiklos@frugalware.org>, 2006.
 msgid ""
 msgstr ""
-"Project-Id-Version: libalpm 0.1.0\n"
+"Project-Id-Version: hu\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-06-03 03:45+0200\n"
-"PO-Revision-Date: 2006-05-09 16:36+0200\n"
-"Last-Translator:  <vmiklos@frugalware.org>\n"
+"PO-Revision-Date: 2006-06-03 03:54+0200\n"
+"Last-Translator: Miklos Vajna <vmiklos@frugalware.org>\n"
 "Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-2\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: KBabel 1.11.2\n"
 
 #: ../add.c:89
 #, c-format
@@ -424,7 +426,7 @@ msgstr "csoportgyorsítótár betöltése a '%s' repó számára"
 #: ../conflict.c:68
 #, c-format
 msgid "checkconflicts: targ '%s' vs db"
-msgstr ""
+msgstr "checkconflicts: cél '%s' vs db"
 
 #. conflict
 #. confict
@@ -437,7 +439,7 @@ msgstr "targs vs db: a %s ütközik a következõvel: %s"
 #: ../conflict.c:104
 #, c-format
 msgid "checkconflicts: targ '%s' vs targs"
-msgstr ""
+msgstr "checkconflicts: cél '%s' vs célok"
 
 #. otp is listed in tp's conflict list
 #: ../conflict.c:113 ../conflict.c:126
@@ -449,7 +451,7 @@ msgstr "targs vs targs: a %s ütközik a következõvel: %s"
 #: ../conflict.c:140
 #, c-format
 msgid "checkconflicts: db vs targ '%s'"
-msgstr ""
+msgstr "checkconflicts: db vs cél '%s'"
 
 #: ../conflict.c:167 ../conflict.c:182
 #, c-format
@@ -469,18 +471,16 @@ msgid "malloc failed: could not allocate %d bytes"
 msgstr "malloc probléma: nem sikerült allokálni %d byte-ot"
 
 #: ../deps.c:113
-#, fuzzy
 msgid "started sorting dependencies"
-msgstr "rendezés függõségek szerint"
+msgstr "a függõségek rendezése elkezdõdött"
 
 #: ../deps.c:118
 msgid "possible dependency cycle detected"
 msgstr "lehetséges körkörös függõségi probléma észlelve"
 
 #: ../deps.c:161
-#, fuzzy
 msgid "sorting dependencies finished"
-msgstr "rendezés függõségek szerint"
+msgstr "a függõségek rendezése befejezõdött"
 
 #: ../deps.c:255 ../deps.c:401
 #, c-format
@@ -499,7 +499,7 @@ msgstr "nem található a \"%s\" csomag és nem is szolgáltatja semmi!"
 
 #: ../deps.c:494
 msgid "dep is NULL!"
-msgstr ""
+msgstr "a dep NULL!"
 
 #: ../deps.c:506
 #, c-format
@@ -524,8 +524,7 @@ msgstr "a %s szolgáltatja a %s függõséget -- kihagyás"
 
 #: ../deps.c:592
 #, c-format
-msgid ""
-"cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"
+msgid "cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"
 msgstr ""
 "nem sikerült a függõségek feloldása a \"%s\" számára (nem található a \"%s\" "
 "a csomagok között)"
@@ -1050,8 +1049,7 @@ msgstr "a '%s' szolgáltatja a következõt: '%s' -- az ütközés megszakítva"
 #: ../sync.c:802 ../sync.c:814
 #, c-format
 msgid "can't get md5 or sha1 checksum for package %s\n"
-msgstr ""
-"nem sikerült md5 vagy sha1 ellenõrzõ-összeget kapni a '%s' csomag számára\n"
+msgstr "nem sikerült md5 vagy sha1 ellenõrzõ-összeget kapni a '%s' csomag számára\n"
 
 #: ../sync.c:833
 #, c-format
@@ -1105,9 +1103,8 @@ msgid "could not commit transaction"
 msgstr "nem sikerült végrehajtani a tranzakciót"
 
 #: ../sync.c:935
-#, fuzzy
 msgid "updating database for replaced packages' dependencies"
-msgstr "a lecserélt csomagok függõségeinek adatbázisának frissítése"
+msgstr "az adatbázis frissítése a lecserélt csomagok függõségei miatt"
 
 #: ../sync.c:964
 #, c-format
@@ -1172,3 +1169,4 @@ msgstr "a waitpit hívás nem sikerült (%s)"
 #, c-format
 msgid "could not remove tmpdir %s"
 msgstr "nem sikerült eltávolítani a %s ideiglenes könyvtárat"
+
