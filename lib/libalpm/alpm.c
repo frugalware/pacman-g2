@@ -440,6 +440,7 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 			case PM_PKG_INSTALLDATE:
 			case PM_PKG_PACKAGER:
 			case PM_PKG_SIZE:
+			case PM_PKG_USIZE:
 			case PM_PKG_REASON:
 			case PM_PKG_MD5SUM:
 			case PM_PKG_SHA1SUM:
@@ -489,6 +490,7 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 		case PM_PKG_INSTALLDATE: data = pkg->installdate; break;
 		case PM_PKG_PACKAGER:    data = pkg->packager; break;
 		case PM_PKG_SIZE:        data = (void *)pkg->size; break;
+		case PM_PKG_USIZE:       data = (void *)pkg->usize; break;
 		case PM_PKG_REASON:      data = (void *)(int)pkg->reason; break;
 		case PM_PKG_LICENSE:     data = pkg->license; break;
 		case PM_PKG_REPLACES:    data = pkg->replaces; break;

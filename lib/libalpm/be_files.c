@@ -257,6 +257,15 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				}
 				_alpm_strtrim(tmp);
 				info->size = atol(tmp);
+			} else if(!strcmp(line, "%USIZE%")) {
+				/* USIZE (uncompressed size) tag only appears in sync repositories,
+				 * not the local one. */
+				char tmp[32];
+				if(fgets(tmp, sizeof(tmp), fp) == NULL) {
+					goto error;
+				}
+				_alpm_strtrim(tmp);
+				info->usize = atol(tmp);
 			} else if(!strcmp(line, "%SHA1SUM%")) {
 				/* SHA1SUM tag only appears in sync repositories,
 				 * not the local one. */
@@ -463,6 +472,10 @@ int _alpm_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 			if(info->size) {
 				fprintf(fp, "%%CSIZE%%\n"
 					"%ld\n\n", info->size);
+			}
+			if(info->usize) {
+				fprintf(fp, "%%USIZE%%\n"
+					"%ld\n\n", info->usize);
 			}
 			if(info->sha1sum) {
 				fprintf(fp, "%%SHA1SUM%%\n"

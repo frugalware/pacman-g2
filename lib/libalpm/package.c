@@ -63,6 +63,7 @@ pmpkg_t *_alpm_pkg_new(const char *name, const char *version)
 	pkg->sha1sum[0]     = '\0';
 	pkg->arch[0]        = '\0';
 	pkg->size           = 0;
+	pkg->usize          = 0;
 	pkg->scriptlet      = 0;
 	pkg->force          = 0;
 	pkg->reason         = PM_PKG_REASON_EXPLICIT;
@@ -104,6 +105,7 @@ pmpkg_t *_alpm_pkg_dup(pmpkg_t *pkg)
 	STRNCPY(newpkg->sha1sum, pkg->sha1sum, PKG_SHA1SUM_LEN);
 	STRNCPY(newpkg->arch, pkg->arch, PKG_ARCH_LEN);
 	newpkg->size       = pkg->size;
+	newpkg->usize      = pkg->usize;
 	newpkg->force      = pkg->force;
 	newpkg->scriptlet  = pkg->scriptlet;
 	newpkg->reason     = pkg->reason;
@@ -222,6 +224,10 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 				char tmp[32];
 				STRNCPY(tmp, ptr, sizeof(tmp));
 				info->size = atol(tmp);
+			} else if(!strcmp(key, "USIZE")) {
+				char tmp[32];
+				STRNCPY(tmp, ptr, sizeof(tmp));
+				info->usize = atol(tmp);
 			} else if(!strcmp(key, "DEPEND")) {
 				info->depends = _alpm_list_add(info->depends, strdup(ptr));
 			} else if(!strcmp(key, "REMOVE")) {

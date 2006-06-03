@@ -146,6 +146,7 @@ void dump_pkg_sync(PM_PKG *pkg, char *treename)
 	PM_LIST_display(_("Replaces          :"), alpm_pkg_getinfo(pkg, PM_PKG_REPLACES));
 
 	printf(_("Size (compressed) : %ld\n"), (long)alpm_pkg_getinfo(pkg, PM_PKG_SIZE));
+	printf(_("Size (uncompressed):%ld\n"), (long)alpm_pkg_getinfo(pkg, PM_PKG_USIZE));
 	printf(_("Description       : "));
 	indentprint(alpm_pkg_getinfo(pkg, PM_PKG_DESC), 20);
 	tmp1 = (char *)alpm_pkg_getinfo(pkg, PM_PKG_MD5SUM);

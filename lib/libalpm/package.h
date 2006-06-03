@@ -54,6 +54,7 @@ typedef struct __pmpkg_t {
 	char sha1sum[PKG_SHA1SUM_LEN];
 	char arch[PKG_ARCH_LEN];
 	unsigned long size;
+	unsigned long usize;
 	unsigned char scriptlet;
 	unsigned char force;
 	time_t date;

@@ -590,7 +590,8 @@ int pacman_sync(list_t *targets)
 		list_t *list_remove = NULL;
 		char *str;
 		unsigned long totalsize = 0;
-		double mb;
+		unsigned long totalusize = 0;
+		double mb, umb;
 
 		for(lp = alpm_list_first(packages); lp; lp = alpm_list_next(lp)) {
 			PM_SYNCPKG *sync = alpm_list_getdata(lp);
@@ -612,6 +613,7 @@ int pacman_sync(list_t *targets)
 			pkgname = alpm_pkg_getinfo(pkg, PM_PKG_NAME);
 			pkgver = alpm_pkg_getinfo(pkg, PM_PKG_VERSION);
 			totalsize += (int)alpm_pkg_getinfo(pkg, PM_PKG_SIZE);
+			totalusize += (int)alpm_pkg_getinfo(pkg, PM_PKG_USIZE);
 
 			asprintf(&str, "%s-%s", pkgname, pkgver);
 			list_install = list_add(list_install, str);
@@ -625,14 +627,19 @@ int pacman_sync(list_t *targets)
 			FREE(str);
 		}
 		mb = (double)(totalsize / 1048576.0);
+		umb = (double)(totalusize / 1048576.0);
 		/* round up to 0.1 */
 		if(mb < 0.1) {
 			mb = 0.1;
+		}
+		if(umb < 0.1) {
+			umb = 0.1;
 		}
 		MSG(NL, _("\nTargets: "));
 		str = buildstring(list_install);
 		indentprint(str, 9);
 		MSG(NL, _("\nTotal Package Size:   %.1f MB\n"), mb);
+		MSG(NL, _("\nTotal Uncompressed Package Size:   %.1f MB\n"), umb);
 		FREELIST(list_install);
 		FREE(str);
 
