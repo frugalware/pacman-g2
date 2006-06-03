@@ -28,6 +28,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <libintl.h>
+#include <locale.h>
 #ifdef CYGWIN
 #include <limits.h> /* PATH_MAX */
 #endif
