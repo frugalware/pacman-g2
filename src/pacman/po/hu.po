@@ -1,20 +1,22 @@
+# translation of hu.po to Hungarian
 # Hungarian translations for pacman package.
 # Copyright (C) 2006 THE pacman'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the pacman package.
-# Miklos Vajna <vmiklos@frugalware.org>, 2006.
 #
+# Miklos Vajna <vmiklos@frugalware.org>, 2006.
 msgid ""
 msgstr ""
-"Project-Id-Version: pacman 2.9.99\n"
+"Project-Id-Version: hu\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-06-03 03:44+0200\n"
-"PO-Revision-Date: 2006-05-10 20:26+0200\n"
-"Last-Translator:  <vmiklos@frugalware.org>\n"
+"PO-Revision-Date: 2006-06-03 03:50+0200\n"
+"Last-Translator: Miklos Vajna <vmiklos@frugalware.org>\n"
 "Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-2\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: KBabel 1.11.2\n"
 
 #: ../add.c:69 ../deptest.c:64 ../remove.c:83 ../sync.c:422 ../sync.c:461
 #, c-format
@@ -94,8 +96,7 @@ msgstr "beállítások: %d. sor: rossz szekciónév\n"
 
 #: ../conf.c:108
 #, c-format
-msgid ""
-"config: line %d: '%s' is reserved and cannot be used as a package tree\n"
+msgid "config: line %d: '%s' is reserved and cannot be used as a package tree\n"
 msgstr ""
 "beállítások: %d. sor: a '%s' név fenntartott és nem használható csomagfa "
 "névként\n"
@@ -108,8 +109,7 @@ msgstr "beállítások: %d. sor: szintaktikai hiba\n"
 #: ../conf.c:140
 #, c-format
 msgid "config: line %d: all directives must belong to a section\n"
-msgstr ""
-"beállítások: %d. sor: minden direktívának egy szekcióhoz kell tartoznia\n"
+msgstr "beállítások: %d. sor: minden direktívának egy szekcióhoz kell tartoznia\n"
 
 #: ../conf.c:146
 msgid "config: nopassiveftp\n"
@@ -590,9 +590,9 @@ msgid "Size (compressed) : %ld\n"
 msgstr "Méret (tömörített): %ld\n"
 
 #: ../package.c:149
-#, fuzzy, c-format
+#, c-format
 msgid "Size (uncompressed):%ld\n"
-msgstr "Méret (tömörített): %ld\n"
+msgstr "Méret (tömörítetlen): %ld\n"
 
 #: ../package.c:150
 #, c-format
@@ -690,8 +690,7 @@ msgstr "  -d, --nodeps        függõségi ellenõrzések kihagyása\n"
 #: ../pacman.c:108 ../pacman.c:125 ../pacman.c:146
 #, c-format
 msgid "  -f, --force         force install, overwrite conflicting files\n"
-msgstr ""
-"  -f, --force         a telepítés eröltetése, ütközõ fájlok felülírása\n"
+msgstr "  -f, --force         a telepítés eröltetése, ütközõ fájlok felülírása\n"
 
 #: ../pacman.c:110
 #, c-format
@@ -700,10 +699,8 @@ msgstr "usage:  %s {-R --remove} [opciók] <csomag>\n"
 
 #: ../pacman.c:112
 #, c-format
-msgid ""
-"  -c, --cascade       remove packages and all packages that depend on them\n"
-msgstr ""
-"  -c, --cascade       a csomagok és az õket igénylõ csomagok eltávolítása\n"
+msgid "  -c, --cascade       remove packages and all packages that depend on them\n"
+msgstr "  -c, --cascade       a csomagok és az õket igénylõ csomagok eltávolítása\n"
 
 #: ../pacman.c:114
 #, c-format
@@ -719,8 +716,7 @@ msgstr "  -n, --nosave        a beállítási fájlokat is törölje\n"
 
 #: ../pacman.c:116
 #, c-format
-msgid ""
-"  -s, --recursive     remove dependencies also (that won't break packages)\n"
+msgid "  -s, --recursive     remove dependencies also (that won't break packages)\n"
 msgstr ""
 "  -s, --recursive     a függõségeket is távolítsa el (nem fogja a csomagokat "
 "tönkretenni)\n"
@@ -747,8 +743,7 @@ msgstr "  -c, --changelog     a változások naplójának megtekintése\n"
 
 #: ../pacman.c:130
 #, c-format
-msgid ""
-"  -e, --orphans       list all packages that were installed as a dependency\n"
+msgid "  -e, --orphans       list all packages that were installed as a dependency\n"
 msgstr ""
 "  -e, --orphans       az összes olyan csomag listázása amely függõségként "
 "került telepítésre\n"
@@ -792,8 +787,7 @@ msgstr "  -o, --owns <fájl>   a <fájl>-t tartalmazó csomag lekérdezése\n"
 msgid ""
 "  -p, --file          pacman will query the package file [package] instead "
 "of\n"
-msgstr ""
-"  -p, --file          a pacman a [csomag] csomagfájlt kérdezze le ahelyett,\n"
+msgstr "  -p, --file          a pacman a [csomag] csomagfájlt kérdezze le ahelyett,\n"
 
 #: ../pacman.c:138
 #, c-format
@@ -831,8 +825,7 @@ msgstr "  -e, --dependsonly   csak a függõségek telepítése\n"
 msgid ""
 "  -p, --print-uris    print out URIs for given packages and their "
 "dependencies\n"
-msgstr ""
-"  -p, --print-uris    kinyomtatja az adott csomagok es függõségeik URI-it\n"
+msgstr "  -p, --print-uris    kinyomtatja az adott csomagok es függõségeik URI-it\n"
 
 #: ../pacman.c:149
 #, c-format
@@ -846,20 +839,17 @@ msgstr "  -u, --sysupgrade    az összes elavult csomag frissítése\n"
 
 #: ../pacman.c:151
 #, c-format
-msgid ""
-"  -w, --downloadonly  download packages but do not install/upgrade anything\n"
+msgid "  -w, --downloadonly  download packages but do not install/upgrade anything\n"
 msgstr "  -w, --downloadonly  csak letöltés, de semmit nem telepít/frissít\n"
 
 #: ../pacman.c:152
 #, c-format
-msgid ""
-"  -y, --refresh       download fresh package databases from the server\n"
+msgid "  -y, --refresh       download fresh package databases from the server\n"
 msgstr "  -y, --refresh       friss csomagadatbázis letöltése a szerverrõl\n"
 
 #: ../pacman.c:153
 #, c-format
-msgid ""
-"      --ignore <pkg>  ignore a package upgrade (can be used more than once)\n"
+msgid "      --ignore <pkg>  ignore a package upgrade (can be used more than once)\n"
 msgstr ""
 "      --ignore <csomag> egy csomag frissítésének figyelmen kívül hagyása "
 "(többször is használható)\n"
@@ -876,17 +866,13 @@ msgstr "      --noconfirm     ne kérjen soha megerõsítést\n"
 
 #: ../pacman.c:157
 #, c-format
-msgid ""
-"      --noprogressbar do not show a progress bar when downloading files\n"
-msgstr ""
-"      --noprogressbar ne mutasson folyamatsávot a fájlok letöltése közben\n"
+msgid "      --noprogressbar do not show a progress bar when downloading files\n"
+msgstr "      --noprogressbar ne mutasson folyamatsávot a fájlok letöltése közben\n"
 
 #: ../pacman.c:158
 #, c-format
-msgid ""
-"      --noscriptlet   do not execute the install scriptlet if there is any\n"
-msgstr ""
-"      --noscriptlet   ne futtassa le a telepítési szkriptet ha van olyan\n"
+msgid "      --noscriptlet   do not execute the install scriptlet if there is any\n"
+msgstr "      --noscriptlet   ne futtassa le a telepítési szkriptet ha van olyan\n"
 
 #: ../pacman.c:159
 #, c-format
@@ -896,8 +882,7 @@ msgstr "  -v, --verbose       legyen bõbeszédû\n"
 #: ../pacman.c:160
 #, c-format
 msgid "  -r, --root <path>   set an alternate installation root\n"
-msgstr ""
-"  -r, --root <útvonal>   alternatív telepítési gyökérkönyvtár beállítása\n"
+msgstr "  -r, --root <útvonal>   alternatív telepítési gyökérkönyvtár beállítása\n"
 
 #: ../pacman.c:161
 #, c-format
@@ -907,8 +892,7 @@ msgstr "  -b, --dbpath <útvonal> alternatív adatbázis hely beállítása\n"
 #: ../pacman.c:174
 #, c-format
 msgid "                       This program may be freely redistributed under\n"
-msgstr ""
-"                       Ezt a programot bárki a General Public License-ben\n"
+msgstr "                       Ezt a programot bárki a General Public License-ben\n"
 
 #: ../pacman.c:175
 #, c-format
@@ -1183,8 +1167,7 @@ msgstr ":: Telepíti a %s-t a %s csoportból? [I/n] "
 #: ../sync.c:536
 #, c-format
 msgid "could not add target '%s': not found in sync db\n"
-msgstr ""
-"nem sikerült hozzáadni a '%s' célt: nem található a távoli adatbázisban\n"
+msgstr "nem sikerült hozzáadni a '%s' célt: nem található a távoli adatbázisban\n"
 
 #: ../sync.c:554
 msgid "requires"
@@ -1220,13 +1203,13 @@ msgstr ""
 "Teljes csomagméret:   %.1f MB\n"
 
 #: ../sync.c:642
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "\n"
 "Total Uncompressed Package Size:   %.1f MB\n"
 msgstr ""
 "\n"
-"Teljes csomagméret:   %.1f MB\n"
+"Teljes tömörítetlen csomagméret:   %.1f MB\n"
 
 #: ../sync.c:648
 msgid ""
@@ -1281,9 +1264,8 @@ msgstr "figyelmeztetés: nem létezik a %s gyorsítótár.  létrehozás..."
 #. * the package afterwards.
 #.
 #: ../sync.c:729
-#, fuzzy
 msgid "couldn't create package cache, using /tmp instead\n"
-msgstr "nem sikerült létrehozni a csomag-gyorsítótárat, a /tmp használata"
+msgstr "nem sikerült létrehozni a csomag-gyorsítótárat, a /tmp használata\n"
 
 #: ../sync.c:730
 msgid "warning: couldn't create package cache, using /tmp instead"
@@ -1349,8 +1331,7 @@ msgstr "a csomagok integritásának ellenõrzése... "
 #: ../trans.c:130
 #, c-format
 msgid ":: %s requires %s, but it is in IgnorePkg. Install anyway? [Y/n] "
-msgstr ""
-":: a %s igényli a %s-t, de az az IgnorePkg része. Mégis telepíti? [I/n] "
+msgstr ":: a %s igényli a %s-t, de az az IgnorePkg része. Mégis telepíti? [I/n] "
 
 #: ../trans.c:136
 #, c-format
@@ -1394,3 +1375,4 @@ msgstr "nem sikerült allokálni %d bájtot\n"
 #, c-format
 msgid "%s is not a valid regular expression.\n"
 msgstr "%s: nem érvényes reguláris kifejezés.\n"
+
