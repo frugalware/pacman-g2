@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libalpm\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-05-04 17:09+0200\n"
+"POT-Creation-Date: 2006-06-03 03:45+0200\n"
 "PO-Revision-Date: 2006-05-06 14:31+0200\n"
 "Last-Translator: Marcus Habermehl <bmh1980@frugalware.org>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -69,12 +69,12 @@ msgstr "Suche nach Dateikonflikten"
 msgid "upgrading package %s-%s"
 msgstr "Aktualisiere Paket %s-%s"
 
-#: ../add.c:335 ../alpm.c:467 ../conflict.c:271 ../conflict.c:301
+#: ../add.c:335 ../alpm.c:468 ../conflict.c:271 ../conflict.c:301
 #, c-format
 msgid "loading FILES info for '%s'"
 msgstr "Lade FILES Informationen für '%s'"
 
-#: ../add.c:345 ../alpm.c:447 ../alpm.c:577 ../alpm.c:625
+#: ../add.c:345 ../alpm.c:448 ../alpm.c:579 ../alpm.c:627
 #, c-format
 msgid "loading DESC info for '%s'"
 msgstr "Lade DESC Informationen für '%s'"
@@ -177,7 +177,8 @@ msgstr "Aktion: Lasse existierende Datei an ihrem Platz"
 
 #: ../add.c:606
 msgid "action: keeping current file and installing new one with .pacnew ending"
-msgstr "Aktion: Behalte aktuelle Datei und installiere Neue mit der Endung .pacnew"
+msgstr ""
+"Aktion: Behalte aktuelle Datei und installiere Neue mit der Endung .pacnew"
 
 #: ../add.c:610
 #, c-format
@@ -300,7 +301,8 @@ msgstr "Registriere Datenbank '%s'"
 #: ../alpm.c:200
 #, c-format
 msgid "database directory '%s' does not exist -- try creating it"
-msgstr "Datenbankverzeichnis '%s' ist nicht vorhanden - Versuche es zu erstellen"
+msgstr ""
+"Datenbankverzeichnis '%s' ist nicht vorhanden - Versuche es zu erstellen"
 
 #: ../alpm.c:211
 #, c-format
@@ -333,42 +335,42 @@ msgstr "Konnte Datenbankeintrag %s/%s nicht entfernen"
 msgid "unpacking %s"
 msgstr "Entpacke %s"
 
-#: ../alpm.c:474
+#: ../alpm.c:475
 #, c-format
 msgid "loading SCRIPLET info for '%s'"
 msgstr "Lade SCRIPTLET Informationen für '%s'"
 
-#: ../alpm.c:571
+#: ../alpm.c:573
 #, c-format
 msgid "could not get sha1 checksum for package %s-%s\n"
 msgstr "Konnte SHA1 Prüfsumme für Paket %s-%s nicht ermitteln\n"
 
-#: ../alpm.c:582 ../alpm.c:630
+#: ../alpm.c:584 ../alpm.c:632
 #, c-format
 msgid "checksums for package %s-%s are matching"
 msgstr "Prüfsummen für Paket %s-%s stimmen überein"
 
-#: ../alpm.c:585
+#: ../alpm.c:587
 #, c-format
 msgid "sha1sums do not match for package %s-%s\n"
 msgstr "SHA1 Summen für Paket %s-%s stimmen nicht überein\n"
 
-#: ../alpm.c:619
+#: ../alpm.c:621
 #, c-format
 msgid "could not get md5 checksum for package %s-%s\n"
 msgstr "Konnte MD5 Prüfsumme für Paket %s-%s nicht ermitteln\n"
 
-#: ../alpm.c:633
+#: ../alpm.c:635
 #, c-format
 msgid "md5sums do not match for package %s-%s\n"
 msgstr "MD5 Summen für Paket %s-%s stimmen nicht überein\n"
 
-#: ../alpm.c:879
+#: ../alpm.c:886
 #, c-format
 msgid "could not remove lock file %s"
 msgstr "Konnte Sperrdatei %s nicht entfernen"
 
-#: ../alpm.c:880
+#: ../alpm.c:887
 #, c-format
 msgid "warning: could not remove lock file %s"
 msgstr "Warnung: Konnte Sperrdatei %s nicht entfernen"
@@ -378,17 +380,17 @@ msgstr "Warnung: Konnte Sperrdatei %s nicht entfernen"
 msgid "invalid name for dabatase entry '%s'"
 msgstr "Falscher Name für Datenbankeintrag '%s'"
 
-#: ../be_files.c:385
+#: ../be_files.c:394
 #, c-format
 msgid "db_write: could not open file %s/desc"
 msgstr "db_write: Konnte Datei %s/desc nicht öffnen"
 
-#: ../be_files.c:459
+#: ../be_files.c:472
 #, c-format
 msgid "db_write: could not open file %s/files"
 msgstr "db_write: Konnte Datei %s/files nicht öffnen"
 
-#: ../be_files.c:485
+#: ../be_files.c:498
 #, c-format
 msgid "db_write: could not open file %s/depends"
 msgstr "db_write: Konnte Datei %s/depends nicht öffnen"
@@ -454,8 +456,8 @@ msgstr ""
 msgid "db vs targs: found %s as a conflict for %s"
 msgstr ""
 
-#: ../conflict.c:231 ../conflict.c:333 ../deps.c:48 ../deps.c:595
-#: ../deps.c:635 ../group.c:40 ../handle.c:50 ../package.c:91 ../sync.c:60
+#: ../conflict.c:231 ../conflict.c:333 ../deps.c:49 ../deps.c:596
+#: ../deps.c:636 ../group.c:40 ../handle.c:50 ../package.c:92 ../sync.c:60
 #: ../sync.c:631 ../sync.c:647 ../sync.c:743 ../trans.c:46
 #, c-format
 msgid "malloc failure: could not allocate %d bytes"
@@ -466,75 +468,86 @@ msgstr ""
 msgid "malloc failed: could not allocate %d bytes"
 msgstr ""
 
-#: ../deps.c:116
+#: ../deps.c:113
+#, fuzzy
+msgid "started sorting dependencies"
+msgstr "Sortiere nach Abhängigkeiten"
+
+#: ../deps.c:118
 msgid "possible dependency cycle detected"
 msgstr ""
 
-#: ../deps.c:254 ../deps.c:400
+#: ../deps.c:161
+#, fuzzy
+msgid "sorting dependencies finished"
+msgstr "Sortiere nach Abhängigkeiten"
+
+#: ../deps.c:255 ../deps.c:401
 #, c-format
 msgid "checkdeps: found %s as required by %s"
 msgstr ""
 
-#: ../deps.c:364
+#: ../deps.c:365
 #, c-format
 msgid "checkdeps: found %s as a dependency for %s"
 msgstr "checkdeps: %s als Abhängigkeit für %s gefunden"
 
-#: ../deps.c:488
+#: ../deps.c:489
 #, c-format
 msgid "cannot find package \"%s\" or anything that provides it!"
 msgstr ""
 
-#: ../deps.c:493
+#: ../deps.c:494
 msgid "dep is NULL!"
 msgstr ""
 
-#: ../deps.c:505
+#: ../deps.c:506
 #, c-format
 msgid "excluding %s -- explicitly installed"
 msgstr "Schließe %s aus -- Ausdrücklich installiert"
 
 #. add it to the target list
-#: ../deps.c:522
+#: ../deps.c:523
 #, c-format
 msgid "loading ALL info for '%s'"
 msgstr "Lade ALL Informationen für '%s'"
 
-#: ../deps.c:525
+#: ../deps.c:526
 #, c-format
 msgid "adding '%s' to the targets"
 msgstr "Füge '%s' zu den Paketen hinzu"
 
-#: ../deps.c:567
+#: ../deps.c:568
 #, c-format
 msgid "%s provides dependency %s -- skipping"
 msgstr "%s stellt Abhängigkeit %s zur Verfügung -- Überspringe"
 
-#: ../deps.c:591
+#: ../deps.c:592
 #, c-format
 msgid ""
 "cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"
 msgstr ""
-"Kann Abhängigkeiten für \"%s\" nicht auflösen (\"%s\" ist nicht in Paketliste enthalten)"
+"Kann Abhängigkeiten für \"%s\" nicht auflösen (\"%s\" ist nicht in "
+"Paketliste enthalten)"
 
 #. this dep is already in the target list
-#: ../deps.c:608
+#: ../deps.c:609
 #, c-format
 msgid "dependency %s is already in the target list -- skipping"
 msgstr "Abhängigkeit %s ist bereits in Paketliste -- Überspringe"
 
-#: ../deps.c:628
+#: ../deps.c:629
 #, c-format
 msgid "pulling dependency %s (needed by %s)"
 msgstr "Ziehe Abhängigkeit %s (benötigt von %s)"
 
-#: ../deps.c:632
+#: ../deps.c:633
 #, c-format
 msgid "cannot resolve dependencies for \"%s\""
 msgstr "Kann Abhängigkeiten für \"%s\" nicht auflösen"
 
 #. cycle detected -- skip it
-#: ../deps.c:648
+#: ../deps.c:649
 #, c-format
 msgid "dependency cycle detected: %s"
 msgstr ""
@@ -749,41 +762,41 @@ msgstr "PM_OPT_LOGMASK auf '%02x' gesetzt"
 msgid "%s can't be opened\n"
 msgstr "%s kann nicht geöffnet werden\n"
 
-#: ../package.c:174
+#: ../package.c:176
 #, c-format
 msgid "could not open file %s"
 msgstr "Konnte Datei %s nicht öffnen"
 
-#: ../package.c:191 ../package.c:234
+#: ../package.c:193 ../package.c:240
 #, c-format
 msgid "%s: syntax error in description file line %d"
 msgstr "%s: Falscher Syntax in Beschreibungsdatei, Zeile %d"
 
-#: ../package.c:291
+#: ../package.c:297
 msgid "could not parse the package description file"
 msgstr "Konnte Paketbeschreibungsdatei nicht analysieren"
 
-#: ../package.c:299
+#: ../package.c:305
 #, c-format
 msgid "missing package name in %s"
 msgstr "Fehlender Paketname in %s"
 
-#: ../package.c:307
+#: ../package.c:313
 #, c-format
 msgid "missing package version in %s"
 msgstr "Fehlende Paketversion in %s"
 
-#: ../package.c:346
+#: ../package.c:352
 #, c-format
 msgid "could not remove tempfile %s"
 msgstr "Konnte tempfile %s nicht entfernen"
 
-#: ../package.c:363
+#: ../package.c:369
 #, c-format
 msgid "bad package file in %s"
 msgstr ""
 
-#: ../package.c:371
+#: ../package.c:377
 #, c-format
 msgid "missing package info file in %s"
 msgstr "Fehlende Paketinfodatei in %s"
@@ -1091,7 +1104,8 @@ msgid "could not commit transaction"
 msgstr ""
 
 #: ../sync.c:935
-msgid "updating database for replaced packages dependencies"
+#, fuzzy
+msgid "updating database for replaced packages' dependencies"
 msgstr "Aktualisiere Datenbank für ersetzte Paketabhängigkeiten"
 
 #: ../sync.c:964
