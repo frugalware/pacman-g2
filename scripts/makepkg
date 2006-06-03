@@ -810,6 +810,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 				cat /etc/pacman.conf >$_F_makepkg_pacconf
 			fi
 		fi
+		mkdir -p "$CHROOTDIR/tmp"
 		pacman -Syf $COREPKGS -r "$CHROOTDIR" --noconfirm --config $_F_makepkg_pacconf
 		if [ "$?" != "0" ]; then
 			error "Failed to build chroot environment."
