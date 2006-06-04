@@ -236,6 +236,13 @@ This is the release number specific to Frugalware Linux packages.
 This should be a brief description of the package and its functionality.
 
 .TP
+.B pkgdesc_localized
+Array of the localized package descriptions.
+
+The format is the following:
+pkgdesc_localized=('xx_YY foo' 'xx_YY bar')
+
+.TP
 .B url
 This field contains an optional URL that is associated with the piece of software
 being packaged.  This is typically the project's website.
@@ -433,6 +440,7 @@ the directives has their subfoo equivalent:
 .nf
 pkgname -> subpkgs()
 pkgdesc -> subdescs()
+pkgdesc_localized -> subdescs_localized()
 license() -> sublicense()
 replaces() -> subreplaces()
 groups() -> subgroups()
