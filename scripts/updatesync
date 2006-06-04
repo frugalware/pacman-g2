@@ -103,6 +103,9 @@ db_write_entry()
 	echo "" >>desc
 	echo "%DESC%" >>desc
 	echo "$pkgdesc" >>desc
+	for it in ${pkgdesc_localized[@]}; do
+	  echo "$it" >>desc
+	done
 	echo "" >>desc
 	echo "%ARCH%" >>desc
 	echo "$arch" >>desc
@@ -254,11 +257,11 @@ if [ "$action" = "upd" ]; then
 	cd - >/dev/null
 	group="${groups[0]}"
 	if in_array $arch ${archs[@]} || [ "$nobuild" -o "`check_option NOBUILD`" ]; then
-		unset pkgname pkgver pkgrel pkgdesc force
+		unset pkgname pkgver pkgrel pkgdesc force pkgdesc_localized
 		unset groups replaces provides depends rodepends conflicts options
 		unset subpkgs subdescs sublicense subreplaces subgroups
 		unset subdepends subrodepends subremoves subconflicts suboptions
-		unset subprovides subbackup subinstall suboptions
+		unset subprovides subbackup subinstall suboptions subdescs_localized
 		cd `dirname $option`
 		startdir=`pwd`
 		source $option || die "error parsing $option"
@@ -269,8 +272,10 @@ if [ "$action" = "upd" ]; then
 		i=0
 		for subpkg in "${subpkgs[@]}"
 		do
-			unset pkgdesc groups archs replaces force depends rodepends conflicts provides options
+			unset pkgdesc groups archs replaces force depends
+			unset rodepends conflicts provides options pkgdesc_localized
 			pkgdesc="${subdescs[$i]}"
+			pkgdesc_localized="${subdescs_localized[$i]}"
 			groups="${subgroups[$i]}"
 			archs="${subarchs[$i]}"
 			replaces="${subreplaces[$i]}"

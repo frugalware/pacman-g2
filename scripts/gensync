@@ -101,6 +101,9 @@ db_write_entry()
 	if [ -n "$pkgdesc" ]; then
 		echo "%DESC%" >>desc
 		echo "$pkgdesc" >>desc
+		for it in ${pkgdesc_localized[@]}; do
+		  echo "$it" >>desc
+		done
 		echo "" >>desc
 	fi
 	if [ ${#groups[*]} -gt 0 ]; then
@@ -216,11 +219,11 @@ for file in `find -L $rootdir/* \( -wholename "$rootdir/_darcs" -prune \) -o \( 
 	source $file || die "errors parsing $file"
 	cd - >/dev/null
 	if in_array $arch ${archs[@]} && [ ! "$nobuild" -a ! "`check_option NOBUILD`" ]; then
-		unset pkgname pkgver pkgrel pkgdesc force
+		unset pkgname pkgver pkgrel pkgdesc force pkgdesc_localized
 		unset groups replaces provides depends rodepends conflicts options
 		unset subpkgs subdescs sublicense subreplaces subgroups subarchs
 		unset subdepends subrodepends subremoves subconflicts
-		unset subprovides subbackup subinstall suboptions
+		unset subprovides subbackup subinstall suboptions subdescs_localized
 		cd `dirname $file`
 		startdir=`pwd`
 		source $file || return 1
@@ -231,8 +234,10 @@ for file in `find -L $rootdir/* \( -wholename "$rootdir/_darcs" -prune \) -o \( 
 		i=0
 		for subpkg in "${subpkgs[@]}"
 		do
-			unset pkgdesc groups archs replaces force depends rodepends conflicts provides options
+			unset pkgdesc groups archs replaces force depends rodepends
+			unset conflicts provides options pkgdesc_localized
 			pkgdesc="${subdescs[$i]}"
+			pkgdesc_localized="${subdescs_localized[$i]}"
 			groups="${subgroups[$i]}"
 			archs="${subarchs[$i]}"
 			replaces="${subreplaces[$i]}"
