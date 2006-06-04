@@ -26,6 +26,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <libintl.h>
+#include <locale.h>
 /* pacman */
 #include "log.h"
 #include "util.h"
@@ -204,8 +205,15 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 			} else if(!strcmp(key, "PKGVER")) {
 				STRNCPY(info->version, ptr, sizeof(info->version));
 			} else if(!strcmp(key, "PKGDESC")) {
-				STRNCPY(info->desc, ptr, sizeof(info->desc));
+				char *lang_tmp;
 				info->desc_localized = _alpm_list_add(info->desc_localized, strdup(ptr));
+				asprintf(&lang_tmp, "%s", setlocale(LC_ALL, ""));
+				if(info->desc_localized && !info->desc_localized->next) {
+					STRNCPY(info->desc, ptr, sizeof(info->desc));
+				} else if (ptr && !strncmp(ptr, lang_tmp, strlen(lang_tmp))) {
+					STRNCPY(info->desc, ptr+strlen(lang_tmp)+1, sizeof(info->desc));
+				}
+				FREE(lang_tmp);
 			} else if(!strcmp(key, "GROUP")) {
 				info->groups = _alpm_list_add(info->groups, strdup(ptr));
 			} else if(!strcmp(key, "URL")) {
