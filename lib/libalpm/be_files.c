@@ -190,7 +190,7 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 
 				asprintf(&lang_tmp, "%s", setlocale(LC_ALL, ""));
 
-				if(!info->desc_localized->next) {
+				if(info->desc_localized && !info->desc_localized->next) {
 				    snprintf(info->desc, 512, "%s", (char*)info->desc_localized->data);
 				} else {
 				    for (tmplist = info->desc_localized; tmplist; tmplist = tmplist->next) {
