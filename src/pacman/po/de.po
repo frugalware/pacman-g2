@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bmh 1980\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-06-03 03:44+0200\n"
+"POT-Creation-Date: 2006-06-07 01:35+0200\n"
 "PO-Revision-Date: 2006-05-04 17:10+0200\n"
 "Last-Translator: Marcus Habermehl <bmh1980@frugalware.org>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -424,6 +424,16 @@ msgstr "J"
 #: ../log.c:154
 msgid "YES"
 msgstr "JA"
+
+#: ../log.h:26
+#, fuzzy
+msgid "error: "
+msgstr "Fehler"
+
+#: ../log.h:30
+#, fuzzy
+msgid "warning: "
+msgstr "Warnung"
 
 #: ../package.c:46
 #, c-format
@@ -1013,7 +1023,7 @@ msgid "failed to load package '%s' (%s)\n"
 msgstr "Konnte Paket '%s' nicht laden (%s)\n"
 
 #. something weird happened
-#: ../query.c:212 ../query.c:256
+#: ../query.c:212 ../query.c:254
 #, c-format
 msgid "package \"%s\" not found\n"
 msgstr "Paket \"%s\" nicht gefunden\n"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-06-03 03:44+0200\n"
+"POT-Creation-Date: 2006-06-07 01:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -410,6 +410,14 @@ msgstr ""
 
 #: ../log.c:154
 msgid "YES"
+msgstr ""
+
+#: ../log.h:26
+msgid "error: "
+msgstr ""
+
+#: ../log.h:30
+msgid "warning: "
 msgstr ""
 
 #: ../package.c:46
@@ -968,7 +976,7 @@ msgid "failed to load package '%s' (%s)\n"
 msgstr ""
 
 #. something weird happened
-#: ../query.c:212 ../query.c:256
+#: ../query.c:212 ../query.c:254
 #, c-format
 msgid "package \"%s\" not found\n"
 msgstr ""
