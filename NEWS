@@ -1,5 +1,9 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.3.2         - gettext improvements
+              - French translation
+              - makepkg support and documentation for pkgdesc localization
+              - pacman: display uncompressed package size by default on upgrade
 3.3.1         - initial support for pkgdesc localization
               - bugfix for -Qi and -Qm
               - fix -Sg for multiple repos
