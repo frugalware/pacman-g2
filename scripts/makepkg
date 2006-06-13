@@ -1180,9 +1180,9 @@ if [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 				unziphack=1
 				cmd="unzip -qqo" ;;
 				*.gz)
-				cmd="gunzip" ;;
+				cmd="gunzip -f" ;;
 				*.bz2)
-				cmd="bunzip2" ;;
+				cmd="bunzip2 -f" ;;
 			esac
 			if [ "$cmd" != "" ]; then
 				msg "    $cmd $file"
