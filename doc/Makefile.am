@@ -1,4 +1,4 @@
-all: makepkg.8 pacman.8 po4a
+all: makepkg.8 FrugalBuild.8 pacman.8 po4a
 
 if HAS_PO4A
 SUBDIRS = hu
@@ -10,6 +10,11 @@ makepkg.8:
 endif
 
 if HAS_MAN2HTML
+FrugalBuild.8:
+	man2html FrugalBuild.8 > html/FrugalBuild.8.html
+endif
+
+if HAS_MAN2HTML
 pacman.8:
 	man2html pacman.8 > html/pacman.8.html
 endif
@@ -18,7 +23,7 @@ clean:
 	rm -rf html/*
 	rm -rf hu/*.8
 
-man_MANS = pacman.8 makepkg.8 libalpm.3
+man_MANS = pacman.8 makepkg.8 FrugalBuild.8 libalpm.3
 
 if HAS_DOXYGEN
 man_MANS += man3/*.3
