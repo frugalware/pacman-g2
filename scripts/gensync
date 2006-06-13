@@ -257,7 +257,7 @@ done
 
 echo "gensync: compressing to $destfile..." >&2
 cd $gstmpdir
-tar c * | gzip -9 >$destfile
+tar cjf $destfile *
 [ $? -gt 0 ] && die "error writing to $destfile"
 
 rm -rf $gstmpdir

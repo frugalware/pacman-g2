@@ -246,7 +246,7 @@ if [ "$action" = "upd" -a ! -f $option ]; then
 fi
 
 echo "updatesync: uncompressing to $ustmpdir..." >&2
-tar -xzf $pkgdb || die "error uncompressing $pkgdb"
+tar xjf $pkgdb || die "error uncompressing $pkgdb"
 if [ "$action" = "upd" ]; then
 	# INSERT / UPDATE
 	delete_entry $option
@@ -298,7 +298,7 @@ fi
 
 echo "updatesync: compressing to $pkgdb..." >&2
 cd $ustmpdir
-tar c * | gzip -9 >$pkgdb || die "error writing to $pkgdb"
+tar cjf $pkgdb * || die "error writing to $pkgdb"
 
 cd $curdir
 rm -rf $ustmpdir
