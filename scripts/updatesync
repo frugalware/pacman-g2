@@ -73,7 +73,7 @@ get_sha1checksum()
 
 db_write_entry()
 {
-	echo "updatesync: writing $1" >&2
+	echo "updatesync: writing $1-$pkgver-$pkgrel" >&2
 	if [ "$pkgdir" != "" ]; then
 		pkgfile="$pkgdir/$1-$pkgver-$pkgrel-$arch.fpm"
 	else
