@@ -722,6 +722,14 @@ fi
 source $BUILDSCRIPT
 
 # check for no-no's
+if [ -z "$pkgver" ]; then
+	error "pkgver is not allowed to be empty."
+	exit 1
+fi
+if [ -z "$pkgrel" ]; then
+	error "pkgrel is not allowed to be empty."
+	exit 1
+fi
 if [ `echo $pkgver | grep '-'` ]; then
 	error "pkgver is not allowed to contain hyphens."
 	exit 1
