@@ -81,6 +81,14 @@ case "$host" in
 		MARCHFLAG="march"
 		CHOST="${host}"
 		;;
+	ia64-*) AC_DEFINE_UNQUOTED([CARCH], ["ia64"], [Architecture])
+		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["ia64"], [Architecture])
+		AC_DEFINE_UNQUOTED([MARCHFLAG], ["march"], [Architecture])
+		CARCH="ia64"
+		CARCHFLAGS="ia64"
+		MARCHFLAG="march"
+		CHOST="${host}"
+		;;
 	ppc-* | powerpc-*)
 		AC_DEFINE_UNQUOTED([CARCH], ["ppc"], [Architecture])
 		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["750"], [Architecture])
