@@ -240,7 +240,7 @@ AC_CHECK_LIB([bz2], [BZ2_bzCompress], [AC_CHECK_HEADER([bzlib.h], [LIBBZ2='-lbz2
 if test -n "$LIBBZ2"; then
     LDFLAGS="$LDFLAGS $LIBBZ2"
 else
-    AC_MSG_ERROR("bzip2 devel stuff needed to compile pacman!");
+    AC_MSG_ERROR("bzip2 library and its include files are needed to build pacman!");
 fi
 
 dnl Check for math
