@@ -608,7 +608,7 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 							snprintf(newpath, PATH_MAX, "%s.pacnew", expath);
 							if(_alpm_copyfile(temp, newpath)) {
 								_alpm_log(PM_LOG_ERROR, _("could not install %s as %s: %s"), expath, newpath, strerror(errno));
-								alpm_logaction(stderr, _("error: could not install %s as %s: %s"), expath, newpath, strerror(errno));
+								alpm_logaction(_("error: could not install %s as %s: %s"), expath, newpath, strerror(errno));
 							} else {
 								_alpm_log(PM_LOG_WARNING, _("%s installed as %s"), expath, newpath);
 								alpm_logaction(_("warning: %s installed as %s"), expath, newpath);

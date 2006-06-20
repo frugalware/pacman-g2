@@ -113,7 +113,6 @@ PMList *_alpm_sync_load_dbarchive(char *archive)
 {
 	PMList *lp = NULL;
 	register struct archive *_archive;
-	struct archive_entry *entry;
 	
         if ((_archive = archive_read_new ()) == NULL) {
 		pm_errno = PM_ERR_LIBARCHIVE_ERROR;
@@ -817,10 +816,10 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 			continue;
 		}
 		if((strcmp(md5sum1, md5sum2) != 0) && (strcmp(sha1sum1, sha1sum2) != 0)) {
+			int doremove=0;
 			if((ptr = (char *)malloc(512)) == NULL) {
 				RET_ERR(PM_ERR_MEMORY, -1);
 			}
-			int doremove=0;
 			if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
 				doremove=1;
 			} else {

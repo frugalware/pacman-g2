@@ -40,7 +40,7 @@ pmpkg_t *_alpm_pkg_new(const char *name, const char *version)
 	pmpkg_t* pkg = NULL;
 
 	if((pkg = (pmpkg_t *)malloc(sizeof(pmpkg_t))) == NULL) {
-		RET_ERR(PM_ERR_MEMORY, -1);
+		RET_ERR(PM_ERR_MEMORY, (pmpkg_t *)-1);
 	}
 
 	if(name && name[0] != 0) {
@@ -283,7 +283,7 @@ pmpkg_t *_alpm_pkg_load(char *pkgfile)
 	archive_read_support_format_all (archive);
 
 	if (archive_read_open_file (archive, pkgfile, 10240) != ARCHIVE_OK)
-		RET_ERR(PM_ERR_PKG_OPEN, -1);
+		RET_ERR(PM_ERR_PKG_OPEN, (pmpkg_t *)-1);
 
 	info = _alpm_pkg_new(NULL, NULL);
 	if(info == NULL) {
@@ -345,7 +345,7 @@ pmpkg_t *_alpm_pkg_load(char *pkgfile)
 			int fd;
 			
 			if((str = (char *)malloc(PATH_MAX)) == NULL) {
-				RET_ERR(PM_ERR_MEMORY, -1);
+				RET_ERR(PM_ERR_MEMORY, (pmpkg_t *)-1);
 			}
 			fn = strdup("/tmp/alpm_XXXXXX");
 			fd = mkstemp(fn);
@@ -425,7 +425,7 @@ pmpkg_t *_alpm_pkg_isin(char *needle, PMList *haystack)
 	return(NULL);
 }
 
-int _alpm_pkg_splitname(char *target, char *name, char *version, int *witharch)
+int _alpm_pkg_splitname(char *target, char *name, char *version, int witharch)
 {
 	char tmp[PKG_FULLNAME_LEN+7];
 	char *p, *q;

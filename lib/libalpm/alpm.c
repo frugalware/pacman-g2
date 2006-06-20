@@ -209,7 +209,7 @@ pmdb_t *alpm_db_register(char *treename)
 	}
 
 	_alpm_log(PM_LOG_DEBUG, _("opening database '%s'"), db->treename);
-	if(_alpm_db_open(db, DB_O_CREATE) == -1) {
+	if(_alpm_db_open(db) == -1) {
 		_alpm_db_free(db);
 		RET_ERR(PM_ERR_DB_OPEN, NULL);
 	}
@@ -1047,7 +1047,7 @@ int alpm_list_free(PMList *entry)
  */
 int alpm_list_count(PMList *list)
 {
-	ASSERT(list != NULL, return(NULL));
+	ASSERT(list != NULL, return(-1));
 
 	return(_alpm_list_count(list));
 }

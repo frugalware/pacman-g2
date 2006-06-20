@@ -38,7 +38,7 @@
 #include "db.h"
 #include "alpm.h"
 
-int _alpm_db_open(pmdb_t *db, int mode)
+int _alpm_db_open(pmdb_t *db)
 {
 	if(db == NULL) {
 		return(-1);

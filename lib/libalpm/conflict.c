@@ -153,7 +153,7 @@ PMList *_alpm_checkconflicts(pmdb_t *db, PMList *packages)
 			for(j = packages; j; j = j->next) {
 				pmpkg_t *pkg = j->data;
 				if(!strcmp(pkg->name, info->name)) {
-					// Use the new, to-be-installed package's conflicts
+					/* Use the new, to-be-installed package's conflicts */
 					conflicts = pkg->conflicts;
 					usenewconflicts = 1;
 				}
@@ -326,7 +326,6 @@ PMList *_alpm_db_find_conflicts(pmdb_t *db, PMList *targets, char *root, PMList 
 						}
 					}
 				}
-donecheck:
 				if(!ok) {
 					pmconflict_t *conflict = malloc(sizeof(pmconflict_t));
 					if(conflict == NULL) {
