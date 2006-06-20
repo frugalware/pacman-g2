@@ -214,18 +214,6 @@ else
     AC_MSG_RESULT(no)
 fi
 
-dnl Enable or disable debug code
-AC_MSG_CHECKING(for debug mode request)
-if test x$debug = xyes ; then
-    AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xyes)
-	CFLAGS="-DPACMAN_DEBUG -Wall -W -O0 -fno-omit-frame-pointer -ggdb -g3"
-    AC_MSG_RESULT(yes)
-else
-    AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xno)
-	CFLAGS="$CFLAGS"
-    AC_MSG_RESULT(no)
-fi
-
 dnl Enable or disable fakeroot code
 AC_MSG_CHECKING(for fakeroot proof support)
 if test x$fakeroot = xyes ; then
@@ -258,6 +246,18 @@ if test -n "$LIBARCHIVE"; then
     LDFLAGS="$LDFLAGS $LIBARCHIVE"
 else
     AC_MSG_ERROR("libarchive is needed to compile pacman!");
+fi
+
+dnl Enable or disable debug code
+AC_MSG_CHECKING(for debug mode request)
+if test x$debug = xyes ; then
+    AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xyes)
+	CFLAGS="-DPACMAN_DEBUG -Wall -Werror -W -O0 -fno-omit-frame-pointer -ggdb -g3"
+    AC_MSG_RESULT(yes)
+else
+    AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xno)
+	CFLAGS="$CFLAGS"
+    AC_MSG_RESULT(no)
 fi
 
 CFLAGS="$CFLAGS"
