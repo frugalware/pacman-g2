@@ -50,13 +50,13 @@ static unsigned char eta_h, eta_m, eta_s;
 /* pacman options */
 extern config_t *config;
 
-extern int maxcols;
+extern unsigned int maxcols;
 
 static int log_progress(netbuf *ctl, int xfered, void *arg)
 {
 	int fsz = *(int*)arg;
 	int pct = ((float)(xfered+offset) / fsz) * 100;
-	int i, cur;
+	unsigned int i, cur;
 	struct timeval t1;
 	float timediff;
 	/* a little hard to conceal easter eggs in open-source software, but
@@ -64,6 +64,9 @@ static int log_progress(netbuf *ctl, int xfered, void *arg)
 	 */
 	static unsigned short mouth;
 	static unsigned int   lastcur = 0;
+
+	/* we don't need that parameter */
+	ctl=NULL;
 
 	if(config->noprogressbar) {
 		return(1);
@@ -322,7 +325,8 @@ int downloadfiles_forreal(list_t *servers, const char *localpath,
 				chdir(cwd);
 			} else {
 				char output[PATH_MAX];
-				int j, filedone = 0;
+				unsigned int j;
+				int filedone = 0;
 				char *ptr;
 				struct stat st;
 				snprintf(output, PATH_MAX, "%s/%s.part", localpath, fn);

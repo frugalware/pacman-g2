@@ -180,7 +180,8 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 
 void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howmany, int remain)
 {
-	int i, hash, maxpkglen;
+	int i, hash;
+	unsigned int maxpkglen;
 	char *addstr, *upgstr, *ptr;
 	addstr = strdup(_("installing"));
 	upgstr = strdup(_("upgrading"));

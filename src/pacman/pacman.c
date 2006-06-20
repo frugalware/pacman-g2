@@ -80,7 +80,7 @@ list_t *pmc_syncs = NULL;
 /* list of targets specified on command line */
 list_t *pm_targets  = NULL;
 
-int maxcols = 80;
+unsigned int maxcols = 80;
 
 extern int neednl;
 
