@@ -32,7 +32,7 @@ CHROOT=1
 
 usage() {
 	echo
-	cho "Usage: $0 [options] <destdir> <category> [category] ..."
+	echo "Usage: $0 [options] <destdir> <category> [category] ..."
 	echo
 	echo "Options:"
 	echo "options:"
