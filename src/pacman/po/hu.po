@@ -281,7 +281,7 @@ msgstr "kapcsolódás a %s:21-hez\n"
 #: ../download.c:210 ../download.c:241 ../download.c:415
 #, c-format
 msgid "cannot connect to %s\n"
-msgstr "nemsikerült kapcsolódni ide: %s\n"
+msgstr "nem sikerült kapcsolódni ide: %s\n"
 
 #: ../download.c:214
 msgid "anonymous login failed\n"
@@ -1095,7 +1095,7 @@ msgstr "nem sikerült törölni a gyorsítótár könyvtárát\n"
 
 #: ../sync.c:148
 msgid "could not create new cache directory\n"
-msgstr "nemsikerült létrehozni az új gyorsítótár könyvtárát\n"
+msgstr "nem sikerült létrehozni az új gyorsítótár könyvtárát\n"
 
 #: ../sync.c:153 ../trans.c:69 ../trans.c:83 ../trans.c:94 ../trans.c:107
 #: ../trans.c:119

@@ -543,7 +543,7 @@ msgstr "a %s függõség behozása (a %s igényli)"
 #: ../deps.c:633
 #, c-format
 msgid "cannot resolve dependencies for \"%s\""
-msgstr "nemsikerült feloldani a függõségeket a \"%s\" számára"
+msgstr "nem sikerült feloldani a függõségeket a \"%s\" számára"
 
 #. cycle detected -- skip it
 #: ../deps.c:649
@@ -712,7 +712,7 @@ msgstr "PM_OPT_CACHEDIR beállítva a '%s' értékre"
 #: ../handle.c:151
 #, c-format
 msgid "can't open log file %s"
-msgstr "nemsikerült megnyitni a %s naplófile-t"
+msgstr "nem sikerült megnyitni a %s naplófájlt"
 
 #: ../handle.c:155
 #, c-format
@@ -759,7 +759,7 @@ msgstr "PM_OPT_LOGMASK beállítva a '%02x' értékre"
 #: ../md5driver.c:48 ../sha1.c:458
 #, c-format
 msgid "%s can't be opened\n"
-msgstr "nemsikerült megnyitni a következõt: %s\n"
+msgstr "nem sikerült megnyitni a következõt: %s\n"
 
 #: ../package.c:176
 #, c-format
@@ -773,7 +773,7 @@ msgstr "%s: szintaktikai hiba a leírófájl %d. sorában"
 
 #: ../package.c:297
 msgid "could not parse the package description file"
-msgstr "nemsikerült értelmezni a csomagleíró fájlt"
+msgstr "nem sikerült értelmezni a csomagleíró fájlt"
 
 #: ../package.c:305
 #, c-format
