@@ -101,7 +101,7 @@ db_write_entry()
 	if [ -n "$pkgdesc" ]; then
 		echo "%DESC%" >>desc
 		echo "$pkgdesc" >>desc
-		for it in ${pkgdesc_localized[@]}; do
+		for it in "${pkgdesc_localized[@]}"; do
 		  echo "$it" >>desc
 		done
 		echo "" >>desc

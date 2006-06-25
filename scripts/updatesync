@@ -103,7 +103,7 @@ db_write_entry()
 	echo "" >>desc
 	echo "%DESC%" >>desc
 	echo "$pkgdesc" >>desc
-	for it in ${pkgdesc_localized[@]}; do
+	for it in "${pkgdesc_localized[@]}"; do
 	  echo "$it" >>desc
 	done
 	echo "" >>desc
