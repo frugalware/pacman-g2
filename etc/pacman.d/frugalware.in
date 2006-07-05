@@ -5,7 +5,7 @@
 [frugalware]
 
 Server = ftp://ftp5.frugalware.org/packages/frugalware/pub/frugalware/frugalware-stable/frugalware-@CARCH@
-Server = ftp://ftp10.frugalware.org/pub/frugalware/pub/frugalware/frugalware-stable/frugalware-@CARCH@
+Server = ftp://ftp10.frugalware.org/pub/linux/frugalware/frugalware-stable/frugalware-@CARCH@
 Server = ftp://ftp4.frugalware.org/pub/linux/distributions/frugalware/frugalware-stable/frugalware-@CARCH@
 Server = http://www7.frugalware.org/pub/frugalware/frugalware-stable/frugalware-@CARCH@
 Server = ftp://ftp9.frugalware.org/pub/frugalware/frugalware-stable/frugalware-@CARCH@
