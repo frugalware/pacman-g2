@@ -118,6 +118,20 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 		case PM_TRANS_EVT_INTEGRITY_DONE:
 			MSG(CL, _("done.\n"));
 		break;
+		case PM_TRANS_EVT_SCRIPTLET_INFO:
+			MSG(NL, (char*)data1);
+		break;
+		case PM_TRANS_EVT_SCRIPTLET_START:
+			MSG(NL, (char*)data1);
+			MSG(CL, "...");
+		break;
+		case PM_TRANS_EVT_SCRIPTLET_DONE:
+			if(!(int)data1) {
+				MSG(CL, _(" done.\n"));
+			} else {
+				MSG(CL, _(" failed.\n"));
+			}
+		break;
 	}
 }
 

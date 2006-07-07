@@ -33,9 +33,10 @@
 #include <limits.h>
 #include <libintl.h>
 /* pacman */
+#include "list.h"
+#include "trans.h"
 #include "util.h"
 #include "error.h"
-#include "list.h"
 #include "cache.h"
 #include "versioncmp.h"
 #include "md5.h"
@@ -46,7 +47,6 @@
 #include "db.h"
 #include "provide.h"
 #include "conflict.h"
-#include "trans.h"
 #include "deps.h"
 #include "add.h"
 #include "remove.h"
@@ -349,7 +349,8 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 
 				/* pre_upgrade scriptlet */
 				if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-					_alpm_runscriptlet(handle->root, info->data, "pre_upgrade", info->version, oldpkg ? oldpkg->version : NULL);
+					_alpm_runscriptlet(handle->root, info->data, "pre_upgrade", info->version, oldpkg ? oldpkg->version : NULL,
+						trans);
 				}
 
 				if(oldpkg) {
@@ -389,7 +390,7 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 
 			/* pre_install scriptlet */
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-				_alpm_runscriptlet(handle->root, info->data, "pre_install", info->version, NULL);
+				_alpm_runscriptlet(handle->root, info->data, "pre_install", info->version, NULL, trans);
 			}
 		} else {
 			_alpm_log(PM_LOG_FLOW1, _("adding new package %s-%s"), info->name, info->version);
@@ -790,9 +791,9 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 		if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", handle->root, handle->dbpath, db->treename, info->name, info->version);
 			if(pmo_upgrade) {
-				_alpm_runscriptlet(handle->root, pm_install, "post_upgrade", info->version, oldpkg ? oldpkg->version : NULL);
+				_alpm_runscriptlet(handle->root, pm_install, "post_upgrade", info->version, oldpkg ? oldpkg->version : NULL, trans);
 			} else {
-				_alpm_runscriptlet(handle->root, pm_install, "post_install", info->version, NULL);
+				_alpm_runscriptlet(handle->root, pm_install, "post_install", info->version, NULL, trans);
 			}
 		}
 

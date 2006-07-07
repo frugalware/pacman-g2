@@ -43,6 +43,8 @@
 #endif
 /* pacman */
 #include "log.h"
+#include "list.h"
+#include "trans.h"
 #include "util.h"
 #include "error.h"
 #include "alpm.h"
@@ -330,7 +332,7 @@ static int grep(const char *fn, const char *needle)
 	return(0);
 }
 
-int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, char *oldver)
+int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, char *oldver, pmtrans_t *trans)
 {
 	char scriptfn[PATH_MAX];
 	char cmdline[PATH_MAX];
@@ -402,6 +404,7 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 	}
 
 	if(pid == 0) {
+		FILE *pp;
 		_alpm_log(PM_LOG_DEBUG, _("chrooting in %s"), root);
 		if(chroot(root) != 0) {
 			_alpm_log(PM_LOG_ERROR, _("could not change the root directory (%s)"), strerror(errno));
@@ -413,7 +416,27 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 		}
 		umask(0022);
 		_alpm_log(PM_LOG_DEBUG, _("executing \"%s\""), cmdline);
-		execl("/bin/sh", "sh", "-c", cmdline, (char *)0);
+		pp = popen(cmdline, "r");
+		if(!pp) {
+			_alpm_log(PM_LOG_ERROR, _("call to popen failed (%s)"), strerror(errno));
+			retval = 1;
+			goto cleanup;
+		}
+		while(!feof(pp)) {
+			char line[1024];
+			if(fgets(line, 1024, pp) == NULL)
+				break;
+			/* "START <event desc>" */
+			if((strlen(line) > strlen(STARTSTR)) && !strncmp(line, STARTSTR, strlen(STARTSTR))) {
+				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_START, _alpm_strtrim(line + strlen(STARTSTR)), NULL);
+			/* "DONE <ret code>" */
+			} else if((strlen(line) > strlen(DONESTR)) && !strncmp(line, DONESTR, strlen(DONESTR))) {
+				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_DONE, (void*)atoi(_alpm_strtrim(line + strlen(DONESTR))), NULL);
+			} else {
+				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_INFO, _alpm_strtrim(line), NULL);
+			}
+		}
+		pclose(pp);
 		exit(0);
 	} else {
 		if(waitpid(pid, 0, 0) == -1) {

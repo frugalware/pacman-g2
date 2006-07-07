@@ -34,6 +34,8 @@
 #include <zlib.h>
 #include <libintl.h>
 /* pacman */
+#include "list.h"
+#include "trans.h"
 #include "util.h"
 #include "error.h"
 #include "versioncmp.h"
@@ -161,7 +163,7 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 			/* run the pre-remove scriptlet if it exists  */
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
-				_alpm_runscriptlet(handle->root, pm_install, "pre_remove", info->version, NULL);
+				_alpm_runscriptlet(handle->root, pm_install, "pre_remove", info->version, NULL, trans);
 			}
 		}
 
@@ -246,7 +248,7 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 				char pm_install[PATH_MAX];
 				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
-				_alpm_runscriptlet(handle->root, pm_install, "post_remove", info->version, NULL);
+				_alpm_runscriptlet(handle->root, pm_install, "post_remove", info->version, NULL, trans);
 			}
 		}
 
