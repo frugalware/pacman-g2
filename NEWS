@@ -1,5 +1,15 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.3.3         - pipe and parse scriptlet messages. see man FrugalBuild
+              - new mirror: ftp10
+              - udatesync: use bzip2 instead of gzip for package databases
+              - update/gensync: bugfix for the pkgdesc_localized directive
+              - Hungarian translation update
+              - fixed several compilation warning
+              - ia64 support
+              - manpage split: moved the FrugalBuild specific part from
+                man makepkg to man FrugalBuild
+              - minor bugfixes in makepkg
 3.3.2         - gettext improvements
               - French translation
               - makepkg support and documentation for pkgdesc localization
