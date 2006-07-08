@@ -165,6 +165,18 @@ $pkgname.install install and will use it if it's present.
 You can find a scriptlet skeleton in the /docs/tech/skel/ directory, use it
 when creating new packages.
 
+The scriptlet messages are parsed, a simple example tells you everything:
+.nf
+post_upgrade()
+{
+	echo "START this will be good"
+	echo "DONE 0"
+	echo "START this will fail"
+	echo "DONE 1"
+	echo "old message"
+}
+.fi
+
 .SH FrugalBuild Directives
 .TP
 .B pkgname
