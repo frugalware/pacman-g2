@@ -86,6 +86,7 @@ int pacman_add(list_t *targets)
 	/* Step 2: "compute" the transaction based on targets and flags
 	 */
 	if(alpm_trans_prepare(&data) == -1) {
+		long long *pkgsize, *freespace;
 		PM_LIST *i;
 
 		ERR(NL, _("failed to prepare transaction (%s)\n"), alpm_strerror(pm_errno));
@@ -133,6 +134,15 @@ int pacman_add(list_t *targets)
 				}
 				alpm_list_free(data);
 				MSG(NL, _("\nerrors occurred, no packages were upgraded.\n"));
+			break;
+			case PM_ERR_DISK_FULL:
+				i = alpm_list_first(data);
+				pkgsize = alpm_list_getdata(i);
+				i = alpm_list_next(i);
+				freespace = alpm_list_getdata(i);
+					MSG(NL, _(":: %.1f MB required, have %.1f MB"),
+						(double)(*pkgsize / 1048576.0), (double)(*freespace / 1048576.0));
+				alpm_list_free(data);
 			break;
 			default:
 			break;

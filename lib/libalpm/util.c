@@ -474,7 +474,7 @@ int _alpm_archive_read_entry_data_into_fd (struct archive *archive, int file) {
 	return ARCHIVE_OK;
 }
 
-long long _alpm_get_freespace()
+static long long get_freespace()
 {
 	struct mntent *mnt;
 	char *table = MOUNTED;
@@ -500,13 +500,21 @@ int _alpm_check_freespace(pmtrans_t *trans, PMList **data)
 	long long pkgsize=0, freespace;
 
 	for(i = trans->packages; i; i = i->next) {
-		pmsyncpkg_t *sync = i->data;
-		if(sync->type != PM_SYNC_TYPE_REPLACE) {
-			pmpkg_t *pkg = sync->pkg;
-			pkgsize += pkg->usize;
+		if(trans->type == PM_TRANS_TYPE_SYNC)
+		{
+			pmsyncpkg_t *sync = i->data;
+			if(sync->type != PM_SYNC_TYPE_REPLACE) {
+				pmpkg_t *pkg = sync->pkg;
+				pkgsize += pkg->usize;
+			}
+		}
+		else
+		{
+			pmpkg_t *pkg = i->data;
+			pkgsize += pkg->size;
 		}
 	}
-	freespace = _alpm_get_freespace();
+	freespace = get_freespace();
 	_alpm_log(PM_LOG_DEBUG, _("check_freespace: total pkg size: %lld, disk space: %lld"), pkgsize, freespace);
 	if(pkgsize > freespace) {
 		if(data) {
