@@ -119,7 +119,7 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			MSG(CL, _("done.\n"));
 		break;
 		case PM_TRANS_EVT_SCRIPTLET_INFO:
-			MSG(NL, (char*)data1);
+			MSG(NL, "%s\n", (char*)data1);
 		break;
 		case PM_TRANS_EVT_SCRIPTLET_START:
 			MSG(NL, (char*)data1);
