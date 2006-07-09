@@ -115,6 +115,8 @@ char *alpm_strerror(int err)
 			return _("libarchive error");
 		case PM_ERR_INTERNAL_ERROR:
 			return _("internal error");
+		case PM_ERR_DISK_FULL:
+			return _("not enough space");
 		default:
 			return _("unexpected error");
 	}

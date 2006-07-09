@@ -411,7 +411,8 @@ extern enum __pmerrno_t {
 	/* Misc */
 	PM_ERR_USER_ABORT,
 	PM_ERR_INTERNAL_ERROR,
-	PM_ERR_LIBARCHIVE_ERROR
+	PM_ERR_LIBARCHIVE_ERROR,
+	PM_ERR_DISK_FULL
 } pm_errno;
 
 char *alpm_strerror(int err);

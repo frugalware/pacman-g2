@@ -32,7 +32,6 @@
 #include <libintl.h>
 /* pacman */
 #include "log.h"
-#include "util.h"
 #include "error.h"
 #include "list.h"
 #include "package.h"
@@ -42,6 +41,7 @@
 #include "conflict.h"
 #include "provide.h"
 #include "trans.h"
+#include "util.h"
 #include "sync.h"
 #include "versioncmp.h"
 #include "handle.h"
@@ -760,6 +760,12 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, PMList *dbs_sync, PML
 			}
 		}
 		/*EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
+	}
+
+	if(_alpm_check_freespace(trans, data) == -1) {
+			/* pm_errno is set by check_freespace */
+			ret = -1;
+			goto cleanup;
 	}
 
 cleanup:

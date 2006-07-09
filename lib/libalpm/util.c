@@ -41,10 +41,14 @@
 #ifdef CYGWIN
 #include <limits.h> /* PATH_MAX */
 #endif
+#include <sys/statvfs.h>
+#include <mntent.h>
+
 /* pacman */
 #include "log.h"
 #include "list.h"
 #include "trans.h"
+#include "sync.h"
 #include "util.h"
 #include "error.h"
 #include "alpm.h"
@@ -468,6 +472,67 @@ int _alpm_archive_read_entry_data_into_fd (struct archive *archive, int file) {
 		write (file, cache, length);
 
 	return ARCHIVE_OK;
+}
+
+long long _alpm_get_freespace()
+{
+	struct mntent *mnt;
+	char *table = MOUNTED;
+	FILE *fp;
+	long long ret=0;
+
+	fp = setmntent (table, "r");
+	if(!fp)
+		        return(-1);
+	while ((mnt = getmntent (fp)))
+	{
+		struct statvfs64 buf;
+
+		statvfs64(mnt->mnt_dir, &buf);
+		ret += buf.f_bavail * buf.f_bsize;
+	}
+	return(ret);
+}
+
+int _alpm_check_freespace(pmtrans_t *trans, PMList **data)
+{
+	PMList *i;
+	long long pkgsize=0, freespace;
+
+	for(i = trans->packages; i; i = i->next) {
+		pmsyncpkg_t *sync = i->data;
+		if(sync->type != PM_SYNC_TYPE_REPLACE) {
+			pmpkg_t *pkg = sync->pkg;
+			pkgsize += pkg->usize;
+		}
+	}
+	freespace = _alpm_get_freespace();
+	_alpm_log(PM_LOG_DEBUG, _("check_freespace: total pkg size: %lld, disk space: %lld"), pkgsize, freespace);
+	if(pkgsize > freespace) {
+		if(data) {
+			long long *ptr;
+			if((ptr = (long long*)malloc(sizeof(long long)))==NULL) {
+				_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(long long));
+				pm_errno = PM_ERR_MEMORY;
+				return(-1);
+			}
+			*ptr = pkgsize;
+			*data = _alpm_list_add(*data, ptr);
+			if((ptr = (long long*)malloc(sizeof(long long)))==NULL) {
+				_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(long long));
+				FREELIST(*data);
+				pm_errno = PM_ERR_MEMORY;
+				return(-1);
+			}
+			*ptr = freespace;
+			*data = _alpm_list_add(*data, ptr);
+		}
+		pm_errno = PM_ERR_DISK_FULL;
+		return(-1);
+	}
+	else {
+		return(0);
+	}
 }
 
 /* vim: set ts=2 sw=2 noet: */

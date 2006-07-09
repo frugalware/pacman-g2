@@ -59,7 +59,9 @@ int _alpm_logaction(unsigned char usesyslog, FILE *f, char *fmt, ...);
 int _alpm_ldconfig(char *root);
 #ifdef _ALPM_TRANS_H
 int _alpm_runscriptlet(char *util, char *installfn, char *script, char *ver, char *oldver, pmtrans_t *trans);
+int _alpm_check_freespace(pmtrans_t *trans, PMList **data);
 #endif
+long long _alpm_get_freespace();
 
 #endif /* _ALPM_UTIL_H */
 

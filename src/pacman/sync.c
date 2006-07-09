@@ -545,6 +545,7 @@ int pacman_sync(list_t *targets)
 	/* Step 2: "compute" the transaction based on targets and flags
 	 */
 	if(alpm_trans_prepare(&data) == -1) {
+		long long *pkgsize, *freespace;
 		ERR(NL, _("failed to prepare transaction (%s)\n"), alpm_strerror(pm_errno));
 		switch(pm_errno) {
 			case PM_ERR_UNSATISFIED_DEPS:
@@ -569,6 +570,15 @@ int pacman_sync(list_t *targets)
 					MSG(NL, _(":: %s: conflicts with %s"),
 						alpm_dep_getinfo(miss, PM_DEP_TARGET), alpm_dep_getinfo(miss, PM_DEP_NAME));
 				}
+				alpm_list_free(data);
+			break;
+			case PM_ERR_DISK_FULL:
+				lp = alpm_list_first(data);
+				pkgsize = alpm_list_getdata(lp);
+				lp = alpm_list_next(lp);
+				freespace = alpm_list_getdata(lp);
+					MSG(NL, _(":: %.1f MB required, have %.1f MB"),
+						(double)(*pkgsize / 1048576.0), (double)(*freespace / 1048576.0));
 				alpm_list_free(data);
 			break;
 			default:
