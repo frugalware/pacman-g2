@@ -186,6 +186,8 @@ static void cleanup(int signum)
 			"Please submit a full bug report, with the given package if appropriate.\n"
 			"See <URL:http://wiki.frugalware.org/Bugs> for instructions.\n");
 		exit(signum);
+	} else if((signum == SIGINT) && (alpm_trans_release() == -1)) {
+		return;
 	}
 	if(signum != 0 && config->op_d_vertest == 0) {
 		fprintf(stderr, "\n");
