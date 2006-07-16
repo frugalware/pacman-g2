@@ -48,6 +48,10 @@ AC_PROG_INSTALL
 AC_CHECK_FUNCS([strverscmp])
 AM_PROG_LIBTOOL
 
+dnl Humor lowers blood pressure
+AC_MSG_CHECKING(your blood pressure)
+AC_MSG_RESULT([a bit high, but we can proceed])
+
 dnl Help line for man2html
 AC_ARG_ENABLE(man2html,
     AC_HELP_STRING([--enable-man2html], [Build html docs via man2html]),
