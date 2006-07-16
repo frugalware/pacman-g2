@@ -1,5 +1,9 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.3.4         - handle the case properly when the user hits ^C during a
+                package install
+              - fix the output of scriptlet messages
+              - check if enough free space if available
 3.3.3         - pipe and parse scriptlet messages. see man FrugalBuild
               - new mirror: ftp10
               - udatesync: use bzip2 instead of gzip for package databases
