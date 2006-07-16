@@ -999,7 +999,9 @@ if [ "$NOUP2DATE" = "0" ]; then
 		fi
 	fi
 	if [ -z "$up2date" ]; then
-		warning "Version checking informations are missing. Cannot check for newer version."
+			echo "   FAILED" >&2
+			error "There was no output!"
+			exit 1
 	else
 		if [ "$pkgver" != "$up2date" ]; then
 			echo "   FAILED" >&2
