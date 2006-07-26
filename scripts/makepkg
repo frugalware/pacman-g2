@@ -848,13 +848,10 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	
 	msg "Copying config files to chroot"
 	cp -pf /etc/pacman.d/* $CHROOTDIR/etc/pacman.d >/dev/null &
-	cp -pf /etc/makepkg.conf $CHROOTDIR/etc >/dev/null &
-	cp -pf /etc/resolv.conf $CHROOTDIR/etc >/dev/null &
-	cp -pf /etc/passwd $CHROOTDIR/etc >/dev/null &
-	cp -pf /etc/shadow $CHROOTDIR/etc >/dev/null &
-	cp -pf /etc/group $CHROOTDIR/etc >/dev/null &
-	cp -pf /etc/fstab $CHROOTDIR/etc > /dev/null &
-	cp -pf /etc/mtab $CHROOTDIR/etc > /dev/null &
+	for i in makepkg.conf resolv.conf passwd shadow group fstab mtab
+	do
+		cp -pf /etc/$i $CHROOTDIR/etc >/dev/null &
+	done
 	chmod 644 $CHROOTDIR/etc/sudoers
 	echo "fst ALL=(ALL)       NOPASSWD: ALL" >$CHROOTDIR/etc/sudoers
 	chmod 440 $CHROOTDIR/etc/sudoers
