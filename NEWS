@@ -1,6 +1,7 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
-3.3.4         - handle the case properly when the user hits ^C during a
+3.3.4         - the old extra repo is now merged to the frugalware one
+              - handle the case properly when the user hits ^C during a
                 package install
               - fix the output of scriptlet messages
               - check if enough free space if available
