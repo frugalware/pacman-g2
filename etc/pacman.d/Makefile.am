@@ -1,4 +1,4 @@
-EXTRA_DIST = frugalware extra frugalware-current extra-current
+EXTRA_DIST = frugalware frugalware-current
 
 install-data-hook:
 	mkdir -p $(DESTDIR)$(sysconfdir)/pacman.d ; \

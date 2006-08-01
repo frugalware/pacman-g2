@@ -17,11 +17,9 @@ HoldPkg     = pacman glibc bash coreutils chkconfig
 
 # -current
 Include = /etc/pacman.d/frugalware-current
-Include = /etc/pacman.d/extra-current
 
 # -stable
 #Include = /etc/pacman.d/frugalware
-#Include = /etc/pacman.d/extra
 
 # An example of a custom package repository.  See the pacman manpage for
 # tips on creating your own repositories.
