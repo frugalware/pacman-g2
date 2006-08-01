@@ -76,10 +76,9 @@ directives, so we don't have to specify them here. After the Finclude you
 can overwrite the inherited directives, for example define a custom up2date
 if the inherited one is not sutable for you.
 
-The groups() array's first element can't be omitted, and it should be a
-valid "first group". This means it should be in a foo or bar-extra format,
-where foo is a dir under /source or bar is a dir under /extra/source in the
-FST.
+The groups() array's first element can't be omitted, and it should be a valid
+"first group". This means it should be in a foo or foo-extra format, where foo
+or foo-extra is a dir under /source in the FST.
 
 The archs() array defines for which architectures the given package is
 available. If it's not available, it means that gensync will skip it when
@@ -444,45 +443,6 @@ This will move the /usr/share dir of the package to the "subpkgname" subpackage.
 
 NOTE: never use a trailing slash when defining file patterns, especially if you
 use wildcards in it!
-
-Special case: subpkgs in other repos.
-
-The situation is the following: you have a package which is in the frugalware
-repo, but you want its subpackage to be in extra. It's a but tricky, but still
-possible.
-
-The trick is to create a fake FrugalBuild in the other repo. You could place
-it whereever you want, but to use repoman you need to place it under
-$fst/extra/source/subpkgs/pkgname, where pkgname is the name of the original
-main package.
-
-How to create that fake FrugalBuild?
-
-Copy the original one, but remove everything except the subfoo directives,
-pkgver and pkgrel. The next step is to clarify which subpackage have to be
-in which repo. This is done by removing the architectures from the subarchs()
-array.
-
-Example:
-.nf
-
-The old main:
-
-subpkgs=('foo' 'bar')
-subarchs=('i686 x86_64' 'i686 x86_64')
-
-The new main:
-subpkgs=('foo' 'bar')
-subarchs=('i686 x86_64' '')
-
-The new fake:
-subpkgs=('foo' 'bar')
-subarchs=('' 'i686 x86_64')
-
-.fi
-This means that bar is expected to be uploaded to extra, while foo is still in
-the frugalware repo. If you move all the subpackages to extra, then of course
-you can remove the whole subarchs() array from the main FrugalBuild.
 
 .SH "SEE ALSO"
 .BR makepkg (8),
