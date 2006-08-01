@@ -7,7 +7,7 @@ pkgver=@PACKAGE_VERSION@
 pkgrel=1
 pkgdesc="A .tar.bz2 based package manager with dependency support"
 url="http://ftp.frugalware.org/pub/other/pacman/"
-backup=(etc/{makepkg,pacman}.conf etc/pacman.d/{frugalware,frugalware-current,extra,extra-current})
+backup=(etc/{makepkg,pacman}.conf etc/pacman.d/{frugalware,frugalware-current})
 depends=('libarchive>=1.2.51')
 makedepends=('doxygen')
 groups=('base' 'chroot-core')
