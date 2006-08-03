@@ -109,7 +109,7 @@ GLOBALDEF int ftplib_debug = 0;
 	 */
 void *memccpy(void *dest, const void *src, int c, size_t n)
 {
-	int i=0;
+	unsigned int i=0;
 	const unsigned char *ip=src;
 	unsigned char *op=dest;
 
