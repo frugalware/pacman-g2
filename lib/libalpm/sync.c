@@ -986,6 +986,8 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 
 error:
 	FREETRANS(tr);
+	/* commiting failed, so this is still just a prepared transaction */
+	trans->state = STATE_PREPARED;
 	return(-1);
 }
 
