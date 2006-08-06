@@ -520,8 +520,8 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 						close(fd);
 						continue;
 					}
-					md5_local = MDFile(expath);
-					md5_pkg = MDFile(temp);
+					md5_local = _alpm_MDFile(expath);
+					md5_pkg = _alpm_MDFile(temp);
 					sha1_local = SHAFile(expath);
 					sha1_pkg = SHAFile(temp);
 					/* append the new md5 or sha1 hash to it's respective entry in info->backup
@@ -679,7 +679,7 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 							_alpm_log(PM_LOG_DEBUG, _("appending backup entry"));
 							snprintf(path, PATH_MAX, "%s%s", handle->root, file);
 							if (info->sha1sum != NULL && info->sha1sum != '\0') {
-							    md5 = MDFile(path);
+							    md5 = _alpm_MDFile(path);
 							    /* 32 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
 							    if((fn = (char *)malloc(strlen(file)+34)) == NULL) {
 										RET_ERR(PM_ERR_MEMORY, -1);

@@ -616,7 +616,7 @@ int alpm_pkg_checkmd5sum(pmpkg_t *pkg)
 	                handle->root, handle->cachedir,
 	                pkg->name, pkg->version);
 
-	md5sum = MDFile(path);
+	md5sum = _alpm_MDFile(path);
 	if(md5sum == NULL) {
 		_alpm_log(PM_LOG_ERROR, _("could not get md5 checksum for package %s-%s\n"),
 		          pkg->name, pkg->version);
@@ -1074,7 +1074,7 @@ char *alpm_get_md5sum(char *name)
 {
 	ASSERT(name != NULL, return(NULL));
 
-	return(MDFile(name));
+	return(_alpm_MDFile(name));
 }
 
 /** Get the sha1 sum of file.

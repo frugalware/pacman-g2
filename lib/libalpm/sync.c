@@ -813,7 +813,7 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 			continue;
 		}
 		snprintf(str, PATH_MAX, "%s/%s/%s", handle->root, handle->cachedir, pkgname);
-		md5sum2 = MDFile(str);
+		md5sum2 = _alpm_MDFile(str);
 		sha1sum2 = SHAFile(str);
 		if(md5sum2 == NULL && sha1sum2 == NULL) {
 			if((ptr = (char *)malloc(512)) == NULL) {
