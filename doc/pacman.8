@@ -87,6 +87,21 @@ Specify an alternate configuration file.
 Bypass any and all "Are you sure?" messages.  It's not a good idea to do this
 unless you want to run pacman from a script.
 .TP
+.B "\-\-ask <number>"
+Finetune the --noconfirm switch by not answering "yes" to all libalpm
+questions, but you are able to specify yes/no for all type of libalpm
+questions. The types are the followings:
+.nf
+The given package is in IgnorePkg. (1)
+Replace package foo with bar? (2)
+foo conflicts with bar. Remove bar? (4)
+Do you want to delete the corrupted package? (8)
+Local version is newer. (16)
+Local version is up to date. (32)
+.fi
+Select for what types do you want to answer yes, sum up the values and use the
+result as a parameter to this option.
+.TP
 .B "\-\-noprogressbar"
 Do not show a progress bar when downloading files.  This can be useful for
 scripts that call pacman and capture the output.

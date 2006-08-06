@@ -154,6 +154,7 @@ static void usage(int op, char *myname)
 		}
 		printf(_("      --config <path> set an alternate configuration file\n"));
 		printf(_("      --noconfirm     do not ask for anything confirmation\n"));
+		printf(_("      --ask  <number> pre-specify answers for questions (see manpage)\n"));
 		printf(_("      --noprogressbar do not show a progress bar when downloading files\n"));
 		printf(_("      --noscriptlet   do not execute the install scriptlet if there is any\n"));
 		printf(_("  -v, --verbose       be verbose\n"));
@@ -286,6 +287,7 @@ static int parseargs(int argc, char *argv[])
 		{"debug",      required_argument, 0, 1003},
 		{"noprogressbar",  no_argument,   0, 1004},
 		{"noscriptlet", no_argument,      0, 1005},
+		{"ask",        required_argument, 0, 1006},
 		{0, 0, 0, 0}
 	};
 	char root[PATH_MAX];
@@ -311,6 +313,7 @@ static int parseargs(int argc, char *argv[])
 			case 1003: config->debug = atoi(optarg); break;
 			case 1004: config->noprogressbar = 1; break;
 			case 1005: config->flags |= PM_TRANS_FLAG_NOSCRIPTLET; break;
+			case 1006: config->noask = 1; config->ask = atoi(optarg); break;
 			case 'A': config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_ADD); break;
 			case 'D':
 				config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_DEPTEST);

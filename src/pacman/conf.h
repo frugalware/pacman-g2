@@ -56,6 +56,8 @@ typedef struct __config_t {
 	unsigned short group;
 	unsigned int flags;
 	unsigned short debug;
+	unsigned short noask;
+	unsigned int ask;
 	/* configuration file option */
 	char *proxyhost;
 	unsigned short proxyport;
