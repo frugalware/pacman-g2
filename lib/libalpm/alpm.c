@@ -74,7 +74,7 @@ int alpm_initialize(char *root)
 
 	ASSERT(handle == NULL, RET_ERR(PM_ERR_HANDLE_NOT_NULL, -1));
 
-	handle = handle_new();
+	handle = _alpm_handle_new();
 	if(handle == NULL) {
 		RET_ERR(PM_ERR_MEMORY, -1);
 	}
@@ -135,7 +135,7 @@ int alpm_set_option(unsigned char parm, unsigned long data)
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
-	return(handle_set_option(handle, parm, data));
+	return(_alpm_handle_set_option(handle, parm, data));
 }
 
 /** Get the value of a library option.
@@ -149,7 +149,7 @@ int alpm_get_option(unsigned char parm, long *data)
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 	ASSERT(data != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	return(handle_get_option(handle, parm, data));
+	return(_alpm_handle_get_option(handle, parm, data));
 }
 /** @} */
 

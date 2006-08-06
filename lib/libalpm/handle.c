@@ -41,7 +41,7 @@
 extern alpm_cb_log pm_logcb;
 extern unsigned char pm_logmask;
 
-pmhandle_t *handle_new()
+pmhandle_t *_alpm_handle_new()
 {
 	pmhandle_t *handle;
 
@@ -84,7 +84,7 @@ pmhandle_t *handle_new()
 	return(handle);
 }
 
-int handle_free(pmhandle_t *handle)
+int _alpm_handle_free(pmhandle_t *handle)
 {
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
@@ -113,7 +113,7 @@ int handle_free(pmhandle_t *handle)
 	return(0);
 }
 
-int handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long data)
+int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long data)
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -213,7 +213,7 @@ int handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long data)
 	return(0);
 }
 
-int handle_get_option(pmhandle_t *handle, unsigned char val, long *data)
+int _alpm_handle_get_option(pmhandle_t *handle, unsigned char val, long *data)
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
