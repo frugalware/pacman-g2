@@ -568,7 +568,7 @@ int alpm_pkg_checksha1sum(pmpkg_t *pkg)
 	                handle->root, handle->cachedir,
 	                pkg->name, pkg->version);
 
-	sha1sum = SHAFile(path);
+	sha1sum = _alpm_SHAFile(path);
 	if(sha1sum == NULL) {
 		_alpm_log(PM_LOG_ERROR, _("could not get sha1 checksum for package %s-%s\n"),
 		          pkg->name, pkg->version);
@@ -1085,7 +1085,7 @@ char *alpm_get_sha1sum(char *name)
 {
 	ASSERT(name != NULL, return(NULL));
 
-	return(SHAFile(name));
+	return(_alpm_SHAFile(name));
 }
 /* @} */
 

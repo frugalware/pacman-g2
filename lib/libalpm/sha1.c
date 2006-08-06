@@ -63,12 +63,34 @@
 static const unsigned char fillbuf[64] = { 0x80, 0 /* , 0, 0, ...  */ };
 
 
+/* Starting with the result of former calls of this function (or the
+   initialization function update the context for the next LEN bytes
+   starting at BUFFER.
+   It is necessary that LEN is a multiple of 64!!! */
+static void sha_process_block (const void *buffer, size_t len,
+			       struct sha_ctx *ctx);
+
+/* Starting with the result of former calls of this function (or the
+   initialization function update the context for the next LEN bytes
+   starting at BUFFER.
+   It is NOT required that LEN is a multiple of 64.  */
+static void sha_process_bytes (const void *buffer, size_t len,
+			       struct sha_ctx *ctx);
+
+/* Put result from CTX in first 20 bytes following RESBUF.  The result is
+   always in little endian byte order, so that a byte-wise output yields
+   to the wanted ASCII representation of the message digest.
+
+   IMPORTANT: On some systems it is required that RESBUF is correctly
+   aligned for a 32 bits value.  */
+static void *sha_read_ctx (const struct sha_ctx *ctx, void *resbuf);
+
 /*
   Takes a pointer to a 160 bit block of data (five 32 bit ints) and
   intializes it to the start constants of the SHA1 algorithm.  This
   must be called before using hash in the call to sha_hash
 */
-void
+static void
 sha_init_ctx (struct sha_ctx *ctx)
 {
   ctx->A = 0x67452301;
@@ -86,7 +108,7 @@ sha_init_ctx (struct sha_ctx *ctx)
 
    IMPORTANT: On some systems it is required that RESBUF is correctly
    aligned for a 32 bits value.  */
-void *
+static void *
 sha_read_ctx (const struct sha_ctx *ctx, void *resbuf)
 {
   ((sha_uint32 *) resbuf)[0] = NOTSWAP (ctx->A);
@@ -103,7 +125,7 @@ sha_read_ctx (const struct sha_ctx *ctx, void *resbuf)
 
    IMPORTANT: On some systems it is required that RESBUF is correctly
    aligned for a 32 bits value.  */
-void *
+static void *
 sha_finish_ctx (struct sha_ctx *ctx, void *resbuf)
 {
   /* Take yet unprocessed bytes into account.  */
@@ -129,92 +151,7 @@ sha_finish_ctx (struct sha_ctx *ctx, void *resbuf)
   return sha_read_ctx (ctx, resbuf);
 }
 
-/* Compute SHA1 message digest for bytes read from STREAM.  The
-   resulting message digest number will be written into the 16 bytes
-   beginning at RESBLOCK.  */
-int
-sha_stream (FILE *stream, void *resblock)
-{
-  struct sha_ctx ctx;
-  char buffer[BLOCKSIZE + 72];
-  size_t sum;
-
-  /* Initialize the computation context.  */
-  sha_init_ctx (&ctx);
-
-  /* Iterate over full file contents.  */
-  while (1)
-    {
-      /* We read the file in blocks of BLOCKSIZE bytes.  One call of the
-	 computation function processes the whole buffer so that with the
-	 next round of the loop another block can be read.  */
-      size_t n;
-      sum = 0;
-
-      /* Read block.  Take care for partial reads.  */
-      while (1)
-	{
-	  n = fread (buffer + sum, 1, BLOCKSIZE - sum, stream);
-
-	  sum += n;
-
-	  if (sum == BLOCKSIZE)
-	    break;
-
-	  if (n == 0)
-	    {
-	      /* Check for the error flag IFF N == 0, so that we don't
-		 exit the loop after a partial read due to e.g., EAGAIN
-		 or EWOULDBLOCK.  */
-	      if (ferror (stream))
-		return 1;
-	      goto process_partial_block;
-	    }
-
-	  /* We've read at least one byte, so ignore errors.  But always
-	     check for EOF, since feof may be true even though N > 0.
-	     Otherwise, we could end up calling fread after EOF.  */
-	  if (feof (stream))
-	    goto process_partial_block;
-	}
-
-      /* Process buffer with BLOCKSIZE bytes.  Note that
-			BLOCKSIZE % 64 == 0
-       */
-      sha_process_block (buffer, BLOCKSIZE, &ctx);
-    }
-
- process_partial_block:;
-
-  /* Process any remaining bytes.  */
-  if (sum > 0)
-    sha_process_bytes (buffer, sum, &ctx);
-
-  /* Construct result in desired memory.  */
-  sha_finish_ctx (&ctx, resblock);
-  return 0;
-}
-
-/* Compute MD5 message digest for LEN bytes beginning at BUFFER.  The
-   result is always in little endian byte order, so that a byte-wise
-   output yields to the wanted ASCII representation of the message
-   digest.  */
-void *
-sha_buffer (const char *buffer, size_t len, void *resblock)
-{
-  struct sha_ctx ctx;
-
-  /* Initialize the computation context.  */
-  sha_init_ctx (&ctx);
-
-  /* Process whole buffer but last len % 64 bytes.  */
-  sha_process_bytes (buffer, len, &ctx);
-
-  /* Put result in desired memory area.  */
-  return sha_finish_ctx (&ctx, resblock);
-}
-
-void
+static void
 sha_process_bytes (const void *buffer, size_t len, struct sha_ctx *ctx)
 {
   /* When we already have some bits in our internal buffer concatenate
@@ -303,7 +240,7 @@ sha_process_bytes (const void *buffer, size_t len, struct sha_ctx *ctx)
    It is assumed that LEN % 64 == 0.
    Most of this code comes from GnuPG's cipher/sha1.c.  */
 
-void
+static void
 sha_process_block (const void *buffer, size_t len, struct sha_ctx *ctx)
 {
   const sha_uint32 *words = buffer;
@@ -447,7 +384,7 @@ documentation and/or software.
  */
 
 
-char* SHAFile(char *filename) {
+char* _alpm_SHAFile(char *filename) {
     FILE *file;
     struct sha_ctx context;
     int len, i;
@@ -475,10 +412,4 @@ char* SHAFile(char *filename) {
     }
 
     return(NULL);
-}
-
-void SHAPrint(unsigned char digest[20]) {
-    unsigned int i;
-    for (i = 0; i < 20; i++)
-    printf ("\n%02x", digest[i]);
 }
