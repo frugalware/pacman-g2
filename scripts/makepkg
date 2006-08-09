@@ -50,7 +50,6 @@ CHROOT=0
 LOGGING=0
 NOUP2DATE=0
 GZIP=0
-NOSTRIP=0
 NODOCS=0
 TREE="current"
 
@@ -471,6 +470,26 @@ create_pkg()
 			plain ""
 			sleep 1
 		fi
+	fi
+}
+
+strip_pkg()
+{
+	local dir=""
+	if [ "$1" = "$pkgname" ]; then
+		dir="$startdir/pkg"
+	else
+		dir="$startdir/pkg.$1"
+	fi
+	if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
+		msg "Stripping debugging symbols from libraries from $1..."
+		find $dir/{,usr,usr/local,opt/*}/lib -type f -not -name "*.dll" -not -name "*.exe" \
+			-exec /usr/bin/strip --strip-debug '{}' \; 2>&1 \
+			| grep -v "No such file" | grep -v "format not recognized"
+		msg "Stripping symbols from binaries from $i..."
+		find $dir/{,usr,usr/local,opt/*}/{bin,sbin} -type f -not -name "*.dll" -not -name "*.exe" \
+			-exec /usr/bin/strip '{}' \; 2>&1 \
+			| grep -v "No such file" | grep -v "format not recognized"
 	fi
 }
 
@@ -1406,15 +1425,16 @@ find $startdir/pkg*/{usr{,/local,/share},opt/*}/man -type f 2>/dev/null | while 
 done
 
 # strip binaries
-if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
-	msg "Stripping debugging symbols from libraries..."
-	find pkg*/{,usr,usr/local,opt/*}/lib -type f -not -name "*.dll" -not -name "*.exe" \
-		-exec /usr/bin/strip --strip-debug '{}' \; 2>&1 \
-		| grep -v "No such file" | grep -v "format not recognized"
-	msg "Stripping symbols from binaries..."
-	find pkg*/{,usr,usr/local,opt/*}/{bin,sbin} -type f -not -name "*.dll" -not -name "*.exe" \
-		-exec /usr/bin/strip '{}' \; 2>&1 \
-		| grep -v "No such file" | grep -v "format not recognized"
+strip_pkg $pkgname
+if [ -n "$subpkgs" ]; then
+	i=0
+	for subpkg in "${subpkgs[@]}"
+	do
+		unset options
+		options="${suboptions[$i]}"
+		strip_pkg $subpkg
+		i=$(($i+1))
+	done
 fi
 
 # get some package meta info
