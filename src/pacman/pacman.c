@@ -187,7 +187,8 @@ static void cleanup(int signum)
 			"Please submit a full bug report, with the given package if appropriate.\n"
 			"See <URL:http://wiki.frugalware.org/Bugs> for instructions.\n");
 		exit(signum);
-	} else if((signum == SIGINT) && (alpm_trans_release() == -1)) {
+	} else if((signum == SIGINT) && (alpm_trans_release() == -1) && (pm_errno ==
+				PM_ERR_TRANS_COMMITING)) {
 		return;
 	}
 	if(signum != 0 && config->op_d_vertest == 0) {
