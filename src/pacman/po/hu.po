@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: hu\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-08-09 17:47+0200\n"
-"PO-Revision-Date: 2006-06-03 03:50+0200\n"
+"PO-Revision-Date: 2006-08-09 18:00+0200\n"
 "Last-Translator: Miklos Vajna <vmiklos@frugalware.org>\n"
 "Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -77,7 +77,7 @@ msgstr ""
 #: ../add.c:143 ../sync.c:580
 #, c-format
 msgid ":: %.1f MB required, have %.1f MB"
-msgstr ""
+msgstr ":: %.1f MB szükséges, %.1f MB áll rendelkezésre"
 
 #: ../add.c:157 ../remove.c:149 ../sync.c:765
 #, c-format
@@ -479,14 +479,12 @@ msgid "Build Date     : %s %s\n"
 msgstr "Fordítás ideje : %s %s\n"
 
 #: ../package.c:60
-#, fuzzy, c-format
 msgid "Build Type     : %s\n"
-msgstr "Fordítás ideje : %s %s\n"
+msgstr "Fordítás Típusa: %s %s\n"
 
 #: ../package.c:60
-#, fuzzy
 msgid "Unknown"
-msgstr "Ismeretlen\n"
+msgstr "Ismeretlen"
 
 #: ../package.c:62
 #, c-format
@@ -902,7 +900,7 @@ msgstr "      --noconfirm     ne kérjen soha megerõsítést\n"
 #: ../pacman.c:157
 #, c-format
 msgid "      --ask  <number> pre-specify answers for questions (see manpage)\n"
-msgstr ""
+msgstr "      --ask  <szám> elõre megadja a válaszokat kérdésekre (ld. man oldal)\n"
 
 #: ../pacman.c:158
 #, c-format
@@ -1376,13 +1374,12 @@ msgid "checking package integrity... "
 msgstr "a csomagok integritásának ellenõrzése... "
 
 #: ../trans.c:130
-#, fuzzy
 msgid " done.\n"
-msgstr "kész.\n"
+msgstr " kész.\n"
 
 #: ../trans.c:132
 msgid " failed.\n"
-msgstr ""
+msgstr " sikertelen.\n"
 
 #: ../trans.c:151
 #, c-format
