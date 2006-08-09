@@ -879,6 +879,7 @@ int alpm_trans_release()
 		if(trans->state == STATE_COMMITING) {
 			trans->state = STATE_INTERRUPTED;
 		}
+		pm_errno = PM_ERR_TRANS_COMMITING;
 		return(-1);
 	}
 
