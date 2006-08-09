@@ -37,6 +37,7 @@ enum {
 #define PKG_DESC_LEN     512
 #define PKG_URL_LEN      256
 #define PKG_DATE_LEN     32
+#define PKG_TYPE_LEN     32
 #define PKG_PACKAGER_LEN 64
 #define PKG_MD5SUM_LEN   33
 #define PKG_SHA1SUM_LEN  41
@@ -48,6 +49,7 @@ typedef struct __pmpkg_t {
 	char desc[PKG_DESC_LEN];
 	char url[PKG_URL_LEN];
 	char builddate[PKG_DATE_LEN];
+	char buildtype[PKG_TYPE_LEN];
 	char installdate[PKG_DATE_LEN];
 	char packager[PKG_PACKAGER_LEN];
 	char md5sum[PKG_MD5SUM_LEN];

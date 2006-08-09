@@ -229,6 +229,11 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 					goto error;
 				}
 				_alpm_strtrim(info->builddate);
+			} else if(!strcmp(line, "%BUILDTYPE%")) {
+				if(fgets(info->buildtype, sizeof(info->buildtype), fp) == NULL) {
+					goto error;
+				}
+				_alpm_strtrim(info->buildtype);
 			} else if(!strcmp(line, "%INSTALLDATE%")) {
 				if(fgets(info->installdate, sizeof(info->installdate), fp) == NULL) {
 					goto error;
@@ -452,6 +457,10 @@ int _alpm_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 			if(info->builddate[0]) {
 				fprintf(fp, "%%BUILDDATE%%\n"
 					"%s\n\n", info->builddate);
+			}
+			if(info->buildtype[0]) {
+				fprintf(fp, "%%BUILDTYPE%%\n"
+					"%s\n\n", info->buildtype);
 			}
 			if(info->installdate[0]) {
 				fprintf(fp, "%%INSTALLDATE%%\n"

@@ -487,6 +487,7 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 		case PM_PKG_URL:         data = pkg->url; break;
 		case PM_PKG_ARCH:        data = pkg->arch; break;
 		case PM_PKG_BUILDDATE:   data = pkg->builddate; break;
+		case PM_PKG_BUILDTYPE:   data = pkg->buildtype; break;
 		case PM_PKG_INSTALLDATE: data = pkg->installdate; break;
 		case PM_PKG_PACKAGER:    data = pkg->packager; break;
 		case PM_PKG_SIZE:        data = (void *)pkg->size; break;

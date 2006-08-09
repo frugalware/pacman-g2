@@ -58,6 +58,7 @@ pmpkg_t *_alpm_pkg_new(const char *name, const char *version)
 	pkg->license        = NULL;
 	pkg->desc_localized = NULL;
 	pkg->builddate[0]   = '\0';
+	pkg->buildtype[0]   = '\0';
 	pkg->installdate[0] = '\0';
 	pkg->packager[0]    = '\0';
 	pkg->md5sum[0]      = '\0';
@@ -100,6 +101,7 @@ pmpkg_t *_alpm_pkg_dup(pmpkg_t *pkg)
 	STRNCPY(newpkg->desc, pkg->desc, PKG_DESC_LEN);
 	STRNCPY(newpkg->url, pkg->url, PKG_URL_LEN);
 	STRNCPY(newpkg->builddate, pkg->builddate, PKG_DATE_LEN);
+	STRNCPY(newpkg->buildtype, pkg->buildtype, PKG_DATE_LEN);
 	STRNCPY(newpkg->installdate, pkg->installdate, PKG_DATE_LEN);
 	STRNCPY(newpkg->packager, pkg->packager, PKG_PACKAGER_LEN);
 	STRNCPY(newpkg->md5sum, pkg->md5sum, PKG_MD5SUM_LEN);
@@ -222,6 +224,8 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 				info->license = _alpm_list_add(info->license, strdup(ptr));
 			} else if(!strcmp(key, "BUILDDATE")) {
 				STRNCPY(info->builddate, ptr, sizeof(info->builddate));
+			} else if(!strcmp(key, "BUILDTYPE")) {
+				STRNCPY(info->buildtype, ptr, sizeof(info->buildtype));
 			} else if(!strcmp(key, "INSTALLDATE")) {
 				STRNCPY(info->installdate, ptr, sizeof(info->installdate));
 			} else if(!strcmp(key, "PACKAGER")) {
