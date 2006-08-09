@@ -37,7 +37,7 @@
  */
 void dump_pkg_full(PM_PKG *pkg, int level)
 {
-	char *date;
+	char *date, *type;
 
 	if(pkg == NULL) {
 		return;
@@ -56,6 +56,8 @@ void dump_pkg_full(PM_PKG *pkg, int level)
 
 	date = alpm_pkg_getinfo(pkg, PM_PKG_BUILDDATE);
 	printf(_("Build Date     : %s %s\n"), date, strlen(date) ? "UTC" : "");
+	type = alpm_pkg_getinfo(pkg, PM_PKG_BUILDTYPE);
+	printf(_("Build Type     : %s\n"), strlen(type) ? type : _("Unknown"));
 	date = alpm_pkg_getinfo(pkg, PM_PKG_INSTALLDATE);
 	printf(_("Install Date   : %s %s\n"), date, strlen(date) ? "UTC" : "");
 
