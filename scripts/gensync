@@ -21,13 +21,11 @@
 #   USA.
 #
 
-myver='2.9.8'
-
 [ -z "$arch" ] && arch=`arch`
 CARCH="$arch"
 
 usage() {
-  echo "gensync $myver"
+  echo "gensync"
   echo "usage: $0 <root> <destfile> [package_directory]"
 	echo
 	echo "gensync will generate a sync database by reading all FrugalBuild files"

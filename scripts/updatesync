@@ -21,13 +21,11 @@
 #   USA.
 #
 
-myver='2.9.8'
-
 [ -z "$arch" ] && arch=`arch`
 CARCH="$arch"
 
 usage() {
-	echo "updatesync $myver"
+	echo "updatesync"
 	echo "usage: $0 <action> <destfile> <option> [package_directory]"
 	echo
 	echo "updatesync will update a sync database by reading a FrugalBuild and"

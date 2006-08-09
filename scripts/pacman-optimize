@@ -20,10 +20,8 @@
 #   USA.
 #
 
-myver='2.9.8'
-
 usage() {
-	echo "pacman-optimize $myver"
+	echo "pacman-optimize"
 	echo "usage: $0 [pacman_db_root]"
 	echo
 	echo "pacman-optimize is a little hack that should improve the performance"
