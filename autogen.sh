@@ -27,6 +27,30 @@ if [ "$1" == "--dist" ]; then
 		echo "Now type: 'cd dist; makepkg -ci'."
 	fi
 	exit 0
+elif [ "$1" == "--gettext-only" ]; then
+	sh autoclean.sh
+	for i in lib/libalpm/po src/pacman/po
+	do
+		cd $i
+		mv Makevars Makevars.tmp
+		package=`pwd|sed 's|.*/\(.*\)/.*|\1|'`
+		intltool-update --pot --gettext-package=$package
+		for j in *.po
+		do
+			if msgmerge $j $package.pot -o $j.new; then
+				mv -f $j.new $j
+				echo -n "$i/$j: "
+				msgfmt -c --statistics -o $j.gmo $j
+				rm -f $j.gmo
+			else
+				echo "msgmerge for $j failed!"
+				rm -f $j.new
+			fi
+		done
+		mv Makevars.tmp Makevars
+		cd - >/dev/null
+	done
+	exit 0
 fi
 
 libtoolize -f -c
