@@ -1,5 +1,13 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.3.5         - fixed a stale lockfile problem (when packages were corrupted)
+              - fixed problem when sometimes ^C was ignored 
+              - new pacman option: --ask
+              - libalpm: prefixed all internal functions with _alpm
+              - makepkg: bugfix for suboptions=('nostrip')
+	      - new package property: "build type" - it can be "chroot" or
+	        custom
+              - updated Hungarian translation
 3.3.4         - the old extra repo is now merged to the frugalware one
               - handle the case properly when the user hits ^C during a
                 package install
