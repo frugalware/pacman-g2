@@ -21,7 +21,7 @@
 #ifndef _ALPM_PACKAGE_H
 #define _ALPM_PACKAGE_H
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(__sun__)
 #include <time.h>
 #endif
 #include "list.h"

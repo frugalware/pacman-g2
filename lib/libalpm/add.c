@@ -21,6 +21,8 @@
 
 #if defined(__APPLE__) || defined(__OpenBSD__)
 #include <sys/syslimits.h>
+#endif
+#if defined(__APPLE__) || defined(__OpenBSD__) || defined(__sun__)
 #include <sys/stat.h>
 #endif
 
@@ -289,10 +291,12 @@ int _alpm_add_prepare(pmtrans_t *trans, pmdb_t *db, PMList **data)
 		EVENT(trans, PM_TRANS_EVT_FILECONFLICTS_DONE, NULL, NULL);
 	}
 
+#ifndef __sun__
 	if(_alpm_check_freespace(trans, data) == -1) {
 			/* pm_errno is set by check_freespace */
 			return(-1);
 	}
+#endif
 
 	return(0);
 }

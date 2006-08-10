@@ -21,6 +21,8 @@
 
 #if defined(__APPLE__) || defined(__OpenBSD__)
 #include <sys/syslimits.h>
+#endif
+#if defined(__APPLE__) || defined(__OpenBSD__) || defined(__sun__)
 #include <sys/stat.h>
 #endif
 
@@ -42,7 +44,9 @@
 #include <limits.h> /* PATH_MAX */
 #endif
 #include <sys/statvfs.h>
+#ifndef __sun__
 #include <mntent.h>
+#endif
 
 /* pacman */
 #include "log.h"
@@ -474,6 +478,7 @@ int _alpm_archive_read_entry_data_into_fd (struct archive *archive, int file) {
 	return ARCHIVE_OK;
 }
 
+#ifndef __sun__
 static long long get_freespace()
 {
 	struct mntent *mnt;
@@ -542,5 +547,6 @@ int _alpm_check_freespace(pmtrans_t *trans, PMList **data)
 		return(0);
 	}
 }
+#endif
 
 /* vim: set ts=2 sw=2 noet: */
