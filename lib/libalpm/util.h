@@ -41,7 +41,11 @@
 
 #define ARCHIVE_EXTRACT_FLAGS ARCHIVE_EXTRACT_OWNER | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_TIME
 
+#ifdef ENABLE_NLS
 #define _(str) dgettext ("libalpm", str)
+#else
+#define _(s) s
+#endif
 
 #define STARTSTR "START "
 #define DONESTR "DONE "
