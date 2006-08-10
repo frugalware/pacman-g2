@@ -209,7 +209,10 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 			} else if(!strcmp(key, "PKGDESC")) {
 				char *lang_tmp;
 				info->desc_localized = _alpm_list_add(info->desc_localized, strdup(ptr));
-				asprintf(&lang_tmp, "%s", setlocale(LC_ALL, ""));
+				if((lang_tmp = (char *)malloc(strlen(setlocale(LC_ALL, "")))) == NULL) {
+					RET_ERR(PM_ERR_MEMORY, -1);
+				}
+				STRNCPY(lang_tmp, setlocale(LC_ALL, ""), strlen(setlocale(LC_ALL, "")));
 				if(info->desc_localized && !info->desc_localized->next) {
 					STRNCPY(info->desc, ptr, sizeof(info->desc));
 				} else if (ptr && !strncmp(ptr, lang_tmp, strlen(lang_tmp))) {

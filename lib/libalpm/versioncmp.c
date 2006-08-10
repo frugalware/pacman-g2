@@ -176,26 +176,26 @@ int _alpm_versioncmp(const char *a, const char *b)
 	two = str2;
 
 	while(*one || *two) {
-		while(*one && !isalnum(*one)) one++;
-		while(*two && !isalnum(*two)) two++;
+		while(*one && !isalnum((int)*one)) one++;
+		while(*two && !isalnum((int)*two)) two++;
 
 		ptr1 = one;
 		ptr2 = two;
 
 		/* find the next segment for each string */
-		if(isdigit(*ptr1)) {
+		if(isdigit((int)*ptr1)) {
 			is1num = 1;
-			while(*ptr1 && isdigit(*ptr1)) ptr1++;
+			while(*ptr1 && isdigit((int)*ptr1)) ptr1++;
 		} else {
 			is1num = 0;
-			while(*ptr1 && isalpha(*ptr1)) ptr1++;
+			while(*ptr1 && isalpha((int)*ptr1)) ptr1++;
 		}
-		if(isdigit(*ptr2)) {
+		if(isdigit((int)*ptr2)) {
 			is2num = 1;
-			while(*ptr2 && isdigit(*ptr2)) ptr2++;
+			while(*ptr2 && isdigit((int)*ptr2)) ptr2++;
 		} else {
 			is2num = 0;
-			while(*ptr2 && isalpha(*ptr2)) ptr2++;
+			while(*ptr2 && isalpha((int)*ptr2)) ptr2++;
 		}
 
 		oldch1 = *ptr1;

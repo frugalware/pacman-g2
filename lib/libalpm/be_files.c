@@ -25,6 +25,9 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#ifdef __sun__
+#include <strings.h>
+#endif
 #include <sys/stat.h>
 #include <dirent.h>
 #include <libintl.h>
@@ -37,6 +40,7 @@
 #include "util.h"
 #include "db.h"
 #include "alpm.h"
+#include "error.h"
 
 int _alpm_db_open(pmdb_t *db)
 {
@@ -188,7 +192,10 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 					info->desc_localized = _alpm_list_add(info->desc_localized, strdup(line));
 				}
 
-				asprintf(&lang_tmp, "%s", setlocale(LC_ALL, ""));
+				if((lang_tmp = (char *)malloc(strlen(setlocale(LC_ALL, "")))) == NULL) {
+					RET_ERR(PM_ERR_MEMORY, -1);
+				}
+				snprintf(lang_tmp, strlen(setlocale(LC_ALL, "")), "%s", setlocale(LC_ALL, ""));
 
 				if(info->desc_localized && !info->desc_localized->next) {
 				    snprintf(info->desc, 512, "%s", (char*)info->desc_localized->data);

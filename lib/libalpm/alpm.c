@@ -556,7 +556,7 @@ int alpm_pkg_free(pmpkg_t *pkg)
  */
 int alpm_pkg_checksha1sum(pmpkg_t *pkg)
 {
-	char *path = NULL;
+	char path[PATH_MAX];
 	char *sha1sum = NULL;
 	int retval = 0;
 
@@ -565,7 +565,7 @@ int alpm_pkg_checksha1sum(pmpkg_t *pkg)
 	ASSERT(pkg->origin == PKG_FROM_CACHE, RET_ERR(PM_ERR_PKG_INVALID, -1));
 	ASSERT(pkg->data != handle->db_local, RET_ERR(PM_ERR_PKG_INVALID, -1));
 
-	asprintf(&path, "%s%s/%s-%s" PM_EXT_PKG,
+	snprintf(path, PATH_MAX, "%s%s/%s-%s" PM_EXT_PKG,
 	                handle->root, handle->cachedir,
 	                pkg->name, pkg->version);
 
@@ -592,7 +592,6 @@ int alpm_pkg_checksha1sum(pmpkg_t *pkg)
 		}
 	}
 
-	FREE(path);
 	FREE(sha1sum);
 
 	return(retval);
@@ -604,7 +603,7 @@ int alpm_pkg_checksha1sum(pmpkg_t *pkg)
  */
 int alpm_pkg_checkmd5sum(pmpkg_t *pkg)
 {
-	char *path = NULL;
+	char path[PATH_MAX];
 	char *md5sum = NULL;
 	int retval = 0;
 
@@ -613,7 +612,7 @@ int alpm_pkg_checkmd5sum(pmpkg_t *pkg)
 	ASSERT(pkg->origin == PKG_FROM_CACHE, RET_ERR(PM_ERR_PKG_INVALID, -1));
 	ASSERT(pkg->data != handle->db_local, RET_ERR(PM_ERR_PKG_INVALID, -1));
 
-	asprintf(&path, "%s%s/%s-%s" PM_EXT_PKG,
+	snprintf(path, PATH_MAX, "%s%s/%s-%s" PM_EXT_PKG,
 	                handle->root, handle->cachedir,
 	                pkg->name, pkg->version);
 
@@ -640,7 +639,6 @@ int alpm_pkg_checkmd5sum(pmpkg_t *pkg)
 		}
 	}
 
-	FREE(path);
 	FREE(md5sum);
 
 	return(retval);

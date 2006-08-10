@@ -29,6 +29,9 @@
 #include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef __sun__
+#include <alloca.h>
+#endif
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
@@ -56,6 +59,60 @@
 #include "util.h"
 #include "error.h"
 #include "alpm.h"
+
+#ifdef __sun__
+/* This is a replacement for strsep which is not portable (missing on Solaris).
+ * Copyright (c) 2001 by François Gouget <fgouget_at_codeweavers.com> */
+char* strsep(char** str, const char* delims)
+{
+	char* token;
+
+	if (*str==NULL) {
+		/* No more tokens */
+		return NULL;
+	}
+
+	token=*str;
+	while (**str!='\0') {
+		if (strchr(delims,**str)!=NULL) {
+			**str='\0';
+			(*str)++;
+			return token;
+		}
+		(*str)++;
+	}
+	/* There is no other token */
+	*str=NULL;
+	return token;
+}
+
+/* Backported from Solaris Express 4/06
+ * Copyright (c) 2006 Sun Microsystems, Inc. */
+char * mkdtemp(char *template)
+{
+	char *t = alloca(strlen(template) + 1);
+	char *r;
+
+	/* Save template */
+	(void) strcpy(t, template);
+	for (; ; ) {
+		r = mktemp(template);
+
+		if (*r == '\0')
+			return (NULL);
+
+		if (mkdir(template, 0700) == 0)
+			return (r);
+
+		/* Other errors indicate persistent conditions. */
+		if (errno != EEXIST)
+			return (NULL);
+
+		/* Reset template */
+		(void) strcpy(template, t);
+	}
+}
+#endif
 
 /* does the same thing as 'mkdir -p' */
 int _alpm_makepath(char *path)
@@ -137,7 +194,7 @@ char *_alpm_strtrim(char *str)
 		return(str);
 	}
 
-	while(isspace(*pch)) {
+	while(isspace((int)*pch)) {
 		pch++;
 	}
 	if(pch != str) {
@@ -150,7 +207,7 @@ char *_alpm_strtrim(char *str)
 	}
 
 	pch = (char *)(str + (strlen(str) - 1));
-	while(isspace(*pch)) {
+	while(isspace((int)*pch)) {
 		pch--;
 	}
 	*++pch = '\0';

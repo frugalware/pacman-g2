@@ -63,6 +63,10 @@ int _alpm_runscriptlet(char *util, char *installfn, char *script, char *ver, cha
 int _alpm_check_freespace(pmtrans_t *trans, PMList **data);
 #endif
 #endif
+#ifdef __sun__
+char* strsep(char** str, const char* delims);
+char* mkdtemp(char *template);
+#endif
 
 #endif /* _ALPM_UTIL_H */
 

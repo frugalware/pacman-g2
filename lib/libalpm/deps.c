@@ -22,6 +22,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef __sun__
+#include <strings.h>
+#endif
 #include <libintl.h>
 #include <math.h>
 /* pacman */
