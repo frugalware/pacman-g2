@@ -290,7 +290,7 @@ pmpkg_t *_alpm_pkg_load(char *pkgfile)
 	archive_read_support_format_all (archive);
 
 	if (archive_read_open_file (archive, pkgfile, 10240) != ARCHIVE_OK)
-		RET_ERR(PM_ERR_PKG_OPEN, (pmpkg_t *)-1);
+		RET_ERR(PM_ERR_PKG_OPEN, NULL);
 
 	info = _alpm_pkg_new(NULL, NULL);
 	if(info == NULL) {
