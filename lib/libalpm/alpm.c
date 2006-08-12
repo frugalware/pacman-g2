@@ -52,6 +52,7 @@
 #include "sync.h"
 #include "handle.h"
 #include "provide.h"
+#include "server.h"
 #include "alpm.h"
 
 /* Globals */
@@ -285,6 +286,51 @@ void *alpm_db_getinfo(PM_DB *db, unsigned char parm)
 	}
 
 	return(data);
+}
+
+/** Set the serverlist of a database.
+ * @param db database pointer
+ * @param url url of the server
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
+int alpm_db_setserver(pmdb_t *db, char *url)
+{
+	int found = 0;
+
+	/* Sanity checks */
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+
+	if(strcmp(db->treename, "local") == 0) {
+		if(handle->db_local != NULL) {
+			found = 1;
+		}
+	} else {
+		PMList *i;
+		for(i = handle->dbs_sync; i && !found; i = i->next) {
+			pmdb_t *sdb = i->data;
+			if(strcmp(db->treename, sdb->treename) == 0) {
+				found = 1;
+			}
+		}
+	}
+	if(!found) {
+		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
+	}
+
+	if(url && strlen(url) != 0) {
+		pmserver_t *server;
+		if((server = _alpm_server_new(url)) == NULL) {
+			/* pm_errno is set by resolvedeps */
+			return(-1);
+		}
+		db->servers = _alpm_list_add(db->servers, server);
+		_alpm_log(PM_LOG_FLOW2, _("'%s' added to serverlist for '%s'"), url, db->treename);
+	} else {
+		FREELIST(db->servers);
+		_alpm_log(PM_LOG_FLOW2, _("serverlist flushed for '%s'"), db->treename);
+	}
+
+	return(0);
 }
 
 /** Update a package database

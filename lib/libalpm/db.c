@@ -67,6 +67,7 @@ pmdb_t *_alpm_db_new(char *root, char* dbpath, char *treename)
 
 	db->pkgcache = NULL;
 	db->grpcache = NULL;
+	db->servers = NULL;
 
 	return(db);
 }
@@ -75,6 +76,7 @@ void _alpm_db_free(void *data)
 {
 	pmdb_t *db = data;
 
+	FREELISTPKGS(db->servers);
 	free(db->path);
 	free(db);
 

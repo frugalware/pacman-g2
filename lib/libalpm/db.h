@@ -41,6 +41,7 @@ typedef struct __pmdb_t {
 	void *handle;
 	PMList *pkgcache;
 	PMList *grpcache;
+	PMList *servers;
 } pmdb_t;
 
 pmdb_t *_alpm_db_new(char *root, char *dbpath, char *treename);

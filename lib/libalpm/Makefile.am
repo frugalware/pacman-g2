@@ -27,6 +27,7 @@ TARGETS = md5driver.c \
 	remove.c \
 	sync.c \
 	handle.c \
+	server.c \
 	alpm.c
 TARGETS += be_files.c
 
