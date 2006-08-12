@@ -128,11 +128,6 @@ AC_SUBST(CARCHFLAGS)
 AC_SUBST(MARCHFLAG)
 AC_SUBST(CHOST)
 
-dnl Help line for more-warnings
-AC_ARG_ENABLE(more-warnings, 
-    AC_HELP_STRING([--disable-more-warnings], [Minimum compiler warnings]),
-    [set_more_warnings="${enableval}"], [warnings_default=yes])
-
 dnl Help line for debug
 AC_ARG_ENABLE(debug, [  --enable-debug    Enable debugging support], debug=yes)
 
@@ -201,31 +196,6 @@ else
     DOXYSTATUS="disabled by configure"
 fi
 
-dnl Enable or disable Warning FLAGS during compile
-AC_MSG_CHECKING(for more compiler warnings)
-if test "$GCC" = "yes" -a "$set_more_warnings" != "no"; then
-    AC_MSG_RESULT(yes)
-    CFLAGS="$CFLAGS -Wall -Wchar-subscripts -Wmissing-declarations -Wmissing-prototypes \
-    -Wnested-externs -Wsign-compare"
-    for option in -Wno-sign-compare; do
-	SAVE_CFLAGS="$CFLAGS"
-	CFLAGS="$CFLAGS $option"
-	AC_MSG_CHECKING([whether gcc understands $option])
-	AC_TRY_COMPILE([], [],
-	    has_option=yes,
-	    has_option=no,)
-	    if test $has_option = no; then
-		CFLAGS="$SAVE_CFLAGS"
-	    fi
-        AC_MSG_RESULT($has_option)
-        unset has_option
-        unset SAVE_CFLAGS
-    done
-    unset option
-else
-    AC_MSG_RESULT(no)
-fi
-
 dnl Enable or disable fakeroot code
 AC_MSG_CHECKING(for fakeroot proof support)
 if test x$fakeroot = xyes ; then
@@ -264,7 +234,7 @@ dnl Enable or disable debug code
 AC_MSG_CHECKING(for debug mode request)
 if test x$debug = xyes ; then
     AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xyes)
-	CFLAGS="-DPACMAN_DEBUG -DNEED_STRDUP -DNEED_MEMCCPY -Wall -Werror -std=c99 -W -O0 -fno-omit-frame-pointer -ggdb -g3"
+	CFLAGS="-g -Wall -Werror -std=c99 -DPACMAN_DEBUG -DNEED_STRDUP -DNEED_MEMCCPY"
     AC_MSG_RESULT(yes)
 else
     AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xno)
