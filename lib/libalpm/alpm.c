@@ -320,7 +320,7 @@ int alpm_db_setserver(pmdb_t *db, char *url)
 	if(url && strlen(url) != 0) {
 		pmserver_t *server;
 		if((server = _alpm_server_new(url)) == NULL) {
-			/* pm_errno is set by resolvedeps */
+			/* pm_errno is set by _alpm_server_new */
 			return(-1);
 		}
 		db->servers = _alpm_list_add(db->servers, server);
