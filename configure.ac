@@ -18,7 +18,7 @@ case "${host}" in
 esac
 
 dnl Define here the libalpm version number
-PM_MAJOR_VERSION=0
+PM_MAJOR_VERSION=1
 PM_MINOR_VERSION=3
 PM_MICRO_VERSION=3
 PM_MICRO_VERSION_SUFFIX=.5
