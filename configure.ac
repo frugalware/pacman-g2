@@ -260,6 +260,7 @@ etc/Makefile
 etc/pacman.d/Makefile
 etc/pacman.d/frugalware
 etc/pacman.d/frugalware-current
+bindings/python/Makefile
 Makefile
 ])
 
