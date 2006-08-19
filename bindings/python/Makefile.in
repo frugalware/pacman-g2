@@ -1,6 +1,7 @@
 top_srcdir = @top_srcdir@
 prefix = @prefix@
 
+CFLAGS = @CFLAGS@
 CFLAGS += $(shell python -c 'from distutils import sysconfig; print "-I" + sysconfig.get_python_inc()')
 CFLAGS += -I$(top_srcdir)/lib/libalpm
 ifeq ($(shell arch),x86_64)
@@ -25,6 +26,8 @@ alpm_wrap.c:
 
 alpm.pyc: alpm.py
 	python -c "import compileall; compileall.compile_dir('.',1,'.')"
+
+alpm.py: alpm_wrap.c
 
 install: install-so install-py
 
