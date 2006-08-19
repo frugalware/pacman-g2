@@ -317,14 +317,15 @@ int alpm_db_setserver(pmdb_t *db, char *url)
 		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
 	}
 
-	if(url && strlen(url) != 0) {
+	if(url && strlen(url)) {
 		pmserver_t *server;
 		if((server = _alpm_server_new(url)) == NULL) {
 			/* pm_errno is set by _alpm_server_new */
 			return(-1);
 		}
 		db->servers = _alpm_list_add(db->servers, server);
-		_alpm_log(PM_LOG_FLOW2, _("'%s' added to serverlist for '%s'"), url, db->treename);
+		_alpm_log(PM_LOG_FLOW2, _("adding new server to database '%s': protocol '%s', server '%s', path '%s'"),
+				db->treename, server->protocol, server->server, server->path);
 	} else {
 		FREELIST(db->servers);
 		_alpm_log(PM_LOG_FLOW2, _("serverlist flushed for '%s'"), db->treename);

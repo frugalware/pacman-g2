@@ -209,6 +209,7 @@ static void cleanup(int signum)
 			FREE(server->protocol);
 			FREE(server->server);
 			FREE(server->path);
+			FREE(server->url);
 		}
 		FREELIST(sync->servers);
 		FREE(sync->treename);

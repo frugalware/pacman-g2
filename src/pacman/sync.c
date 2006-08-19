@@ -363,7 +363,7 @@ int pacman_sync(list_t *targets)
 {
 	int confirm = 0;
 	int retval = 0;
-	list_t *i;
+	list_t *i, *j;
 	PM_LIST *packages, *data, *lp;
 	char *root, *cachedir;
 	char ldir[PATH_MAX];
@@ -386,6 +386,15 @@ int pacman_sync(list_t *targets)
 		if(sync->db == NULL) {
 			ERR(NL, "%s\n", alpm_strerror(pm_errno));
 			return(1);
+		}
+		for(j = sync->servers; j; j = j->next) {
+			server_t *server = j->data;
+			/*char url[PATH_MAX];
+			snprintf("%s://%s%s", server->protocol, server->server, server->path);*/
+			if(alpm_db_setserver(sync->db, server->url) == -1) {
+				ERR(NL, "%s\n", alpm_strerror(pm_errno));
+				return(1);
+			}
 		}
 	}
 
