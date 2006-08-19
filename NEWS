@@ -1,5 +1,12 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.3.6         - ported libalpm to Solaris/Sparc
+              - bugfixes in the Hungarian translation
+              - bugfix for pacman -Qi -p
+              - new function in libalpm: alpm_db_setserver()
+              - incremented libalpm's sover due to new error codes intruduced
+                by alpm_db_setserver()
+              - added python bindings
 3.3.5         - fixed a stale lockfile problem (when packages were corrupted)
               - fixed problem when sometimes ^C was ignored 
               - new pacman option: --ask
