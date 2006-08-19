@@ -41,7 +41,7 @@ typedef struct __pmserver_t {
 } pmserver_t;
 
 pmserver_t *_alpm_server_new(char *url);
-int _alpm_server_free(pmserver_t *server);
+void _alpm_server_free(void *data);
 #endif /* _ALPM_SERVER_H */
 
 /* vim: set ts=2 sw=2 noet: */

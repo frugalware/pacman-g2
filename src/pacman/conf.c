@@ -307,7 +307,6 @@ int parseconfig(char *file, config_t *config)
 						char *p;
 
 						MALLOC(server, sizeof(server_t));
-						server->url = strdup(ptr);
 						server->server = server->path = NULL;
 						server->protocol = NULL;
 

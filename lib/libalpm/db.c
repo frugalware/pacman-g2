@@ -40,6 +40,7 @@
 #include "log.h"
 #include "util.h"
 #include "error.h"
+#include "server.h"
 #include "db.h"
 #include "alpm.h"
 
@@ -76,7 +77,7 @@ void _alpm_db_free(void *data)
 {
 	pmdb_t *db = data;
 
-	FREELISTPKGS(db->servers);
+	FREELISTSERVERS(db->servers);
 	free(db->path);
 	free(db);
 

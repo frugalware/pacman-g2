@@ -389,9 +389,9 @@ int pacman_sync(list_t *targets)
 		}
 		for(j = sync->servers; j; j = j->next) {
 			server_t *server = j->data;
-			/*char url[PATH_MAX];
-			snprintf("%s://%s%s", server->protocol, server->server, server->path);*/
-			if(alpm_db_setserver(sync->db, server->url) == -1) {
+			char url[PATH_MAX];
+			snprintf(url, PATH_MAX, "%s://%s%s", server->protocol, server->server, server->path);
+			if(alpm_db_setserver(sync->db, url) == -1) {
 				ERR(NL, "%s\n", alpm_strerror(pm_errno));
 				return(1);
 			}

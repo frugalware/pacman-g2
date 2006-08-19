@@ -28,8 +28,6 @@ typedef struct __server_t {
 	char *protocol;
 	char *server;
 	char *path;
-	/* temporarily till we move this to libalpm */
-	char *url;
 } server_t;
 
 int downloadfiles(list_t *servers, const char *localpath, list_t *files);

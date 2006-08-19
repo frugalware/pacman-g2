@@ -95,17 +95,19 @@ pmserver_t *_alpm_server_new(char *url)
 	return(server);
 }
 
-int _alpm_server_free(pmserver_t *server)
+void _alpm_server_free(void *data)
 {
-	ASSERT(server != NULL, RET_ERR(PM_ERR_SERVER_NULL, -1));
+	pmserver_t *server = data;
+
+	if(server == NULL) {
+		return;
+	}
 
 	/* free memory */
 	FREE(server->protocol);
 	FREE(server->server);
 	FREE(server->path);
 	free(server);
-
-	return(0);
 }
 
 /* vim: set ts=2 sw=2 noet: */

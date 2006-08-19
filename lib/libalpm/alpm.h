@@ -383,7 +383,6 @@ extern enum __pmerrno_t {
 	PM_ERR_DB_WRITE,
 	PM_ERR_DB_REMOVE,
 	/* Servers */
-	PM_ERR_SERVER_NULL,
 	PM_ERR_SERVER_BAD_LOCATION,
 	PM_ERR_SERVER_PROTOCOL_UNSUPPORTED,
 	/* Configuration */
