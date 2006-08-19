@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-08-09 18:10+0200\n"
+"POT-Creation-Date: 2006-08-19 04:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../add.c:69 ../deptest.c:64 ../remove.c:83 ../sync.c:422 ../sync.c:461
+#: ../add.c:69 ../deptest.c:64 ../remove.c:83 ../sync.c:431 ../sync.c:470
 #, c-format
 msgid ""
 "       if you're sure a package manager is not already running,\n"
@@ -37,7 +37,7 @@ msgstr ""
 msgid "done."
 msgstr ""
 
-#: ../add.c:92 ../remove.c:109 ../sync.c:549
+#: ../add.c:92 ../remove.c:109 ../sync.c:558
 #, c-format
 msgid "failed to prepare transaction (%s)\n"
 msgstr ""
@@ -47,38 +47,38 @@ msgstr ""
 msgid ":: %s: requires %s"
 msgstr ""
 
-#: ../add.c:111 ../sync.c:570
+#: ../add.c:111 ../sync.c:579
 #, c-format
 msgid ":: %s: conflicts with %s"
 msgstr ""
 
-#: ../add.c:121 ../sync.c:772
+#: ../add.c:121 ../sync.c:781
 #, c-format
 msgid "%s%s exists in \"%s\" (target) and \"%s\" (target)"
 msgstr ""
 
-#: ../add.c:128 ../sync.c:779
+#: ../add.c:128 ../sync.c:788
 #, c-format
 msgid "%s: %s%s exists in filesystem"
 msgstr ""
 
-#: ../add.c:136 ../sync.c:787 ../sync.c:794
+#: ../add.c:136 ../sync.c:796 ../sync.c:803
 msgid ""
 "\n"
 "errors occurred, no packages were upgraded.\n"
 msgstr ""
 
-#: ../add.c:143 ../sync.c:580
+#: ../add.c:143 ../sync.c:589
 #, c-format
 msgid ":: %.1f MB required, have %.1f MB"
 msgstr ""
 
-#: ../add.c:157 ../remove.c:149 ../sync.c:765
+#: ../add.c:157 ../remove.c:149 ../sync.c:774
 #, c-format
 msgid "failed to commit transaction (%s)\n"
 msgstr ""
 
-#: ../add.c:164 ../remove.c:159 ../sync.c:454 ../sync.c:814
+#: ../add.c:164 ../remove.c:159 ../sync.c:463 ../sync.c:823
 #, c-format
 msgid "failed to release transaction (%s)\n"
 msgstr ""
@@ -935,7 +935,7 @@ msgstr ""
 msgid "failed to set option DBPATH (%s)\n"
 msgstr ""
 
-#: ../pacman.c:546 ../sync.c:743
+#: ../pacman.c:546 ../sync.c:752
 #, c-format
 msgid "failed to set option CACHEDIR (%s)\n"
 msgstr ""
@@ -1000,7 +1000,7 @@ msgstr ""
 msgid "package \"%s\" not found\n"
 msgstr ""
 
-#: ../remove.c:64 ../sync.c:500
+#: ../remove.c:64 ../sync.c:509
 #, c-format
 msgid ":: group %s:\n"
 msgstr ""
@@ -1014,7 +1014,7 @@ msgstr ""
 msgid ":: Remove %s from group %s? [Y/n] "
 msgstr ""
 
-#: ../remove.c:81 ../sync.c:420 ../sync.c:459
+#: ../remove.c:81 ../sync.c:429 ../sync.c:468
 #, c-format
 msgid "failed to init transaction (%s)\n"
 msgstr ""
@@ -1112,119 +1112,119 @@ msgid "repository \"%s\" was not found.\n"
 msgstr ""
 
 #. grab a fresh package list
-#: ../sync.c:394
+#: ../sync.c:403
 msgid ":: Synchronizing package databases...\n"
 msgstr ""
 
-#: ../sync.c:395
+#: ../sync.c:404
 msgid "synchronizing package lists"
 msgstr ""
 
-#: ../sync.c:429
+#: ../sync.c:438
 msgid ":: Starting local database upgrade...\n"
 msgstr ""
 
-#: ../sync.c:430
+#: ../sync.c:439
 msgid "starting full system upgrade"
 msgstr ""
 
-#: ../sync.c:448
+#: ../sync.c:457
 msgid ""
 "\n"
 ":: pacman has detected a newer version of the \"pacman\" package.\n"
 msgstr ""
 
-#: ../sync.c:449
+#: ../sync.c:458
 msgid ":: It is recommended that you allow pacman to upgrade itself\n"
 msgstr ""
 
-#: ../sync.c:450
+#: ../sync.c:459
 msgid ":: first, then you can re-run the operation with the newer version.\n"
 msgstr ""
 
-#: ../sync.c:452
+#: ../sync.c:461
 msgid ":: Upgrade pacman first? [Y/n] "
 msgstr ""
 
-#: ../sync.c:467 ../sync.c:488
+#: ../sync.c:476 ../sync.c:497
 #, c-format
 msgid "could not add target '%s': %s\n"
 msgstr ""
 
-#: ../sync.c:506
+#: ../sync.c:515
 msgid ":: Install whole content? [Y/n] "
 msgstr ""
 
-#: ../sync.c:513
+#: ../sync.c:522
 #, c-format
 msgid ":: Install %s from group %s? [Y/n] "
 msgstr ""
 
-#: ../sync.c:536
+#: ../sync.c:545
 #, c-format
 msgid "could not add target '%s': not found in sync db\n"
 msgstr ""
 
-#: ../sync.c:555
+#: ../sync.c:564
 msgid "requires"
 msgstr ""
 
-#: ../sync.c:555
+#: ../sync.c:564
 msgid "is required by"
 msgstr ""
 
-#: ../sync.c:632
+#: ../sync.c:641
 msgid ""
 "\n"
 "Remove:  "
 msgstr ""
 
-#: ../sync.c:648
+#: ../sync.c:657
 msgid ""
 "\n"
 "Targets: "
 msgstr ""
 
-#: ../sync.c:651
+#: ../sync.c:660
 #, c-format
 msgid ""
 "\n"
 "Total Package Size:   %.1f MB\n"
 msgstr ""
 
-#: ../sync.c:652
+#: ../sync.c:661
 #, c-format
 msgid ""
 "\n"
 "Total Uncompressed Package Size:   %.1f MB\n"
 msgstr ""
 
-#: ../sync.c:658
+#: ../sync.c:667
 msgid ""
 "\n"
 "Beginning download...\n"
 msgstr ""
 
-#: ../sync.c:662
+#: ../sync.c:671
 msgid "Proceed with download? [Y/n] "
 msgstr ""
 
-#: ../sync.c:670
+#: ../sync.c:679
 msgid ""
 "\n"
 "Beginning upgrade process...\n"
 msgstr ""
 
-#: ../sync.c:674
+#: ../sync.c:683
 msgid "Proceed with upgrade? [Y/n] "
 msgstr ""
 
-#: ../sync.c:721
+#: ../sync.c:730
 #, c-format
 msgid "%s-%s-%s%s is already in the cache\n"
 msgstr ""
 
-#: ../sync.c:729
+#: ../sync.c:738
 #, c-format
 msgid ""
 "\n"
@@ -1232,12 +1232,12 @@ msgid ""
 msgstr ""
 
 #. no cache directory.... try creating it
-#: ../sync.c:733
+#: ../sync.c:742
 #, c-format
 msgid "no %s cache exists.  creating...\n"
 msgstr ""
 
-#: ../sync.c:734
+#: ../sync.c:743
 #, c-format
 msgid "warning: no %s cache exists.  creating..."
 msgstr ""
@@ -1245,15 +1245,15 @@ msgstr ""
 #. couldn't mkdir the cache directory, so fall back to /tmp and unlink
 #. * the package afterwards.
 #.
-#: ../sync.c:739
+#: ../sync.c:748
 msgid "couldn't create package cache, using /tmp instead\n"
 msgstr ""
 
-#: ../sync.c:740
+#: ../sync.c:749
 msgid "warning: couldn't create package cache, using /tmp instead"
 msgstr ""
 
-#: ../sync.c:750
+#: ../sync.c:759
 #, c-format
 msgid "failed to retrieve some files from %s\n"
 msgstr ""
