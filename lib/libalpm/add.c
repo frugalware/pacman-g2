@@ -339,10 +339,10 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 				EVENT(trans, PM_TRANS_EVT_UPGRADE_START, info, NULL);
 				cb_state = PM_TRANS_PROGRESS_UPGRADE_START;
 				_alpm_log(PM_LOG_FLOW1, _("upgrading package %s-%s"), info->name, info->version);
-				if((what = (char *)malloc(strlen(info->name))) == NULL) {
+				if((what = (char *)malloc(strlen(info->name)+1)) == NULL) {
 					RET_ERR(PM_ERR_MEMORY, -1);
 				}
-				STRNCPY(what, info->name, strlen(info->name));
+				STRNCPY(what, info->name, strlen(info->name)+1);
 
 				/* we'll need to save some record for backup checks later */
 				oldpkg = _alpm_pkg_new(local->name, local->version);
@@ -402,10 +402,10 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 			EVENT(trans, PM_TRANS_EVT_ADD_START, info, NULL);
 			cb_state = PM_TRANS_PROGRESS_ADD_START;
 			_alpm_log(PM_LOG_FLOW1, _("adding package %s-%s"), info->name, info->version);
-			if((what = (char *)malloc(strlen(info->name))) == NULL) {
+			if((what = (char *)malloc(strlen(info->name)+1)) == NULL) {
 				RET_ERR(PM_ERR_MEMORY, -1);
 			}
-			STRNCPY(what, info->name, strlen(info->name));
+			STRNCPY(what, info->name, strlen(info->name)+1);
 
 			/* pre_install scriptlet */
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
