@@ -67,6 +67,11 @@ AC_ARG_ENABLE(doxygen,
     AC_HELP_STRING([--disable-doxygen], [Build API docs via Doxygen]),
     [wantdoxygen=$enableval], [wantdoxygen=yes])
 
+dnl Help line for python
+AC_ARG_ENABLE(python,
+    AC_HELP_STRING([--disable-python], [Build Python bindings]),
+    [wantpython=$enableval], [wantpython=yes])
+
 dnl Check for architecture
 case "$host" in
 	i686-*) AC_DEFINE_UNQUOTED([CARCH], ["i686"], [Architecture])
@@ -193,7 +198,28 @@ else
     AM_CONDITIONAL(HAS_DOXYGEN, test $DOXYGEN)
     AC_DEFINE([HAS_DOXYGEN], [FALSE], [Not specified at configure line])
     AC_MSG_RESULT(not requested by configure)
-    DOXYSTATUS="disabled by configure"
+    DOXYSTATUS="no, disabled by configure"
+fi
+
+dnl Check for python support
+AC_MSG_CHECKING(if Python bindings should be generated)
+if test x$wantpython = xyes ; then
+    AC_CHECK_PROGS([SWIG], [swig] [swig binary])
+    AM_CONDITIONAL(HAS_PYTHON, test $SWIG)
+    if test $SWIG ; then
+        AC_DEFINE([HAS_PYTHON], [TRUE], [Enabled Python Support])
+	AC_MSG_RESULT(yes)
+	PYTHONSTATUS="yes, path: `which $SWIG`"
+    else
+        AC_DEFINE([HAS_PYTHON], [FALSE], [Disabled Python support])
+	AC_MSG_RESULT(no, swig missing)
+	PYTHONSTATUS="swig binary not found"
+    fi
+else
+    AM_CONDITIONAL(HAS_PYTHON, test $PYTHON)
+    AC_DEFINE([HAS_PYTHON], [FALSE], [Not specified at configure line])
+    AC_MSG_RESULT(not requested by configure)
+    PYTHONSTATUS="no, disabled by configure"
 fi
 
 dnl Enable or disable fakeroot code
@@ -281,6 +307,7 @@ pacman-$VERSION:
 
 	Doxygen support          : ${DOXYSTATUS}
 	Manpage localization     : ${POSTATUS}
+	Python bindings          : ${PYTHONSTATUS}
 
 	debug support            : ${debug}
 "
