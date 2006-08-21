@@ -220,6 +220,15 @@ char *_alpm_strtrim(char *str)
 int _alpm_lckmk(char *file)
 {
 	int fd, count = 0;
+	char *dir, *ptr;
+
+	/* create the dir of the lockfile first */
+	dir = strdup(file);
+	ptr = strrchr(dir, '/');
+	if(ptr) {
+		*ptr = '\0';
+	}
+	_alpm_makepath(dir);
 
 	while((fd = open(file, O_WRONLY | O_CREAT | O_EXCL, 0000)) == -1 && errno == EACCES) { 
 		if(++count < 1) {
