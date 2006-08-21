@@ -188,10 +188,12 @@ delete_entry()
 		pkgname=$1
 	fi
 	for i in *; do
-		if [[ "$pkgname ${subpkgs[@]}" =~ "(^|)${i%-*-*}($| )" ]]; then
-			echo "updatesync: deleting $i" >&2
-			rm -rf $i
-		fi
+		for j in $pkgname ${subpkgs[@]}; do
+			if [ "$j" == "${i%-*-*}" ]; then
+				echo "updatesync: deleting $i" >&2
+				rm -rf $i
+			fi
+		done
 	done
 }
 
