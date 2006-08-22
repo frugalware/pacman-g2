@@ -1197,8 +1197,8 @@ if [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 			unziphack=0
 			file=`strip_url "$netfile"`
 			unset cmd
-			case "$file" in
-				*.tar.gz|*.tar.Z|*.tgz)
+			case "`echo $file |tr "A-Z" "a-z"`" in
+				*.tar.gz|*.tar.z|*.tgz)
 				cmd="tar --use-compress-program=gzip -xf" ;;
 				*.tar.bz2|*.tbz2)
 				cmd="tar --use-compress-program=bzip2 -xf" ;;
