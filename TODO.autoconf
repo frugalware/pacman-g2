@@ -12,10 +12,6 @@ global
 
 - review autoclean.sh script. Maybe there is a more simple way to do this FULL clean.
 
-- Add libarchive depends instead of libtar. libtar isn't developed, but libarchive is.
-  libarchive is a powerfuller thing than libtar and not much bigger. It supports many
-  archive formats, eg .tar.gz, .tar.bz2, zip, etc..
-
 - Many things :)) If you got idea or request, then implement it.
 
 libalpm and codechanges
@@ -32,4 +28,4 @@ libalpm and codechanges
 
 Christian Hamar alias krix <krics@linuxforum.hu> 
 
-2006. may.  5., Fri, 01.01.17 CET
+2006. aug. 25., Fri, 01.13.36 CEST
