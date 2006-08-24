@@ -920,6 +920,10 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	# save the build log if necessary
 	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log ]; then
 		mv $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log ./
+		if [ "`id -u`" = "0" ]; then
+			chown `stat -c %u:%g FrugalBuild` \
+				${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
+		fi
 	fi
 
 	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm ]; then
