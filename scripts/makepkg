@@ -372,9 +372,11 @@ create_pkg()
 	echo "pkgname = $1" >>.PKGINFO
 	echo "pkgver = $pkgver-$pkgrel" >>.PKGINFO
 	echo "pkgdesc = $pkgdesc" >>.PKGINFO
-	for it in "${pkgdesc_localized[@]}"; do
-		echo "pkgdesc = $it" >>.PKGINFO
-	done
+	if [ -n "${pkgdesc_localized[@]}" ]; then
+		for it in "${pkgdesc_localized[@]}"; do
+			echo "pkgdesc = $it" >>.PKGINFO
+		done
+	fi
 	echo "url = $url" >>.PKGINFO
 	echo "builddate = $builddate" >>.PKGINFO
 	echo "buildtype = $buildtype" >>.PKGINFO
