@@ -50,6 +50,21 @@ elif [ "$1" == "--gettext-only" ]; then
 		mv Makevars.tmp Makevars
 		cd - >/dev/null
 	done
+	cd doc
+	po4a -k 0 po4a.cfg
+	cd po
+	for i in *po
+	do
+		if msgmerge $i $package.pot -o $i.new; then
+			mv -f $i.new $i
+			echo -n "man/$i: "
+			msgfmt -c --statistics -o $i.gmo $i
+			rm -f $i.gmo
+		else
+			echo "msgmerge for $i failed!"
+			rm -f $i.new
+		fi
+	done
 	exit 0
 fi
 
