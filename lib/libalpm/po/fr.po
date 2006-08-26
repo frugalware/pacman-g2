@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libalpm\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-08-19 04:29+0200\n"
+"POT-Creation-Date: 2006-08-26 14:44+0200\n"
 "PO-Revision-Date: 2006-06-05 22:47+0100\n"
 "Last-Translator: Enda <enda@netou.com>\n"
 "Language-Team: \n"
@@ -99,7 +99,7 @@ msgstr "ajout du nouveau paquet %s-%s"
 msgid "extracting files"
 msgstr "extraction des fichiers"
 
-#: ../add.c:434 ../util.c:443
+#: ../add.c:434 ../util.c:452
 msgid "could not get current working directory"
 msgstr "impossible de déterminer le répertoire courant"
 
@@ -472,8 +472,8 @@ msgstr "comparaison base de donnée / cibles: trouve %s en conflit avec %s"
 
 #: ../conflict.c:231 ../conflict.c:332 ../deps.c:52 ../deps.c:599
 #: ../deps.c:639 ../group.c:40 ../handle.c:50 ../package.c:95 ../sync.c:60
-#: ../sync.c:630 ../sync.c:646 ../sync.c:742 ../trans.c:46 ../util.c:585
-#: ../util.c:592
+#: ../sync.c:630 ../sync.c:646 ../sync.c:742 ../trans.c:46 ../util.c:594
+#: ../util.c:601
 #, c-format
 msgid "malloc failure: could not allocate %d bytes"
 msgstr "problème malloc: n'a pas pu allouer %d bytes"
@@ -1138,66 +1138,66 @@ msgstr ""
 msgid "could not update new database entry %s-%s"
 msgstr "n'a pu mettre a jour la nouvelle entrée de base de données %s-%s"
 
-#: ../util.c:272
+#: ../util.c:281
 #, c-format
 msgid "could not extract %s: %s\n"
 msgstr "n'a pas pu extraire %s: %s\n"
 
-#: ../util.c:423
+#: ../util.c:432
 msgid "could not create temp directory"
 msgstr "n'a pas pu créer le répertoire temporaire"
 
-#: ../util.c:450
+#: ../util.c:459
 #, c-format
 msgid "could not change directory to %s (%s)"
 msgstr "n'a pas pu changer de répertoire pour %s (%s)"
 
-#: ../util.c:453
+#: ../util.c:462
 #, c-format
 msgid "executing %s script..."
 msgstr "exécute le script %s ..."
 
-#: ../util.c:466
+#: ../util.c:475
 #, c-format
 msgid "could not fork a new process (%s)"
 msgstr "n'a pas pu générer un nouveau processus (%s)"
 
-#: ../util.c:473
+#: ../util.c:482
 #, c-format
 msgid "chrooting in %s"
 msgstr "chroot dans %s"
 
-#: ../util.c:475
+#: ../util.c:484
 #, c-format
 msgid "could not change the root directory (%s)"
 msgstr "n'a pas pu changer le répertoire racine (%s)"
 
-#: ../util.c:479
+#: ../util.c:488
 #, c-format
 msgid "could not change directory to / (%s)"
 msgstr "n'a pas pu changer de répertoire vers / (%s)"
 
-#: ../util.c:483
+#: ../util.c:492
 #, c-format
 msgid "executing \"%s\""
 msgstr "exécute \"%s\""
 
-#: ../util.c:486
+#: ../util.c:495
 #, fuzzy, c-format
 msgid "call to popen failed (%s)"
 msgstr "la demande de mise en attente du pid a échouée (%s)"
 
-#: ../util.c:508
+#: ../util.c:517
 #, c-format
 msgid "call to waitpid failed (%s)"
 msgstr "la demande de mise en attente du pid a échouée (%s)"
 
-#: ../util.c:516
+#: ../util.c:525
 #, c-format
 msgid "could not remove tmpdir %s"
 msgstr "n'a pas pu effacer tmpdir %s"
 
-#: ../util.c:580
+#: ../util.c:589
 #, c-format
 msgid "check_freespace: total pkg size: %lld, disk space: %lld"
 msgstr ""

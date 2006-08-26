@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bmh 1980\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-08-19 04:29+0200\n"
+"POT-Creation-Date: 2006-08-26 14:44+0200\n"
 "PO-Revision-Date: 2006-05-04 17:10+0200\n"
 "Last-Translator: Marcus Habermehl <bmh1980@frugalware.org>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -17,10 +17,10 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../add.c:69 ../deptest.c:64 ../remove.c:83 ../sync.c:431 ../sync.c:470
-#, c-format
+#, fuzzy, c-format
 msgid ""
 "       if you're sure a package manager is not already running,\n"
-"       you can remove %s\n"
+"       you can remove %s%s\n"
 msgstr ""
 "       Wenn Sie sicher sind, dass nicht bereits ein Paketmanager\n"
 "       gestartet ist, können Sie %s entfernen\n"

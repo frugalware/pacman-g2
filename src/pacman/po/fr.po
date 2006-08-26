@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pacman\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-08-19 04:29+0200\n"
+"POT-Creation-Date: 2006-08-26 14:44+0200\n"
 "PO-Revision-Date: 2006-06-05 22:46+0100\n"
 "Last-Translator: Enda <enda@netou.com>\n"
 "Language-Team: \n"
@@ -18,10 +18,10 @@ msgstr ""
 "X-Poedit-Country: FRANCE\n"
 
 #: ../add.c:69 ../deptest.c:64 ../remove.c:83 ../sync.c:431 ../sync.c:470
-#, c-format
+#, fuzzy, c-format
 msgid ""
 "       if you're sure a package manager is not already running,\n"
-"       you can remove %s\n"
+"       you can remove %s%s\n"
 msgstr ""
 "       Si vous êtes sur que le gestionnaire de paquet ne fonctionne pas "
 "déjà,\n"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-08-19 04:29+0200\n"
+"POT-Creation-Date: 2006-08-26 14:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -98,7 +98,7 @@ msgstr ""
 msgid "extracting files"
 msgstr ""
 
-#: ../add.c:434 ../util.c:443
+#: ../add.c:434 ../util.c:452
 msgid "could not get current working directory"
 msgstr ""
 
@@ -466,8 +466,8 @@ msgstr ""
 
 #: ../conflict.c:231 ../conflict.c:332 ../deps.c:52 ../deps.c:599
 #: ../deps.c:639 ../group.c:40 ../handle.c:50 ../package.c:95 ../sync.c:60
-#: ../sync.c:630 ../sync.c:646 ../sync.c:742 ../trans.c:46 ../util.c:585
-#: ../util.c:592
+#: ../sync.c:630 ../sync.c:646 ../sync.c:742 ../trans.c:46 ../util.c:594
+#: ../util.c:601
 #, c-format
 msgid "malloc failure: could not allocate %d bytes"
 msgstr ""
@@ -1126,66 +1126,66 @@ msgstr ""
 msgid "could not update new database entry %s-%s"
 msgstr ""
 
-#: ../util.c:272
+#: ../util.c:281
 #, c-format
 msgid "could not extract %s: %s\n"
 msgstr ""
 
-#: ../util.c:423
+#: ../util.c:432
 msgid "could not create temp directory"
 msgstr ""
 
-#: ../util.c:450
+#: ../util.c:459
 #, c-format
 msgid "could not change directory to %s (%s)"
 msgstr ""
 
-#: ../util.c:453
+#: ../util.c:462
 #, c-format
 msgid "executing %s script..."
 msgstr ""
 
-#: ../util.c:466
+#: ../util.c:475
 #, c-format
 msgid "could not fork a new process (%s)"
 msgstr ""
 
-#: ../util.c:473
+#: ../util.c:482
 #, c-format
 msgid "chrooting in %s"
 msgstr ""
 
-#: ../util.c:475
+#: ../util.c:484
 #, c-format
 msgid "could not change the root directory (%s)"
 msgstr ""
 
-#: ../util.c:479
+#: ../util.c:488
 #, c-format
 msgid "could not change directory to / (%s)"
 msgstr ""
 
-#: ../util.c:483
+#: ../util.c:492
 #, c-format
 msgid "executing \"%s\""
 msgstr ""
 
-#: ../util.c:486
+#: ../util.c:495
 #, c-format
 msgid "call to popen failed (%s)"
 msgstr ""
 
-#: ../util.c:508
+#: ../util.c:517
 #, c-format
 msgid "call to waitpid failed (%s)"
 msgstr ""
 
-#: ../util.c:516
+#: ../util.c:525
 #, c-format
 msgid "could not remove tmpdir %s"
 msgstr ""
 
-#: ../util.c:580
+#: ../util.c:589
 #, c-format
 msgid "check_freespace: total pkg size: %lld, disk space: %lld"
 msgstr ""
