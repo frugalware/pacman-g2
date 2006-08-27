@@ -393,9 +393,15 @@ the -R option.
 .SH Package splitting
 
 Package splitting means moving out a list of specifed files to subpackages (like
-libmysql out of mysql) and then defining the properties of subpackages. The
-\fBsubpkgs()\fP array is to define the pkgnames of the subpackages. From now all
-the directives has their subfoo equivalent:
+libmysql out of mysql) and then defining the properties of subpackages.
+
+NOTE: if you create several subpackages, maintaining those packages will
+require more and more time. Thus, unnecessary splits aren't welcome.
+Especially, if you split out a library, then don't move the headers to the
+package just to speed up building with a few seconds!
+
+The \fBsubpkgs()\fP array is to define the pkgnames of the subpackages. From
+now all the directives has their subfoo equivalent:
 .nf
 pkgname -> subpkgs()
 pkgdesc -> subdescs()
