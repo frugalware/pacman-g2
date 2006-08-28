@@ -18,9 +18,9 @@ _alpm.so: alpm_wrap.o
 alpm_wrap.o: alpm_wrap.c
 	$(CC) $(CFLAGS) -c -o $@ -include alpm.h $^
 
-alpm_wrap.c:
+alpm_wrap.c: alpm.i
 	cp $(top_srcdir)/lib/libalpm/alpm.h ./
-	swig -python -module alpm alpm.h
+	swig -python alpm.i
 	# strip the unnecessary prefixes
 	sed -i 's/^alpm_//;s/^PM_//' alpm.py
 
@@ -39,7 +39,7 @@ install-py: alpm.py alpm.pyc
 	install -m644 $^ $(DESTDIR)$(LIBDIR)
 
 clean:
-	rm -f _alpm* alpm*
+	rm -f _alpm* alpm.{h,py*,_wrap*}
 
 distclean: clean
 	rm -f Makefile
