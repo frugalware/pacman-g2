@@ -1,5 +1,12 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.3.7         - the package name is now properly displayed in the progressbar
+                during install/upgrade
+              - updatesync: bugfix when deleting packages from the repo
+              - create /tmp before locking the database, useful when -r is used
+                in an empty dir
+              - makepkg: recoginze .TGZ, .ZIP and other uppercase extensions
+              - python: added a few casting functions
 3.3.6         - ported libalpm to Solaris/Sparc
               - bugfixes in the Hungarian translation
               - bugfix for pacman -Qi -p
