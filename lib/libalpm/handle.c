@@ -114,6 +114,8 @@ int _alpm_handle_free(pmhandle_t *handle)
 	FREE(handle->dbpath);
 	FREE(handle->cachedir);
 	FREE(handle->logfile);
+	FREE(handle->proxyhost);
+	FREE(handle->xfercommand);
 	FREELIST(handle->dbs_sync);
 	FREELIST(handle->noupgrade);
 	FREELIST(handle->noextract);
