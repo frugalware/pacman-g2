@@ -345,16 +345,6 @@ int pacman_sync(list_t *targets)
 		return(sync_cleancache(config->op_s_clean));
 	}
 
-	/* open the database(s) */
-	for(i = pmc_syncs; i; i = i->next) {
-		sync_t *sync = i->data;
-		sync->db = alpm_db_register(sync->treename);
-		if(sync->db == NULL) {
-			ERR(NL, "%s\n", alpm_strerror(pm_errno));
-			return(1);
-		}
-	}
-
 	if(config->op_s_sync) {
 		/* grab a fresh package list */
 		MSG(NL, _(":: Synchronizing package databases...\n"));

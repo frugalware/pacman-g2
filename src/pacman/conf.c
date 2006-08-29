@@ -291,6 +291,13 @@ int parseconfig(char *file, config_t *config)
 					if(!strcmp(key, "SERVER")) {
 						/* add to the list */
 						vprint(_("config: %s: server: %s\n"), section, ptr);
+						if(!sync->db) {
+							sync->db = alpm_db_register(sync->treename);
+							if(sync->db == NULL) {
+								ERR(NL, "%s\n", alpm_strerror(pm_errno));
+								return(1);
+							}
+						}
 						if(alpm_db_setserver(sync->db, strdup(ptr)) == -1) {
 							ERR(NL, "%s\n", alpm_strerror(pm_errno));
 							return(1);
