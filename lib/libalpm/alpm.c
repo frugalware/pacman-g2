@@ -1134,6 +1134,17 @@ char *alpm_get_sha1sum(char *name)
 
 	return(_alpm_SHAFile(name));
 }
+
+/** Fetch a remote pkg.
+ * @param url
+ * @return the downloaded filename on success, NULL on error
+ */
+char *alpm_fetch_pkgurl(char *url)
+{
+	ASSERT(strstr(url, "://"), return(NULL));
+
+	return(_alpm_fetch_pkgurl(url));
+}
 /* @} */
 
 /* vim: set ts=2 sw=2 noet: */

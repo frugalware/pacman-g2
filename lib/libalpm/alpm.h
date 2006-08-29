@@ -190,6 +190,7 @@ int alpm_pkg_load(char *filename, PM_PKG **pkg);
 int alpm_pkg_free(PM_PKG *pkg);
 int alpm_pkg_checkmd5sum(PM_PKG *pkg);
 int alpm_pkg_checksha1sum(PM_PKG *pkg);
+char *alpm_fetch_pkgurl(char *url);
 int alpm_pkg_vercmp(const char *ver1, const char *ver2);
 
 /*
