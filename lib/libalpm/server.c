@@ -501,7 +501,7 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 	return(!done);
 }
 
-char *fetch_pkgurl(char *target)
+char *_alpm_fetch_pkgurl(char *target)
 {
 	char spath[PATH_MAX];
 	char url[PATH_MAX];
