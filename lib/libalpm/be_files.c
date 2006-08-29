@@ -41,6 +41,9 @@
 #include "db.h"
 #include "alpm.h"
 #include "error.h"
+#include "handle.h"
+
+extern pmhandle_t *handle;
 
 int _alpm_db_open(pmdb_t *db)
 {
@@ -635,6 +638,65 @@ int _alpm_db_remove(pmdb_t *db, pmpkg_t *info)
 	if(rmdir(path) == -1) {
 		return(-1);
 	}
+
+	return(0);
+}
+
+/* reads dbpath/.lastupdate and populates *ts with the contents.
+ * *ts should be malloc'ed and should be at least 15 bytes.
+ *
+ * Returns 0 on success, 1 on error
+ *
+ */
+int _alpm_db_getlastupdate(pmdb_t *db, char *ts)
+{
+	FILE *fp;
+	char file[PATH_MAX];
+
+	if(db == NULL || ts == NULL) {
+		return(-1);
+	}
+
+	snprintf(file, PATH_MAX, "%s%s/%s/.lastupdate", handle->root, handle->dbpath, db->treename);
+
+	/* get the last update time, if it's there */
+	if((fp = fopen(file, "r")) == NULL) {
+		return(-1);
+	} else {
+		char line[256];
+		if(fgets(line, sizeof(line), fp)) {
+			STRNCPY(ts, line, 15); /* YYYYMMDDHHMMSS */
+			ts[14] = '\0';
+		} else {
+			fclose(fp);
+			return(-1);
+		}
+	}
+	fclose(fp);
+	return(0);
+}
+
+/* writes the dbpath/.lastupdate with the contents of *ts
+ */
+int _alpm_db_setlastupdate(pmdb_t *db, char *ts)
+{
+	FILE *fp;
+	char file[PATH_MAX];
+
+	if(db == NULL || ts == NULL || strlen(ts) == 0) {
+		return(-1);
+	}
+
+	snprintf(file, PATH_MAX, "%s%s/%s/.lastupdate", handle->root, handle->dbpath, db->treename);
+
+	if((fp = fopen(file, "w")) == NULL) {
+		return(-1);
+	}
+	if(fputs(ts, fp) <= 0) {
+		fclose(fp);
+		return(-1);
+	}
+	fclose(fp);
 
 	return(0);
 }
