@@ -286,9 +286,9 @@ void *alpm_db_getinfo(PM_DB *db, unsigned char parm)
 		case PM_DB_FIRSTSERVER:
 			server = (pmserver_t*)db->servers->data;
 			if(!strcmp(server->protocol, "file")) {
-				snprintf(path, PATH_MAX, "%s://%s\n", server->protocol, server->path);
+				snprintf(path, PATH_MAX, "%s://%s", server->protocol, server->path);
 			} else {
-				snprintf(path, PATH_MAX, "%s://%s%s\n", server->protocol,
+				snprintf(path, PATH_MAX, "%s://%s%s", server->protocol,
 						server->server, server->path);
 			}
 			data = strdup(path);
