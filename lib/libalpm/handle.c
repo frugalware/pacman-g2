@@ -130,6 +130,7 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
+	char *p;
 	switch(val) {
 		case PM_OPT_DBPATH:
 			if(handle->dbpath) {
@@ -252,7 +253,19 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 			if(handle->proxyhost) {
 				FREE(handle->proxyhost);
 			}
-			handle->proxyhost = (char *)data;
+			p = strstr((char*)data, "://");
+			if(p) {
+				p += 3;
+				if(p == NULL || *p == '\0') {
+					RET_ERR(PM_ERR_SERVER_BAD_LOCATION, -1);
+				}
+				data = (long)p;
+			}
+#if defined(__APPLE__) || defined(__OpenBSD__)
+			handle->proxyhost = strdup((char*)data);
+#else
+			handle->proxyhost = strndup((char*)data, PATH_MAX);
+#endif
 			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_PROXYHOST set to '%s'"), handle->proxyhost);
 		break;
 		case PM_OPT_PROXYPORT:
@@ -263,7 +276,11 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 			if(handle->xfercommand) {
 				FREE(handle->xfercommand);
 			}
-			handle->xfercommand = (char *)data;
+#if defined(__APPLE__) || defined(__OpenBSD__)
+			handle->xfercommand = strdup((char*)data);
+#else
+			handle->xfercommand = strndup((char*)data, PATH_MAX);
+#endif
 			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_XFERCOMMAND set to '%s'"), handle->xfercommand);
 		break;
 		case PM_OPT_NOPASSIVEFTP:
