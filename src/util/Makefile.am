@@ -6,4 +6,5 @@ AM_CFLAGS = \
 
 vercmp_SOURCES = vercmp.c
 
-vercmp_LDADD = $(top_srcdir)/lib/libalpm/libalpm.la
+vercmp_LDADD = $(top_srcdir)/lib/libalpm/libalpm.la \
+	       $(top_srcdir)/lib/libftp/libftp.la
