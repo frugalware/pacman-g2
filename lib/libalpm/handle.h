@@ -49,6 +49,11 @@ typedef struct __pmhandle_t {
 	PMList *ignorepkg; /* List of strings */
 	unsigned char usesyslog;
 	time_t upgradedelay;
+	/* servers */
+	char *proxyhost;
+	unsigned short proxyport;
+	char *xfercommand;
+	unsigned short nopassiveftp;
 } pmhandle_t;
 
 #define FREEHANDLE(p) do { if (p) { _alpm_handle_free(p); p = NULL; } } while (0)

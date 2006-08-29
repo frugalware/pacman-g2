@@ -42,6 +42,12 @@ typedef struct __pmserver_t {
 
 pmserver_t *_alpm_server_new(char *url);
 void _alpm_server_free(void *data);
+int _alpm_downloadfiles(PMList *servers, const char *localpath, PMList *files);
+int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
+	PMList *files, const char *mtime1, char *mtime2);
+
+char *_alpm_fetch_pkgurl(char *target);
+
 #endif /* _ALPM_SERVER_H */
 
 /* vim: set ts=2 sw=2 noet: */

@@ -28,6 +28,8 @@
 #include <stdarg.h>
 #include <syslog.h>
 #include <libintl.h>
+#include <time.h>
+#include <ftplib.h>
 /* pacman */
 #include "util.h"
 #include "log.h"
@@ -39,7 +41,15 @@
 
 /* log */
 extern alpm_cb_log pm_logcb;
+extern FtpCallback pm_dlcb;
 extern unsigned char pm_logmask;
+/* progress bar */
+extern char **pm_dlfnm;
+extern int *pm_dloffset;
+extern struct timeval *pm_dlt0, *pm_dlt;
+extern float *pm_dlrate;
+extern int *pm_dlxfered1;
+extern unsigned char *pm_dleta_h, *pm_dleta_m, *pm_dleta_s;
 
 pmhandle_t *_alpm_handle_new()
 {
@@ -199,12 +209,64 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 		case PM_OPT_LOGCB:
 			pm_logcb = (alpm_cb_log)data;
 		break;
+		case PM_OPT_DLCB:
+			pm_dlcb = (FtpCallback)data;
+		break;
+		case PM_OPT_DLFNM:
+			pm_dlfnm = (char **)data;
+		break;
+		case PM_OPT_DLOFFSET:
+			pm_dloffset = (int *)data;
+		break;
+		case PM_OPT_DLT0:
+			pm_dlt0 = (struct timeval *)data;
+		break;
+		case PM_OPT_DLT:
+			pm_dlt = (struct timeval *)data;
+		break;
+		case PM_OPT_DLRATE:
+			pm_dlrate = (float *)data;
+		break;
+		case PM_OPT_DLXFERED1:
+			pm_dlxfered1 = (int *)data;
+		break;
+		case PM_OPT_DLETA_H:
+			pm_dleta_h = (unsigned char *)data;
+		break;
+		case PM_OPT_DLETA_M:
+			pm_dleta_m = (unsigned char *)data;
+		break;
+		case PM_OPT_DLETA_S:
+			pm_dleta_s = (unsigned char *)data;
+		break;
 		case PM_OPT_UPGRADEDELAY:
 			handle->upgradedelay = data;
 		break;
 		case PM_OPT_LOGMASK:
 			pm_logmask = (unsigned char)data;
 			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_LOGMASK set to '%02x'"), (unsigned char)data);
+		break;
+		case PM_OPT_PROXYHOST:
+			if(handle->proxyhost) {
+				FREE(handle->proxyhost);
+			}
+			handle->proxyhost = (char *)data;
+			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_PROXYHOST set to '%s'"), handle->proxyhost);
+		break;
+		case PM_OPT_PROXYPORT:
+			handle->proxyport = (unsigned short)data;
+			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_PROXYPORT set to '%d'"), handle->proxyport);
+		break;
+		case PM_OPT_XFERCOMMAND:
+			if(handle->xfercommand) {
+				FREE(handle->xfercommand);
+			}
+			handle->xfercommand = (char *)data;
+			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_XFERCOMMAND set to '%s'"), handle->xfercommand);
+		break;
+		case PM_OPT_NOPASSIVEFTP:
+			handle->nopassiveftp = (unsigned short)data;
+			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_NOPASSIVEFTP set to '%d'"), handle->nopassiveftp);
 		break;
 		default:
 			RET_ERR(PM_ERR_WRONG_ARGS, -1);
@@ -230,7 +292,22 @@ int _alpm_handle_get_option(pmhandle_t *handle, unsigned char val, long *data)
 		case PM_OPT_IGNOREPKG: *data = (long)handle->ignorepkg; break;
 		case PM_OPT_USESYSLOG: *data = handle->usesyslog; break;
 		case PM_OPT_LOGCB:     *data = (long)pm_logcb; break;
+		case PM_OPT_DLCB:     *data = (long)pm_dlcb; break;
+		case PM_OPT_UPGRADEDELAY: *data = (long)handle->upgradedelay; break;
 		case PM_OPT_LOGMASK:   *data = pm_logmask; break;
+		case PM_OPT_DLFNM:     *data = (long)pm_dlfnm; break;
+		case PM_OPT_DLOFFSET:  *data = (long)pm_dloffset; break;
+		case PM_OPT_DLT0:      *data = (long)pm_dlt0; break;
+		case PM_OPT_DLT:       *data = (long)pm_dlt; break;
+		case PM_OPT_DLRATE:    *data = (long)pm_dlrate; break;
+		case PM_OPT_DLXFERED1: *data = (long)pm_dlxfered1; break;
+		case PM_OPT_DLETA_H:   *data = (long)pm_dleta_h; break;
+		case PM_OPT_DLETA_M:   *data = (long)pm_dleta_m; break;
+		case PM_OPT_DLETA_S:   *data = (long)pm_dleta_s; break;
+		case PM_OPT_PROXYHOST: *data = (long)handle->proxyhost; break;
+		case PM_OPT_PROXYPORT: *data = handle->proxyport; break;
+		case PM_OPT_XFERCOMMAND: *data = (long)handle->xfercommand; break;
+		case PM_OPT_NOPASSIVEFTP: *data = handle->nopassiveftp; break;
 		default:
 			RET_ERR(PM_ERR_WRONG_ARGS, -1);
 		break;
