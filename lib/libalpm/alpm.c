@@ -274,6 +274,8 @@ int alpm_db_unregister(pmdb_t *db)
 void *alpm_db_getinfo(PM_DB *db, unsigned char parm)
 {
 	void *data = NULL;
+	char path[PATH_MAX];
+	pmserver_t *server;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
@@ -281,6 +283,16 @@ void *alpm_db_getinfo(PM_DB *db, unsigned char parm)
 
 	switch(parm) {
 		case PM_DB_TREENAME:   data = db->treename; break;
+		case PM_DB_FIRSTSERVER:
+			server = (pmserver_t*)db->servers->data;
+			if(!strcmp(server->protocol, "file")) {
+				snprintf(path, PATH_MAX, "%s://%s\n", server->protocol, server->path);
+			} else {
+				snprintf(path, PATH_MAX, "%s://%s%s\n", server->protocol,
+						server->server, server->path);
+			}
+			data = strdup(path);
+		break;
 		default:
 			data = NULL;
 	}

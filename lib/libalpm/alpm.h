@@ -120,7 +120,8 @@ int alpm_get_option(unsigned char parm, long *data);
 
 /* Info parameters */
 enum {
-	PM_DB_TREENAME = 1
+	PM_DB_TREENAME = 1,
+	PM_DB_FIRSTSERVER
 };
 
 PM_DB *alpm_db_register(char *treename);
