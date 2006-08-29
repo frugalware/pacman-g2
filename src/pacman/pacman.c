@@ -39,6 +39,8 @@
 #else
 #include <mcheck.h> /* debug */
 #endif
+#include <time.h>
+#include <ftplib.h>
 
 #include <alpm.h>
 /* pacman */
@@ -203,14 +205,6 @@ static void cleanup(int signum)
 	/* free memory */
 	for(lp = pmc_syncs; lp; lp = lp->next) {
 		sync_t *sync = lp->data;
-		list_t *i;
-		for(i = sync->servers; i; i = i->next) {
-			server_t *server = i->data;
-			FREE(server->protocol);
-			FREE(server->server);
-			FREE(server->path);
-		}
-		FREELIST(sync->servers);
 		FREE(sync->treename);
 	}
 	FREELIST(pmc_syncs);
@@ -362,7 +356,7 @@ static int parseargs(int argc, char *argv[])
 			case 'o': config->op_q_owns = 1; break;
 			case 'p':
 				config->op_q_isfile = 1;
-				config->op_s_printuris = 1;
+				config->flags |= PM_TRANS_FLAG_PRINTURIS;
 			break;
 			case 'r':
 				if(realpath(optarg, root) == NULL) {
@@ -485,7 +479,7 @@ int main(int argc, char *argv[])
 	if(myuid > 0) {
 		if(config->op != PM_OP_MAIN && config->op != PM_OP_QUERY && config->op != PM_OP_DEPTEST) {
 			if((config->op == PM_OP_SYNC && !config->op_s_sync &&
-					(config->op_s_search || config->op_s_printuris || config->group || config->op_q_list ||
+					(config->op_s_search || config->group || config->op_q_list ||
 					 config->op_q_info)) || (config->op == PM_OP_DEPTEST && !config->op_d_resolve)) {
 				/* special case:  PM_OP_SYNC can be used w/ config->op_s_search by any user */
 			} else {
@@ -531,6 +525,46 @@ int main(int argc, char *argv[])
 	}
 	if(alpm_set_option(PM_OPT_LOGCB, (long)cb_log) == -1) {
 		ERR(NL, _("failed to set option LOGCB (%s)\n"), alpm_strerror(pm_errno));
+		cleanup(1);
+	}
+	if(alpm_set_option(PM_OPT_DLCB, (long)log_progress) == -1) {
+		ERR(NL, _("failed to set option DLCB (%s)\n"), alpm_strerror(pm_errno));
+		cleanup(1);
+	}
+	if(alpm_set_option(PM_OPT_DLFNM, (long)&sync_fnm) == -1) {
+		ERR(NL, _("failed to set option DLFNM (%s)\n"), alpm_strerror(pm_errno));
+		cleanup(1);
+	}
+	if(alpm_set_option(PM_OPT_DLOFFSET, (long)&offset) == -1) {
+		ERR(NL, _("failed to set option DLOFFSET (%s)\n"), alpm_strerror(pm_errno));
+		cleanup(1);
+	}
+	if(alpm_set_option(PM_OPT_DLT0, (long)&t0) == -1) {
+		ERR(NL, _("failed to set option DLT0 (%s)\n"), alpm_strerror(pm_errno));
+		cleanup(1);
+	}
+	if(alpm_set_option(PM_OPT_DLT, (long)&t) == -1) {
+		ERR(NL, _("failed to set option DLT (%s)\n"), alpm_strerror(pm_errno));
+		cleanup(1);
+	}
+	if(alpm_set_option(PM_OPT_DLRATE, (long)&rate) == -1) {
+		ERR(NL, _("failed to set option DLRATE (%s)\n"), alpm_strerror(pm_errno));
+		cleanup(1);
+	}
+	if(alpm_set_option(PM_OPT_DLXFERED1, (long)&xfered1) == -1) {
+		ERR(NL, _("failed to set option DLXFERED1 (%s)\n"), alpm_strerror(pm_errno));
+		cleanup(1);
+	}
+	if(alpm_set_option(PM_OPT_DLETA_H, (long)&eta_h) == -1) {
+		ERR(NL, _("failed to set option DLETA_H (%s)\n"), alpm_strerror(pm_errno));
+		cleanup(1);
+	}
+	if(alpm_set_option(PM_OPT_DLETA_M, (long)&eta_m) == -1) {
+		ERR(NL, _("failed to set option DLETA_M (%s)\n"), alpm_strerror(pm_errno));
+		cleanup(1);
+	}
+	if(alpm_set_option(PM_OPT_DLETA_S, (long)&eta_s) == -1) {
+		ERR(NL, _("failed to set option DLETA_S (%s)\n"), alpm_strerror(pm_errno));
 		cleanup(1);
 	}
 	if(config->dbpath == NULL) {

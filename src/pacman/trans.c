@@ -132,6 +132,13 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 				MSG(CL, _(" failed.\n"));
 			}
 		break;
+		case PM_TRANS_EVT_PRINTURI:
+			MSG(NL, "%s%s\n", (char*)data1, (char*)data2);
+		break;
+		case PM_TRANS_EVT_RETRIEVE_START:
+			MSG(NL, _("\n:: Retrieving packages from %s...\n"), (char*)data1);
+			fflush(stdout);
+		break;
 	}
 }
 

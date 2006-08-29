@@ -156,52 +156,22 @@ static int sync_cleancache(int level)
 
 static int sync_synctree(int level, list_t *syncs)
 {
-	char *root, *dbpath;
-	char path[PATH_MAX];
 	list_t *i;
 	int success = 0, ret;
 
-	alpm_get_option(PM_OPT_ROOT, (long *)&root);
-	alpm_get_option(PM_OPT_DBPATH, (long *)&dbpath);
-
 	for(i = syncs; i; i = i->next) {
-		list_t *files = NULL;
-		char newmtime[16] = "";
-		char lastupdate[16] = "";
 		sync_t *sync = (sync_t *)i->data;
 
-		if(level < 2) {
-			/* get the lastupdate time */
-			db_getlastupdate(sync->db, lastupdate);
-			if(strlen(lastupdate) == 0) {
-				vprint(_("failed to get lastupdate time for %s (no big deal)\n"), sync->treename);
-			}
-		}
-
-		/* build a one-element list */
-		snprintf(path, PATH_MAX, "%s" PM_EXT_DB, sync->treename);
-		files = list_add(files, strdup(path));
-
-		snprintf(path, PATH_MAX, "%s%s", root, dbpath);
-
-		ret = downloadfiles_forreal(sync->servers, path, files, lastupdate, newmtime);
-		FREELIST(files);
+		ret = alpm_db_update(level, sync->db);
 		if(ret > 0) {
-			ERR(NL, _("failed to synchronize %s\n"), sync->treename);
+			if(pm_errno == PM_ERR_DB_SYNC) {
+				ERR(NL, _("failed to synchronize %s\n"), sync->treename);
+			} else {
+				ERR(NL, _("failed to update %s (%s)\n"), sync->treename, alpm_strerror(pm_errno));
+			}
 			success--;
 		} else if(ret < 0) {
 			MSG(NL, _(" %s is up to date\n"), sync->treename);
-		} else {
-			if(strlen(newmtime)) {
-				vprint(_("sync: new mtime for %s: %s\n"), sync->treename, newmtime);
-				db_setlastupdate(sync->db, newmtime);
-			}
-			snprintf(path, PATH_MAX, "%s%s/%s" PM_EXT_DB, root, dbpath, sync->treename);
-			if(alpm_db_update(sync->db, path) == -1) {
-				ERR(NL, _("failed to update %s (%s)\n"), sync->treename, alpm_strerror(pm_errno));
-			}
-			/* remove the .tar.gz */
-			unlink(path);
 		}
 	}
 
@@ -363,12 +333,8 @@ int pacman_sync(list_t *targets)
 {
 	int confirm = 0;
 	int retval = 0;
-	list_t *i, *j;
+	list_t *i;
 	PM_LIST *packages, *data, *lp;
-	char *root, *cachedir;
-	char ldir[PATH_MAX];
-	int varcache = 1;
-	list_t *files = NULL;
 
 	if(pmc_syncs == NULL || !list_count(pmc_syncs)) {
 		ERR(NL, _("no usable package repositories configured.\n"));
@@ -386,15 +352,6 @@ int pacman_sync(list_t *targets)
 		if(sync->db == NULL) {
 			ERR(NL, "%s\n", alpm_strerror(pm_errno));
 			return(1);
-		}
-		for(j = sync->servers; j; j = j->next) {
-			server_t *server = j->data;
-			char url[PATH_MAX];
-			snprintf(url, PATH_MAX, "%s://%s%s", server->protocol, server->server, server->path);
-			if(alpm_db_setserver(sync->db, url) == -1) {
-				ERR(NL, "%s\n", alpm_strerror(pm_errno));
-				return(1);
-			}
 		}
 	}
 
@@ -604,7 +561,7 @@ int pacman_sync(list_t *targets)
 	}
 
 	/* list targets and get confirmation */
-	if(!config->op_s_printuris) {
+	if(!((unsigned int)alpm_trans_getinfo(PM_TRANS_FLAGS) & PM_TRANS_FLAG_PRINTURIS)) {
 		list_t *list_install = NULL;
 		list_t *list_remove = NULL;
 		char *str;
@@ -689,85 +646,6 @@ int pacman_sync(list_t *targets)
 		}
 	}
 
-	/* group sync records by repository and download */
-	alpm_get_option(PM_OPT_ROOT, (long *)&root);
-	alpm_get_option(PM_OPT_CACHEDIR, (long *)&cachedir);
-	snprintf(ldir, PATH_MAX, "%s%s", root, cachedir);
-
-	for(i = pmc_syncs; i; i = i->next) {
-		sync_t *current = i->data;
-
-		for(lp = alpm_list_first(packages); lp; lp = alpm_list_next(lp)) {
-			PM_SYNCPKG *sync = alpm_list_getdata(lp);
-			PM_PKG *spkg = alpm_sync_getinfo(sync, PM_SYNC_PKG);
-			PM_DB *dbs = alpm_pkg_getinfo(spkg, PM_PKG_DATA);
-
-			if(current->db == dbs) {
-				char path[PATH_MAX];
-				char *pkgname, *pkgver, *pkgarch;
-
-				pkgname = alpm_pkg_getinfo(spkg, PM_PKG_NAME);
-				pkgver = alpm_pkg_getinfo(spkg, PM_PKG_VERSION);
-				pkgarch = alpm_pkg_getinfo(spkg, PM_PKG_ARCH);
-
-				if(config->op_s_printuris) {
-					server_t *server = (server_t*)current->servers->data;
-					snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG, pkgname, pkgver, pkgarch);
-					if(!strcmp(server->protocol, "file")) {
-						MSG(NL, "%s://%s%s\n", server->protocol, server->path, path);
-					} else {
-						MSG(NL, "%s://%s%s%s\n", server->protocol,
-						    server->server, server->path, path);
-					}
-				} else {
-					struct stat buf;
-					snprintf(path, PATH_MAX, "%s/%s-%s-%s" PM_EXT_PKG, ldir, pkgname, pkgver, pkgarch);
-					if(stat(path, &buf)) {
-						/* file is not in the cache dir, so add it to the list */
-						snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG, pkgname, pkgver, pkgarch);
-						files = list_add(files, strdup(path));
-					} else {
-						vprint(_("%s-%s-%s%s is already in the cache\n"), pkgname, pkgver, pkgarch, PM_EXT_PKG);
-					}
-				}
-			}
-		}
-
-		if(files) {
-			struct stat buf;
-			MSG(NL, _("\n:: Retrieving packages from %s...\n"), current->treename);
-			fflush(stdout);
-			if(stat(ldir, &buf)) {
-				/* no cache directory.... try creating it */
-				WARN(NL, _("no %s cache exists.  creating...\n"), ldir);
-				alpm_logaction(_("warning: no %s cache exists.  creating..."), ldir);
-				if(makepath(ldir)) {
-					/* couldn't mkdir the cache directory, so fall back to /tmp and unlink
-					 * the package afterwards.
-					 */
-					WARN(NL, _("couldn't create package cache, using /tmp instead\n"));
-					alpm_logaction(_("warning: couldn't create package cache, using /tmp instead"));
-					snprintf(ldir, PATH_MAX, "%s/tmp", config->root);
-					if(alpm_set_option(PM_OPT_CACHEDIR, (long)"/tmp") == -1) {
-						ERR(NL, _("failed to set option CACHEDIR (%s)\n"), alpm_strerror(pm_errno));
-						goto cleanup;
-					}
-					varcache = 0;
-				}
-			}
-			if(downloadfiles(current->servers, ldir, files)) {
-				ERR(NL, _("failed to retrieve some files from %s\n"), current->treename);
-				retval = 1;
-				goto cleanup;
-			}
-			FREELIST(files);
-		}
-	}
-	if(config->op_s_printuris) {
-		goto cleanup;
-	}
-	MSG(NL, "\n");
-
 	/* Step 3: actually perform the installation
 	 */
 	if(alpm_trans_commit(&data) == -1) {
@@ -807,13 +685,6 @@ int pacman_sync(list_t *targets)
 		}
 		retval = 1;
 		goto cleanup;
-	}
-
-	if(!varcache && !config->op_s_downloadonly) {
-		/* delete packages */
-		for(i = files; i; i = i->next) {
-			unlink(i->data);
-		}
 	}
 
 	/* Step 4: release transaction resources

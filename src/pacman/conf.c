@@ -60,8 +60,6 @@ int config_free(config_t *config)
 	FREE(config->cachedir);
 	FREE(config->configfile);
 	FREELIST(config->op_s_ignore);
-	FREE(config->proxyhost);
-	FREE(config->xfercommand);
 	FREELIST(config->holdpkg);
 	free(config);
 
@@ -122,7 +120,6 @@ int parseconfig(char *file, config_t *config)
 					/* start a new sync record */
 					MALLOC(sync, sizeof(sync_t));
 					sync->treename = strdup(section);
-					sync->servers = NULL;
 					pmc_syncs = list_add(pmc_syncs, sync);
 				}
 			}
@@ -142,8 +139,11 @@ int parseconfig(char *file, config_t *config)
 			}
 			if(ptr == NULL) {
 				if(!strcmp(key, "NOPASSIVEFTP")) {
-					config->nopassiveftp = 1;
-					vprint(_("config: nopassiveftp\n"));
+					if(alpm_set_option(PM_OPT_NOPASSIVEFTP, (long)1) == -1) {
+						ERR(NL, _("config: line %d: failed to set option NOPASSIVEFTP (%s)\n"),
+							linenum, alpm_strerror(pm_errno));
+						return(1);
+					}
 				} else if(!strcmp(key, "USESYSLOG")) {
 					if(alpm_set_option(PM_OPT_USESYSLOG, (long)1) == -1) {
 						ERR(NL, _("failed to set option USESYSLOG (%s)\n"), alpm_strerror(pm_errno));
@@ -253,13 +253,11 @@ int parseconfig(char *file, config_t *config)
 						}
 						vprint(_("config: log file: %s\n"), ptr);
 					} else if (!strcmp(key, "XFERCOMMAND")) {
-						FREE(config->xfercommand);
-						#if defined(__APPLE__) || defined(__OpenBSD__)
-						config->xfercommand = strdup(ptr);
-						#else
-						config->xfercommand = strndup(ptr, PATH_MAX);
-						#endif
-						vprint(_("config: xfercommand: %s\n"), config->xfercommand);
+						if(alpm_set_option(PM_OPT_XFERCOMMAND, (long)ptr) == -1) {
+							ERR(NL, _("config: line %d: failed to set option XFERCOMMAND (%s)\n"),
+								linenum, alpm_strerror(pm_errno));
+							return(1);
+						}
 					} else if (!strcmp(key, "UPGRADEDELAY")) {
 						/* The config value is in days, we use seconds */
 						vprint(_("config: UpgradeDelay: %i\n"), (60*60*24) * atol(ptr));
@@ -274,94 +272,29 @@ int parseconfig(char *file, config_t *config)
 								"Manually update such packages or use a lower value "
 								"to avoid this problem.\n"));
 					} else if (!strcmp(key, "PROXYSERVER")) {
-						char *p;
-						if(config->proxyhost) {
-							FREE(config->proxyhost);
+						if(alpm_set_option(PM_OPT_PROXYHOST, (long)ptr) == -1) {
+							ERR(NL, _("config: line %d: failed to set option PROXYHOST (%s)\n"),
+								linenum, alpm_strerror(pm_errno));
+							return(1);
 						}
-						p = strstr(ptr, "://");
-						if(p) {
-							p += 3;
-							if(p == NULL || *p == '\0') {
-								ERR(NL, _("config: line %d: bad server location\n"), linenum);
-								return(1);
-							}
-							ptr = p;
-						}
-						#if defined(__APPLE__) || defined(__OpenBSD__)
-						config->proxyhost = strdup(ptr);
-						#else
-						config->proxyhost = strndup(ptr, PATH_MAX);
-						#endif
-						vprint(_("config: proxyserver: %s\n"), config->proxyhost);
 					} else if (!strcmp(key, "PROXYPORT")) {
-						config->proxyport = (unsigned short)atoi(ptr);
-						vprint(_("config: proxyport: %u\n"), config->proxyport);
+						if(alpm_set_option(PM_OPT_PROXYPORT, (long)atoi(ptr)) == -1) {
+							ERR(NL, _("config: line %d: failed to set option PROXYPORT (%s)\n"),
+								linenum, alpm_strerror(pm_errno));
+							return(1);
+						}
 					} else {
 						ERR(NL, _("config: line %d: syntax error\n"), linenum);
 						return(1);
 					}
 				} else {
 					if(!strcmp(key, "SERVER")) {
-						/* parse our special url */
-						server_t *server;
-						char *p;
-
-						MALLOC(server, sizeof(server_t));
-						server->server = server->path = NULL;
-						server->protocol = NULL;
-
-						p = strstr(ptr, "://");
-						if(p == NULL) {
-							ERR(NL, _("config: line %d: bad server location\n"), linenum);
-							return(1);
-						}
-						*p = '\0';
-						p++; p++; p++;
-						if(p == NULL || *p == '\0') {
-							ERR(NL, _("config: line %d: bad server location\n"), linenum);
-							return(1);
-						}
-						server->protocol = strdup(ptr);
-						if(!strcmp(server->protocol, "ftp") || !strcmp(server->protocol, "http")) {
-							char *slash;
-							/* split the url into domain and path */
-							slash = strchr(p, '/');
-							if(slash == NULL) {
-								/* no path included, default to / */
-								server->path = strdup("/");
-							} else {
-								/* add a trailing slash if we need to */
-								if(slash[strlen(slash)-1] == '/') {
-									server->path = strdup(slash);
-								} else {
-									if((server->path = (char *)malloc(strlen(slash)+2)) == NULL) {
-										ERR(NL, _("could not allocate %d bytes\n"), sizeof(strlen(slash+2)));
-										return(1);
-									}
-									sprintf(server->path, "%s/", slash);
-								}
-								*slash = '\0';
-							}
-							server->server = strdup(p);
-						} else if(!strcmp(server->protocol, "file")){
-							/* add a trailing slash if we need to */
-							if(p[strlen(p)-1] == '/') {
-								server->path = strdup(p);
-							} else {
-								server->path = (char *)malloc(strlen(p)+2);
-								if(server->path == NULL) {
-									ERR(NL, _("could not allocate %d bytes\n"), sizeof(strlen(p+2)));
-									return(1);
-								}
-								sprintf(server->path, "%s/", p);
-							}
-						} else {
-							ERR(NL, _("config: line %d: protocol %s is not supported\n"), linenum, ptr);
-							return(1);
-						}
 						/* add to the list */
-						vprint(_("config: %s: server: %s %s %s\n"), section, server->protocol, server->server, server->path);
-						sync->servers = list_add(sync->servers, server);
+						vprint(_("config: %s: server: %s\n"), section, ptr);
+						if(alpm_db_setserver(sync->db, strdup(ptr)) == -1) {
+							ERR(NL, "%s\n", alpm_strerror(pm_errno));
+							return(1);
+						}
 					} else {
 						ERR(NL, _("config: line %d: syntax error\n"), linenum);
 						return(1);

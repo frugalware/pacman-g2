@@ -50,7 +50,7 @@ int pacman_add(list_t *targets)
 	 */
 	for(i = targets; i; i = i->next) {
 		if(strstr(i->data, "://")) {
-			char *str = fetch_pkgurl(i->data);
+			char *str = alpm_fetch_pkgurl(i->data);
 			if(str == NULL) {
 				return(1);
 			} else {

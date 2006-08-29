@@ -49,7 +49,6 @@ typedef struct __config_t {
 	unsigned short op_s_downloadonly;
 	list_t *op_s_ignore;
 	unsigned short op_s_info;
-	unsigned short op_s_printuris;
 	unsigned short op_s_sync;
 	unsigned short op_s_search;
 	unsigned short op_s_upgrade;
@@ -59,11 +58,7 @@ typedef struct __config_t {
 	unsigned short noask;
 	unsigned int ask;
 	/* configuration file option */
-	char *proxyhost;
-	unsigned short proxyport;
-	char *xfercommand;
 	unsigned short chomp;
-	unsigned short nopassiveftp;
 	list_t *holdpkg;
 } config_t;
 
