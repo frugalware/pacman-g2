@@ -337,12 +337,17 @@ int alpm_db_setserver(pmdb_t *db, char *url)
 /** Update a package database
  * @param db pointer to the package database to update
  * @param archive path to the new package database tarball
- * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ * @return 0 on success, > 0 on error (pm_errno is set accordingly), < 0 if up
+ * to date
  */
-int alpm_db_update(PM_DB *db, char *archive)
+int alpm_db_update(int level, PM_DB *db)
 {
 	PMList *lp;
 	char path[PATH_MAX];
+	PMList *files = NULL;
+	char newmtime[16] = "";
+	char lastupdate[16] = "";
+	int ret;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -354,29 +359,59 @@ int alpm_db_update(PM_DB *db, char *archive)
 		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
 	}
 
-	/* remove the old dir */
-	_alpm_log(PM_LOG_FLOW2, _("flushing database %s/%s"), handle->dbpath, db->treename);
-	for(lp = _alpm_db_get_pkgcache(db); lp; lp = lp->next) {
-		if(_alpm_db_remove(db, lp->data) == -1) {
-			if(lp->data) {
-				_alpm_log(PM_LOG_ERROR, _("could not remove database entry %s/%s"), db->treename,
-				                        ((pmpkg_t *)lp->data)->name);
-			}
-			RET_ERR(PM_ERR_DB_REMOVE, -1);
+	if(level < 2) {
+		/* get the lastupdate time */
+		_alpm_db_getlastupdate(db, lastupdate);
+		if(strlen(lastupdate) == 0) {
+			_alpm_log(PM_LOG_DEBUG, _("failed to get lastupdate time for %s (no big deal)\n"), db->treename);
 		}
 	}
 
-	/* Cache needs to be rebuild */
-	_alpm_db_free_pkgcache(db);
+	/* build a one-element list */
+	snprintf(path, PATH_MAX, "%s" PM_EXT_DB, db->treename);
+	files = _alpm_list_add(files, strdup(path));
 
-	/* uncompress the sync database */
-	/* ORE
-	we should not simply unpack the archive, but better parse it and 
-	db_write each entry (see sync_load_dbarchive to get archive content) */
-	snprintf(path, PATH_MAX, "%s", db->path);
-	_alpm_log(PM_LOG_FLOW2, _("unpacking %s"), archive);
-	if(_alpm_unpack(archive, path, NULL)) {
-		RET_ERR(PM_ERR_SYSTEM, -1);
+	snprintf(path, PATH_MAX, "%s%s", handle->root, handle->dbpath);
+
+	ret = _alpm_downloadfiles_forreal(db->servers, path, files, lastupdate, newmtime);
+	FREELIST(files);
+	if(ret != 0) {
+		if(ret > 0) {
+			pm_errno = PM_ERR_DB_SYNC;
+		}
+		return(ret);
+	} else {
+		if(strlen(newmtime)) {
+			_alpm_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %s\n"), db->treename, newmtime);
+			_alpm_db_setlastupdate(db, newmtime);
+		}
+		snprintf(path, PATH_MAX, "%s%s/%s" PM_EXT_DB, handle->root, handle->dbpath, db->treename);
+
+		/* remove the old dir */
+		_alpm_log(PM_LOG_FLOW2, _("flushing database %s/%s"), handle->dbpath, db->treename);
+		for(lp = _alpm_db_get_pkgcache(db); lp; lp = lp->next) {
+			if(_alpm_db_remove(db, lp->data) == -1) {
+				if(lp->data) {
+					_alpm_log(PM_LOG_ERROR, _("could not remove database entry %s/%s"), db->treename,
+					                        ((pmpkg_t *)lp->data)->name);
+				}
+				RET_ERR(PM_ERR_DB_REMOVE, 1);
+			}
+		}
+
+		/* Cache needs to be rebuild */
+		_alpm_db_free_pkgcache(db);
+
+		/* uncompress the sync database */
+		/* ORE
+		we should not simply unpack the archive, but better parse it and 
+		db_write each entry (see sync_load_dbarchive to get archive content) */
+		_alpm_log(PM_LOG_FLOW2, _("unpacking %s"), path);
+		if(_alpm_unpack(path, db->path, NULL)) {
+			RET_ERR(PM_ERR_SYSTEM, 1);
+		}
+		/* remove the .tar.gz */
+		unlink(path);
 	}
 
 	return(0);

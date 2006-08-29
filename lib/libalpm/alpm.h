@@ -129,7 +129,7 @@ int alpm_db_unregister(PM_DB *db);
 void *alpm_db_getinfo(PM_DB *db, unsigned char parm);
 int alpm_db_setserver(PM_DB *db, char *url);
 
-int alpm_db_update(PM_DB *db, char *archive);
+int alpm_db_update(int level, PM_DB *db);
 
 PM_PKG *alpm_db_readpkg(PM_DB *db, char *name);
 PM_LIST *alpm_db_getpkgcache(PM_DB *db);
@@ -435,7 +435,8 @@ extern enum __pmerrno_t {
 	PM_ERR_USER_ABORT,
 	PM_ERR_INTERNAL_ERROR,
 	PM_ERR_LIBARCHIVE_ERROR,
-	PM_ERR_DISK_FULL
+	PM_ERR_DISK_FULL,
+	PM_ERR_DB_SYNC
 } pm_errno;
 
 char *alpm_strerror(int err);
