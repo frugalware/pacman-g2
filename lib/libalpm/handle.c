@@ -44,7 +44,7 @@ extern alpm_cb_log pm_logcb;
 extern FtpCallback pm_dlcb;
 extern unsigned char pm_logmask;
 /* progress bar */
-extern char **pm_dlfnm;
+extern char *pm_dlfnm;
 extern int *pm_dloffset;
 extern struct timeval *pm_dlt0, *pm_dlt;
 extern float *pm_dlrate;
@@ -216,7 +216,7 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 			pm_dlcb = (FtpCallback)data;
 		break;
 		case PM_OPT_DLFNM:
-			pm_dlfnm = (char **)data;
+			pm_dlfnm = (char *)data;
 		break;
 		case PM_OPT_DLOFFSET:
 			pm_dloffset = (int *)data;

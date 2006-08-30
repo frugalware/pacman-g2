@@ -41,7 +41,7 @@
 extern pmhandle_t *handle;
 FtpCallback pm_dlcb = NULL;
 /* progress bar */
-char **pm_dlfnm=NULL;
+char *pm_dlfnm=NULL;
 int *pm_dloffset=NULL;
 struct timeval *pm_dlt0=NULL, *pm_dlt=NULL;
 float *pm_dlrate=NULL;
@@ -293,18 +293,18 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 				char *ptr;
 				struct stat st;
 				snprintf(output, PATH_MAX, "%s/%s.part", localpath, fn);
-				strncpy(*pm_dlfnm, fn, 24);
+				strncpy(pm_dlfnm, fn, 24);
 				/* drop filename extension */
 				ptr = strstr(fn, PM_EXT_DB);
 				if(ptr && (ptr-fn) < 24) {
-					(*pm_dlfnm)[ptr-fn] = '\0';
+					pm_dlfnm[ptr-fn] = '\0';
 				}
 				ptr = strstr(fn, PM_EXT_PKG);
 				if(ptr && (ptr-fn) < 24) {
 					pm_dlfnm[ptr-fn] = '\0';
 				}
-				for(j = strlen(*pm_dlfnm); j < 24; j++) {
-					(*pm_dlfnm)[j] = ' ';
+				for(j = strlen(pm_dlfnm); j < 24; j++) {
+					(pm_dlfnm)[j] = ' ';
 				}
 				pm_dlfnm[24] = '\0';
 				*pm_dloffset = 0;
@@ -463,7 +463,7 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 					if(!strcmp(server->protocol, "file")) {
 						char out[56];
 						/* FIXME remove these 4 printfs from here */
-						printf(" %s [", *pm_dlfnm);
+						printf(" %s [", pm_dlfnm);
 						STRNCPY(out, server->path, 33);
 						printf("%s", out);
 						/* FIXME 80 is hardwired, should be maxcols */

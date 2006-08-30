@@ -531,7 +531,7 @@ int main(int argc, char *argv[])
 		ERR(NL, _("failed to set option DLCB (%s)\n"), alpm_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(alpm_set_option(PM_OPT_DLFNM, (long)&sync_fnm) == -1) {
+	if(alpm_set_option(PM_OPT_DLFNM, (long)sync_fnm) == -1) {
 		ERR(NL, _("failed to set option DLFNM (%s)\n"), alpm_strerror(pm_errno));
 		cleanup(1);
 	}
