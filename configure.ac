@@ -222,15 +222,6 @@ else
     PYTHONSTATUS="no, disabled by configure"
 fi
 
-dnl Enable or disable fakeroot code
-AC_MSG_CHECKING(for fakeroot proof support)
-if test x$fakeroot = xyes ; then
-	AC_MSG_RESULT(yes)
-else
-	CFLAGS="$CFLAGS -DFAKEROOT"
-	AC_MSG_RESULT(no)
-fi
-
 dnl Check for bzip2
 AC_CHECK_LIB([bz2], [BZ2_bzCompress], [AC_CHECK_HEADER([bzlib.h], [LIBBZ2='-lbz2'])])
 if test -n "$LIBBZ2"; then
@@ -266,6 +257,15 @@ else
     AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xno)
 	CFLAGS="$CFLAGS"
     AC_MSG_RESULT(no)
+fi
+
+dnl Enable or disable fakeroot code
+AC_MSG_CHECKING(for fakeroot proof support)
+if test x$fakeroot = xyes ; then
+	AC_MSG_RESULT(yes)
+else
+	CFLAGS="$CFLAGS -DFAKEROOT"
+	AC_MSG_RESULT(no)
 fi
 
 CFLAGS="$CFLAGS"
