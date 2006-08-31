@@ -262,7 +262,7 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howmany, int remain)
 {
 	int i, hash;
-	unsigned int maxpkglen;
+	unsigned int maxpkglen, progresslen = maxcols - 57;
 	char *addstr, *upgstr, *ptr;
 	addstr = strdup(_("installing"));
 	upgstr = strdup(_("upgrading"));
@@ -288,7 +288,7 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 			ptr = upgstr;
 		break;
 	}
-	hash = percent/6.25;
+	hash=percent*progresslen/100;
 
 	// if the package name is too long, then slice the ending
 	maxpkglen=46-strlen(ptr)-(3+2*(int)log10(howmany));
@@ -303,8 +303,8 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 		for (i=maxpkglen-strlen(pkgname)-1; i>0; i--)
 			putchar(' ');
 	printf("[");
-	for (i = 16; i > 0; i--) {
-		if (i >= 16 - hash)
+	for (i = progresslen; i > 0; i--) {
+		if (i >= progresslen - hash)
 			printf("#");
 		else
 			printf("-");
