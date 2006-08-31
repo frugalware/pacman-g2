@@ -461,16 +461,7 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 				if(filedone > 0) {
 					char completefile[PATH_MAX];
 					if(!strcmp(server->protocol, "file")) {
-						char out[56];
-						/* FIXME remove these 4 printfs from here */
-						printf(" %s [", pm_dlfnm);
-						STRNCPY(out, server->path, 33);
-						printf("%s", out);
-						/* FIXME 80 is hardwired, should be maxcols */
-						for(j = strlen(out); j < 80-64; j++) {
-							printf(" ");
-						}
-						fputs(_("] 100%    LOCAL "), stdout);
+						EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
 					} else {
 						pm_dlcb(control, fsz-*pm_dloffset, &fsz);
 					}

@@ -40,6 +40,7 @@
 #define LOG_STR_LEN 256
 
 extern config_t *config;
+extern unsigned int maxcols;
 
 int prevpercent=0; /* for less progressbar output */
 
@@ -48,6 +49,8 @@ int prevpercent=0; /* for less progressbar output */
 void cb_trans_evt(unsigned char event, void *data1, void *data2)
 {
 	char str[LOG_STR_LEN] = "";
+	char out[PATH_MAX];
+	int i;
 
 	switch(event) {
 		case PM_TRANS_EVT_CHECKDEPS_START:
@@ -138,6 +141,15 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 		case PM_TRANS_EVT_RETRIEVE_START:
 			MSG(NL, _("\n:: Retrieving packages from %s...\n"), (char*)data1);
 			fflush(stdout);
+		break;
+		case PM_TRANS_EVT_RETRIEVE_LOCAL:
+			MSG(NL, " %s [", (char*)data1);
+			STRNCPY(out, (char*)data2, maxcols-42);
+			MSG(CL, "%s", out);
+			for(i = strlen(out); i < maxcols-43; i++) {
+				MSG(CL, " ");
+			}
+			fputs(_("] 100%    LOCAL "), stdout);
 		break;
 	}
 }
