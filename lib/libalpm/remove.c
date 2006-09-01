@@ -190,7 +190,7 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 				char *sha1 =_alpm_needbackup(file, info->backup);
 
 				if (position != 0) {
-				percent = position / _alpm_list_count(info->files);
+				percent = (double)position / _alpm_list_count(info->files);
 				}
 				if(md5 && sha1) {
 					nb = 1;
