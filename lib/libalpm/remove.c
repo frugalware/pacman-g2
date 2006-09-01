@@ -179,6 +179,7 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 		}
 
 		if(!(trans->flags & PM_TRANS_FLAG_DBONLY)) {
+			int filenum = _alpm_list_count(info->files);
 			_alpm_log(PM_LOG_FLOW1, _("removing files"));
 
 			/* iterate through the list backwards, unlinking files */
@@ -190,7 +191,7 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 				char *sha1 =_alpm_needbackup(file, info->backup);
 
 				if (position != 0) {
-				percent = (double)position / _alpm_list_count(info->files);
+				percent = (double)position / filenum;
 				}
 				if(md5 && sha1) {
 					nb = 1;
