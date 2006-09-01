@@ -294,7 +294,8 @@ enum {
 /* Transaction Progress */
 enum {
 	PM_TRANS_PROGRESS_ADD_START,
-	PM_TRANS_PROGRESS_UPGRADE_START
+	PM_TRANS_PROGRESS_UPGRADE_START,
+	PM_TRANS_PROGRESS_REMOVE_START
 };
 
 /* Transaction Event callback */

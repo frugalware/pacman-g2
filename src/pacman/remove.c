@@ -77,7 +77,7 @@ int pacman_remove(list_t *targets)
 
 	/* Step 1: create a new transaction
 	 */
-	if(alpm_trans_init(PM_TRANS_TYPE_REMOVE, config->flags, cb_trans_evt, cb_trans_conv, NULL) == -1) {
+	if(alpm_trans_init(PM_TRANS_TYPE_REMOVE, config->flags, cb_trans_evt, cb_trans_conv, cb_trans_progress) == -1) {
 		ERR(NL, _("failed to init transaction (%s)\n"), alpm_strerror(pm_errno));
 		if(pm_errno == PM_ERR_HANDLE_LOCK) {
 			MSG(NL, _("       if you're sure a package manager is not already running,\n"

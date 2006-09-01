@@ -91,10 +91,16 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			alpm_logaction(str);
 		break;
 		case PM_TRANS_EVT_REMOVE_START:
+			if(config->noprogressbar) {
 			MSG(NL, _("removing %s... "), (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME));
+			}
 		break;
 		case PM_TRANS_EVT_REMOVE_DONE:
-			MSG(CL, _("done.\n"));
+			if(config->noprogressbar) {
+			    MSG(CL, _("done.\n"));
+			} else {
+			    MSG(NL, "");
+			}
 			snprintf(str, LOG_STR_LEN, _("removed %s (%s)"),
 			         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
 			         (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
@@ -263,9 +269,10 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 {
 	int i, hash;
 	unsigned int maxpkglen, progresslen = maxcols - 57;
-	char *addstr, *upgstr, *ptr;
+	char *addstr, *upgstr, *removestr, *ptr;
 	addstr = strdup(_("installing"));
 	upgstr = strdup(_("upgrading"));
+	removestr = strdup(_("removing"));
 
 	if(config->noprogressbar) {
 		return;
@@ -286,6 +293,9 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 
 		case PM_TRANS_PROGRESS_UPGRADE_START:
 			ptr = upgstr;
+		break;
+		case PM_TRANS_PROGRESS_REMOVE_START:
+			ptr = removestr;
 		break;
 	}
 	hash=percent*progresslen/100;
@@ -312,6 +322,7 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 	MSG(CL, "] %3d%%\r", percent);
 	FREE(addstr);
 	FREE(upgstr);
+	FREE(removestr);
 }
 
 /* vim: set ts=2 sw=2 noet: */
