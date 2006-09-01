@@ -108,7 +108,7 @@ int pacman_deptest(list_t *targets)
 					PM_DEPMISS *miss = alpm_list_getdata(lp);
 					if(!config->op_d_resolve) {
 						MSG(NL, _("requires: %s"), alpm_dep_getinfo(miss, PM_DEP_NAME));
-						switch((int)alpm_dep_getinfo(miss, PM_DEP_MOD)) {
+						switch((long)alpm_dep_getinfo(miss, PM_DEP_MOD)) {
 							case PM_DEP_MOD_EQ: MSG(CL, "=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION));  break;
 							case PM_DEP_MOD_GE: MSG(CL, ">=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION)); break;
 							case PM_DEP_MOD_LE: MSG(CL, "<=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION)); break;

@@ -96,7 +96,7 @@ int pacman_add(list_t *targets)
 					PM_DEPMISS *miss = alpm_list_getdata(i);
 					MSG(NL, _(":: %s: requires %s"), alpm_dep_getinfo(miss, PM_DEP_TARGET),
 					                              alpm_dep_getinfo(miss, PM_DEP_NAME));
-					switch((int)alpm_dep_getinfo(miss, PM_DEP_MOD)) {
+					switch((long)alpm_dep_getinfo(miss, PM_DEP_MOD)) {
 						case PM_DEP_MOD_EQ: MSG(CL, "=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION));  break;
 						case PM_DEP_MOD_GE: MSG(CL, ">=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION)); break;
 						case PM_DEP_MOD_LE: MSG(CL, "<=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION)); break;
@@ -116,7 +116,7 @@ int pacman_add(list_t *targets)
 			case PM_ERR_FILE_CONFLICTS:
 				for(i = alpm_list_first(data); i; i = alpm_list_next(i)) {
 					PM_CONFLICT *conflict = alpm_list_getdata(i);
-					switch((int)alpm_conflict_getinfo(conflict, PM_CONFLICT_TYPE)) {
+					switch((long)alpm_conflict_getinfo(conflict, PM_CONFLICT_TYPE)) {
 						case PM_CONFLICT_TYPE_TARGET:
 							MSG(NL, _("%s%s exists in \"%s\" (target) and \"%s\" (target)"),
 											config->root,

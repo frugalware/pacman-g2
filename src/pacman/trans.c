@@ -129,7 +129,7 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			MSG(CL, "...");
 		break;
 		case PM_TRANS_EVT_SCRIPTLET_DONE:
-			if(!(int)data1) {
+			if(!(long)data1) {
 				MSG(CL, _(" done.\n"));
 			} else {
 				MSG(CL, _(" failed.\n"));

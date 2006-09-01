@@ -505,7 +505,7 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_START, _alpm_strtrim(line + strlen(STARTSTR)), NULL);
 			/* "DONE <ret code>" */
 			} else if((strlen(line) > strlen(DONESTR)) && !strncmp(line, DONESTR, strlen(DONESTR))) {
-				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_DONE, (void*)atoi(_alpm_strtrim(line + strlen(DONESTR))), NULL);
+				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_DONE, (void*)atol(_alpm_strtrim(line + strlen(DONESTR))), NULL);
 			} else {
 				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_INFO, _alpm_strtrim(line), NULL);
 			}

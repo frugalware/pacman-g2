@@ -584,9 +584,9 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 		case PM_PKG_BUILDTYPE:   data = pkg->buildtype; break;
 		case PM_PKG_INSTALLDATE: data = pkg->installdate; break;
 		case PM_PKG_PACKAGER:    data = pkg->packager; break;
-		case PM_PKG_SIZE:        data = (void *)pkg->size; break;
-		case PM_PKG_USIZE:       data = (void *)pkg->usize; break;
-		case PM_PKG_REASON:      data = (void *)(int)pkg->reason; break;
+		case PM_PKG_SIZE:        data = (void *)(long)pkg->size; break;
+		case PM_PKG_USIZE:       data = (void *)(long)pkg->usize; break;
+		case PM_PKG_REASON:      data = (void *)(long)pkg->reason; break;
 		case PM_PKG_LICENSE:     data = pkg->license; break;
 		case PM_PKG_REPLACES:    data = pkg->replaces; break;
 		case PM_PKG_MD5SUM:      data = pkg->md5sum; break;
@@ -598,7 +598,7 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 		case PM_PKG_CONFLICTS:   data = pkg->conflicts; break;
 		case PM_PKG_FILES:       data = pkg->files; break;
 		case PM_PKG_BACKUP:      data = pkg->backup; break;
-		case PM_PKG_SCRIPLET:    data = (void *)(int)pkg->scriptlet; break;
+		case PM_PKG_SCRIPLET:    data = (void *)(long)pkg->scriptlet; break;
 		case PM_PKG_DATA:        data = pkg->data; break;
 		default:
 			data = NULL;
@@ -797,7 +797,7 @@ void *alpm_sync_getinfo(pmsyncpkg_t *sync, unsigned char parm)
 	ASSERT(sync != NULL, return(NULL));
 
 	switch(parm) {
-		case PM_SYNC_TYPE: data = (void *)(int)sync->type; break;
+		case PM_SYNC_TYPE: data = (void *)(long)sync->type; break;
 		case PM_SYNC_PKG:  data = sync->pkg; break;
 		case PM_SYNC_DATA: data = sync->data; break;
 		default:
@@ -830,8 +830,8 @@ void *alpm_trans_getinfo(unsigned char parm)
 	trans = handle->trans;
 
 	switch(parm) {
-		case PM_TRANS_TYPE:     data = (void *)(int)trans->type; break;
-		case PM_TRANS_FLAGS:    data = (void *)(int)trans->flags; break;
+		case PM_TRANS_TYPE:     data = (void *)(long)trans->type; break;
+		case PM_TRANS_FLAGS:    data = (void *)(long)trans->flags; break;
 		case PM_TRANS_TARGETS:  data = trans->targets; break;
 		case PM_TRANS_PACKAGES: data = trans->packages; break;
 		default:
@@ -1011,9 +1011,9 @@ void *alpm_dep_getinfo(pmdepmissing_t *miss, unsigned char parm)
 	ASSERT(miss != NULL, return(NULL));
 
 	switch(parm) {
-		case PM_DEP_TARGET:  data = (void *)(int)miss->target; break;
-		case PM_DEP_TYPE:    data = (void *)(int)miss->type; break;
-		case PM_DEP_MOD:     data = (void *)(int)miss->depend.mod; break;
+		case PM_DEP_TARGET:  data = (void *)(long)miss->target; break;
+		case PM_DEP_TYPE:    data = (void *)(long)miss->type; break;
+		case PM_DEP_MOD:     data = (void *)(long)miss->depend.mod; break;
 		case PM_DEP_NAME:    data = miss->depend.name; break;
 		case PM_DEP_VERSION: data = miss->depend.version; break;
 		default:
@@ -1044,7 +1044,7 @@ void *alpm_conflict_getinfo(pmconflict_t *conflict, unsigned char parm)
 
 	switch(parm) {
 		case PM_CONFLICT_TARGET:  data = conflict->target; break;
-		case PM_CONFLICT_TYPE:    data = (void *)(int)conflict->type; break;
+		case PM_CONFLICT_TYPE:    data = (void *)(long)conflict->type; break;
 		case PM_CONFLICT_FILE:    data = conflict->file; break;
 		case PM_CONFLICT_CTARGET: data = conflict->ctarget; break;
 		default:

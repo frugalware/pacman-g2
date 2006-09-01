@@ -508,9 +508,9 @@ int pacman_sync(list_t *targets)
 				for(lp = alpm_list_first(data); lp; lp = alpm_list_next(lp)) {
 					PM_DEPMISS *miss = alpm_list_getdata(lp);
 					MSG(NL, ":: %s: %s %s", alpm_dep_getinfo(miss, PM_DEP_TARGET),
-					    (int)alpm_dep_getinfo(miss, PM_DEP_TYPE) == PM_DEP_TYPE_DEPEND ? _("requires") : _("is required by"),
+					    (long)alpm_dep_getinfo(miss, PM_DEP_TYPE) == PM_DEP_TYPE_DEPEND ? _("requires") : _("is required by"),
 					    alpm_dep_getinfo(miss, PM_DEP_NAME));
-					switch((int)alpm_dep_getinfo(miss, PM_DEP_MOD)) {
+					switch((long)alpm_dep_getinfo(miss, PM_DEP_MOD)) {
 						case PM_DEP_MOD_EQ: MSG(CL, "=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION)); break;
 						case PM_DEP_MOD_GE: MSG(CL, ">=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION)); break;
 						case PM_DEP_MOD_LE: MSG(CL, "<=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION)); break;
@@ -551,7 +551,7 @@ int pacman_sync(list_t *targets)
 	}
 
 	/* list targets and get confirmation */
-	if(!((unsigned int)alpm_trans_getinfo(PM_TRANS_FLAGS) & PM_TRANS_FLAG_PRINTURIS)) {
+	if(!((unsigned long)alpm_trans_getinfo(PM_TRANS_FLAGS) & PM_TRANS_FLAG_PRINTURIS)) {
 		list_t *list_install = NULL;
 		list_t *list_remove = NULL;
 		char *str;
@@ -564,7 +564,7 @@ int pacman_sync(list_t *targets)
 			PM_PKG *pkg = alpm_sync_getinfo(sync, PM_SYNC_PKG);
 			char *pkgname, *pkgver;
 
-			if((int)alpm_sync_getinfo(sync, PM_SYNC_TYPE) == PM_SYNC_TYPE_REPLACE) {
+			if((long)alpm_sync_getinfo(sync, PM_SYNC_TYPE) == PM_SYNC_TYPE_REPLACE) {
 				PM_LIST *j, *data;
 				data = alpm_sync_getinfo(sync, PM_SYNC_DATA);
 				for(j = alpm_list_first(data); j; j = alpm_list_next(j)) {
@@ -578,8 +578,8 @@ int pacman_sync(list_t *targets)
 
 			pkgname = alpm_pkg_getinfo(pkg, PM_PKG_NAME);
 			pkgver = alpm_pkg_getinfo(pkg, PM_PKG_VERSION);
-			totalsize += (int)alpm_pkg_getinfo(pkg, PM_PKG_SIZE);
-			totalusize += (int)alpm_pkg_getinfo(pkg, PM_PKG_USIZE);
+			totalsize += (long)alpm_pkg_getinfo(pkg, PM_PKG_SIZE);
+			totalusize += (long)alpm_pkg_getinfo(pkg, PM_PKG_USIZE);
 
 			asprintf(&str, "%s-%s", pkgname, pkgver);
 			list_install = list_add(list_install, str);
@@ -644,7 +644,7 @@ int pacman_sync(list_t *targets)
 			case PM_ERR_FILE_CONFLICTS:
 				for(lp = alpm_list_first(data); lp; lp = alpm_list_next(lp)) {
 					PM_CONFLICT *conflict = alpm_list_getdata(lp);
-					switch((int)alpm_conflict_getinfo(conflict, PM_CONFLICT_TYPE)) {
+					switch((long)alpm_conflict_getinfo(conflict, PM_CONFLICT_TYPE)) {
 						case PM_CONFLICT_TYPE_TARGET:
 							MSG(NL, _("%s%s exists in \"%s\" (target) and \"%s\" (target)"),
 											config->root,
