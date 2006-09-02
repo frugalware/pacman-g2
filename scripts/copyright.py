@@ -1,5 +1,26 @@
 #!/usr/bin/env python
 
+"""
+copyright.py
+
+Copyright (c) 2006 by Miklos Vajna <vmiklos@frugalware.org>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
+USA.
+"""
+
 import os, sys
 
 class author:
@@ -66,9 +87,8 @@ def gencopy(fn):
 	socket.close()
 	names.dump()
 
-for i in ["lib/libalpm", "scripts", "src"]:
+for i in ["scripts"]:
 	for root, dirs, files in os.walk(i):
 		for file in files:
-			if file[-2:] == ".c":
-				print "==> %s/%s:" % (root, file)
-				gencopy("%s/%s" % (root, file))
+			print "==> %s/%s:" % (root, file)
+			gencopy("%s/%s" % (root, file))
