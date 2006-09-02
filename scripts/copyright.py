@@ -87,8 +87,9 @@ def gencopy(fn):
 	socket.close()
 	names.dump()
 
-for i in ["scripts"]:
+for i in ["lib/libalpm"]:
 	for root, dirs, files in os.walk(i):
 		for file in files:
-			print "==> %s/%s:" % (root, file)
-			gencopy("%s/%s" % (root, file))
+			if file[-2:] == ".h":
+				print "==> %s/%s:" % (root, file)
+				gencopy("%s/%s" % (root, file))
