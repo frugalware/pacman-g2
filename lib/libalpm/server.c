@@ -472,8 +472,6 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 				} else if(filedone < 0) {
 					return(-1);
 				}
-				printf("\n");
-				fflush(stdout);
 			}
 		}
 		if(!handle->xfercommand) {

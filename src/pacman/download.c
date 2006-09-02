@@ -56,6 +56,7 @@ int log_progress(netbuf *ctl, int xfered, void *arg)
 {
 	int fsz = *(int*)arg;
 	int pct = ((float)(xfered+offset) / fsz) * 100;
+	static int lastpct=0;
 	unsigned int i, cur;
 	struct timeval t1;
 	float timediff;
@@ -135,7 +136,11 @@ int log_progress(netbuf *ctl, int xfered, void *arg)
 	} else {
 		printf("] %3d%%  %6dK  %6.1fK/s  %02d:%02d:%02d\r", pct, ((xfered+offset) / 1024), rate, eta_h, eta_m, eta_s);
 	}
+	if(lastpct != 100 && pct == 100) {
+		printf("\n");
+	}
 	lastcur = cur;
+	lastpct = pct;
 	fflush(stdout);
 	return(1);
 }
