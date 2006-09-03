@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: hu\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-09-03 13:36+0200\n"
-"PO-Revision-Date: 2006-08-26 14:44+0200\n"
+"PO-Revision-Date: 2006-09-03 13:52+0200\n"
 "Last-Translator: Miklos Vajna <vmiklos@frugalware.org>\n"
 "Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-2\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=1; plural=0;"
 
 #: ../add.c:69 ../deptest.c:64 ../remove.c:83 ../sync.c:378 ../sync.c:417
 #, c-format
@@ -691,9 +691,9 @@ msgid "failed to initilize alpm library (%s)\n"
 msgstr "nem sikerült inicializálni az alpm könyvtárat (%s)\n"
 
 #: ../pacman.c:518
-#, fuzzy, c-format
+#, c-format
 msgid "failed to parse config (%s)\n"
-msgstr "nem sikerült elõkészíteni a tranzakciót (%s)\n"
+msgstr "nem sikerült értelmezni a beállítási fájlt (%s)\n"
 
 #: ../pacman.c:524
 #, c-format
@@ -706,54 +706,54 @@ msgid "failed to set option LOGCB (%s)\n"
 msgstr "nem sikerült beállítani a LOGCB opciót (%s)\n"
 
 #: ../pacman.c:532
-#, fuzzy, c-format
+#, c-format
 msgid "failed to set option DLCB (%s)\n"
-msgstr "nem sikerült beállítani a LOGCB opciót (%s)\n"
+msgstr "nem sikerült beállítani a DLCB opciót (%s)\n"
 
 #: ../pacman.c:536
-#, fuzzy, c-format
+#, c-format
 msgid "failed to set option DLFNM (%s)\n"
-msgstr "nem sikerült beállítani a LOGFILE opciót (%s)\n"
+msgstr "nem sikerült beállítani a DLFNM opciót (%s)\n"
 
 #: ../pacman.c:540
-#, fuzzy, c-format
+#, c-format
 msgid "failed to set option DLOFFSET (%s)\n"
-msgstr "nem sikerült beállítani a LOGFILE opciót (%s)\n"
+msgstr "nem sikerült beállítani a DLOFFSET opciót (%s)\n"
 
 #: ../pacman.c:544
-#, fuzzy, c-format
+#, c-format
 msgid "failed to set option DLT0 (%s)\n"
-msgstr "nem sikerült beállítani a DBPATH opciót (%s)\n"
+msgstr "nem sikerült beállítani a DBT0 opciót (%s)\n"
 
 #: ../pacman.c:548
-#, fuzzy, c-format
+#, c-format
 msgid "failed to set option DLT (%s)\n"
-msgstr "nem sikerült beállítani a DBPATH opciót (%s)\n"
+msgstr "nem sikerült beállítani a DLT opciót (%s)\n"
 
 #: ../pacman.c:552
-#, fuzzy, c-format
+#, c-format
 msgid "failed to set option DLRATE (%s)\n"
-msgstr "nem sikerült beállítani a DBPATH opciót (%s)\n"
+msgstr "nem sikerült beállítani a DLRATE opciót (%s)\n"
 
 #: ../pacman.c:556
-#, fuzzy, c-format
+#, c-format
 msgid "failed to set option DLXFERED1 (%s)\n"
-msgstr "nem sikerült beállítani a LOGFILE opciót (%s)\n"
+msgstr "nem sikerült beállítani a DLXFERED1 opciót (%s)\n"
 
 #: ../pacman.c:560
-#, fuzzy, c-format
+#, c-format
 msgid "failed to set option DLETA_H (%s)\n"
-msgstr "nem sikerült beállítani a DBPATH opciót (%s)\n"
+msgstr "nem sikerült beállítani a DLETA_H opciót (%s)\n"
 
 #: ../pacman.c:564
-#, fuzzy, c-format
+#, c-format
 msgid "failed to set option DLETA_M (%s)\n"
-msgstr "nem sikerült beállítani a DBPATH opciót (%s)\n"
+msgstr "nem sikerült beállítani a DBETA_M opciót (%s)\n"
 
 #: ../pacman.c:568
-#, fuzzy, c-format
+#, c-format
 msgid "failed to set option DLETA_S (%s)\n"
-msgstr "nem sikerült beállítani a LOGMASK opciót (%s)\n"
+msgstr "nem sikerült beállítani a DLETA_S opciót (%s)\n"
 
 #: ../pacman.c:578
 #, c-format
@@ -1159,9 +1159,8 @@ msgid "upgrading"
 msgstr "frissítés:"
 
 #: ../trans.c:288
-#, fuzzy
 msgid "removing"
-msgstr "%s eltávolítása... "
+msgstr "eltávolíás:"
 
 #: ../util.c:178
 #, c-format
@@ -1174,71 +1173,71 @@ msgid "%s is not a valid regular expression.\n"
 msgstr "%s: nem érvényes reguláris kifejezés.\n"
 
 #~ msgid "config: new section '%s'\n"
-#~ msgstr "beállítások: új szekció '%s'\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: Ãºj szekciÃ³ '%s'\n"
 
 #~ msgid "config: line %d: bad section name\n"
-#~ msgstr "beállítások: %d. sor: rossz szekciónév\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: %d. sor: rossz szekciÃ³nÃ©v\n"
 
 #~ msgid ""
 #~ "config: line %d: '%s' is reserved and cannot be used as a package tree\n"
 #~ msgstr ""
-#~ "beállítások: %d. sor: a '%s' név fenntartott és nem használható csomagfa "
-#~ "névként\n"
+#~ "beÃ¡llÃ­tÃ¡sok: %d. sor: a '%s' nÃ©v fenntartott Ã©s nem hasznÃ¡lhatÃ³ csomagfa "
+#~ "nÃ©vkÃ©nt\n"
 
 #~ msgid "config: line %d: syntax error\n"
-#~ msgstr "beállítások: %d. sor: szintaktikai hiba\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: %d. sor: szintaktikai hiba\n"
 
 #~ msgid "config: line %d: all directives must belong to a section\n"
 #~ msgstr ""
-#~ "beállítások: %d. sor: minden direktívának egy szekcióhoz kell tartoznia\n"
+#~ "beÃ¡llÃ­tÃ¡sok: %d. sor: minden direktÃ­vÃ¡nak egy szekciÃ³hoz kell tartoznia\n"
 
 #~ msgid "config: nopassiveftp\n"
-#~ msgstr "beállítások: nem lesz passzív ftp\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: nem lesz passzÃ­v ftp\n"
 
 #~ msgid "failed to set option USESYSLOG (%s)\n"
-#~ msgstr "nem sikerült beállítani a USESYSLOG opciót (%s)\n"
+#~ msgstr "nem sikerÃ¼lt beÃ¡llÃ­tani a USESYSLOG opciÃ³t (%s)\n"
 
 #~ msgid "config: usesyslog\n"
-#~ msgstr "beállítások: syslog használata\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: syslog hasznÃ¡lata\n"
 
 #~ msgid "config: including %s\n"
-#~ msgstr "beállítások: a %s beolvasása\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: a %s beolvasÃ¡sa\n"
 
 #~ msgid "failed to set option NOUPGRADE (%s)\n"
-#~ msgstr "nem sikerült beállítani a NOUPGRADE opciót (%s)\n"
+#~ msgstr "nem sikerÃ¼lt beÃ¡llÃ­tani a NOUPGRADE opciÃ³t (%s)\n"
 
 #~ msgid "config: noupgrade: %s\n"
-#~ msgstr "beállítások: nem fog frissülni: %s\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: nem fog frissÃ¼lni: %s\n"
 
 #~ msgid "failed to set option NOEXTRACT (%s)\n"
-#~ msgstr "nem sikerült beállítani a NOEXTRACT opciót (%s)\n"
+#~ msgstr "nem sikerÃ¼lt beÃ¡llÃ­tani a NOEXTRACT opciÃ³t (%s)\n"
 
 #~ msgid "config: noextract: %s\n"
-#~ msgstr "beállítások: nem lesz kifejtve: %s\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: nem lesz kifejtve: %s\n"
 
 #~ msgid "config: ignorepkg: %s\n"
-#~ msgstr "beállítások: a %s csomag figyelmen kívül hagyása\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: a %s csomag figyelmen kÃ­vÃ¼l hagyÃ¡sa\n"
 
 #~ msgid "config: holdpkg: %s\n"
-#~ msgstr "beállítások: ez a csomag mindenképp meg lesz tartva: %s\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: ez a csomag mindenkÃ©pp meg lesz tartva: %s\n"
 
 #~ msgid "config: dbpath: %s\n"
-#~ msgstr "beállítások: adatbázis útvonala: %s\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: adatbÃ¡zis Ãºtvonala: %s\n"
 
 #~ msgid "config: cachedir: %s\n"
-#~ msgstr "beállítások: gyorsítótár könyvtára: %s\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: gyorsÃ­tÃ³tÃ¡r kÃ¶nyvtÃ¡ra: %s\n"
 
 #~ msgid "config: log file: %s\n"
-#~ msgstr "beállítások: naplófájl: %s\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: naplÃ³fÃ¡jl: %s\n"
 
 #~ msgid "config: xfercommand: %s\n"
-#~ msgstr "beállítások: átviteli parancs: %s\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: Ã¡tviteli parancs: %s\n"
 
 #~ msgid "config: UpgradeDelay: %i\n"
-#~ msgstr "beállítások: frissítés késleltetése: %i\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: frissÃ­tÃ©s kÃ©sleltetÃ©se: %i\n"
 
 #~ msgid "failed to set option UPGRADEDELAY (%s)\n"
-#~ msgstr "nem sikerült beállítani az UPGRADEDELAY opciót (%s)\n"
+#~ msgstr "nem sikerÃ¼lt beÃ¡llÃ­tani az UPGRADEDELAY opciÃ³t (%s)\n"
 
 #~ msgid ""
 #~ "Warning: UpgradeDelay is very high.\n"
@@ -1246,123 +1245,123 @@ msgstr "%s: nem érvényes reguláris kifejezés.\n"
 #~ "Manually update such packages or use a lower value to avoid this "
 #~ "problem.\n"
 #~ msgstr ""
-#~ "Figyelmeztetés: az UpgradeDelay opció túl nagy értéken van.\n"
-#~ "Ha egy csomag gyakran frissül, soha nem lesz frissítve.\n"
-#~ "Frissítse kézzel ezeket a csomagokat vagy használjon egy kisebb értéket, "
-#~ "hogy elkerülje ezt a problémát.\n"
+#~ "FigyelmeztetÃ©s: az UpgradeDelay opciÃ³ tÃºl nagy Ã©rtÃ©ken van.\n"
+#~ "Ha egy csomag gyakran frissÃ¼l, soha nem lesz frissÃ­tve.\n"
+#~ "FrissÃ­tse kÃ©zzel ezeket a csomagokat vagy hasznÃ¡ljon egy kisebb Ã©rtÃ©ket, "
+#~ "hogy elkerÃ¼lje ezt a problÃ©mÃ¡t.\n"
 
 #~ msgid "config: line %d: bad server location\n"
-#~ msgstr "beállítások: %d. sor: rossz szerver hely\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: %d. sor: rossz szerver hely\n"
 
 #~ msgid "config: proxyserver: %s\n"
-#~ msgstr "beállítások: proxyszerver: %s\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: proxyszerver: %s\n"
 
 #~ msgid "config: proxyport: %u\n"
-#~ msgstr "beállítások: proxyport: %u\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: proxyport: %u\n"
 
 #~ msgid "could not allocate %d bytes\n"
-#~ msgstr "nem sikerült allokálni %d bájtot\n"
+#~ msgstr "nem sikerÃ¼lt allokÃ¡lni %d bÃ¡jtot\n"
 
 #~ msgid "config: line %d: protocol %s is not supported\n"
-#~ msgstr "beállítások: %d. sor: a %s protokoll nem támogatott\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: %d. sor: a %s protokoll nem tÃ¡mogatott\n"
 
 #~ msgid "config: %s: server: %s %s %s\n"
-#~ msgstr "beállítások: %s: szerver: %s %s %s\n"
+#~ msgstr "beÃ¡llÃ­tÃ¡sok: %s: szerver: %s %s %s\n"
 
 #~ msgid "connecting to %s:21\n"
-#~ msgstr "kapcsolódás a %s:21-hez\n"
+#~ msgstr "kapcsolÃ³dÃ¡s a %s:21-hez\n"
 
 #~ msgid "cannot connect to %s\n"
-#~ msgstr "nem sikerült kapcsolódni ide: %s\n"
+#~ msgstr "nem sikerÃ¼lt kapcsolÃ³dni ide: %s\n"
 
 #~ msgid "anonymous login failed\n"
-#~ msgstr "a névtelen bejelentkezés sikertelen\n"
+#~ msgstr "a nÃ©vtelen bejelentkezÃ©s sikertelen\n"
 
 #~ msgid "could not cwd to %s: %s\n"
-#~ msgstr "nem sikerült könyvtárt váltani a %s címe: %s\n"
+#~ msgstr "nem sikerÃ¼lt kÃ¶nyvtÃ¡rt vÃ¡ltani a %s cÃ­me: %s\n"
 
 #~ msgid "failed to set passive mode\n"
-#~ msgstr "nem sikerült beállítani a passzív módot\n"
+#~ msgstr "nem sikerÃ¼lt beÃ¡llÃ­tani a passzÃ­v mÃ³dot\n"
 
 #~ msgid "FTP passive mode not set\n"
-#~ msgstr "az FTP passív mód nem lett beállítva\n"
+#~ msgstr "az FTP passÃ­v mÃ³d nem lett beÃ¡llÃ­tva\n"
 
 #~ msgid "connecting to %s\n"
-#~ msgstr "kapcsolódás ide: %s\n"
+#~ msgstr "kapcsolÃ³dÃ¡s ide: %s\n"
 
 #~ msgid "connecting to %s:%u\n"
-#~ msgstr "kapcsolódás ide: %s:%u\n"
+#~ msgstr "kapcsolÃ³dÃ¡s ide: %s:%u\n"
 
 #~ msgid "could not chdir to %s\n"
-#~ msgstr "nem sikerült könyvtárat váltani ide: %s\n"
+#~ msgstr "nem sikerÃ¼lt kÃ¶nyvtÃ¡rat vÃ¡ltani ide: %s\n"
 
 #~ msgid "running command: %s\n"
-#~ msgstr "parancs futtatása: %s\n"
+#~ msgstr "parancs futtatÃ¡sa: %s\n"
 
 #~ msgid "running XferCommand: fork failed!\n"
-#~ msgstr "XferCommand futtatása: a fork nem sikerült!\n"
+#~ msgstr "XferCommand futtatÃ¡sa: a fork nem sikerÃ¼lt!\n"
 
 #~ msgid "XferCommand command returned non-zero status code (%d)\n"
-#~ msgstr "az XferCommand parancs nem-0 státuszkóddal tért vissza (%d)\n"
+#~ msgstr "az XferCommand parancs nem-0 stÃ¡tuszkÃ³ddal tÃ©rt vissza (%d)\n"
 
 #~ msgid "failed to get filesize for %s\n"
-#~ msgstr "nem sikerült megkapni a %s fájlméretét\n"
+#~ msgstr "nem sikerÃ¼lt megkapni a %s fÃ¡jlmÃ©retÃ©t\n"
 
 #~ msgid "failed to get mtime for %s\n"
-#~ msgstr "nem sikerült megkapni a %s módosítási dátumát\n"
+#~ msgstr "nem sikerÃ¼lt megkapni a %s mÃ³dosÃ­tÃ¡si dÃ¡tumÃ¡t\n"
 
 #~ msgid "mtimes are identical, skipping %s\n"
-#~ msgstr "a módosítási dátumok egyeznek, a %s kihagyása\n"
+#~ msgstr "a mÃ³dosÃ­tÃ¡si dÃ¡tumok egyeznek, a %s kihagyÃ¡sa\n"
 
 #~ msgid "failed to resume download -- restarting\n"
-#~ msgstr "nem sikerült folytatni a letöltést -- újrakezdés\n"
+#~ msgstr "nem sikerÃ¼lt folytatni a letÃ¶ltÃ©st -- ÃºjrakezdÃ©s\n"
 
 #~ msgid ""
 #~ "\n"
 #~ "failed downloading %s from %s: %s\n"
 #~ msgstr ""
 #~ "\n"
-#~ "nem sikerült letölteni a %s-et a %s-ról: %s\n"
+#~ "nem sikerÃ¼lt letÃ¶lteni a %s-et a %s-rÃ³l: %s\n"
 
 #~ msgid "copying %s to %s/%s\n"
-#~ msgstr "a %s másolása ide: %s/%s\n"
+#~ msgstr "a %s mÃ¡solÃ¡sa ide: %s/%s\n"
 
 #~ msgid "failed copying %s\n"
-#~ msgstr "nem sikerült másolni a következõt: %s\n"
+#~ msgstr "nem sikerÃ¼lt mÃ¡solni a kÃ¶vetkezÅ‘t: %s\n"
 
 #~ msgid " %s is already in the current directory\n"
-#~ msgstr " %s már a jelenlegi könyvtárban van\n"
+#~ msgstr " %s mÃ¡r a jelenlegi kÃ¶nyvtÃ¡rban van\n"
 
 #~ msgid "failed to download %s\n"
-#~ msgstr "nem sikerült letölteni: %s\n"
+#~ msgstr "nem sikerÃ¼lt letÃ¶lteni: %s\n"
 
 #~ msgid "failed to set option CACHEDIR (%s)\n"
-#~ msgstr "nem sikerült beállítani a CACHEDIR opciót (%s)\n"
+#~ msgstr "nem sikerÃ¼lt beÃ¡llÃ­tani a CACHEDIR opciÃ³t (%s)\n"
 
 #~ msgid "failed to get lastupdate time for %s (no big deal)\n"
 #~ msgstr ""
-#~ "nem sikerült megkapni az utolsó módosítási idõpontját a következõnek: %s "
-#~ "(nincs sok esély)\n"
+#~ "nem sikerÃ¼lt megkapni az utolsÃ³ mÃ³dosÃ­tÃ¡si idÅ‘pontjÃ¡t a kÃ¶vetkezÅ‘nek: %s "
+#~ "(nincs sok esÃ©ly)\n"
 
 #~ msgid "sync: new mtime for %s: %s\n"
-#~ msgstr "szinkronizálás: új módosítási dátum a %s számára: %s\n"
+#~ msgstr "szinkronizÃ¡lÃ¡s: Ãºj mÃ³dosÃ­tÃ¡si dÃ¡tum a %s szÃ¡mÃ¡ra: %s\n"
 
 #~ msgid "%s-%s-%s%s is already in the cache\n"
-#~ msgstr "%s-%s-%s%s már a gyorsítótárban\n"
+#~ msgstr "%s-%s-%s%s mÃ¡r a gyorsÃ­tÃ³tÃ¡rban\n"
 
 #~ msgid "no %s cache exists.  creating...\n"
-#~ msgstr "nem létezik a %s gyorsítótár.  létrehozás...\n"
+#~ msgstr "nem lÃ©tezik a %s gyorsÃ­tÃ³tÃ¡r.  lÃ©trehozÃ¡s...\n"
 
 #~ msgid "warning: no %s cache exists.  creating..."
-#~ msgstr "figyelmeztetés: nem létezik a %s gyorsítótár.  létrehozás..."
+#~ msgstr "figyelmeztetÃ©s: nem lÃ©tezik a %s gyorsÃ­tÃ³tÃ¡r.  lÃ©trehozÃ¡s..."
 
 #~ msgid "couldn't create package cache, using /tmp instead\n"
-#~ msgstr "nem sikerült létrehozni a csomag-gyorsítótárat, a /tmp használata\n"
+#~ msgstr "nem sikerÃ¼lt lÃ©trehozni a csomag-gyorsÃ­tÃ³tÃ¡rat, a /tmp hasznÃ¡lata\n"
 
 #~ msgid "warning: couldn't create package cache, using /tmp instead"
 #~ msgstr ""
-#~ "figyelmeztetés: nem sikerült létrehozni a csomag-gyorsítótárat, a /tmp "
-#~ "használata"
+#~ "figyelmeztetÃ©s: nem sikerÃ¼lt lÃ©trehozni a csomag-gyorsÃ­tÃ³tÃ¡rat, a /tmp "
+#~ "hasznÃ¡lata"
 
 #~ msgid "failed to retrieve some files from %s\n"
-#~ msgstr "nem sikerült letölteni néhány fájlt a %s repóból\n"
+#~ msgstr "nem sikerÃ¼lt letÃ¶lteni nÃ©hÃ¡ny fÃ¡jlt a %s repÃ³bÃ³l\n"

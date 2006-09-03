@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: hu\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-09-03 13:36+0200\n"
-"PO-Revision-Date: 2006-08-19 04:29+0200\n"
+"PO-Revision-Date: 2006-09-03 13:49+0200\n"
 "Last-Translator: Miklos Vajna <vmiklos@frugalware.org>\n"
 "Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-2\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=1; plural=0;"
 
 #: ../add.c:95
 #, c-format
@@ -335,12 +335,13 @@ msgstr "a szerverlista ürítve a(z) '%s' számára"
 #: ../alpm.c:383
 #, c-format
 msgid "failed to get lastupdate time for %s (no big deal)\n"
-msgstr ""
+msgstr "nem sikerült megkapni az utolsó módosítási idõpontját a következõnek: %s "
+"(nincs sok esély)\n"
 
 #: ../alpm.c:402
 #, c-format
 msgid "sync: new mtime for %s: %s\n"
-msgstr ""
+msgstr "szinkronizálás: új módosítási dátum a %s számára: %s\n"
 
 #. remove the old dir
 #: ../alpm.c:408
@@ -405,63 +406,63 @@ msgstr "figyelmeztetés: nem sikerült a zároló fájl (%s) eltávolítása"
 #: ../alpm.c:1232
 #, c-format
 msgid "config: new section '%s'\n"
-msgstr ""
+msgstr "beállítások: új szekció '%s'\n"
 
 #: ../alpm.c:1275
 msgid "config: usesyslog\n"
-msgstr ""
+msgstr "beállítások: syslog használata\n"
 
 #: ../alpm.c:1286
 #, c-format
 msgid "config: including %s\n"
-msgstr ""
+msgstr "beállítások: a %s beolvasása\n"
 
 #: ../alpm.c:1298 ../alpm.c:1306
 #, c-format
 msgid "config: noupgrade: %s\n"
-msgstr ""
+msgstr "beállítások: nem fog frissülni: %s\n"
 
 #: ../alpm.c:1316 ../alpm.c:1324
-#, fuzzy, c-format
+#, c-format
 msgid "config: noextract: %s\n"
-msgstr "nem sikerült kifejteni: %s (%s)\n"
+msgstr "nem sikerült kifejteni: %s\n"
 
 #: ../alpm.c:1334 ../alpm.c:1342
 #, c-format
 msgid "config: ignorepkg: %s\n"
-msgstr ""
+msgstr "beállítások: a %s csomag figyelmen kívül hagyása\n"
 
 #: ../alpm.c:1352 ../alpm.c:1360
 #, c-format
 msgid "config: holdpkg: %s\n"
-msgstr ""
+msgstr "beállítások: ez a csomag mindenképp meg lesz tartva: %s\n"
 
 #: ../alpm.c:1370
 #, c-format
 msgid "config: dbpath: %s\n"
-msgstr ""
+msgstr "beállítások: adatbázis útvonala: %s\n"
 
 #: ../alpm.c:1380
 #, c-format
 msgid "config: cachedir: %s\n"
-msgstr ""
+msgstr "beállítások: gyorsítótár könyvtára: %s\n"
 
 #: ../alpm.c:1386
-#, fuzzy, c-format
+#, c-format
 msgid "config: log file: %s\n"
-msgstr "nem sikerült megnyitni a %s naplófájlt"
+msgstr "beállítások: naplófájl: %s\n"
 
 #. The config value is in days, we use seconds
 #: ../alpm.c:1394
 #, c-format
 msgid "config: UpgradeDelay: %i\n"
-msgstr ""
+msgstr "beállítások: frissítés késleltetése: %i\n"
 
 #. add to the list
 #: ../alpm.c:1415
-#, fuzzy, c-format
+#, c-format
 msgid "config: %s: server: %s\n"
-msgstr "figyelmeztetés: a %s elmentve %s néven"
+msgstr "beállítások: %s: kiszolgáló: %s\n"
 
 #: ../be_files.c:151
 #, c-format
@@ -793,24 +794,23 @@ msgstr "nincs elég hely"
 
 #: ../error.c:124
 msgid "not confirmed"
-msgstr ""
+msgstr "nem megerõsített"
 
 #: ../error.c:127
 msgid "bad section name"
-msgstr ""
+msgstr "rossz szekciónév"
 
 #: ../error.c:129
 msgid "'local' is reserved and cannot be used as a package tree"
-msgstr ""
+msgstr "a 'local' név fenntartott és nem használható csomagfaként"
 
 #: ../error.c:131
-#, fuzzy
 msgid "syntax error"
-msgstr "belsõ hiba"
+msgstr "szintaktikai hiba"
 
 #: ../error.c:133
 msgid "all directives must belong to a section"
-msgstr ""
+msgstr "minden direktívának egy szekcióhoz kell tartoznia"
 
 #: ../handle.c:143
 #, c-format
@@ -860,14 +860,13 @@ msgid "PM_OPT_IGNOREPKG flushed"
 msgstr "a PM_OPT_IGNOREPKG lista ürítve"
 
 #: ../handle.c:203
-#, fuzzy, c-format
+#, c-format
 msgid "'%s' added to PM_OPT_HOLDPKG"
-msgstr "'%s' hozzáadva a PM_OPT_IGNOREPKG listához"
+msgstr "'%s' hozzáadva a PM_OPT_HOLDPKG listához"
 
 #: ../handle.c:206
-#, fuzzy
 msgid "PM_OPT_HOLDPKG flushed"
-msgstr "a PM_OPT_IGNOREPKG lista ürítve"
+msgstr "a PM_OPT_HOLDPKG lista ürítve"
 
 #: ../handle.c:222
 #, c-format
@@ -880,29 +879,29 @@ msgid "PM_OPT_LOGMASK set to '%02x'"
 msgstr "PM_OPT_LOGMASK beállítva a '%02x' értékre"
 
 #: ../handle.c:281
-#, fuzzy, c-format
+#, c-format
 msgid "PM_OPT_PROXYHOST set to '%s'"
-msgstr "PM_OPT_DBPATH beállítva a '%s' értékre"
+msgstr "PM_OPT_PROXYHOST beállítva a '%s' értékre"
 
 #: ../handle.c:285
-#, fuzzy, c-format
+#, c-format
 msgid "PM_OPT_PROXYPORT set to '%d'"
-msgstr "PM_OPT_DBPATH beállítva a '%s' értékre"
+msgstr "PM_OPT_PROXYPORT beállítva a '%d' értékre"
 
 #: ../handle.c:296
-#, fuzzy, c-format
+#, c-format
 msgid "PM_OPT_XFERCOMMAND set to '%s'"
-msgstr "PM_OPT_CACHEDIR beállítva a '%s' értékre"
+msgstr "PM_OPT_XFERCOMMAND beállítva a '%s' értékre"
 
 #: ../handle.c:300
-#, fuzzy, c-format
+#, c-format
 msgid "PM_OPT_NOPASSIVEFTP set to '%d'"
-msgstr "PM_OPT_DBPATH beállítva a '%s' értékre"
+msgstr "PM_OPT_NOPASSIVEFTP beállítva a '%d' értékre"
 
 #: ../handle.c:304
-#, fuzzy, c-format
+#, c-format
 msgid "PM_OPT_CHOMP set to '%d'"
-msgstr "PM_OPT_CACHEDIR beállítva a '%s' értékre"
+msgstr "PM_OPT_CHOMP beállítva a '%d' értékre"
 
 #: ../md5driver.c:48 ../sha1.c:395
 #, c-format
@@ -1134,234 +1133,3 @@ msgstr "a %s-%s csomag hozzáadása a tranzakció céljaihoz"
 msgid "looking for unresolvable dependencies"
 msgstr "feloldhatatlan függõségek keresése"
 
-#: ../sync.c:515
-#, c-format
-msgid "package '%s' is conflicting with '%s'"
-msgstr "a '%s' csomag ütközik a '%s' csomaggal"
-
-#: ../sync.c:537
-#, c-format
-msgid "'%s' not found in transaction set -- skipping"
-msgstr "'%s' nem található meg a tranzakcióban -- kihagyás"
-
-#. so just treat it like a "replaces" item so the REQUIREDBY
-#. * fields are inherited properly.
-#.
-#: ../sync.c:548
-#, c-format
-msgid "package '%s' provides its own conflict"
-msgstr "a '%s' csomag szolgáltatása ütközik a csomaggal"
-
-#: ../sync.c:571 ../sync.c:576
-#, c-format
-msgid "'%s' is in the target list -- keeping it"
-msgstr "a '%s' a céllistában van -- megtartás"
-
-#: ../sync.c:588 ../sync.c:625
-#, c-format
-msgid "removing '%s' from target list"
-msgstr "a '%s' eltávolítása a céllistából"
-
-#. It's a conflict -- see if they want to remove it
-#.
-#: ../sync.c:597
-#, c-format
-msgid "resolving package '%s' conflict"
-msgstr "a '%s' csomag ütközéseinek feloldása"
-
-#. append to the replaces list
-#: ../sync.c:620
-#, c-format
-msgid "electing '%s' for removal"
-msgstr "a '%s' kiválasztva eltávolításra"
-
-#. abort
-#: ../sync.c:631 ../sync.c:647
-msgid "unresolvable package conflicts detected"
-msgstr "feloldhatatlan csomagütközések észlelve"
-
-#: ../sync.c:699
-msgid "checking dependencies of packages designated for removal"
-msgstr "az eltávolításra szánt csomagok függõségeinek ellenõrzése"
-
-#: ../sync.c:713
-msgid "something has gone horribly wrong"
-msgstr "valami borzasztóan rossz történt"
-
-#. found matching provisio -- we're good to go
-#: ../sync.c:732
-#, c-format
-msgid "found '%s' as a provision for '%s' -- conflict aborted"
-msgstr "a '%s' szolgáltatja a következõt: '%s' -- az ütközés megszakítva"
-
-#: ../sync.c:825
-#, c-format
-msgid "%s-%s-%s%s is already in the cache\n"
-msgstr ""
-
-#. no cache directory.... try creating it
-#: ../sync.c:837
-#, c-format
-msgid "no %s cache exists.  creating...\n"
-msgstr ""
-
-#: ../sync.c:838
-#, c-format
-msgid "warning: no %s cache exists.  creating..."
-msgstr ""
-
-#. couldn't mkdir the cache directory, so fall back to /tmp and unlink
-#. * the package afterwards.
-#.
-#: ../sync.c:843
-msgid "couldn't create package cache, using /tmp instead\n"
-msgstr ""
-
-#: ../sync.c:844
-msgid "warning: couldn't create package cache, using /tmp instead"
-msgstr ""
-
-#: ../sync.c:847
-#, c-format
-msgid "failed to set option CACHEDIR (%s)\n"
-msgstr ""
-
-#: ../sync.c:854
-#, c-format
-msgid "failed to retrieve some files from %s\n"
-msgstr ""
-
-#: ../sync.c:883 ../sync.c:895
-#, c-format
-msgid "can't get md5 or sha1 checksum for package %s\n"
-msgstr ""
-"nem sikerült md5 vagy sha1 ellenõrzõ-összeget kapni a '%s' csomag számára\n"
-
-#: ../sync.c:914
-#, c-format
-msgid "archive %s was corrupted (bad MD5 or SHA1 checksum)\n"
-msgstr "a %s archívum sérült volt (rossz MD5 vagy SHA1 ellenõrzõösszeg)\n"
-
-#: ../sync.c:916
-#, c-format
-msgid "archive %s is corrupted (bad MD5 or SHA1 checksum)\n"
-msgstr "a %s archívum sérült (rossz MD5 vagy SHA1 ellenõrzõösszeg)\n"
-
-#: ../sync.c:936
-msgid "could not create removal transaction"
-msgstr "nem sikerült létrehozni az eltávolítási tranzakciót"
-
-#: ../sync.c:942
-msgid "could not initialize the removal transaction"
-msgstr "nem sikerült inicializálni az eltávolítási tranzakciót"
-
-#: ../sync.c:962
-msgid "removing conflicting and to-be-replaced packages"
-msgstr "az ütközõ vagy lecserélésre ítélt csomagok eltávolítása"
-
-#: ../sync.c:964
-msgid "could not prepare removal transaction"
-msgstr "nem sikerült elõkészíteni az eltávolítási tranzakciót"
-
-#: ../sync.c:970
-msgid "could not commit removal transaction"
-msgstr "nem sikerült végrehajtani az eltávolítási tranzakciót"
-
-#. install targets
-#: ../sync.c:977
-msgid "installing packages"
-msgstr "csomagok telepítése"
-
-#: ../sync.c:980
-msgid "could not create transaction"
-msgstr "nem sikerült létrehozni a tranzakciót"
-
-#: ../sync.c:985
-msgid "could not initialize transaction"
-msgstr "nem sikerült inicializálni a tranzakciót"
-
-#: ../sync.c:1004
-msgid "could not prepare transaction"
-msgstr "nem sikerült elõkészíteni a tranzakciót"
-
-#: ../sync.c:1009
-msgid "could not commit transaction"
-msgstr "nem sikerült végrehajtani a tranzakciót"
-
-#: ../sync.c:1016
-msgid "updating database for replaced packages' dependencies"
-msgstr "az adatbázis frissítése a lecserélt csomagok függõségei miatt"
-
-#: ../sync.c:1045
-#, c-format
-msgid "could not update requiredby for database entry %s-%s"
-msgstr "nem sikerült frissíteni a \"függ tõle\" mezõjét a %s-%s bejegyzésnek"
-
-#: ../sync.c:1054
-#, c-format
-msgid "could not update new database entry %s-%s"
-msgstr "nem sikerült frissíteni az új adatbázis-bejegyzést: %s-%s"
-
-#: ../util.c:285
-#, c-format
-msgid "could not extract %s: %s\n"
-msgstr "nem sikerült kifejteni: %s (%s)\n"
-
-#: ../util.c:436
-msgid "could not create temp directory"
-msgstr "nem sikerült létrehozni az ideiglenes könyvtárat"
-
-#: ../util.c:463
-#, c-format
-msgid "could not change directory to %s (%s)"
-msgstr "nem sikerült könyvtárat váltani ide: %s (%s)"
-
-#: ../util.c:466
-#, c-format
-msgid "executing %s script..."
-msgstr "a %s szkript végrehajtása..."
-
-#: ../util.c:479
-#, c-format
-msgid "could not fork a new process (%s)"
-msgstr "nem sikerült forkolni egy új folyamatot (%s)"
-
-#: ../util.c:486
-#, c-format
-msgid "chrooting in %s"
-msgstr "chrootolás ide: %s"
-
-#: ../util.c:488
-#, c-format
-msgid "could not change the root directory (%s)"
-msgstr "nem sikerült megváltoztatni a gyökérkönyvtárat (%s)"
-
-#: ../util.c:492
-#, c-format
-msgid "could not change directory to / (%s)"
-msgstr "nem sikekrült könyvtárat váltani a /-be (%s)"
-
-#: ../util.c:496
-#, c-format
-msgid "executing \"%s\""
-msgstr "a \"%s\" végrehajtása"
-
-#: ../util.c:499
-#, c-format
-msgid "call to popen failed (%s)"
-msgstr "a popen hívás nem sikerült (%s)"
-
-#: ../util.c:521
-#, c-format
-msgid "call to waitpid failed (%s)"
-msgstr "a waitpit hívás nem sikerült (%s)"
-
-#: ../util.c:529
-#, c-format
-msgid "could not remove tmpdir %s"
-msgstr "nem sikerült eltávolítani a %s ideiglenes könyvtárat"
-
-#: ../util.c:593
-#, c-format
-msgid "check_freespace: total pkg size: %lld, disk space: %lld"
-msgstr "check_freespace: teljes csomagméret: %lld, hely a lemezen: %lld"
