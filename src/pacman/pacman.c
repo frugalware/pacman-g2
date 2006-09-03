@@ -514,7 +514,7 @@ int main(int argc, char *argv[])
 	if(config->configfile == NULL) {
 		config->configfile = strdup(PACCONF);
 	}
-	if(parseconfig(config->configfile, config) == -1) {
+	if(parseconfig(config->configfile) == -1) {
 		cleanup(1);
 	}
 

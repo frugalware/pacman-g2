@@ -63,7 +63,7 @@ typedef struct __config_t {
 
 config_t *config_new(void);
 int config_free(config_t *config);
-int parseconfig(char *file, config_t *config);
+int parseconfig(char *file);
 
 #endif /* _PM_CONF_H */
 

@@ -73,7 +73,7 @@ void cb_db_register(char *section, PM_DB *db)
 	pmc_syncs = list_add(pmc_syncs, sync);
 }
 
-int parseconfig(char *file, config_t *config)
+int parseconfig(char *file)
 {
 	FILE *fp = NULL;
 	char line[PATH_MAX+1];
@@ -82,10 +82,6 @@ int parseconfig(char *file, config_t *config)
 	int linenum = 0;
 	char section[256] = "";
 	PM_DB *db = NULL;
-
-	if(config == NULL) {
-		return(-1);
-	}
 
 	fp = fopen(file, "r");
 	if(fp == NULL) {
@@ -176,7 +172,7 @@ int parseconfig(char *file, config_t *config)
 					char conf[PATH_MAX];
 					strncpy(conf, ptr, PATH_MAX);
 					vprint(_("config: including %s\n"), conf);
-					parseconfig(conf, config);
+					parseconfig(conf);
 				} else if(!strcmp(section, "options")) {
 					if(!strcmp(key, "NOUPGRADE")) {
 						char *p = ptr;
