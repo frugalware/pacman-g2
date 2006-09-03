@@ -161,7 +161,7 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 	pmpkg_t *info;
 	struct stat buf;
 	PMList *targ, *lp;
-	char line[PATH_MAX+1], *what;
+	char line[PATH_MAX+1];
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -178,10 +178,6 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			EVENT(trans, PM_TRANS_EVT_REMOVE_START, info, NULL);
 			_alpm_log(PM_LOG_FLOW1, _("removing package %s-%s"), info->name, info->version);
-			if((what = (char *)malloc(strlen(info->name)+1)) == NULL) {
-			    RET_ERR(PM_ERR_MEMORY, -1);
-			}
-			STRNCPY(what, info->name, strlen(info->name)+1);
 
 			/* run the pre-remove scriptlet if it exists  */
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
@@ -264,7 +260,7 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 						} else {
 							_alpm_log(PM_LOG_FLOW2, _("unlinking %s"), file);
 							/* Need at here because we count only real unlinked files ? */
-				PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, what, (double)(percent * 100), _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
+				PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, (double)(percent * 100), _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
 							position++;
 							if(unlink(line)) {
 								_alpm_log(PM_LOG_ERROR, _("cannot remove file %s"), file);
@@ -338,8 +334,7 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 			}
 		}
 
-	    PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, what, 100, _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
-	    FREE(what);
+	    PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, 100, _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			EVENT(trans, PM_TRANS_EVT_REMOVE_DONE, info, NULL);
 		}
