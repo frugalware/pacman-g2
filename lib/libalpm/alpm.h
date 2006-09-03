@@ -113,7 +113,8 @@ enum {
 	PM_OPT_DLETA_M,
 	PM_OPT_DLETA_S,
 	/* End of download */
-	PM_OPT_HOLDPKG
+	PM_OPT_HOLDPKG,
+	PM_OPT_CHOMP
 };
 
 int alpm_set_option(unsigned char parm, unsigned long data);

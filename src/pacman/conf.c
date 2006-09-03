@@ -161,7 +161,11 @@ int parseconfig(char *file, config_t *config)
 					}
 					vprint(_("config: usesyslog\n"));
 				} else if(!strcmp(key, "ILOVECANDY")) {
-					config->chomp = 1;
+					if(alpm_set_option(PM_OPT_CHOMP, (long)1) == -1) {
+						ERR(NL, _("config: line %d: failed to set option CHOMP (%s)\n"),
+							linenum, alpm_strerror(pm_errno));
+						return(1);
+					}
 				} else {
 					ERR(NL, _("config: line %d: syntax error\n"), linenum);
 					return(1);

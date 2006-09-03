@@ -63,6 +63,7 @@ int log_progress(netbuf *ctl, int xfered, void *arg)
 	/* a little hard to conceal easter eggs in open-source software, but
 	 * they're still fun.  ;)
 	 */
+	int chomp;
 	static unsigned short mouth;
 	static unsigned int   lastcur = 0;
 
@@ -72,6 +73,8 @@ int log_progress(netbuf *ctl, int xfered, void *arg)
 	if(config->noprogressbar || (lastpct==100)) {
 		return(1);
 	}
+
+	alpm_get_option(PM_OPT_CHOMP, (long *)&chomp);
 
 	gettimeofday(&t1, NULL);
 	if(xfered+offset == fsz) {
@@ -104,7 +107,7 @@ int log_progress(netbuf *ctl, int xfered, void *arg)
 	printf(" %s [", sync_fnm);
 	cur = (int)((maxcols-64)*pct/100);
 	for(i = 0; i < maxcols-64; i++) {
-		if(config->chomp) {
+		if(chomp) {
 			if(i < cur) {
 				printf("-");
 			} else {

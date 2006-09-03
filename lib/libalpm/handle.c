@@ -299,6 +299,10 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 			handle->nopassiveftp = (unsigned short)data;
 			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_NOPASSIVEFTP set to '%d'"), handle->nopassiveftp);
 		break;
+		case PM_OPT_CHOMP:
+			handle->chomp = (unsigned short)data;
+			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_CHOMP set to '%d'"), handle->chomp);
+		break;
 		default:
 			RET_ERR(PM_ERR_WRONG_ARGS, -1);
 	}
@@ -340,6 +344,7 @@ int _alpm_handle_get_option(pmhandle_t *handle, unsigned char val, long *data)
 		case PM_OPT_PROXYPORT: *data = handle->proxyport; break;
 		case PM_OPT_XFERCOMMAND: *data = (long)handle->xfercommand; break;
 		case PM_OPT_NOPASSIVEFTP: *data = handle->nopassiveftp; break;
+		case PM_OPT_CHOMP: *data = handle->chomp; break;
 		default:
 			RET_ERR(PM_ERR_WRONG_ARGS, -1);
 		break;
