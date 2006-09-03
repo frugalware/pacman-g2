@@ -567,19 +567,10 @@ int main(int argc, char *argv[])
 		ERR(NL, _("failed to set option DLETA_S (%s)\n"), alpm_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(config->dbpath == NULL) {
-		config->dbpath = strdup(PM_DBPATH);
-	} else {
-		/* dbpath has been set by parseargs or parseconfig */
-		if(alpm_set_option(PM_OPT_DBPATH, (long)config->dbpath) == -1) {
-			ERR(NL, _("failed to set option DBPATH (%s)\n"), alpm_strerror(pm_errno));
-			cleanup(1);
-		}
-	}
-	if(alpm_set_option(PM_OPT_CACHEDIR, (long)config->cachedir) == -1) {
-		ERR(NL, _("failed to set option CACHEDIR (%s)\n"), alpm_strerror(pm_errno));
-		cleanup(1);
-	}
+	FREE(config->dbpath);
+	alpm_get_option(PM_OPT_DBPATH, (long *)&config->dbpath);
+	FREE(config->cachedir);
+	alpm_get_option(PM_OPT_CACHEDIR, (long *)&config->cachedir);
 
 	for(lp = config->op_s_ignore; lp; lp = lp->next) {
 		if(alpm_set_option(PM_OPT_IGNOREPKG, (long)lp->data) == -1) {

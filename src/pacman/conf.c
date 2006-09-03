@@ -56,8 +56,6 @@ int config_free(config_t *config)
 	}
 
 	FREE(config->root);
-	FREE(config->dbpath);
-	FREE(config->cachedir);
 	FREE(config->configfile);
 	FREELIST(config->op_s_ignore);
 	free(config);
@@ -253,16 +251,20 @@ int parseconfig(char *file, config_t *config)
 						if(*ptr == '/') {
 							ptr++;
 						}
-						FREE(config->dbpath);
-						config->dbpath = strdup(ptr);
+						if(alpm_set_option(PM_OPT_DBPATH, (long)ptr) == -1) {
+							ERR(NL, _("failed to set option DBPATH (%s)\n"), alpm_strerror(pm_errno));
+							return(1);
+						}
 						vprint(_("config: dbpath: %s\n"), ptr);
 					} else if(!strcmp(key, "CACHEDIR")) {
 						/* shave off the leading slash, if there is one */
 						if(*ptr == '/') {
 							ptr++;
 						}
-						FREE(config->cachedir);
-						config->cachedir = strdup(ptr);
+						if(alpm_set_option(PM_OPT_CACHEDIR, (long)ptr) == -1) {
+							ERR(NL, _("failed to set option CACHEDIR (%s)\n"), alpm_strerror(pm_errno));
+							return(1);
+						}
 						vprint(_("config: cachedir: %s\n"), ptr);
 					} else if (!strcmp(key, "LOGFILE")) {
 						if(alpm_set_option(PM_OPT_LOGFILE, (long)ptr) == -1) {
