@@ -69,7 +69,7 @@ int log_progress(netbuf *ctl, int xfered, void *arg)
 	/* we don't need that parameter */
 	ctl=NULL;
 
-	if(config->noprogressbar) {
+	if(config->noprogressbar || (lastpct==100)) {
 		return(1);
 	}
 
