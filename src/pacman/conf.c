@@ -65,6 +65,16 @@ int config_free(config_t *config)
 	return(0);
 }
 
+void cb_db_register(char *section, PM_DB *db)
+{
+	sync_t *sync;
+
+	MALLOC(sync, sizeof(sync_t));
+	sync->treename = strdup(section);
+	sync->db = db;
+	pmc_syncs = list_add(pmc_syncs, sync);
+}
+
 int parseconfig(char *file, config_t *config)
 {
 	FILE *fp = NULL;
@@ -73,7 +83,7 @@ int parseconfig(char *file, config_t *config)
 	char *key = NULL;
 	int linenum = 0;
 	char section[256] = "";
-	sync_t *sync = NULL;
+	PM_DB *db = NULL;
 
 	if(config == NULL) {
 		return(-1);
@@ -110,21 +120,19 @@ int parseconfig(char *file, config_t *config)
 				list_t *i;
 				int found = 0;
 				for(i = pmc_syncs; i && !found; i = i->next) {
-					sync = (sync_t *)i->data;
+					sync_t *sync = i->data;
 					if(!strcmp(sync->treename, section)) {
 						found = 1;
 					}
 				}
 				if(!found) {
-					/* start a new sync record */
-					MALLOC(sync, sizeof(sync_t));
-					sync->treename = strdup(section);
-					sync->db = alpm_db_register(sync->treename);
-					if(sync->db == NULL) {
+					db = alpm_db_register(section);
+					if(db == NULL) {
 						ERR(NL, "could not register database (%s)\n", alpm_strerror(pm_errno));
 						return(1);
 					}
-					pmc_syncs = list_add(pmc_syncs, sync);
+					/* start a new sync record */
+					cb_db_register(section, db);
 				}
 			}
 		} else {
@@ -301,7 +309,7 @@ int parseconfig(char *file, config_t *config)
 					if(!strcmp(key, "SERVER")) {
 						/* add to the list */
 						vprint(_("config: %s: server: %s\n"), section, ptr);
-						if(alpm_db_setserver(sync->db, strdup(ptr)) == -1) {
+						if(alpm_db_setserver(db, strdup(ptr)) == -1) {
 							ERR(NL, "%s\n", alpm_strerror(pm_errno));
 							return(1);
 						}
