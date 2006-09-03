@@ -122,6 +122,15 @@ char *alpm_strerror(int err)
 			return _("not enough space");
 		case PM_ERR_PKG_HOLD:
 			return _("not confirmed");
+		/* Config */
+		case PM_ERR_CONF_BAD_SECTION:
+			return _("bad section name");
+		case PM_ERR_CONF_LOCAL:
+			return _("'local' is reserved and cannot be used as a package tree");
+		case PM_ERR_CONF_BAD_SYNTAX:
+			return _("syntax error");
+		case PM_ERR_CONF_DIRECTIVE_OUTSIDE_SECTION:
+			return _("all directives must belong to a section");
 		default:
 			return _("unexpected error");
 	}

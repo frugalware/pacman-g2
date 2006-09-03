@@ -58,6 +58,8 @@
 #include "server.h"
 #include "alpm.h"
 
+#define min(X, Y)  ((X) < (Y) ? (X) : (Y))
+
 /* Globals */
 pmhandle_t *handle = NULL;
 enum __pmerrno_t pm_errno;
@@ -1195,6 +1197,239 @@ char *alpm_fetch_pkgurl(char *url)
 
 	return(_alpm_fetch_pkgurl(url));
 }
+
+/** Parses a configuration file.
+ * @param file path to the config file.
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
+int alpm_parse_config(char *file, alpm_cb_db_register callback)
+{
+	FILE *fp = NULL;
+	char line[PATH_MAX+1];
+	char *ptr = NULL;
+	char *key = NULL;
+	int linenum = 0;
+	char section[256] = "";
+	PM_DB *db = NULL;
+
+	fp = fopen(file, "r");
+	if(fp == NULL) {
+		return(0);
+	}
+
+	while(fgets(line, PATH_MAX, fp)) {
+		linenum++;
+		_alpm_strtrim(line);
+		if(strlen(line) == 0 || line[0] == '#') {
+			continue;
+		}
+		if(line[0] == '[' && line[strlen(line)-1] == ']') {
+			/* new config section */
+			ptr = line;
+			ptr++;
+			strncpy(section, ptr, min(255, strlen(ptr)-1));
+			section[min(255, strlen(ptr)-1)] = '\0';
+			_alpm_log(PM_LOG_DEBUG, _("config: new section '%s'\n"), section);
+			if(!strlen(section)) {
+				RET_ERR(PM_ERR_CONF_BAD_SECTION, -1);
+			}
+			if(!strcmp(section, "local")) {
+				RET_ERR(PM_ERR_CONF_LOCAL, -1);
+			}
+			if(strcmp(section, "options")) {
+				PMList *i;
+				int found = 0;
+				for(i = handle->dbs_sync; i && !found; i = i->next) {
+					pmdb_t *db = i->data;
+					if(!strcmp(db->treename, section)) {
+						found = 1;
+					}
+				}
+				if(!found) {
+					db = alpm_db_register(section);
+					if(db == NULL) {
+						/* pm_errno is set by alpm_db_register */
+						return(-1);
+					}
+					/* start a new sync record */
+					callback(section, db);
+				}
+			}
+		} else {
+			/* directive */
+			ptr = line;
+			key = strsep(&ptr, "=");
+			if(key == NULL) {
+				RET_ERR(PM_ERR_CONF_BAD_SYNTAX, -1);
+			}
+			_alpm_strtrim(key);
+			key = _alpm_strtoupper(key);
+			if(!strlen(section) && strcmp(key, "INCLUDE")) {
+				RET_ERR(PM_ERR_CONF_DIRECTIVE_OUTSIDE_SECTION, -1);
+			}
+			if(ptr == NULL) {
+				if(!strcmp(key, "NOPASSIVEFTP")) {
+					alpm_set_option(PM_OPT_NOPASSIVEFTP, (long)1);
+				} else if(!strcmp(key, "USESYSLOG")) {
+					alpm_set_option(PM_OPT_USESYSLOG, (long)1);
+					_alpm_log(PM_LOG_DEBUG, _("config: usesyslog\n"));
+				} else if(!strcmp(key, "ILOVECANDY")) {
+					alpm_set_option(PM_OPT_CHOMP, (long)1);
+				} else {
+					RET_ERR(PM_ERR_CONF_BAD_SYNTAX, -1);
+				}
+			} else {
+				_alpm_strtrim(ptr);
+				if(!strcmp(key, "INCLUDE")) {
+					char conf[PATH_MAX];
+					strncpy(conf, ptr, PATH_MAX);
+					_alpm_log(PM_LOG_DEBUG, _("config: including %s\n"), conf);
+					alpm_parse_config(conf, callback);
+				} else if(!strcmp(section, "options")) {
+					if(!strcmp(key, "NOUPGRADE")) {
+						char *p = ptr;
+						char *q;
+						while((q = strchr(p, ' '))) {
+							*q = '\0';
+							if(alpm_set_option(PM_OPT_NOUPGRADE, (long)p) == -1) {
+								/* pm_errno is set by alpm_set_option */
+								return(-1);
+							}
+							_alpm_log(PM_LOG_DEBUG, _("config: noupgrade: %s\n"), p);
+							p = q;
+							p++;
+						}
+						if(alpm_set_option(PM_OPT_NOUPGRADE, (long)p) == -1) {
+							/* pm_errno is set by alpm_set_option */
+							return(-1);
+						}
+						_alpm_log(PM_LOG_DEBUG, _("config: noupgrade: %s\n"), p);
+					} else if(!strcmp(key, "NOEXTRACT")) {
+						char *p = ptr;
+						char *q;
+						while((q = strchr(p, ' '))) {
+							*q = '\0';
+							if(alpm_set_option(PM_OPT_NOEXTRACT, (long)p) == -1) {
+								/* pm_errno is set by alpm_set_option */
+								return(-1);
+							}
+							_alpm_log(PM_LOG_DEBUG, _("config: noextract: %s\n"), p);
+							p = q;
+							p++;
+						}
+						if(alpm_set_option(PM_OPT_NOEXTRACT, (long)p) == -1) {
+							/* pm_errno is set by alpm_set_option */
+							return(-1);
+						}
+						_alpm_log(PM_LOG_DEBUG, _("config: noextract: %s\n"), p);
+					} else if(!strcmp(key, "IGNOREPKG")) {
+						char *p = ptr;
+						char *q;
+						while((q = strchr(p, ' '))) {
+							*q = '\0';
+							if(alpm_set_option(PM_OPT_IGNOREPKG, (long)p) == -1) {
+								/* pm_errno is set by alpm_set_option */
+								return(-1);
+							}
+							_alpm_log(PM_LOG_DEBUG, _("config: ignorepkg: %s\n"), p);
+							p = q;
+							p++;
+						}
+						if(alpm_set_option(PM_OPT_IGNOREPKG, (long)p) == -1) {
+							/* pm_errno is set by alpm_set_option */
+							return(-1);
+						}
+						_alpm_log(PM_LOG_DEBUG, _("config: ignorepkg: %s\n"), p);
+					} else if(!strcmp(key, "HOLDPKG")) {
+						char *p = ptr;
+						char *q;
+						while((q = strchr(p, ' '))) {
+							*q = '\0';
+							if(alpm_set_option(PM_OPT_HOLDPKG, (long)p) == -1) {
+								/* pm_errno is set by alpm_set_option */
+								return(-1);
+							}
+							_alpm_log(PM_LOG_DEBUG, _("config: holdpkg: %s\n"), p);
+							p = q;
+							p++;
+						}
+						if(alpm_set_option(PM_OPT_HOLDPKG, (long)p) == -1) {
+							/* pm_errno is set by alpm_set_option */
+							return(-1);
+						}
+						_alpm_log(PM_LOG_DEBUG, _("config: holdpkg: %s\n"), p);
+					} else if(!strcmp(key, "DBPATH")) {
+						/* shave off the leading slash, if there is one */
+						if(*ptr == '/') {
+							ptr++;
+						}
+						if(alpm_set_option(PM_OPT_DBPATH, (long)ptr) == -1) {
+							/* pm_errno is set by alpm_set_option */
+							return(-1);
+						}
+						_alpm_log(PM_LOG_DEBUG, _("config: dbpath: %s\n"), ptr);
+					} else if(!strcmp(key, "CACHEDIR")) {
+						/* shave off the leading slash, if there is one */
+						if(*ptr == '/') {
+							ptr++;
+						}
+						if(alpm_set_option(PM_OPT_CACHEDIR, (long)ptr) == -1) {
+							/* pm_errno is set by alpm_set_option */
+							return(-1);
+						}
+						_alpm_log(PM_LOG_DEBUG, _("config: cachedir: %s\n"), ptr);
+					} else if (!strcmp(key, "LOGFILE")) {
+						if(alpm_set_option(PM_OPT_LOGFILE, (long)ptr) == -1) {
+							/* pm_errno is set by alpm_set_option */
+							return(-1);
+						}
+						_alpm_log(PM_LOG_DEBUG, _("config: log file: %s\n"), ptr);
+					} else if (!strcmp(key, "XFERCOMMAND")) {
+						if(alpm_set_option(PM_OPT_XFERCOMMAND, (long)ptr) == -1) {
+							/* pm_errno is set by alpm_set_option */
+							return(-1);
+						}
+					} else if (!strcmp(key, "UPGRADEDELAY")) {
+						/* The config value is in days, we use seconds */
+						_alpm_log(PM_LOG_DEBUG, _("config: UpgradeDelay: %i\n"), (60*60*24) * atol(ptr));
+						if(alpm_set_option(PM_OPT_UPGRADEDELAY, (60*60*24) * atol(ptr)) == -1) {
+							/* pm_errno is set by alpm_set_option */
+							return(-1);
+						}
+					} else if (!strcmp(key, "PROXYSERVER")) {
+						if(alpm_set_option(PM_OPT_PROXYHOST, (long)ptr) == -1) {
+							/* pm_errno is set by alpm_set_option */
+							return(-1);
+						}
+					} else if (!strcmp(key, "PROXYPORT")) {
+						if(alpm_set_option(PM_OPT_PROXYPORT, (long)atoi(ptr)) == -1) {
+							/* pm_errno is set by alpm_set_option */
+							return(-1);
+						}
+					} else {
+						RET_ERR(PM_ERR_CONF_BAD_SYNTAX, -1);
+					}
+				} else {
+					if(!strcmp(key, "SERVER")) {
+						/* add to the list */
+						_alpm_log(PM_LOG_DEBUG, _("config: %s: server: %s\n"), section, ptr);
+						if(alpm_db_setserver(db, strdup(ptr)) == -1) {
+							/* pm_errno is set by alpm_set_option */
+							return(-1);
+						}
+					} else {
+						RET_ERR(PM_ERR_CONF_BAD_SYNTAX, -1);
+					}
+				}
+				line[0] = '\0';
+			}
+		}
+	}
+	fclose(fp);
+
+	return(0);
+}
+
 /* @} */
 
 /* vim: set ts=2 sw=2 noet: */

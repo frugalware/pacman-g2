@@ -130,6 +130,9 @@ enum {
 	PM_DB_FIRSTSERVER
 };
 
+/* Database registration callback */
+typedef void (*alpm_cb_db_register)(char *, PM_DB *);
+
 PM_DB *alpm_db_register(char *treename);
 int alpm_db_unregister(PM_DB *db);
 
@@ -198,6 +201,7 @@ int alpm_pkg_free(PM_PKG *pkg);
 int alpm_pkg_checkmd5sum(PM_PKG *pkg);
 int alpm_pkg_checksha1sum(PM_PKG *pkg);
 char *alpm_fetch_pkgurl(char *url);
+int alpm_parse_config(char *file, alpm_cb_db_register callback);
 int alpm_pkg_vercmp(const char *ver1, const char *ver2);
 
 /*
@@ -451,7 +455,12 @@ extern enum __pmerrno_t {
 	PM_ERR_DISK_FULL,
 	PM_ERR_DB_SYNC,
 	PM_ERR_RETRIEVE,
-	PM_ERR_PKG_HOLD
+	PM_ERR_PKG_HOLD,
+	/* Configuration file */
+	PM_ERR_CONF_BAD_SECTION,
+	PM_ERR_CONF_LOCAL,
+	PM_ERR_CONF_BAD_SYNTAX,
+	PM_ERR_CONF_DIRECTIVE_OUTSIDE_SECTION
 } pm_errno;
 
 char *alpm_strerror(int err);

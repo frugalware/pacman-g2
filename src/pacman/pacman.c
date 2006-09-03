@@ -514,7 +514,8 @@ int main(int argc, char *argv[])
 	if(config->configfile == NULL) {
 		config->configfile = strdup(PACCONF);
 	}
-	if(parseconfig(config->configfile) == -1) {
+	if(alpm_parse_config(config->configfile, cb_db_register) == -1) {
+		ERR(NL, _("failed to parse config (%s)\n"), alpm_strerror(pm_errno));
 		cleanup(1);
 	}
 

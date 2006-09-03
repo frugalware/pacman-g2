@@ -617,6 +617,7 @@ int _alpm_check_freespace(pmtrans_t *trans, PMList **data)
 		return(0);
 	}
 }
+
 #endif
 
 /* vim: set ts=2 sw=2 noet: */
