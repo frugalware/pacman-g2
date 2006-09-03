@@ -77,6 +77,14 @@ int _alpm_remove_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 	}
 
+	if(_alpm_list_is_strin(info->name, handle->holdpkg)) {
+		int resp = 0;
+		QUESTION(trans, PM_TRANS_CONV_REMOVE_HOLDPKG, info, NULL, NULL, &resp);
+		if(!resp) {
+			RET_ERR(PM_ERR_PKG_HOLD, -1);
+		}
+	}
+
 	_alpm_log(PM_LOG_FLOW2, _("adding %s in the targets list"), info->name);
 	trans->packages = _alpm_list_add(trans->packages, info);
 

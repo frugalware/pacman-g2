@@ -111,7 +111,9 @@ enum {
 	PM_OPT_DLXFERED1,
 	PM_OPT_DLETA_H,
 	PM_OPT_DLETA_M,
-	PM_OPT_DLETA_S
+	PM_OPT_DLETA_S,
+	/* End of download */
+	PM_OPT_HOLDPKG
 };
 
 int alpm_set_option(unsigned char parm, unsigned long data);
@@ -291,7 +293,8 @@ enum {
 	PM_TRANS_CONV_CONFLICT_PKG = 0x04,
 	PM_TRANS_CONV_CORRUPTED_PKG = 0x08,
 	PM_TRANS_CONV_LOCAL_NEWER = 0x10,
-	PM_TRANS_CONV_LOCAL_UPTODATE = 0x20
+	PM_TRANS_CONV_LOCAL_UPTODATE = 0x20,
+	PM_TRANS_CONV_REMOVE_HOLDPKG = 0x40
 };
 
 /* Transaction Progress */
@@ -446,7 +449,8 @@ extern enum __pmerrno_t {
 	PM_ERR_LIBARCHIVE_ERROR,
 	PM_ERR_DISK_FULL,
 	PM_ERR_DB_SYNC,
-	PM_ERR_RETRIEVE
+	PM_ERR_RETRIEVE,
+	PM_ERR_PKG_HOLD
 } pm_errno;
 
 char *alpm_strerror(int err);

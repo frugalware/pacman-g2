@@ -60,7 +60,6 @@ int config_free(config_t *config)
 	FREE(config->cachedir);
 	FREE(config->configfile);
 	FREELIST(config->op_s_ignore);
-	FREELIST(config->holdpkg);
 	free(config);
 
 	return(0);
@@ -228,12 +227,18 @@ int parseconfig(char *file, config_t *config)
 						char *q;
 						while((q = strchr(p, ' '))) {
 							*q = '\0';
-							config->holdpkg = list_add(config->holdpkg, strdup(p));
+							if(alpm_set_option(PM_OPT_HOLDPKG, (long)p) == -1) {
+								ERR(NL, _("failed to set option HOLDPKG (%s)\n"), alpm_strerror(pm_errno));
+								return(1);
+							}
 							vprint(_("config: holdpkg: %s\n"), p);
 							p = q;
 							p++;
 						}
-						config->holdpkg = list_add(config->holdpkg, strdup(p));
+						if(alpm_set_option(PM_OPT_HOLDPKG, (long)p) == -1) {
+							ERR(NL, _("failed to set option HOLDPKG (%s)\n"), alpm_strerror(pm_errno));
+							return(1);
+						}
 						vprint(_("config: holdpkg: %s\n"), p);
 					} else if(!strcmp(key, "DBPATH")) {
 						/* shave off the leading slash, if there is one */

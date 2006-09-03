@@ -88,13 +88,6 @@ int pacman_remove(list_t *targets)
 	}
 	/* and add targets to it */
 	for(i = finaltargs; i; i = i->next) {
-		/* check if the package is in the HoldPkg list.  If so, ask
-		 * confirmation first */
-		if(list_is_strin(i->data, config->holdpkg)) {
-			if(!yesno(_(":: %s is designated as a HoldPkg.  Remove anyway? [Y/n] "), i->data)) {
-				return(1);
-			}
-		}
 		if(alpm_trans_addtarget(i->data) == -1) {
 			ERR(NL, _("failed to add target '%s' (%s)\n"), (char *)i->data, alpm_strerror(pm_errno));
 			retval = 1;

@@ -59,7 +59,6 @@ typedef struct __config_t {
 	unsigned int ask;
 	/* configuration file option */
 	unsigned short chomp;
-	list_t *holdpkg;
 } config_t;
 
 #define FREECONF(p) do { if(p) { config_free(p); p = NULL; } } while(0)

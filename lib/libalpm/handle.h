@@ -47,6 +47,7 @@ typedef struct __pmhandle_t {
 	PMList *noupgrade; /* List of strings */
 	PMList *noextract; /* List of strings */
 	PMList *ignorepkg; /* List of strings */
+	PMList *holdpkg; /* List of strings */
 	unsigned char usesyslog;
 	time_t upgradedelay;
 	/* servers */

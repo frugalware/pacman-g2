@@ -120,6 +120,8 @@ char *alpm_strerror(int err)
 			return _("internal error");
 		case PM_ERR_DISK_FULL:
 			return _("not enough space");
+		case PM_ERR_PKG_HOLD:
+			return _("not confirmed");
 		default:
 			return _("unexpected error");
 	}

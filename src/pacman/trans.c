@@ -179,6 +179,19 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 				*response = yesno(str);
 			}
 		break;
+		case PM_TRANS_CONV_REMOVE_HOLDPKG:
+			if(config->noask) {
+				if(config->ask & PM_TRANS_CONV_REMOVE_HOLDPKG) {
+					*response = 1;
+				} else {
+					*response = 0;
+				}
+			} else {
+				snprintf(str, LOG_STR_LEN, _(":: %s is designated as a HoldPkg.  Remove anyway? [Y/n] "),
+				         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME));
+				*response = yesno(str);
+			}
+		break;
 		case PM_TRANS_CONV_REPLACE_PKG:
 			if(config->noask) {
 				if(config->ask & PM_TRANS_CONV_REPLACE_PKG) {
