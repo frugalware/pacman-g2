@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2006-08-26 14:52+0200\n"
+"POT-Creation-Date: 2006-09-03 13:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1001,7 +1001,7 @@ msgid ""
 msgstr ""
 
 # type: SH
-#: pacman.8:353 makepkg.8:149 FrugalBuild.8:447
+#: pacman.8:353 makepkg.8:149 FrugalBuild.8:453
 #, no-wrap
 msgid "SEE ALSO"
 msgstr ""
@@ -1012,13 +1012,13 @@ msgid "B<makepkg> is the package-building tool that comes with pacman."
 msgstr ""
 
 # type: SH
-#: pacman.8:355 makepkg.8:152 FrugalBuild.8:450
+#: pacman.8:355 makepkg.8:152 FrugalBuild.8:456
 #, no-wrap
 msgid "AUTHOR"
 msgstr ""
 
 # type: Plain text
-#: pacman.8:359 makepkg.8:156 FrugalBuild.8:454
+#: pacman.8:359 makepkg.8:156 FrugalBuild.8:460
 #, no-wrap
 msgid ""
 "Judd Vinet E<lt>jvinet@zeroflux.orgE<gt>\n"
@@ -1026,7 +1026,7 @@ msgid ""
 msgstr ""
 
 # type: TH
-#: makepkg.8:1 FrugalBuild.8:1
+#: makepkg.8:1
 #, no-wrap
 msgid "makepkg"
 msgstr ""
@@ -1418,6 +1418,12 @@ msgstr ""
 # type: Plain text
 #: makepkg.8:152
 msgid "B<FrugalBuild>(8), B<pacman>(8)"
+msgstr ""
+
+# type: TH
+#: FrugalBuild.8:1
+#, no-wrap
+msgid "FrugalBuild"
 msgstr ""
 
 # type: TH
@@ -2231,16 +2237,31 @@ msgid "Package splitting"
 msgstr ""
 
 # type: Plain text
-#: FrugalBuild.8:399
+#: FrugalBuild.8:397
 msgid ""
 "Package splitting means moving out a list of specifed files to subpackages "
 "(like libmysql out of mysql) and then defining the properties of "
-"subpackages. The B<subpkgs()> array is to define the pkgnames of the "
-"subpackages. From now all the directives has their subfoo equivalent:"
+"subpackages."
 msgstr ""
 
 # type: Plain text
-#: FrugalBuild.8:415
+#: FrugalBuild.8:402
+msgid ""
+"NOTE: if you create several subpackages, maintaining those packages will "
+"require more and more time. Thus, unnecessary splits aren't welcome.  "
+"Especially, if you split out a library, then don't move the headers to the "
+"package just to speed up building with a few seconds!"
+msgstr ""
+
+# type: Plain text
+#: FrugalBuild.8:405
+msgid ""
+"The B<subpkgs()> array is to define the pkgnames of the subpackages. From "
+"now all the directives has their subfoo equivalent:"
+msgstr ""
+
+# type: Plain text
+#: FrugalBuild.8:421
 #, no-wrap
 msgid ""
 "pkgname -E<gt> subpkgs()\n"
@@ -2261,7 +2282,7 @@ msgid ""
 msgstr ""
 
 # type: Plain text
-#: FrugalBuild.8:419
+#: FrugalBuild.8:425
 msgid ""
 "Also note that bash does not support two-dimensional arrays, so when "
 "defining the array of arrays, then quotes are the major separators and "
@@ -2269,12 +2290,12 @@ msgid ""
 msgstr ""
 
 # type: Plain text
-#: FrugalBuild.8:421
+#: FrugalBuild.8:427
 msgid "Simple example:"
 msgstr ""
 
 # type: Plain text
-#: FrugalBuild.8:428
+#: FrugalBuild.8:434
 #, no-wrap
 msgid ""
 "Add the followings to your bottom of your FrugalBuild\n"
@@ -2286,14 +2307,14 @@ msgid ""
 msgstr ""
 
 # type: Plain text
-#: FrugalBuild.8:432
+#: FrugalBuild.8:438
 msgid ""
 "You may define conflicts, replaces and other directives for your "
 "subpackages, but the requirement is only to define these 5 ones."
 msgstr ""
 
 # type: Plain text
-#: FrugalBuild.8:437
+#: FrugalBuild.8:443
 msgid ""
 "The second part is to move some files to the - just defined - "
 "subpackages. You should use the Fsplit command for this at the end of your "
@@ -2302,26 +2323,26 @@ msgid ""
 msgstr ""
 
 # type: Plain text
-#: FrugalBuild.8:440
+#: FrugalBuild.8:446
 #, no-wrap
 msgid "Fsplit subpkgname usr/share/\n"
 msgstr ""
 
 # type: Plain text
-#: FrugalBuild.8:443
+#: FrugalBuild.8:449
 msgid ""
 "This will move the /usr/share dir of the package to the \"subpkgname\" "
 "subpackage."
 msgstr ""
 
 # type: Plain text
-#: FrugalBuild.8:446
+#: FrugalBuild.8:452
 msgid ""
 "NOTE: never use a trailing slash when defining file patterns, especially if "
 "you use wildcards in it!"
 msgstr ""
 
 # type: Plain text
-#: FrugalBuild.8:450
+#: FrugalBuild.8:456
 msgid "B<makepkg>(8), B<pacman>(8)"
 msgstr ""
