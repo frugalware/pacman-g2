@@ -8,22 +8,14 @@ is highly recommended.
 How to test pacman?
 ===================
 
-First grab Aurelien Foret's pactest from
-http://aurelien.foret.free.fr/archlinux/pactest/src/pactest-0.3.tar.gz
+Run the tests:
 
-Then get the patch to add Frugalware support:
-http://frugalware.org/~vmiklos/patches/pactest/pactest-0.3-frugalware.diff
-
-I assume that you extracted pactest under <pacmandir>/pactest/pactest-0.3.
-
-Now run the tests:
-
-./pactest.py --test=tests/*.py -p ../../src/pacman/pacman --debug=-1
+make check
 
 If some of them failed, probably you'll want to run only one test,
 for example sync990:
 
-./pactest.py --test=tests/sync990.py -p ../../src/pacman/pacman --debug=-1
+cd pactest; python pactest.py --test=tests/sync990.py -p ../../src/pacman/pacman --debug=-1
 
 That's all.
 
