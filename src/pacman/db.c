@@ -48,7 +48,7 @@ int db_search(PM_DB *db, const char *treename, list_t *needles)
 	}
 	
 	for(i = needles; i; i = i->next) {
-		PM_LIST *j, *g;
+		PM_LIST *j;
 		char *targ;
 		int ret;
 
@@ -65,9 +65,7 @@ int db_search(PM_DB *db, const char *treename, list_t *needles)
 
 			pkgname = alpm_pkg_getinfo(pkg, PM_PKG_NAME);
 			pkgdesc = alpm_pkg_getinfo(pkg, PM_PKG_DESC);
-			g = alpm_pkg_getinfo(pkg, PM_PKG_GROUPS);
-			g = alpm_list_first(g);
-			pkggroup = alpm_list_getdata(g);
+			pkggroup = alpm_list_getdata(alpm_pkg_getinfo(pkg, PM_PKG_GROUPS));
 
 			/* check name */
 			haystack = strdup(pkgname);
