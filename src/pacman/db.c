@@ -48,7 +48,7 @@ int db_search(PM_DB *db, const char *treename, list_t *needles)
 	}
 	
 	for(i = needles; i; i = i->next) {
-		PM_LIST *j;
+		PM_LIST *j, *g;
 		char *targ;
 		int ret;
 
@@ -60,11 +60,14 @@ int db_search(PM_DB *db, const char *treename, list_t *needles)
 		for(j = alpm_db_getpkgcache(db); j; j = alpm_list_next(j)) {
 			PM_PKG *pkg = alpm_list_getdata(j);
 			char *haystack;
-			char *pkgname, *pkgdesc;
+			char *pkgname, *pkgdesc, *pkggroup;
 			int match = 0;
 
 			pkgname = alpm_pkg_getinfo(pkg, PM_PKG_NAME);
 			pkgdesc = alpm_pkg_getinfo(pkg, PM_PKG_DESC);
+			g = alpm_pkg_getinfo(pkg, PM_PKG_GROUPS);
+			g = alpm_list_first(g);
+			pkggroup = alpm_list_getdata(g);
 
 			/* check name */
 			haystack = strdup(pkgname);
@@ -111,7 +114,7 @@ int db_search(PM_DB *db, const char *treename, list_t *needles)
 			}
 
 			if(match) {
-				printf("%s/%s %s\n    ", treename, pkgname, (char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION));
+				printf("%s/%s/%s %s\n    ", treename, pkggroup, pkgname, (char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION));
 				indentprint(pkgdesc, 4);
 				printf("\n");
 			}
