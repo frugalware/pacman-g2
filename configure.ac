@@ -138,7 +138,7 @@ AC_ARG_ENABLE(debug, [  --enable-debug    Enable debugging support], debug=yes)
 
 dnl Help line for fakeroot
 AC_ARG_ENABLE(fakeroot,
-    AC_HELP_STRING([--disable-fakeoot], [Disable fakeroot proof  support]),
+    AC_HELP_STRING([--disable-fakeroot], [Disable fakeroot proof  support]),
     [fakeroot=$enableval], [fakeroot=yes])
 
 dnl Check for man2html binary
