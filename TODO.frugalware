@@ -1,1 +1,5 @@
 - Review #1079 (BTS) and maybe implement it
+
+- Move db_search to libalpm (for frontends)
+
+Mon, 04 Sep 2006 17:04:12 +0200
