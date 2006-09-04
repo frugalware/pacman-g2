@@ -11,4 +11,4 @@ EXTRA_DIST =		\
 	TODO.autoconf
 
 check:
-	cd testsuite; sh runtests.sh
+	cd pactest; python pactest.py --test=tests/*.py -p ../src/pacman/pacman --debug=-1
