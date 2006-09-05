@@ -93,16 +93,28 @@ static int query_fileowner(PM_DB *db, char *filename)
 int pacman_query(list_t *targets)
 {
 	PM_PKG *info = NULL;
-	list_t *targ;
+	list_t *targ, *ret;
 	list_t *i;
 	PM_LIST *j;
 	char *package = NULL;
 	int done = 0;
 
 	if(config->op_q_search) {
-		if(db_search(db_local, "local", targets)) {
+		ret = db_search(db_local, targets);
+		if(ret == NULL) {
 			return(1);
 		}
+		for(i = ret; i; i = i->next) {
+			PM_PKG *pkg = i->data;
+
+			printf("local/%s/%s %s\n    ",
+					(char*)alpm_list_getdata(alpm_pkg_getinfo(pkg, PM_PKG_GROUPS)),
+					(char *)alpm_pkg_getinfo(pkg, PM_PKG_NAME),
+					(char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION));
+			indentprint((char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC), 4);
+			printf("\n");
+		}
+		FREELISTPTR(ret);
 		return(0);
 	}
 

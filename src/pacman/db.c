@@ -39,9 +39,9 @@
 #include "sync.h"
 #include "db.h"
 
-int db_search(PM_DB *db, const char *treename, list_t *needles)
+list_t *db_search(PM_DB *db, list_t *needles)
 {
-	list_t *i;
+	list_t *i, *ret = NULL;
 
 	if(needles == NULL || needles->data == NULL) {
 		return(0);
@@ -50,7 +50,7 @@ int db_search(PM_DB *db, const char *treename, list_t *needles)
 	for(i = needles; i; i = i->next) {
 		PM_LIST *j;
 		char *targ;
-		int ret;
+		int retval;
 
 		if(i->data == NULL) {
 			continue;
@@ -69,12 +69,12 @@ int db_search(PM_DB *db, const char *treename, list_t *needles)
 
 			/* check name */
 			haystack = strdup(pkgname);
-			ret = reg_match(haystack, targ);
-			if(ret < 0) {
+			retval = reg_match(haystack, targ);
+			if(retval < 0) {
 				/* bad regexp */
 				FREE(haystack);
-				return(1);
-			} else if(ret) {
+				return(NULL);
+			} else if(retval) {
 				match = 1;
 			}
 			FREE(haystack);
@@ -82,12 +82,12 @@ int db_search(PM_DB *db, const char *treename, list_t *needles)
 			/* check description */
 			if(!match) {
 				haystack = strdup(pkgdesc);
-				ret = reg_match(haystack, targ);
-				if(ret < 0) {
+				retval = reg_match(haystack, targ);
+				if(retval < 0) {
 					/* bad regexp */
 					FREE(haystack);
-					return(1);
-				} else if(ret) {
+					return(NULL);
+				} else if(retval) {
 					match = 1;
 				}
 				FREE(haystack);
@@ -99,12 +99,12 @@ int db_search(PM_DB *db, const char *treename, list_t *needles)
 
 				for(m = alpm_pkg_getinfo(pkg, PM_PKG_PROVIDES); m; m = alpm_list_next(m)) {
 					haystack = strdup(alpm_list_getdata(m));
-					ret = reg_match(haystack, targ);
-					if(ret < 0) {
+					retval = reg_match(haystack, targ);
+					if(retval < 0) {
 						/* bad regexp */
 						FREE(haystack);
-						return(1);
-					} else if(ret) {
+						return(NULL);
+					} else if(retval) {
 						match = 1;
 					}
 					FREE(haystack);
@@ -112,16 +112,14 @@ int db_search(PM_DB *db, const char *treename, list_t *needles)
 			}
 
 			if(match) {
-				printf("%s/%s/%s %s\n    ", treename, pkggroup, pkgname, (char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION));
-				indentprint(pkgdesc, 4);
-				printf("\n");
+				ret = list_add(ret, pkg);
 			}
 		}
 
 		FREE(targ);
 	}
 
-	return(0);
+	return(ret);
 }
 
 /* vim: set ts=2 sw=2 noet: */

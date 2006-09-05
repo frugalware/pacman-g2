@@ -180,14 +180,26 @@ static int sync_synctree(int level, list_t *syncs)
 
 static int sync_search(list_t *syncs, list_t *targets)
 {
-	list_t *i;
+	list_t *i, *j, *ret;
 
 	for(i = syncs; i; i = i->next) {
 		sync_t *sync = i->data;
 		if(targets) {
-			if(db_search(sync->db, sync->treename, targets)) {
+			ret = db_search(sync->db, targets);
+			if(ret == NULL) {
 				return(1);
 			}
+			for(j = ret; j; j = j->next) {
+				PM_PKG *pkg = j->data;
+
+				printf("%s/%s/%s %s\n    ", (char *)alpm_db_getinfo(sync->db, PM_DB_TREENAME),
+						(char*)alpm_list_getdata(alpm_pkg_getinfo(pkg, PM_PKG_GROUPS)),
+						(char *)alpm_pkg_getinfo(pkg, PM_PKG_NAME),
+						(char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION));
+				indentprint((char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC), 4);
+				printf("\n");
+			}
+			FREELISTPTR(ret);
 		} else {
 			PM_LIST *lp;
 
