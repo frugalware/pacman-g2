@@ -1267,7 +1267,9 @@ int alpm_parse_config(char *file, alpm_cb_db_register callback)
 						return(-1);
 					}
 					/* start a new sync record */
-					callback(section, db);
+					if(callback) {
+						callback(section, db);
+					}
 				}
 			}
 		} else {
