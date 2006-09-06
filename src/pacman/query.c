@@ -30,7 +30,6 @@
 /* pacman */
 #include "list.h"
 #include "package.h"
-#include "db.h"
 #include "query.h"
 #include "log.h"
 #include "conf.h"
@@ -93,19 +92,22 @@ static int query_fileowner(PM_DB *db, char *filename)
 int pacman_query(list_t *targets)
 {
 	PM_PKG *info = NULL;
-	list_t *targ, *ret;
+	list_t *targ;
 	list_t *i;
-	PM_LIST *j;
+	PM_LIST *j, *ret;
 	char *package = NULL;
 	int done = 0;
 
 	if(config->op_q_search) {
-		ret = db_search(db_local, targets);
+		for(i = targets; i; i = i->next) {
+			alpm_set_option(PM_OPT_NEEDLES, (long)i->data);
+		}
+		ret = alpm_db_search(db_local);
 		if(ret == NULL) {
 			return(1);
 		}
-		for(i = ret; i; i = i->next) {
-			PM_PKG *pkg = i->data;
+		for(j = ret; j; j = alpm_list_next(j)) {
+			PM_PKG *pkg = alpm_list_getdata(j);
 
 			printf("local/%s/%s %s\n    ",
 					(char*)alpm_list_getdata(alpm_pkg_getinfo(pkg, PM_PKG_GROUPS)),
@@ -114,7 +116,6 @@ int pacman_query(list_t *targets)
 			indentprint((char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC), 4);
 			printf("\n");
 		}
-		FREELISTPTR(ret);
 		return(0);
 	}
 

@@ -56,6 +56,7 @@ typedef struct __pmhandle_t {
 	char *xfercommand;
 	unsigned short nopassiveftp;
 	unsigned short chomp; /* if eye-candy features should be enabled or not */
+	PMList *needles; /* for searching */
 } pmhandle_t;
 
 #define FREEHANDLE(p) do { if (p) { _alpm_handle_free(p); p = NULL; } } while (0)

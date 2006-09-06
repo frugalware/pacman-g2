@@ -114,7 +114,8 @@ enum {
 	PM_OPT_DLETA_S,
 	/* End of download */
 	PM_OPT_HOLDPKG,
-	PM_OPT_CHOMP
+	PM_OPT_CHOMP,
+	PM_OPT_NEEDLES
 };
 
 int alpm_set_option(unsigned char parm, unsigned long data);
@@ -147,6 +148,7 @@ PM_LIST *alpm_db_whatprovides(PM_DB *db, char *name);
 
 PM_GRP *alpm_db_readgrp(PM_DB *db, char *name);
 PM_LIST *alpm_db_getgrpcache(PM_DB *db);
+PM_LIST *alpm_db_search(PM_DB *db);
 
 /*
  * Packages
@@ -460,7 +462,8 @@ extern enum __pmerrno_t {
 	PM_ERR_CONF_BAD_SECTION,
 	PM_ERR_CONF_LOCAL,
 	PM_ERR_CONF_BAD_SYNTAX,
-	PM_ERR_CONF_DIRECTIVE_OUTSIDE_SECTION
+	PM_ERR_CONF_DIRECTIVE_OUTSIDE_SECTION,
+	PM_ERR_INVALID_REGEX
 } pm_errno;
 
 char *alpm_strerror(int err);

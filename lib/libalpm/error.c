@@ -131,6 +131,8 @@ char *alpm_strerror(int err)
 			return _("syntax error");
 		case PM_ERR_CONF_DIRECTIVE_OUTSIDE_SECTION:
 			return _("all directives must belong to a section");
+		case PM_ERR_INVALID_REGEX:
+			return _("valid regular expression");
 		default:
 			return _("unexpected error");
 	}

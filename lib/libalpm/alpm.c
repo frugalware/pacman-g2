@@ -504,6 +504,21 @@ PMList *alpm_db_getgrpcache(pmdb_t *db)
 
 	return(_alpm_db_get_grpcache(db));
 }
+
+/** Searches a database
+ * @param db pointer to the package database to search in
+ * @return the list of packages on success, NULL on error
+ */
+PMList *alpm_db_search(pmdb_t *db)
+{
+	/* Sanity checks */
+	ASSERT(handle != NULL, return(NULL));
+	ASSERT(handle->needles != NULL, return(NULL));
+	ASSERT(handle->needles->data != NULL, return(NULL));
+	ASSERT(db != NULL, return(NULL));
+
+	return(_alpm_db_search(db, handle->needles));
+}
 /** @} */
 
 /** @defgroup alpm_packages Package Functions

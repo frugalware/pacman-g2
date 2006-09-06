@@ -43,7 +43,6 @@
 #include "download.h"
 #include "list.h"
 #include "package.h"
-#include "db.h"
 #include "trans.h"
 #include "sync.h"
 #include "conf.h"
@@ -180,17 +179,22 @@ static int sync_synctree(int level, list_t *syncs)
 
 static int sync_search(list_t *syncs, list_t *targets)
 {
-	list_t *i, *j, *ret;
+	list_t *i, *j;
+	PM_LIST *ret;
 
 	for(i = syncs; i; i = i->next) {
 		sync_t *sync = i->data;
 		if(targets) {
-			ret = db_search(sync->db, targets);
+			PM_LIST *lp;
+			for(j = targets; j; j = j->next) {
+				alpm_set_option(PM_OPT_NEEDLES, (long)j->data);
+			}
+			ret = alpm_db_search(sync->db);
 			if(ret == NULL) {
 				return(1);
 			}
-			for(j = ret; j; j = j->next) {
-				PM_PKG *pkg = j->data;
+			for(lp = ret; lp; lp = alpm_list_next(lp)) {
+				PM_PKG *pkg = alpm_list_getdata(lp);
 
 				printf("%s/%s/%s %s\n    ", (char *)alpm_db_getinfo(sync->db, PM_DB_TREENAME),
 						(char*)alpm_list_getdata(alpm_pkg_getinfo(pkg, PM_PKG_GROUPS)),
@@ -199,7 +203,6 @@ static int sync_search(list_t *syncs, list_t *targets)
 				indentprint((char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC), 4);
 				printf("\n");
 			}
-			FREELISTPTR(ret);
 		} else {
 			PM_LIST *lp;
 

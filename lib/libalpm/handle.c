@@ -123,6 +123,7 @@ int _alpm_handle_free(pmhandle_t *handle)
 	FREELIST(handle->noextract);
 	FREELIST(handle->ignorepkg);
 	FREELIST(handle->holdpkg);
+	FREELIST(handle->needles);
 	free(handle);
 
 	return(0);
@@ -204,6 +205,15 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 			} else {
 				FREELIST(handle->holdpkg);
 				_alpm_log(PM_LOG_FLOW2, _("PM_OPT_HOLDPKG flushed"));
+			}
+		break;
+		case PM_OPT_NEEDLES:
+			if((char *)data && strlen((char *)data) != 0) {
+				handle->needles = _alpm_list_add(handle->needles, strdup((char *)data));
+				_alpm_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NEEDLES"), (char *)data);
+			} else {
+				FREELIST(handle->needles);
+				_alpm_log(PM_LOG_FLOW2, _("PM_OPT_NEEDLES flushed"));
 			}
 		break;
 		case PM_OPT_USESYSLOG:
@@ -326,6 +336,7 @@ int _alpm_handle_get_option(pmhandle_t *handle, unsigned char val, long *data)
 		case PM_OPT_NOEXTRACT: *data = (long)handle->noextract; break;
 		case PM_OPT_IGNOREPKG: *data = (long)handle->ignorepkg; break;
 		case PM_OPT_HOLDPKG:   *data = (long)handle->holdpkg; break;
+		case PM_OPT_NEEDLES:   *data = (long)handle->needles; break;
 		case PM_OPT_USESYSLOG: *data = handle->usesyslog; break;
 		case PM_OPT_LOGCB:     *data = (long)pm_logcb; break;
 		case PM_OPT_DLCB:     *data = (long)pm_dlcb; break;

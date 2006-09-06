@@ -54,6 +54,7 @@
 #ifndef __sun__
 #include <mntent.h>
 #endif
+#include <regex.h>
 
 /* pacman */
 #include "log.h"
@@ -616,6 +617,20 @@ int _alpm_check_freespace(pmtrans_t *trans, PMList **data)
 	else {
 		return(0);
 	}
+}
+
+/* match a string against a regular expression */
+int _alpm_reg_match(char *string, char *pattern)
+{
+	int result;
+	regex_t reg;
+
+	if(regcomp(&reg, pattern, REG_EXTENDED | REG_NOSUB | REG_ICASE) != 0) {
+		RET_ERR(PM_ERR_INVALID_REGEX, -1);
+	}
+	result = regexec(&reg, string, 0, 0, 0);
+	regfree(&reg);
+	return(!(result));
 }
 
 #endif
