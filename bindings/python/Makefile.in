@@ -18,8 +18,9 @@ _alpm.so: alpm_wrap.o
 alpm_wrap.o: alpm_wrap.c
 	$(CC) $(CFLAGS) -c -o $@ -include alpm.h $^
 
-alpm_wrap.c: alpm.i
+alpm_wrap.c:
 	cp $(top_srcdir)/lib/libalpm/alpm.h ./
+	cp $(top_srcdir)/bindings/alpm.i ./
 	swig -python alpm.i
 	# strip the unnecessary prefixes
 	sed -i 's/^alpm_//;s/^PM_//' alpm.py

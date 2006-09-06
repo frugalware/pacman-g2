@@ -1,4 +1,7 @@
 SUBDIRS = lib/libftp lib/libalpm src/util src/pacman scripts doc etc
+if HAS_PERL
+SUBDIRS += bindings/perl
+endif
 if HAS_PYTHON
 SUBDIRS += bindings/python
 endif

@@ -72,6 +72,11 @@ AC_ARG_ENABLE(python,
     AC_HELP_STRING([--disable-python], [Build Python bindings]),
     [wantpython=$enableval], [wantpython=yes])
 
+dnl Help line for perl
+AC_ARG_ENABLE(perl,
+    AC_HELP_STRING([--disable-perl], [Build Perl bindings]),
+    [wantperl=$enableval], [wantperl=yes])
+
 dnl Check for architecture
 case "$host" in
 	i686-*) AC_DEFINE_UNQUOTED([CARCH], ["i686"], [Architecture])
@@ -222,6 +227,27 @@ else
     PYTHONSTATUS="no, disabled by configure"
 fi
 
+dnl Check for perl support
+AC_MSG_CHECKING(if Perl bindings should be generated)
+if test x$wantperl = xyes ; then
+    AC_CHECK_PROGS([SWIG], [swig] [swig binary])
+    AM_CONDITIONAL(HAS_PERL, test $SWIG)
+    if test $SWIG ; then
+        AC_DEFINE([HAS_PERL], [TRUE], [Enabled Perl Support])
+	AC_MSG_RESULT(yes)
+	PERLSTATUS="yes, path: `which $SWIG`"
+    else
+        AC_DEFINE([HAS_PERL], [FALSE], [Disabled Perl support])
+	AC_MSG_RESULT(no, swig missing)
+	PERLSTATUS="swig binary not found"
+    fi
+else
+    AM_CONDITIONAL(HAS_PERL, test $PERL)
+    AC_DEFINE([HAS_PERL], [FALSE], [Not specified at configure line])
+    AC_MSG_RESULT(not requested by configure)
+    PERLSTATUS="no, disabled by configure"
+fi
+
 dnl Check for bzip2
 AC_CHECK_LIB([bz2], [BZ2_bzCompress], [AC_CHECK_HEADER([bzlib.h], [LIBBZ2='-lbz2'])])
 if test -n "$LIBBZ2"; then
@@ -286,6 +312,7 @@ etc/Makefile
 etc/pacman.d/Makefile
 etc/pacman.d/frugalware
 etc/pacman.d/frugalware-current
+bindings/perl/Makefile
 bindings/python/Makefile
 Makefile
 ])
@@ -307,6 +334,7 @@ pacman-$VERSION:
 
 	Doxygen support          : ${DOXYSTATUS}
 	Manpage localization     : ${POSTATUS}
+	Perl bindings            : ${PERLSTATUS}
 	Python bindings          : ${PYTHONSTATUS}
 
 	debug support            : ${debug}

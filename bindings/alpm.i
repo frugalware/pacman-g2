@@ -1,4 +1,8 @@
+#if defined(SWIGPERL)
+%module "Alpm::Core"
+#else
 %module alpm
+#endif
 %include "cpointer.i"
 
 /* Wrap a class interface around a "long *" */
