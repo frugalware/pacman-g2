@@ -211,7 +211,9 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 
 			/* set up our progress bar's callback (and idle timeout) */
 			if(strcmp(server->protocol, "file") && control) {
-				FtpOptions(FTPLIB_CALLBACK, (long)pm_dlcb, control);
+				if(pm_dlcb) {
+					FtpOptions(FTPLIB_CALLBACK, (long)pm_dlcb, control);
+				}
 				FtpOptions(FTPLIB_IDLETIME, (long)1000, control);
 				FtpOptions(FTPLIB_CALLBACKARG, (long)&fsz, control);
 				FtpOptions(FTPLIB_CALLBACKBYTES, (10*1024), control);
@@ -385,7 +387,9 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 						}
 						/* set up our progress bar's callback (and idle timeout) */
 						if(strcmp(server->protocol, "file") && control) {
-							FtpOptions(FTPLIB_CALLBACK, (long)pm_dlcb, control);
+							if(pm_dlcb) {
+								FtpOptions(FTPLIB_CALLBACK, (long)pm_dlcb, control);
+							}
 							FtpOptions(FTPLIB_IDLETIME, (long)1000, control);
 							FtpOptions(FTPLIB_CALLBACKARG, (long)&fsz, control);
 							FtpOptions(FTPLIB_CALLBACKBYTES, (10*1024), control);
@@ -462,7 +466,7 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 					char completefile[PATH_MAX];
 					if(!strcmp(server->protocol, "file")) {
 						EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
-					} else {
+					} else if(pm_dlcb) {
 						pm_dlcb(control, fsz-*pm_dloffset, &fsz);
 					}
 					complete = _alpm_list_add(complete, fn);
