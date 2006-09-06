@@ -295,48 +295,30 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 				char *ptr;
 				struct stat st;
 				snprintf(output, PATH_MAX, "%s/%s.part", localpath, fn);
-				if(pm_dlfnm) {
-					strncpy(pm_dlfnm, fn, 24);
-					/* drop filename extension */
-					ptr = strstr(fn, PM_EXT_DB);
-					if(ptr && (ptr-fn) < 24) {
-						pm_dlfnm[ptr-fn] = '\0';
-					}
-					ptr = strstr(fn, PM_EXT_PKG);
-					if(ptr && (ptr-fn) < 24) {
-						pm_dlfnm[ptr-fn] = '\0';
-					}
-					for(j = strlen(pm_dlfnm); j < 24; j++) {
-						(pm_dlfnm)[j] = ' ';
-					}
-					pm_dlfnm[24] = '\0';
+				strncpy(pm_dlfnm, fn, 24);
+				/* drop filename extension */
+				ptr = strstr(fn, PM_EXT_DB);
+				if(ptr && (ptr-fn) < 24) {
+					pm_dlfnm[ptr-fn] = '\0';
 				}
-				if(pm_dloffset) {
-					*pm_dloffset = 0;
+				ptr = strstr(fn, PM_EXT_PKG);
+				if(ptr && (ptr-fn) < 24) {
+					pm_dlfnm[ptr-fn] = '\0';
 				}
+				for(j = strlen(pm_dlfnm); j < 24; j++) {
+					(pm_dlfnm)[j] = ' ';
+				}
+				pm_dlfnm[24] = '\0';
+				*pm_dloffset = 0;
 
 				/* ETA setup */
-				if(pm_dlt0) {
-					gettimeofday(pm_dlt0, NULL);
-				}
-				if(pm_dlt) {
-					gettimeofday(pm_dlt, NULL);
-				}
-				if(pm_dlrate) {
-					*pm_dlrate = 0;
-				}
-				if(pm_dlxfered1) {
-					*pm_dlxfered1 = 0;
-				}
-				if(pm_dleta_h) {
-					*pm_dleta_h = 0;
-				}
-				if(pm_dleta_m) {
-					*pm_dleta_m = 0;
-				}
-				if(pm_dleta_s) {
-					*pm_dleta_s = 0;
-				}
+				gettimeofday(pm_dlt0, NULL);
+				*pm_dlt = *pm_dlt0;
+				*pm_dlrate = 0;
+				*pm_dlxfered1 = 0;
+				*pm_dleta_h = 0;
+				*pm_dleta_m = 0;
+				*pm_dleta_s = 0;
 
 				if(!strcmp(server->protocol, "ftp") && !handle->proxyhost) {
 					if(!FtpSize(fn, &fsz, FTPLIB_IMAGE, control)) {
@@ -364,10 +346,8 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 					}
 					if(!filedone) {
 						if(!stat(output, &st)) {
-							if(pm_dloffset) {
-								*pm_dloffset = (int)st.st_size;
-							}
-							if(!FtpRestart((int)st.st_size, control)) {
+							*pm_dloffset = (int)st.st_size;
+							if(!FtpRestart(*pm_dloffset, control)) {
 								_alpm_log(PM_LOG_WARNING, _("failed to resume download -- restarting\n"));
 								/* can't resume: */
 								/* unlink the file in order to restart download from scratch */
@@ -416,7 +396,7 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 						}
 					}
 
-					if(!stat(output, &st) && pm_dloffset) {
+					if(!stat(output, &st)) {
 						*pm_dloffset = (int)st.st_size;
 					}
 					if(!handle->proxyhost) {
@@ -446,7 +426,7 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 
 					}
 					fmtime2.tm_year = 0;
-					if(!HttpGet(server->server, output, src, &fsz, control, (int)st.st_size,
+					if(!HttpGet(server->server, output, src, &fsz, control, *pm_dloffset,
 					            (mtime1) ? &fmtime1 : NULL, (mtime2) ? &fmtime2 : NULL)) {
 						if(strstr(FtpLastResponse(control), "304")) {
 							_alpm_log(PM_LOG_DEBUG, _("mtimes are identical, skipping %s\n"), fn);
@@ -485,9 +465,9 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 				if(filedone > 0) {
 					char completefile[PATH_MAX];
 					if(!strcmp(server->protocol, "file")) {
-						EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm ? pm_dlfnm : "", server->path);
+						EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
 					} else if(pm_dlcb) {
-						pm_dlcb(control, fsz-(int)st.st_size, &fsz);
+						pm_dlcb(control, fsz-*pm_dloffset, &fsz);
 					}
 					complete = _alpm_list_add(complete, fn);
 					/* rename "output.part" file to "output" file */
