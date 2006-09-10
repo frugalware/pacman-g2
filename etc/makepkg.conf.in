@@ -43,8 +43,8 @@ export USE_COLOR="y"
 # Specify a fixed directory where all packages will be placed
 #export PKGDEST=/home/packages
 
-# If you want your name to show up in the packages you build, set this.
-#export PACKAGER="John Doe <john@doe.com>"
+# If you want your name to show up in the packages you build, change this.
+export PACKAGER="Frugalware Linux (http://frugalware.org)"
 
 # Don't strip symbols from binaries/libraries
 #export NOSTRIP="1"
