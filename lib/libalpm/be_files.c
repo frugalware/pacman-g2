@@ -196,6 +196,9 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 					info->desc_localized = _alpm_list_add(info->desc_localized, strdup(line));
 				}
 
+				if (setlocale(LC_ALL, "") == NULL) { /* To fix segfault when locale invalid */
+					setenv("LC_ALL", "C", 1);
+				}
 				if((lang_tmp = (char *)malloc(strlen(setlocale(LC_ALL, "")))) == NULL) {
 					RET_ERR(PM_ERR_MEMORY, -1);
 				}
