@@ -648,6 +648,15 @@ if [ "$DEP_SUDO" = "1" -a ! "`type -p sudo`" ]; then
 	exit 1
 fi
 
+# check if log dir exists and create if necessary.
+if [ -n "$LOGDIR" -a ! -d "$LOGDIR" ]; then
+	mkdir -p $LOGDIR
+	if [ $? -ne 0 ]; then
+		error "Can't create LOGDIR ($LOGDIR)! Please create it or edit /etc/makepkg.conf."
+		exit 1
+	fi
+fi
+
 # convert a (possibly) relative path to absolute
 cd $PKGDEST 2>/dev/null
 if [ $? -ne 0 ]; then
@@ -1558,6 +1567,12 @@ if grep -q -- "\($CFLAGS\|$CXXFLAGS\)" "${BUILDLOG}" ; then
 	fi
 else
 	warning "This package isn't ${CARCH} optimized!"
+fi
+
+# copy build log to LOGDIR if set
+if [ -d "$LOGDIR" ]; then
+	msg "Creating permanant copy of build log"
+	cp "${BUILDLOG}" "${LOGDIR}/${LOGDIR_APPEND}-${pkgname}-${pkgver}-${pkgver}.log"
 fi
 
 # remove build log
