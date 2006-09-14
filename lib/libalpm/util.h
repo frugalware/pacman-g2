@@ -54,7 +54,6 @@
 #define STARTSTR "START "
 #define DONESTR "DONE "
 
-/* int _alpm_archive_read_entry_data_into_fd (struct archive *archive, int file); */
 int _alpm_makepath(char *path);
 int _alpm_copyfile(char *src, char *dest);
 char *_alpm_strtoupper(char *str);
