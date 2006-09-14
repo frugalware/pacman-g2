@@ -313,7 +313,8 @@ pmpkg_t *_alpm_pkg_load(char *pkgfile)
 			/* extract this file into /tmp. it has info for us */
 			descfile = strdup("/tmp/alpm_XXXXXX");
 			fd = mkstemp(descfile);
-			_alpm_archive_read_entry_data_into_fd (archive, fd);
+/*			_alpm_archive_read_entry_data_into_fd (archive, fd); */
+			archive_read_data_into_fd (archive, fd);
 			/* parse the info file */
 			if(parse_descfile(descfile, info, 0) == -1) {
 				_alpm_log(PM_LOG_ERROR, _("could not parse the package description file"));
@@ -359,7 +360,8 @@ pmpkg_t *_alpm_pkg_load(char *pkgfile)
 			}
 			fn = strdup("/tmp/alpm_XXXXXX");
 			fd = mkstemp(fn);
-			_alpm_archive_read_entry_data_into_fd (archive, fd);
+/*			_alpm_archive_read_entry_data_into_fd (archive, fd); */
+			archive_read_data_into_fd (archive,fd);
 			fp = fopen(fn, "r");
 			while(!feof(fp)) {
 				if(fgets(str, PATH_MAX, fp) == NULL) {

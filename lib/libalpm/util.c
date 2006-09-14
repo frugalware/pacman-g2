@@ -536,7 +536,7 @@ cleanup:
 	return(retval);
 }
 
-int _alpm_archive_read_entry_data_into_fd (struct archive *archive, int file) {
+/* int _alpm_archive_read_entry_data_into_fd (struct archive *archive, int file) {
 	register size_t length;
 	char cache [10240];
 
@@ -547,7 +547,7 @@ int _alpm_archive_read_entry_data_into_fd (struct archive *archive, int file) {
 		write (file, cache, length);
 
 	return ARCHIVE_OK;
-}
+} */
 
 #ifndef __sun__
 static long long get_freespace()
