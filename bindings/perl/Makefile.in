@@ -1,7 +1,7 @@
 top_srcdir = @top_srcdir@
 prefix = @prefix@
 
-CFLAGS = @CFLAGS@
+CFLAGS = $(subst -Werror,,@CFLAGS@)
 CFLAGS += $(shell perl -MExtUtils::Embed -e ccopts)
 CFLAGS += -I$(top_srcdir)/lib/libalpm
 ifeq ($(shell arch),x86_64)
