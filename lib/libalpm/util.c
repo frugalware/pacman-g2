@@ -271,7 +271,7 @@ int _alpm_unpack(char *archive, const char *prefix, const char *fn)
 	archive_read_support_compression_all(_archive);
 	archive_read_support_format_all (_archive);
 
-	if (archive_read_open_file (_archive, archive, 10240) != ARCHIVE_OK)
+	if (archive_read_open_file (_archive, archive, ARCHIVE_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK)
 		RET_ERR(PM_ERR_PKG_OPEN, -1);
 
 	while (archive_read_next_header (_archive, &entry) == ARCHIVE_OK) {

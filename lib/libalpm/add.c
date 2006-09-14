@@ -429,7 +429,7 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 			archive_read_support_compression_all (archive);
 			archive_read_support_format_all (archive);
 
-			if (archive_read_open_file (archive, info->data, 10240) != ARCHIVE_OK) {
+			if (archive_read_open_file (archive, info->data, ARCHIVE_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
 				RET_ERR(PM_ERR_PKG_OPEN, -1);
 			}
 

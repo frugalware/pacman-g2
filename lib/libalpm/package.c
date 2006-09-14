@@ -292,7 +292,7 @@ pmpkg_t *_alpm_pkg_load(char *pkgfile)
 	archive_read_support_compression_all (archive);
 	archive_read_support_format_all (archive);
 
-	if (archive_read_open_file (archive, pkgfile, 10240) != ARCHIVE_OK)
+	if (archive_read_open_file (archive, pkgfile, ARCHIVE_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK)
 		RET_ERR(PM_ERR_PKG_OPEN, NULL);
 
 	info = _alpm_pkg_new(NULL, NULL);
