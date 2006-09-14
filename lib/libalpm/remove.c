@@ -77,7 +77,8 @@ int _alpm_remove_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 	}
 
-	if(_alpm_list_is_strin(info->name, handle->holdpkg)) {
+	/* ignore holdpkgs on upgrade */
+	if((trans == handle->trans) && _alpm_list_is_strin(info->name, handle->holdpkg)) {
 		int resp = 0;
 		QUESTION(trans, PM_TRANS_CONV_REMOVE_HOLDPKG, info, NULL, NULL, &resp);
 		if(!resp) {
