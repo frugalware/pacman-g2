@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.3.8         - new libalpm function: alpm_db_search()
+              - pactest: initial import, run make check to call it
+              - new libalpm function: alpm_parse_config()
+              - new libalpm function: alpm_fetch_pkgurl()
+              - implemented the progressbar for pacman -R
 3.3.7         - the package name is now properly displayed in the progressbar
                 during install/upgrade
               - updatesync: bugfix when deleting packages from the repo
