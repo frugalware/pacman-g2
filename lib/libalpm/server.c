@@ -295,30 +295,38 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 				char *ptr;
 				struct stat st;
 				snprintf(output, PATH_MAX, "%s/%s.part", localpath, fn);
-				strncpy(pm_dlfnm, fn, 24);
+				if(pm_dlfnm) {
+					strncpy(pm_dlfnm, fn, 24);
+				}
 				/* drop filename extension */
 				ptr = strstr(fn, PM_EXT_DB);
-				if(ptr && (ptr-fn) < 24) {
+				if(pm_dlfnm && ptr && (ptr-fn) < 24) {
 					pm_dlfnm[ptr-fn] = '\0';
 				}
 				ptr = strstr(fn, PM_EXT_PKG);
 				if(ptr && (ptr-fn) < 24) {
 					pm_dlfnm[ptr-fn] = '\0';
 				}
-				for(j = strlen(pm_dlfnm); j < 24; j++) {
-					(pm_dlfnm)[j] = ' ';
+				if(pm_dlfnm) {
+					for(j = strlen(pm_dlfnm); j < 24; j++) {
+						(pm_dlfnm)[j] = ' ';
+					}
+					pm_dlfnm[24] = '\0';
 				}
-				pm_dlfnm[24] = '\0';
-				*pm_dloffset = 0;
+				if(pm_dloffset) {
+					*pm_dloffset = 0;
+				}
 
 				/* ETA setup */
-				gettimeofday(pm_dlt0, NULL);
-				*pm_dlt = *pm_dlt0;
-				*pm_dlrate = 0;
-				*pm_dlxfered1 = 0;
-				*pm_dleta_h = 0;
-				*pm_dleta_m = 0;
-				*pm_dleta_s = 0;
+				if(pm_dlt0 && pm_dlt && pm_dlrate && pm_dlxfered1 && pm_dleta_h && pm_dleta_m && pm_dleta_s) {
+					gettimeofday(pm_dlt0, NULL);
+					*pm_dlt = *pm_dlt0;
+					*pm_dlrate = 0;
+					*pm_dlxfered1 = 0;
+					*pm_dleta_h = 0;
+					*pm_dleta_m = 0;
+					*pm_dleta_s = 0;
+				}
 
 				if(!strcmp(server->protocol, "ftp") && !handle->proxyhost) {
 					if(!FtpSize(fn, &fsz, FTPLIB_IMAGE, control)) {
