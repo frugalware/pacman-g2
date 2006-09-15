@@ -341,16 +341,16 @@ chroot_clean()
 		msg "Removing unnecessary packages."
 		for i in "$COREPKGS"
 		do
-			corelist="$corelist `pacman -r $CHROOTDIR -Sg $i --config $CHROOTDIR/etc/pacman.conf |grep -v '^\w'`"
+			corelist="$corelist `chroot $CHROOTDIR pacman -Sg $i |grep -v '^\w'`"
 		done
-		for i in `pacman -r $CHROOTDIR -Q|sed 's/\([^ ]*\) .*/\1/'`
+		for i in `chroot $CHROOTDIR pacman -Q|sed 's/\([^ ]*\) .*/\1/'`
 		do
 			if ! echo $corelist |grep -q $i; then
 				removelist="$removelist $i"
 			fi
 		done
 		if [ ! -z "$removelist" ]; then
-			pacman -r $CHROOTDIR -Rcn $removelist --noconfirm
+			chroot $CHROOTDIR pacman -Rcn $removelist --noconfirm
 			if [ "$?" != "0" ]; then
 				error "Failed to remove packages."
 				exit 1
@@ -856,7 +856,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			fi
 		fi
 		mkdir -p "$CHROOTDIR/tmp"
-		pacman -Syf $COREPKGS -r "$CHROOTDIR" --noconfirm --config $_F_makepkg_pacconf
+		chroot "$CHROOTDIR" pacman -Syf $COREPKGS --noconfirm
 		if [ "$?" != "0" ]; then
 			error "Failed to build chroot environment."
 			chroot_umount
@@ -868,8 +868,8 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	else
 		msg "Updating the chroot environment"
 		# run pacman -Su twice in case pacman updated
-		pacman -Syu -r "$CHROOTDIR" --noconfirm --config $CHROOTDIR/etc/pacman.conf && \
-			pacman -Su -r "$CHROOTDIR" --noconfirm --config $CHROOTDIR/etc/pacman.conf
+		chroot "$CHROOTDIR" pacman -Syu --noconfirm && \
+			chroot "$CHROOTDIR" pacman -Su --noconfirm
 		if [ "$?" != "0" ]; then
 			error "Failed to update chroot environment."
 			chroot_umount
