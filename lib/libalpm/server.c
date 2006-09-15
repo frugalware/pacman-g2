@@ -213,6 +213,8 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 			if(strcmp(server->protocol, "file") && control) {
 				if(pm_dlcb) {
 					FtpOptions(FTPLIB_CALLBACK, (long)pm_dlcb, control);
+				} else {
+					_alpm_log(PM_LOG_DEBUG, _("downloadfiles: progress bar's callback is not set\n"));
 				}
 				FtpOptions(FTPLIB_IDLETIME, (long)1000, control);
 				FtpOptions(FTPLIB_CALLBACKARG, (long)&fsz, control);
@@ -367,6 +369,8 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 								fn, server->server, FtpLastResponse(control));
 							/* we leave the partially downloaded file in place so it can be resumed later */
 						} else {
+							_alpm_log(PM_LOG_DEBUG, _("downloaded %s from %s\n"),
+								fn, server->server);
 							filedone = 1;
 						}
 					}
@@ -397,6 +401,8 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 						if(strcmp(server->protocol, "file") && control) {
 							if(pm_dlcb) {
 								FtpOptions(FTPLIB_CALLBACK, (long)pm_dlcb, control);
+							} else {
+								_alpm_log(PM_LOG_DEBUG, _("downloadfiles: progress bar's callback is not set\n"));
 							}
 							FtpOptions(FTPLIB_IDLETIME, (long)1000, control);
 							FtpOptions(FTPLIB_CALLBACKARG, (long)&fsz, control);
