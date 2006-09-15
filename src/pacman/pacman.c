@@ -218,9 +218,6 @@ static void cleanup(int signum)
 #endif
 #endif
 
-	if(neednl)
-		putchar('\n');
-
 	if(neednl) {
 		putchar('\n');
 	}
