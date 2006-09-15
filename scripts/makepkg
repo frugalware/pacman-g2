@@ -749,6 +749,12 @@ if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
 	done
 fi
 
+if [ "$PACKAGER" != "" ]; then
+	packager="$PACKAGER"
+else
+	error "Please make sure that you edit /etc/makepkg.conf and set the PACKAGER= vairable"
+	exit 1
+fi
 if [ ! -f $BUILDSCRIPT ]; then
 	error "$BUILDSCRIPT does not exist."
 	exit 1
@@ -1463,12 +1469,6 @@ if [ "$INCHROOT" != "1" ]; then
 	buildtype="custom"
 else
 	buildtype="chroot"
-fi
-if [ "$PACKAGER" != "" ]; then
-	packager="$PACKAGER"
-else
-	error "Please make sure that you edit /etc/makepkg.conf and set the PACKAGER= vairable"
-	exit 1
 fi
 
 create_pkg $pkgname
