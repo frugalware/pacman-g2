@@ -179,19 +179,19 @@ static int sync_synctree(int level, list_t *syncs)
 
 static int sync_search(list_t *syncs, list_t *targets)
 {
-	list_t *i, *j;
+	list_t *i;
 	PM_LIST *ret;
 
+	for(i = targets; i; i = i->next) {
+		alpm_set_option(PM_OPT_NEEDLES, (long)i->data);
+	}
 	for(i = syncs; i; i = i->next) {
 		sync_t *sync = i->data;
 		if(targets) {
 			PM_LIST *lp;
-			for(j = targets; j; j = j->next) {
-				alpm_set_option(PM_OPT_NEEDLES, (long)j->data);
-			}
 			ret = alpm_db_search(sync->db);
 			if(ret == NULL) {
-				return(1);
+				continue;
 			}
 			for(lp = ret; lp; lp = alpm_list_next(lp)) {
 				PM_PKG *pkg = alpm_list_getdata(lp);
