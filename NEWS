@@ -1,5 +1,11 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.3.9         - bugfix for holdpkgs during an upgrade
+              - fix building with --enable-debug
+              - fixed the download progressbar
+              - -Ss works again for multiple repos
+              - bugfix for -Sp
+              - downloads are interruptable again
 3.3.8         - new libalpm function: alpm_db_search()
               - pactest: initial import, run make check to call it
               - new libalpm function: alpm_parse_config()
