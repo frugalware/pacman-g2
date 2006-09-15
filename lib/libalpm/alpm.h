@@ -463,7 +463,8 @@ extern enum __pmerrno_t {
 	PM_ERR_CONF_LOCAL,
 	PM_ERR_CONF_BAD_SYNTAX,
 	PM_ERR_CONF_DIRECTIVE_OUTSIDE_SECTION,
-	PM_ERR_INVALID_REGEX
+	PM_ERR_INVALID_REGEX,
+	PM_ERR_TRANS_DOWNLOADING
 } pm_errno;
 
 char *alpm_strerror(int err);

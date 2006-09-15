@@ -765,6 +765,7 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
+	trans->state = STATE_DOWNLOADING;
 	/* group sync records by repository and download */
 	snprintf(ldir, PATH_MAX, "%s%s", handle->root, handle->cachedir);
 
@@ -899,6 +900,7 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 	}
 
 	/* remove conflicting and to-be-replaced packages */
+	trans->state = STATE_COMMITING;
 	tr = _alpm_trans_new();
 	if(tr == NULL) {
 		_alpm_log(PM_LOG_ERROR, _("could not create removal transaction"));
