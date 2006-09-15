@@ -54,22 +54,22 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 
 	switch(event) {
 		case PM_TRANS_EVT_CHECKDEPS_START:
-			MSG(NL, _("checking dependencies... "));
+			pm_fprintf(stderr, NL, _("checking dependencies... "));
 		break;
 		case PM_TRANS_EVT_FILECONFLICTS_START:
-			MSG(NL, _("checking for file conflicts... "));
+			pm_fprintf(stderr, NL, _("checking for file conflicts... "));
 		break;
 		case PM_TRANS_EVT_RESOLVEDEPS_START:
-			MSG(NL, _("resolving dependencies... "));
+			pm_fprintf(stderr, NL, _("resolving dependencies... "));
 		break;
 		case PM_TRANS_EVT_INTERCONFLICTS_START:
-			MSG(NL, _("looking for inter-conflicts... "));
+			pm_fprintf(stderr, NL, _("looking for inter-conflicts... "));
 		break;
 		case PM_TRANS_EVT_CHECKDEPS_DONE:
 		case PM_TRANS_EVT_FILECONFLICTS_DONE:
 		case PM_TRANS_EVT_RESOLVEDEPS_DONE:
 		case PM_TRANS_EVT_INTERCONFLICTS_DONE:
-			MSG(CL, _("done.\n"));
+			pm_fprintf(stderr, CL, _("done.\n"));
 		break;
 		case PM_TRANS_EVT_EXTRACT_DONE:
 			if(!config->noprogressbar) {

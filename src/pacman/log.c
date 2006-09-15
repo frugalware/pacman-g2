@@ -133,7 +133,7 @@ int yesno(char *fmt, ...)
 	va_start(args, fmt);
 	vsnprintf(str, LOG_STR_LEN, fmt, args);
 	va_end(args);
-	MSG(NL, str);
+	pm_fprintf(stderr, NL, str);
 
 	if(fgets(response, 32, stdin)) {
 		/* trim whitespace and newlines */
