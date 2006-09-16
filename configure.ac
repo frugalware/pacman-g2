@@ -281,7 +281,7 @@ if test x$debug = xyes ; then
     AC_MSG_RESULT(yes)
 else
     AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xno)
-	CFLAGS="$CFLAGS"
+	CFLAGS="$CFLAGS -std=c99"
     AC_MSG_RESULT(no)
 fi
 
