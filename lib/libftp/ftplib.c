@@ -103,7 +103,6 @@ GLOBALDEF int ftplib_debug = 0;
 #define net_close closesocket
 #endif
 	
-#if defined(NEED_MEMCCPY)
 	/*
 	 * VAX C does not supply a memccpy routine so I provide my own
 	 */
@@ -123,8 +122,6 @@ void *memccpy(void *dest, const void *src, int c, size_t n)
 		return NULL;
 	return op;
 }
-#endif
-#if defined(NEED_STRDUP)
 /*
  * strdup - return a malloc'ed copy of a string
  */
@@ -136,7 +133,6 @@ char *strdup(const char *src)
 		strcpy(dst,src);
 	return dst;
 }
-#endif
 
 /*
  * socket_wait - wait for socket to receive or flush data
