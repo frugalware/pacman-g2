@@ -157,6 +157,18 @@ checkdeps() {
 	echo $deplist
 }
 
+profile_reinit() {
+	# rerun any additional sh scripts found in /etc/profile.d/
+	for i in /etc/profile.d/*.sh
+	do
+		if [ -x $i ]; then
+			. $i &>/dev/null
+		fi
+	done
+	# some applications (eg, blackbox) will not build with some languages
+	unset LC_ALL LANG
+}
+
 handledeps() {
 	local missingdeps=0
 	local deplist="$*"
@@ -245,15 +257,7 @@ handledeps() {
 		fi
 		missingdeps=1
 	fi
-	# rerun any additional sh scripts found in /etc/profile.d/
-	for i in /etc/profile.d/*.sh
-	do
-		if [ -x $i ]; then
-			. $i &>/dev/null
-		fi
-	done
-	# some applications (eg, blackbox) will not build with some languages
-	unset LC_ALL LANG
+	profile_reinit
 
 	return $missingdeps
 }
@@ -833,6 +837,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 
 	install -d -m 2775 {,$CHROOTDIR}/var/cache/ccache/$pkgname
 
+	profile_reinit
 	chroot_mount
 
 	if [ ! -d "$CHROOTDIR/usr" -o ! -e "$CHROOTDIR/etc/pacman.conf" ]; then
