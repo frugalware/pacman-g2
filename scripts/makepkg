@@ -862,7 +862,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			fi
 		fi
 		mkdir -p "$CHROOTDIR/tmp"
-		/usr/sbin/chroot "$CHROOTDIR" pacman -Syf $COREPKGS --noconfirm
+		pacman -r "$CHROOTDIR" -Syf $COREPKGS --noconfirm
 		if [ "$?" != "0" ]; then
 			error "Failed to build chroot environment."
 			chroot_umount
