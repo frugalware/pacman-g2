@@ -341,16 +341,16 @@ chroot_clean()
 		msg "Removing unnecessary packages."
 		for i in "$COREPKGS"
 		do
-			corelist="$corelist `chroot $CHROOTDIR pacman -Sg $i |grep -v '^\w'`"
+			corelist="$corelist `/usr/sbin/chroot $CHROOTDIR pacman -Sg $i |grep -v '^\w'`"
 		done
-		for i in `chroot $CHROOTDIR pacman -Q|sed 's/\([^ ]*\) .*/\1/'`
+		for i in `/usr/sbin/chroot $CHROOTDIR pacman -Q|sed 's/\([^ ]*\) .*/\1/'`
 		do
 			if ! echo $corelist |grep -q $i; then
 				removelist="$removelist $i"
 			fi
 		done
 		if [ ! -z "$removelist" ]; then
-			chroot $CHROOTDIR pacman -Rcn $removelist --noconfirm
+			/usr/sbin/chroot $CHROOTDIR pacman -Rcn $removelist --noconfirm
 			if [ "$?" != "0" ]; then
 				error "Failed to remove packages."
 				exit 1
