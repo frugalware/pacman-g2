@@ -1224,22 +1224,26 @@ if [ "$GENMD5" = "0" -a "$GENSHA1" = "0" ]; then
 			unset cmd
 			case "`echo $file |tr "A-Z" "a-z"`" in
 				*.tar.gz|*.tar.z|*.tgz)
-				cmd="tar --use-compress-program=gzip -xf" ;;
+				cmd="tar --use-compress-program=gzip -xf $file" ;;
 				*.tar.bz2|*.tbz2)
-				cmd="tar --use-compress-program=bzip2 -xf" ;;
+				cmd="tar --use-compress-program=bzip2 -xf $file" ;;
 				*.tar)
-				cmd="tar -xf" ;;
+				cmd="tar -xf $file" ;;
 				*.zip)
 				unziphack=1
-				cmd="unzip -qqo" ;;
+				cmd="unzip -qqo $file" ;;
+				*.cpio.gz)
+				cmd="bsdtar -x -f $file" ;;
+				*.cpio.bz2)
+				cmd="bsdtar -x -f $file" ;;
 				*.gz)
-				cmd="gunzip -f" ;;
+				cmd="gunzip -f $file" ;;
 				*.bz2)
-				cmd="bunzip2 -f" ;;
+				cmd="bunzip2 -f $file" ;;
 			esac
 			if [ "$cmd" != "" ]; then
-				msg "    $cmd $file"
-				$cmd "$file"
+				msg "    $cmd"
+				$cmd
 				if [ $? -ne 0 ]; then
 					# unzip will return a 1 as a warning, it is not an error
 					if [ "$unziphack" != "1" -o $? -ne 1 ]; then
