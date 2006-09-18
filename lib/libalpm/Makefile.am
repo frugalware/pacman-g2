@@ -39,6 +39,7 @@ include_HEADERS = alpm.h
 libalpm_la_SOURCES = $(TARGETS)
 
 libalpm_la_LDFLAGS = -no-undefined -version-info $(PM_VERSION_INFO)
+libalpm_la_LIBADD = $(top_srcdir)/lib/libftp/libftp.la
 
 if HAS_DOXYGEN
 all: doxygen.in
