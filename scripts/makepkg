@@ -1575,7 +1575,7 @@ fi
 
 # copy build log to LOGDIR if set
 if [ -d "$LOGDIR" ]; then
-	msg "Creating permanant copy of build log"
+	msg "Creating permanent copy of build log"
 	cp "${BUILDLOG}" "${LOGDIR}/${LOGDIR_APPEND}-${pkgname}-${pkgver}-${pkgrel}.log"
 fi
 
