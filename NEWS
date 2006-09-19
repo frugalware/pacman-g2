@@ -1,5 +1,9 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.4.0         - makepkg -R now uses the pacman from the chroot if it is
+                possible
+              - makepkg now handles .cpio.(bz2|gz)
+              - libalpm is now statically linked to libftp
 3.3.9         - bugfix for holdpkgs during an upgrade
               - fix building with --enable-debug
               - fixed the download progressbar
