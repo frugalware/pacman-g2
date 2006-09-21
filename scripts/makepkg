@@ -1424,18 +1424,11 @@ if [ -d pkg/usr/share/info ]; then
 	rm -rf pkg/usr/share/info
 fi
 
-# move /usr/share/man files to /usr/man
-if [ -d pkg/usr/share/man ]; then
-	mkdir -p pkg/usr/man 
-	cp -a pkg/usr/share/man/* pkg/usr/man/
-	rm -rf pkg/usr/share/man
-fi
-
-# remove /usr/share directory if empty
-if [ -d pkg/usr/share ]; then
-	if [ -z "`ls -1 pkg/usr/share`" ]; then
-		rm -r pkg/usr/share
-	fi
+# move /usr/man files to /usr/share/man
+if [ -d pkg/usr/man ]; then
+	mkdir -p pkg/usr/share/man
+	cp -a pkg/usr/man/* pkg/usr/share/man/
+	rm -rf pkg/usr/man
 fi
 
 # compress man pages
