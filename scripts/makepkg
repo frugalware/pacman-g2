@@ -845,24 +845,20 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			else
 				# host: current, chroot: stable
 				cat /etc/pacman.conf |sed 's|^\(Include = /etc/pacman.d/frugalware-current$\)|#\1|
-					s|^\(Include = /etc/pacman.d/extra-current$\)|#\1|
-					s|^#\(Include = /etc/pacman.d/frugalware$\)|\1|
-					s|^#\(Include = /etc/pacman.d/extra$\)|\1|' >$_F_makepkg_pacconf
+					s|^#\(Include = /etc/pacman.d/frugalware$\)|\1|'>$_F_makepkg_pacconf
 			fi
 		else
 			if [ "$TREE" = "current" ]; then
 				# host: stable, chroot: current
 				cat /etc/pacman.conf |sed 's|^#\(Include = /etc/pacman.d/frugalware-current$\)|\1|
-					s|^#\(Include = /etc/pacman.d/extra-current$\)|\1|
-					s|^\(Include = /etc/pacman.d/frugalware$\)|#\1|
-					s|^\(Include = /etc/pacman.d/extra$\)|#\1|' >$_F_makepkg_pacconf
+					s|^\(Include = /etc/pacman.d/frugalware$\)|#\1|' >$_F_makepkg_pacconf
 			else
 				# host: stable, chroot: stable
 				cat /etc/pacman.conf >$_F_makepkg_pacconf
 			fi
 		fi
 		mkdir -p "$CHROOTDIR/tmp"
-		pacman -r "$CHROOTDIR" -Syf $COREPKGS --noconfirm
+		pacman -r "$CHROOTDIR" -Syf $COREPKGS --noconfirm --config $_F_makepkg_pacconf
 		if [ "$?" != "0" ]; then
 			error "Failed to build chroot environment."
 			chroot_umount
