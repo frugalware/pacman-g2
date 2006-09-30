@@ -869,6 +869,8 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		rm -f $_F_makepkg_pacconf
 	else
 		msg "Updating the chroot environment"
+		# copy these before any update since without them we can't even reach the servers
+		cp -pf /etc/{resolv.conf,services} $CHROOTDIR/etc
 		# run pacman -Su twice in case pacman updated
 		/usr/sbin/chroot "$CHROOTDIR" pacman -Syu --noconfirm && \
 			/usr/sbin/chroot "$CHROOTDIR" pacman -Su --noconfirm
