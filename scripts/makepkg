@@ -808,6 +808,8 @@ if darcs --commands 2>&1|grep -q add && [ "$GENMD5" = "0" -a "$GENSHA1" = "0" -a
 		fi
 	fi
 fi
+# some applications (eg, blackbox) will not build with some languages
+unset LC_ALL LANG
 # Build chroot environment if necessary.
 if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	if [ "`id -u`" != 0 ]; then
@@ -994,8 +996,6 @@ if [ "`id -u`" != "0" ]; then
 	fi
 fi
 
-# some applications (eg, blackbox) will not build with some languages
-unset LC_ALL LANG
 msg "Making package: $pkgname $pkgver-$pkgrel (`date`)"
 
 unset deplist makedeplist
