@@ -1,5 +1,7 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.4.1         - manpages are now installed by default to /usr/share/man
+              - makepkg: bugfixes for the -t and the -R options
 3.4.0         - makepkg -R now uses the pacman from the chroot if it is
                 possible
               - makepkg now handles .cpio.(bz2|gz)
