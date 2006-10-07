@@ -352,8 +352,9 @@ int alpm_db_setserver(pmdb_t *db, char *url)
 }
 
 /** Update a package database
+ * @param level if >=2, then forces the update, otherwise update only in case
+ * the database isn't up to date
  * @param db pointer to the package database to update
- * @param archive path to the new package database tarball
  * @return 0 on success, > 0 on error (pm_errno is set accordingly), < 0 if up
  * to date
  */
@@ -1045,13 +1046,13 @@ void *alpm_dep_getinfo(pmdepmissing_t *miss, unsigned char parm)
 }
 /** @} */
 
-/** @defgroup alpm_dep File Conflicts Functions
+/** @defgroup alpm_conflict File Conflicts Functions
  * @brief Functions to get informations about a libalpm file conflict
  * @{
  */
 
 /** Get informations about a file conflict.
- * @param db conflict pointer
+ * @param conflict pointer to get the info from
  * @param parm name of the info to get
  * @return a void* on success (the value), NULL on error
  */
@@ -1215,6 +1216,8 @@ char *alpm_fetch_pkgurl(char *url)
 
 /** Parses a configuration file.
  * @param file path to the config file.
+ * @param callback the callback should take two parameters:
+ * the treename and the database pointer
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
 int alpm_parse_config(char *file, alpm_cb_db_register callback)
