@@ -5,6 +5,9 @@ endif
 if HAS_PYTHON
 SUBDIRS += bindings/python
 endif
+if HAS_JAVA
+SUBDIRS += bindings/java
+endif
 
 EXTRA_DIST =		\
 	ChangeLog  	\

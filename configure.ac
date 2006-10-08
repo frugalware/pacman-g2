@@ -77,6 +77,11 @@ AC_ARG_ENABLE(perl,
     AC_HELP_STRING([--disable-perl], [Build Perl bindings]),
     [wantperl=$enableval], [wantperl=yes])
 
+dnl Help line for java
+AC_ARG_ENABLE(java,
+    AC_HELP_STRING([--disable-java], [Build Java bindings]),
+    [wantjava=$enableval], [wantjava=yes])
+
 dnl Check for architecture
 case "$host" in
 	i686-*) AC_DEFINE_UNQUOTED([CARCH], ["i686"], [Architecture])
@@ -248,6 +253,27 @@ else
     PERLSTATUS="no, disabled by configure"
 fi
 
+dnl Check for java support
+AC_MSG_CHECKING(if Java bindings should be generated)
+if test x$wantjava = xyes ; then
+    AC_CHECK_PROGS([JAVAC], [javac] [java compiler])
+    AM_CONDITIONAL(HAS_JAVA, test $JAVAC)
+    if test $JAVAC ; then
+        AC_DEFINE([HAS_JAVA], [TRUE], [Enabled Java Support])
+	AC_MSG_RESULT(yes)
+	JAVASTATUS="yes, path: `which $JAVAC`"
+    else
+        AC_DEFINE([HAS_JAVA], [FALSE], [Disabled Java support])
+	AC_MSG_RESULT(no, javac missing)
+	JAVASTATUS="java compiler not found"
+    fi
+else
+    AM_CONDITIONAL(HAS_JAVA, test $JAVAC)
+    AC_DEFINE([HAS_JAVA], [FALSE], [Not specified at configure line])
+    AC_MSG_RESULT(not requested by configure)
+    JAVASTATUS="no, disabled by configure"
+fi
+
 dnl Check for bzip2
 AC_CHECK_LIB([bz2], [BZ2_bzCompress], [AC_CHECK_HEADER([bzlib.h], [LIBBZ2='-lbz2'])])
 if test -n "$LIBBZ2"; then
@@ -312,6 +338,7 @@ etc/Makefile
 etc/pacman.d/Makefile
 etc/pacman.d/frugalware
 etc/pacman.d/frugalware-current
+bindings/java/Makefile
 bindings/perl/Makefile
 bindings/python/Makefile
 Makefile
@@ -336,6 +363,7 @@ pacman-$VERSION:
 	Manpage localization     : ${POSTATUS}
 	Perl bindings            : ${PERLSTATUS}
 	Python bindings          : ${PYTHONSTATUS}
+	Java bindings            : ${JAVASTATUS}
 
 	debug support            : ${debug}
 "
