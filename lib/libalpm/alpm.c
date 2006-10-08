@@ -352,13 +352,13 @@ int alpm_db_setserver(pmdb_t *db, char *url)
 }
 
 /** Update a package database
- * @param level if >=2, then forces the update, otherwise update only in case
+ * @param level if true, then forces the update, otherwise update only in case
  * the database isn't up to date
  * @param db pointer to the package database to update
  * @return 0 on success, > 0 on error (pm_errno is set accordingly), < 0 if up
  * to date
  */
-int alpm_db_update(int level, PM_DB *db)
+int alpm_db_update(int force, PM_DB *db)
 {
 	PMList *lp;
 	char path[PATH_MAX];
@@ -377,7 +377,7 @@ int alpm_db_update(int level, PM_DB *db)
 		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
 	}
 
-	if(level < 2) {
+	if(!force) {
 		/* get the lastupdate time */
 		_alpm_db_getlastupdate(db, lastupdate);
 		if(strlen(lastupdate) == 0) {
