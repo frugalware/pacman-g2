@@ -57,7 +57,9 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			pm_fprintf(stderr, NL, _("checking dependencies... "));
 		break;
 		case PM_TRANS_EVT_FILECONFLICTS_START:
-			pm_fprintf(stderr, NL, _("checking for file conflicts... "));
+			if(config->noprogressbar) {
+			MSG(NL, _("checking for file conflicts... "));
+			}
 		break;
 		case PM_TRANS_EVT_RESOLVEDEPS_START:
 			pm_fprintf(stderr, NL, _("resolving dependencies... "));
@@ -65,8 +67,14 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 		case PM_TRANS_EVT_INTERCONFLICTS_START:
 			pm_fprintf(stderr, NL, _("looking for inter-conflicts... "));
 		break;
-		case PM_TRANS_EVT_CHECKDEPS_DONE:
 		case PM_TRANS_EVT_FILECONFLICTS_DONE:
+			if(config->noprogressbar) {
+				MSG(CL, _("done.\n"));
+			} else {
+				MSG(NL, "");
+			}
+		break;
+		case PM_TRANS_EVT_CHECKDEPS_DONE:
 		case PM_TRANS_EVT_RESOLVEDEPS_DONE:
 		case PM_TRANS_EVT_INTERCONFLICTS_DONE:
 			pm_fprintf(stderr, CL, _("done.\n"));
@@ -282,10 +290,11 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 {
 	int i, hash;
 	unsigned int maxpkglen, progresslen = maxcols - 57;
-	char *addstr, *upgstr, *removestr, *ptr;
+	char *addstr, *upgstr, *removestr, *conflictstr, *ptr;
 	addstr = strdup(_("installing"));
 	upgstr = strdup(_("upgrading"));
 	removestr = strdup(_("removing"));
+	conflictstr = strdup(_("checking for file conflicts"));
 
 	if(config->noprogressbar) {
 		return;
@@ -307,8 +316,13 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 		case PM_TRANS_PROGRESS_UPGRADE_START:
 			ptr = upgstr;
 		break;
+
 		case PM_TRANS_PROGRESS_REMOVE_START:
 			ptr = removestr;
+		break;
+
+		case PM_TRANS_PROGRESS_CONFLICTS_START:
+			ptr = conflictstr;
 		break;
 	}
 	hash=percent*progresslen/100;
