@@ -154,7 +154,7 @@ AC_ARG_ENABLE(fakeroot,
 dnl Check for man2html binary
 AC_MSG_CHECKING(for support man2html)
 if test x$wantman2html = xyes ; then
-    AC_CHECK_PROGS([MAN2HTML], [man2html] [man2html prog])
+    AC_CHECK_PROGS([MAN2HTML], [man2html])
     AM_CONDITIONAL(HAS_MAN2HTML, test $MAN2HTML)
     if test $MAN2HTML ; then
         AC_DEFINE([HAS_MAN2HTML], [TRUE], [Enabled HTML generation from man via man2html])
@@ -172,7 +172,7 @@ fi
 dnl Check for po4a binary
 AC_MSG_CHECKING(for support po4a)
 if test x$wantpo4a = xyes ; then
-    AC_CHECK_PROGS([PO4A], [po4a] [po4a binary])
+    AC_CHECK_PROGS([PO4A], [po4a])
     AM_CONDITIONAL(HAS_PO4A, test $PO4A)
     if test $PO4A ; then
         AC_DEFINE([HAS_PO4A], [TRUE], [Enabled PO4A (localization support for manpages)])
@@ -193,7 +193,7 @@ fi
 dnl Check for doxygen support
 AC_MSG_CHECKING(for support Doxygen)
 if test x$wantdoxygen = xyes ; then
-    AC_CHECK_PROGS([DOXYGEN], [doxygen] [doxygen binary])
+    AC_CHECK_PROGS([DOXYGEN], [doxygen])
     AM_CONDITIONAL(HAS_DOXYGEN, test $DOXYGEN)
     if test $DOXYGEN ; then
         AC_DEFINE([HAS_DOXYGEN], [TRUE], [Enabled Doxygen Support])
@@ -214,7 +214,7 @@ fi
 dnl Check for python support
 AC_MSG_CHECKING(if Python bindings should be generated)
 if test x$wantpython = xyes ; then
-    AC_CHECK_PROGS([SWIG], [swig] [swig binary])
+    AC_CHECK_PROGS([SWIG], [swig])
     AM_CONDITIONAL(HAS_PYTHON, test $SWIG)
     if test $SWIG ; then
         AC_DEFINE([HAS_PYTHON], [TRUE], [Enabled Python Support])
@@ -235,7 +235,7 @@ fi
 dnl Check for perl support
 AC_MSG_CHECKING(if Perl bindings should be generated)
 if test x$wantperl = xyes ; then
-    AC_CHECK_PROGS([SWIG], [swig] [swig binary])
+    AC_CHECK_PROGS([SWIG], [swig])
     AM_CONDITIONAL(HAS_PERL, test $SWIG)
     if test $SWIG ; then
         AC_DEFINE([HAS_PERL], [TRUE], [Enabled Perl Support])
