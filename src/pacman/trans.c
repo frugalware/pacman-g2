@@ -332,13 +332,29 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 	if(strlen(pkgname)>maxpkglen)
 		pkgname[maxpkglen]='\0';
 
-	putchar('(');
-	for(i=0;i<(int)log10(howmany)-(int)log10(remain);i++)
-		putchar(' ');
-	printf("%d/%d) %s %s ", remain, howmany, ptr, pkgname);
-	if (strlen(pkgname)<maxpkglen)
-		for (i=maxpkglen-strlen(pkgname)-1; i>0; i--)
-			putchar(' ');
+	switch (event) {
+		case PM_TRANS_PROGRESS_ADD_START:
+		case PM_TRANS_PROGRESS_UPGRADE_START:
+		case PM_TRANS_PROGRESS_REMOVE_START:
+			putchar('(');
+			for(i=0;i<(int)log10(howmany)-(int)log10(remain);i++)
+				putchar(' ');
+			printf("%d/%d) %s %s ", remain, howmany, ptr, pkgname);
+			if (strlen(pkgname)<maxpkglen)
+				for (i=maxpkglen-strlen(pkgname)-1; i>0; i--)
+					putchar(' ');
+		break;
+
+		case PM_TRANS_PROGRESS_CONFLICTS_START:
+			printf("%s (", ptr);
+			for(i=0;i<(int)log10(howmany)-(int)log10(remain);i++)
+				putchar(' ');
+			printf("%d/%d) ", remain, howmany);
+			for (i=maxpkglen; i>0; i--)
+				putchar(' ');
+		break;
+	}
+
 	printf("[");
 	for (i = progresslen; i > 0; i--) {
 		if (i >= progresslen - hash)
