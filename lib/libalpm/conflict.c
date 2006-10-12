@@ -218,7 +218,7 @@ PMList *_alpm_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, PMList
 	for(i = targets; i; i = i->next) {
 		pmpkg_t *p1 = (pmpkg_t*)i->data;
 		percent = (double)(_alpm_list_count(targets) - _alpm_list_count(i) + 1) / _alpm_list_count(targets);
-		PROGRESS(trans, PM_TRANS_PROGRESS_CONFLICTS_START, p1->name, (percent * 100), _alpm_list_count(targets), (_alpm_list_count(targets) - _alpm_list_count(i) +1));
+		PROGRESS(trans, PM_TRANS_PROGRESS_CONFLICTS_START, "", (percent * 100), _alpm_list_count(targets), (_alpm_list_count(targets) - _alpm_list_count(i) +1));
 		for(j = i; j; j = j->next) {
 			pmpkg_t *p2 = (pmpkg_t*)j->data;
 			if(strcmp(p1->name, p2->name)) {
