@@ -49,7 +49,7 @@ NODEPS=0
 NOEXTRACT=0
 NOSTRIP=0
 RMDEPS=0
-CHROOT=0
+CHROOT=1
 LOGGING=0
 NOUP2DATE=0
 GZIP=0
@@ -286,7 +286,8 @@ usage() {
 	echo "  -o, --nobuild    Download and extract files only"
 	echo "  -p <buildscript> Use an alternate build script (instead of FrugalBuild)"
 	echo "  -r, --rmdeps     Remove installed dependencies after a successful build"
-	echo "  -R, --chroot     Build the package in a chroot environment"
+	echo "  -R, --chroot     Build the package in a chroot environment (default)"
+	echo "  -H, --host       Build the package on the host system"
 	echo "  -s, --syncdeps   Install missing dependencies with pacman"
 	echo "  -S, --sudosync   Install missing dependencies with pacman and sudo"
 	echo "  -u, --noup2date  Do not check for newer version"
@@ -579,6 +580,7 @@ while [ "$#" -ne "0" ]; do
 		--genmd5)     GENMD5=1 ;;
 		--rmdeps)     RMDEPS=1 ;;
 		--chroot)     CHROOT=1 ;;
+		--host)       CHROOT=0 ;;
 		--noup2date)  NOUP2DATE=1 ;;
 		--logging)    LOGGING=1 ;;
 		--gzip)       GZIP=1 ;;
@@ -591,7 +593,7 @@ while [ "$#" -ne "0" ]; do
 			exit 1
 			;;
 		-*)
-			while getopts "abBcCdD:efgGhij:kl:Lmnop:urRsSt:w:-" opt; do
+			while getopts "abBcCdD:efgGhij:kl:Lmnop:urRHsSt:w:-" opt; do
 				case $opt in
 					a) SEARCHDEPS=1 ;;
 					b) DEP_SRC=1 ;;
@@ -602,7 +604,7 @@ while [ "$#" -ne "0" ]; do
 					D) CLEANCCACHE=$OPTARG ;;
 					e) NOEXTRACT=1 ;;
 					f) FORCE=1 ;;
-					g) GENSHA1=1 ;;
+					g) GENSHA1=1; CHROOT=0 ;;
 					G) GENMD5=1 ;;
 					h)
 						usage
@@ -615,10 +617,11 @@ while [ "$#" -ne "0" ]; do
 					L) NOLASTMOD=1 ;;
 					m) USE_COLOR="n" ;;
 					n) NOSTRIP=1 ;;
-					o) NOBUILD=1 ;;
+					o) NOBUILD=1; CHROOT=0 ;;
 					p) BUILDSCRIPT=$OPTARG ;;
 					r) RMDEPS=1 ;;
 					R) CHROOT=1 ;;
+					H) CHROOT=0 ;;
 					s) DEP_BIN=1 ;;
 					S) DEP_SUDO=1 ;;
 					t) TREE="$OPTARG" ;;
