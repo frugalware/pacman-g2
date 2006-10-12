@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.4.2         - bugfix in the bindings (void_to_long(), pointer_cast())
+              - updated libalpm documentation
+              - added java bindings
+              - progressbar while checking for conflicting files
+              - makepkg: building in chroot is now the default
 3.4.1         - manpages are now installed by default to /usr/share/man
               - makepkg: bugfixes for the -t and the -R options
 3.4.0         - makepkg -R now uses the pacman from the chroot if it is
