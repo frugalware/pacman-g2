@@ -102,7 +102,11 @@ Upon successful build, remove any dependencies installed by makepkg/pacman durin
 dependency auto-resolution (using \fB-b\fP or \fB-s\fP).
 .TP
 .B "\-R, \-\-chroot"
-Build the package in a chroot environment.
+Build the package in a chroot environment. This is the default except if -g or
+-o is used.
+.TP
+.B "\-H, \-\-host"
+Build the package on the host system. The opposite of the -R option.
 .TP
 .B "\-s, \-\-syncdeps"
 Install missing dependencies using pacman.  When makepkg finds missing build-time
