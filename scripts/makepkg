@@ -954,6 +954,10 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		fi
 		# copy back the buildscript, maybe modified
 		cp $CHROOTDIR/var/tmp/fst/FrugalBuild ./
+		if [ "$CLEANUP" != "1" ]; then
+			mv $CHROOTDIR/var/tmp/fst/{pkg,src} ./
+			chown -R `stat -c %u:%g FrugalBuild` pkg src
+		fi
 		rm -rf $CHROOTDIR/var/tmp/fst/*
 		chroot_clean
 		ret=0
