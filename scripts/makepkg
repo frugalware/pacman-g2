@@ -648,7 +648,7 @@ if [ "$DEP_SUDO" = "1" -a ! "`type -p sudo`" ]; then
 fi
 
 # check if log dir exists and create if necessary.
-if [ -n "$LOGDIR" -a ! -d "$LOGDIR" ]; then
+if [ -n "$LOGDIR" -a ! -d "$LOGDIR" -a -w "`dirname $LOGDIR`" ]; then
 	mkdir -p $LOGDIR
 	if [ $? -ne 0 ]; then
 		error "Can't create LOGDIR ($LOGDIR)! Please create it or edit /etc/makepkg.conf."
