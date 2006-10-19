@@ -196,10 +196,12 @@ static int sync_search(list_t *syncs, list_t *targets)
 			for(lp = ret; lp; lp = alpm_list_next(lp)) {
 				PM_PKG *pkg = alpm_list_getdata(lp);
 
-				printf("%s/%s/%s %s\n    ", (char *)alpm_db_getinfo(sync->db, PM_DB_TREENAME),
-						(char*)alpm_list_getdata(alpm_pkg_getinfo(pkg, PM_PKG_GROUPS)),
-						(char *)alpm_pkg_getinfo(pkg, PM_PKG_NAME),
-						(char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION));
+				char *group = (char *)alpm_list_getdata(alpm_pkg_getinfo(pkg,PM_PKG_GROUPS));
+				printf("%s/%s %s %s%s%s\n    ",
+							 (char *)alpm_db_getinfo(sync->db, PM_DB_TREENAME),
+						   (char *)alpm_pkg_getinfo(pkg, PM_PKG_NAME),
+						   (char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION),
+						   (group ? "(" : ""), (group ? group : ""), (group ? ")" : ""));
 				indentprint((char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC), 4);
 				printf("\n");
 			}
@@ -222,7 +224,7 @@ static int sync_search(list_t *syncs, list_t *targets)
 static int sync_group(int level, list_t *syncs, list_t *targets)
 {
 	list_t *i, *j;
-	
+
 	if(targets) {
 		for(i = targets; i; i = i->next) {
 			for(j = syncs; j; j = j->next) {
@@ -244,7 +246,7 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 				PM_GRP *grp = alpm_list_getdata(lp);
 
 				MSG(NL, "%s\n", (char *)alpm_grp_getinfo(grp, PM_GRP_NAME));
-				if(level > 1) {
+				if(grp && level > 1) {
 					PM_LIST_display("   ", alpm_grp_getinfo(grp, PM_GRP_PKGNAMES));
 				}
 			}
@@ -613,14 +615,16 @@ int pacman_sync(list_t *targets)
 		if(mb < 0.1) {
 			mb = 0.1;
 		}
-		if(umb < 0.1) {
+		if(umb > 0 && umb < 0.1) {
 			umb = 0.1;
 		}
 		MSG(NL, _("\nTargets: "));
 		str = buildstring(list_install);
 		indentprint(str, 9);
 		MSG(NL, _("\nTotal Package Size:   %.1f MB\n"), mb);
-		MSG(NL, _("\nTotal Uncompressed Package Size:   %.1f MB\n"), umb);
+		if(umb > 0) {
+		  MSG(NL, _("\nTotal Uncompressed Package Size:   %.1f MB\n"), umb);
+		}
 		FREELIST(list_install);
 		FREE(str);
 

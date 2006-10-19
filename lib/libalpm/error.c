@@ -1,8 +1,8 @@
 /*
  *  error.c
  * 
+ *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *  Copyright (c) 2005 by Aurelien Foret <orelien@chez.com>
- *  Copyright (c) 2005 by Judd Vinet <jvinet@zeroflux.org>
  *  Copyright (c) 2005 by Christian Hamar <krics@linuxforum.hu>
  *  Copyright (c) 2006 by Miklos Vajna <vmiklos@frugalware.org>
  * 
@@ -133,6 +133,10 @@ char *alpm_strerror(int err)
 			return _("all directives must belong to a section");
 		case PM_ERR_INVALID_REGEX:
 			return _("valid regular expression");
+		case PM_ERR_CONNECT_FAILED:
+			return _("connection to remote host failed");
+		case PM_ERR_FORK_FAILED:
+			return _("forking process failed");
 		default:
 			return _("unexpected error");
 	}

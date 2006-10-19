@@ -1,7 +1,7 @@
 /*
  *  alpm.c
  * 
- *  Copyright (c) 2005 by Judd Vinet <jvinet@zeroflux.org>
+ *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *  Copyright (c) 2005 by Aurelien Foret <orelien@chez.com>
  *  Copyright (c) 2005 by Christian Hamar <krics@linuxforum.hu>
  *  Copyright (c) 2005, 2006 by Miklos Vajna <vmiklos@frugalware.org>
@@ -172,7 +172,6 @@ pmdb_t *alpm_db_register(char *treename)
 {
 	struct stat buf;
 	pmdb_t *db;
-	int found = 0;
 	char path[PATH_MAX];
 
 	/* Sanity checks */
@@ -183,21 +182,20 @@ pmdb_t *alpm_db_register(char *treename)
 
 	if(strcmp(treename, "local") == 0) {
 		if(handle->db_local != NULL) {
-			found = 1;
+			_alpm_log(PM_LOG_WARNING, _("attempt to re-register the 'local' DB\n"));
+			RET_ERR(PM_ERR_DB_NOT_NULL, NULL);
 		}
 	} else {
 		PMList *i;
-		for(i = handle->dbs_sync; i && !found; i = i->next) {
+		for(i = handle->dbs_sync; i; i = i->next) {
 			pmdb_t *sdb = i->data;
 			if(strcmp(treename, sdb->treename) == 0) {
-				found = 1;
+				_alpm_log(PM_LOG_DEBUG, _("attempt to re-register the '%s' databse, using existing\n"), sdb->treename);
+				return sdb;
 			}
 		}
 	}
-	if(found) {
-		RET_ERR(PM_ERR_DB_NOT_NULL, NULL);
-	}
-
+	
 	_alpm_log(PM_LOG_FLOW1, _("registering database '%s'"), treename);
 
 	/* make sure the database directory exists */
@@ -211,7 +209,7 @@ pmdb_t *alpm_db_register(char *treename)
 
 	db = _alpm_db_new(handle->root, handle->dbpath, treename);
 	if(db == NULL) {
-		return(NULL);
+		RET_ERR(PM_ERR_DB_CREATE, NULL);
 	}
 
 	_alpm_log(PM_LOG_DEBUG, _("opening database '%s'"), db->treename);
@@ -395,6 +393,7 @@ int alpm_db_update(int force, PM_DB *db)
 	FREELIST(files);
 	if(ret != 0) {
 		if(ret > 0) {
+			_alpm_log(PM_LOG_DEBUG, _("failed to sync db: %s [%d]\n"),  alpm_strerror(ret), ret);
 			pm_errno = PM_ERR_DB_SYNC;
 		}
 		return(ret);
@@ -506,20 +505,6 @@ PMList *alpm_db_getgrpcache(pmdb_t *db)
 	return(_alpm_db_get_grpcache(db));
 }
 
-/** Searches a database
- * @param db pointer to the package database to search in
- * @return the list of packages on success, NULL on error
- */
-PMList *alpm_db_search(pmdb_t *db)
-{
-	/* Sanity checks */
-	ASSERT(handle != NULL, return(NULL));
-	ASSERT(handle->needles != NULL, return(NULL));
-	ASSERT(handle->needles->data != NULL, return(NULL));
-	ASSERT(db != NULL, return(NULL));
-
-	return(_alpm_db_search(db, handle->needles));
-}
 /** @} */
 
 /** @defgroup alpm_packages Package Functions
@@ -828,6 +813,21 @@ void *alpm_sync_getinfo(pmsyncpkg_t *sync, unsigned char parm)
 
 	return(data);
 }
+
+/** Searches a database
+ * @param db pointer to the package database to search in
+ * @return the list of packages on success, NULL on error
+ */
+PMList *alpm_db_search(pmdb_t *db)
+{
+	/* Sanity checks */
+	ASSERT(handle != NULL, return(NULL));
+	ASSERT(handle->needles != NULL, return(NULL));
+	ASSERT(handle->needles->data != NULL, return(NULL));
+	ASSERT(db != NULL, return(NULL));
+
+	return(_alpm_db_search(db, handle->needles));
+}
 /** @} */
 
 /** @defgroup alpm_trans Transaction Functions
@@ -938,15 +938,12 @@ int alpm_trans_addtarget(char *target)
  */
 int alpm_trans_prepare(PMList **data)
 {
-	pmtrans_t *trans;
-
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 	ASSERT(data != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	trans = handle->trans;
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(trans->state == STATE_INITIALIZED, RET_ERR(PM_ERR_TRANS_NOT_INITIALIZED, -1));
+	ASSERT(handle->trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(handle->trans->state == STATE_INITIALIZED, RET_ERR(PM_ERR_TRANS_NOT_INITIALIZED, -1));
 
 	return(_alpm_trans_prepare(handle->trans, data));
 }
@@ -958,14 +955,11 @@ int alpm_trans_prepare(PMList **data)
  */
 int alpm_trans_commit(PMList **data)
 {
-	pmtrans_t *trans;
-
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
-	trans = handle->trans;
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(trans->state == STATE_PREPARED, RET_ERR(PM_ERR_TRANS_NOT_PREPARED, -1));
+	ASSERT(handle->trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(handle->trans->state == STATE_PREPARED, RET_ERR(PM_ERR_TRANS_NOT_PREPARED, -1));
 
 	/* Check for database R/W permission */
 	ASSERT(handle->access == PM_ACCESS_RW, RET_ERR(PM_ERR_BADPERMS, -1));
@@ -1216,11 +1210,11 @@ char *alpm_fetch_pkgurl(char *url)
 
 /** Parses a configuration file.
  * @param file path to the config file.
- * @param callback the callback should take two parameters:
- * the treename and the database pointer
+ * @param callback a function to be called upon new database creation
+ * @param this_section the config current section being parsed
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int alpm_parse_config(char *file, alpm_cb_db_register callback)
+int alpm_parse_config(char *file, alpm_cb_db_register callback, const char *this_section)
 {
 	FILE *fp = NULL;
 	char line[PATH_MAX+1];
@@ -1233,6 +1227,11 @@ int alpm_parse_config(char *file, alpm_cb_db_register callback)
 	fp = fopen(file, "r");
 	if(fp == NULL) {
 		return(0);
+	}
+
+	if(this_section != NULL && strlen(this_section) > 0) {
+		strncpy(section, this_section, min(255, strlen(this_section)));
+		db = alpm_db_register(section);
 	}
 
 	while(fgets(line, PATH_MAX, fp)) {
@@ -1304,7 +1303,7 @@ int alpm_parse_config(char *file, alpm_cb_db_register callback)
 					char conf[PATH_MAX];
 					strncpy(conf, ptr, PATH_MAX);
 					_alpm_log(PM_LOG_DEBUG, _("config: including %s\n"), conf);
-					alpm_parse_config(conf, callback);
+					alpm_parse_config(conf, callback, section);
 				} else if(!strcmp(section, "options")) {
 					if(!strcmp(key, "NOUPGRADE")) {
 						char *p = ptr;
@@ -1433,7 +1432,7 @@ int alpm_parse_config(char *file, alpm_cb_db_register callback)
 					if(!strcmp(key, "SERVER")) {
 						/* add to the list */
 						_alpm_log(PM_LOG_DEBUG, _("config: %s: server: %s\n"), section, ptr);
-						if(alpm_db_setserver(db, strdup(ptr)) == -1) {
+						if(alpm_db_setserver(db, strdup(ptr)) != 0) {
 							/* pm_errno is set by alpm_set_option */
 							return(-1);
 						}

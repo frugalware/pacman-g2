@@ -1,7 +1,7 @@
 /*
  * alpm.h
  * 
- *  Copyright (c) 2005 by Judd Vinet <jvinet@zeroflux.org>
+ *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *  Copyright (c) 2005 by Aurelien Foret <orelien@chez.com>
  *  Copyright (c) 2005 by Christian Hamar <krics@linuxforum.hu>
  *  Copyright (c) 2005, 2006 by Miklos Vajna <vmiklos@frugalware.org>
@@ -203,7 +203,7 @@ int alpm_pkg_free(PM_PKG *pkg);
 int alpm_pkg_checkmd5sum(PM_PKG *pkg);
 int alpm_pkg_checksha1sum(PM_PKG *pkg);
 char *alpm_fetch_pkgurl(char *url);
-int alpm_parse_config(char *file, alpm_cb_db_register callback);
+int alpm_parse_config(char *file, alpm_cb_db_register callback, const char *this_section);
 int alpm_pkg_vercmp(const char *ver1, const char *ver2);
 
 /*
@@ -465,7 +465,10 @@ extern enum __pmerrno_t {
 	PM_ERR_CONF_BAD_SYNTAX,
 	PM_ERR_CONF_DIRECTIVE_OUTSIDE_SECTION,
 	PM_ERR_INVALID_REGEX,
-	PM_ERR_TRANS_DOWNLOADING
+	PM_ERR_TRANS_DOWNLOADING,
+  /* Downloading */
+	PM_ERR_CONNECT_FAILED,
+  PM_ERR_FORK_FAILED
 } pm_errno;
 
 char *alpm_strerror(int err);

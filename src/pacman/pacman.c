@@ -186,8 +186,7 @@ static void cleanup(int signum)
 	if(signum==SIGSEGV)
 	{
 		fprintf(stderr, "Internal pacman error: Segmentation fault\n"
-			"Please submit a full bug report, with the given package if appropriate.\n"
-			"See <URL:http://wiki.frugalware.org/Bugs> for instructions.\n");
+			"Please submit a full bug report, with the given package if appropriate.\n");
 		exit(signum);
 	} else if((signum == SIGINT) && (alpm_trans_release() == -1) && (pm_errno ==
 				PM_ERR_TRANS_COMMITING)) {
@@ -476,9 +475,12 @@ int main(int argc, char *argv[])
 	if(myuid > 0) {
 		if(config->op != PM_OP_MAIN && config->op != PM_OP_QUERY && config->op != PM_OP_DEPTEST) {
 			if((config->op == PM_OP_SYNC && !config->op_s_sync &&
-					(config->op_s_search || config->group || config->op_q_list ||
-					 config->op_q_info)) || (config->op == PM_OP_DEPTEST && !config->op_d_resolve)) {
-				/* special case:  PM_OP_SYNC can be used w/ config->op_s_search by any user */
+					(config->op_s_search || config->group || config->op_q_list || config->op_q_info))
+				 || (config->op == PM_OP_DEPTEST && !config->op_d_resolve)
+				 || (config->root != NULL)) {
+				/* special case: PM_OP_SYNC can be used w/ config->op_s_search by any user */
+				/* special case: ignore root user check if -r is specified, fall back on
+				 * normal FS checking */
 			} else {
 				ERR(NL, _("you cannot perform this operation unless you are root.\n"));
 				config_free(config);
@@ -508,15 +510,7 @@ int main(int argc, char *argv[])
 		cleanup(1);
 	}
 
-	if(config->configfile == NULL) {
-		config->configfile = strdup(PACCONF);
-	}
-	if(alpm_parse_config(config->configfile, cb_db_register) == -1) {
-		ERR(NL, _("failed to parse config (%s)\n"), alpm_strerror(pm_errno));
-		cleanup(1);
-	}
-
-	/* set library parameters */
+	/* Setup logging as soon as possible, to print out maximum debugging info */
 	if(alpm_set_option(PM_OPT_LOGMASK, (long)config->debug) == -1) {
 		ERR(NL, _("failed to set option LOGMASK (%s)\n"), alpm_strerror(pm_errno));
 		cleanup(1);
@@ -525,6 +519,16 @@ int main(int argc, char *argv[])
 		ERR(NL, _("failed to set option LOGCB (%s)\n"), alpm_strerror(pm_errno));
 		cleanup(1);
 	}
+
+	if(config->configfile == NULL) {
+		config->configfile = strdup(PACCONF);
+	}
+	if(alpm_parse_config(config->configfile, cb_db_register, "") != 0) {
+		ERR(NL, _("failed to parse config (%s)\n"), alpm_strerror(pm_errno));
+		cleanup(1);
+	}
+
+	/* set library parameters */
 	if(alpm_set_option(PM_OPT_DLCB, (long)log_progress) == -1) {
 		ERR(NL, _("failed to set option DLCB (%s)\n"), alpm_strerror(pm_errno));
 		cleanup(1);

@@ -165,7 +165,9 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 		return(0);
 	}
 
+  _alpm_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
 	for(i = servers; i && !done; i = i->next) {
+		_alpm_log(PM_LOG_DEBUG, _("server check, done? %d\n"),done);
 		pmserver_t *server = (pmserver_t*)i->data;
 
 		if(!handle->xfercommand && strcmp(server->protocol, "file")) {
@@ -268,14 +270,14 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 				getcwd(cwd, PATH_MAX);
 				if(chdir(localpath)) {
 					_alpm_log(PM_LOG_WARNING, _("could not chdir to %s\n"), localpath);
-					return(1);
+					return(PM_ERR_CONNECT_FAILED);
 				}
 				/* execute the parsed command via /bin/sh -c */
 				_alpm_log(PM_LOG_DEBUG, _("running command: %s\n"), parsedCmd);
 				ret = system(parsedCmd);
 				if(ret == -1) {
 					_alpm_log(PM_LOG_WARNING, _("running XferCommand: fork failed!\n"));
-					return(1);
+					return(PM_ERR_FORK_FAILED);
 				} else if(ret != 0) {
 					/* download failed */
 					_alpm_log(PM_LOG_DEBUG, _("XferCommand command returned non-zero status code (%d)\n"), ret);
@@ -298,11 +300,11 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 				struct stat st;
 				snprintf(output, PATH_MAX, "%s/%s.part", localpath, fn);
 				if(pm_dlfnm) {
-					strncpy(pm_dlfnm, fn, 24);
+					strncpy(pm_dlfnm, fn, 22);
 				}
 				/* drop filename extension */
 				ptr = strstr(fn, PM_EXT_DB);
-				if(pm_dlfnm && ptr && (ptr-fn) < 24) {
+				if(pm_dlfnm && ptr && (ptr-fn) < 22) {
 					pm_dlfnm[ptr-fn] = '\0';
 				}
 				ptr = strstr(fn, PM_EXT_PKG);
@@ -310,10 +312,10 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 					pm_dlfnm[ptr-fn] = '\0';
 				}
 				if(pm_dlfnm) {
-					for(j = strlen(pm_dlfnm); j < 24; j++) {
+					for(j = strlen(pm_dlfnm); j < 22; j++) {
 						(pm_dlfnm)[j] = ' ';
 					}
-					pm_dlfnm[24] = '\0';
+					pm_dlfnm[22] = '\0';
 				}
 				if(pm_dloffset) {
 					*pm_dloffset = 0;
@@ -505,6 +507,7 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 		}
 	}
 
+  _alpm_log(PM_LOG_DEBUG, _("end _alpm_downloadfiles_forreal - return %d"),!done);
 	return(!done);
 }
 
