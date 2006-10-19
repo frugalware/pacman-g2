@@ -773,127 +773,127 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 	for(tries = 0; tries < handle->maxtries; tries++) {
 		retval = 0;
 		FREELIST(*data);
-	for(i = handle->dbs_sync; i; i = i->next) {
-		pmdb_t *current = i->data;
+		for(i = handle->dbs_sync; i; i = i->next) {
+			pmdb_t *current = i->data;
 
-		for(j = trans->packages; j; j = j->next) {
-			pmsyncpkg_t *sync = j->data;
-			pmpkg_t *spkg = sync->pkg;
-			pmdb_t *dbs = spkg->data;
+			for(j = trans->packages; j; j = j->next) {
+				pmsyncpkg_t *sync = j->data;
+				pmpkg_t *spkg = sync->pkg;
+				pmdb_t *dbs = spkg->data;
 
-			if(current == dbs) {
-				char path[PATH_MAX];
+				if(current == dbs) {
+					char path[PATH_MAX];
 
-				if(trans->flags & PM_TRANS_FLAG_PRINTURIS) {
-					snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG, spkg->name, spkg->version, spkg->arch);
-					EVENT(trans, PM_TRANS_EVT_PRINTURI, alpm_db_getinfo(current, PM_DB_FIRSTSERVER), path);
-				} else {
-					struct stat buf;
-					snprintf(path, PATH_MAX, "%s/%s-%s-%s" PM_EXT_PKG, ldir, spkg->name, spkg->version, spkg->arch);
-					if(stat(path, &buf)) {
-						/* file is not in the cache dir, so add it to the list */
+					if(trans->flags & PM_TRANS_FLAG_PRINTURIS) {
 						snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG, spkg->name, spkg->version, spkg->arch);
-						files = _alpm_list_add(files, strdup(path));
+						EVENT(trans, PM_TRANS_EVT_PRINTURI, alpm_db_getinfo(current, PM_DB_FIRSTSERVER), path);
 					} else {
-						_alpm_log(PM_LOG_DEBUG, _("%s-%s-%s%s is already in the cache\n"),
-							spkg->name, spkg->version, spkg->arch, PM_EXT_PKG);
+						struct stat buf;
+						snprintf(path, PATH_MAX, "%s/%s-%s-%s" PM_EXT_PKG, ldir, spkg->name, spkg->version, spkg->arch);
+						if(stat(path, &buf)) {
+							/* file is not in the cache dir, so add it to the list */
+							snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG, spkg->name, spkg->version, spkg->arch);
+							files = _alpm_list_add(files, strdup(path));
+						} else {
+							_alpm_log(PM_LOG_DEBUG, _("%s-%s-%s%s is already in the cache\n"),
+								spkg->name, spkg->version, spkg->arch, PM_EXT_PKG);
+						}
 					}
 				}
 			}
-		}
 
-		if(files) {
-			struct stat buf;
-			EVENT(trans, PM_TRANS_EVT_RETRIEVE_START, current->treename, NULL);
-			if(stat(ldir, &buf)) {
-				/* no cache directory.... try creating it */
-				_alpm_log(PM_LOG_WARNING, _("no %s cache exists.  creating...\n"), ldir);
-				alpm_logaction(_("warning: no %s cache exists.  creating..."), ldir);
-				if(_alpm_makepath(ldir)) {
-					/* couldn't mkdir the cache directory, so fall back to /tmp and unlink
-					 * the package afterwards.
-					 */
-					_alpm_log(PM_LOG_WARNING, _("couldn't create package cache, using /tmp instead\n"));
-					alpm_logaction(_("warning: couldn't create package cache, using /tmp instead"));
-					snprintf(ldir, PATH_MAX, "%s/tmp", handle->root);
-					if(_alpm_handle_set_option(handle, PM_OPT_CACHEDIR, (long)"/tmp") == -1) {
-						_alpm_log(PM_LOG_WARNING, _("failed to set option CACHEDIR (%s)\n"), alpm_strerror(pm_errno));
-						RET_ERR(PM_ERR_RETRIEVE, -1);
+			if(files) {
+				struct stat buf;
+				EVENT(trans, PM_TRANS_EVT_RETRIEVE_START, current->treename, NULL);
+				if(stat(ldir, &buf)) {
+					/* no cache directory.... try creating it */
+					_alpm_log(PM_LOG_WARNING, _("no %s cache exists.  creating...\n"), ldir);
+					alpm_logaction(_("warning: no %s cache exists.  creating..."), ldir);
+					if(_alpm_makepath(ldir)) {
+						/* couldn't mkdir the cache directory, so fall back to /tmp and unlink
+						 * the package afterwards.
+						 */
+						_alpm_log(PM_LOG_WARNING, _("couldn't create package cache, using /tmp instead\n"));
+						alpm_logaction(_("warning: couldn't create package cache, using /tmp instead"));
+						snprintf(ldir, PATH_MAX, "%s/tmp", handle->root);
+						if(_alpm_handle_set_option(handle, PM_OPT_CACHEDIR, (long)"/tmp") == -1) {
+							_alpm_log(PM_LOG_WARNING, _("failed to set option CACHEDIR (%s)\n"), alpm_strerror(pm_errno));
+							RET_ERR(PM_ERR_RETRIEVE, -1);
+						}
+						varcache = 0;
 					}
-					varcache = 0;
 				}
+				if(_alpm_downloadfiles(current->servers, ldir, files)) {
+					_alpm_log(PM_LOG_WARNING, _("failed to retrieve some files from %s\n"), current->treename);
+					RET_ERR(PM_ERR_RETRIEVE, -1);
+				}
+				FREELIST(files);
 			}
-			if(_alpm_downloadfiles(current->servers, ldir, files)) {
-				_alpm_log(PM_LOG_WARNING, _("failed to retrieve some files from %s\n"), current->treename);
-				RET_ERR(PM_ERR_RETRIEVE, -1);
-			}
-			FREELIST(files);
 		}
-	}
-	if(trans->flags & PM_TRANS_FLAG_PRINTURIS) {
-		return(0);
-	}
+		if(trans->flags & PM_TRANS_FLAG_PRINTURIS) {
+			return(0);
+		}
 
-	/* Check integrity of files */
-	EVENT(trans, PM_TRANS_EVT_INTEGRITY_START, NULL, NULL);
+		/* Check integrity of files */
+		EVENT(trans, PM_TRANS_EVT_INTEGRITY_START, NULL, NULL);
 
-	for(i = trans->packages; i; i = i->next) {
-		pmsyncpkg_t *sync = i->data;
-		pmpkg_t *spkg = sync->pkg;
-		char str[PATH_MAX], pkgname[PATH_MAX];
-		char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
-		char *ptr=NULL;
+		for(i = trans->packages; i; i = i->next) {
+			pmsyncpkg_t *sync = i->data;
+			pmpkg_t *spkg = sync->pkg;
+			char str[PATH_MAX], pkgname[PATH_MAX];
+			char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
+			char *ptr=NULL;
 
-		snprintf(pkgname, PATH_MAX, "%s-%s-%s" PM_EXT_PKG,
+			snprintf(pkgname, PATH_MAX, "%s-%s-%s" PM_EXT_PKG,
 			spkg->name, spkg->version, spkg->arch);
-		md5sum1 = spkg->md5sum;
-		sha1sum1 = spkg->sha1sum;
+			md5sum1 = spkg->md5sum;
+			sha1sum1 = spkg->sha1sum;
 
-		if((md5sum1 == NULL) && (sha1sum1 == NULL)) {
-			if((ptr = (char *)malloc(512)) == NULL) {
-				RET_ERR(PM_ERR_MEMORY, -1);
+			if((md5sum1 == NULL) && (sha1sum1 == NULL)) {
+				if((ptr = (char *)malloc(512)) == NULL) {
+					RET_ERR(PM_ERR_MEMORY, -1);
+				}
+				snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
+				*data = _alpm_list_add(*data, ptr);
+				retval = 1;
+				continue;
 			}
-			snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
-			*data = _alpm_list_add(*data, ptr);
-			retval = 1;
-			continue;
+			snprintf(str, PATH_MAX, "%s/%s/%s", handle->root, handle->cachedir, pkgname);
+			md5sum2 = _alpm_MDFile(str);
+			sha1sum2 = _alpm_SHAFile(str);
+			if(md5sum2 == NULL && sha1sum2 == NULL) {
+				if((ptr = (char *)malloc(512)) == NULL) {
+					RET_ERR(PM_ERR_MEMORY, -1);
+				}
+				snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
+				*data = _alpm_list_add(*data, ptr);
+				retval = 1;
+				continue;
+			}
+			if((strcmp(md5sum1, md5sum2) != 0) && (strcmp(sha1sum1, sha1sum2) != 0)) {
+				int doremove=0;
+				if((ptr = (char *)malloc(512)) == NULL) {
+					RET_ERR(PM_ERR_MEMORY, -1);
+				}
+				if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
+					doremove=1;
+				} else {
+					QUESTION(trans, PM_TRANS_CONV_CORRUPTED_PKG, pkgname, NULL, NULL, &doremove);
+				}
+				if(doremove) {
+					char str[PATH_MAX];
+					snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name, spkg->version, spkg->arch);
+					unlink(str);
+					snprintf(ptr, 512, _("archive %s was corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
+				} else {
+					snprintf(ptr, 512, _("archive %s is corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
+				}
+				*data = _alpm_list_add(*data, ptr);
+				retval = 1;
+			}
+			FREE(md5sum2);
+			FREE(sha1sum2);
 		}
-		snprintf(str, PATH_MAX, "%s/%s/%s", handle->root, handle->cachedir, pkgname);
-		md5sum2 = _alpm_MDFile(str);
-		sha1sum2 = _alpm_SHAFile(str);
-		if(md5sum2 == NULL && sha1sum2 == NULL) {
-			if((ptr = (char *)malloc(512)) == NULL) {
-				RET_ERR(PM_ERR_MEMORY, -1);
-			}
-			snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
-			*data = _alpm_list_add(*data, ptr);
-			retval = 1;
-			continue;
-		}
-		if((strcmp(md5sum1, md5sum2) != 0) && (strcmp(sha1sum1, sha1sum2) != 0)) {
-			int doremove=0;
-			if((ptr = (char *)malloc(512)) == NULL) {
-				RET_ERR(PM_ERR_MEMORY, -1);
-			}
-			if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
-				doremove=1;
-			} else {
-				QUESTION(trans, PM_TRANS_CONV_CORRUPTED_PKG, pkgname, NULL, NULL, &doremove);
-			}
-			if(doremove) {
-				char str[PATH_MAX];
-				snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name, spkg->version, spkg->arch);
-				unlink(str);
-				snprintf(ptr, 512, _("archive %s was corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
-			} else {
-				snprintf(ptr, 512, _("archive %s is corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
-			}
-			*data = _alpm_list_add(*data, ptr);
-			retval = 1;
-		}
-		FREE(md5sum2);
-		FREE(sha1sum2);
-	}
 		if(!retval) {
 			break;
 		}
