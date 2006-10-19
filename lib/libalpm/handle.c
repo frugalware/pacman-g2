@@ -65,6 +65,7 @@ pmhandle_t *_alpm_handle_new()
 
 	memset(handle, 0, sizeof(pmhandle_t));
 	handle->lckfd = -1;
+	handle->maxtries = 1;
 
 #ifndef CYGWIN
 	/* see if we're root or not */
@@ -313,6 +314,10 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 			handle->chomp = (unsigned short)data;
 			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_CHOMP set to '%d'"), handle->chomp);
 		break;
+		case PM_OPT_MAXTRIES:
+			handle->maxtries = (unsigned short)data;
+			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_MAXTRIES set to '%d'"), handle->maxtries);
+		break;
 		default:
 			RET_ERR(PM_ERR_WRONG_ARGS, -1);
 	}
@@ -356,6 +361,7 @@ int _alpm_handle_get_option(pmhandle_t *handle, unsigned char val, long *data)
 		case PM_OPT_XFERCOMMAND: *data = (long)handle->xfercommand; break;
 		case PM_OPT_NOPASSIVEFTP: *data = handle->nopassiveftp; break;
 		case PM_OPT_CHOMP: *data = handle->chomp; break;
+		case PM_OPT_MAXTRIES: *data = handle->maxtries; break;
 		default:
 			RET_ERR(PM_ERR_WRONG_ARGS, -1);
 		break;

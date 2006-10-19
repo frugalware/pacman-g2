@@ -56,6 +56,7 @@ typedef struct __pmhandle_t {
 	char *xfercommand;
 	unsigned short nopassiveftp;
 	unsigned short chomp; /* if eye-candy features should be enabled or not */
+	unsigned short maxtries; /* for downloading */
 	PMList *needles; /* for searching */
 } pmhandle_t;
 

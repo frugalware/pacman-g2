@@ -758,9 +758,10 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 {
 	PMList *i, *j, *files = NULL;
 	pmtrans_t *tr = NULL;
-	int replaces = 0, retval = 0;
+	int replaces = 0, retval;
 	char ldir[PATH_MAX];
 	int varcache = 1;
+	int tries = 0;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -769,6 +770,9 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 	/* group sync records by repository and download */
 	snprintf(ldir, PATH_MAX, "%s%s", handle->root, handle->cachedir);
 
+	for(tries = 0; tries < handle->maxtries; tries++) {
+		retval = 0;
+		FREELIST(*data);
 	for(i = handle->dbs_sync; i; i = i->next) {
 		pmdb_t *current = i->data;
 
@@ -889,6 +893,10 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, PMList **data)
 		}
 		FREE(md5sum2);
 		FREE(sha1sum2);
+	}
+		if(!retval) {
+			break;
+		}
 	}
 	if(retval) {
 		pm_errno = PM_ERR_PKG_CORRUPTED;
