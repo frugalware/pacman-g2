@@ -41,7 +41,6 @@ FORCE=0
 GENSHA1=0
 INSTALL=0
 DOWNLOAD=""
-NOLASTMOD=0
 NOBUILD=0
 NOCCACHE=0
 NODEPS=0
@@ -278,7 +277,6 @@ usage() {
 	echo "  -j <jobs>        Set MAKEFLAGS to \"-j<jobs>\" before building"
 	echo "  -k, --logging    Logging package build process"
 	echo "  -l <pkgname>     Download buildscripts before building"
-	echo "  -L, --nolastmod  Do not update the \"Last modified\" line"
 	echo "  -m, --nocolor    Disable colorized output messages"
 	echo "  -n, --nostrip    Do not strip binaries/libraries"
 	echo "  -o, --nobuild    Download and extract files only"
@@ -569,7 +567,7 @@ while [ "$#" -ne "0" ]; do
 		--nodeps)     NODEPS=1 ;;
 		--noextract)  NOEXTRACT=1 ;;
 		--install)    INSTALL=1 ;;
-		--nolastmod)  NOLASTMOD=1 ;;
+		--nolastmod)  ;; # we can remove this after Frugalware-0.6 is out
 		--force)      FORCE=1 ;;
 		--nostrip)    NOSTRIP=1 ;;
 		--nobuild)    NOBUILD=1 ;;
@@ -610,7 +608,7 @@ while [ "$#" -ne "0" ]; do
 					j) export MAKEFLAGS="-j$OPTARG" ;;
 					k) LOGGING=1 ;;
 					l) DOWNLOAD="$OPTARG" ;;
-					L) NOLASTMOD=1 ;;
+					L) ;; # see nolastmod
 					m) USE_COLOR="n" ;;
 					n) NOSTRIP=1 ;;
 					o) NOBUILD=1; CHROOT=0 ;;
@@ -1515,11 +1513,6 @@ fi
 if [ "${LOGGING}" == "0" ] ; then
 	msg "Removing build log..."
 	rm -f "${BUILDLOG}"
-fi
-
-# update last mod line
-if [ "$NOLASTMOD" = "0" ]; then
-	sed -i "s/^\(# Last modified: \).*/\1`date -R`/i" $BUILDSCRIPT
 fi
 
 msg "Finished making: $pkgname  (`date`)"
