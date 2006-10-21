@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.4.3         - bugfix in the "checking for conflicting files" progressbar
+	      - makepkg's -L option dropped, store the buildscripts under
+	        version control
+              - pacman.conf: config option: MaxTries, see the manpage!
+              - fixed java bindings to build with Sun JDK
 3.4.2         - bugfix in the bindings (void_to_long(), pointer_cast())
               - updated libalpm documentation
               - added java bindings
