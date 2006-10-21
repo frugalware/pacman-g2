@@ -2,7 +2,7 @@ top_srcdir = @top_srcdir@
 prefix = @prefix@
 
 CFLAGS = $(subst -Werror,,@CFLAGS@)
-ifneq $($(JAVA_HOME),/usr)
+ifneq ($(JAVA_HOME),/usr)
 CFLAGS += -I$(JAVA_HOME)/include/ -I$(JAVA_HOME)/include/linux/
 endif
 CFLAGS += -fno-strict-aliasing # see the swig docs
