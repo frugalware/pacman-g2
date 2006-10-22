@@ -72,9 +72,9 @@ libtoolize -f -c
 aclocal --force
 autoheader -f
 autoconf -f
-automake -a -c --gnu --foreign
 cp -f $(dirname $(which automake))/../share/automake/mkinstalldirs ./
 cp -f $(dirname $(which automake))/../share/gettext/config.rpath ./
+automake -a -c --gnu --foreign
 
 if [ "$1" == "--darcs" ]; then
 	rm -rf autom4te.cache
