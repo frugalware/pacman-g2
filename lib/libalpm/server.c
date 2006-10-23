@@ -308,7 +308,7 @@ int _alpm_downloadfiles_forreal(PMList *servers, const char *localpath,
 					pm_dlfnm[ptr-fn] = '\0';
 				}
 				ptr = strstr(fn, PM_EXT_PKG);
-				if(ptr && (ptr-fn) < 24) {
+				if(ptr && (ptr-fn) < 22) {
 					pm_dlfnm[ptr-fn] = '\0';
 				}
 				if(pm_dlfnm) {
