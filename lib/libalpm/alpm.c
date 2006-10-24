@@ -100,7 +100,7 @@ int alpm_initialize(char *root)
  */
 int alpm_release()
 {
-	PMList *i;
+	pmlist_t *i;
 
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
@@ -170,61 +170,13 @@ int alpm_get_option(unsigned char parm, long *data)
  */
 pmdb_t *alpm_db_register(char *treename)
 {
-	struct stat buf;
-	pmdb_t *db;
-	char path[PATH_MAX];
-
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, NULL));
 	ASSERT(treename != NULL && strlen(treename) != 0, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 	/* Do not register a database if a transaction is on-going */
 	ASSERT(handle->trans == NULL, RET_ERR(PM_ERR_TRANS_NOT_NULL, NULL));
 
-	if(strcmp(treename, "local") == 0) {
-		if(handle->db_local != NULL) {
-			_alpm_log(PM_LOG_WARNING, _("attempt to re-register the 'local' DB\n"));
-			RET_ERR(PM_ERR_DB_NOT_NULL, NULL);
-		}
-	} else {
-		PMList *i;
-		for(i = handle->dbs_sync; i; i = i->next) {
-			pmdb_t *sdb = i->data;
-			if(strcmp(treename, sdb->treename) == 0) {
-				_alpm_log(PM_LOG_DEBUG, _("attempt to re-register the '%s' databse, using existing\n"), sdb->treename);
-				return sdb;
-			}
-		}
-	}
-	
-	_alpm_log(PM_LOG_FLOW1, _("registering database '%s'"), treename);
-
-	/* make sure the database directory exists */
-	snprintf(path, PATH_MAX, "%s%s/%s", handle->root, handle->dbpath, treename);
-	if(stat(path, &buf) != 0 || !S_ISDIR(buf.st_mode)) {
-		_alpm_log(PM_LOG_FLOW1, _("database directory '%s' does not exist -- try creating it"), path);
-		if(_alpm_makepath(path) != 0) {
-			RET_ERR(PM_ERR_SYSTEM, NULL);
-		}
-	}
-
-	db = _alpm_db_new(handle->root, handle->dbpath, treename);
-	if(db == NULL) {
-		RET_ERR(PM_ERR_DB_CREATE, NULL);
-	}
-
-	_alpm_log(PM_LOG_DEBUG, _("opening database '%s'"), db->treename);
-	if(_alpm_db_open(db) == -1) {
-		_alpm_db_free(db);
-		RET_ERR(PM_ERR_DB_OPEN, NULL);
-	}
-
-	if(strcmp(treename, "local") == 0) {
-		handle->db_local = db;
-	} else {
-		handle->dbs_sync = _alpm_list_add(handle->dbs_sync, db);
-	}
-
-	return(db);
+	return(_alpm_db_register(treename, NULL));
 }
 
 /** Unregister a package database
@@ -320,7 +272,7 @@ int alpm_db_setserver(pmdb_t *db, char *url)
 			found = 1;
 		}
 	} else {
-		PMList *i;
+		pmlist_t *i;
 		for(i = handle->dbs_sync; i && !found; i = i->next) {
 			pmdb_t *sdb = i->data;
 			if(strcmp(db->treename, sdb->treename) == 0) {
@@ -350,7 +302,7 @@ int alpm_db_setserver(pmdb_t *db, char *url)
 }
 
 /** Update a package database
- * @param level if true, then forces the update, otherwise update only in case
+ * @param force if true, then forces the update, otherwise update only in case
  * the database isn't up to date
  * @param db pointer to the package database to update
  * @return 0 on success, > 0 on error (pm_errno is set accordingly), < 0 if up
@@ -358,9 +310,9 @@ int alpm_db_setserver(pmdb_t *db, char *url)
  */
 int alpm_db_update(int force, PM_DB *db)
 {
-	PMList *lp;
+	pmlist_t *lp;
 	char path[PATH_MAX];
-	PMList *files = NULL;
+	pmlist_t *files = NULL;
 	char newmtime[16] = "";
 	char lastupdate[16] = "";
 	int ret;
@@ -427,8 +379,13 @@ int alpm_db_update(int force, PM_DB *db)
 		if(_alpm_unpack(path, db->path, NULL)) {
 			RET_ERR(PM_ERR_SYSTEM, 1);
 		}
+
 		/* remove the .tar.gz */
+		/* aaron: let's not do this... we'll keep the DB around to be read for the
+		 * "new and improved" db routines
+		 
 		unlink(path);
+		*/
 	}
 
 	return(0);
@@ -453,7 +410,7 @@ pmpkg_t *alpm_db_readpkg(pmdb_t *db, char *name)
  * @param db pointer to the package database to get the package from
  * @return the list of packages on success, NULL on error
  */
-PMList *alpm_db_getpkgcache(pmdb_t *db)
+pmlist_t *alpm_db_getpkgcache(pmdb_t *db)
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
@@ -467,7 +424,7 @@ PMList *alpm_db_getpkgcache(pmdb_t *db)
  * @param name name of the package
  * @return the list of packages on success, NULL on error
  */
-PMList *alpm_db_whatprovides(pmdb_t *db, char *name)
+pmlist_t *alpm_db_whatprovides(pmdb_t *db, char *name)
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
@@ -496,7 +453,7 @@ pmgrp_t *alpm_db_readgrp(pmdb_t *db, char *name)
  * @param db pointer to the package database to get the group from
  * @return the list of groups on success, NULL on error
  */
-PMList *alpm_db_getgrpcache(pmdb_t *db)
+pmlist_t *alpm_db_getgrpcache(pmdb_t *db)
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
@@ -515,7 +472,7 @@ PMList *alpm_db_getgrpcache(pmdb_t *db)
 /** Get informations about a package.
  * @param pkg package pointer
  * @param parm name of the info to get
- * @return a char* on success (the value), NULL on error
+ * @return a void* on success (the value), NULL on error
  */
 void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 {
@@ -621,6 +578,8 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
  */
 int alpm_pkg_load(char *filename, pmpkg_t **pkg)
 {
+	_alpm_log(PM_LOG_FUNCTION, "enter alpm_pkg_load");
+
 	/* Sanity checks */
 	ASSERT(filename != NULL && strlen(filename) != 0, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
@@ -640,6 +599,8 @@ int alpm_pkg_load(char *filename, pmpkg_t **pkg)
  */
 int alpm_pkg_free(pmpkg_t *pkg)
 {
+	_alpm_log(PM_LOG_FUNCTION, "enter alpm_pkg_free");
+
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	/* Only free packages loaded in user space */
@@ -754,6 +715,7 @@ int alpm_pkg_vercmp(const char *ver1, const char *ver2)
 {
 	return(_alpm_versioncmp(ver1, ver2));
 }
+
 /** @} */
 
 /** @defgroup alpm_groups Group Functions
@@ -764,7 +726,7 @@ int alpm_pkg_vercmp(const char *ver1, const char *ver2)
 /** Get informations about a group.
  * @param grp group pointer
  * @param parm name of the info to get
- * @return a char* on success (the value), NULL on error
+ * @return a void* on success (the value), NULL on error
  */
 void *alpm_grp_getinfo(pmgrp_t *grp, unsigned char parm)
 {
@@ -793,7 +755,7 @@ void *alpm_grp_getinfo(pmgrp_t *grp, unsigned char parm)
 /** Get informations about a sync.
  * @param sync pointer
  * @param parm name of the info to get
- * @return a char* on success (the value), NULL on error
+ * @return a void* on success (the value), NULL on error
  */
 void *alpm_sync_getinfo(pmsyncpkg_t *sync, unsigned char parm)
 {
@@ -818,7 +780,7 @@ void *alpm_sync_getinfo(pmsyncpkg_t *sync, unsigned char parm)
  * @param db pointer to the package database to search in
  * @return the list of packages on success, NULL on error
  */
-PMList *alpm_db_search(pmdb_t *db)
+pmlist_t *alpm_db_search(pmdb_t *db)
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
@@ -837,7 +799,7 @@ PMList *alpm_db_search(pmdb_t *db)
 
 /** Get informations about the transaction.
  * @param parm name of the info to get
- * @return a char* on success (the value), NULL on error
+ * @return a void* on success (the value), NULL on error
  */
 void *alpm_trans_getinfo(unsigned char parm)
 {
@@ -936,7 +898,7 @@ int alpm_trans_addtarget(char *target)
  * of an error can be dumped (ie. list of conflicting files)
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int alpm_trans_prepare(PMList **data)
+int alpm_trans_prepare(pmlist_t **data)
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -953,7 +915,7 @@ int alpm_trans_prepare(PMList **data)
  * of an error can be dumped (ie. list of conflicting files)
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int alpm_trans_commit(PMList **data)
+int alpm_trans_commit(pmlist_t **data)
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -1016,7 +978,7 @@ int alpm_trans_release()
 /** Get informations about a dependency.
  * @param miss dependency pointer
  * @param parm name of the info to get
- * @return a char* on success (the value), NULL on error
+ * @return a void* on success (the value), NULL on error
  */
 void *alpm_dep_getinfo(pmdepmissing_t *miss, unsigned char parm)
 {
@@ -1046,7 +1008,7 @@ void *alpm_dep_getinfo(pmdepmissing_t *miss, unsigned char parm)
  */
 
 /** Get informations about a file conflict.
- * @param conflict pointer to get the info from
+ * @param conflict database conflict structure
  * @param parm name of the info to get
  * @return a void* on success (the value), NULL on error
  */
@@ -1118,7 +1080,7 @@ int alpm_logaction(char *fmt, ...)
  * @param list the list
  * @return the first element
  */
-PMList *alpm_list_first(PMList *list)
+pmlist_t *alpm_list_first(pmlist_t *list)
 {
 	return(list);
 }
@@ -1127,7 +1089,7 @@ PMList *alpm_list_first(PMList *list)
  * @param entry the list entry
  * @return the next element on success, NULL on error
  */
-PMList *alpm_list_next(PMList *entry)
+pmlist_t *alpm_list_next(pmlist_t *entry)
 {
 	ASSERT(entry != NULL, return(NULL));
 
@@ -1138,7 +1100,7 @@ PMList *alpm_list_next(PMList *entry)
  * @param entry the list entry
  * @return the data on success, NULL on error
  */
-void *alpm_list_getdata(PMList *entry)
+void *alpm_list_getdata(pmlist_t *entry)
 {
 	ASSERT(entry != NULL, return(NULL));
 
@@ -1149,7 +1111,7 @@ void *alpm_list_getdata(PMList *entry)
  * @param entry list to free
  * @return 0 on success, -1 on error
  */
-int alpm_list_free(PMList *entry)
+int alpm_list_free(pmlist_t *entry)
 {
 	ASSERT(entry != NULL, return(-1));
 
@@ -1162,7 +1124,7 @@ int alpm_list_free(PMList *entry)
  * @param list the list to count
  * @return number of entries on success, NULL on error
  */
-int alpm_list_count(PMList *list)
+int alpm_list_count(pmlist_t *list)
 {
 	ASSERT(list != NULL, return(-1));
 
@@ -1231,7 +1193,7 @@ int alpm_parse_config(char *file, alpm_cb_db_register callback, const char *this
 
 	if(this_section != NULL && strlen(this_section) > 0) {
 		strncpy(section, this_section, min(255, strlen(this_section)));
-		db = alpm_db_register(section);
+		db = _alpm_db_register(section, callback);
 	}
 
 	while(fgets(line, PATH_MAX, fp)) {
@@ -1254,24 +1216,10 @@ int alpm_parse_config(char *file, alpm_cb_db_register callback, const char *this
 				RET_ERR(PM_ERR_CONF_LOCAL, -1);
 			}
 			if(strcmp(section, "options")) {
-				PMList *i;
-				int found = 0;
-				for(i = handle->dbs_sync; i && !found; i = i->next) {
-					pmdb_t *db = i->data;
-					if(!strcmp(db->treename, section)) {
-						found = 1;
-					}
-				}
-				if(!found) {
-					db = alpm_db_register(section);
-					if(db == NULL) {
-						/* pm_errno is set by alpm_db_register */
-						return(-1);
-					}
-					/* start a new sync record */
-					if(callback) {
-						callback(section, db);
-					}
+				db = _alpm_db_register(section, callback);
+				if(db == NULL) {
+					/* pm_errno is set by alpm_db_register */
+					return(-1);
 				}
 			}
 		} else {
@@ -1422,11 +1370,6 @@ int alpm_parse_config(char *file, alpm_cb_db_register callback, const char *this
 						}
 					} else if (!strcmp(key, "PROXYPORT")) {
 						if(alpm_set_option(PM_OPT_PROXYPORT, (long)atoi(ptr)) == -1) {
-							/* pm_errno is set by alpm_set_option */
-							return(-1);
-						}
-					} else if (!strcmp(key, "MAXTRIES")) {
-						if(alpm_set_option(PM_OPT_MAXTRIES, (long)atoi(ptr)) == -1) {
 							/* pm_errno is set by alpm_set_option */
 							return(-1);
 						}

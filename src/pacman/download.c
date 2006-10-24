@@ -45,7 +45,7 @@ int offset;
 struct timeval t0, t;
 float rate;
 int xfered1;
-unsigned char eta_h, eta_m, eta_s;
+unsigned int eta_h, eta_m, eta_s;
 
 /* pacman options */
 extern config_t *config;
