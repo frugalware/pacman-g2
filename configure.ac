@@ -59,27 +59,27 @@ AC_ARG_ENABLE(man2html,
 
 dnl Help line for po4a
 AC_ARG_ENABLE(po4a,
-    AC_HELP_STRING([--disable-po4a], [Build localized manpages via po4a]),
+    AC_HELP_STRING([--disable-po4a], [Do not build localized manpages via po4a]),
     [wantpo4a=$enableval], [wantpo4a=yes])
 
 dnl Help line for doxygen
 AC_ARG_ENABLE(doxygen,
-    AC_HELP_STRING([--disable-doxygen], [Build API docs via Doxygen]),
+    AC_HELP_STRING([--disable-doxygen], [Do not build API docs via Doxygen]),
     [wantdoxygen=$enableval], [wantdoxygen=yes])
 
 dnl Help line for python
 AC_ARG_ENABLE(python,
-    AC_HELP_STRING([--disable-python], [Build Python bindings]),
+    AC_HELP_STRING([--disable-python], [Do not build Python bindings]),
     [wantpython=$enableval], [wantpython=yes])
 
 dnl Help line for perl
 AC_ARG_ENABLE(perl,
-    AC_HELP_STRING([--disable-perl], [Build Perl bindings]),
+    AC_HELP_STRING([--disable-perl], [Do not build Perl bindings]),
     [wantperl=$enableval], [wantperl=yes])
 
 dnl Help line for java
 AC_ARG_ENABLE(java,
-    AC_HELP_STRING([--disable-java], [Build Java bindings]),
+    AC_HELP_STRING([--disable-java], [Do not build Java bindings]),
     [wantjava=$enableval], [wantjava=yes])
 
 dnl Check for architecture
