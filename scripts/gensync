@@ -224,6 +224,7 @@ for file in `find -L $rootdir/* \( -wholename "$rootdir/_darcs" -prune \) -o \( 
 		unset subpkgs subdescs sublicense subreplaces subgroups subarchs
 		unset subdepends subrodepends subremoves subconflicts
 		unset subprovides subbackup subinstall suboptions subdescs_localized
+		for i in `set|grep ^_F_|sed 's/=.*//'`; do unset $i; done
 		cd `dirname $file`
 		startdir=`pwd`
 		source $file || return 1

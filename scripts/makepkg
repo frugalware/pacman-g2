@@ -691,6 +691,7 @@ fi
 unset pkgname pkgver pkgrel pkgdesc url license groups provides force
 unset replaces depends removes conflicts backup source install makedepends
 unset rodepends options pkdesc_localized
+for i in `set|grep ^_F_|sed 's/=.*//'`; do unset $i; done
 umask 0022
 
 # download buildscript if necessary

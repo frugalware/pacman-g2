@@ -262,6 +262,7 @@ if [ "$action" = "upd" ]; then
 		unset subpkgs subdescs sublicense subreplaces subgroups
 		unset subdepends subrodepends subremoves subconflicts suboptions
 		unset subprovides subbackup subinstall suboptions subdescs_localized
+		for i in `set|grep ^_F_|sed 's/=.*//'`; do unset $i; done
 		cd `dirname $option`
 		startdir=`pwd`
 		source $option || die "error parsing $option"
