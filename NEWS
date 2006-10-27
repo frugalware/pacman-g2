@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.4.4         - another fix for the java bindings to work with both the free
+                and the closed source java
+              - fix segfault on x86_64 if not using --noprogressbar
+              - fixed a buffer overflow during pacman -S
+              - fixed wrong description of configure switches
 3.4.3         - bugfix in the "checking for conflicting files" progressbar
 	      - makepkg's -L option dropped, store the buildscripts under
 	        version control
