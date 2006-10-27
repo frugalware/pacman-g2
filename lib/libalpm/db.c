@@ -189,7 +189,7 @@ pmdb_t *_alpm_db_register(char *treename, alpm_cb_db_register callback)
 			}
 		}
 	}
-
+	
 	_alpm_log(PM_LOG_FLOW1, _("registering database '%s'"), treename);
 
 	/* make sure the database directory exists */
