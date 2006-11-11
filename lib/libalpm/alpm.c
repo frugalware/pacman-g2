@@ -1367,6 +1367,11 @@ int alpm_parse_config(char *file, alpm_cb_db_register callback, const char *this
 							/* pm_errno is set by alpm_set_option */
 							return(-1);
 						}
+					} else if (!strcmp(key, "MAXTRIES")) {
+						if(alpm_set_option(PM_OPT_MAXTRIES, (long)atoi(ptr)) == -1) {
+							/* pm_errno is set by alpm_set_option */
+							return(-1);
+						}
 					} else {
 						RET_ERR(PM_ERR_CONF_BAD_SYNTAX, -1);
 					}
