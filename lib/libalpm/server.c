@@ -512,7 +512,7 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 
 char *_alpm_fetch_pkgurl(char *target)
 {
-	char spath[PATH_MAX];
+	char spath[PATH_MAX], lpath[PATH_MAX], lcache[PATH_MAX];
 	char url[PATH_MAX];
 	char *host, *path, *fn;
 	struct stat buf;
@@ -537,11 +537,13 @@ char *_alpm_fetch_pkgurl(char *target)
 		fn = path;
 		strcpy(spath, "/");
 	}
+	snprintf(lcache, PATH_MAX, "%s%s", handle->root, handle->cachedir);
+	snprintf(lpath, PATH_MAX, "%s%s/%s", handle->root, handle->cachedir, fn);
 
 	/* do not download the file if it exists in the current dir
 	 */
-	if(stat(fn, &buf) == 0) {
-		_alpm_log(PM_LOG_DEBUG, _(" %s is already in the current directory\n"), fn);
+	if(stat(lpath, &buf) == 0) {
+		_alpm_log(PM_LOG_DEBUG, _("%s is already in the cache\n"), fn);
 	} else {
 		pmserver_t *server;
 		pmlist_t *servers = NULL;
@@ -557,7 +559,7 @@ char *_alpm_fetch_pkgurl(char *target)
 		servers = _alpm_list_add(servers, server);
 
 		files = _alpm_list_add(NULL, fn);
-		if(_alpm_downloadfiles(servers, ".", files)) {
+		if(_alpm_downloadfiles(servers, lcache, files)) {
 			_alpm_log(PM_LOG_WARNING, _("failed to download %s\n"), target);
 			return(NULL);
 		}
@@ -568,9 +570,9 @@ char *_alpm_fetch_pkgurl(char *target)
 
 	/* return the target with the raw filename, no URL */
 	#if defined(__OpenBSD__) || defined(__APPLE__)
-	return(strdup(fn));
+	return(strdup(lpath));
 	#else
-	return(strndup(fn, PATH_MAX));
+	return(strndup(lpath, PATH_MAX));
 	#endif
 }
 
