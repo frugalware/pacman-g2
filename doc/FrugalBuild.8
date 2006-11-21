@@ -37,19 +37,21 @@ so we use SBUs instead of minutes as a unit.
 
 SBU is the Static Binutils Unit, which means the time "repoman merge binutils"
 takes on your machine. By default makepkg will print out how many seconds the
-build took. After you built binutils, you should update your /etc/makepkg.conf:
+build took. After you have built binutils, you should update your
+/etc/makepkg.conf:
 
 SBU="257"
 
 The line above means compiling binutils on your machine took 257 seconds.
 Starting from this point, makepkg will print out SBUs instead of seconds after
-successful builds, and this SBU value will be equal on anyone's machine.
+successful builds, and this SBU value will be equal on everyone's machine.
 
 If you wish to maintain the package, write your name or nick and e-mail
-address to the third line. If you don't plan to maintain the package just wrote
-the FrugalBuild, then write Contributor instead of Maintainer, and then someone
-can take it and will add his/her line later. Other lines like "Modified by" are
-not allowed. Use the darcs patch comments to mention others if you wish.
+address on the third line. If you just wrote the FrugalBuild don't plan to 
+maintain the package , then write Contributor instead of Maintainer, and then
+someone can take it and will add his/her line later. Other lines like
+"Modified by" are not allowed. Use the darcs patch comments to mention others
+if you wish.
 
 pkgname defines the package name. It should not contain any uppercase letters.
 The package version defines the upstream version, while the package release
@@ -60,49 +62,50 @@ you add a security patch, but then use 5wanda1, 5wanda2 and so on. This way
 the user can easily upgrade to pkgrel=5 which is in -current.
 
 pkgdesc is a short one-line description for the package. Usually taken from
-the project's homepage or manpage. Try to keep the lenght under 80 chars.
+the project's homepage or manpage. Try to keep the length under 80 chars.
 
 depends() is a bash array which defines the dependencies of the package.
-depends() means the other package is required for building and using the
-current one. If the dependency is runtime-only, then use rodepends(), if
+depends() lists those packages required for building and using the current
+one. If the dependency is runtime-only, then use rodepends(), if
 buildtime-only then use makedepends().
 
-The next line is a special Finclude commands which allows you to inherit
+The next line is a special Finclude command which allows you to inherit
 any directive from a FrugalBuild scheme. They can be found in the FST,
-under /source/include. The "util" scheme always included, since its
+under /source/include. The "util" scheme is always included, since its
 provided functions are used by almost every FrugalBuild. Look at the
 /source/include/sourceforge.sh, it provides the url, up2date and source()
 directives, so we don't have to specify them here. After the Finclude you
 can overwrite the inherited directives, for example define a custom up2date
-if the inherited one is not sutable for you.
+if the inherited one is not suitable for you.
 
-The groups() array's first element can't be omitted, and it should be a valid
+The groups() array's first element is mandatory, and it should be a valid
 "first group". This means it should be in a foo or foo-extra format, where foo
 or foo-extra is a dir under /source in the FST.
 
 The archs() array defines for which architectures the given package is
 available. If it's not available, it means that gensync will skip it when
-generating package databases. If you are not able to provide a binary package
-for a given arch, don't include that in archs()! For example, no matter if
-the package could be compiled in x86_64, if you haven't compiled it yourself,
-don't include it. If you're sure it won't be available on a given arch (for
-example it's written in x86 asm), then use !arch, for example !x86_64.
+generating the package databases. If you are not able to provide a binary
+package for a given arch, don't include that in archs()! For example, no matter
+if the package could be compiled in x86_64, if you haven't compiled it
+yourself, don't include it. If you're sure it won't be available on a given
+arch (for example it's written in x86 asm), then use !arch, for example
+!x86_64.
 
 The sha1sums() array can be generated with the makepkg -g command. Its purpose
-is to prevent compiling from wrong sources, especially when the build is
+is to prevent compiling from corrupt sources, especially when the build is
 automatic. Where it is available you can use signatures(), its goal is that
 you don't have to update it manually every time.
 
 The last line will be added automatically to the end of the FrugalBuild if the
 build() function used your $CFLAGS or $CXXFLAGS. This is handy if you want to
-cross-compile on a faster machine for a slower architecture. Until the package
+cross-compile on a faster machine for a slower architecture. If the package
 doesn't use our $CFLAGS we can't cross-compile it, so please try to avoid
 creating "unoptimized" packages. If the package doesn't contain any
 architecture-dependent file, then you can add this line manually as makepkg
 will not detect this.
 
 Finally we define a build() function that will build the package. If you don't
-want to do anything special, probably you don't have to specify anything, as
+want to do anything special, you probably don't have to specify anything, as
 the default build() (inherited from util.sh) will fit your needs. Even if you
 define a custom build(), probably you can re-use parts of the default build().
 For the list of special functions provided by util.sh and others refer to
@@ -110,10 +113,10 @@ the /source/include dir. Again, util.sh is included automatically, but you
 have to Finclude the others before using them!
 
 Once the package is successfully installed into the package root, \fImakepkg\fP
-will prepare some documentation. It will
-then strip debugging info from libraries and binaries and generate a meta-info
-file.  Finally, it will compress everything into a .fpm file and leave it
-in the directory you ran \fBmakepkg\fP from.
+will prepare some documentation. It will then strip debugging info from
+libraries and binaries and generate a meta-info file.  Finally, it will compress
+everything into a .fpm file and leave it in the directory from which you ran
+\fBmakepkg\fP.
 
 At this point you should have a package file in the current directory, named
 something like name-version-release-arch.fpm.  Done!
@@ -159,7 +162,7 @@ install=pkgname.install
 
 The install script does not need to be specified in the \fIsource\fP array.
 If you omit the install directive then makepkg will check for the
-$pkgname.install install and will use it if it's present.
+$pkgname.install script and will use it if it's present.
 
 You can find a scriptlet skeleton in the /docs/tech/skel/ directory, use it
 when creating new packages.
@@ -266,7 +269,7 @@ one could install all KDE packages by installing the 'kde' group.
 
 .TP
 .B archs \fI(array)\fP
-This array defines on which architectures the given package is avalibable.
+This array defines on which architectures the given package is available.
 If it's not available, that will mean that gensync will skip it when generating
 package databases.
 
@@ -297,7 +300,7 @@ to run).  Packages in this list should follow the same format as \fIdepends\fP.
 An array of packages that this package depends on to run (ie, not required to
 build). Generally \fIrodepends\fP should be avoided in favour of \fIdepends\fP
 except where this will create circular dependency chains. (For example building
-logrotate doesn't requires to have dcron installed.) Packages in this list
+logrotate doesn't require that dcron be installed.) Packages in this list
 should follow the same format as \fIdepends\fP.
 
 .TP
@@ -345,28 +348,29 @@ modifying the host system, and we use a prefix or DESTDIR directive to install
 everything to a directory and not under to the host system. This is good, but
 not enough.
 
-This system lacks of the ability to control the list of installed packages
-during the build on the system of a packager, the given compiled package maybe
-linked itself to an extra installed library. This way we can't really control
-the list of real dependencies. For example if libquicktime is installed from
-source on my system, then mplayer or any other program can link itself to that,
-and so that depends() will be incorrect. Or if I have the closed source binary
-NVidia drivers installed, some programs link tho NVidia's libraries.
+This system lacks the ability to control the list of installed packages
+during the build on the system of a packager. Because of this, the given
+compiled package may link itself to an extra installed library. This way we
+can't really control the list of real dependencies. For example if libquicktime
+is installed from source on my system, then mplayer or any other program can
+link itself to that, and so that depends() will be incorrect. Or if I have the
+closed source binary NVidia drivers installed, some programs link to NVidia's
+libraries.
 
-Of course there is a sollution to avoid this, to use a real chroot instead of a
-simple fakeroot. What is this means? The followings:
+Of course there is a solution to avoid this, to use a real chroot instead of a
+simple fakeroot. What does this mean? The following:
 
 When starting the build, a core chroot system is installed under /var/chroot.
 (Of course you can change this value under /etc/makepkg.conf.) The core system
 contains ~60 packages which are must installed to build any package in
 a chrooted environment. These packages (for example gcc, kernel-headers, make)
 should not be mentioned in makedepends(). 'pacman -Sg core chroot-core
-devel-core' should show you the actial list. (We try to change this list rarely
+devel-core' should show you the actual list. (We try to change this list rarely
 of course.)
 
 When you start building with makepkg -R, pacman will install these packages to
 /var/chroot if necessary. This will produce a fully "clean" Frugalware system,
-that consits of base packages only. This /var/chroot is fully separated from
+that consists of base packages only. This /var/chroot is fully separated from
 the host system so that this will solve the problems mentioned above.
 (Linking to a library installed from source, etc.)
 
@@ -376,14 +380,14 @@ capable to build the specified package in it without any unnecessary package
 installed, fully separated from the host system.
 
 After this the chroot should be cleaned up which means the removal of the
-installed depends() and makedepends(). This ensures us not to build from
-scratch the core chroot.
+installed depends() and makedepends(). This ensures you do not have to build
+the core chroot from scratch.
 
 This way we can prevent lots of dependency problems and it is even possible to
-build packages for a different Frugalware version. This is quite efficent when
+build packages for a different Frugalware version. This is quite efficient when
 building security updates or fixing critical bugs in the -stable tree.
 
-If the build is failed, the working directory will not be deleted, you can find
+If the build fails, the working directory will not be deleted, you can find
 it under /var/chroot/var/tmp/fst. Later if you want to clean your chroot
 (delete the working directory and remove unnecessary packages) you can use 'makepkg -CR'.
 
@@ -392,7 +396,7 @@ the -R option.
 
 .SH Package splitting
 
-Package splitting means moving out a list of specifed files to subpackages (like
+Package splitting means moving out a list of specified files to subpackages (like
 libmysql out of mysql) and then defining the properties of subpackages.
 
 NOTE: if you create several subpackages, maintaining those packages will
@@ -401,7 +405,7 @@ Especially, if you split out a library, then don't move the headers to the
 package just to speed up building with a few seconds!
 
 The \fBsubpkgs()\fP array is to define the pkgnames of the subpackages. From
-now all the directives has their subfoo equivalent:
+now all the directives have a subfoo equivalent:
 .nf
 pkgname -> subpkgs()
 pkgdesc -> subdescs()
