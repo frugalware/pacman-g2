@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.4.5         - added more santiy check to the config parser
+              - the scripts now handle the _F_foo variables properly
+              - bugfix for the MaxTries option
+	      - pacman -U <url> now downloads the packages to the package cache
+              - small fixes in the FrugalBuild manpage
 3.4.4         - another fix for the java bindings to work with both the free
                 and the closed source java
               - fix segfault on x86_64 if not using --noprogressbar
