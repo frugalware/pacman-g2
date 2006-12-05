@@ -781,9 +781,6 @@ if ! in_array $CARCH ${archs[@]}; then
 	error "$pkgname is not available on $CARCH."
 	exit 1
 fi
-if [ "$install" -a ! -f "$install" ]; then
-	warning "install scriptlet ($install) does not exist."
-fi
 
 if [ -f $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm -a "$FORCE" = "0" -a "$GENSHA1" = "0" ]; then
 	if [ "$INSTALL" = "1" ]; then
