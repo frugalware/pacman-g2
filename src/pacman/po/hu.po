@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: hu\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-12-19 00:25+0100\n"
+"POT-Creation-Date: 2006-12-18 23:25+0100\n"
 "PO-Revision-Date: 2006-11-21 12:52+0100\n"
 "Last-Translator: Miklos Vajna <vmiklos@frugalware.org>\n"
 "Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"
@@ -24,7 +24,7 @@ msgid ""
 "       you can remove %s%s\n"
 msgstr ""
 "       ha biztos, hogy nem fut egy csomagkezelõ, abban az esetben\n"
-"       eltávolíthatja a %s%s fájlt\n"
+"       eltávolíthatja a(z) %s%s fájlt\n"
 
 #. and add targets to it
 #: ../add.c:76
@@ -34,7 +34,7 @@ msgstr "csomag adatainak betöltése... "
 #: ../add.c:79 ../remove.c:92
 #, c-format
 msgid "failed to add target '%s' (%s)\n"
-msgstr "nem sikerült a '%s' célt hozzáadni (%s)\n"
+msgstr "nem sikerült a(z) '%s' célt hozzáadni (%s)\n"
 
 #: ../add.c:84
 msgid "done."
@@ -63,7 +63,7 @@ msgstr "%s%s: létezik ebben: \"%s\" (cél) és ebben: \"%s\" (cél)"
 #: ../add.c:128 ../sync.c:675
 #, c-format
 msgid "%s: %s%s exists in filesystem"
-msgstr "%s: a %s%s létezik a fájlrendszerben"
+msgstr "%s: a(z) %s%s létezik a fájlrendszerben"
 
 #: ../add.c:136 ../sync.c:683 ../sync.c:690
 msgid ""
@@ -90,7 +90,7 @@ msgstr "nem sikerült lezárni a tranzakciót (%s)\n"
 
 #: ../deptest.c:77
 msgid "memory allocation failure\n"
-msgstr "memória allokálási hiba\n"
+msgstr "memóriafoglalási hiba\n"
 
 #: ../deptest.c:87
 #, c-format
@@ -115,7 +115,7 @@ msgstr "ütközik a következõvel: %s"
 #: ../deptest.c:140 ../deptest.c:158
 #, c-format
 msgid "could not release transaction (%s)"
-msgstr "nem sikerült a tranzakciót lezárni (%s)"
+msgstr "nem sikerült lezárni a tranzakciót (%s)"
 
 #: ../list.c:143 ../list.c:171
 #, c-format
@@ -281,7 +281,7 @@ msgstr "Leírás         : "
 #: ../package.c:110
 #, c-format
 msgid "error calculating md5sum or sha1sum for %s\n"
-msgstr "hiba a %s md5 vagy sha1 ellenõrzõ összegének számítása közben\n"
+msgstr "hiba a(z) %s md5 vagy sha1 ellenõrzõösszegének számítása közben\n"
 
 #: ../package.c:115 ../package.c:117
 #, c-format
@@ -372,7 +372,7 @@ msgstr ""
 #: ../package.c:189
 #, c-format
 msgid "No changelog available for '%s'.\n"
-msgstr "Nem áll rendelkezésre változási napló a '%s' csomaghoz.\n"
+msgstr "Nem áll rendelkezésre változási napló a(z) '%s' csomaghoz.\n"
 
 #: ../pacman.c:96
 #, c-format
@@ -683,7 +683,7 @@ msgstr "csak egy mûvelet hajtható végre egyszerre\n"
 
 #: ../pacman.c:485
 msgid "you cannot perform this operation unless you are root.\n"
-msgstr "nem hajtható végre ez a mûvelet hacsak nem rendszergazda.\n"
+msgstr "nem hajtható végre ez a mûvelet, hacsak nem rendszergazda.\n"
 
 #: ../pacman.c:509
 #, c-format
@@ -771,25 +771,25 @@ msgstr "nem sikerült regisztrálni a 'local' adatbázist (%s)\n"
 
 #: ../pacman.c:600
 msgid "no targets specified (use -h for help)\n"
-msgstr "nincs megadva egyetlen cél se (használja a '-h'-t segítségért)\n"
+msgstr "nem adott meg egyetlen célt sem (használja a '-h'-t segítségért)\n"
 
 #: ../pacman.c:613
 msgid "no operation specified (use -h for help)\n"
-msgstr "nincs megadva egyetlen mûvelet se (használja a '-h'-t segítségért)\n"
+msgstr "nem adott meg egyetlen mûveletet sem (használja a '-h'-t segítségért)\n"
 
 #: ../query.c:55
 msgid "no file was specified for --owns\n"
-msgstr "nincs megadva fájl a --owns számára\n"
+msgstr "nem adott meg fájlt a --owns számára\n"
 
 #: ../query.c:60
 #, c-format
 msgid "%s is not a file.\n"
-msgstr "a %s nem egy fájl.\n"
+msgstr "a(z) %s nem fájl.\n"
 
 #: ../query.c:77
 #, c-format
 msgid "%s is owned by %s %s\n"
-msgstr "a %s fájlt a %s %s tartalmazza\n"
+msgstr "a(z) %s fájlt a(z) %s %s tartalmazza\n"
 
 #: ../query.c:85
 #, c-format
@@ -807,18 +807,18 @@ msgstr "a \"%s\" csoport nem található\n"
 
 #: ../query.c:173
 msgid "no package file was specified for --file\n"
-msgstr "nincs megadva fájl a --file számára\n"
+msgstr "nem adott meg csomagfájlt a --file számára\n"
 
 #: ../query.c:177
 #, c-format
 msgid "failed to load package '%s' (%s)\n"
-msgstr "nem sikerült betölteni a '%s' csomagot (%s)\n"
+msgstr "nem sikerült betölteni a(z) '%s' csomagot (%s)\n"
 
 #. something weird happened
 #: ../query.c:215 ../query.c:257
 #, c-format
 msgid "package \"%s\" not found\n"
-msgstr "a \"%s\" csomag nem található\n"
+msgstr "a(z) \"%s\" csomag nem található\n"
 
 #: ../remove.c:64 ../sync.c:473
 #, c-format
@@ -832,7 +832,7 @@ msgstr "    Eltávolítja a teljes tartalmat? [I/n] "
 #: ../remove.c:68
 #, c-format
 msgid ":: Remove %s from group %s? [Y/n] "
-msgstr ":: Eltávolítja a %s-t a %s csoportból? [I/n] "
+msgstr ":: Eltávolítja a(z) %s csomagot a(z) %s csoportból? [I/n] "
 
 #: ../remove.c:81 ../sync.c:393 ../sync.c:432
 #, c-format
@@ -842,7 +842,7 @@ msgstr "nem sikerült inicializálni a tranzakciót (%s)\n"
 #: ../remove.c:107
 #, c-format
 msgid "  %s: is required by %s\n"
-msgstr "  %s: igényli a %s\n"
+msgstr "  %s: igényli a(z) %s\n"
 
 #: ../remove.c:129
 msgid ""
@@ -908,17 +908,17 @@ msgstr "nem sikerült frissíteni a következõt: %s (%s)\n"
 #: ../sync.c:173
 #, c-format
 msgid " %s is up to date\n"
-msgstr " a %s naprakész\n"
+msgstr " a(z) %s naprakész\n"
 
 #: ../sync.c:282
 #, c-format
 msgid "package \"%s\" was not found.\n"
-msgstr "a \"%s\" csomag nem található.\n"
+msgstr "a(z) \"%s\" csomag nem található.\n"
 
 #: ../sync.c:320
 #, c-format
 msgid "repository \"%s\" was not found.\n"
-msgstr "a \"%s\" repó nem található.\n"
+msgstr "a(z) \"%s\" repó nem található.\n"
 
 #. grab a fresh package list
 #: ../sync.c:367
@@ -960,7 +960,7 @@ msgstr ":: Elõször csak a pacman frissítése? [I/n] "
 #: ../sync.c:440 ../sync.c:461
 #, c-format
 msgid "could not add target '%s': %s\n"
-msgstr "nem sikerült hozzáadni a '%s' célt: %s\n"
+msgstr "nem sikerült hozzáadni a(z) '%s' célt: %s\n"
 
 #: ../sync.c:479
 msgid ":: Install whole content? [Y/n] "
@@ -969,13 +969,13 @@ msgstr ":: A teljes tartalom telepítése? [I/n] "
 #: ../sync.c:486
 #, c-format
 msgid ":: Install %s from group %s? [Y/n] "
-msgstr ":: Telepíti a %s-t a %s csoportból? [I/n] "
+msgstr ":: Telepíti a(z) %s csomagot a(z) %s csoportból? [I/n] "
 
 #: ../sync.c:509
 #, c-format
 msgid "could not add target '%s': not found in sync db\n"
 msgstr ""
-"nem sikerült hozzáadni a '%s' célt: nem található a távoli adatbázisban\n"
+"nem sikerült hozzáadni a(z) '%s' célt: nem található a távoli adatbázisban\n"
 
 #: ../sync.c:528
 msgid "requires"
@@ -983,7 +983,7 @@ msgstr "igényli a következõt:"
 
 #: ../sync.c:528
 msgid "is required by"
-msgstr "igényli a"
+msgstr "igényli a(z)"
 
 #: ../sync.c:605
 msgid ""
@@ -1108,7 +1108,7 @@ msgid ""
 ":: Retrieving packages from %s...\n"
 msgstr ""
 "\n"
-":: Csomagok letöltése a %s-bõl...\n"
+":: Csomagok letöltése a(z) %s repóból...\n"
 
 #: ../trans.c:166
 msgid "] 100%    LOCAL "
@@ -1118,22 +1118,22 @@ msgstr "] 100%    HELYI "
 #, c-format
 msgid ":: %s requires %s, but it is in IgnorePkg. Install anyway? [Y/n] "
 msgstr ""
-":: a %s igényli a %s-t, de az az IgnorePkg része. Mégis telepíti? [I/n] "
+":: a(z) %s igényli a(z) %s csomagot, de az az IgnorePkg része. Mégis telepíti? [I/n] "
 
 #: ../trans.c:198
 #, c-format
 msgid ":: %s is designated as a HoldPkg.  Remove anyway? [Y/n] "
-msgstr ":: a %s HoldPkgnak lett jelölve. Biztosan eltávolítja? [I/n] "
+msgstr ":: a(z) %s HoldPkgnak lett jelölve. Biztosan eltávolítja? [I/n] "
 
 #: ../trans.c:211
 #, c-format
 msgid ":: Replace %s with %s/%s? [Y/n] "
-msgstr ":: Lecseréli a %s-t erre: %s/%s? [I/n] "
+msgstr ":: Lecseréli a(z) %s csomagot erre: %s/%s? [I/n] "
 
 #: ../trans.c:226
 #, c-format
 msgid ":: %s conflicts with %s. Remove %s? [Y/n] "
-msgstr ":: a %s ütközik a következõvel: %s. Eltávolítja a %s-t? [I/n] "
+msgstr ":: a(z) %s ütközik a következõvel: %s. Eltávolítja a(z) %s csomagot? [I/n] "
 
 #: ../trans.c:242
 #, c-format
@@ -1148,7 +1148,7 @@ msgstr ":: %s-%s: a helyi verzió naprakész. Mégis frissíti? [I/n] "
 #: ../trans.c:278
 #, c-format
 msgid ":: Archive %s is corrupted. Do you want to delete it? [Y/n] "
-msgstr ":: A %s sérült. Kívánja törölni? [I/n] "
+msgstr ":: A(z) %s sérült. Kívánja törölni? [I/n] "
 
 #: ../trans.c:294
 msgid "installing"
@@ -1160,7 +1160,7 @@ msgstr "frissítés:"
 
 #: ../trans.c:296
 msgid "removing"
-msgstr "eltávolíás:"
+msgstr "eltávolítás:"
 
 #: ../trans.c:297
 msgid "checking for file conflicts"
@@ -1169,7 +1169,7 @@ msgstr "fájlütközések vizsgálata"
 #: ../util.c:177
 #, c-format
 msgid "failed to allocated %d bytes\n"
-msgstr "nem sikerült allokálni %d bájtot\n"
+msgstr "nem sikerült lefoglalni %d bájtot\n"
 
 #~ msgid "Size (uncompressed):%ld\n"
 #~ msgstr "MÃ©ret (tÃ¶mÃ¶rÃ­tetlen): %ld\n"
