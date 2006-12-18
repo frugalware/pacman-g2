@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: hu\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-11-21 13:20+0100\n"
+"POT-Creation-Date: 2006-12-19 00:25+0100\n"
 "PO-Revision-Date: 2006-11-21 13:45+0100\n"
 "Last-Translator: VMiklos <vmiklos@frugalware.org>\n"
 "Language-Team:  <hu@li.org>\n"
@@ -308,7 +308,8 @@ msgstr "adatbázis bezárása: '%s'"
 
 #: ../alpm.c:294
 #, c-format
-msgid "adding new server to database '%s': protocol '%s', server '%s', path '%s'"
+msgid ""
+"adding new server to database '%s': protocol '%s', server '%s', path '%s'"
 msgstr ""
 "új szerver hozzáadása a(z) '%s' adatbázishoz: protokoll '%s', szerver '%s', "
 "út '%s'"
@@ -631,7 +632,8 @@ msgstr "a %s szolgáltatja a %s függõséget -- kihagyás"
 
 #: ../deps.c:613
 #, c-format
-msgid "cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"
+msgid ""
+"cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"
 msgstr ""
 "nem sikerült a függõségek feloldása a \"%s\" számára (nem található a \"%s\" "
 "a csomagok között)"
@@ -1262,7 +1264,9 @@ msgstr "nem sikerült létrehozni a csomag gyorsítótárat, a /tmp használata\n"
 
 #: ../sync.c:815
 msgid "warning: couldn't create package cache, using /tmp instead"
-msgstr "figyelmeztetés: nem sikerült létrehozni a csomag gyorsítótárat, a /tmp használata"
+msgstr ""
+"figyelmeztetés: nem sikerült létrehozni a csomag gyorsítótárat, a /tmp "
+"használata"
 
 #: ../sync.c:818
 #, c-format
@@ -1277,7 +1281,8 @@ msgstr "nem sikerült néhány fájlt letölteni innen: %s\n"
 #: ../sync.c:854 ../sync.c:866
 #, c-format
 msgid "can't get md5 or sha1 checksum for package %s\n"
-msgstr "sikertelen az md5 vagy sha1 ellenõrzõ összeg elérése a %s csomag számára\n"
+msgstr ""
+"sikertelen az md5 vagy sha1 ellenõrzõ összeg elérése a %s csomag számára\n"
 
 #: ../sync.c:885
 #, c-format
@@ -1407,4 +1412,3 @@ msgstr "nem sikerült eltávolítani a %s ideiglenes könyvtárat"
 #, c-format
 msgid "check_freespace: total pkg size: %lld, disk space: %lld"
 msgstr "check_freespace: teljes csomagméret: %lld, lemezterület: %lld"
-
