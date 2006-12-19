@@ -2,11 +2,11 @@
 # Compiling Time: 0.10 SBU
 # Maintainer: VMiklos <vmiklos@frugalware.org>
 
-pkgname=pacman
+pkgname=pacman-g2
 pkgver=@PACKAGE_VERSION@
 pkgrel=1
 pkgdesc="A .tar.bz2 based package manager with dependency support"
-url="http://ftp.frugalware.org/pub/other/pacman/"
+url="http://ftp.frugalware.org/pub/other/pacman-g2/"
 backup=(etc/{makepkg,pacman}.conf etc/pacman.d/{frugalware,frugalware-current})
 depends=('libarchive>=1.2.51')
 makedepends=('doxygen')
@@ -16,4 +16,4 @@ up2date="@PACKAGE_VERSION@"
 source=($url/releases/$pkgname-$pkgver.tar.gz)
 sha1sums=('@SHA1SUM@')
 
-# optimalization ok
+# optimization ok
