@@ -1,15 +1,15 @@
 README
 ======
 
-pactest is a test suite for the pacman package manager.
+pactest is a test suite for the pacman-g2 package manager.
 
-It has a rather high level view of operations performed by pacman: it
+It has a rather high level view of operations performed by pacman-g2: it
 automatically creates a test environment based on a test case file 
-description, the run pacman, and finally check the results of test according 
+description, the run pacman-g2, and finally check the results of test according 
 to a set of rules defined in the test case.
 
 It is written in Python and makes available most of what can be found in 
-pacman's code to create pacman packages or read and write databases entries.
+pacman-g2's code to create pacman-g2 packages or read and write databases entries.
 
 Each test case is defined in a separate file that is sourced in order to set 
 the environment.
@@ -18,13 +18,13 @@ pactest creates the environment in the subdirectory "root" created in the
 current directory.
 The following directory structure is used:
   - var/lib/pacman: databases path (local and sync ones)
-  - etc/pacman.conf for pacman configuration file
+  - etc/pacman.conf for pacman-g2 configuration file
   - var/cache/pkg: sync packages cache
   - var/log/pactest.log: log file
   - var/pub: location for pseudo sync repositories
-  - tmp: hold all local package archives (to be used with pacman -A or -U)
+  - tmp: hold all local package archives (to be used with pacman-g2 -A or -U)
  
-Note: the logfile is used to capture all pacman outputs.
+Note: the logfile is used to capture all pacman-g2 outputs.
 
 Test case example:
 	self.description = "Install a package"
@@ -34,7 +34,7 @@ Test case example:
 	           "usr/man/man1/dummy.1"]
 	self.addpkg(p)
 
-	self.args = "-A dummy-1.0-1.pkg.tar.gz"
+	self.args = "-A dummy-1.0-1.fpm"
 
 	self.addrule("PACMAN_RETCODE=0")
 	self.addrule("PKG_EXIST=dummy")
@@ -42,9 +42,9 @@ Test case example:
 		self.addrule("FILE_EXIST=%s" % f)
 
 Basically, the above test case will try to install a package (dummy-1.0-3), 
-including two files, from a local archive, by calling "pacman -A"
+including two files, from a local archive, by calling "pacman-g2 -A"
 Upon completion, it checks that:
-  - pacman returned no error code,
+  - pacman-g2 returned no error code,
   - a "dummy" entry exists in the "local" database
   - all files from the package exist in the filesystem.
 
@@ -55,8 +55,8 @@ Installation
 Simply extract the pactest tarball, jump into the newly created directory and 
 run pactest.py.  See the usage section below.
 
-Remark: pacman restrictions regarding fakeroot must be disabled.
-It can be done by configuring pacman with the --disable-fakeroot flag:
+Remark: pacman-g2 restrictions regarding fakeroot must be disabled.
+It can be done by configuring pacman-g2 with the --disable-fakeroot flag:
 	./configure --disable-fakeroot
 
 Usage
@@ -88,7 +88,7 @@ standard output during test execution.
 	args
 	----
 
-A string of arguments that are passed to the pacman binary when the test is 
+A string of arguments that are passed to the pacman-g2 binary when the test is 
 run.
 
 Example:
@@ -97,7 +97,7 @@ Example:
 	option
 	------
 
-A dictionnary that holds the data used in the pacman configuration file.
+A dictionnary that holds the data used in the pacman-g2 configuration file.
 It has 3 keys, each one of them pointing at a list of strings:
   - noupgrade
   - noextract
@@ -128,7 +128,7 @@ Packages
 ========
 
 The test case file description shall define a number of packages that can be 
-used to either populate a database, or to feed pacman with data needed during 
+used to either populate a database, or to feed pacman-g2 with data needed during 
 its execution.
 
 This can be achieved by creating pmpkg objects, with the following constructor:
@@ -141,7 +141,7 @@ Example:
 	pkg1 = pmpkg("dummy", "2.1-1")
 	pkg2 = pmpkg("foobar")
 
-All fields from a pacman package can be set and modified directly with no 
+All fields from a pacman-g2 package can be set and modified directly with no 
 methods to access them.
 Note: some fields are automatically set by pactest and should preferably not 
 be modified by hand (i.e. "md5sum", "size", or "csize").
@@ -179,7 +179,7 @@ a new database new is given.
 package is an existing pmpkg object.
 It creates a package archive based on the given object.  The resulting archive 
 is located in the temporary directory of the test environment, ready to be 
-supplied to pacman for test purposes.
+supplied to pacman-g2 for test purposes.
 
 
 Files
@@ -218,7 +218,7 @@ Example:
 	newpkg.files = ["bin/dummy*"]
 	self.addpkg(newpkg)
 
-	self.args = "-U dummy-1.0-2.pkg.tar.gz"
+	self.args = "-U dummy-1.0-2.fpm"
 
 In this case, package "lpkg" will install a file "bin/dummy" with "bin/dummy\n" 
 as its content.  Upon package upgrade, newpkg will provide a file named 
@@ -264,9 +264,9 @@ Possible rules are:
   PACMAN_RETCODE=value
   PACMAN_OUTPUT=value
 
-For the RETCODE one, pactest will compare pacman return code with the value
+For the RETCODE one, pactest will compare pacman-g2 return code with the value
 provided as an item.
-For the OUTPUT one, pactest will grep pacman outputs for the given value.
+For the OUTPUT one, pactest will grep pacman-g2 outputs for the given value.
 
 Note: PACMAN_OUTPUT should not be used. Pacman outputs are likely to change 
 from one release to another, so that it's reliability is quite low.

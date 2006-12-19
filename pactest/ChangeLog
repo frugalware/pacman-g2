@@ -1,12 +1,12 @@
 
 Release 0.3 (pending)
 -------------
-- added detection for fakeroot enabled pacman binaries and leftover lock
+- added detection for fakeroot enabled pacman-g2 binaries and leftover lock
 and core files.
 - fixed number format for statistics line
 - display elapsed times for each test cases
 - added COPYING file
-- added patch to disable fakeroot support for pacman 2.9.x
+- added patch to disable fakeroot support for pacman
 - added "--gdb" command line options to ease debugging (as suggested by VMiklos)
 - added "--valgrind" option to run tests through valgrind memory checker
 - added more test cases

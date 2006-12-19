@@ -31,7 +31,7 @@ class pmenv:
 	def __init__(self, root = "root"):
 		self.root = os.path.abspath(root)
 		self.pacman = {
-			"bin": "pacman",
+			"bin": "pacman-g2",
 			"debug": 0,
 			"gdb": 0,
 			"valgrind": 0

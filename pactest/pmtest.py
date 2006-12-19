@@ -177,11 +177,11 @@ class pmtest:
 		"""
 
 		if os.path.isfile(PM_LOCK):
-			print "\tERROR: another pacman session is on-going -- skipping"
+			print "\tERROR: another pacman-g2 session is on-going -- skipping"
 			return
 
 		print "==> Running test"
-		vprint("\tpacman %s" % self.args)
+		vprint("\tpacman-g2 %s" % self.args)
 
 		cmd = ["fakeroot"]
 		if pacman["gdb"]:
@@ -197,7 +197,7 @@ class pmtest:
 			cmd.append(">%s 2>&1" % os.path.join(self.root, LOGFILE))
 		dbg(" ".join(cmd))
 
-		# Change to the tmp dir before running pacman, so that local package
+		# Change to the tmp dir before running pacman-g2, so that local package
 		# archives are made available more easily.
 		curdir = os.getcwd()
 		tmpdir = os.path.join(self.root, TMPDIR)
@@ -215,18 +215,18 @@ class pmtest:
 		dbg("retcode = %s" % self.retcode)
 		os.chdir(curdir)
 
-		# Check if pacman failed because of bad permissions
+		# Check if pacman-g2 failed because of bad permissions
 		if self.retcode \
 		   and grep(os.path.join(self.root, LOGFILE),
 		            "you cannot perform this operation unless you are root"):
-			print "\tERROR: pacman support for fakeroot is not disabled"
+			print "\tERROR: pacman-g2 support for fakeroot is not disabled"
 		# Check if the lock is still there
 		if os.path.isfile(PM_LOCK):
 			print "\tERROR: %s not removed" % PM_LOCK
 			os.unlink(PM_LOCK)
 		# Look for a core file
 		if os.path.isfile(os.path.join(self.root, TMPDIR, "core")):
-			print "\tERROR: pacman dumped a core file"
+			print "\tERROR: pacman-g2 dumped a core file"
 
 	def check(self):
 		"""

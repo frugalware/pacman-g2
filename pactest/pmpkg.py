@@ -29,7 +29,7 @@ from util import *
 class pmpkg:
 	"""Package object.
 	
-	Object holding data from a pacman package.
+	Object holding data from a pacman-g2 package.
 	"""
 
 	def __init__(self, name, version = "1.0-1", arch = 'i686'):
