@@ -2,14 +2,14 @@
 # /etc/pacman.conf
 #
 
-# See the pacman manpage for option directives
+# See the pacman-g2 manpage for option directives
 
 #
 # GENERAL OPTIONS
 #
 [options]
-LogFile     = /var/log/pacman.log
-HoldPkg     = pacman glibc bash coreutils chkconfig
+LogFile     = /var/log/pacman-g2.log
+HoldPkg     = pacman-g2 glibc bash coreutils chkconfig
 #XferCommand = /usr/bin/wget --passive-ftp -c -O %o %u
 
 # If you use the -current tree, you should disable the -stable
@@ -21,7 +21,7 @@ Include = /etc/pacman.d/frugalware-current
 # -stable
 #Include = /etc/pacman.d/frugalware
 
-# An example of a custom package repository.  See the pacman manpage for
+# An example of a custom package repository.  See the pacman-g2 manpage for
 # tips on creating your own repositories.
 #[custom]
 #Server = file:///home/custompkgs
