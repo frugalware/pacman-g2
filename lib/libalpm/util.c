@@ -56,7 +56,7 @@
 #endif
 #include <regex.h>
 
-/* pacman */
+/* pacman-g2 */
 #include "log.h"
 #include "list.h"
 #include "trans.h"

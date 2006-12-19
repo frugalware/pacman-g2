@@ -24,7 +24,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
-/* pacman */
+/* pacman-g2 */
 #include "list.h"
 
 pmlist_t *_alpm_list_new()

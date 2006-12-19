@@ -27,7 +27,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <libintl.h>
-/* pacman */
+/* pacman-g2 */
 #include "log.h"
 #include "alpm.h"
 #include "list.h"

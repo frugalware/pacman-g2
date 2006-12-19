@@ -35,7 +35,7 @@
 #include <limits.h> /* PATH_MAX */
 #include <stdarg.h>
 #include <libintl.h>
-/* pacman */
+/* pacman-g2 */
 #include "log.h"
 #include "error.h"
 #include "versioncmp.h"
@@ -1050,7 +1050,7 @@ int alpm_logaction(char *fmt, ...)
 	and if called internally:
 		ALPM: <the library log>
 	Moreover, the frontend should be able to choose its prefix (USER by default?):
-		pacman: "PACMAN"
+		pacman-g2: "PACMAN-g2"
 		kpacman: "KPACMAN"
 		...
 	It allows to share the log file between several frontends and to actually 

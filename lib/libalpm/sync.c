@@ -33,7 +33,7 @@
 #endif
 #include <dirent.h>
 #include <libintl.h>
-/* pacman */
+/* pacman-g2 */
 #include "log.h"
 #include "error.h"
 #include "list.h"
@@ -514,14 +514,14 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 					_alpm_log(PM_LOG_DEBUG, _("package '%s' provides its own conflict"), miss->target);
 					if(local) {
 						/* nothing to do for now: it will be handled later
-						 * (not the same behavior as in pacman 2.x) */
+						 * (not the same behavior as in pacman) */
 					} else {
 						char *rmpkg = NULL;
 						int target, depend;
 						/* hmmm, depend.name isn't installed, so it must be conflicting
 						 * with another package in our final list.  For example:
 						 *
-						 *     pacman -S blackbox xfree86
+						 *     pacman-g2 -S blackbox xfree86
 						 *
 						 * If no x-servers are installed and blackbox pulls in xorg, then
 						 * xorg and xfree86 will conflict with each other.  In this case,

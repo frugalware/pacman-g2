@@ -1,5 +1,5 @@
 /* MD5DRIVER.C - taken and modified from MDDRIVER.C (license below)  */
-/*               for use in pacman.                                  */
+/*               for use in pacman-g2.                               */
 /*********************************************************************/ 
 
 /* Copyright (C) 1990-2, RSA Data Security, Inc. Created 1990. All

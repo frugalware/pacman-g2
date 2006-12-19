@@ -22,7 +22,7 @@
 #include "config.h"
 #include <stdlib.h>
 #include <string.h>
-/* pacman */
+/* pacman-g2 */
 #include "cache.h"
 #include "list.h"
 #include "db.h"

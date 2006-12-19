@@ -39,7 +39,7 @@
 #include <limits.h>
 #include <zlib.h>
 #include <libintl.h>
-/* pacman */
+/* pacman-g2 */
 #include "list.h"
 #include "trans.h"
 #include "util.h"

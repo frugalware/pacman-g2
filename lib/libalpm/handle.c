@@ -32,7 +32,7 @@
 #include <libintl.h>
 #include <time.h>
 #include <ftplib.h>
-/* pacman */
+/* pacman-g2 */
 #include "util.h"
 #include "log.h"
 #include "list.h"

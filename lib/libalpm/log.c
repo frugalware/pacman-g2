@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <time.h>
-/* pacman */
+/* pacman-g2 */
 #include "alpm.h"
 #include "log.h"
 

@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-/* pacman */
+/* pacman-g2 */
 #include "versioncmp.h"
 
 #ifndef HAVE_STRVERSCMP

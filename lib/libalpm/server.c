@@ -30,7 +30,7 @@
 #include <sys/time.h>
 #include <ftplib.h>
 
-/* pacman */
+/* pacman-g2 */
 #include "server.h"
 #include "error.h"
 #include "log.h"

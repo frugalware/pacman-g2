@@ -29,7 +29,7 @@
 #endif
 #include <libintl.h>
 #include <math.h>
-/* pacman */
+/* pacman-g2 */
 #include "util.h"
 #include "log.h"
 #include "error.h"

@@ -25,7 +25,7 @@
 #include "config.h"
 #include <stdlib.h>
 #include <string.h>
-/* pacman */
+/* pacman-g2 */
 #include "backup.h"
 
 /* Look for a filename in a pmpkg_t.backup list.  If we find it,

@@ -38,7 +38,7 @@
 #include <string.h>
 #include <limits.h>
 #include <libintl.h>
-/* pacman */
+/* pacman-g2 */
 #include "list.h"
 #include "trans.h"
 #include "util.h"
@@ -669,7 +669,7 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 					if(trans->flags & PM_TRANS_FLAG_FORCE) {
 						/* if FORCE was used, then unlink() each file (whether it's there
 						 * or not) before extracting.  this prevents the old "Text file busy"
-						 * error that crops up if one tries to --force a glibc or pacman
+						 * error that crops up if one tries to --force a glibc or pacman-g2
 						 * upgrade.
 						 */
 						unlink(expath);

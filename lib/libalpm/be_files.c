@@ -36,7 +36,7 @@
 #ifdef CYGWIN
 #include <limits.h> /* PATH_MAX */
 #endif
-/* pacman */
+/* pacman-g2 */
 #include "log.h"
 #include "util.h"
 #include "db.h"
@@ -319,9 +319,9 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				if(fgets(info->md5sum, sizeof(info->md5sum), fp) == NULL) {
 					goto error;
 				}
-			/* XXX: these are only here as backwards-compatibility for pacman 2.x
-			 * sync repos.... in pacman3, they have been moved to DEPENDS.
-			 * Remove this when we move to pacman3 repos.
+			/* XXX: these are only here as backwards-compatibility for pacman
+			 * sync repos.... in pacman-g2, they have been moved to DEPENDS.
+			 * Remove this when we move to pacman-g2 repos.
 			 */
 			} else if(!strcmp(line, "%REPLACES%")) {
 				/* the REPLACES tag is special -- it only appears in sync repositories,

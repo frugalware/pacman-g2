@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <libintl.h>
-/* pacman */
+/* pacman-g2 */
 #include "error.h"
 #include "package.h"
 #include "util.h"
