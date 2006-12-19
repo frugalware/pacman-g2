@@ -216,6 +216,9 @@ file and query it.  This is useful with \fB--info\fP and \fB--list\fP.
 .B "\-s, \-\-search <regexp>"
 This will search each locally-installed package for names or descriptions
 that contains <regexp>.
+.TP
+.B "\-\-nointegrity"
+Skip the SHA1 integrity check for the downloaded packages.
 .SH HANDLING CONFIG FILES
 pacman uses the same logic as rpm to determine action against files
 that are designated to be backed up.  During an upgrade, it uses 3
