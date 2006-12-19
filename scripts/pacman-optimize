@@ -1,6 +1,6 @@
 #!/bin/bash
 # 
-#   pacman-optimize
+#   pacman-g2-optimize
 #  
 #   Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
 #  
@@ -21,13 +21,13 @@
 #
 
 usage() {
-	echo "pacman-optimize"
-	echo "usage: $0 [pacman_db_root]"
+	echo "pacman-g2-optimize"
+	echo "usage: $0 [<pacman-g2 database root>]"
 	echo
-	echo "pacman-optimize is a little hack that should improve the performance"
-	echo "of pacman when reading/writing to its filesystem-based database."
+	echo "pacman-g2-optimize is a little hack that should improve the performance"
+	echo "of pacman-g2 when reading/writing to its filesystem-based database."
 	echo
-	echo "Because pacman uses many small files to keep track of packages,"
+	echo "Because pacman-g2 uses many small files to keep track of packages,"
 	echo "there is a tendency for these files to become fragmented over time."
 	echo "This script attempts to relocate these small files into one"
 	echo "contiguous location on your hard drive.  The result is that the hard"
@@ -37,12 +37,12 @@ usage() {
 }
 
 die() {
-	echo "pacman-optimize: $*" >&2
+	echo "pacman-g2-optimize: $*" >&2
 	exit 1
 }
 
 die_r() {
-	rm -f /tmp/pacman.lck
+	rm -f /tmp/pacman-g2.lck
 	die $*
 }
 
@@ -61,17 +61,17 @@ if [ "`id -u`" != 0 ]; then
 	die "You must be root to optimize the database"
 fi
 
-# make sure pacman isn't running
-if [ -f /tmp/pacman.lck ]; then
-	die "Pacman lockfile was found.  Cannot run while pacman is running."
+# make sure pacman-g2 isn't running
+if [ -f /tmp/pacman-g2.lck ]; then
+	die "Pacman lockfile was found.  Cannot run while pacman-g2 is running."
 fi
 
 if [ ! -d $dbroot ]; then
 	die "$dbroot does not exist or is not a directory"
 fi
 
-# don't let pacman run while we do this
-touch /tmp/pacman.lck
+# don't let pacman-g2 run while we do this
+touch /tmp/pacman-g2.lck
 
 # step 1: sum the old db
 echo "==> md5sum'ing the old database..."
@@ -102,10 +102,10 @@ echo "==> removing old database..."
 rm -rf $dbroot.bak || die_r "error removing backup $dbroot.bak"
 
 # remove the lock and sum files
-rm -f /tmp/pacman.lck /tmp/pacsums.old /tmp/pacsums.new
+rm -f /tmp/pacman-g2.lck /tmp/pacsums.old /tmp/pacsums.new
 
 echo
-echo "Finished.  Your pacman database has been optimized."
+echo "Finished.  Your pacman-g2 database has been optimized."
 echo
 
 exit 0

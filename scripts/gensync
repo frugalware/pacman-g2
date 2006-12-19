@@ -77,7 +77,7 @@ db_write_entry()
 		pkgfile="$destdir/$1-$pkgver-$pkgrel-$arch.fpm"
 	fi
 	csize=`du -b $pkgfile 2>/dev/null | cut -f1`
-	usize=`LANG= LC_ALL= pacman -Qi -p $pkgfile 2>/dev/null|grep ^Size|sed 's/.*: \(.*\)/\1/'`
+	usize=`LANG= LC_ALL= pacman-g2 -Qi -p $pkgfile 2>/dev/null|grep ^Size|sed 's/.*: \(.*\)/\1/'`
 	pkgsha1sum=`get_sha1checksum $pkgfile`
 	if [ -z $pkgsha1sum ]; then
 		if [ ! "$forcepkgs" ]; then
