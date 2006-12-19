@@ -24,7 +24,7 @@
 #include <string.h>
 
 #include <alpm.h>
-/* pacman */
+/* pacman-g2 */
 #include "list.h"
 #include "add.h"
 #include "upgrade.h"

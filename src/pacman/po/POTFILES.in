@@ -6,7 +6,7 @@ list.c
 log.c
 log.h
 package.c
-pacman.c
+pacman-g2.c
 query.c
 remove.c
 sync.c

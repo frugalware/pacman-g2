@@ -37,7 +37,7 @@
 #endif
 
 #include <alpm.h>
-/* pacman */
+/* pacman-g2 */
 #include "util.h"
 #include "log.h"
 #include "download.h"
@@ -407,22 +407,22 @@ int pacman_sync(list_t *targets)
 			goto cleanup;
 		}
 
-		/* check if pacman itself is one of the packages to upgrade.  If so, we
+		/* check if pacman-g2 itself is one of the packages to upgrade.  If so, we
 		 * we should upgrade ourselves first and then re-exec as the new version.
 		 *
 		 * this can prevent some of the "syntax error" problems users can have
-		 * when sysupgrade'ing with an older version of pacman.
+		 * when sysupgrade'ing with an older version of pacman-g2.
 		 */
 		data = alpm_trans_getinfo(PM_TRANS_PACKAGES);
 		for(lp = alpm_list_first(data); lp; lp = alpm_list_next(lp)) {
 			PM_SYNCPKG *sync = alpm_list_getdata(lp);
 			PM_PKG *spkg = alpm_sync_getinfo(sync, PM_SYNC_PKG);
-			if(!strcmp("pacman", alpm_pkg_getinfo(spkg, PM_PKG_NAME)) && alpm_list_count(data) > 1) {
-				MSG(NL, _("\n:: pacman has detected a newer version of the \"pacman\" package.\n"));
-				MSG(NL, _(":: It is recommended that you allow pacman to upgrade itself\n"));
+			if(!strcmp("pacman-g2", alpm_pkg_getinfo(spkg, PM_PKG_NAME)) && alpm_list_count(data) > 1) {
+				MSG(NL, _("\n:: pacman-g2 has detected a newer version of the \"pacman-g2\" package.\n"));
+				MSG(NL, _(":: It is recommended that you allow pacman-g2 to upgrade itself\n"));
 				MSG(NL, _(":: first, then you can re-run the operation with the newer version.\n"));
 				MSG(NL, "::\n");
-				if(yesno(_(":: Upgrade pacman first? [Y/n] "))) {
+				if(yesno(_(":: Upgrade pacman-g2 first? [Y/n] "))) {
 					if(alpm_trans_release() == -1) {
 						ERR(NL, _("failed to release transaction (%s)\n"), alpm_strerror(pm_errno));
 						retval = 1;
@@ -436,7 +436,7 @@ int pacman_sync(list_t *targets)
 						}
 						return(1);
 					}
-					if(alpm_trans_addtarget("pacman") == -1) {
+					if(alpm_trans_addtarget("pacman-g2") == -1) {
 						ERR(NL, _("could not add target '%s': %s\n"), (char *)i->data, alpm_strerror(pm_errno));
 						retval = 1;
 						goto cleanup;

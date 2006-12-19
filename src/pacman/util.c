@@ -39,7 +39,7 @@
 #include <limits.h> /* PATH_MAX */
 #endif
 
-/* pacman */
+/* pacman-g2 */
 #include "util.h"
 #include "list.h"
 #include "conf.h"

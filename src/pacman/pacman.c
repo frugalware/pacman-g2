@@ -1,5 +1,5 @@
 /*
- *  pacman.c
+ *  pacman-g2.c
  * 
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  * 
@@ -43,7 +43,7 @@
 #include <ftplib.h>
 
 #include <alpm.h>
-/* pacman */
+/* pacman-g2 */
 #include "list.h"
 #include "util.h"
 #include "log.h"
@@ -136,7 +136,7 @@ static void usage(int op, char *myname)
 			printf(_("  -l, --list          list the contents of the queried package\n"));
 			printf(_("  -m, --foreign       list all packages that were not found in the sync db(s)\n"));
 			printf(_("  -o, --owns <file>   query the package that owns <file>\n"));
-			printf(_("  -p, --file          pacman will query the package file [package] instead of\n"));
+			printf(_("  -p, --file          pacman-g2 will query the package file [package] instead of\n"));
 			printf(_("                      looking in the database\n"));
 			printf(_("  -s, --search        search locally-installed packages for matching strings\n"));
 		} else if(op == PM_OP_SYNC) {
@@ -171,9 +171,9 @@ static void usage(int op, char *myname)
 static void version()
 {
 	printf("\n");
-	printf(" .--.                  Pacman v%s - libalpm v%s\n", PACKAGE_VERSION, PM_VERSION);
-	printf("/ _.-' .-.  .-.  .-.   Copyright (C) 2002-2006 Judd Vinet <jvinet@zeroflux.org>\n");
-	printf("\\  '-. '-'  '-'  '-'   & Frugalware developers <frugalware-devel@frugalware.org>\n");
+	printf(" .--.                  Pacman-G2 v%s - libalpm v%s\n", PACKAGE_VERSION, PM_VERSION);
+	printf("/ _.-' .-.  .-.  .-.   Copyright (C) 2002-2006 Pacman-G2 Team\n");
+	printf("\\  '-. '-'  '-'  '-'   See /usr/share/doc/pacman-g2-*/AUTHORS for more info.\n");
 	printf(" '--'                  \n");
 	printf(_("                       This program may be freely redistributed under\n"));
 	printf(_("                       the terms of the GNU General Public License\n"));
@@ -186,7 +186,7 @@ static void cleanup(int signum)
 
 	if(signum==SIGSEGV)
 	{
-		fprintf(stderr, "Internal pacman error: Segmentation fault\n"
+		fprintf(stderr, "Internal pacman-g2 error: Segmentation fault\n"
 			"Please submit a full bug report, with the given package if appropriate.\n");
 		exit(signum);
 	} else if((signum == SIGINT) && (alpm_trans_release() == -1) && (pm_errno ==
@@ -445,8 +445,8 @@ int main(int argc, char *argv[])
 	// workaround for tr_TR
 	if(lang && !strcmp(lang, "tr_TR"))
 		setlocale(LC_CTYPE, "C");
-	bindtextdomain("pacman", "/usr/share/locale");
-	textdomain("pacman");
+	bindtextdomain("pacman-g2", "/usr/share/locale");
+	textdomain("pacman-g2");
 
 	/* init config data */
 	config = config_new();

@@ -30,7 +30,7 @@
 #include <libintl.h>
 
 #include <alpm.h>
-/* pacman */
+/* pacman-g2 */
 #include "util.h"
 #include "log.h"
 #include "trans.h"
