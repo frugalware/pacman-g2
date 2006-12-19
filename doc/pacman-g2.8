@@ -1,13 +1,13 @@
-.TH pacman 8 "January 21, 2006" "Frugalware User Manual" ""
+.TH pacman-g2 8 "December 19, 2006" "Frugalware User Manual" ""
 .SH NAME
-pacman \- package manager utility
+pacman-g2 \- package manager utility
 .SH SYNOPSIS
-\fBpacman  <operation> [options] <package> [package] ...\fP
+\fBpacman-g2  <operation> [options] <package> [package] ...\fP
 .SH DESCRIPTION
-\fBpacman\fP is a \fIpackage management\fP utility that tracks installed
+\fBpacman-g2\fP is a \fIpackage management\fP utility that tracks installed
 packages on a linux system.  It has simple dependency support and the ability
 to connect to a remote ftp server and automatically upgrade packages on
-the local system.  pacman package are \fIbzipped tar\fP format.
+the local system.  pacman-g2 package are \fIbzipped tar\fP format.
 .SH OPERATIONS
 .TP
 .B "\-A, \-\-add"
@@ -39,14 +39,14 @@ used.
 .B "\-S, \-\-sync"
 Synchronize packages.  With this function you can install packages
 directly from the ftp servers, complete with all dependencies required
-to run the packages.  For example, \fBpacman -S qt\fP will download
+to run the packages.  For example, \fBpacman-g2 -S qt\fP will download
 qt and all the packages it depends on and install them. You could also use
-\fBpacman -Su\fP to upgrade all packages that are out of date (see below).
+\fBpacman-g2 -Su\fP to upgrade all packages that are out of date (see below).
 .TP
 .B "\-U, \-\-upgrade"
 Upgrade a package.  This is essentially a "remove-then-add"
 process.  See \fBHANDLING CONFIG FILES\fP for an explanation
-on how pacman takes care of config files.
+on how pacman-g2 takes care of config files.
 .TP
 .B "\-V, \-\-version"
 Display version and exit.
@@ -57,7 +57,7 @@ supplied then the general syntax is shown.
 .SH OPTIONS
 .TP
 .B "\-d, \-\-nodeps"
-Skips all dependency checks.  Normally, pacman will always check
+Skips all dependency checks.  Normally, pacman-g2 will always check
 a package's dependency fields to ensure that all dependencies are
 installed and there are no package conflicts in the system.  This
 switch disables these checks.
@@ -85,7 +85,7 @@ Specify an alternate configuration file.
 .TP
 .B "\-\-noconfirm"
 Bypass any and all "Are you sure?" messages.  It's not a good idea to do this
-unless you want to run pacman from a script.
+unless you want to run pacman-g2 from a script.
 .TP
 .B "\-\-ask <number>"
 Finetune the --noconfirm switch by not answering "yes" to all libalpm
@@ -104,11 +104,11 @@ result as a parameter to this option.
 .TP
 .B "\-\-noprogressbar"
 Do not show a progress bar when downloading files.  This can be useful for
-scripts that call pacman and capture the output.
+scripts that call pacman-g2 and capture the output.
 .SH SYNC OPTIONS
 .TP
 .B "\-c, \-\-clean"
-Remove old packages from the cache.  When pacman downloads packages,
+Remove old packages from the cache.  When pacman-g2 downloads packages,
 it saves them in \fI/var/cache/pacman/pkg\fP.  If you need to free up
 diskspace, you can remove these packages by using the --clean option.
 Using one --clean (or -c) switch will only remove \fIold\fP packages.
@@ -142,9 +142,9 @@ This will search each package in the package list for names or descriptions
 that contains <regexp>.
 .TP
 .B "\-u, \-\-sysupgrade"
-Upgrades all packages that are out of date.  pacman will examine every
+Upgrades all packages that are out of date.  pacman-g2 will examine every
 package installed on the system, and if a newer package exists on the
-server it will upgrade.  pacman will present a report of all packages
+server it will upgrade.  pacman-g2 will present a report of all packages
 it wants to upgrade and will not proceed without user confirmation.
 Dependencies are automatically resolved at this level and will be
 installed/upgraded if necessary.
@@ -171,7 +171,7 @@ or more target packages.  This operation is recursive.
 Removes the database entry only.  Leaves all files in place.
 .TP
 .B "\-n, \-\-nosave"
-Instructs pacman to ignore file backup designations.  Normally, when
+Instructs pacman-g2 to ignore file backup designations.  Normally, when
 a file is about to be \fIremoved\fP from the system the database is first
 checked to see if the file should be renamed to a .pacsave extension.  If
 \fB--nosave\fP is used, these designations are ignored and the files are
@@ -209,7 +209,7 @@ are packages that were downloaded manually and installed with --add.
 Search for the package that owns <file>.
 .TP
 .B "\-p, \-\-file"
-Tells pacman that the package supplied on the command line is a
+Tells pacman-g2 that the package supplied on the command line is a
 file, not an entry in the database.  Pacman will decompress the
 file and query it.  This is useful with \fB--info\fP and \fB--list\fP.
 .TP
@@ -220,7 +220,7 @@ that contains <regexp>.
 .B "\-\-nointegrity"
 Skip the SHA1 integrity check for the downloaded packages.
 .SH HANDLING CONFIG FILES
-pacman uses the same logic as rpm to determine action against files
+pacman-g2 uses the same logic as rpm to determine action against files
 that are designated to be backed up.  During an upgrade, it uses 3
 md5 hashes for each backup file to determine the required action:
 one for the original file installed, one for the new file that's about
@@ -248,9 +248,9 @@ All three files are different, so we install the new file with a .pacnew
 extension and warn the user, so she can manually move the file into place
 after making any necessary customizations.
 .SH CONFIGURATION
-pacman will attempt to read \fI/etc/pacman.conf\fP each time it is invoked.  This
+pacman-g2 will attempt to read \fI/etc/pacman.conf\fP each time it is invoked.  This
 configuration file is divided into sections or \fIrepositories\fP.  Each section
-defines a package repository that pacman can use when searching for packages in
+defines a package repository that pacman-g2 can use when searching for packages in
 --sync mode.  The exception to this is the \fIoptions\fP section, which defines
 global options.
 .TP
@@ -258,10 +258,10 @@ global options.
 .RS
 .nf
 [options]
-NoUpgrade = etc/passwd etc/group etc/shadow
-NoUpgrade = etc/fstab
+HoldPkg = pacman-g2 glibc bash coreutils
+HoldPkg = chkconfig
 
-Include = /etc/pacman.d/current
+Include = /etc/pacman.d/frugalware-current
 
 [custom]
 Server = file:///home/pkgs
@@ -279,11 +279,11 @@ Overrides the default location of the package cache directory.  The default is
 \fIvar/cache/pacman\fP.
 .TP
 .B "HoldPkg = <package> [package] ..."
-If a user tries to \fB--remove\fP a package that's listed in HoldPkg, pacman
+If a user tries to \fB--remove\fP a package that's listed in HoldPkg, pacman-g2
 will ask for confirmation before proceeding.
 .TP
 .B "IgnorePkg = <package> [package] ..."
-Instructs pacman to ignore any upgrades for this package when performing a
+Instructs pacman-g2 to ignore any upgrades for this package when performing a
 \fB--sysupgrade\fP.
 .TP
 .B "UpgradeDelay = <number>"
@@ -299,15 +299,15 @@ Include another config file.  This config file can include repositories or
 general configuration options.
 .TP
 .B "ProxyServer = <host|ip>[:port]"
-If set, pacman will use this proxy server for all ftp/http transfers.
+If set, pacman-g2 will use this proxy server for all ftp/http transfers.
 .TP
 .B "XferCommand = /path/to/command %u"
-If set, pacman will use this external program to download all remote files.
+If set, pacman-g2 will use this external program to download all remote files.
 All instances of \fB%u\fP will be replaced with the URL to be downloaded.  If
 present, instances of \fB%o\fP will be replaced with the local filename, plus a
 ".part" extension, which allows programs like wget to do file resumes properly.
 
-This option is useful for users who experience problems with pacman's built-in http/ftp
+This option is useful for users who experience problems with pacman-g2's built-in http/ftp
 support, or need the more advanced proxy support that comes with utilities like
 wget.
 .TP
@@ -326,11 +326,11 @@ then you would not want the index.html file to be extracted from the apache
 package.
 .TP
 .B "UseSyslog"
-Log action messages through syslog().  This will insert pacman log entries into your
+Log action messages through syslog().  This will insert pacman-g2 log entries into your
 /var/log/messages or equivalent.
 .TP
 .B "LogFile = /path/to/file"
-Log actions directly to a file, usually /var/log/pacman.log.
+Log actions directly to a file, usually /var/log/pacman-g2.log.
 
 .SH CONFIG: REPOSITORIES
 Each repository section defines a section name and at least one location where the packages
@@ -342,7 +342,7 @@ shown above.
 .SH USING YOUR OWN REPOSITORY
 Let's say you have a bunch of custom packages in \fI/home/pkgs\fP and their respective FrugalBuild
 files are all in \fI/var/fst/local\fP.  All you need to do is generate a compressed package database
-in the \fI/home/pkgs\fP directory so pacman can find it when run with --refresh.
+in the \fI/home/pkgs\fP directory so pacman-g2 can find it when run with --refresh.
 
 .RS
 .nf
@@ -356,9 +356,9 @@ database called /home/pkgs/custom.fdb.  Note that the database must be of the fo
 configuration file.
 That's it!  Now configure your \fIcustom\fP section in the configuration file as shown in the
 config example above.  Pacman will now use your package repository.  If you add new packages to
-the repository, remember to re-generate the database and use pacman's --refresh option.
+the repository, remember to re-generate the database and use pacman-g2's --refresh option.
 .SH SEE ALSO
-\fBmakepkg\fP is the package-building tool that comes with pacman.
+\fBmakepkg\fP is the package-building tool that comes with pacman-g2.
 .SH AUTHOR
 .nf
 See /usr/share/doc/pacman-g2-*/AUTHORS.
