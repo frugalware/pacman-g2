@@ -10,8 +10,8 @@ rm -rf stamp*
 rm -rf depcomp
 rm -rf install-sh
 rm -rf missing
-rm -rf src/pacman/Makefile
-rm -rf src/pacman/Makefile.in
+rm -rf src/pacman-g2/Makefile
+rm -rf src/pacman-g2/Makefile.in
 rm -rf src/util/Makefile
 rm -rf src/util/Makefile.in
 rm -rf lib/libftp/Makefile
@@ -40,14 +40,14 @@ rm -rf etc/pacman.d/frugalware
 rm -rf etc/pacman.d/frugalware-current
 rm -f dist/Changelog
 rm -f dist/FrugalBuild
-rm -f dist/pacman-*.tar.gz
-rm -f dist/pacman-*.fpm
+rm -f dist/pacman-g2-*.tar.gz
+rm -f dist/pacman-g2-*.fpm
 
-rm -rf src/pacman/po/Makefile
-rm -rf src/pacman/po/Makefile.in
-rm -rf src/pacman/po/POTFILES
-rm -rf src/pacman/po/stamp-po
-rm -rf src/pacman/po/*.gmo
+rm -rf src/pacman-g2/po/Makefile
+rm -rf src/pacman-g2/po/Makefile.in
+rm -rf src/pacman-g2/po/POTFILES
+rm -rf src/pacman-g2/po/stamp-po
+rm -rf src/pacman-g2/po/*.gmo
 
 rm -rf lib/libalpm/po/Makefile
 rm -rf lib/libalpm/po/Makefile.in

@@ -1,7 +1,7 @@
 ==========================================================================
 README:
 
-Overview and internals of the ALPM library and the PACMAN frontend.
+Overview and internals of the ALPM library and the PACMAN-G2 frontend.
 
 This document describes the state of the implementation before its CVS
 import.
@@ -205,7 +205,7 @@ the frontend the responsibility to copy and store the data retrieved
 from the library in its own data structures.
 
 
-PACMAN frontend overview & internals
+PACMAN-G2 frontend overview & internals
 ====================================
 
 Here are some words about the frontend responsibilities.
@@ -216,12 +216,12 @@ High level features are left to the frontend ;)
 
 For instance, during a sysupgrade, the library returns the whole list of
 packages to be upgraded, without any care for its content.
-The frontend can inspect the list and perhaps notice that "pacman"
+The frontend can inspect the list and perhaps notice that "pacman-g2"
 itself has to be upgraded. In such a case, the frontend can choose to
 perform a special action.
 
 
-[MAIN] (see pacman.c)
+[MAIN] (see pacman-g2.c)
 
 Calls for alpm_lib_init(), and alpm_lib_release().
 Read the configuration file, and parse command line arguments.
@@ -252,11 +252,11 @@ These 3 functions have been splitted too to ease the code reading.
 
 The library is not providing download facilities. As a consequence, it
 is up the the frontend to retrieve packages from Arch Linux servers.
-To do so, pacman is linked against an improved version of libftp
+To do so, pacman-g2 is linked against an improved version of libftp
 supporting both http and ftp donwloads.
 As a consequence, the frontend is repsonsible for the directory
 /var/cache/pacman/pkgs.
-One can consider that this cache is a facility provided by pacman.
+One can consider that this cache is a facility provided by pacman-g2.
 
 Note: other frontends have to download packages by themselves too,
 although the cache directory can be shared by several frontends.
@@ -266,7 +266,7 @@ although the cache directory can be shared by several frontends.
 
 Single chained list.
 A minimalistic chained list implementation to store options from the
-configuration file, and targets passed to pacman on the command line.
+configuration file, and targets passed to pacman-g2 on the command line.
 
 
 LIMITATIONS/BEHAVIOR CHANGES COMPARED TO PACMAN 2.9
@@ -275,9 +275,9 @@ LIMITATIONS/BEHAVIOR CHANGES COMPARED TO PACMAN 2.9
 Excepted missing features still needing to be implemented, one can
 notice the following limitations:
 
-- If pacman is out of date, the frontend displays a warning and recommends
+- If pacman-g2 is out of date, the frontend displays a warning and recommends
 to give up the on-going transanction. The frontend does not allow to
-upgrade pacman itself on-the-fly, and thus it should be restarted with
-only "pacman" as a target.
+upgrade pacman-g2 itself on-the-fly, and thus it should be restarted with
+only "pacman-g2" as a target.
 
 - ...

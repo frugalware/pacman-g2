@@ -5,7 +5,7 @@ For developers, using
 --enable-debug --disable-doxygen --disable-fakeroot --disable-po4a
 is highly recommended.
 
-How to test pacman?
+How to test pacman-g2?
 ===================
 
 Run the tests:
@@ -15,11 +15,11 @@ make check
 If some of them failed, probably you'll want to run only one test,
 for example sync990:
 
-cd pactest; python pactest.py --test=tests/sync990.py -p ../../src/pacman/pacman --debug=-1
+cd pactest; python pactest.py --test=tests/sync990.py -p ../../src/pacman-g2/pacman-g2 --debug=-1
 
 That's all.
 
-How to add new localized manpage to pacman (configure and all things)
+How to add new localized manpage to pacman-t2 (configure and all things)
 =====================================================================
 
 You need to create a dir under doc/ with lang name. Lets see an example. You want to do

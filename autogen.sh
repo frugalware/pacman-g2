@@ -9,27 +9,27 @@ if [ "$1" == "--dist" ]; then
 		ver="${ver}_`date +%Y%m%d`"
 	fi
 	darcs changes >_darcs/current/ChangeLog
-	darcs dist -d pacman-$ver
+	darcs dist -d pacman-g2-$ver
 	rm _darcs/current/ChangeLog
 	if [ "$release" ]; then
 		dest="../releases"
 		gpg --comment "See http://ftp.frugalware.org/pub/README.GPG for info" \
-			-ba -u 20F55619 pacman-$ver.tar.gz
-		mv pacman-$ver.tar.gz.asc $dest
+			-ba -u 20F55619 pacman-g2-$ver.tar.gz
+		mv pacman-g2-$ver.tar.gz.asc $dest
 	else
 		dest="dist"
 	fi
-	mv pacman-$ver.tar.gz $dest
+	mv pacman-g2-$ver.tar.gz $dest
 	if [ ! "$release" ]; then
 		sed "s/@PACKAGE_VERSION@/$ver/;
-			s/@SHA1SUM@/`sha1sum $dest/pacman-$ver.tar.gz|sed 's/  .*//'`/" \
+			s/@SHA1SUM@/`sha1sum $dest/pacman-g2-$ver.tar.gz|sed 's/  .*//'`/" \
 			dist/FrugalBuild.in > dist/FrugalBuild
 		echo "Now type: 'cd dist; makepkg -ci'."
 	fi
 	exit 0
 elif [ "$1" == "--gettext-only" ]; then
 	sh autoclean.sh
-	for i in lib/libalpm/po src/pacman/po
+	for i in lib/libalpm/po src/pacman-g2/po
 	do
 		cd $i
 		mv Makevars Makevars.tmp

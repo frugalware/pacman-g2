@@ -1,4 +1,4 @@
-SUBDIRS = lib/libftp lib/libalpm src/util src/pacman scripts doc doc/hu etc
+SUBDIRS = lib/libftp lib/libalpm src/util src/pacman-g2 scripts doc doc/hu etc
 
 if HAS_PERL
 SUBDIRS += bindings/perl
@@ -18,4 +18,4 @@ EXTRA_DIST =		\
 	TODO.autoconf
 
 check:
-	cd pactest; python pactest.py --test=tests/*.py -p ../src/pacman/pacman --debug=-1
+	cd pactest; python pactest.py --test=tests/*.py -p ../src/pacman-g2/pacman-g2 --debug=-1

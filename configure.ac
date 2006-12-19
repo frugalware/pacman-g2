@@ -2,7 +2,7 @@ ENV_CFLAGS=$CFLAGS
 
 AC_PREREQ(2.59)
 dnl Update it right before the release since $pkgver_foo are all _post_ release snapshots
-AC_INIT([Pacman package manager], 3.4.5, [frugalware-devel@frugalware.org], pacman)
+AC_INIT([pacman-g2 package manager], 3.4.5, [frugalware-devel@frugalware.org], pacman-g2)
 AC_LANG(C)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_SYSTEM
@@ -293,7 +293,7 @@ AC_CHECK_LIB([bz2], [BZ2_bzCompress], [AC_CHECK_HEADER([bzlib.h], [LIBBZ2='-lbz2
 if test -n "$LIBBZ2"; then
     LDFLAGS="$LDFLAGS $LIBBZ2"
 else
-    AC_MSG_ERROR("bzip2 library and its include files are needed to build pacman!");
+    AC_MSG_ERROR("bzip2 library and its include files are needed to build pacman-g2!");
 fi
 
 dnl Check for math
@@ -310,7 +310,7 @@ if test -n "$LIBARCHIVE"; then
     CFLAGS="$CFLAGS"
     LDFLAGS="$LDFLAGS $LIBARCHIVE"
 else
-    AC_MSG_ERROR("libarchive is needed to compile pacman!");
+    AC_MSG_ERROR("libarchive is needed to compile pacman-g2!");
 fi
 
 dnl Enable or disable debug code
@@ -342,8 +342,8 @@ AC_OUTPUT([
 lib/libalpm/Makefile
 lib/libalpm/po/Makefile.in
 lib/libftp/Makefile
-src/pacman/Makefile
-src/pacman/po/Makefile.in
+src/pacman-g2/Makefile
+src/pacman-g2/po/Makefile.in
 src/util/Makefile
 scripts/Makefile
 doc/Makefile
@@ -359,7 +359,7 @@ Makefile
 ])
 
 echo "
-pacman-$VERSION:
+pacman-g2-$VERSION:
 
         prefix                   : ${prefix}
         source code location     : ${srcdir}
