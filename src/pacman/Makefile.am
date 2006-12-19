@@ -21,3 +21,6 @@ pacman_static_LDADD = \
 	$(top_srcdir)/lib/libalpm/.libs/libalpm.a $(LDFLAGS)
 
 pacman_static_LDFLAGS = -all-static
+
+install-exec-hook:
+	ln -s pacman $(DESTDIR)$(bindir)/pacman-g2
