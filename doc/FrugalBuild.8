@@ -277,9 +277,9 @@ package databases.
 .B backup \fI(array)\fP 
 A space-delimited array of filenames (without a preceding slash). The
 \fIbackup\fP line will be propagated to the package meta-info file for
-pacman.  This will designate all files listed there to be backed up if this
+pacman-g2.  This will designate all files listed there to be backed up if this
 package is ever removed from a system.  See \fBHANDLING CONFIG FILES\fP in
-the \fIpacman\fP manpage for more information.
+the \fIpacman-g2\fP manpage for more information.
 
 .TP
 .B depends \fI(array)\fP 
@@ -320,7 +320,7 @@ to simply depend on 'kernel' rather than "kernel-scsi OR kernel-ide OR ..."
 .B replaces \fI(array)\fP 
 This is an array of packages that this package should replace, and can be used to handle
 renamed/combined packages.  For example, if the kernel package gets renamed
-to kernel-ide, then subsequent 'pacman -Syu' calls will not pick up the upgrade, due
+to kernel-ide, then subsequent 'pacman-g2 -Syu' calls will not pick up the upgrade, due
 to the differing package names.  \fIreplaces\fP handles this.
 
 .TP
@@ -334,7 +334,7 @@ force      This is used to force the package to be upgraded by --sysupgrade,
            even if its an older version.
 nobuild    If this directive set, gensync will ignore this package, so users
            must build  these packages on their machines, they will not be able
-           to install them with pacman -S. Useful for closed-source, but
+           to install them with pacman-g2 -S. Useful for closed-source, but
            freeware programs.
 nofakeroot Don't drop privileges after chrooting. Required by some broken
            packages.
@@ -364,11 +364,11 @@ When starting the build, a core chroot system is installed under /var/chroot.
 (Of course you can change this value under /etc/makepkg.conf.) The core system
 contains ~60 packages which are must installed to build any package in
 a chrooted environment. These packages (for example gcc, kernel-headers, make)
-should not be mentioned in makedepends(). 'pacman -Sg core chroot-core
+should not be mentioned in makedepends(). 'pacman-g2 -Sg core chroot-core
 devel-core' should show you the actual list. (We try to change this list rarely
 of course.)
 
-When you start building with makepkg -R, pacman will install these packages to
+When you start building with makepkg -R, pacman-g2 will install these packages to
 /var/chroot if necessary. This will produce a fully "clean" Frugalware system,
 that consists of base packages only. This /var/chroot is fully separated from
 the host system so that this will solve the problems mentioned above.
@@ -456,9 +456,8 @@ use wildcards in it!
 
 .SH "SEE ALSO"
 .BR makepkg (8),
-.BR pacman (8)
+.BR pacman-g2 (8)
 .SH AUTHOR
 .nf
-Judd Vinet <jvinet@zeroflux.org>
-and the Frugalware developers <frugalware-devel@frugalware.org>
+See /usr/share/doc/pacman-*/AUTHORS.
 .fi

@@ -11,7 +11,7 @@ have the build script for a package, you just need to run makepkg and it
 will do the rest: download and validate source files, check dependencies,
 configure the buildtime settings, build the package, install the package
 into a temporary root, make customizations, generate meta-info, and package
-the whole thing up for \fBpacman\fP to use.
+the whole thing up for \fBpacman-g2\fP to use.
 
 \fBmakeworld\fP can be used to rebuild an entire package group or the
 entire build tree.  See \fBmakeworld --help\fP for syntax.
@@ -90,7 +90,7 @@ Download and extract files only, do not build.
 Read the package script \fI<buildscript>\fP instead of the default (\fIFrugalBuild\fP).
 .TP
 .B "\-r, \-\-rmdeps"
-Upon successful build, remove any dependencies installed by makepkg/pacman during
+Upon successful build, remove any dependencies installed by makepkg/pacman-g2 during
 dependency auto-resolution (using \fB-b\fP or \fB-s\fP).
 .TP
 .B "\-R, \-\-chroot"
@@ -101,9 +101,9 @@ Build the package in a chroot environment. This is the default except if -g or
 Build the package on the host system. The opposite of the -R option.
 .TP
 .B "\-s, \-\-syncdeps"
-Install missing dependencies using pacman.  When makepkg finds missing build-time
-or run-time dependencies, it will run pacman to try and resolve them.  If successful,
-pacman will download the missing packages from a package repository and
+Install missing dependencies using pacman-g2.  When makepkg finds missing build-time
+or run-time dependencies, it will run pacman-g2 to try and resolve them.  If successful,
+pacman-g2 will download the missing packages from a package repository and
 install them for you.
 .TP
 .B "\-t <tree>"
@@ -116,8 +116,8 @@ Do not check for newer version before starting build. Normally makepkg will
 prevent you from building obsolete source by mistake. If you know what you are
 doing, you can disable this feature with this switch.
 .B "\-S, \-\-sudosync"
-Install missing dependencies using pacman and sudo. This is the same as \fB-s\fP
-except that makepkg will call pacman with sudo. This means you don't have to
+Install missing dependencies using pacman-g2 and sudo. This is the same as \fB-s\fP
+except that makepkg will call pacman-g2 with sudo. This means you don't have to
 build as root to use dependency auto-resolution.
 .TP
 .TP
@@ -126,12 +126,12 @@ Write the resulting package file to the directory \fI<destdir>\fP instead of the
 current working directory.
 .TP
 .B "\-\-noconfirm"
-When calling pacman to resolve dependencies or conflicts, makepkg can pass
+When calling pacman-g2 to resolve dependencies or conflicts, makepkg can pass
 the \fI--noconfirm\fP option to it so it does not wait for any user
 input before proceeding with operations.
 .TP
 .B "\-\-noprogressbar"
-When calling pacman, makepkg can pass the \fI--noprogressbar\fP option to it.
+When calling pacman-g2, makepkg can pass the \fI--noprogressbar\fP option to it.
 This is useful if one is directing makepkg's output to a non-terminal (ie, a file).
 
 .SH CONFIGURATION
@@ -144,9 +144,8 @@ different optimizations.
 your exported variables.  Some of them are flaky...
 .SH "SEE ALSO"
 .BR FrugalBuild (8),
-.BR pacman (8)
+.BR pacman-g2 (8)
 .SH AUTHOR
 .nf
-Judd Vinet <jvinet@zeroflux.org>
-and the Frugalware developers <frugalware-devel@frugalware.org>
+See /usr/share/doc/pacman-*/AUTHORS.
 .fi
