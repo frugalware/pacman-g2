@@ -329,8 +329,19 @@ chroot_mount() {
     msg "Successfully mounted chroot directories."
 }
 
+detect_pacman()
+{
+	if [ -e $CHROOTDIR/usr/bin/pacman-g2 ]; then
+		echo pacman-g2
+	else
+		echo pacman
+	fi
+}
+
 chroot_clean()
 {
+	local PACMAN=`detect_pacman`
+
 	if [ "$CHROOT" = "1" ]; then
 		echo $CHROOTDIR |grep -q $TREE$ || CHROOTDIR="$CHROOTDIR/$TREE"
 		msg "Cleaning chroot."
@@ -338,16 +349,16 @@ chroot_clean()
 		msg "Removing unnecessary packages."
 		for i in "$COREPKGS"
 		do
-			corelist="$corelist `/usr/sbin/chroot $CHROOTDIR pacman-g2 -Sg $i |grep -v '^\w'`"
+			corelist="$corelist `/usr/sbin/chroot $CHROOTDIR $PACMAN -Sg $i |grep -v '^\w'`"
 		done
-		for i in `/usr/sbin/chroot $CHROOTDIR pacman-g2 -Q|sed 's/\([^ ]*\) .*/\1/'`
+		for i in `/usr/sbin/chroot $CHROOTDIR $PACMAN -Q|sed 's/\([^ ]*\) .*/\1/'`
 		do
 			if ! echo $corelist |grep -q $i; then
 				removelist="$removelist $i"
 			fi
 		done
 		if [ ! -z "$removelist" ]; then
-			/usr/sbin/chroot $CHROOTDIR pacman-g2 -Rcn $removelist --noconfirm
+			/usr/sbin/chroot $CHROOTDIR $PACMAN -Rcn $removelist --noconfirm
 			if [ "$?" != "0" ]; then
 				error "Failed to remove packages."
 				exit 1
@@ -913,8 +924,9 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		# copy these before any update since without them we can't even reach the servers
 		cp -pf /etc/{resolv.conf,services} $CHROOTDIR/etc
 		# run pacman-g2 -Su twice in case pacman-g2 updated
-		/usr/sbin/chroot "$CHROOTDIR" pacman-g2 -Syu --noconfirm && \
-			/usr/sbin/chroot "$CHROOTDIR" pacman-g2 -Su --noconfirm
+		PACMAN=`detect_pacman`
+		/usr/sbin/chroot "$CHROOTDIR" $PACMAN -Syu --noconfirm && \
+			/usr/sbin/chroot "$CHROOTDIR" $PACMAN -Su --noconfirm
 		if [ "$?" != "0" ]; then
 			error "Failed to update chroot environment."
 			chroot_umount
