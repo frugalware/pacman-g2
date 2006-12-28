@@ -47,6 +47,7 @@ AC_HEADER_STDC
 AC_PROG_INSTALL
 AC_CHECK_FUNCS([strverscmp])
 AM_PROG_LIBTOOL
+AM_CONDITIONAL(LINKSTATIC, test "$enable_static" = "yes")
 
 dnl Humor lowers blood pressure
 AC_MSG_CHECKING(your blood pressure)
