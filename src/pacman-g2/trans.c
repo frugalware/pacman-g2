@@ -330,7 +330,7 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 	// if the package name is too long, then slice the ending
 	maxpkglen=46-strlen(ptr)-(3+2*(int)log10(howmany));
 	if(strlen(pkgname)>maxpkglen)
-		pkgname[maxpkglen]='\0';
+		pkgname[maxpkglen-1]='\0';
 
 	switch (event) {
 	case PM_TRANS_PROGRESS_ADD_START:
