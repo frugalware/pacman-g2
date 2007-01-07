@@ -518,6 +518,10 @@ int main(int argc, char *argv[])
 		ERR(NL, _("failed to set option LOGMASK (%s)\n"), alpm_strerror(pm_errno));
 		cleanup(1);
 	}
+	if(alpm_set_option(PM_OPT_DBPATH, (long)config->dbpath) == -1) {
+		ERR(NL, _("failed to set option DBPATH (%s)\n"), alpm_strerror(pm_errno));
+		cleanup(1);
+	}
 	if(alpm_set_option(PM_OPT_LOGCB, (long)cb_log) == -1) {
 		ERR(NL, _("failed to set option LOGCB (%s)\n"), alpm_strerror(pm_errno));
 		cleanup(1);
@@ -572,8 +576,6 @@ int main(int argc, char *argv[])
 		ERR(NL, _("failed to set option DLETA_S (%s)\n"), alpm_strerror(pm_errno));
 		cleanup(1);
 	}
-	FREE(config->dbpath);
-	alpm_get_option(PM_OPT_DBPATH, (long *)&config->dbpath);
 	FREE(config->cachedir);
 	alpm_get_option(PM_OPT_CACHEDIR, (long *)&config->cachedir);
 
