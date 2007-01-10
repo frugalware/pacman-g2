@@ -144,6 +144,11 @@ AC_SUBST(CARCHFLAGS)
 AC_SUBST(MARCHFLAG)
 AC_SUBST(CHOST)
 
+dnl Build with Werror
+AC_ARG_ENABLE(werror,
+	AC_HELP_STRING([ --enable-werror],  [Enable building with Werror]),
+	[werror=$enableval], [werror=no])
+
 dnl Help line for debug
 AC_ARG_ENABLE(debug, [  --enable-debug    Enable debugging support], debug=yes)
 
@@ -318,12 +323,21 @@ dnl Enable or disable debug code
 AC_MSG_CHECKING(for debug mode request)
 if test x$debug = xyes ; then
     AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xyes)
-	CFLAGS="-g -Wall -Werror -std=c99 -DPACMAN_DEBUG"
+	CFLAGS="-ggdb3 -Wall -std=c99 -DPACMAN_DEBUG"
     AC_MSG_RESULT(yes)
 else
     AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xno)
 	CFLAGS="$CFLAGS -std=c99"
     AC_MSG_RESULT(no)
+fi
+
+dnl Enable or disable building with Werror
+AC_MSG_CHECKING(for building with Werror)
+if test x$werror = xyes ; then
+	CFLAGS="$CFLAGS -Werror"
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
 fi
 
 dnl Enable or disable fakeroot code
@@ -381,4 +395,5 @@ pacman-g2-$VERSION:
 	Java bindings            : ${JAVASTATUS}
 
 	debug support            : ${debug}
+	Werror build		 : ${werror}
 "
