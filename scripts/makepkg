@@ -1247,39 +1247,8 @@ if [ "$GENSHA1" = "0" ]; then
 		msg "Extracting Sources..."
 		for netfile in "${source[@]}"; do
 			unziphack=0
-			file=`strip_url "$netfile"`
-			unset cmd
-			case "`echo $file |tr "A-Z" "a-z"`" in
-				*.tar.gz|*.tar.z|*.tgz)
-				cmd="tar --use-compress-program=gzip -xf $file" ;;
-				*.tar.bz2|*.tbz2)
-				cmd="tar --use-compress-program=bzip2 -xf $file" ;;
-				*.tar)
-				cmd="tar -xf $file" ;;
-				*.zip)
-				unziphack=1
-				cmd="unzip -qqo $file" ;;
-				*.cpio.gz)
-				cmd="bsdtar -x -f $file" ;;
-				*.cpio.bz2)
-				cmd="bsdtar -x -f $file" ;;
-				*.gz)
-				cmd="gunzip -f $file" ;;
-				*.bz2)
-				cmd="bunzip2 -f $file" ;;
-			esac
-			if [ "$cmd" != "" ]; then
-				msg "    $cmd"
-				$cmd
-				if [ $? -ne 0 ]; then
-					# unzip will return a 1 as a warning, it is not an error
-					if [ "$unziphack" != "1" -o $? -ne 1 ]; then
-						error "Failed to extract $file"
-						msg "Aborting..."
-						exit 1
-					fi
-				fi
-			fi
+			file=$(strip_url $netfile)
+			Fextract "${file}"
 		done
 	fi
 else
