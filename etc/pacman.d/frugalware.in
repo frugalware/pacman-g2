@@ -3,12 +3,37 @@
 #
 
 [frugalware]
-
+# -----------
+# - BELGIUM -
+# -----------
+# Belgian National Research Network (1 GBit)
 Server = ftp://ftp5.frugalware.org/packages/frugalware/pub/frugalware/frugalware-stable/frugalware-@CARCH@
-Server = ftp://ftp12.frugalware.org/mirrors/ftp.frugalware.org/pub/frugalware/frugalware-stable/frugalware-@CARCH@
-Server = ftp://ftp10.frugalware.org/pub/linux/frugalware/frugalware-stable/frugalware-@CARCH@
-Server = http://www11.frugalware.org/pub/frugalware/frugalware-stable/frugalware-@CARCH@
-Server = ftp://ftp4.frugalware.org/pub/linux/distributions/frugalware/frugalware-stable/frugalware-@CARCH@
+# -----------
+# - GERMANY -
+# -----------
+# Sebastian Vassiliou (100 MBit)
 Server = http://www7.frugalware.org/pub/frugalware/frugalware-stable/frugalware-@CARCH@
+# -----------
+# - HUNGARY -
+# -----------
+# Schmidt Computer Ltd. (100 MBit)
+Server = ftp://ftp3.frugalware.org/mirrors/frugalware/pub/frugalware/frugalware-stable/frugalware-@CARCH@
+# Free Software Network (100 MBit)
+Server = ftp://ftp4.frugalware.org/pub/linux/distributions/frugalware/frugalware-stable/frugalware-@CARCH@
+# -----------
+# - IRELAND -
+# -----------
+# Ireland's National Education and Research Network (2 GBit)
+Server = ftp://ftp12.frugalware.org/mirrors/ftp.frugalware.org/pub/frugalware/frugalware-stable/frugalware-@CARCH@
+# ----------
+# - TAIWAN -
+# ----------
+# National Taiwan University (Unknown bandwidth)
 Server = ftp://ftp9.frugalware.org/pub/frugalware/frugalware-stable/frugalware-@CARCH@
-Server = ftp://ftp3.frugalware.org/mirrors/frugalware/frugalware/frugalware-stable/frugalware-@CARCH@
+# -------
+# - USA -
+# -------
+# SourceMirrors (100 MBit)
+Server = ftp://ftp6.frugalware.org/pub/linux/frugalware/frugalware-stable/frugalware-@CARCH@
+# TDS Telecom (1 GBit)
+Server = ftp://ftp10.frugalware.org/pub/linux/frugalware/frugalware-stable/frugalware-@CARCH@
