@@ -683,7 +683,7 @@ msgstr "csak egy mûvelet hajtható végre egyszerre\n"
 
 #: ../pacman.c:485
 msgid "you cannot perform this operation unless you are root.\n"
-msgstr "nem hajtható végre ez a mûvelet, hacsak nem rendszergazda.\n"
+msgstr "a mûvelet csak rendszergazdaként hajtható végre.\n"
 
 #: ../pacman.c:509
 #, c-format
