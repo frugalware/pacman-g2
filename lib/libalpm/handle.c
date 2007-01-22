@@ -154,12 +154,14 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 				}
 				handle->logfd = NULL;
 			}
-			if((handle->logfd = fopen((char *)data, "a")) == NULL) {
-				_alpm_log(PM_LOG_ERROR, _("can't open log file %s"), (char *)data);
+			char path[PATH_MAX];
+			snprintf(path, PATH_MAX, "%s/%s", handle->root, (char *)data);
+			if((handle->logfd = fopen(path, "a")) == NULL) {
+				_alpm_log(PM_LOG_ERROR, _("can't open log file %s"), path);
 				RET_ERR(PM_ERR_OPT_LOGFILE, -1);
 			}
-			handle->logfile = strdup((char *)data);
-			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_LOGFILE set to '%s'"), (char *)data);
+			handle->logfile = strdup(path);
+			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_LOGFILE set to '%s'"), path);
 		break;
 		case PM_OPT_NOUPGRADE:
 			if((char *)data && strlen((char *)data) != 0) {
