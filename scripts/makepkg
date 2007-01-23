@@ -1303,7 +1303,7 @@ else
                 fi
 				if grep -q "# optimization" "${BUILDSCRIPT}" ; then
 					# Always keep this line at the end
-					sed -i "s@^# optimization OK.*@${SHA1SUMS}\n# optimization OK@g" ${BUILDSCRIPT}
+					sed -i "s@^# optimization OK.*@${SHA1SUMS}\n# optimization OK@gi" ${BUILDSCRIPT}
 				else
 					echo -e "${SHA1SUMS}" >> ${BUILDSCRIPT}
 				fi
