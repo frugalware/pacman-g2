@@ -297,9 +297,11 @@ else
 	delete_entry $option
 fi
 
-echo "updatesync: compressing to $pkgdb..." >&2
+bdb=`basename $pkgdb`
+echo "updatesync: compressing to $bdb..." >&2
 cd $ustmpdir
-tar cjf $pkgdb * || die "error writing to $pkgdb"
+tar cjf $bdb * || die "error writing to $pkgdb"
+mv $bdb $pkgdb || die "error moving $bdb to $pkgdb"
 
 cd $curdir
 rm -rf $ustmpdir
