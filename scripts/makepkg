@@ -939,7 +939,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		fi
 	fi
 	# why is this necessary?
-	chmod 1777 $CHROOTDIR/tmp
+	chmod 1777 $CHROOTDIR/{var,}/tmp
 	
 	msg "Copying config files to chroot"
 	cp -pf /etc/pacman.d/* $CHROOTDIR/etc/pacman.d >/dev/null &
