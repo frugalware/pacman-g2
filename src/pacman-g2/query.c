@@ -96,7 +96,7 @@ int pacman_query(list_t *targets)
 	list_t *i;
 	PM_LIST *j, *ret;
 	char *package = NULL;
-	int done = 0;
+	int done = 0, errors = 0;
 
 	if(config->op_q_search) {
 		for(i = targets; i; i = i->next) {
@@ -194,7 +194,8 @@ int pacman_query(list_t *targets)
 
 		/* determine the owner of a file */
 		if(config->op_q_owns) {
-			return(query_fileowner(db_local, package));
+			errors += query_fileowner(db_local, package);
+			continue;
 		}
 
 		/* find packages in the db */
@@ -288,7 +289,7 @@ int pacman_query(list_t *targets)
 		}
 	}
 
-	return(0);
+	return(errors);
 }
 
 /* vim: set ts=2 sw=2 noet: */
