@@ -893,26 +893,14 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	if [ ! -d "$CHROOTDIR/usr" -o ! -e "$CHROOTDIR/etc/pacman.conf" ]; then
 		msg "Building a '-$TREE' chroot environment"
 		_F_makepkg_pacconf=`mktemp`
-		if grep -q ^Include.*current$ /etc/pacman.conf; then
-			if [ "$TREE" = "current" ]; then
-				# host: current, chroot: current
-				cat /etc/pacman.conf >$_F_makepkg_pacconf
-			else
-				# host: current, chroot: stable
-				cat /etc/pacman.conf |sed 's|^\(Include = /etc/pacman.d/frugalware-current$\)|#\1|
-					s|^#\(Include = /etc/pacman.d/frugalware$\)|\1|'>$_F_makepkg_pacconf
-			fi
-		else
-			if [ "$TREE" = "current" ]; then
-				# host: stable, chroot: current
-				cat /etc/pacman.conf |sed 's|^#\(Include = /etc/pacman.d/frugalware-current$\)|\1|
-					s|^\(Include = /etc/pacman.d/frugalware$\)|#\1|' >$_F_makepkg_pacconf
-			else
-				# host: stable, chroot: stable
-				cat /etc/pacman.conf >$_F_makepkg_pacconf
-			fi
-		fi
-		mkdir -p "$CHROOTDIR/tmp"
+		cat /etc/pacman.conf |grep -v Include >$_F_makepkg_pacconf
+		for i in `echo $TREE|sed 's/,/ /g'`
+		do
+			repo=$(eval "echo \${${i}_fdb/.fdb}")
+			[ -z "$repo" ] && repo="$i"
+			echo "Include = /etc/pacman.d/$repo" >>$_F_makepkg_pacconf
+		done
+		mkdir -p $CHROOTDIR/{tmp,var/log}
 		pacman-g2 -r "$CHROOTDIR" -Syf $COREPKGS --noconfirm --config $_F_makepkg_pacconf
 		if [ "$?" != "0" ]; then
 			error "Failed to build chroot environment."
@@ -921,7 +909,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			rm -f $CHROOTDIR/var/tmp/fst/lock $_F_makepkg_pacconf
 			exit 1
 		fi
-		rm -f $_F_makepkg_pacconf
+		mv -f $_F_makepkg_pacconf $CHROOTDIR/etc/pacman.conf
 	else
 		msg "Updating the chroot environment"
 		# copy these before any update since without them we can't even reach the servers
