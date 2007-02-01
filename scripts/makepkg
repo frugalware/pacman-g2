@@ -1284,8 +1284,7 @@ else
 					echo -e "${SHA1SUMS}" >> ${BUILDSCRIPT}
 				fi
 			else
-				error "Initial \$sha1sums() array does not exist, Aborting..."
-				exit 1
+				warning "Initial \$sha1sums() array does not exist, Aborting..."
 			fi
 		fi
 		exit 0
