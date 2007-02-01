@@ -1265,28 +1265,28 @@ else
 		echo -e "${SHA1SUMS}"
 		plain ""
 		if [ "${WRITESHA1}" = 1 ]; then
-            cd ${startdir}
-            if [ "`grep -c sha1sums= ${BUILDSCRIPT}`" -gt 1 ]; then
-                error "${BUILDSCRIPT} contain more than one sha1sums, please update manually"
-                exit 1
-            fi
-            if grep -q sha1sums= ${BUILDSCRIPT}; then
-                Fmessage "updating \$sha1sums() in the FrugalBuild."
-                if grep -q '^sha1sums.*)' ${BUILDSCRIPT}; then
-                    sed -i "/^sha1sums.*)/d" ${BUILDSCRIPT}
-                else
-                    sed -i "/^sha1sums/,/)/d" ${BUILDSCRIPT}
-                fi
+			cd ${startdir}
+			if [ "`grep -c sha1sums= ${BUILDSCRIPT}`" -gt 1 ]; then
+				error "${BUILDSCRIPT} contain more than one sha1sums, please update manually"
+				exit 1
+			fi
+			if grep -q sha1sums= ${BUILDSCRIPT}; then
+				Fmessage "updating \$sha1sums() in the FrugalBuild."
+				if grep -q '^sha1sums.*)' ${BUILDSCRIPT}; then
+					sed -i "/^sha1sums.*)/d" ${BUILDSCRIPT}
+				else
+					sed -i "/^sha1sums/,/)/d" ${BUILDSCRIPT}
+				fi
 				if grep -q "# optimization" "${BUILDSCRIPT}" ; then
 					# Always keep this line at the end
 					sed -i "s@^# optimization OK.*@${SHA1SUMS}\n# optimization OK@gi" ${BUILDSCRIPT}
 				else
 					echo -e "${SHA1SUMS}" >> ${BUILDSCRIPT}
 				fi
-            else
-                error "Initial \$sha1sums() array does not exist, Aborting..."
-                exit 1
-            fi
+			else
+				error "Initial \$sha1sums() array does not exist, Aborting..."
+				exit 1
+			fi
 		fi
 		exit 0
 	fi
