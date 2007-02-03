@@ -43,8 +43,6 @@
 int _alpm_db_load_pkgcache(pmdb_t *db)
 {
 	pmpkg_t *info;
-	/* The group cache needs INFRQ_DESC as well */
-	unsigned char infolevel = INFRQ_DEPENDS | INFRQ_DESC;
 
 	if(db == NULL) {
 		return(-1);
@@ -56,7 +54,7 @@ int _alpm_db_load_pkgcache(pmdb_t *db)
 	                        infolevel, db->treename);
 
 	_alpm_db_rewind(db);
-	while((info = _alpm_db_scan(db, NULL, infolevel)) != NULL) {
+	while((info = _alpm_db_scan(db, NULL, 0)) != NULL) {
 		info->origin = PKG_FROM_CACHE;
 		info->data = db;
 		/* add to the collective */
