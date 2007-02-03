@@ -475,8 +475,6 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 	if(pkg->origin == PKG_FROM_CACHE) {
 		switch(parm) {
 			/* Desc entry */
-			/*case PM_PKG_NAME:
-			case PM_PKG_VERSION:*/
 			case PM_PKG_DESC:
 			case PM_PKG_GROUPS:
 			case PM_PKG_URL:
