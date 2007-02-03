@@ -496,7 +496,6 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 				}
 			break;
 			/* Depends entry */
-			/* not needed: the cache is loaded with DEPENDS by default
 			case PM_PKG_DEPENDS:
 			case PM_PKG_REQUIREDBY:
 			case PM_PKG_CONFLICTS:
@@ -506,7 +505,7 @@ void *alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 					_alpm_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", pkg->name);
 					_alpm_db_read(pkg->data, INFRQ_DEPENDS, pkg);
 				}
-			break;*/
+			break;
 			/* Files entry */
 			case PM_PKG_FILES:
 			case PM_PKG_BACKUP:
