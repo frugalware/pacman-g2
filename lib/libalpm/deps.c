@@ -127,7 +127,7 @@ pmlist_t *_alpm_sortbydeps(pmlist_t *targets, int mode)
 		/* run thru targets, moving up packages as necessary */
 		for(i = newtargs; i; i = i->next) {
 			pmpkg_t *p = (pmpkg_t*)i->data;
-			for(j = p->depends; j; j = j->next) {
+			for(j = _alpm_pkg_getinfo(p, PM_PKG_DEPENDS); j; j = j->next) {
 				pmdepend_t dep;
 				pmpkg_t *q = NULL;
 				if(_alpm_splitdep(j->data, &dep)) {
@@ -145,7 +145,7 @@ pmlist_t *_alpm_sortbydeps(pmlist_t *targets, int mode)
 						}
 						break;
 					}
-					for(l = q->provides; l; l = l->next) {
+					for(l = _alpm_pkg_getinfo(q, PM_PKG_PROVIDES); l; l = l->next) {
 						if(!strcmp(dep.name, (char*)l->data)) {
 							if(!_alpm_pkg_isin((char*)l->data, tmptargs)) {
 								change = 1;
@@ -220,7 +220,7 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 					/* this package is also in the upgrade list, so don't worry about it */
 					continue;
 				}
-				for(k = p->depends; k && !found; k = k->next) {
+				for(k = _alpm_pkg_getinfo(p, PM_PKG_DEPENDS); k && !found; k = k->next) {
 					/* find the dependency info in p->depends */
 					_alpm_splitdep(k->data, &depend);
 					if(!strcmp(depend.name, oldpkg->name)) {
@@ -276,7 +276,7 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 				continue;
 			}
 
-			for(j = tp->depends; j; j = j->next) {
+			for(j = _alpm_pkg_getinfo(tp, PM_PKG_DEPENDS); j; j = j->next) {
 				/* split into name/version pairs */
 				_alpm_splitdep((char *)j->data, &depend);
 				found = 0;
@@ -357,7 +357,7 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
  				for(k = packages; k && !found; k = k->next) {
  					pmpkg_t *p = (pmpkg_t *)k->data;
  					/* see if the package names match OR if p provides depend.name */
- 					if(!strcmp(p->name, depend.name) || _alpm_list_is_strin(depend.name, p->provides)) {
+ 					if(!strcmp(p->name, depend.name) || _alpm_list_is_strin(depend.name, _alpm_pkg_getinfo(p, PM_PKG_PROVIDES))) {
 						if(depend.mod == PM_DEP_MOD_ANY) {
 							/* accept any version */
 							found = 1;
@@ -414,7 +414,7 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 					} else {
 						spkg = k->data;
 					}
-						if(spkg && _alpm_list_is_strin(tp->name, spkg->provides)) {
+						if(spkg && _alpm_list_is_strin(tp->name, _alpm_pkg_getinfo(spkg, PM_PKG_PROVIDES))) {
 							found=1;
 						}
 					}
@@ -493,7 +493,7 @@ pmlist_t *_alpm_removedeps(pmdb_t *db, pmlist_t *targs)
 	}
 
 	for(i = targs; i; i = i->next) {
-		for(j = ((pmpkg_t *)i->data)->depends; j; j = j->next) {
+		for(j = (_alpm_pkg_getinfo((pmpkg_t *)i->data, PM_PKG_DEPENDS)); j; j = j->next) {
 			pmdepend_t depend;
 			pmpkg_t *dep;
 			int needed = 0;
@@ -585,7 +585,7 @@ int _alpm_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pmlis
 		/* check if one of the packages in *list already provides this dependency */
 		for(j = list; j && !found; j = j->next) {
 			pmpkg_t *sp = (pmpkg_t *)j->data;
-			if(_alpm_list_is_strin(miss->depend.name, sp->provides)) {
+			if(_alpm_list_is_strin(miss->depend.name, _alpm_pkg_getinfo(sp, PM_PKG_PROVIDES))) {
 				_alpm_log(PM_LOG_DEBUG, _("%s provides dependency %s -- skipping"),
 				          sp->name, miss->depend.name);
 				found = 1;
