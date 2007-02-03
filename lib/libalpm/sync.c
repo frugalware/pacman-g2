@@ -127,7 +127,7 @@ int _alpm_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync
 	for(i = dbs_sync; i; i = i->next) {
 		for(j = _alpm_db_get_pkgcache(i->data); j; j = j->next) {
 			pmpkg_t *spkg = j->data;
-			for(k = spkg->replaces; k; k = k->next) {
+			for(k = _alpm_pkg_getinfo(spkg, PM_PKG_REPLACES); k; k = k->next) {
 				pmlist_t *m;
 				for(m = _alpm_db_get_pkgcache(db_local); m; m = m->next) {
 					pmpkg_t *lpkg = m->data;
