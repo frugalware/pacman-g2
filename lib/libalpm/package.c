@@ -35,6 +35,8 @@
 #include "util.h"
 #include "error.h"
 #include "list.h"
+#include "db.h"
+#include "handle.h"
 #include "package.h"
 #include "alpm.h"
 
@@ -482,6 +484,96 @@ int _alpm_pkg_splitname(char *target, char *name, char *version, int witharch)
 	}
 
 	return(0);
+}
+
+void *_alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
+{
+	void *data = NULL;
+
+	/* Update the cache package entry if needed */
+	if(pkg->origin == PKG_FROM_CACHE) {
+		switch(parm) {
+			/* Desc entry */
+			case PM_PKG_DESC:
+			case PM_PKG_GROUPS:
+			case PM_PKG_URL:
+			case PM_PKG_LICENSE:
+			case PM_PKG_ARCH:
+			case PM_PKG_BUILDDATE:
+			case PM_PKG_INSTALLDATE:
+			case PM_PKG_PACKAGER:
+			case PM_PKG_SIZE:
+			case PM_PKG_USIZE:
+			case PM_PKG_REASON:
+			case PM_PKG_MD5SUM:
+			case PM_PKG_SHA1SUM:
+				if(!(pkg->infolevel & INFRQ_DESC)) {
+					_alpm_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), pkg->name);
+					_alpm_db_read(pkg->data, INFRQ_DESC, pkg);
+				}
+			break;
+			/* Depends entry */
+			case PM_PKG_DEPENDS:
+			case PM_PKG_REQUIREDBY:
+			case PM_PKG_CONFLICTS:
+			case PM_PKG_PROVIDES:
+			case PM_PKG_REPLACES:
+				if(!(pkg->infolevel & INFRQ_DEPENDS)) {
+					_alpm_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", pkg->name);
+					_alpm_db_read(pkg->data, INFRQ_DEPENDS, pkg);
+				}
+			break;
+			/* Files entry */
+			case PM_PKG_FILES:
+			case PM_PKG_BACKUP:
+				if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_FILES)) {
+					_alpm_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg->name);
+					_alpm_db_read(pkg->data, INFRQ_FILES, pkg);
+				}
+			break;
+			/* Scriptlet */
+			case PM_PKG_SCRIPLET:
+				if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_SCRIPLET)) {
+					_alpm_log(PM_LOG_DEBUG, _("loading SCRIPLET info for '%s'"), pkg->name);
+					_alpm_db_read(pkg->data, INFRQ_SCRIPLET, pkg);
+				}
+			break;
+		}
+	}
+
+	switch(parm) {
+		case PM_PKG_NAME:        data = pkg->name; break;
+		case PM_PKG_VERSION:     data = pkg->version; break;
+		case PM_PKG_DESC:        data = pkg->desc; break;
+		case PM_PKG_GROUPS:      data = pkg->groups; break;
+		case PM_PKG_URL:         data = pkg->url; break;
+		case PM_PKG_ARCH:        data = pkg->arch; break;
+		case PM_PKG_BUILDDATE:   data = pkg->builddate; break;
+		case PM_PKG_BUILDTYPE:   data = pkg->buildtype; break;
+		case PM_PKG_INSTALLDATE: data = pkg->installdate; break;
+		case PM_PKG_PACKAGER:    data = pkg->packager; break;
+		case PM_PKG_SIZE:        data = (void *)(long)pkg->size; break;
+		case PM_PKG_USIZE:       data = (void *)(long)pkg->usize; break;
+		case PM_PKG_REASON:      data = (void *)(long)pkg->reason; break;
+		case PM_PKG_LICENSE:     data = pkg->license; break;
+		case PM_PKG_REPLACES:    data = pkg->replaces; break;
+		case PM_PKG_MD5SUM:      data = pkg->md5sum; break;
+		case PM_PKG_SHA1SUM:     data = pkg->sha1sum; break;
+		case PM_PKG_DEPENDS:     data = pkg->depends; break;
+		case PM_PKG_REMOVES:     data = pkg->removes; break;
+		case PM_PKG_REQUIREDBY:  data = pkg->requiredby; break;
+		case PM_PKG_PROVIDES:    data = pkg->provides; break;
+		case PM_PKG_CONFLICTS:   data = pkg->conflicts; break;
+		case PM_PKG_FILES:       data = pkg->files; break;
+		case PM_PKG_BACKUP:      data = pkg->backup; break;
+		case PM_PKG_SCRIPLET:    data = (void *)(long)pkg->scriptlet; break;
+		case PM_PKG_DATA:        data = pkg->data; break;
+		default:
+			data = NULL;
+		break;
+	}
+
+	return(data);
 }
 
 /* vim: set ts=2 sw=2 noet: */
