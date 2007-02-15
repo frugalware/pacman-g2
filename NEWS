@@ -1,5 +1,19 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.4.8         - makepkg: make /var/tmp word-writable, required by some
+                configure script
+	      - makepkg -t's argument is now a list, cleaned up pacman.conf
+	        generation
+	      - libalpm: changed the default infolevel to 0: this should speed
+	        up queries like -Si and -Qi
+              - makepkg: fixed building a new chroot
+3.4.7         - pacman-g2 -Qo works for multiple files
+              - new makepkg option: -G to update the sha1sums in place
+              - the logfile is created inside the chroot if -r is used
+              - bugfix for the -b option
+              - updated the mirror list
+              - makepkg: bugfix for building in a -stable chroot
+              - output fixes for long package names
 3.4.6         - renamed the fronted to pacman-g2 as suggested by upstream
               - makepkg: check for problematic subpackages before the build()
 	      - pacman-g2: new option: --nointegrity to disable the integrity
