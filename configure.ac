@@ -2,7 +2,7 @@ ENV_CFLAGS=$CFLAGS
 
 AC_PREREQ(2.59)
 dnl Update it right before the release since $pkgver_foo are all _post_ release snapshots
-AC_INIT([pacman-g2 package manager], 3.4.7, [frugalware-devel@frugalware.org], pacman-g2)
+AC_INIT([pacman-g2 package manager], 3.4.6, [frugalware-devel@frugalware.org], pacman-g2)
 AC_LANG(C)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_SYSTEM
@@ -21,7 +21,7 @@ dnl Define here the libalpm version number
 PM_MAJOR_VERSION=1
 PM_MINOR_VERSION=3
 PM_MICRO_VERSION=4
-PM_MICRO_VERSION_SUFFIX=.6
+PM_MICRO_VERSION_SUFFIX=.7
 PM_VERSION=$PM_MAJOR_VERSION.$PM_MINOR_VERSION.$PM_MICRO_VERSION$PM_MICRO_VERSION_SUFFIX
 dnl Needed for libtool to create proper shared lib version
 PM_VERSION_INFO=`expr $PM_MAJOR_VERSION + $PM_MINOR_VERSION`:$PM_MICRO_VERSION:$PM_MINOR_VERSION
