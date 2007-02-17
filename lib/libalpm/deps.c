@@ -208,7 +208,7 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 			if((oldpkg = _alpm_db_get_pkgfromcache(db, tp->name)) == NULL) {
 				continue;
 			}
-			for(j = oldpkg->requiredby; j; j = j->next) {
+			for(j = _alpm_pkg_getinfo(oldpkg, PM_PKG_REQUIREDBY); j; j = j->next) {
 				char *ver;
 				pmpkg_t *p;
 				found = 0;
@@ -403,7 +403,7 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 			}
 
 			found=0;
-			for(j = tp->requiredby; j; j = j->next) {
+			for(j = _alpm_pkg_getinfo(tp, PM_PKG_REQUIREDBY); j; j = j->next) {
 				if(!_alpm_list_is_strin((char *)j->data, packages)) {
 					/* check if a package in trans->packages provides this package */
 					for(k=trans->packages; !found && k; k=k->next) {
@@ -529,7 +529,7 @@ pmlist_t *_alpm_removedeps(pmdb_t *db, pmlist_t *targs)
 			}
 
 			/* see if other packages need it */
-			for(k = dep->requiredby; k && !needed; k = k->next) {
+			for(k = _alpm_pkg_getinfo(dep, PM_PKG_REQUIREDBY); k && !needed; k = k->next) {
 				pmpkg_t *dummy = _alpm_db_get_pkgfromcache(db, k->data);
 				if(!_alpm_pkg_isin(dummy->name, targs)) {
 					needed = 1;
