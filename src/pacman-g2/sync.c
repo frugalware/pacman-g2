@@ -525,7 +525,7 @@ int pacman_sync(list_t *targets)
 				for(lp = alpm_list_first(data); lp; lp = alpm_list_next(lp)) {
 					PM_DEPMISS *miss = alpm_list_getdata(lp);
 					MSG(NL, ":: %s: %s %s", alpm_dep_getinfo(miss, PM_DEP_TARGET),
-					    (long)alpm_dep_getinfo(miss, PM_DEP_TYPE) == PM_DEP_TYPE_DEPEND ? _("requires") : _("is required by"),
+					    (long)alpm_dep_getinfo(miss, PM_DEP_TYPE) == PM_DEP_TYPE_DEPEND ? _("is required by") : _("requries"),
 					    alpm_dep_getinfo(miss, PM_DEP_NAME));
 					switch((long)alpm_dep_getinfo(miss, PM_DEP_MOD)) {
 						case PM_DEP_MOD_EQ: MSG(CL, "=%s", alpm_dep_getinfo(miss, PM_DEP_VERSION)); break;

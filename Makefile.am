@@ -14,8 +14,7 @@ EXTRA_DIST =		\
 	ChangeLog  	\
 	COPYING		\
 	README 		\
-	TODO 		\
-	TODO.autoconf
+	TODO
 
 check:
 	cd pactest; python pactest.py --test=tests/*.py -p ../src/pacman-g2/pacman-g2 --debug=-1
