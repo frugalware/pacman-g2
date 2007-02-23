@@ -540,12 +540,12 @@ msgid "  -o, --owns <file>   query the package that owns <file>\n"
 msgstr "  -o, --owns <fájl>   a <fájl>-t tartalmazó csomag lekérdezése\n"
 
 #: ../pacman-g2.c:139
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "  -p, --file          pacman-g2 will query the package file [package] "
 "instead of\n"
 msgstr ""
-"  -p, --file          a pacman a [csomag] csomagfájlt kérdezze le ahelyett,\n"
+"  -p, --file          a pacman-g2 a [csomag] csomagfájlt fogja lekérdezni\n"
 
 #: ../pacman-g2.c:140
 #, c-format
@@ -617,11 +617,11 @@ msgstr ""
 "(többször is használható)\n"
 
 #: ../pacman-g2.c:156
-#, fuzzy, c-format
+# c-format
 msgid ""
 "      --nointegrity   don't check the integrity of the packages using sha1\n"
 msgstr ""
-"      --noscriptlet   ne futtassa le a telepítési szkriptet ha van olyan\n"
+"      --nointegrity   ne végezzen integritás-ellenõrzést az sha1 használatával\n"
 
 #: ../pacman-g2.c:158
 #, c-format
@@ -703,9 +703,9 @@ msgid "failed to set option LOGMASK (%s)\n"
 msgstr "nem sikerült beállítani a LOGMASK opciót (%s)\n"
 
 #: ../pacman-g2.c:522
-#, fuzzy, c-format
+# c-format
 msgid "failed to set option DBPATH (%s)\n"
-msgstr "nem sikerült beállítani a DLT opciót (%s)\n"
+msgstr "nem sikerült beállítani a DBPATH opciót (%s)\n"
 
 #: ../pacman-g2.c:526
 #, c-format
@@ -951,27 +951,24 @@ msgid "starting full system upgrade"
 msgstr "teljes rendszerfrissítés indítása"
 
 #: ../sync.c:421
-#, fuzzy
 msgid ""
 "\n"
 ":: pacman-g2 has detected a newer version of the \"pacman-g2\" package.\n"
 msgstr ""
 "\n"
-":: a pacman egy újabb verzióját észlelte a \"pacman\" csomagnak.\n"
+":: a pacman-g2 egy újabb verzióját észlelte a \"pacman-g2\" csomagnak.\n"
 
 #: ../sync.c:422
-#, fuzzy
 msgid ":: It is recommended that you allow pacman-g2 to upgrade itself\n"
-msgstr ":: Ajánlott, hogy engedje, hogy a pacman elõbb saját magát\n"
+msgstr ":: Ajánlott, hogy engedje, hogy a pacman-g2 elõbb saját magát\n"
 
 #: ../sync.c:423
 msgid ":: first, then you can re-run the operation with the newer version.\n"
 msgstr ":: frissítse, majd újra futtathatja a mûveletet az újabb verzióval.\n"
 
 #: ../sync.c:425
-#, fuzzy
 msgid ":: Upgrade pacman-g2 first? [Y/n] "
-msgstr ":: Elõször csak a pacman frissítése? [I/n] "
+msgstr ":: Elõször csak a pacman-g2 frissítése? [I/n] "
 
 #: ../sync.c:440 ../sync.c:461
 #, c-format
@@ -998,7 +995,6 @@ msgid "is required by"
 msgstr "igényli a(z)"
 
 #: ../sync.c:528
-#, fuzzy
 msgid "requries"
 msgstr "igényli a következõt:"
 

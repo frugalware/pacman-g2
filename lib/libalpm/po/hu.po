@@ -828,9 +828,8 @@ msgid "all directives must belong to a section"
 msgstr "minden direktívának egy szekcióhoz kell tartoznia"
 
 #: ../error.c:135
-#, fuzzy
 msgid "invalid regular expression"
-msgstr "érvényes reguláris kifejezés"
+msgstr "érvénytelen reguláris kifejezés"
 
 #: ../error.c:137
 msgid "connection to remote host failed"
