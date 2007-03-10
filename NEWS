@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.4.9         - bindings: added support for loading external packages and
+                managing complete transactions
+              - testsuite improvements
+              - updated translations
+              - a few bugfixes for the new default infolevel in libalpm
 3.4.8         - makepkg: make /var/tmp word-writable, required by some
                 configure script
 	      - makepkg -t's argument is now a list, cleaned up pacman.conf
