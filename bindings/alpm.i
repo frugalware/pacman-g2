@@ -21,3 +21,40 @@
 %pointer_cast(void *, PM_CONFLICT *, void_to_PM_CONFLICT);
 
 %include "alpm.h"
+
+%inline %{
+/* PM_PKG */
+PM_PKG** PKGp_new()
+{
+        PM_PKG **ptr;
+        ptr = malloc(sizeof(PM_PKG*));
+        return(ptr);
+}
+
+void PKGp_free(PM_PKG **ptr)
+{
+        free(ptr);
+}
+
+PM_PKG* PKGp_to_PKG(PM_PKG **ptr)
+{
+        return(*ptr);
+}
+/* PM_LIST */
+PM_LIST** LISTp_new()
+{
+        PM_LIST **ptr;
+        ptr = malloc(sizeof(PM_LIST*));
+        return(ptr);
+}
+
+void LISTp_free(PM_LIST **ptr)
+{
+        free(ptr);
+}
+
+PM_LIST* LISTp_to_LIST(PM_LIST **ptr)
+{
+        return(*ptr);
+}
+%}
