@@ -5,9 +5,6 @@
 #endif
 %include "cpointer.i"
 
-/* Wrap a class interface around a "long *" */
-%pointer_class(long, longp);
-
 /* Create casting functions */
 
 %pointer_cast(void *, long, void_to_long);
@@ -19,6 +16,7 @@
 %pointer_cast(void *, PM_SYNCPKG *, void_to_PM_SYNCPKG);
 %pointer_cast(void *, PM_DB *, void_to_PM_DB);
 %pointer_cast(void *, PM_CONFLICT *, void_to_PM_CONFLICT);
+%pointer_cast(void *, PM_DEPMISS *, void_to_PM_DEPMISS);
 
 %include "alpm.h"
 
