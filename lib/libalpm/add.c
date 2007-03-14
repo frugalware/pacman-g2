@@ -441,7 +441,8 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 			/* libarchive requires this for extracting hard links */
 			chdir(handle->root);
 
-			for(i = 0; archive_read_next_header (archive, &entry) == ARCHIVE_OK; i++) {
+			int archive_ret;
+			for(i = 0; (archive_ret = archive_read_next_header (archive, &entry)) == ARCHIVE_OK; i++) {
 				int nb = 0;
 				int notouch = 0;
 				char *md5_orig = NULL;
@@ -713,6 +714,9 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 					}
 				}
 			}
+			if(archive_ret == ARCHIVE_FATAL) {
+				errors++;
+			}
 			if(strlen(cwd)) {
 				chdir(cwd);
 			}
@@ -720,10 +724,12 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 
 			if(errors) {
 				ret = 1;
-				_alpm_log(PM_LOG_ERROR, _("errors occurred while %s %s"),
+				_alpm_log(PM_LOG_WARNING, _("errors occurred while %s %s"),
 					(pmo_upgrade ? _("upgrading") : _("installing")), info->name);
 				alpm_logaction(_("errors occurred while %s %s"),
 					(pmo_upgrade ? _("upgrading") : _("installing")), info->name);
+			} else {
+			PROGRESS(trans, cb_state, what, 100, _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
 			}
 		}
 
@@ -803,7 +809,6 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 			}
 		}
 
-		PROGRESS(trans, cb_state, what, 100, _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
 		needdisp = 0;
 		EVENT(trans, PM_TRANS_EVT_EXTRACT_DONE, NULL, NULL);
 		FREE(what);
