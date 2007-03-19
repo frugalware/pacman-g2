@@ -145,14 +145,15 @@ pmlist_t *_alpm_sortbydeps(pmlist_t *targets, int mode)
 						}
 						break;
 					}
-					if(!change)
-					for(l = _alpm_pkg_getinfo(q, PM_PKG_PROVIDES); l; l = l->next) {
-						if(!strcmp(dep.name, (char*)l->data)) {
-							if(!_alpm_pkg_isin((char*)l->data, tmptargs)) {
-								change = 1;
-								tmptargs = _alpm_list_add(tmptargs, q);
+					if(!change) {
+						for(l = _alpm_pkg_getinfo(q, PM_PKG_PROVIDES); l; l = l->next) {
+							if(!strcmp(dep.name, (char*)l->data)) {
+								if(!_alpm_pkg_isin((char*)l->data, tmptargs)) {
+									change = 1;
+									tmptargs = _alpm_list_add(tmptargs, q);
+								}
+								break;
 							}
-							break;
 						}
 					}
 				}
