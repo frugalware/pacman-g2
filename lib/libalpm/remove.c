@@ -114,7 +114,7 @@ int _alpm_remove_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
 							trans->packages = _alpm_list_add(trans->packages, info);
 						} else {
 							_alpm_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
-							          miss->depend.name);
+								miss->depend.name);
 						}
 					}
 					FREELIST(lp);
@@ -178,7 +178,7 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 			EVENT(trans, PM_TRANS_EVT_REMOVE_START, info, NULL);
 			_alpm_log(PM_LOG_FLOW1, _("removing package %s-%s"), info->name, info->version);
 
-			/* run the pre-remove scriptlet if it exists  */
+			/* run the pre-remove scriptlet if it exists */
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
 				_alpm_runscriptlet(handle->root, pm_install, "pre_remove", info->version, NULL, trans);
@@ -236,12 +236,12 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 					}
 					if(skipit) {
 						_alpm_log(PM_LOG_FLOW2, _("skipping removal of %s as it has moved to another package"),
-						          file);
+							file);
 					} else {
 						/* if the file is flagged, back it up to .pacsave */
 						if(nb) {
 							if(trans->type == PM_TRANS_TYPE_UPGRADE) {
-								/* we're upgrading so just leave the file as is.  pacman_add() will handle it */
+								/* we're upgrading so just leave the file as is. pacman_add() will handle it */
 							} else {
 								if(!(trans->flags & PM_TRANS_FLAG_NOSAVE)) {
 									char newpath[PATH_MAX];
@@ -271,7 +271,7 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 		}
 
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
-			/* run the post-remove script if it exists  */
+			/* run the post-remove script if it exists */
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 				char pm_install[PATH_MAX];
 				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
@@ -311,7 +311,7 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 				pmlist_t *provides = _alpm_db_whatprovides(db, depend.name);
 				if(provides) {
 					/* TODO: should check _all_ packages listed in provides, not just
-					 *       the first one.
+					 *			 the first one.
 					 */
 					/* use the first one */
 					depinfo = _alpm_db_get_pkgfromcache(db, ((pmpkg_t *)provides->data)->name);
@@ -329,11 +329,11 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 			_alpm_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name);
 			if(_alpm_db_write(db, depinfo, INFRQ_DEPENDS)) {
 				_alpm_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
-				          depinfo->name, depinfo->version);
+					depinfo->name, depinfo->version);
 			}
 		}
 
-	    PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, 100, _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
+		PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, 100, _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			EVENT(trans, PM_TRANS_EVT_REMOVE_DONE, info, NULL);
 		}
