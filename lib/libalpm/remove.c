@@ -270,6 +270,7 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 			}
 		}
 
+		PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, 100, _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			/* run the post-remove script if it exists */
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
@@ -333,7 +334,6 @@ int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db)
 			}
 		}
 
-		PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, 100, _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			EVENT(trans, PM_TRANS_EVT_REMOVE_DONE, info, NULL);
 		}
