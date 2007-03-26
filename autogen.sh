@@ -35,6 +35,7 @@ elif [ "$1" == "--gettext-only" ]; then
 		mv Makevars Makevars.tmp
 		package=`pwd|sed 's|.*/\(.*\)/.*|\1|'`
 		intltool-update --pot --gettext-package=$package
+		if [ "$2" != "--pot-only" ]; then
 		for j in *.po
 		do
 			if msgmerge $j $package.pot -o $j.new; then
@@ -47,9 +48,12 @@ elif [ "$1" == "--gettext-only" ]; then
 				rm -f $j.new
 			fi
 		done
+		fi
 		mv Makevars.tmp Makevars
 		cd - >/dev/null
 	done
+	# FIXME: implement --pot-only for po4a, too
+	[ "$2" == "--pot-only" ] && exit 0
 	cd doc
 	po4a -k 0 po4a.cfg
 	cd po
