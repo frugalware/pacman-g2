@@ -34,7 +34,9 @@ elif [ "$1" == "--gettext-only" ]; then
 		cd $i
 		mv Makevars Makevars.tmp
 		package=`pwd|sed 's|.*/\(.*\)/.*|\1|'`
+		cp /usr/bin/intltool-extract ./
 		intltool-update --pot --gettext-package=$package
+		rm intltool-extract
 		if [ "$2" != "--pot-only" ]; then
 		for j in *.po
 		do
