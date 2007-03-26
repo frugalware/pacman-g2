@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+cd `dirname $0`
+
 if [ "$1" == "--dist" ]; then
 	if [ -d ../releases ]; then
 		release="yes"
