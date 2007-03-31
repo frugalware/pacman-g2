@@ -85,9 +85,9 @@ if [ -d $po_dir ]; then
 	: > src/pacman-g2/po/LINGUAS
 	for i in $(/bin/ls $po_dir/pacman)
 	do
-		cp $po_dir/pacman/$i/libalpm.po lib/libalpm/po
+		cp $po_dir/pacman/$i/libalpm.po lib/libalpm/po/$i.po
 		echo $i >> lib/libalpm/po/LINGUAS
-		cp $po_dir/pacman/$i/pacman-g2.po src/pacman-g2/po
+		cp $po_dir/pacman/$i/pacman-g2.po src/pacman-g2/po/$i.po
 		echo $i >> src/pacman-g2/po/LINGUAS
 	done
 else
