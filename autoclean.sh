@@ -47,10 +47,10 @@ rm -rf src/pacman-g2/po/Makefile
 rm -rf src/pacman-g2/po/Makefile.in
 rm -rf src/pacman-g2/po/POTFILES
 rm -rf src/pacman-g2/po/stamp-po
-rm -rf src/pacman-g2/po/*.gmo
+rm -rf src/pacman-g2/po/*.{gmo,pot,po}
 
 rm -rf lib/libalpm/po/Makefile
 rm -rf lib/libalpm/po/Makefile.in
 rm -rf lib/libalpm/po/POTFILES
 rm -rf lib/libalpm/po/stamp-po
-rm -rf lib/libalpm/po/*.gmo
+rm -rf lib/libalpm/po/*.{gmo,pot,po}
