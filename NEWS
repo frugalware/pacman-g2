@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.5.0         - better error handling for corrupted packages
+              - fix handling provides fields during a dependency cycle
+              - fix the progressbar in case there is a post_remove scriptlet
+	      - updated Hungarian and French translation (updates are now
+	        automatic from pootle)
 3.4.9         - bindings: added support for loading external packages and
                 managing complete transactions
               - testsuite improvements
