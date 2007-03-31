@@ -76,6 +76,38 @@ elif [ "$1" == "--gettext-only" ]; then
 	exit 0
 fi
 
+# copy in the po files
+
+po_dir=~/darcs/translations/po
+
+if [ -d $po_dir ]; then
+	: > lib/libalpm/po/LINGUAS
+	: > src/pacman-g2/po/LINGUAS
+	for i in $(/bin/ls $po_dir/pacman)
+	do
+		cp $po_dir/pacman/$i/libalpm.po lib/libalpm/po
+		echo $i >> lib/libalpm/po/LINGUAS
+		cp $po_dir/pacman/$i/pacman-g2.po src/pacman-g2/po
+		echo $i >> src/pacman-g2/po/LINGUAS
+	done
+else
+	echo "WARNING: no po files will be used"
+fi
+
+# generate the pot files
+
+for i in lib/libalpm/po src/pacman-g2/po
+do
+	cd $i
+	mv Makevars Makevars.tmp
+	package=`pwd|sed 's|.*/\(.*\)/.*|\1|'`
+	cp /usr/bin/intltool-extract ./
+	intltool-update --pot --gettext-package=$package
+	rm intltool-extract
+	mv Makevars.tmp Makevars
+	cd - >/dev/null
+done
+
 libtoolize -f -c
 aclocal --force
 autoheader -f
