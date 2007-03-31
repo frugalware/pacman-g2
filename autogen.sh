@@ -1,8 +1,41 @@
 #!/bin/sh -e
 
+import_pootle()
+{
+	po_dir=~/darcs/translations/po
+
+	if [ -d $po_dir ]; then
+		: > lib/libalpm/po/LINGUAS
+		: > src/pacman-g2/po/LINGUAS
+		for i in $(/bin/ls $po_dir/pacman)
+		do
+			cp $po_dir/pacman/$i/libalpm.po lib/libalpm/po/$i.po
+			echo $i >> lib/libalpm/po/LINGUAS
+			cp $po_dir/pacman/$i/pacman-g2.po src/pacman-g2/po/$i.po
+			echo $i >> src/pacman-g2/po/LINGUAS
+		done
+	else
+		echo "WARNING: no po files will be used"
+	fi
+
+	# generate the pot files
+	for i in lib/libalpm/po src/pacman-g2/po
+	do
+		cd $i
+		mv Makevars Makevars.tmp
+		package=`pwd|sed 's|.*/\(.*\)/.*|\1|'`
+		cp /usr/bin/intltool-extract ./
+		intltool-update --pot --gettext-package=$package
+		rm intltool-extract
+		mv Makevars.tmp Makevars
+		cd - >/dev/null
+	done
+}
+
 cd `dirname $0`
 
 if [ "$1" == "--dist" ]; then
+	import_pootle
 	if [ -d ../releases ]; then
 		release="yes"
 	fi
@@ -77,36 +110,7 @@ elif [ "$1" == "--gettext-only" ]; then
 fi
 
 # copy in the po files
-
-po_dir=~/darcs/translations/po
-
-if [ -d $po_dir ]; then
-	: > lib/libalpm/po/LINGUAS
-	: > src/pacman-g2/po/LINGUAS
-	for i in $(/bin/ls $po_dir/pacman)
-	do
-		cp $po_dir/pacman/$i/libalpm.po lib/libalpm/po/$i.po
-		echo $i >> lib/libalpm/po/LINGUAS
-		cp $po_dir/pacman/$i/pacman-g2.po src/pacman-g2/po/$i.po
-		echo $i >> src/pacman-g2/po/LINGUAS
-	done
-else
-	echo "WARNING: no po files will be used"
-fi
-
-# generate the pot files
-
-for i in lib/libalpm/po src/pacman-g2/po
-do
-	cd $i
-	mv Makevars Makevars.tmp
-	package=`pwd|sed 's|.*/\(.*\)/.*|\1|'`
-	cp /usr/bin/intltool-extract ./
-	intltool-update --pot --gettext-package=$package
-	rm intltool-extract
-	mv Makevars.tmp Makevars
-	cd - >/dev/null
-done
+import_pootle
 
 libtoolize -f -c
 aclocal --force
