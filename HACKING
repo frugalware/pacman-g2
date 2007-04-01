@@ -19,7 +19,7 @@ cd pactest; python pactest.py --test=tests/sync990.py -p ../../src/pacman-g2/pac
 
 That's all.
 
-How to add new localized manpage to pacman-t2 (configure and all things)
+How to add new localized manpage to pacman-g2 (configure and all things)
 =====================================================================
 
 You need to create a dir under doc/ with lang name. Lets see an example. You want to do
