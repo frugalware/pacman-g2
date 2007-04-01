@@ -12,6 +12,8 @@ Run the tests:
 
 make check
 
+NOTE: if you got FAILED for all test then try pacman-g2 -S fakeroot and try again :)
+
 If some of them failed, probably you'll want to run only one test,
 for example sync990:
 
