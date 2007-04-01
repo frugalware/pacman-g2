@@ -10,3 +10,6 @@ $(man_MANS):
 if HAS_PO4A
 EXTRA_DIST = pacman-g2.8 makepkg.8 FrugalBuild.8
 endif
+
+distclean:
+	rm -f hu/*.8
