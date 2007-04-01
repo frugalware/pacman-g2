@@ -964,7 +964,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 				/bin/su - fst -c "$0 --inchroot -S $ARGLIST"
 		else
 			echo "cd /var/tmp/fst/; $0 --inchroot -s $ARGLIST" | \
-				/usr/sbin/chroot $CHROOTDIR /bin/sh
+				/usr/sbin/chroot $CHROOTDIR /bin/su - -c /bin/sh
 		fi
 	fi
 
