@@ -749,7 +749,7 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 				if(_alpm_splitdep(tmppm->data, &depend)) {
 					continue;
 				}
-				if(tmppm->data && !strcmp(depend.name, info->name)) {
+				if(tmppm->data && (!strcmp(depend.name, info->name) || _alpm_list_is_strin(depend.name, info->provides))) {
 					_alpm_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), tmpp->name, info->name);
 					info->requiredby = _alpm_list_add(info->requiredby, strdup(tmpp->name));
 				}
