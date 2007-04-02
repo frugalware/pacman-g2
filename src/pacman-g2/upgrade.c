@@ -32,12 +32,12 @@
 
 extern config_t *config;
 
-int pacman_upgrade(list_t *targets)
+int upgradepkg(list_t *targets)
 {
 	/* this is basically just a remove-then-add process. pacman_add() will */
 	/* handle it */
 	config->upgrade = 1;
-	return(pacman_add(targets));
+	return(addpkg(targets));
 }
 
 

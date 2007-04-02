@@ -347,7 +347,7 @@ static int sync_list(list_t *syncs, list_t *targets)
 	return(0);
 }
 
-int pacman_sync(list_t *targets)
+int syncpkg(list_t *targets)
 {
 	int confirm = 0;
 	int retval = 0;

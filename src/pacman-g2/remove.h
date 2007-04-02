@@ -21,7 +21,7 @@
 #ifndef _PM_REMOVE_H
 #define _PM_REMOVE_H
 
-int pacman_remove(list_t *targets);
+int removepkg(list_t *targets);
 
 #endif /* _PM_REMOVE_H */
 

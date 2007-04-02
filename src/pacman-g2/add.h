@@ -21,7 +21,7 @@
 #ifndef _PM_ADD_H
 #define _PM_ADD_H
 
-int pacman_add(list_t *targets);
+int addpkg(list_t *targets);
 
 #endif /* _PM_ADD_H */
 

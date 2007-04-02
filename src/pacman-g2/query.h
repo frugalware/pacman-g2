@@ -21,7 +21,7 @@
 #ifndef _PM_QUERY_H
 #define _PM_QUERY_H
 
-int pacman_query(list_t *targets);
+int querypkg(list_t *targets);
 
 #endif /* _PM_QUERY_H */
 

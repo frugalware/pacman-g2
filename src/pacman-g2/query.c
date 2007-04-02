@@ -90,7 +90,7 @@ static int query_fileowner(PM_DB *db, char *filename)
 	return(0);
 }
 
-int pacman_query(list_t *targets)
+int querypkg(list_t *targets)
 {
 	PM_PKG *info = NULL;
 	list_t *targ;

@@ -608,12 +608,12 @@ int main(int argc, char *argv[])
 
 	/* start the requested operation */
 	switch(config->op) {
-		case PM_OP_ADD:     ret = pacman_add(pm_targets);     break;
-		case PM_OP_REMOVE:  ret = pacman_remove(pm_targets);  break;
-		case PM_OP_UPGRADE: ret = pacman_upgrade(pm_targets); break;
-		case PM_OP_QUERY:   ret = pacman_query(pm_targets);   break;
-		case PM_OP_SYNC:    ret = pacman_sync(pm_targets);    break;
-		case PM_OP_DEPTEST: ret = pacman_deptest(pm_targets); break;
+		case PM_OP_ADD:     ret = addpkg(pm_targets);     break;
+		case PM_OP_REMOVE:  ret = removepkg(pm_targets);  break;
+		case PM_OP_UPGRADE: ret = upgradepkg(pm_targets); break;
+		case PM_OP_QUERY:   ret = querypkg(pm_targets);   break;
+		case PM_OP_SYNC:    ret = syncpkg(pm_targets);    break;
+		case PM_OP_DEPTEST: ret = deptestpkg(pm_targets); break;
 		default:
 			ERR(NL, _("no operation specified (use -h for help)\n"));
 			ret = 1;

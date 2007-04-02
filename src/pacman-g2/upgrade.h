@@ -21,7 +21,7 @@
 #ifndef _PM_UPGRADE_H
 #define _PM_UPGRADE_H
 
-int pacman_upgrade(list_t *targets);
+int upgradepkg(list_t *targets);
 
 #endif /* _PM_UPGRADE_H */
 

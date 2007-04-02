@@ -36,7 +36,7 @@
 
 extern config_t *config;
 
-int pacman_deptest(list_t *targets)
+int deptestpkg(list_t *targets)
 {
 	PM_LIST *data;
 	list_t *i;
@@ -141,7 +141,7 @@ int pacman_deptest(list_t *targets)
 				FREELIST(synctargs);
 				return(1);
 			}
-			if(!config->op_d_resolve || pacman_sync(synctargs) != 0) {
+			if(!config->op_d_resolve || syncpkg(synctargs) != 0) {
 				/* error (or -D not used) */
 				retval = 127;
 			}

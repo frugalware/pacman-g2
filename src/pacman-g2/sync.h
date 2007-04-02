@@ -27,7 +27,7 @@ typedef struct __sync_t {
 	PM_DB *db;
 } sync_t;
 
-int pacman_sync(list_t *targets);
+int syncpkg(list_t *targets);
 
 #endif /* _PM_SYNC_H */
 

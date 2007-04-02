@@ -37,7 +37,7 @@ extern config_t *config;
 
 extern PM_DB *db_local;
 
-int pacman_remove(list_t *targets)
+int removepkg(list_t *targets)
 {
 	PM_LIST *data;
 	list_t *i;

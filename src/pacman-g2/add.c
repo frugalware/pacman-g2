@@ -36,7 +36,7 @@
 
 extern config_t *config;
 
-int pacman_add(list_t *targets)
+int addpkg(list_t *targets)
 {
 	PM_LIST *data;
 	list_t *i;
