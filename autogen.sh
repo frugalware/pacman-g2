@@ -112,6 +112,7 @@ fi
 # copy in the po files
 import_pootle
 
+cp /usr/share/aclocal/libtool.m4 aclocal.m4
 libtoolize -f -c
 aclocal --force
 autoheader -f
