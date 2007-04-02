@@ -1,5 +1,7 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+              - fix for handling virtual reverse depends on remove
+              - makepkg: fix gpg usage when options=('nofakeroot') is set
 3.5.0         - better error handling for corrupted packages
               - fix handling provides fields during a dependency cycle
               - fix the progressbar in case there is a post_remove scriptlet
