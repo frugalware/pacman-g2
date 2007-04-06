@@ -102,7 +102,7 @@ GLOBALDEF int ftplib_debug = 0;
 #define net_write(x,y,z) send(x,y,z,0)
 #define net_close closesocket
 #endif
-	
+	
 	/*
 	 * VAX C does not supply a memccpy routine so I provide my own
 	 */
@@ -133,7 +133,7 @@ char *strdup(const char *src)
 		strcpy(dst,src);
 	return dst;
 }
-
+
 /*
  * socket_wait - wait for socket to receive or flush data
  *
@@ -173,7 +173,7 @@ static int socket_wait(netbuf *ctl)
 	while ((rv = ctl->idlecb(ctl, ctl->xfered, ctl->idlearg)));
 	return rv;
 }
-
+
 /*
  * read a line of text
  *
@@ -249,7 +249,7 @@ static int readline(char *buf,int max,netbuf *ctl)
 	while (1);
 	return retval;
 }
-
+
 /*
  * write lines of text
  *
@@ -309,7 +309,7 @@ static int writeline(char *buf, int len, netbuf *nData)
 	}
 	return len;
 }
-
+
 /*
  * read a response from the server
  *
@@ -347,7 +347,7 @@ static int readresp(char c, netbuf *nControl)
 		return 1;
 	return 0;
 }
-
+
 /*
  * FtpInit for stupid operating systems that require it (Windows NT)
  */
@@ -364,7 +364,7 @@ GLOBALDEF void FtpInit(void)
 	/* we don't use this 'version' variable */
 	version=NULL;
 }
-
+
 /*
  * FtpLastResponse - return a pointer to the last response received
  */
@@ -374,7 +374,7 @@ GLOBALDEF char *FtpLastResponse(netbuf *nControl)
 		return nControl->response;
 	return NULL;
 }
-
+
 /*
  * FtpConnect - connect to remote server
  *
@@ -487,7 +487,7 @@ GLOBALDEF int FtpConnect(const char *host, netbuf **nControl)
 	*nControl = ctrl;
 	return 1;
 }
-
+
 /*
  * FtpOptions - change connection options
  *
@@ -527,7 +527,7 @@ GLOBALDEF int FtpOptions(int opt, long val, netbuf *nControl)
 	}
 	return rv;
 }
-
+
 /*
  * FtpSendCmd - send a command and wait for expected response
  *
@@ -550,7 +550,7 @@ static int FtpSendCmd(const char *cmd, char expresp, netbuf *nControl)
 	}
 	return readresp(expresp, nControl);
 }
-
+
 /*
  * FtpLogin - log in to remote server
  *
@@ -573,7 +573,7 @@ GLOBALDEF int FtpLogin(const char *user, const char *pass, netbuf *nControl)
 	sprintf(tempbuf,"PASS %s",pass);
 	return FtpSendCmd(tempbuf,'2',nControl);
 }
-
+
 /*
  * FtpOpenPort - set up data connection
  *
@@ -720,7 +720,7 @@ static int FtpOpenPort(netbuf *nControl, netbuf **nData, int mode, int dir)
 	*nData = ctrl;
 	return 1;
 }
-
+
 /*
  * FtpAcceptConnection - accept connection from server
  *
@@ -791,7 +791,7 @@ static int FtpAcceptConnection(netbuf *nData, netbuf *nControl)
 	}
 	return rv;	
 }
-
+
 /*
  * FtpAccess - return a handle for a data stream
  *
@@ -864,7 +864,7 @@ GLOBALDEF int FtpAccess(const char *path, int typ, int mode, netbuf *nControl,
 	}
 	return 1;
 }
-
+
 /*
  * FtpRead - read from a data connection
  */
@@ -897,7 +897,7 @@ GLOBALDEF int FtpRead(void *buf, int max, netbuf *nData)
 	}
 	return i;
 }
-
+
 /*
  * FtpWrite - write to a data connection
  */
@@ -927,7 +927,7 @@ GLOBALDEF int FtpWrite(void *buf, int len, netbuf *nData)
 	}
 	return i;
 }
-
+
 /*
  * FtpClose - close a data connection
  */
@@ -965,7 +965,7 @@ GLOBALDEF int FtpClose(netbuf *nData)
 	}
 	return 1;
 }
-
+
 /*
  * FtpSite - send a SITE command
  *
@@ -982,7 +982,7 @@ GLOBALDEF int FtpSite(const char *cmd, netbuf *nControl)
 		return 0;
 	return 1;
 }
-
+
 /*
  * FtpSysType - send a SYST command
  *
@@ -1005,7 +1005,7 @@ GLOBALDEF int FtpSysType(char *buf, int max, netbuf *nControl)
 	*b++ = '\0';
 	return 1;
 }
-
+
 /*
  * FtpMkdir - create a directory at server
  *
@@ -1022,7 +1022,7 @@ GLOBALDEF int FtpMkdir(const char *path, netbuf *nControl)
 		return 0;
 	return 1;
 }
-
+
 /*
  * FtpChdir - change path at remote
  *
@@ -1039,7 +1039,7 @@ GLOBALDEF int FtpChdir(const char *path, netbuf *nControl)
 		return 0;
 	return 1;
 }
-
+
 /*
  * FtpCDUp - move to parent directory at remote
  *
@@ -1051,7 +1051,7 @@ GLOBALDEF int FtpCDUp(netbuf *nControl)
 		return 0;
 	return 1;
 }
-
+
 /*
  * FtpRmdir - remove directory at remote
  *
@@ -1068,7 +1068,7 @@ GLOBALDEF int FtpRmdir(const char *path, netbuf *nControl)
 		return 0;
 	return 1;
 }
-
+
 /*
  * FtpPwd - get working directory at remote
  *
@@ -1090,7 +1090,7 @@ GLOBALDEF int FtpPwd(char *path, int max, netbuf *nControl)
 	*b++ = '\0';
 	return 1;
 }
-
+
 /*
  * FtpXfer - issue a command and transfer data
  *
@@ -1152,7 +1152,7 @@ static int FtpXfer(const char *localfile, const char *path,
 	FtpClose(nData);
 	return rv;
 }
-
+
 /*
  * FtpNlst - issue an NLST command and write response to output
  *
@@ -1163,7 +1163,7 @@ GLOBALDEF int FtpNlst(const char *outputfile, const char *path,
 {
 	return FtpXfer(outputfile, path, nControl, FTPLIB_DIR, FTPLIB_ASCII);
 }
-
+
 /*
  * FtpDir - issue a LIST command and write response to output
  *
@@ -1173,7 +1173,7 @@ GLOBALDEF int FtpDir(const char *outputfile, const char *path, netbuf *nControl)
 {
 	return FtpXfer(outputfile, path, nControl, FTPLIB_DIR_VERBOSE, FTPLIB_ASCII);
 }
-
+
 /*
  * FtpSize - determine the size of a remote file
  *
@@ -1201,7 +1201,7 @@ GLOBALDEF int FtpSize(const char *path, int *size, char mode, netbuf *nControl)
 	}   
 	return rv;
 }
-
+
 /*
  * FtpRestart - issue a REST command
  *
@@ -1217,7 +1217,7 @@ GLOBALDEF int FtpRestart(int offset, netbuf *nControl)
 		rv = 0;
 	return rv;
 }
-
+
 /*
  * FtpModDate - determine the modification date of a remote file
  *
@@ -1237,7 +1237,7 @@ GLOBALDEF int FtpModDate(const char *path, char *dt, int max, netbuf *nControl)
 		strncpy(dt, &nControl->response[4], max);
 	return rv;
 }
-
+
 /*
  * FtpGet - issue a GET command and write received data to output
  *
@@ -1248,7 +1248,7 @@ GLOBALDEF int FtpGet(const char *outputfile, const char *path,
 {
 	return FtpXfer(outputfile, path, nControl, FTPLIB_FILE_READ, mode);
 }
-
+
 /*
  * FtpPut - issue a PUT command and send data from input
  *
@@ -1259,7 +1259,7 @@ GLOBALDEF int FtpPut(const char *inputfile, const char *path, char mode,
 {
 	return FtpXfer(inputfile, path, nControl, FTPLIB_FILE_WRITE, mode);
 }
-
+
 /*
  * FtpRename - rename a file at remote
  *
@@ -1280,7 +1280,7 @@ GLOBALDEF int FtpRename(const char *src, const char *dst, netbuf *nControl)
 		return 0;
 	return 1;
 }
-
+
 /*
  * FtpDelete - delete a file at remote
  *
@@ -1297,7 +1297,7 @@ GLOBALDEF int FtpDelete(const char *fnm, netbuf *nControl)
 		return 0;
 	return 1;
 }
-
+
 /*
  * FtpQuit - disconnect from remote
  *
@@ -1312,7 +1312,7 @@ GLOBALDEF void FtpQuit(netbuf *nControl)
 	free(nControl->buf);
 	free(nControl);
 }
-
+
 /*
  * HttpConnect - connect to remote server
  *
@@ -1403,7 +1403,7 @@ GLOBALREF int HttpConnect(const char *host, unsigned short port, netbuf **nContr
 	*nControl = ctrl;
 	return 1;
 }
-
+
 /*
  * HttpSendCmd - send a command
  *
@@ -1438,7 +1438,7 @@ static int HttpSendCmd(const char *cmd, char expresp, netbuf *nControl)
 		return 1;
 	return 0;
 }
-
+
 /*
  * HttpXfer - issue a command and transfer data
  *
@@ -1507,7 +1507,7 @@ static int HttpXfer(const char *localfile, const char *path, int *size,
 	free(nControl->data);
 	return rv;
 }
-
+
 /*
  * HttpGet - issue a GET command and write received data to output
  *
@@ -1610,7 +1610,7 @@ GLOBALREF int HttpGet(const char *host, const char *outputfile, const char *path
 
 	return HttpXfer(outputfile, path, size, nControl, FTPLIB_FILE_READ, FTPLIB_IMAGE);
 }
-
+
 /*
  * HttpQuit - disconnect from remote
  *
