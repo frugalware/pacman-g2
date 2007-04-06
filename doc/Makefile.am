@@ -24,7 +24,7 @@ clean:
 	rm -f hu/*.8
 	rm -f man3/*.3
 
-man_MANS = pacman-g2.8 pacman.8 makepkg.8 FrugalBuild.8 libalpm.3
+man_MANS = pacman-g2.8 makepkg.8 FrugalBuild.8 libalpm.3
 
 if HAS_DOXYGEN
 man_MANS += man3/*.3
