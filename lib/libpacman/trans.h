@@ -21,8 +21,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_TRANS_H
-#define _ALPM_TRANS_H
+#ifndef _PACMAN_TRANS_H
+#define _PACMAN_TRANS_H
 
 enum {
 	STATE_IDLE = 0,
@@ -34,7 +34,7 @@ enum {
 	STATE_INTERRUPTED
 };
 
-#include "alpm.h"
+#include "pacman.h"
 
 typedef struct __pmtrans_t {
 	unsigned char type;
@@ -43,15 +43,15 @@ typedef struct __pmtrans_t {
 	pmlist_t *targets;     /* pmlist_t of (char *) */
 	pmlist_t *packages;    /* pmlist_t of (pmpkg_t *) or (pmsyncpkg_t *) */
 	pmlist_t *skiplist;    /* pmlist_t of (char *) */
-	alpm_trans_cb_event cb_event;
-	alpm_trans_cb_conv cb_conv;
-	alpm_trans_cb_progress cb_progress;
+	pacman_trans_cb_event cb_event;
+	pacman_trans_cb_conv cb_conv;
+	pacman_trans_cb_progress cb_progress;
 } pmtrans_t;
 
 #define FREETRANS(p) \
 do { \
 	if(p) { \
-		_alpm_trans_free(p); \
+		_pacman_trans_free(p); \
 		p = NULL; \
 	} \
 } while (0)
@@ -74,14 +74,14 @@ do { \
 	} \
 } while(0)
 
-pmtrans_t *_alpm_trans_new(void);
-void _alpm_trans_free(void *data);
-int _alpm_trans_init(pmtrans_t *trans, unsigned char type, unsigned int flags, alpm_trans_cb_event event, alpm_trans_cb_conv conv, alpm_trans_cb_progress progress);
-int _alpm_trans_sysupgrade(pmtrans_t *trans);
-int _alpm_trans_addtarget(pmtrans_t *trans, char *target);
-int _alpm_trans_prepare(pmtrans_t *trans, pmlist_t **data);
-int _alpm_trans_commit(pmtrans_t *trans, pmlist_t **data);
+pmtrans_t *_pacman_trans_new(void);
+void _pacman_trans_free(void *data);
+int _pacman_trans_init(pmtrans_t *trans, unsigned char type, unsigned int flags, pacman_trans_cb_event event, pacman_trans_cb_conv conv, pacman_trans_cb_progress progress);
+int _pacman_trans_sysupgrade(pmtrans_t *trans);
+int _pacman_trans_addtarget(pmtrans_t *trans, char *target);
+int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data);
+int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data);
 
-#endif /* _ALPM_TRANS_H */
+#endif /* _PACMAN_TRANS_H */
 
 /* vim: set ts=2 sw=2 noet: */

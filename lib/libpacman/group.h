@@ -18,8 +18,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_GROUP_H
-#define _ALPM_GROUP_H
+#ifndef _PACMAN_GROUP_H
+#define _PACMAN_GROUP_H
 
 #include "list.h"
 
@@ -31,14 +31,14 @@ typedef struct __pmgrp_t {
 	pmlist_t *packages; /* List of strings */
 } pmgrp_t;
 
-#define FREEGRP(p) do { if(p) { _alpm_grp_free(p); p = NULL; } } while(0)
+#define FREEGRP(p) do { if(p) { _pacman_grp_free(p); p = NULL; } } while(0)
 
-#define FREELISTGRPS(p) _FREELIST(p, _alpm_grp_free)
+#define FREELISTGRPS(p) _FREELIST(p, _pacman_grp_free)
 
-pmgrp_t *_alpm_grp_new(void);
-void _alpm_grp_free(void *data);
-int _alpm_grp_cmp(const void *g1, const void *g2);
+pmgrp_t *_pacman_grp_new(void);
+void _pacman_grp_free(void *data);
+int _pacman_grp_cmp(const void *g1, const void *g2);
 
-#endif /* _ALPM_GROUP_H */
+#endif /* _PACMAN_GROUP_H */
 
 /* vim: set ts=2 sw=2 noet: */

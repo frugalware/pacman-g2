@@ -40,7 +40,7 @@
 #include "log.h"
 #include "util.h"
 #include "db.h"
-#include "alpm.h"
+#include "pacman.h"
 #include "error.h"
 #include "handle.h"
 
@@ -48,21 +48,21 @@
 /* This function is used to convert the downloaded db file to the proper backend
  * format
  */
-int _alpm_db_install(pmdb_t *db, const char *dbfile)
+int _pacman_db_install(pmdb_t *db, const char *dbfile)
 {
 	/* ORE
 		 we should not simply unpack the archive, but better parse it and 
 		 db_write each entry (see sync_load_dbarchive to get archive content) */
-	_alpm_log(PM_LOG_FLOW2, _("unpacking database '%s'"), dbfile);
+	_pacman_log(PM_LOG_FLOW2, _("unpacking database '%s'"), dbfile);
 
-	if(_alpm_unpack(dbfile, db->path, NULL)) {
+	if(_pacman_unpack(dbfile, db->path, NULL)) {
 		RET_ERR(PM_ERR_SYSTEM, -1);
 	}
 
 	return unlink(dbfile);
 }
 
-int _alpm_db_open(pmdb_t *db)
+int _pacman_db_open(pmdb_t *db)
 {
 	if(db == NULL) {
 		RET_ERR(PM_ERR_DB_NULL, -1);
@@ -76,7 +76,7 @@ int _alpm_db_open(pmdb_t *db)
 	return(0);
 }
 
-void _alpm_db_close(pmdb_t *db)
+void _pacman_db_close(pmdb_t *db)
 {
 	if(db == NULL) {
 		return;
@@ -88,7 +88,7 @@ void _alpm_db_close(pmdb_t *db)
 	}
 }
 
-void _alpm_db_rewind(pmdb_t *db)
+void _pacman_db_rewind(pmdb_t *db)
 {
 	if(db == NULL || db->handle == NULL) {
 		return;
@@ -97,7 +97,7 @@ void _alpm_db_rewind(pmdb_t *db)
 	rewinddir(db->handle);
 }
 
-pmpkg_t *_alpm_db_scan(pmdb_t *db, char *target, unsigned int inforeq)
+pmpkg_t *_pacman_db_scan(pmdb_t *db, char *target, unsigned int inforeq)
 {
 	struct dirent *ent = NULL;
 	struct stat sbuf;
@@ -159,22 +159,22 @@ pmpkg_t *_alpm_db_scan(pmdb_t *db, char *target, unsigned int inforeq)
 		}
 	}
 
-	pkg = _alpm_pkg_new(NULL, NULL);
+	pkg = _pacman_pkg_new(NULL, NULL);
 	if(pkg == NULL) {
 		return(NULL);
 	}
-	if(_alpm_pkg_splitname(ent->d_name, pkg->name, pkg->version, 0) == -1) {
-		_alpm_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), ent->d_name);
+	if(_pacman_pkg_splitname(ent->d_name, pkg->name, pkg->version, 0) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), ent->d_name);
 		return(NULL);
 	}
-	if(_alpm_db_read(db, inforeq, pkg) == -1) {
+	if(_pacman_db_read(db, inforeq, pkg) == -1) {
 		FREEPKG(pkg);
 	}
 
 	return(pkg);
 }
 
-int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
+int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 {
 	FILE *fp = NULL;
 	struct stat buf;
@@ -189,7 +189,7 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 	}
 
 	if(info == NULL || info->name[0] == 0 || info->version[0] == 0) {
-		_alpm_log(PM_LOG_ERROR, _("invalid package entry provided to _alpm_db_read"));
+		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_db_read"));
 		return(-1);
 	}
 
@@ -204,17 +204,17 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 		snprintf(path, PATH_MAX, "%s/%s-%s/desc", db->path, info->name, info->version);
 		fp = fopen(path, "r");
 		if(fp == NULL) {
-			_alpm_log(PM_LOG_DEBUG, "%s (%s)", path, strerror(errno));
+			_pacman_log(PM_LOG_DEBUG, "%s (%s)", path, strerror(errno));
 			goto error;
 		}
 		while(!feof(fp)) {
 			if(fgets(line, 256, fp) == NULL) {
 				break;
 			}
-			_alpm_strtrim(line);
+			_pacman_strtrim(line);
 			if(!strcmp(line, "%DESC%")) {
-				while(fgets(line, 512, fp) && strlen(_alpm_strtrim(line))) {
-					info->desc_localized = _alpm_list_add(info->desc_localized, strdup(line));
+				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+					info->desc_localized = _pacman_list_add(info->desc_localized, strdup(line));
 				}
 
 				if (setlocale(LC_ALL, "") == NULL) { /* To fix segfault when locale invalid */
@@ -239,52 +239,52 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 					}
 				    }
 				}
-				_alpm_strtrim(info->desc);
+				_pacman_strtrim(info->desc);
 				FREE(lang_tmp);
 			} else if(!strcmp(line, "%GROUPS%")) {
-				while(fgets(line, 512, fp) && strlen(_alpm_strtrim(line))) {
-					info->groups = _alpm_list_add(info->groups, strdup(line));
+				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+					info->groups = _pacman_list_add(info->groups, strdup(line));
 				}
 			} else if(!strcmp(line, "%URL%")) {
 				if(fgets(info->url, sizeof(info->url), fp) == NULL) {
 					goto error;
 				}
-				_alpm_strtrim(info->url);
+				_pacman_strtrim(info->url);
 			} else if(!strcmp(line, "%LICENSE%")) {
-				while(fgets(line, 512, fp) && strlen(_alpm_strtrim(line))) {
-					info->license = _alpm_list_add(info->license, strdup(line));
+				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+					info->license = _pacman_list_add(info->license, strdup(line));
 				}
 			} else if(!strcmp(line, "%ARCH%")) {
 				if(fgets(info->arch, sizeof(info->arch), fp) == NULL) {
 					goto error;
 				}
-				_alpm_strtrim(info->arch);
+				_pacman_strtrim(info->arch);
 			} else if(!strcmp(line, "%BUILDDATE%")) {
 				if(fgets(info->builddate, sizeof(info->builddate), fp) == NULL) {
 					goto error;
 				}
-				_alpm_strtrim(info->builddate);
+				_pacman_strtrim(info->builddate);
 			} else if(!strcmp(line, "%BUILDTYPE%")) {
 				if(fgets(info->buildtype, sizeof(info->buildtype), fp) == NULL) {
 					goto error;
 				}
-				_alpm_strtrim(info->buildtype);
+				_pacman_strtrim(info->buildtype);
 			} else if(!strcmp(line, "%INSTALLDATE%")) {
 				if(fgets(info->installdate, sizeof(info->installdate), fp) == NULL) {
 					goto error;
 				}
-				_alpm_strtrim(info->installdate);
+				_pacman_strtrim(info->installdate);
 			} else if(!strcmp(line, "%PACKAGER%")) {
 				if(fgets(info->packager, sizeof(info->packager), fp) == NULL) {
 					goto error;
 				}
-				_alpm_strtrim(info->packager);
+				_pacman_strtrim(info->packager);
 			} else if(!strcmp(line, "%REASON%")) {
 				char tmp[32];
 				if(fgets(tmp, sizeof(tmp), fp) == NULL) {
 					goto error;
 				}
-				_alpm_strtrim(tmp);
+				_pacman_strtrim(tmp);
 				info->reason = atol(tmp);
 			} else if(!strcmp(line, "%SIZE%") || !strcmp(line, "%CSIZE%")) {
 				/* NOTE: the CSIZE and SIZE fields both share the "size" field
@@ -296,7 +296,7 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				if(fgets(tmp, sizeof(tmp), fp) == NULL) {
 					goto error;
 				}
-				_alpm_strtrim(tmp);
+				_pacman_strtrim(tmp);
 				info->size = atol(tmp);
 			} else if(!strcmp(line, "%USIZE%")) {
 				/* USIZE (uncompressed size) tag only appears in sync repositories,
@@ -305,7 +305,7 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				if(fgets(tmp, sizeof(tmp), fp) == NULL) {
 					goto error;
 				}
-				_alpm_strtrim(tmp);
+				_pacman_strtrim(tmp);
 				info->usize = atol(tmp);
 			} else if(!strcmp(line, "%SHA1SUM%")) {
 				/* SHA1SUM tag only appears in sync repositories,
@@ -326,8 +326,8 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 			} else if(!strcmp(line, "%REPLACES%")) {
 				/* the REPLACES tag is special -- it only appears in sync repositories,
 				 * not the local one. */
-				while(fgets(line, 512, fp) && strlen(_alpm_strtrim(line))) {
-					info->replaces = _alpm_list_add(info->replaces, strdup(line));
+				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+					info->replaces = _pacman_list_add(info->replaces, strdup(line));
 				}
 			} else if(!strcmp(line, "%FORCE%")) {
 				/* FORCE tag only appears in sync repositories,
@@ -344,18 +344,18 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 		snprintf(path, PATH_MAX, "%s/%s-%s/files", db->path, info->name, info->version);
 		fp = fopen(path, "r");
 		if(fp == NULL) {
-			_alpm_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
+			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
 			goto error;
 		}
 		while(fgets(line, 256, fp)) {
-			_alpm_strtrim(line);
+			_pacman_strtrim(line);
 			if(!strcmp(line, "%FILES%")) {
-				while(fgets(line, 512, fp) && strlen(_alpm_strtrim(line))) {
-					info->files = _alpm_list_add(info->files, strdup(line));
+				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+					info->files = _pacman_list_add(info->files, strdup(line));
 				}
 			} else if(!strcmp(line, "%BACKUP%")) {
-				while(fgets(line, 512, fp) && strlen(_alpm_strtrim(line))) {
-					info->backup = _alpm_list_add(info->backup, strdup(line));
+				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+					info->backup = _pacman_list_add(info->backup, strdup(line));
 				}
 			}
 		}
@@ -368,33 +368,33 @@ int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 		snprintf(path, PATH_MAX, "%s/%s-%s/depends", db->path, info->name, info->version);
 		fp = fopen(path, "r");
 		if(fp == NULL) {
-			_alpm_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
+			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
 			goto error;
 		}
 		while(!feof(fp)) {
 			fgets(line, 255, fp);
-			_alpm_strtrim(line);
+			_pacman_strtrim(line);
 			if(!strcmp(line, "%DEPENDS%")) {
-				while(fgets(line, 512, fp) && strlen(_alpm_strtrim(line))) {
-					info->depends = _alpm_list_add(info->depends, strdup(line));
+				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+					info->depends = _pacman_list_add(info->depends, strdup(line));
 				}
 			} else if(!strcmp(line, "%REQUIREDBY%")) {
-				while(fgets(line, 512, fp) && strlen(_alpm_strtrim(line))) {
-					info->requiredby = _alpm_list_add(info->requiredby, strdup(line));
+				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+					info->requiredby = _pacman_list_add(info->requiredby, strdup(line));
 				}
 			} else if(!strcmp(line, "%CONFLICTS%")) {
-				while(fgets(line, 512, fp) && strlen(_alpm_strtrim(line))) {
-					info->conflicts = _alpm_list_add(info->conflicts, strdup(line));
+				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+					info->conflicts = _pacman_list_add(info->conflicts, strdup(line));
 				}
 			} else if(!strcmp(line, "%PROVIDES%")) {
-				while(fgets(line, 512, fp) && strlen(_alpm_strtrim(line))) {
-					info->provides = _alpm_list_add(info->provides, strdup(line));
+				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+					info->provides = _pacman_list_add(info->provides, strdup(line));
 				}
 			} else if(!strcmp(line, "%REPLACES%")) {
 				/* the REPLACES tag is special -- it only appears in sync repositories,
 				 * not the local one. */
-				while(fgets(line, 512, fp) && strlen(_alpm_strtrim(line))) {
-					info->replaces = _alpm_list_add(info->replaces, strdup(line));
+				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+					info->replaces = _pacman_list_add(info->replaces, strdup(line));
 				}
 			} else if(!strcmp(line, "%FORCE%")) {
 				/* FORCE tag only appears in sync repositories,
@@ -426,7 +426,7 @@ error:
 	return(-1);
 }
 
-int _alpm_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
+int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 {
 	FILE *fp = NULL;
 	char path[PATH_MAX];
@@ -453,7 +453,7 @@ int _alpm_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 	if(inforeq & INFRQ_DESC) {
 		snprintf(path, PATH_MAX, "%s/%s-%s/desc", db->path, info->name, info->version);
 		if((fp = fopen(path, "w")) == NULL) {
-			_alpm_log(PM_LOG_ERROR, _("db_write: could not open file %s/desc"), db->treename);
+			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/desc"), db->treename);
 			retval = 1;
 			goto cleanup;
 		}
@@ -538,7 +538,7 @@ int _alpm_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 	if(local && (inforeq & INFRQ_FILES)) {
 		snprintf(path, PATH_MAX, "%s/%s-%s/files", db->path, info->name, info->version);
 		if((fp = fopen(path, "w")) == NULL) {
-			_alpm_log(PM_LOG_ERROR, _("db_write: could not open file %s/files"), db->treename);
+			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/files"), db->treename);
 			retval = -1;
 			goto cleanup;
 		}
@@ -564,7 +564,7 @@ int _alpm_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 	if(inforeq & INFRQ_DEPENDS) {
 		snprintf(path, PATH_MAX, "%s/%s-%s/depends", db->path, info->name, info->version);
 		if((fp = fopen(path, "w")) == NULL) {
-			_alpm_log(PM_LOG_ERROR, _("db_write: could not open file %s/depends"), db->treename);
+			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/depends"), db->treename);
 			retval = -1;
 			goto cleanup;
 		}
@@ -626,7 +626,7 @@ cleanup:
 	return(retval);
 }
 
-int _alpm_db_remove(pmdb_t *db, pmpkg_t *info)
+int _pacman_db_remove(pmdb_t *db, pmpkg_t *info)
 {
 	char path[PATH_MAX];
 
@@ -635,7 +635,7 @@ int _alpm_db_remove(pmdb_t *db, pmpkg_t *info)
 	}
 
 	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name, info->version);
-	if(_alpm_rmrf(path) == -1) {
+	if(_pacman_rmrf(path) == -1) {
 		return(-1);
 	}
 
@@ -648,7 +648,7 @@ int _alpm_db_remove(pmdb_t *db, pmpkg_t *info)
  * Returns 0 on success, 1 on error
  *
  */
-int _alpm_db_getlastupdate(pmdb_t *db, char *ts)
+int _pacman_db_getlastupdate(pmdb_t *db, char *ts)
 {
 	FILE *fp;
 	char file[PATH_MAX];
@@ -678,7 +678,7 @@ int _alpm_db_getlastupdate(pmdb_t *db, char *ts)
 
 /* writes the dbpath/.lastupdate with the contents of *ts
  */
-int _alpm_db_setlastupdate(pmdb_t *db, char *ts)
+int _pacman_db_setlastupdate(pmdb_t *db, char *ts)
 {
 	FILE *fp;
 	char file[PATH_MAX];

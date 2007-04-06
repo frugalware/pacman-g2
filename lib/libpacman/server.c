@@ -34,7 +34,7 @@
 #include "server.h"
 #include "error.h"
 #include "log.h"
-#include "alpm.h"
+#include "pacman.h"
 #include "util.h"
 #include "handle.h"
 
@@ -47,14 +47,14 @@ float *pm_dlrate=NULL;
 int *pm_dlxfered1=NULL;
 unsigned char *pm_dleta_h=NULL, *pm_dleta_m=NULL, *pm_dleta_s=NULL;
 
-pmserver_t *_alpm_server_new(char *url)
+pmserver_t *_pacman_server_new(char *url)
 {
 	pmserver_t *server;
 	char *ptr;
 
 	server = (pmserver_t *)malloc(sizeof(pmserver_t));
 	if(server == NULL) {
-		_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmserver_t));
+		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmserver_t));
 		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
 
@@ -84,7 +84,7 @@ pmserver_t *_alpm_server_new(char *url)
 				server->path = strdup(slash);
 			} else {
 				if((server->path = (char *)malloc(strlen(slash)+2)) == NULL) {
-					_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(strlen(slash+2)));
+					_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(strlen(slash+2)));
 					RET_ERR(PM_ERR_MEMORY, NULL);
 				}
 				sprintf(server->path, "%s/", slash);
@@ -99,7 +99,7 @@ pmserver_t *_alpm_server_new(char *url)
 		} else {
 			server->path = (char *)malloc(strlen(ptr)+2);
 			if(server->path == NULL) {
-				_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(strlen(ptr+2)));
+				_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(strlen(ptr+2)));
 				RET_ERR(PM_ERR_MEMORY, NULL);
 			}
 			sprintf(server->path, "%s/", ptr);
@@ -111,7 +111,7 @@ pmserver_t *_alpm_server_new(char *url)
 	return(server);
 }
 
-void _alpm_server_free(void *data)
+void _pacman_server_free(void *data)
 {
 	pmserver_t *server = data;
 
@@ -132,9 +132,9 @@ void _alpm_server_free(void *data)
  *
  * RETURN:  0 for successful download, 1 on error
  */
-int _alpm_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *files)
+int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *files)
 {
-	return(!!_alpm_downloadfiles_forreal(servers, localpath, files, NULL, NULL));
+	return(!!_pacman_downloadfiles_forreal(servers, localpath, files, NULL, NULL));
 }
 
 /*
@@ -150,7 +150,7 @@ int _alpm_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *file
  *         -1 if the mtimes are identical
  *          1 on error
  */
-int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
+int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	pmlist_t *files, const char *mtime1, char *mtime2)
 {
 	int fsz;
@@ -164,35 +164,35 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		return(0);
 	}
 
-  _alpm_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
+  _pacman_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
 	for(i = servers; i && !done; i = i->next) {
-		_alpm_log(PM_LOG_DEBUG, _("server check, done? %d\n"),done);
+		_pacman_log(PM_LOG_DEBUG, _("server check, done? %d\n"),done);
 		pmserver_t *server = (pmserver_t*)i->data;
 
 		if(!handle->xfercommand && strcmp(server->protocol, "file")) {
 			if(!strcmp(server->protocol, "ftp") && !handle->proxyhost) {
 				FtpInit();
-				_alpm_log(PM_LOG_DEBUG, _("connecting to %s:21\n"), server->server);
+				_pacman_log(PM_LOG_DEBUG, _("connecting to %s:21\n"), server->server);
 				if(!FtpConnect(server->server, &control)) {
-					_alpm_log(PM_LOG_WARNING, _("cannot connect to %s\n"), server->server);
+					_pacman_log(PM_LOG_WARNING, _("cannot connect to %s\n"), server->server);
 					continue;
 				}
-				if(!FtpLogin("anonymous", "libalpm@guest", control)) {
-					_alpm_log(PM_LOG_WARNING, _("anonymous login failed\n"));
+				if(!FtpLogin("anonymous", "libpacman@guest", control)) {
+					_pacman_log(PM_LOG_WARNING, _("anonymous login failed\n"));
 					FtpQuit(control);
 					continue;
 				}	
 				if(!FtpChdir(server->path, control)) {
-					_alpm_log(PM_LOG_WARNING, _("could not cwd to %s: %s\n"), server->path, FtpLastResponse(control));
+					_pacman_log(PM_LOG_WARNING, _("could not cwd to %s: %s\n"), server->path, FtpLastResponse(control));
 					FtpQuit(control);
 					continue;
 				}
 				if(!handle->nopassiveftp) {
 					if(!FtpOptions(FTPLIB_CONNMODE, FTPLIB_PASSIVE, control)) {
-					_alpm_log(PM_LOG_WARNING, _("failed to set passive mode\n"));
+					_pacman_log(PM_LOG_WARNING, _("failed to set passive mode\n"));
 					}
 				} else {
-					_alpm_log(PM_LOG_DEBUG, _("FTP passive mode not set\n"));
+					_pacman_log(PM_LOG_DEBUG, _("FTP passive mode not set\n"));
 				}
 			} else if(handle->proxyhost) {
 				char *host;
@@ -200,12 +200,12 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				host = (handle->proxyhost) ? handle->proxyhost : server->server;
 				port = (handle->proxyport) ? handle->proxyport : 80;
 				if(strchr(host, ':')) {
-					_alpm_log(PM_LOG_DEBUG, _("connecting to %s\n"), host);
+					_pacman_log(PM_LOG_DEBUG, _("connecting to %s\n"), host);
 				} else {
-					_alpm_log(PM_LOG_DEBUG, _("connecting to %s:%u\n"), host, port);
+					_pacman_log(PM_LOG_DEBUG, _("connecting to %s:%u\n"), host, port);
 				}
 				if(!HttpConnect(host, port, &control)) {
-					_alpm_log(PM_LOG_WARNING, _("cannot connect to %s\n"), host);
+					_pacman_log(PM_LOG_WARNING, _("cannot connect to %s\n"), host);
 					continue;
 				}
 			}
@@ -215,7 +215,7 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				if(pm_dlcb) {
 					FtpOptions(FTPLIB_CALLBACK, (long)pm_dlcb, control);
 				} else {
-					_alpm_log(PM_LOG_DEBUG, _("downloadfiles: progress bar's callback is not set\n"));
+					_pacman_log(PM_LOG_DEBUG, _("downloadfiles: progress bar's callback is not set\n"));
 				}
 				FtpOptions(FTPLIB_IDLETIME, (long)1000, control);
 				FtpOptions(FTPLIB_CALLBACKARG, (long)&fsz, control);
@@ -227,7 +227,7 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		for(lp = files; lp; lp = lp->next) {
 			char *fn = (char *)lp->data;
 
-			if(_alpm_list_is_strin(fn, complete)) {
+			if(_pacman_list_is_strin(fn, complete)) {
 				continue;
 			}
 
@@ -268,21 +268,21 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				/* cwd to the download directory */
 				getcwd(cwd, PATH_MAX);
 				if(chdir(localpath)) {
-					_alpm_log(PM_LOG_WARNING, _("could not chdir to %s\n"), localpath);
+					_pacman_log(PM_LOG_WARNING, _("could not chdir to %s\n"), localpath);
 					return(PM_ERR_CONNECT_FAILED);
 				}
 				/* execute the parsed command via /bin/sh -c */
-				_alpm_log(PM_LOG_DEBUG, _("running command: %s\n"), parsedCmd);
+				_pacman_log(PM_LOG_DEBUG, _("running command: %s\n"), parsedCmd);
 				ret = system(parsedCmd);
 				if(ret == -1) {
-					_alpm_log(PM_LOG_WARNING, _("running XferCommand: fork failed!\n"));
+					_pacman_log(PM_LOG_WARNING, _("running XferCommand: fork failed!\n"));
 					return(PM_ERR_FORK_FAILED);
 				} else if(ret != 0) {
 					/* download failed */
-					_alpm_log(PM_LOG_DEBUG, _("XferCommand command returned non-zero status code (%d)\n"), ret);
+					_pacman_log(PM_LOG_DEBUG, _("XferCommand command returned non-zero status code (%d)\n"), ret);
 				} else {
 					/* download was successful */
-					complete = _alpm_list_add(complete, fn);
+					complete = _pacman_list_add(complete, fn);
 					if(usepart) {
 						char fnpart[PATH_MAX];
 						/* rename "output.part" file to "output" file */
@@ -333,20 +333,20 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 
 				if(!strcmp(server->protocol, "ftp") && !handle->proxyhost) {
 					if(!FtpSize(fn, &fsz, FTPLIB_IMAGE, control)) {
-						_alpm_log(PM_LOG_WARNING, _("failed to get filesize for %s\n"), fn);
+						_pacman_log(PM_LOG_WARNING, _("failed to get filesize for %s\n"), fn);
 					}
 					/* check mtimes */
 					if(mtime1) {
 						char fmtime[64];
 						if(!FtpModDate(fn, fmtime, sizeof(fmtime)-1, control)) {
-							_alpm_log(PM_LOG_WARNING, _("failed to get mtime for %s\n"), fn);
+							_pacman_log(PM_LOG_WARNING, _("failed to get mtime for %s\n"), fn);
 						} else {
-							_alpm_strtrim(fmtime);
+							_pacman_strtrim(fmtime);
 							if(mtime1 && !strcmp(mtime1, fmtime)) {
 								/* mtimes are identical, skip this file */
-								_alpm_log(PM_LOG_DEBUG, _("mtimes are identical, skipping %s\n"), fn);
+								_pacman_log(PM_LOG_DEBUG, _("mtimes are identical, skipping %s\n"), fn);
 								filedone = -1;
-								complete = _alpm_list_add(complete, fn);
+								complete = _pacman_list_add(complete, fn);
 							} else {
 								if(mtime2) {
 									strncpy(mtime2, fmtime, 15); /* YYYYMMDDHHMMSS (=14b) */
@@ -359,18 +359,18 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						if(!stat(output, &st)) {
 							*pm_dloffset = (int)st.st_size;
 							if(!FtpRestart(*pm_dloffset, control)) {
-								_alpm_log(PM_LOG_WARNING, _("failed to resume download -- restarting\n"));
+								_pacman_log(PM_LOG_WARNING, _("failed to resume download -- restarting\n"));
 								/* can't resume: */
 								/* unlink the file in order to restart download from scratch */
 								unlink(output);
 							}
 						}
 						if(!FtpGet(output, fn, FTPLIB_IMAGE, control)) {
-							_alpm_log(PM_LOG_WARNING, _("\nfailed downloading %s from %s: %s\n"),
+							_pacman_log(PM_LOG_WARNING, _("\nfailed downloading %s from %s: %s\n"),
 								fn, server->server, FtpLastResponse(control));
 							/* we leave the partially downloaded file in place so it can be resumed later */
 						} else {
-							_alpm_log(PM_LOG_DEBUG, _("downloaded %s from %s\n"),
+							_pacman_log(PM_LOG_DEBUG, _("downloaded %s from %s\n"),
 								fn, server->server);
 							filedone = 1;
 						}
@@ -390,12 +390,12 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						host = (handle->proxyhost) ? handle->proxyhost : server->server;
 						port = (handle->proxyhost) ? handle->proxyport : 80;
 						if(strchr(host, ':')) {
-							_alpm_log(PM_LOG_DEBUG, _("connecting to %s\n"), host);
+							_pacman_log(PM_LOG_DEBUG, _("connecting to %s\n"), host);
 						} else {
-							_alpm_log(PM_LOG_DEBUG, _("connecting to %s:%u\n"), host, port);
+							_pacman_log(PM_LOG_DEBUG, _("connecting to %s:%u\n"), host, port);
 						}
 						if(!HttpConnect(host, port, &control)) {
-							_alpm_log(PM_LOG_WARNING, _("cannot connect to %s\n"), host);
+							_pacman_log(PM_LOG_WARNING, _("cannot connect to %s\n"), host);
 							continue;
 						}
 						/* set up our progress bar's callback (and idle timeout) */
@@ -403,7 +403,7 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 							if(pm_dlcb) {
 								FtpOptions(FTPLIB_CALLBACK, (long)pm_dlcb, control);
 							} else {
-								_alpm_log(PM_LOG_DEBUG, _("downloadfiles: progress bar's callback is not set\n"));
+								_pacman_log(PM_LOG_DEBUG, _("downloadfiles: progress bar's callback is not set\n"));
 							}
 							FtpOptions(FTPLIB_IDLETIME, (long)1000, control);
 							FtpOptions(FTPLIB_CALLBACKARG, (long)&fsz, control);
@@ -444,11 +444,11 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					if(!HttpGet(server->server, output, src, &fsz, control, *pm_dloffset,
 					            (mtime1) ? &fmtime1 : NULL, (mtime2) ? &fmtime2 : NULL)) {
 						if(strstr(FtpLastResponse(control), "304")) {
-							_alpm_log(PM_LOG_DEBUG, _("mtimes are identical, skipping %s\n"), fn);
+							_pacman_log(PM_LOG_DEBUG, _("mtimes are identical, skipping %s\n"), fn);
 							filedone = -1;
-							complete = _alpm_list_add(complete, fn);
+							complete = _pacman_list_add(complete, fn);
 						} else {
-							_alpm_log(PM_LOG_WARNING, _("\nfailed downloading %s from %s: %s\n"),
+							_pacman_log(PM_LOG_WARNING, _("\nfailed downloading %s from %s: %s\n"),
 								src, server->server, FtpLastResponse(control));
 							/* we leave the partially downloaded file in place so it can be resumed later */
 						}
@@ -460,7 +460,7 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 								        fmtime2.tm_year+1900, fmtime2.tm_mon+1, fmtime2.tm_mday,
 								        fmtime2.tm_hour, fmtime2.tm_min, fmtime2.tm_sec);
 							} else {
-								_alpm_log(PM_LOG_WARNING, _("failed to get mtime for %s\n"), fn);
+								_pacman_log(PM_LOG_WARNING, _("failed to get mtime for %s\n"), fn);
 							}
 						}
 						filedone = 1;
@@ -468,10 +468,10 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				} else if(!strcmp(server->protocol, "file")) {
 					char src[PATH_MAX];
 					snprintf(src, PATH_MAX, "%s%s", server->path, fn);
-					_alpm_log(PM_LOG_DEBUG, _("copying %s to %s/%s\n"), src, localpath, fn);
+					_pacman_log(PM_LOG_DEBUG, _("copying %s to %s/%s\n"), src, localpath, fn);
 					/* local repository, just copy the file */
-					if(_alpm_copyfile(src, output)) {
-						_alpm_log(PM_LOG_WARNING, _("failed copying %s\n"), src);
+					if(_pacman_copyfile(src, output)) {
+						_pacman_log(PM_LOG_WARNING, _("failed copying %s\n"), src);
 					} else {
 						filedone = 1;
 					}
@@ -484,7 +484,7 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					} else if(pm_dlcb) {
 						pm_dlcb(control, fsz-*pm_dloffset, &fsz);
 					}
-					complete = _alpm_list_add(complete, fn);
+					complete = _pacman_list_add(complete, fn);
 					/* rename "output.part" file to "output" file */
 					snprintf(completefile, PATH_MAX, "%s/%s", localpath, fn);
 					rename(output, completefile);
@@ -501,16 +501,16 @@ int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 			}
 		}
 
-		if(_alpm_list_count(complete) == _alpm_list_count(files)) {
+		if(_pacman_list_count(complete) == _pacman_list_count(files)) {
 			done = 1;
 		}
 	}
 
-  _alpm_log(PM_LOG_DEBUG, _("end _alpm_downloadfiles_forreal - return %d"),!done);
+  _pacman_log(PM_LOG_DEBUG, _("end _pacman_downloadfiles_forreal - return %d"),!done);
 	return(!done);
 }
 
-char *_alpm_fetch_pkgurl(char *target)
+char *_pacman_fetch_pkgurl(char *target)
 {
 	char spath[PATH_MAX], lpath[PATH_MAX], lcache[PATH_MAX];
 	char url[PATH_MAX];
@@ -543,24 +543,24 @@ char *_alpm_fetch_pkgurl(char *target)
 	/* do not download the file if it exists in the current dir
 	 */
 	if(stat(lpath, &buf) == 0) {
-		_alpm_log(PM_LOG_DEBUG, _("%s is already in the cache\n"), fn);
+		_pacman_log(PM_LOG_DEBUG, _("%s is already in the cache\n"), fn);
 	} else {
 		pmserver_t *server;
 		pmlist_t *servers = NULL;
 		pmlist_t *files;
 
 		if((server = (pmserver_t *)malloc(sizeof(pmserver_t))) == NULL) {
-			_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmserver_t));
+			_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmserver_t));
 			return(NULL);
 		}
 		server->protocol = url;
 		server->server = host;
 		server->path = spath;
-		servers = _alpm_list_add(servers, server);
+		servers = _pacman_list_add(servers, server);
 
-		files = _alpm_list_add(NULL, fn);
-		if(_alpm_downloadfiles(servers, lcache, files)) {
-			_alpm_log(PM_LOG_WARNING, _("failed to download %s\n"), target);
+		files = _pacman_list_add(NULL, fn);
+		if(_pacman_downloadfiles(servers, lcache, files)) {
+			_pacman_log(PM_LOG_WARNING, _("failed to download %s\n"), target);
 			return(NULL);
 		}
 		FREELISTPTR(files);

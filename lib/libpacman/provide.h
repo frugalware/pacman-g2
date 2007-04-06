@@ -18,16 +18,16 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_PROVIDE_H
-#define _ALPM_PROVIDE_H
+#ifndef _PACMAN_PROVIDE_H
+#define _PACMAN_PROVIDE_H
 
 #include "config.h"
 
 #include "list.h"
 #include "db.h"
 
-pmlist_t *_alpm_db_whatprovides(pmdb_t *db, char *package);
+pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package);
 
-#endif /* _ALPM_PROVIDE_H */
+#endif /* _PACMAN_PROVIDE_H */
 
 /* vim: set ts=2 sw=2 noet: */

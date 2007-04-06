@@ -18,8 +18,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_CONFLICT_H
-#define _ALPM_CONFLICT_H
+#ifndef _PACMAN_CONFLICT_H
+#define _PACMAN_CONFLICT_H
 
 #include "db.h"
 
@@ -32,9 +32,9 @@ typedef struct __pmconflict_t {
 	char ctarget[PKG_NAME_LEN];
 } pmconflict_t;
 
-pmlist_t *_alpm_checkconflicts(pmdb_t *db, pmlist_t *packages);
-pmlist_t *_alpm_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pmlist_t **skip_list);
+pmlist_t *_pacman_checkconflicts(pmdb_t *db, pmlist_t *packages);
+pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pmlist_t **skip_list);
 
-#endif /* _ALPM_CONFLICT_H */
+#endif /* _PACMAN_CONFLICT_H */
 
 /* vim: set ts=2 sw=2 noet: */

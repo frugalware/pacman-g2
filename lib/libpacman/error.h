@@ -18,13 +18,13 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_ERROR_H
-#define _ALPM_ERROR_H
+#ifndef _PACMAN_ERROR_H
+#define _PACMAN_ERROR_H
 
 #define RET_ERR(err, ret) do { pm_errno = (err); \
-	_alpm_log(PM_LOG_ERROR, _("returning error %d: %s\n"), err, alpm_strerror(err)); \
+	_pacman_log(PM_LOG_ERROR, _("returning error %d: %s\n"), err, pacman_strerror(err)); \
 	return(ret); } while(0)
 
-#endif /* _ALPM_ERROR_H */
+#endif /* _PACMAN_ERROR_H */
 
 /* vim: set ts=2 sw=2 noet: */

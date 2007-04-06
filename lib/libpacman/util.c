@@ -63,7 +63,7 @@
 #include "sync.h"
 #include "util.h"
 #include "error.h"
-#include "alpm.h"
+#include "pacman.h"
 
 #ifdef __sun__
 /* This is a replacement for strsep which is not portable (missing on Solaris).
@@ -120,7 +120,7 @@ char * mkdtemp(char *template)
 #endif
 
 /* does the same thing as 'mkdir -p' */
-int _alpm_makepath(char *path)
+int _pacman_makepath(char *path)
 {
 	char *orig, *str, *ptr;
 	char full[PATH_MAX] = "";
@@ -150,7 +150,7 @@ int _alpm_makepath(char *path)
 	return(0);
 }
 
-int _alpm_copyfile(char *src, char *dest)
+int _pacman_copyfile(char *src, char *dest)
 {
 	FILE *in, *out;
 	size_t len;
@@ -177,7 +177,7 @@ int _alpm_copyfile(char *src, char *dest)
 
 /* Convert a string to uppercase
  */
-char *_alpm_strtoupper(char *str)
+char *_pacman_strtoupper(char *str)
 {
 	char *ptr = str;
 
@@ -190,7 +190,7 @@ char *_alpm_strtoupper(char *str)
 
 /* Trim whitespace and newlines from a string
  */
-char *_alpm_strtrim(char *str)
+char *_pacman_strtrim(char *str)
 {
 	char *pch = str;
 
@@ -222,7 +222,7 @@ char *_alpm_strtrim(char *str)
 
 /* Create a lock file
  */
-int _alpm_lckmk(char *file)
+int _pacman_lckmk(char *file)
 {
 	int fd, count = 0;
 	char *dir, *ptr;
@@ -233,7 +233,7 @@ int _alpm_lckmk(char *file)
 	if(ptr) {
 		*ptr = '\0';
 	}
-	_alpm_makepath(dir);
+	_pacman_makepath(dir);
 
 	while((fd = open(file, O_WRONLY | O_CREAT | O_EXCL, 0000)) == -1 && errno == EACCES) { 
 		if(++count < 1) {
@@ -248,7 +248,7 @@ int _alpm_lckmk(char *file)
 
 /* Remove a lock file
  */
-int _alpm_lckrm(char *file)
+int _pacman_lckrm(char *file)
 {
 	if(unlink(file) == -1 && errno != ENOENT) {
 		return(-1);
@@ -259,7 +259,7 @@ int _alpm_lckrm(char *file)
 /* Compression functions
  */
 
-int _alpm_unpack(const char *archive, const char *prefix, const char *fn)
+int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 {
 	register struct archive *_archive;
 	struct archive_entry *entry;
@@ -296,7 +296,7 @@ int _alpm_unpack(const char *archive, const char *prefix, const char *fn)
 }
 
 /* does the same thing as 'rm -rf' */
-int _alpm_rmrf(char *path)
+int _pacman_rmrf(char *path)
 {
 	int errflag = 0;
 	struct dirent *dp;
@@ -326,7 +326,7 @@ int _alpm_rmrf(char *path)
 			if(dp->d_ino) {
 				sprintf(name, "%s/%s", path, dp->d_name);
 				if(strcmp(dp->d_name, "..") && strcmp(dp->d_name, ".")) {
-					errflag += _alpm_rmrf(name);
+					errflag += _pacman_rmrf(name);
 				}
 			}
 		}
@@ -339,7 +339,7 @@ int _alpm_rmrf(char *path)
 	return(0);
 }
 
-int _alpm_logaction(unsigned char usesyslog, FILE *f, char *fmt, ...)
+int _pacman_logaction(unsigned char usesyslog, FILE *f, char *fmt, ...)
 {
 	char msg[1024];
 	va_list args;
@@ -368,7 +368,7 @@ int _alpm_logaction(unsigned char usesyslog, FILE *f, char *fmt, ...)
 	return(0);
 }
 
-int _alpm_ldconfig(char *root)
+int _pacman_ldconfig(char *root)
 {
 	char line[PATH_MAX];
 	struct stat buf;
@@ -411,7 +411,7 @@ static int grep(const char *fn, const char *needle)
 	return(0);
 }
 
-int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, char *oldver, pmtrans_t *trans)
+int _pacman_runscriptlet(char *root, char *installfn, char *script, char *ver, char *oldver, pmtrans_t *trans)
 {
 	char scriptfn[PATH_MAX];
 	char cmdline[PATH_MAX];
@@ -430,14 +430,14 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 	if(!strcmp(script, "pre_upgrade") || !strcmp(script, "pre_install")) {
 		snprintf(tmpdir, PATH_MAX, "%stmp/", root);
 		if(stat(tmpdir, &buf)) {
-			_alpm_makepath(tmpdir);
+			_pacman_makepath(tmpdir);
 		}
-		snprintf(tmpdir, PATH_MAX, "%stmp/alpm_XXXXXX", root);
+		snprintf(tmpdir, PATH_MAX, "%stmp/pacman_XXXXXX", root);
 		if(mkdtemp(tmpdir) == NULL) {
-			_alpm_log(PM_LOG_ERROR, _("could not create temp directory"));
+			_pacman_log(PM_LOG_ERROR, _("could not create temp directory"));
 			return(1);
 		}
-		_alpm_unpack(installfn, tmpdir, ".INSTALL");
+		_pacman_unpack(installfn, tmpdir, ".INSTALL");
 		snprintf(scriptfn, PATH_MAX, "%s/.INSTALL", tmpdir);
 		/* chop off the root so we can find the tmpdir in the chroot */
 		scriptpath = scriptfn + strlen(root) - 1;
@@ -454,17 +454,17 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 
 	/* save the cwd so we can restore it later */
 	if(getcwd(cwd, PATH_MAX) == NULL) {
-		_alpm_log(PM_LOG_ERROR, _("could not get current working directory"));
+		_pacman_log(PM_LOG_ERROR, _("could not get current working directory"));
 		/* in case of error, cwd content is undefined: so we set it to something */
 		cwd[0] = 0;
 	}
 
 	/* just in case our cwd was removed in the upgrade operation */
 	if(chdir(root) != 0) {
-		_alpm_log(PM_LOG_ERROR, _("could not change directory to %s (%s)"), root, strerror(errno));
+		_pacman_log(PM_LOG_ERROR, _("could not change directory to %s (%s)"), root, strerror(errno));
 	}
 
-	_alpm_log(PM_LOG_FLOW2, _("executing %s script..."), script);
+	_pacman_log(PM_LOG_FLOW2, _("executing %s script..."), script);
 
 	if(oldver) {
 		snprintf(cmdline, PATH_MAX, "source %s %s %s %s",
@@ -473,31 +473,31 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 		snprintf(cmdline, PATH_MAX, "source %s %s %s",
 				scriptpath, script, ver);
 	}
-	_alpm_log(PM_LOG_DEBUG, "%s", cmdline);
+	_pacman_log(PM_LOG_DEBUG, "%s", cmdline);
 
 	pid = fork();
 	if(pid == -1) {
-		_alpm_log(PM_LOG_ERROR, _("could not fork a new process (%s)"), strerror(errno));
+		_pacman_log(PM_LOG_ERROR, _("could not fork a new process (%s)"), strerror(errno));
 		retval = 1;
 		goto cleanup;
 	}
 
 	if(pid == 0) {
 		FILE *pp;
-		_alpm_log(PM_LOG_DEBUG, _("chrooting in %s"), root);
+		_pacman_log(PM_LOG_DEBUG, _("chrooting in %s"), root);
 		if(chroot(root) != 0) {
-			_alpm_log(PM_LOG_ERROR, _("could not change the root directory (%s)"), strerror(errno));
+			_pacman_log(PM_LOG_ERROR, _("could not change the root directory (%s)"), strerror(errno));
 			return(1);
 		}
 		if(chdir("/") != 0) {
-			_alpm_log(PM_LOG_ERROR, _("could not change directory to / (%s)"), strerror(errno));
+			_pacman_log(PM_LOG_ERROR, _("could not change directory to / (%s)"), strerror(errno));
 			return(1);
 		}
 		umask(0022);
-		_alpm_log(PM_LOG_DEBUG, _("executing \"%s\""), cmdline);
+		_pacman_log(PM_LOG_DEBUG, _("executing \"%s\""), cmdline);
 		pp = popen(cmdline, "r");
 		if(!pp) {
-			_alpm_log(PM_LOG_ERROR, _("call to popen failed (%s)"), strerror(errno));
+			_pacman_log(PM_LOG_ERROR, _("call to popen failed (%s)"), strerror(errno));
 			retval = 1;
 			goto cleanup;
 		}
@@ -507,27 +507,27 @@ int _alpm_runscriptlet(char *root, char *installfn, char *script, char *ver, cha
 				break;
 			/* "START <event desc>" */
 			if((strlen(line) > strlen(STARTSTR)) && !strncmp(line, STARTSTR, strlen(STARTSTR))) {
-				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_START, _alpm_strtrim(line + strlen(STARTSTR)), NULL);
+				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_START, _pacman_strtrim(line + strlen(STARTSTR)), NULL);
 			/* "DONE <ret code>" */
 			} else if((strlen(line) > strlen(DONESTR)) && !strncmp(line, DONESTR, strlen(DONESTR))) {
-				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_DONE, (void*)atol(_alpm_strtrim(line + strlen(DONESTR))), NULL);
+				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_DONE, (void*)atol(_pacman_strtrim(line + strlen(DONESTR))), NULL);
 			} else {
-				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_INFO, _alpm_strtrim(line), NULL);
+				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_INFO, _pacman_strtrim(line), NULL);
 			}
 		}
 		pclose(pp);
 		exit(0);
 	} else {
 		if(waitpid(pid, 0, 0) == -1) {
-			_alpm_log(PM_LOG_ERROR, _("call to waitpid failed (%s)"), strerror(errno));
+			_pacman_log(PM_LOG_ERROR, _("call to waitpid failed (%s)"), strerror(errno));
 			retval = 1;
 			goto cleanup;
 		}
 	}
 
 cleanup:
-	if(strlen(tmpdir) && _alpm_rmrf(tmpdir)) {
-		_alpm_log(PM_LOG_WARNING, _("could not remove tmpdir %s"), tmpdir);
+	if(strlen(tmpdir) && _pacman_rmrf(tmpdir)) {
+		_pacman_log(PM_LOG_WARNING, _("could not remove tmpdir %s"), tmpdir);
 	}
 	if(strlen(cwd)) {
 		chdir(cwd);
@@ -557,7 +557,7 @@ static long long get_freespace()
 	return(ret);
 }
 
-int _alpm_check_freespace(pmtrans_t *trans, pmlist_t **data)
+int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *i;
 	long long pkgsize=0, freespace;
@@ -578,25 +578,25 @@ int _alpm_check_freespace(pmtrans_t *trans, pmlist_t **data)
 		}
 	}
 	freespace = get_freespace();
-	_alpm_log(PM_LOG_DEBUG, _("check_freespace: total pkg size: %lld, disk space: %lld"), pkgsize, freespace);
+	_pacman_log(PM_LOG_DEBUG, _("check_freespace: total pkg size: %lld, disk space: %lld"), pkgsize, freespace);
 	if(pkgsize > freespace) {
 		if(data) {
 			long long *ptr;
 			if((ptr = (long long*)malloc(sizeof(long long)))==NULL) {
-				_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(long long));
+				_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(long long));
 				pm_errno = PM_ERR_MEMORY;
 				return(-1);
 			}
 			*ptr = pkgsize;
-			*data = _alpm_list_add(*data, ptr);
+			*data = _pacman_list_add(*data, ptr);
 			if((ptr = (long long*)malloc(sizeof(long long)))==NULL) {
-				_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(long long));
+				_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(long long));
 				FREELIST(*data);
 				pm_errno = PM_ERR_MEMORY;
 				return(-1);
 			}
 			*ptr = freespace;
-			*data = _alpm_list_add(*data, ptr);
+			*data = _pacman_list_add(*data, ptr);
 		}
 		pm_errno = PM_ERR_DISK_FULL;
 		return(-1);
@@ -607,7 +607,7 @@ int _alpm_check_freespace(pmtrans_t *trans, pmlist_t **data)
 }
 
 /* match a string against a regular expression */
-int _alpm_reg_match(char *string, char *pattern)
+int _pacman_reg_match(char *string, char *pattern)
 {
 	int result;
 	regex_t reg;

@@ -29,17 +29,17 @@ TARGETS = md5driver.c \
 	sync.c \
 	handle.c \
 	server.c \
-	alpm.c \
+	pacman.c \
 	be_files.c
 
-lib_LTLIBRARIES = libalpm.la
+lib_LTLIBRARIES = libpacman.la
 
-include_HEADERS = alpm.h
+include_HEADERS = pacman.h
 
-libalpm_la_SOURCES = $(TARGETS)
+libpacman_la_SOURCES = $(TARGETS)
 
-libalpm_la_LDFLAGS = -no-undefined -version-info $(PM_VERSION_INFO)
-libalpm_la_LIBADD = $(top_srcdir)/lib/libftp/libftp.la
+libpacman_la_LDFLAGS = -no-undefined -version-info $(PM_VERSION_INFO)
+libpacman_la_LIBADD = $(top_srcdir)/lib/libftp/libftp.la
 
 if HAS_DOXYGEN
 all: doxygen.in

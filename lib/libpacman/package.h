@@ -22,8 +22,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_PACKAGE_H
-#define _ALPM_PACKAGE_H
+#ifndef _PACMAN_PACKAGE_H
+#define _PACMAN_PACKAGE_H
 
 #if defined(__APPLE__) || defined(__sun__)
 #include <time.h>
@@ -85,22 +85,22 @@ typedef struct __pmpkg_t {
 #define FREEPKG(p) \
 do { \
 	if(p) { \
-		_alpm_pkg_free(p); \
+		_pacman_pkg_free(p); \
 		p = NULL; \
 	} \
 } while(0)
 
-#define FREELISTPKGS(p) _FREELIST(p, _alpm_pkg_free)
+#define FREELISTPKGS(p) _FREELIST(p, _pacman_pkg_free)
 
-pmpkg_t* _alpm_pkg_new(const char *name, const char *version);
-pmpkg_t *_alpm_pkg_dup(pmpkg_t *pkg);
-void _alpm_pkg_free(void *data);
-int _alpm_pkg_cmp(const void *p1, const void *p2);
-pmpkg_t *_alpm_pkg_load(char *pkgfile);
-pmpkg_t *_alpm_pkg_isin(char *needle, pmlist_t *haystack);
-int _alpm_pkg_splitname(char *target, char *name, char *version, int witharch);
-void *_alpm_pkg_getinfo(pmpkg_t *pkg, unsigned char parm);
+pmpkg_t* _pacman_pkg_new(const char *name, const char *version);
+pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg);
+void _pacman_pkg_free(void *data);
+int _pacman_pkg_cmp(const void *p1, const void *p2);
+pmpkg_t *_pacman_pkg_load(char *pkgfile);
+pmpkg_t *_pacman_pkg_isin(char *needle, pmlist_t *haystack);
+int _pacman_pkg_splitname(char *target, char *name, char *version, int witharch);
+void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm);
 
-#endif /* _ALPM_PACKAGE_H */
+#endif /* _PACMAN_PACKAGE_H */
 
 /* vim: set ts=2 sw=2 noet: */

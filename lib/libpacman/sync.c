@@ -49,18 +49,18 @@
 #include "versioncmp.h"
 #include "handle.h"
 #include "util.h"
-#include "alpm.h"
+#include "pacman.h"
 #include "md5.h"
 #include "sha1.h"
 #include "handle.h"
 #include "server.h"
 
-pmsyncpkg_t *_alpm_sync_new(int type, pmpkg_t *spkg, void *data)
+pmsyncpkg_t *_pacman_sync_new(int type, pmpkg_t *spkg, void *data)
 {
 	pmsyncpkg_t *sync;
 
 	if((sync = (pmsyncpkg_t *)malloc(sizeof(pmsyncpkg_t))) == NULL) {
-		_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmsyncpkg_t));
+		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmsyncpkg_t));
 		return(NULL);
 	}
 
@@ -71,7 +71,7 @@ pmsyncpkg_t *_alpm_sync_new(int type, pmpkg_t *spkg, void *data)
 	return(sync);
 }
 
-void _alpm_sync_free(void *data)
+void _pacman_sync_free(void *data)
 {
 	pmsyncpkg_t *sync = data;
 
@@ -118,23 +118,23 @@ static int istoonew(pmpkg_t *pkg)
 	return((pkg->date + handle->upgradedelay) > t);
 }
 
-int _alpm_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync)
+int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync)
 {
 	pmlist_t *i, *j, *k;
 
 	/* check for "recommended" package replacements */
-	_alpm_log(PM_LOG_FLOW1, _("checking for package replacements"));
+	_pacman_log(PM_LOG_FLOW1, _("checking for package replacements"));
 	for(i = dbs_sync; i; i = i->next) {
-		for(j = _alpm_db_get_pkgcache(i->data); j; j = j->next) {
+		for(j = _pacman_db_get_pkgcache(i->data); j; j = j->next) {
 			pmpkg_t *spkg = j->data;
-			for(k = _alpm_pkg_getinfo(spkg, PM_PKG_REPLACES); k; k = k->next) {
+			for(k = _pacman_pkg_getinfo(spkg, PM_PKG_REPLACES); k; k = k->next) {
 				pmlist_t *m;
-				for(m = _alpm_db_get_pkgcache(db_local); m; m = m->next) {
+				for(m = _pacman_db_get_pkgcache(db_local); m; m = m->next) {
 					pmpkg_t *lpkg = m->data;
 					if(!strcmp(k->data, lpkg->name)) {
-						_alpm_log(PM_LOG_DEBUG, _("checking replacement '%s' for package '%s'"), k->data, spkg->name);
-						if(_alpm_list_is_strin(lpkg->name, handle->ignorepkg)) {
-							_alpm_log(PM_LOG_WARNING, _("%s-%s: ignoring package upgrade (to be replaced by %s-%s)"),
+						_pacman_log(PM_LOG_DEBUG, _("checking replacement '%s' for package '%s'"), k->data, spkg->name);
+						if(_pacman_list_is_strin(lpkg->name, handle->ignorepkg)) {
+							_pacman_log(PM_LOG_WARNING, _("%s-%s: ignoring package upgrade (to be replaced by %s-%s)"),
 								lpkg->name, lpkg->version, spkg->name, spkg->version);
 						} else {
 							/* get confirmation for the replacement */
@@ -146,29 +146,29 @@ int _alpm_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync
 								 * the package to replace.
 								 */
 								pmsyncpkg_t *sync;
-								pmpkg_t *dummy = _alpm_pkg_new(lpkg->name, NULL);
+								pmpkg_t *dummy = _pacman_pkg_new(lpkg->name, NULL);
 								if(dummy == NULL) {
 									pm_errno = PM_ERR_MEMORY;
 									goto error;
 								}
-								dummy->requiredby = _alpm_list_strdup(lpkg->requiredby);
+								dummy->requiredby = _pacman_list_strdup(lpkg->requiredby);
 								/* check if spkg->name is already in the packages list. */
 								sync = find_pkginsync(spkg->name, trans->packages);
 								if(sync) {
 									/* found it -- just append to the replaces list */
-									sync->data = _alpm_list_add(sync->data, dummy);
+									sync->data = _pacman_list_add(sync->data, dummy);
 								} else {
 									/* none found -- enter pkg into the final sync list */
-									sync = _alpm_sync_new(PM_SYNC_TYPE_REPLACE, spkg, NULL);
+									sync = _pacman_sync_new(PM_SYNC_TYPE_REPLACE, spkg, NULL);
 									if(sync == NULL) {
 										FREEPKG(dummy);
 										pm_errno = PM_ERR_MEMORY;
 										goto error;
 									}
-									sync->data = _alpm_list_add(NULL, dummy);
-									trans->packages = _alpm_list_add(trans->packages, sync);
+									sync->data = _pacman_list_add(NULL, dummy);
+									trans->packages = _pacman_list_add(trans->packages, sync);
 								}
-								_alpm_log(PM_LOG_FLOW2, _("%s-%s elected for upgrade (to be replaced by %s-%s)"),
+								_pacman_log(PM_LOG_FLOW2, _("%s-%s elected for upgrade (to be replaced by %s-%s)"),
 								          lpkg->name, lpkg->version, spkg->name, spkg->version);
 							}
 						}
@@ -180,8 +180,8 @@ int _alpm_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync
 	}
 
 	/* match installed packages with the sync dbs and compare versions */
-	_alpm_log(PM_LOG_FLOW1, _("checking for package upgrades"));
-	for(i = _alpm_db_get_pkgcache(db_local); i; i = i->next) {
+	_pacman_log(PM_LOG_FLOW1, _("checking for package upgrades"));
+	for(i = _pacman_db_get_pkgcache(db_local); i; i = i->next) {
 		int cmp;
 		int replace=0;
 		pmpkg_t *local = i->data;
@@ -189,10 +189,10 @@ int _alpm_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync
 		pmsyncpkg_t *sync;
 
 		for(j = dbs_sync; !spkg && j; j = j->next) {
-			spkg = _alpm_db_get_pkgfromcache(j->data, local->name);
+			spkg = _pacman_db_get_pkgfromcache(j->data, local->name);
 		}
 		if(spkg == NULL) {
-			_alpm_log(PM_LOG_DEBUG, _("'%s' not found in sync db -- skipping"), local->name);
+			_pacman_log(PM_LOG_DEBUG, _("'%s' not found in sync db -- skipping"), local->name);
 			continue;
 		}
 	
@@ -200,48 +200,48 @@ int _alpm_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync
 		for(j = trans->packages; j && !replace; j=j->next) {
 			sync = j->data;
 			if(sync->type == PM_SYNC_TYPE_REPLACE) {
-				if(_alpm_pkg_isin(spkg->name, sync->data)) {
+				if(_pacman_pkg_isin(spkg->name, sync->data)) {
 					replace=1;
 				}
 			}
 		}
 		if(replace) {
-			_alpm_log(PM_LOG_DEBUG, _("'%s' is already elected for removal -- skipping"),
+			_pacman_log(PM_LOG_DEBUG, _("'%s' is already elected for removal -- skipping"),
 								local->name);
 			continue;
 		}
 
 		/* compare versions and see if we need to upgrade */
-		cmp = _alpm_versioncmp(local->version, spkg->version);
+		cmp = _pacman_versioncmp(local->version, spkg->version);
 		if(cmp > 0 && !spkg->force) {
 			/* local version is newer */
-			_alpm_log(PM_LOG_WARNING, _("%s-%s: local version is newer"),
+			_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer"),
 				local->name, local->version);
 		} else if(cmp == 0) {
 			/* versions are identical */
-		} else if(_alpm_list_is_strin(i->data, handle->ignorepkg)) {
+		} else if(_pacman_list_is_strin(i->data, handle->ignorepkg)) {
 			/* package should be ignored (IgnorePkg) */
-			_alpm_log(PM_LOG_WARNING, _("%s-%s: ignoring package upgrade (%s)"),
+			_pacman_log(PM_LOG_WARNING, _("%s-%s: ignoring package upgrade (%s)"),
 				local->name, local->version, spkg->version);
 		} else if(istoonew(spkg)) {
 			/* package too new (UpgradeDelay) */
-			_alpm_log(PM_LOG_FLOW1, _("%s-%s: delaying upgrade of package (%s)\n"),
+			_pacman_log(PM_LOG_FLOW1, _("%s-%s: delaying upgrade of package (%s)\n"),
 					local->name, local->version, spkg->version);
 		/* check if spkg->name is already in the packages list. */
 		} else {
-			_alpm_log(PM_LOG_FLOW2, _("%s-%s elected for upgrade (%s => %s)"),
+			_pacman_log(PM_LOG_FLOW2, _("%s-%s elected for upgrade (%s => %s)"),
 				local->name, local->version, local->version, spkg->version);
 			if(!find_pkginsync(spkg->name, trans->packages)) {
-				pmpkg_t *dummy = _alpm_pkg_new(local->name, local->version);
+				pmpkg_t *dummy = _pacman_pkg_new(local->name, local->version);
 				if(dummy == NULL) {
 					goto error;
 				}
-				sync = _alpm_sync_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
+				sync = _pacman_sync_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
 				if(sync == NULL) {
 					FREEPKG(dummy);
 					goto error;
 				}
-				trans->packages = _alpm_list_add(trans->packages, sync);
+				trans->packages = _pacman_list_add(trans->packages, sync);
 			} else {
 				/* spkg->name is already in the packages list -- just ignore it */
 			}
@@ -254,7 +254,7 @@ error:
 	return(-1);
 }
 
-int _alpm_sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, char *name)
+int _pacman_sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, char *name)
 {
 	char targline[PKG_FULLNAME_LEN];
 	char *targ;
@@ -276,17 +276,17 @@ int _alpm_sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync,
 		for(j = dbs_sync; j && !spkg; j = j->next) {
 			pmdb_t *dbs = j->data;
 			if(strcmp(dbs->treename, targline) == 0) {
-				spkg = _alpm_db_get_pkgfromcache(dbs, targ);
+				spkg = _pacman_db_get_pkgfromcache(dbs, targ);
 				if(spkg == NULL) {
 					/* Search provides */
 					pmlist_t *p;
-					_alpm_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
-					p = _alpm_db_whatprovides(dbs, targ);
+					_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
+					p = _pacman_db_whatprovides(dbs, targ);
 					if(p == NULL) {
 						RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 					}
-					_alpm_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), p->data, targ);
-					spkg = _alpm_db_get_pkgfromcache(dbs, p->data);
+					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), p->data, targ);
+					spkg = _pacman_db_get_pkgfromcache(dbs, p->data);
 					FREELISTPTR(p);
 				}
 			}
@@ -295,17 +295,17 @@ int _alpm_sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync,
 		targ = targline;
 		for(j = dbs_sync; j && !spkg; j = j->next) {
 			pmdb_t *dbs = j->data;
-			spkg = _alpm_db_get_pkgfromcache(dbs, targ);
+			spkg = _pacman_db_get_pkgfromcache(dbs, targ);
 		}
 		if(spkg == NULL) {
 			/* Search provides */
-			_alpm_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
+			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
 			for(j = dbs_sync; j && !spkg; j = j->next) {
 				pmdb_t *dbs = j->data;
-				pmlist_t *p = _alpm_db_whatprovides(dbs, targ);
+				pmlist_t *p = _pacman_db_whatprovides(dbs, targ);
 				if(p) {
-					_alpm_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), p->data, targ);
-					spkg = _alpm_db_get_pkgfromcache(dbs, p->data);
+					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), p->data, targ);
+					spkg = _pacman_db_get_pkgfromcache(dbs, p->data);
 					FREELISTPTR(p);
 				}
 			}
@@ -315,15 +315,15 @@ int _alpm_sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync,
 		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 	}
 
-	local = _alpm_db_get_pkgfromcache(db_local, spkg->name);
+	local = _pacman_db_get_pkgfromcache(db_local, spkg->name);
 	if(local) {
-		cmp = _alpm_versioncmp(local->version, spkg->version);
+		cmp = _pacman_versioncmp(local->version, spkg->version);
 		if(cmp > 0) {
 			/* local version is newer -- get confirmation before adding */
 			int resp = 0;
 			QUESTION(trans, PM_TRANS_CONV_LOCAL_NEWER, local, NULL, NULL, &resp);
 			if(!resp) {
-				_alpm_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), local->name, local->version);
+				_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), local->name, local->version);
 				return(0);
 			}
 		} else if(cmp == 0) {
@@ -331,7 +331,7 @@ int _alpm_sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync,
 			int resp = 0;
 			QUESTION(trans, PM_TRANS_CONV_LOCAL_UPTODATE, local, NULL, NULL, &resp);
 			if(!resp) {
-				_alpm_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), local->name, local->version);
+				_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), local->name, local->version);
 				return(0);
 			}
 		}
@@ -341,24 +341,24 @@ int _alpm_sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync,
 	if(!find_pkginsync(spkg->name, trans->packages)) {
 		pmpkg_t *dummy = NULL;
 		if(local) {
-			dummy = _alpm_pkg_new(local->name, local->version);
+			dummy = _pacman_pkg_new(local->name, local->version);
 			if(dummy == NULL) {
 				RET_ERR(PM_ERR_MEMORY, -1);
 			}
 		}
-		sync = _alpm_sync_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
+		sync = _pacman_sync_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
 		if(sync == NULL) {
 			FREEPKG(dummy);
 			RET_ERR(PM_ERR_MEMORY, -1);
 		}
-		_alpm_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), spkg->name);
-		trans->packages = _alpm_list_add(trans->packages, sync);
+		_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), spkg->name);
+		trans->packages = _pacman_list_add(trans->packages, sync);
 	}
 
 	return(0);
 }
 
-/* Helper functions for _alpm_list_remove
+/* Helper functions for _pacman_list_remove
  */
 static int ptr_cmp(const void *s1, const void *s2)
 {
@@ -370,7 +370,7 @@ static int pkg_cmp(const void *p1, const void *p2)
 	return(strcmp(((pmpkg_t *)p1)->name, ((pmsyncpkg_t *)p2)->pkg->name));
 }
 
-int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, pmlist_t **data)
+int _pacman_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, pmlist_t **data)
 {
 	pmlist_t *deps = NULL;
 	pmlist_t *list = NULL; /* list allowing checkdeps usage with data from trans->packages */
@@ -388,18 +388,18 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 
 	for(i = trans->packages; i; i = i->next) {
 		pmsyncpkg_t *sync = i->data;
-		list = _alpm_list_add(list, sync->pkg);
+		list = _pacman_list_add(list, sync->pkg);
 	}
 
 	if(!(trans->flags & PM_TRANS_FLAG_NODEPS)) {
-		trail = _alpm_list_new();
+		trail = _pacman_list_new();
 
 		/* Resolve targets dependencies */
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
-		_alpm_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
+		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 		for(i = trans->packages; i; i = i->next) {
 			pmpkg_t *spkg = ((pmsyncpkg_t *)i->data)->pkg;
-			if(_alpm_resolvedeps(db_local, dbs_sync, spkg, list, trail, trans, data) == -1) {
+			if(_pacman_resolvedeps(db_local, dbs_sync, spkg, list, trail, trans, data) == -1) {
 				/* pm_errno is set by resolvedeps */
 				ret = -1;
 				goto cleanup;
@@ -410,19 +410,19 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 			/* add the dependencies found by resolvedeps to the transaction set */
 			pmpkg_t *spkg = i->data;
 			if(!find_pkginsync(spkg->name, trans->packages)) {
-				pmsyncpkg_t *sync = _alpm_sync_new(PM_SYNC_TYPE_DEPEND, spkg, NULL);
+				pmsyncpkg_t *sync = _pacman_sync_new(PM_SYNC_TYPE_DEPEND, spkg, NULL);
 				if(sync == NULL) {
 					ret = -1;
 					goto cleanup;
 				}
-				trans->packages = _alpm_list_add(trans->packages, sync);
-				_alpm_log(PM_LOG_FLOW2, _("adding package %s-%s to the transaction targets"),
+				trans->packages = _pacman_list_add(trans->packages, sync);
+				_pacman_log(PM_LOG_FLOW2, _("adding package %s-%s to the transaction targets"),
 						spkg->name, spkg->version);
 			} else {
 				/* remove the original targets from the list if requested */
 				if((trans->flags & PM_TRANS_FLAG_DEPENDSONLY)) {
 					pmpkg_t *p;
-					trans->packages = _alpm_list_remove(trans->packages, spkg, pkg_cmp, (void**)&p);
+					trans->packages = _pacman_list_remove(trans->packages, spkg, pkg_cmp, (void**)&p);
 					FREEPKG(p);
 				}
 			}
@@ -432,14 +432,14 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 		k = l = NULL;
 		for(i=trans->packages; i; i=i->next) {
 			pmsyncpkg_t *s = (pmsyncpkg_t*)i->data;
-			k = _alpm_list_add(k, s->pkg);
+			k = _pacman_list_add(k, s->pkg);
 		}
-		k = _alpm_sortbydeps(k, PM_TRANS_TYPE_ADD);
+		k = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
 		for(i=k; i; i=i->next) {
 			for(j=trans->packages; j; j=j->next) {
 				pmsyncpkg_t *s = (pmsyncpkg_t*)j->data;
 				if(s->pkg==i->data) {
-					l = _alpm_list_add(l, s);
+					l = _pacman_list_add(l, s);
 				}
 			}
 		}
@@ -448,8 +448,8 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
 
-		_alpm_log(PM_LOG_FLOW1, _("looking for unresolvable dependencies"));
-		deps = _alpm_checkdeps(trans, db_local, PM_TRANS_TYPE_UPGRADE, list);
+		_pacman_log(PM_LOG_FLOW1, _("looking for unresolvable dependencies"));
+		deps = _pacman_checkdeps(trans, db_local, PM_TRANS_TYPE_UPGRADE, list);
 		if(deps) {
 			if(data) {
 				*data = deps;
@@ -467,8 +467,8 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 		/* check for inter-conflicts and whatnot */
 		EVENT(trans, PM_TRANS_EVT_INTERCONFLICTS_START, NULL, NULL);
 
-		_alpm_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		deps = _alpm_checkconflicts(db_local, list);
+		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
+		deps = _pacman_checkconflicts(db_local, list);
 		if(deps) {
 			int errorout = 0;
 
@@ -478,7 +478,7 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 				pmsyncpkg_t *sync;
 				pmpkg_t *local;
 
-				_alpm_log(PM_LOG_FLOW2, _("package '%s' is conflicting with '%s'"),
+				_pacman_log(PM_LOG_FLOW2, _("package '%s' is conflicting with '%s'"),
 				          miss->target, miss->depend.name);
 
 				/* check if the conflicting package is one that's about to be removed/replaced.
@@ -487,31 +487,31 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 				for(j = trans->packages; j && !found; j = j->next) {
 					sync = j->data;
 					if(sync->type == PM_SYNC_TYPE_REPLACE) {
-						if(_alpm_pkg_isin(miss->depend.name, sync->data)) {
+						if(_pacman_pkg_isin(miss->depend.name, sync->data)) {
 							found = 1;
 						}
 					}
 				}
 				if(found) {
-					_alpm_log(PM_LOG_DEBUG, _("'%s' is already elected for removal -- skipping"),
+					_pacman_log(PM_LOG_DEBUG, _("'%s' is already elected for removal -- skipping"),
 							miss->depend.name);
 					continue;
 				}
 
 				sync = find_pkginsync(miss->target, trans->packages);
 				if(sync == NULL) {
-					_alpm_log(PM_LOG_DEBUG, _("'%s' not found in transaction set -- skipping"),
+					_pacman_log(PM_LOG_DEBUG, _("'%s' not found in transaction set -- skipping"),
 					          miss->target);
 					continue;
 				}
-				local = _alpm_db_get_pkgfromcache(db_local, miss->depend.name);
+				local = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
 				/* check if this package also "provides" the package it's conflicting with
 				 */
-				if(_alpm_list_is_strin(miss->depend.name, sync->pkg->provides)) {
+				if(_pacman_list_is_strin(miss->depend.name, sync->pkg->provides)) {
 					/* so just treat it like a "replaces" item so the REQUIREDBY
 					 * fields are inherited properly.
 					 */
-					_alpm_log(PM_LOG_DEBUG, _("package '%s' provides its own conflict"), miss->target);
+					_pacman_log(PM_LOG_DEBUG, _("package '%s' provides its own conflict"), miss->target);
 					if(local) {
 						/* nothing to do for now: it will be handled later
 						 * (not the same behavior as in pacman) */
@@ -531,15 +531,15 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 
 						/* figure out which one was requested in targets.  If they both were,
 						 * then it's still an unresolvable conflict. */
-						target = _alpm_list_is_strin(miss->target, trans->targets);
-						depend = _alpm_list_is_strin(miss->depend.name, trans->targets);
+						target = _pacman_list_is_strin(miss->target, trans->targets);
+						depend = _pacman_list_is_strin(miss->depend.name, trans->targets);
 						if(depend && !target) {
-							_alpm_log(PM_LOG_DEBUG, _("'%s' is in the target list -- keeping it"),
+							_pacman_log(PM_LOG_DEBUG, _("'%s' is in the target list -- keeping it"),
 								miss->depend.name);
 							/* remove miss->target */
 							rmpkg = miss->target;
 						} else if(target && !depend) {
-							_alpm_log(PM_LOG_DEBUG, _("'%s' is in the target list -- keeping it"),
+							_pacman_log(PM_LOG_DEBUG, _("'%s' is in the target list -- keeping it"),
 								miss->target);
 							/* remove miss->depend.name */
 							rmpkg = miss->depend.name;
@@ -551,8 +551,8 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 						if(rmpkg) {
 							pmsyncpkg_t *rsync = find_pkginsync(rmpkg, trans->packages);
 							pmsyncpkg_t *spkg = NULL;
-							_alpm_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
-							trans->packages = _alpm_list_remove(trans->packages, rsync, ptr_cmp, (void **)&spkg);
+							_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
+							trans->packages = _pacman_list_remove(trans->packages, rsync, ptr_cmp, (void **)&spkg);
 							FREESYNC(spkg);
 							continue;
 						}
@@ -560,15 +560,15 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 				}
 				/* It's a conflict -- see if they want to remove it
 				*/
-				_alpm_log(PM_LOG_DEBUG, _("resolving package '%s' conflict"), miss->target);
+				_pacman_log(PM_LOG_DEBUG, _("resolving package '%s' conflict"), miss->target);
 				if(local) {
 					int doremove = 0;
-					if(!_alpm_list_is_strin(miss->depend.name, asked)) {
+					if(!_pacman_list_is_strin(miss->depend.name, asked)) {
 						QUESTION(trans, PM_TRANS_CONV_CONFLICT_PKG, miss->target, miss->depend.name, NULL, &doremove);
-						asked = _alpm_list_add(asked, strdup(miss->depend.name));
+						asked = _pacman_list_add(asked, strdup(miss->depend.name));
 						if(doremove) {
 							pmsyncpkg_t *rsync = find_pkginsync(miss->depend.name, trans->packages);
-							pmpkg_t *q = _alpm_pkg_new(miss->depend.name, NULL);
+							pmpkg_t *q = _pacman_pkg_new(miss->depend.name, NULL);
 							if(q == NULL) {
 								if(data) {
 									FREELIST(*data);
@@ -576,52 +576,52 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 								ret = -1;
 								goto cleanup;
 							}
-							q->requiredby = _alpm_list_strdup(local->requiredby);
+							q->requiredby = _pacman_list_strdup(local->requiredby);
 							if(sync->type != PM_SYNC_TYPE_REPLACE) {
 								/* switch this sync type to REPLACE */
 								sync->type = PM_SYNC_TYPE_REPLACE;
 								FREEPKG(sync->data);
 							}
 							/* append to the replaces list */
-							_alpm_log(PM_LOG_FLOW2, _("electing '%s' for removal"), miss->depend.name);
-							sync->data = _alpm_list_add(sync->data, q);
+							_pacman_log(PM_LOG_FLOW2, _("electing '%s' for removal"), miss->depend.name);
+							sync->data = _pacman_list_add(sync->data, q);
 							if(rsync) {
 								/* remove it from the target list */
 								pmsyncpkg_t *spkg = NULL;
-								_alpm_log(PM_LOG_FLOW2, _("removing '%s' from target list"), miss->depend.name);
-								trans->packages = _alpm_list_remove(trans->packages, rsync, ptr_cmp, (void **)&spkg);
+								_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), miss->depend.name);
+								trans->packages = _pacman_list_remove(trans->packages, rsync, ptr_cmp, (void **)&spkg);
 								FREESYNC(spkg);
 							}
 						} else {
 							/* abort */
-							_alpm_log(PM_LOG_ERROR, _("unresolvable package conflicts detected"));
+							_pacman_log(PM_LOG_ERROR, _("unresolvable package conflicts detected"));
 							errorout = 1;
 							if(data) {
 								if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
-									_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
+									_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
 									FREELIST(*data);
 									pm_errno = PM_ERR_MEMORY;
 									ret = -1;
 									goto cleanup;
 								}
 								*miss = *(pmdepmissing_t *)i->data;
-								*data = _alpm_list_add(*data, miss);
+								*data = _pacman_list_add(*data, miss);
 							}
 						}
 					}
 				} else {
-					_alpm_log(PM_LOG_ERROR, _("unresolvable package conflicts detected"));
+					_pacman_log(PM_LOG_ERROR, _("unresolvable package conflicts detected"));
 					errorout = 1;
 					if(data) {
 						if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
-							_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
+							_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
 							FREELIST(*data);
 							pm_errno = PM_ERR_MEMORY;
 							ret = -1;
 							goto cleanup;
 						}
 						*miss = *(pmdepmissing_t *)i->data;
-						*data = _alpm_list_add(*data, miss);
+						*data = _pacman_list_add(*data, miss);
 					}
 				}
 			}
@@ -657,13 +657,13 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 			pmsyncpkg_t *sync = i->data;
 			if(sync->type == PM_SYNC_TYPE_REPLACE) {
 				for(j = sync->data; j; j = j->next) {
-					list = _alpm_list_add(list, j->data);
+					list = _pacman_list_add(list, j->data);
 				}
 			}
 		}
 		if(list) {
-			_alpm_log(PM_LOG_FLOW1, _("checking dependencies of packages designated for removal"));
-			deps = _alpm_checkdeps(trans, db_local, PM_TRANS_TYPE_REMOVE, list);
+			_pacman_log(PM_LOG_FLOW1, _("checking dependencies of packages designated for removal"));
+			deps = _pacman_checkdeps(trans, db_local, PM_TRANS_TYPE_REMOVE, list);
 			if(deps) {
 				int errorout = 0;
 				for(i = deps; i; i = i->next) {
@@ -673,10 +673,10 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 						pmlist_t *k;
 						/* If miss->depend.name depends on something that miss->target and a
 						 * package in final both provide, then it's okay...  */
-						pmpkg_t *leavingp  = _alpm_db_get_pkgfromcache(db_local, miss->target);
-						pmpkg_t *conflictp = _alpm_db_get_pkgfromcache(db_local, miss->depend.name);
+						pmpkg_t *leavingp  = _pacman_db_get_pkgfromcache(db_local, miss->target);
+						pmpkg_t *conflictp = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
 						if(!leavingp || !conflictp) {
-							_alpm_log(PM_LOG_ERROR, _("something has gone horribly wrong"));
+							_pacman_log(PM_LOG_ERROR, _("something has gone horribly wrong"));
 							ret = -1;
 							goto cleanup;
 						}
@@ -695,7 +695,7 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 										for(o = sp->pkg->provides; o && !pfound; o = o->next) {
 											if(!strcmp(m->data, o->data)) {
 												/* found matching provisio -- we're good to go */
-												_alpm_log(PM_LOG_FLOW2, _("found '%s' as a provision for '%s' -- conflict aborted"),
+												_pacman_log(PM_LOG_FLOW2, _("found '%s' as a provision for '%s' -- conflict aborted"),
 														sp->pkg->name, (char *)o->data);
 												pfound = 1;
 											}
@@ -710,14 +710,14 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 							}
 							if(data) {
 								if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
-									_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
+									_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
 									FREELIST(*data);
 									pm_errno = PM_ERR_MEMORY;
 									ret = -1;
 									goto cleanup;
 								}
 								*miss = *(pmdepmissing_t *)i->data;
-								*data = _alpm_list_add(*data, miss);
+								*data = _pacman_list_add(*data, miss);
 							}
 						}
 					}
@@ -736,7 +736,7 @@ int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, p
 #ifndef __sun__
 	/* check for free space only in case the packages will be extracted */
 	if(!(trans->flags & PM_TRANS_FLAG_NOCONFLICTS)) {
-		if(_alpm_check_freespace(trans, data) == -1) {
+		if(_pacman_check_freespace(trans, data) == -1) {
 				/* pm_errno is set by check_freespace */
 				ret = -1;
 				goto cleanup;
@@ -752,7 +752,7 @@ cleanup:
 	return(ret);
 }
 
-int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
+int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 {
 	pmlist_t *i, *j, *files = NULL;
 	pmtrans_t *tr = NULL;
@@ -784,16 +784,16 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 
 					if(trans->flags & PM_TRANS_FLAG_PRINTURIS) {
 						snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG, spkg->name, spkg->version, spkg->arch);
-						EVENT(trans, PM_TRANS_EVT_PRINTURI, alpm_db_getinfo(current, PM_DB_FIRSTSERVER), path);
+						EVENT(trans, PM_TRANS_EVT_PRINTURI, pacman_db_getinfo(current, PM_DB_FIRSTSERVER), path);
 					} else {
 						struct stat buf;
 						snprintf(path, PATH_MAX, "%s/%s-%s-%s" PM_EXT_PKG, ldir, spkg->name, spkg->version, spkg->arch);
 						if(stat(path, &buf)) {
 							/* file is not in the cache dir, so add it to the list */
 							snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG, spkg->name, spkg->version, spkg->arch);
-							files = _alpm_list_add(files, strdup(path));
+							files = _pacman_list_add(files, strdup(path));
 						} else {
-							_alpm_log(PM_LOG_DEBUG, _("%s-%s-%s%s is already in the cache\n"),
+							_pacman_log(PM_LOG_DEBUG, _("%s-%s-%s%s is already in the cache\n"),
 								spkg->name, spkg->version, spkg->arch, PM_EXT_PKG);
 						}
 					}
@@ -805,24 +805,24 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 				EVENT(trans, PM_TRANS_EVT_RETRIEVE_START, current->treename, NULL);
 				if(stat(ldir, &buf)) {
 					/* no cache directory.... try creating it */
-					_alpm_log(PM_LOG_WARNING, _("no %s cache exists.  creating...\n"), ldir);
-					alpm_logaction(_("warning: no %s cache exists.  creating..."), ldir);
-					if(_alpm_makepath(ldir)) {
+					_pacman_log(PM_LOG_WARNING, _("no %s cache exists.  creating...\n"), ldir);
+					pacman_logaction(_("warning: no %s cache exists.  creating..."), ldir);
+					if(_pacman_makepath(ldir)) {
 						/* couldn't mkdir the cache directory, so fall back to /tmp and unlink
 						 * the package afterwards.
 						 */
-						_alpm_log(PM_LOG_WARNING, _("couldn't create package cache, using /tmp instead\n"));
-						alpm_logaction(_("warning: couldn't create package cache, using /tmp instead"));
+						_pacman_log(PM_LOG_WARNING, _("couldn't create package cache, using /tmp instead\n"));
+						pacman_logaction(_("warning: couldn't create package cache, using /tmp instead"));
 						snprintf(ldir, PATH_MAX, "%s/tmp", handle->root);
-						if(_alpm_handle_set_option(handle, PM_OPT_CACHEDIR, (long)"/tmp") == -1) {
-							_alpm_log(PM_LOG_WARNING, _("failed to set option CACHEDIR (%s)\n"), alpm_strerror(pm_errno));
+						if(_pacman_handle_set_option(handle, PM_OPT_CACHEDIR, (long)"/tmp") == -1) {
+							_pacman_log(PM_LOG_WARNING, _("failed to set option CACHEDIR (%s)\n"), pacman_strerror(pm_errno));
 							RET_ERR(PM_ERR_RETRIEVE, -1);
 						}
 						varcache = 0;
 					}
 				}
-				if(_alpm_downloadfiles(current->servers, ldir, files)) {
-					_alpm_log(PM_LOG_WARNING, _("failed to retrieve some files from %s\n"), current->treename);
+				if(_pacman_downloadfiles(current->servers, ldir, files)) {
+					_pacman_log(PM_LOG_WARNING, _("failed to retrieve some files from %s\n"), current->treename);
 					RET_ERR(PM_ERR_RETRIEVE, -1);
 				}
 				FREELIST(files);
@@ -853,19 +853,19 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 						RET_ERR(PM_ERR_MEMORY, -1);
 					}
 					snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
-					*data = _alpm_list_add(*data, ptr);
+					*data = _pacman_list_add(*data, ptr);
 					retval = 1;
 					continue;
 				}
 				snprintf(str, PATH_MAX, "%s/%s/%s", handle->root, handle->cachedir, pkgname);
-				md5sum2 = _alpm_MDFile(str);
-				sha1sum2 = _alpm_SHAFile(str);
+				md5sum2 = _pacman_MDFile(str);
+				sha1sum2 = _pacman_SHAFile(str);
 				if(md5sum2 == NULL && sha1sum2 == NULL) {
 					if((ptr = (char *)malloc(512)) == NULL) {
 						RET_ERR(PM_ERR_MEMORY, -1);
 					}
 					snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
-					*data = _alpm_list_add(*data, ptr);
+					*data = _pacman_list_add(*data, ptr);
 					retval = 1;
 					continue;
 				}
@@ -887,7 +887,7 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 					} else {
 						snprintf(ptr, 512, _("archive %s is corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
 					}
-					*data = _alpm_list_add(*data, ptr);
+					*data = _pacman_list_add(*data, ptr);
 					retval = 1;
 				}
 				FREE(md5sum2);
@@ -911,15 +911,15 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 
 	/* remove conflicting and to-be-replaced packages */
 	trans->state = STATE_COMMITING;
-	tr = _alpm_trans_new();
+	tr = _pacman_trans_new();
 	if(tr == NULL) {
-		_alpm_log(PM_LOG_ERROR, _("could not create removal transaction"));
+		_pacman_log(PM_LOG_ERROR, _("could not create removal transaction"));
 		pm_errno = PM_ERR_MEMORY;
 		goto error;
 	}
 
-	if(_alpm_trans_init(tr, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, NULL, NULL, NULL) == -1) {
-		_alpm_log(PM_LOG_ERROR, _("could not initialize the removal transaction"));
+	if(_pacman_trans_init(tr, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, NULL, NULL, NULL) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("could not initialize the removal transaction"));
 		goto error;
 	}
 
@@ -929,8 +929,8 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 			pmlist_t *j;
 			for(j = sync->data; j; j = j->next) {
 				pmpkg_t *pkg = j->data;
-				if(!_alpm_pkg_isin(pkg->name, tr->packages)) {
-					if(_alpm_trans_addtarget(tr, pkg->name) == -1) {
+				if(!_pacman_pkg_isin(pkg->name, tr->packages)) {
+					if(_pacman_trans_addtarget(tr, pkg->name) == -1) {
 						goto error;
 					}
 					replaces++;
@@ -939,30 +939,30 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 		}
 	}
 	if(replaces) {
-		_alpm_log(PM_LOG_FLOW1, _("removing conflicting and to-be-replaced packages"));
-		if(_alpm_trans_prepare(tr, data) == -1) {
-			_alpm_log(PM_LOG_ERROR, _("could not prepare removal transaction"));
+		_pacman_log(PM_LOG_FLOW1, _("removing conflicting and to-be-replaced packages"));
+		if(_pacman_trans_prepare(tr, data) == -1) {
+			_pacman_log(PM_LOG_ERROR, _("could not prepare removal transaction"));
 			goto error;
 		}
 		/* we want the frontend to be aware of commit details */
 		tr->cb_event = trans->cb_event;
-		if(_alpm_trans_commit(tr, NULL) == -1) {
-			_alpm_log(PM_LOG_ERROR, _("could not commit removal transaction"));
+		if(_pacman_trans_commit(tr, NULL) == -1) {
+			_pacman_log(PM_LOG_ERROR, _("could not commit removal transaction"));
 			goto error;
 		}
 	}
 	FREETRANS(tr);
 
 	/* install targets */
-	_alpm_log(PM_LOG_FLOW1, _("installing packages"));
-	tr = _alpm_trans_new();
+	_pacman_log(PM_LOG_FLOW1, _("installing packages"));
+	tr = _pacman_trans_new();
 	if(tr == NULL) {
-		_alpm_log(PM_LOG_ERROR, _("could not create transaction"));
+		_pacman_log(PM_LOG_ERROR, _("could not create transaction"));
 		pm_errno = PM_ERR_MEMORY;
 		goto error;
 	}
-	if(_alpm_trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, trans->cb_event, trans->cb_conv, trans->cb_progress) == -1) {
-		_alpm_log(PM_LOG_ERROR, _("could not initialize transaction"));
+	if(_pacman_trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, trans->cb_event, trans->cb_conv, trans->cb_progress) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("could not initialize transaction"));
 		goto error;
 	}
 	for(i = trans->packages; i; i = i->next) {
@@ -970,44 +970,44 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 		pmpkg_t *spkg = sync->pkg;
 		char str[PATH_MAX];
 		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name, spkg->version, spkg->arch);
-		if(_alpm_trans_addtarget(tr, str) == -1) {
+		if(_pacman_trans_addtarget(tr, str) == -1) {
 			goto error;
 		}
-		/* using _alpm_list_last() is ok because addtarget() adds the new target at the
+		/* using _pacman_list_last() is ok because addtarget() adds the new target at the
 		 * end of the tr->packages list */
-		spkg = _alpm_list_last(tr->packages)->data;
+		spkg = _pacman_list_last(tr->packages)->data;
 		if(sync->type == PM_SYNC_TYPE_DEPEND) {
 			spkg->reason = PM_PKG_REASON_DEPEND;
 		}
 	}
-	if(_alpm_trans_prepare(tr, data) == -1) {
-		_alpm_log(PM_LOG_ERROR, _("could not prepare transaction"));
+	if(_pacman_trans_prepare(tr, data) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("could not prepare transaction"));
 		/* pm_errno is set by trans_prepare */
 		goto error;
 	}
-	if(_alpm_trans_commit(tr, NULL) == -1) {
-		_alpm_log(PM_LOG_ERROR, _("could not commit transaction"));
+	if(_pacman_trans_commit(tr, NULL) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("could not commit transaction"));
 		goto error;
 	}
 	FREETRANS(tr);
 
 	/* propagate replaced packages' requiredby fields to their new owners */
 	if(replaces) {
-		_alpm_log(PM_LOG_FLOW1, _("updating database for replaced packages' dependencies"));
+		_pacman_log(PM_LOG_FLOW1, _("updating database for replaced packages' dependencies"));
 		for(i = trans->packages; i; i = i->next) {
 			pmsyncpkg_t *sync = i->data;
 			if(sync->type == PM_SYNC_TYPE_REPLACE) {
 				pmlist_t *j;
-				pmpkg_t *new = _alpm_db_get_pkgfromcache(db_local, sync->pkg->name);
+				pmpkg_t *new = _pacman_db_get_pkgfromcache(db_local, sync->pkg->name);
 				for(j = sync->data; j; j = j->next) {
 					pmlist_t *k;
 					pmpkg_t *old = j->data;
 					/* merge lists */
 					for(k = old->requiredby; k; k = k->next) {
-						if(!_alpm_list_is_strin(k->data, new->requiredby)) {
+						if(!_pacman_list_is_strin(k->data, new->requiredby)) {
 							/* replace old's name with new's name in the requiredby's dependency list */
 							pmlist_t *m;
-							pmpkg_t *depender = _alpm_db_get_pkgfromcache(db_local, k->data);
+							pmpkg_t *depender = _pacman_db_get_pkgfromcache(db_local, k->data);
 							if(depender == NULL) {
 								/* If the depending package no longer exists in the local db,
 								 * then it must have ALSO conflicted with sync->pkg.  If
@@ -1021,17 +1021,17 @@ int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 									m->data = strdup(new->name);
 								}
 							}
-							if(_alpm_db_write(db_local, depender, INFRQ_DEPENDS) == -1) {
-								_alpm_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
+							if(_pacman_db_write(db_local, depender, INFRQ_DEPENDS) == -1) {
+								_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
 								          new->name, new->version);
 							}
 							/* add the new requiredby */
-							new->requiredby = _alpm_list_add(new->requiredby, strdup(k->data));
+							new->requiredby = _pacman_list_add(new->requiredby, strdup(k->data));
 						}
 					}
 				}
-				if(_alpm_db_write(db_local, new, INFRQ_DEPENDS) == -1) {
-					_alpm_log(PM_LOG_ERROR, _("could not update new database entry %s-%s"),
+				if(_pacman_db_write(db_local, new, INFRQ_DEPENDS) == -1) {
+					_pacman_log(PM_LOG_ERROR, _("could not update new database entry %s-%s"),
 					          new->name, new->version);
 				}
 			}

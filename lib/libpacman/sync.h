@@ -20,8 +20,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_SYNC_H
-#define _ALPM_SYNC_H
+#ifndef _PACMAN_SYNC_H
+#define _PACMAN_SYNC_H
 
 #include "db.h"
 #include "package.h"
@@ -33,16 +33,16 @@ typedef struct __pmsyncpkg_t {
 	void *data;
 } pmsyncpkg_t;
 
-#define FREESYNC(p) do { if(p) { _alpm_sync_free(p); p = NULL; } } while(0)
+#define FREESYNC(p) do { if(p) { _pacman_sync_free(p); p = NULL; } } while(0)
 
-pmsyncpkg_t *_alpm_sync_new(int type, pmpkg_t *spkg, void *data);
-void _alpm_sync_free(void *data);
+pmsyncpkg_t *_pacman_sync_new(int type, pmpkg_t *spkg, void *data);
+void _pacman_sync_free(void *data);
 
-int _alpm_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync);
-int _alpm_sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, char *name);
-int _alpm_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, pmlist_t **data);
-int _alpm_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data);
+int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync);
+int _pacman_sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, char *name);
+int _pacman_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, pmlist_t **data);
+int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data);
 
-#endif /* _ALPM_SYNC_H */
+#endif /* _PACMAN_SYNC_H */
 
 /* vim: set ts=2 sw=2 noet: */

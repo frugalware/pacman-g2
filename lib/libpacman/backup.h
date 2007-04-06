@@ -18,13 +18,13 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_BACKUP_H
-#define _ALPM_BACKUP_H
+#ifndef _PACMAN_BACKUP_H
+#define _PACMAN_BACKUP_H
 
 #include "list.h"
 
-char *_alpm_needbackup(char *file, pmlist_t *backup);
+char *_pacman_needbackup(char *file, pmlist_t *backup);
 
-#endif /* _ALPM_BACKUP_H */
+#endif /* _PACMAN_BACKUP_H */
 
 /* vim: set ts=2 sw=2 noet: */

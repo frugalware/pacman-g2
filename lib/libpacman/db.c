@@ -48,22 +48,22 @@
 #include "db.h"
 #include "handle.h"
 #include "cache.h"
-#include "alpm.h"
+#include "pacman.h"
 
-pmdb_t *_alpm_db_new(char *root, char* dbpath, char *treename)
+pmdb_t *_pacman_db_new(char *root, char* dbpath, char *treename)
 {
 	pmdb_t *db;
 
 	db = (pmdb_t *)malloc(sizeof(pmdb_t));
 	if(db == NULL) {
-		_alpm_log(PM_LOG_ERROR, _("malloc failed: could not allocate %d bytes"),
+		_pacman_log(PM_LOG_ERROR, _("malloc failed: could not allocate %d bytes"),
 				  sizeof(pmdb_t));
 		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
 
 	db->path = (char *)malloc(strlen(root)+strlen(dbpath)+strlen(treename)+2);
 	if(db->path == NULL) {
-		_alpm_log(PM_LOG_ERROR, _("malloc failed: could not allocate %d bytes"),
+		_pacman_log(PM_LOG_ERROR, _("malloc failed: could not allocate %d bytes"),
 				  strlen(root)+strlen(dbpath)+strlen(treename)+2);
 		FREE(db);
 		RET_ERR(PM_ERR_MEMORY, NULL);
@@ -79,7 +79,7 @@ pmdb_t *_alpm_db_new(char *root, char* dbpath, char *treename)
 	return(db);
 }
 
-void _alpm_db_free(void *data)
+void _pacman_db_free(void *data)
 {
 	pmdb_t *db = data;
 
@@ -90,12 +90,12 @@ void _alpm_db_free(void *data)
 	return;
 }
 
-int _alpm_db_cmp(const void *db1, const void *db2)
+int _pacman_db_cmp(const void *db1, const void *db2)
 {
 	return(strcmp(((pmdb_t *)db1)->treename, ((pmdb_t *)db2)->treename));
 }
 
-pmlist_t *_alpm_db_search(pmdb_t *db, pmlist_t *needles)
+pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 {
 	pmlist_t *i, *j, *k, *ret = NULL;
 
@@ -107,22 +107,22 @@ pmlist_t *_alpm_db_search(pmdb_t *db, pmlist_t *needles)
 			continue;
 		}
 		targ = strdup(i->data);
-		_alpm_log(PM_LOG_DEBUG, "searching for target '%s'\n", targ);
+		_pacman_log(PM_LOG_DEBUG, "searching for target '%s'\n", targ);
 
-		for(j = _alpm_db_get_pkgcache(db); j; j = j->next) {
+		for(j = _pacman_db_get_pkgcache(db); j; j = j->next) {
 			pmpkg_t *pkg = j->data;
 			char *haystack;
 			int match = 0;
 
 			/* check name */
 			haystack = strdup(pkg->name);
-			retval = _alpm_reg_match(haystack, targ);
+			retval = _pacman_reg_match(haystack, targ);
 			if(retval < 0) {
 				/* bad regexp */
 				FREE(haystack);
 				return(NULL);
 			} else if(retval) {
-				_alpm_log(PM_LOG_DEBUG, "    search target '%s' matched '%s'", targ, haystack);
+				_pacman_log(PM_LOG_DEBUG, "    search target '%s' matched '%s'", targ, haystack);
 				match = 1;
 			}
 			FREE(haystack);
@@ -130,7 +130,7 @@ pmlist_t *_alpm_db_search(pmdb_t *db, pmlist_t *needles)
 			/* check description */
 			if(!match) {
 				haystack = strdup(pkg->desc);
-				retval = _alpm_reg_match(haystack, targ);
+				retval = _pacman_reg_match(haystack, targ);
 				if(retval < 0) {
 					/* bad regexp */
 					FREE(haystack);
@@ -145,7 +145,7 @@ pmlist_t *_alpm_db_search(pmdb_t *db, pmlist_t *needles)
 			if(!match) {
 				for(k = pkg->provides; k; k = k->next) {
 					haystack = strdup(k->data);
-					retval = _alpm_reg_match(haystack, targ);
+					retval = _pacman_reg_match(haystack, targ);
 					if(retval < 0) {
 						/* bad regexp */
 						FREE(haystack);
@@ -158,7 +158,7 @@ pmlist_t *_alpm_db_search(pmdb_t *db, pmlist_t *needles)
 			}
 
 			if(match) {
-				ret = _alpm_list_add(ret, pkg);
+				ret = _pacman_list_add(ret, pkg);
 			}
 		}
 
@@ -168,7 +168,7 @@ pmlist_t *_alpm_db_search(pmdb_t *db, pmlist_t *needles)
 	return(ret);
 }
 
-pmdb_t *_alpm_db_register(char *treename, alpm_cb_db_register callback)
+pmdb_t *_pacman_db_register(char *treename, pacman_cb_db_register callback)
 {
 	struct stat buf;
 	pmdb_t *db;
@@ -176,7 +176,7 @@ pmdb_t *_alpm_db_register(char *treename, alpm_cb_db_register callback)
 
 	if(strcmp(treename, "local") == 0) {
 		if(handle->db_local != NULL) {
-			_alpm_log(PM_LOG_WARNING, _("attempt to re-register the 'local' DB\n"));
+			_pacman_log(PM_LOG_WARNING, _("attempt to re-register the 'local' DB\n"));
 			RET_ERR(PM_ERR_DB_NOT_NULL, NULL);
 		}
 	} else {
@@ -184,31 +184,31 @@ pmdb_t *_alpm_db_register(char *treename, alpm_cb_db_register callback)
 		for(i = handle->dbs_sync; i; i = i->next) {
 			pmdb_t *sdb = i->data;
 			if(strcmp(treename, sdb->treename) == 0) {
-				_alpm_log(PM_LOG_DEBUG, _("attempt to re-register the '%s' databse, using existing\n"), sdb->treename);
+				_pacman_log(PM_LOG_DEBUG, _("attempt to re-register the '%s' databse, using existing\n"), sdb->treename);
 				return sdb;
 			}
 		}
 	}
 	
-	_alpm_log(PM_LOG_FLOW1, _("registering database '%s'"), treename);
+	_pacman_log(PM_LOG_FLOW1, _("registering database '%s'"), treename);
 
 	/* make sure the database directory exists */
 	snprintf(path, PATH_MAX, "%s%s/%s", handle->root, handle->dbpath, treename);
 	if(stat(path, &buf) != 0 || !S_ISDIR(buf.st_mode)) {
-		_alpm_log(PM_LOG_FLOW1, _("database directory '%s' does not exist -- try creating it"), path);
-		if(_alpm_makepath(path) != 0) {
+		_pacman_log(PM_LOG_FLOW1, _("database directory '%s' does not exist -- try creating it"), path);
+		if(_pacman_makepath(path) != 0) {
 			RET_ERR(PM_ERR_SYSTEM, NULL);
 		}
 	}
 
-	db = _alpm_db_new(handle->root, handle->dbpath, treename);
+	db = _pacman_db_new(handle->root, handle->dbpath, treename);
 	if(db == NULL) {
 		RET_ERR(PM_ERR_DB_CREATE, NULL);
 	}
 
-	_alpm_log(PM_LOG_DEBUG, _("opening database '%s'"), db->treename);
-	if(_alpm_db_open(db) == -1) {
-		_alpm_db_free(db);
+	_pacman_log(PM_LOG_DEBUG, _("opening database '%s'"), db->treename);
+	if(_pacman_db_open(db) == -1) {
+		_pacman_db_free(db);
 		RET_ERR(PM_ERR_DB_OPEN, NULL);
 	}
 
@@ -218,7 +218,7 @@ pmdb_t *_alpm_db_register(char *treename, alpm_cb_db_register callback)
 	if(strcmp(treename, "local") == 0) {
 		handle->db_local = db;
 	} else {
-		handle->dbs_sync = _alpm_list_add(handle->dbs_sync, db);
+		handle->dbs_sync = _pacman_list_add(handle->dbs_sync, db);
 	}
 
 	return(db);

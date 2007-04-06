@@ -18,17 +18,17 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_REMOVE_H
-#define _ALPM_REMOVE_H
+#ifndef _PACMAN_REMOVE_H
+#define _PACMAN_REMOVE_H
 
 #include "list.h"
 #include "db.h"
 #include "trans.h"
 
-int _alpm_remove_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name);
-int _alpm_remove_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data);
-int _alpm_remove_commit(pmtrans_t *trans, pmdb_t *db);
+int _pacman_remove_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name);
+int _pacman_remove_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data);
+int _pacman_remove_commit(pmtrans_t *trans, pmdb_t *db);
 
-#endif /* _ALPM_REMOVE_H */
+#endif /* _PACMAN_REMOVE_H */
 
 /* vim: set ts=2 sw=2 noet: */

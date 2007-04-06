@@ -18,8 +18,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_CACHE_H
-#define _ALPM_CACHE_H
+#ifndef _PACMAN_CACHE_H
+#define _PACMAN_CACHE_H
 
 #include "list.h"
 #include "package.h"
@@ -27,18 +27,18 @@
 #include "db.h"
 
 /* packages */
-int _alpm_db_load_pkgcache(pmdb_t *db);
-void _alpm_db_free_pkgcache(pmdb_t *db);
-int _alpm_db_add_pkgincache(pmdb_t *db, pmpkg_t *pkg);
-int _alpm_db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg);
-pmlist_t *_alpm_db_get_pkgcache(pmdb_t *db);
-pmpkg_t *_alpm_db_get_pkgfromcache(pmdb_t *db, char *target);
+int _pacman_db_load_pkgcache(pmdb_t *db);
+void _pacman_db_free_pkgcache(pmdb_t *db);
+int _pacman_db_add_pkgincache(pmdb_t *db, pmpkg_t *pkg);
+int _pacman_db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg);
+pmlist_t *_pacman_db_get_pkgcache(pmdb_t *db);
+pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, char *target);
 /* groups */
-int _alpm_db_load_grpcache(pmdb_t *db);
-void _alpm_db_free_grpcache(pmdb_t *db);
-pmlist_t *_alpm_db_get_grpcache(pmdb_t *db);
-pmgrp_t *_alpm_db_get_grpfromcache(pmdb_t *db, char *target);
+int _pacman_db_load_grpcache(pmdb_t *db);
+void _pacman_db_free_grpcache(pmdb_t *db);
+pmlist_t *_pacman_db_get_grpcache(pmdb_t *db);
+pmgrp_t *_pacman_db_get_grpfromcache(pmdb_t *db, char *target);
 
-#endif /* _ALPM_CACHE_H */
+#endif /* _PACMAN_CACHE_H */
 
 /* vim: set ts=2 sw=2 noet: */

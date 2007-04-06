@@ -38,17 +38,17 @@
 #include "list.h"
 #include "error.h"
 #include "trans.h"
-#include "alpm.h"
+#include "pacman.h"
 #include "server.h"
 #include "handle.h"
 
-pmhandle_t *_alpm_handle_new()
+pmhandle_t *_pacman_handle_new()
 {
 	pmhandle_t *handle;
 
 	handle = (pmhandle_t *)malloc(sizeof(pmhandle_t));
 	if(handle == NULL) {
-		_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmhandle_t));
+		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmhandle_t));
 		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
 
@@ -86,7 +86,7 @@ pmhandle_t *_alpm_handle_new()
 	return(handle);
 }
 
-int _alpm_handle_free(pmhandle_t *handle)
+int _pacman_handle_free(pmhandle_t *handle)
 {
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
@@ -119,7 +119,7 @@ int _alpm_handle_free(pmhandle_t *handle)
 	return(0);
 }
 
-int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long data)
+int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long data)
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -131,14 +131,14 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 				FREE(handle->dbpath);
 			}
 			handle->dbpath = strdup((data && strlen((char *)data) != 0) ? (char *)data : PM_DBPATH);
-			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_DBPATH set to '%s'"), handle->dbpath);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_DBPATH set to '%s'"), handle->dbpath);
 		break;
 		case PM_OPT_CACHEDIR:
 			if(handle->cachedir) {
 				FREE(handle->cachedir);
 			}
 			handle->cachedir = strdup((data && strlen((char *)data) != 0) ? (char *)data : PM_CACHEDIR);
-			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_CACHEDIR set to '%s'"), handle->cachedir);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_CACHEDIR set to '%s'"), handle->cachedir);
 		break;
 		case PM_OPT_LOGFILE:
 			if((char *)data == NULL || handle->uid != 0) {
@@ -157,55 +157,55 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 			char path[PATH_MAX];
 			snprintf(path, PATH_MAX, "%s/%s", handle->root, (char *)data);
 			if((handle->logfd = fopen(path, "a")) == NULL) {
-				_alpm_log(PM_LOG_ERROR, _("can't open log file %s"), path);
+				_pacman_log(PM_LOG_ERROR, _("can't open log file %s"), path);
 				RET_ERR(PM_ERR_OPT_LOGFILE, -1);
 			}
 			handle->logfile = strdup(path);
-			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_LOGFILE set to '%s'"), path);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_LOGFILE set to '%s'"), path);
 		break;
 		case PM_OPT_NOUPGRADE:
 			if((char *)data && strlen((char *)data) != 0) {
-				handle->noupgrade = _alpm_list_add(handle->noupgrade, strdup((char *)data));
-				_alpm_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NOUPGRADE"), (char *)data);
+				handle->noupgrade = _pacman_list_add(handle->noupgrade, strdup((char *)data));
+				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NOUPGRADE"), (char *)data);
 			} else {
 				FREELIST(handle->noupgrade);
-				_alpm_log(PM_LOG_FLOW2, _("PM_OPT_NOUPGRADE flushed"));
+				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_NOUPGRADE flushed"));
 			}
 		break;
 		case PM_OPT_NOEXTRACT:
 			if((char *)data && strlen((char *)data) != 0) {
-				handle->noextract = _alpm_list_add(handle->noextract, strdup((char *)data));
-				_alpm_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NOEXTRACT"), (char *)data);
+				handle->noextract = _pacman_list_add(handle->noextract, strdup((char *)data));
+				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NOEXTRACT"), (char *)data);
 			} else {
 				FREELIST(handle->noextract);
-				_alpm_log(PM_LOG_FLOW2, _("PM_OPT_NOEXTRACT flushed"));
+				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_NOEXTRACT flushed"));
 			}
 		break;
 		case PM_OPT_IGNOREPKG:
 			if((char *)data && strlen((char *)data) != 0) {
-				handle->ignorepkg = _alpm_list_add(handle->ignorepkg, strdup((char *)data));
-				_alpm_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_IGNOREPKG"), (char *)data);
+				handle->ignorepkg = _pacman_list_add(handle->ignorepkg, strdup((char *)data));
+				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_IGNOREPKG"), (char *)data);
 			} else {
 				FREELIST(handle->ignorepkg);
-				_alpm_log(PM_LOG_FLOW2, _("PM_OPT_IGNOREPKG flushed"));
+				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_IGNOREPKG flushed"));
 			}
 		break;
 		case PM_OPT_HOLDPKG:
 			if((char *)data && strlen((char *)data) != 0) {
-				handle->holdpkg = _alpm_list_add(handle->holdpkg, strdup((char *)data));
-				_alpm_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_HOLDPKG"), (char *)data);
+				handle->holdpkg = _pacman_list_add(handle->holdpkg, strdup((char *)data));
+				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_HOLDPKG"), (char *)data);
 			} else {
 				FREELIST(handle->holdpkg);
-				_alpm_log(PM_LOG_FLOW2, _("PM_OPT_HOLDPKG flushed"));
+				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_HOLDPKG flushed"));
 			}
 		break;
 		case PM_OPT_NEEDLES:
 			if((char *)data && strlen((char *)data) != 0) {
-				handle->needles = _alpm_list_add(handle->needles, strdup((char *)data));
-				_alpm_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NEEDLES"), (char *)data);
+				handle->needles = _pacman_list_add(handle->needles, strdup((char *)data));
+				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NEEDLES"), (char *)data);
 			} else {
 				FREELIST(handle->needles);
-				_alpm_log(PM_LOG_FLOW2, _("PM_OPT_NEEDLES flushed"));
+				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_NEEDLES flushed"));
 			}
 		break;
 		case PM_OPT_USESYSLOG:
@@ -218,13 +218,13 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 			if(handle->usesyslog) {
 				closelog();
 			} else {
-				openlog("alpm", 0, LOG_USER);
+				openlog("libpacman", 0, LOG_USER);
 			}
 			handle->usesyslog = (unsigned short)data;
-			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_USESYSLOG set to '%d'"), handle->usesyslog);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_USESYSLOG set to '%d'"), handle->usesyslog);
 		break;
 		case PM_OPT_LOGCB:
-			pm_logcb = (alpm_cb_log)data;
+			pm_logcb = (pacman_cb_log)data;
 		break;
 		case PM_OPT_DLCB:
 			pm_dlcb = (FtpCallback)data;
@@ -261,7 +261,7 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 		break;
 		case PM_OPT_LOGMASK:
 			pm_logmask = (unsigned char)data;
-			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_LOGMASK set to '%02x'"), (unsigned char)data);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_LOGMASK set to '%02x'"), (unsigned char)data);
 		break;
 		case PM_OPT_PROXYHOST:
 			if(handle->proxyhost) {
@@ -280,11 +280,11 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 #else
 			handle->proxyhost = strndup((char*)data, PATH_MAX);
 #endif
-			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_PROXYHOST set to '%s'"), handle->proxyhost);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_PROXYHOST set to '%s'"), handle->proxyhost);
 		break;
 		case PM_OPT_PROXYPORT:
 			handle->proxyport = (unsigned short)data;
-			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_PROXYPORT set to '%d'"), handle->proxyport);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_PROXYPORT set to '%d'"), handle->proxyport);
 		break;
 		case PM_OPT_XFERCOMMAND:
 			if(handle->xfercommand) {
@@ -295,19 +295,19 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 #else
 			handle->xfercommand = strndup((char*)data, PATH_MAX);
 #endif
-			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_XFERCOMMAND set to '%s'"), handle->xfercommand);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_XFERCOMMAND set to '%s'"), handle->xfercommand);
 		break;
 		case PM_OPT_NOPASSIVEFTP:
 			handle->nopassiveftp = (unsigned short)data;
-			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_NOPASSIVEFTP set to '%d'"), handle->nopassiveftp);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_NOPASSIVEFTP set to '%d'"), handle->nopassiveftp);
 		break;
 		case PM_OPT_CHOMP:
 			handle->chomp = (unsigned short)data;
-			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_CHOMP set to '%d'"), handle->chomp);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_CHOMP set to '%d'"), handle->chomp);
 		break;
 		case PM_OPT_MAXTRIES:
 			handle->maxtries = (unsigned short)data;
-			_alpm_log(PM_LOG_FLOW2, _("PM_OPT_MAXTRIES set to '%d'"), handle->maxtries);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_MAXTRIES set to '%d'"), handle->maxtries);
 		break;
 		default:
 			RET_ERR(PM_ERR_WRONG_ARGS, -1);
@@ -316,7 +316,7 @@ int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long
 	return(0);
 }
 
-int _alpm_handle_get_option(pmhandle_t *handle, unsigned char val, long *data)
+int _pacman_handle_get_option(pmhandle_t *handle, unsigned char val, long *data)
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));

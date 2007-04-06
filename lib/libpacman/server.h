@@ -18,8 +18,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_SERVER_H
-#define _ALPM_SERVER_H
+#ifndef _PACMAN_SERVER_H
+#define _PACMAN_SERVER_H
 
 #include "list.h"
 #include <time.h>
@@ -28,12 +28,12 @@
 #define FREESERVER(p) \
 do { \
 	if(p) { \
-		_alpm_server_free(p); \
+		_pacman_server_free(p); \
 		p = NULL; \
 	} \
 } while(0)
 
-#define FREELISTSERVERS(p) _FREELIST(p, _alpm_server_free)
+#define FREELISTSERVERS(p) _FREELIST(p, _pacman_server_free)
 
 /* Servers */
 typedef struct __pmserver_t {
@@ -42,13 +42,13 @@ typedef struct __pmserver_t {
 	char *path;
 } pmserver_t;
 
-pmserver_t *_alpm_server_new(char *url);
-void _alpm_server_free(void *data);
-int _alpm_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *files);
-int _alpm_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
+pmserver_t *_pacman_server_new(char *url);
+void _pacman_server_free(void *data);
+int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *files);
+int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	pmlist_t *files, const char *mtime1, char *mtime2);
 
-char *_alpm_fetch_pkgurl(char *target);
+char *_pacman_fetch_pkgurl(char *target);
 
 extern FtpCallback pm_dlcb;
 
@@ -60,6 +60,6 @@ extern float *pm_dlrate;
 extern int *pm_dlxfered1;
 extern unsigned char *pm_dleta_h, *pm_dleta_m, *pm_dleta_s;
 
-#endif /* _ALPM_SERVER_H */
+#endif /* _PACMAN_SERVER_H */
 
 /* vim: set ts=2 sw=2 noet: */

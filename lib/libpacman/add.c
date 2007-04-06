@@ -64,7 +64,7 @@ static int add_faketarget(pmtrans_t *trans, char *name)
 	char *str = NULL;
 	pmpkg_t *dummy = NULL;
 
-	dummy = _alpm_pkg_new(NULL, NULL);
+	dummy = _pacman_pkg_new(NULL, NULL);
 	if(dummy == NULL) {
 		RET_ERR(PM_ERR_MEMORY, -1);
 	}
@@ -88,9 +88,9 @@ static int add_faketarget(pmtrans_t *trans, char *name)
 		} else if(strncmp("version", p, q-p) == 0) {
 			STRNCPY(dummy->version, q+1, PKG_VERSION_LEN);
 		} else if(strncmp("depend", p, q-p) == 0) {
-			dummy->depends = _alpm_list_add(dummy->depends, strdup(q+1));
+			dummy->depends = _pacman_list_add(dummy->depends, strdup(q+1));
 		} else {
-			_alpm_log(PM_LOG_ERROR, _("could not parse token %s"), p);
+			_pacman_log(PM_LOG_ERROR, _("could not parse token %s"), p);
 		}
 	}
 	FREE(str);
@@ -100,12 +100,12 @@ static int add_faketarget(pmtrans_t *trans, char *name)
 	}
 
 	/* add the package to the transaction */
-	trans->packages = _alpm_list_add(trans->packages, dummy);
+	trans->packages = _pacman_list_add(trans->packages, dummy);
 
 	return(0);
 }
 
-int _alpm_add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
+int _pacman_add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 {
 	pmpkg_t *info = NULL;
 	pmpkg_t *dummy;
@@ -122,14 +122,14 @@ int _alpm_add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 		return(add_faketarget(trans, name));
 	}
 
-	_alpm_log(PM_LOG_FLOW2, _("loading target '%s'"), name);
+	_pacman_log(PM_LOG_FLOW2, _("loading target '%s'"), name);
 
 	if(stat(name, &buf)) {
 		pm_errno = PM_ERR_NOT_A_FILE;
 		goto error;
 	}
 
-	if(_alpm_pkg_splitname(name, pkgname, pkgver, PM_PKG_WITH_ARCH) == -1) {
+	if(_pacman_pkg_splitname(name, pkgname, pkgver, PM_PKG_WITH_ARCH) == -1) {
 		pm_errno = PM_ERR_PKG_INVALID_NAME;
 		goto error;
 	}
@@ -142,15 +142,15 @@ int _alpm_add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 
 	if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 		/* only install this package if it is not already installed */
-		if(_alpm_db_get_pkgfromcache(db, pkgname)) {
+		if(_pacman_db_get_pkgfromcache(db, pkgname)) {
 			pm_errno = PM_ERR_PKG_INSTALLED;
 			goto error;
 		}
 	} else {
 		if(trans->flags & PM_TRANS_FLAG_FRESHEN) {
 			/* only upgrade/install this package if it is already installed and at a lesser version */
-			dummy = _alpm_db_get_pkgfromcache(db, pkgname);
-			if(dummy == NULL || _alpm_versioncmp(dummy->version, pkgver) >= 0) {
+			dummy = _pacman_db_get_pkgfromcache(db, pkgname);
+			if(dummy == NULL || _pacman_versioncmp(dummy->version, pkgver) >= 0) {
 				pm_errno = PM_ERR_PKG_CANT_FRESH;
 				goto error;
 			}
@@ -162,26 +162,26 @@ int _alpm_add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 	for(i = trans->packages; i; i = i->next) {
 		pmpkg_t *pkg = i->data;
 		if(strcmp(pkg->name, pkgname) == 0) {
-			if(_alpm_versioncmp(pkg->version, pkgver) < 0) {
+			if(_pacman_versioncmp(pkg->version, pkgver) < 0) {
 				pmpkg_t *newpkg;
-				_alpm_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
+				_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
 				          pkg->name, pkg->version, pkgver);
-				if((newpkg = _alpm_pkg_load(name)) == NULL) {
+				if((newpkg = _pacman_pkg_load(name)) == NULL) {
 					/* pm_errno is already set by pkg_load() */
 					goto error;
 				}
 				FREEPKG(i->data);
 				i->data = newpkg;
 			} else {
-				_alpm_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
+				_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
 				          pkg->name, pkg->version, pkgver);
 			}
 			return(0);
 		}
 	}
 
-	_alpm_log(PM_LOG_FLOW2, _("reading '%s' metadata"), pkgname);
-	info = _alpm_pkg_load(name);
+	_pacman_log(PM_LOG_FLOW2, _("reading '%s' metadata"), pkgname);
+	info = _pacman_pkg_load(name);
 	if(info == NULL) {
 		/* pm_errno is already set by pkg_load() */
 		goto error;
@@ -197,7 +197,7 @@ int _alpm_add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 	}
 
 	/* add the package to the transaction */
-	trans->packages = _alpm_list_add(trans->packages, info);
+	trans->packages = _pacman_list_add(trans->packages, info);
 
 	return(0);
 
@@ -206,7 +206,7 @@ error:
 	return(-1);
 }
 
-int _alpm_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
+int _pacman_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
 {
 	pmlist_t *lp;
 	pmlist_t *rmlist = NULL;
@@ -222,8 +222,8 @@ int _alpm_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 
 		/* look for unsatisfied dependencies */
-		_alpm_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-		lp = _alpm_checkdeps(trans, db, trans->type, trans->packages);
+		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
+		lp = _pacman_checkdeps(trans, db, trans->type, trans->packages);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -234,8 +234,8 @@ int _alpm_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
 		}
 
 		/* no unsatisfied deps, so look for conflicts */
-		_alpm_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		lp = _alpm_checkconflicts(db, trans->packages);
+		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
+		lp = _pacman_checkconflicts(db, trans->packages);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -246,8 +246,8 @@ int _alpm_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
 		}
 
 		/* re-order w.r.t. dependencies */
-		_alpm_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _alpm_sortbydeps(trans->packages, PM_TRANS_TYPE_ADD);
+		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
+		lp = _pacman_sortbydeps(trans->packages, PM_TRANS_TYPE_ADD);
 		/* free the old alltargs */
 		FREELISTPTR(trans->packages);
 		trans->packages = lp;
@@ -258,7 +258,7 @@ int _alpm_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
 	/* Cleaning up
 	 */
 	EVENT(trans, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
-	_alpm_log(PM_LOG_FLOW1, _("cleaning up"));
+	_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
 	for (lp=trans->packages; lp!=NULL; lp=lp->next) {
 		info=(pmpkg_t *)lp->data;
 		for (rmlist=info->removes; rmlist!=NULL; rmlist=rmlist->next) {
@@ -275,8 +275,8 @@ int _alpm_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
 
 		EVENT(trans, PM_TRANS_EVT_FILECONFLICTS_START, NULL, NULL);
 
-		_alpm_log(PM_LOG_FLOW1, _("looking for file conflicts"));
-		lp = _alpm_db_find_conflicts(db, trans, handle->root, &skiplist);
+		_pacman_log(PM_LOG_FLOW1, _("looking for file conflicts"));
+		lp = _pacman_db_find_conflicts(db, trans, handle->root, &skiplist);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -294,7 +294,7 @@ int _alpm_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
 	}
 
 #ifndef __sun__
-	if(_alpm_check_freespace(trans, data) == -1) {
+	if(_pacman_check_freespace(trans, data) == -1) {
 			/* pm_errno is set by check_freespace */
 			return(-1);
 	}
@@ -303,7 +303,7 @@ int _alpm_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
 	return(0);
 }
 
-int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
+int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 {
 	int i, ret = 0, errors = 0, needdisp = 0;
 	double percent;
@@ -336,59 +336,59 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 
 		/* see if this is an upgrade.  if so, remove the old package first */
 		if(pmo_upgrade) {
-			pmpkg_t *local = _alpm_db_get_pkgfromcache(db, info->name);
+			pmpkg_t *local = _pacman_db_get_pkgfromcache(db, info->name);
 			if(local) {
 				EVENT(trans, PM_TRANS_EVT_UPGRADE_START, info, NULL);
 				cb_state = PM_TRANS_PROGRESS_UPGRADE_START;
-				_alpm_log(PM_LOG_FLOW1, _("upgrading package %s-%s"), info->name, info->version);
+				_pacman_log(PM_LOG_FLOW1, _("upgrading package %s-%s"), info->name, info->version);
 				if((what = (char *)malloc(strlen(info->name)+1)) == NULL) {
 					RET_ERR(PM_ERR_MEMORY, -1);
 				}
 				STRNCPY(what, info->name, strlen(info->name)+1);
 
 				/* we'll need to save some record for backup checks later */
-				oldpkg = _alpm_pkg_new(local->name, local->version);
+				oldpkg = _pacman_pkg_new(local->name, local->version);
 				if(oldpkg) {
 					if(!(local->infolevel & INFRQ_FILES)) {
-						_alpm_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), local->name);
-						_alpm_db_read(db, INFRQ_FILES, local);
+						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), local->name);
+						_pacman_db_read(db, INFRQ_FILES, local);
 					}
-					oldpkg->backup = _alpm_list_strdup(local->backup);
+					oldpkg->backup = _pacman_list_strdup(local->backup);
 					strncpy(oldpkg->name, local->name, PKG_NAME_LEN);
 					strncpy(oldpkg->version, local->version, PKG_VERSION_LEN);
 				}
 
 				/* copy over the install reason */
 				if(!(local->infolevel & INFRQ_DESC)) {
-					_alpm_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), local->name);
-					_alpm_db_read(db, INFRQ_DESC, local);
+					_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), local->name);
+					_pacman_db_read(db, INFRQ_DESC, local);
 				}
 				info->reason = local->reason;
 
 				/* pre_upgrade scriptlet */
 				if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-					_alpm_runscriptlet(handle->root, info->data, "pre_upgrade", info->version, oldpkg ? oldpkg->version : NULL,
+					_pacman_runscriptlet(handle->root, info->data, "pre_upgrade", info->version, oldpkg ? oldpkg->version : NULL,
 						trans);
 				}
 
 				if(oldpkg) {
 					pmtrans_t *tr;
-					_alpm_log(PM_LOG_FLOW1, _("removing old package first (%s-%s)"), oldpkg->name, oldpkg->version);
-					tr = _alpm_trans_new();
+					_pacman_log(PM_LOG_FLOW1, _("removing old package first (%s-%s)"), oldpkg->name, oldpkg->version);
+					tr = _pacman_trans_new();
 					if(tr == NULL) {
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
-					if(_alpm_trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags, NULL, NULL, NULL) == -1) {
+					if(_pacman_trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags, NULL, NULL, NULL) == -1) {
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
-					if(_alpm_remove_loadtarget(tr, db, info->name) == -1) {
+					if(_pacman_remove_loadtarget(tr, db, info->name) == -1) {
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
 					/* copy the skiplist over */
-					tr->skiplist = _alpm_list_strdup(trans->skiplist);
-					if(_alpm_remove_commit(tr, db) == -1) {
+					tr->skiplist = _pacman_list_strdup(trans->skiplist);
+					if(_pacman_remove_commit(tr, db) == -1) {
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
@@ -403,7 +403,7 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 		if(!pmo_upgrade) {
 			EVENT(trans, PM_TRANS_EVT_ADD_START, info, NULL);
 			cb_state = PM_TRANS_PROGRESS_ADD_START;
-			_alpm_log(PM_LOG_FLOW1, _("adding package %s-%s"), info->name, info->version);
+			_pacman_log(PM_LOG_FLOW1, _("adding package %s-%s"), info->name, info->version);
 			if((what = (char *)malloc(strlen(info->name)+1)) == NULL) {
 				RET_ERR(PM_ERR_MEMORY, -1);
 			}
@@ -411,14 +411,14 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 
 			/* pre_install scriptlet */
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-				_alpm_runscriptlet(handle->root, info->data, "pre_install", info->version, NULL, trans);
+				_pacman_runscriptlet(handle->root, info->data, "pre_install", info->version, NULL, trans);
 			}
 		} else {
-			_alpm_log(PM_LOG_FLOW1, _("adding new package %s-%s"), info->name, info->version);
+			_pacman_log(PM_LOG_FLOW1, _("adding new package %s-%s"), info->name, info->version);
 		}
 
 		if(!(trans->flags & PM_TRANS_FLAG_DBONLY)) {
-			_alpm_log(PM_LOG_FLOW1, _("extracting files"));
+			_pacman_log(PM_LOG_FLOW1, _("extracting files"));
 
 			/* Extract the package */
 			if ((archive = archive_read_new ()) == NULL)
@@ -433,7 +433,7 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 
 			/* save the cwd so we can restore it later */
 			if(getcwd(cwd, PATH_MAX) == NULL) {
-				_alpm_log(PM_LOG_ERROR, _("could not get current working directory"));
+				_pacman_log(PM_LOG_ERROR, _("could not get current working directory"));
 				/* in case of error, cwd content is undefined: so we set it to something */
 				cwd[0] = 0;
 			}
@@ -455,7 +455,7 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 				if (info->size != 0)
 		    			percent = (double)archive_position_uncompressed(archive) / info->size;
 				if (needdisp == 0) {
-					PROGRESS(trans, cb_state, what, (int)(percent * 100), _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
+					PROGRESS(trans, cb_state, what, (int)(percent * 100), _pacman_list_count(trans->packages), (_pacman_list_count(trans->packages) - _pacman_list_count(targ) +1));
 				}
 
 				if(!strcmp(pathname, ".PKGINFO") || !strcmp(pathname, ".FILELIST")) {
@@ -487,23 +487,23 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 				 * eg, /home/httpd/html/index.html may be removed so index.php
 				 * could be used.
 				 */
-				if(_alpm_list_is_strin(pathname, handle->noextract)) {
-					alpm_logaction(_("notice: %s is in NoExtract -- skipping extraction"), pathname);
+				if(_pacman_list_is_strin(pathname, handle->noextract)) {
+					pacman_logaction(_("notice: %s is in NoExtract -- skipping extraction"), pathname);
 					archive_read_data_skip (archive);
 					continue;
 				}
 
 				if(!stat(expath, &buf) && !S_ISDIR(buf.st_mode)) {
 					/* file already exists */
-					if(_alpm_list_is_strin(pathname, handle->noupgrade)) {
+					if(_pacman_list_is_strin(pathname, handle->noupgrade)) {
 						notouch = 1;
 					} else {
 						if(!pmo_upgrade || oldpkg == NULL) {
-							nb = _alpm_list_is_strin(pathname, info->backup);
+							nb = _pacman_list_is_strin(pathname, info->backup);
 						} else {
 							/* op == PM_TRANS_TYPE_UPGRADE */
-							md5_orig = _alpm_needbackup(pathname, oldpkg->backup);
-							sha1_orig = _alpm_needbackup(pathname, oldpkg->backup);
+							md5_orig = _pacman_needbackup(pathname, oldpkg->backup);
+							sha1_orig = _pacman_needbackup(pathname, oldpkg->backup);
 							if(md5_orig || sha1_orig) {
 								nb = 1;
 							}
@@ -518,13 +518,13 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 					int fd;
 
 					/* extract the package's version to a temporary file and md5 it */
-					temp = strdup("/tmp/alpm_XXXXXX");
+					temp = strdup("/tmp/pacman_XXXXXX");
 					fd = mkstemp(temp);
 					
 					archive_entry_set_pathname (entry, temp);
 
 					if(archive_read_extract (archive, entry, ARCHIVE_EXTRACT_FLAGS) != ARCHIVE_OK) {
-						alpm_logaction(_("could not extract %s (%s)"), pathname, strerror(errno));
+						pacman_logaction(_("could not extract %s (%s)"), pathname, strerror(errno));
 						errors++;
 						unlink(temp);
 						FREE(temp);
@@ -533,10 +533,10 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 						close(fd);
 						continue;
 					}
-					md5_local = _alpm_MDFile(expath);
-					md5_pkg = _alpm_MDFile(temp);
-					sha1_local = _alpm_SHAFile(expath);
-					sha1_pkg = _alpm_SHAFile(temp);
+					md5_local = _pacman_MDFile(expath);
+					md5_pkg = _pacman_MDFile(temp);
+					sha1_local = _pacman_SHAFile(expath);
+					sha1_pkg = _pacman_SHAFile(temp);
 					/* append the new md5 or sha1 hash to it's respective entry in info->backup
 					 * (it will be the new orginal)
 					 */
@@ -567,18 +567,18 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 					}
 
 					if (info->sha1sum != NULL && info->sha1sum != '\0') {
-					_alpm_log(PM_LOG_DEBUG, _("checking md5 hashes for %s"), pathname);
-					_alpm_log(PM_LOG_DEBUG, _("current:  %s"), md5_local);
-					_alpm_log(PM_LOG_DEBUG, _("new:      %s"), md5_pkg);
+					_pacman_log(PM_LOG_DEBUG, _("checking md5 hashes for %s"), pathname);
+					_pacman_log(PM_LOG_DEBUG, _("current:  %s"), md5_local);
+					_pacman_log(PM_LOG_DEBUG, _("new:      %s"), md5_pkg);
 					if(md5_orig) {
-						_alpm_log(PM_LOG_DEBUG, _("original: %s"), md5_orig);
+						_pacman_log(PM_LOG_DEBUG, _("original: %s"), md5_orig);
 					}
 					} else {
-                                        _alpm_log(PM_LOG_DEBUG, _("checking sha1 hashes for %s"), pathname);
-					_alpm_log(PM_LOG_DEBUG, _("current:  %s"), sha1_local);
-                                        _alpm_log(PM_LOG_DEBUG, _("new:      %s"), sha1_pkg);
+                                        _pacman_log(PM_LOG_DEBUG, _("checking sha1 hashes for %s"), pathname);
+					_pacman_log(PM_LOG_DEBUG, _("current:  %s"), sha1_local);
+                                        _pacman_log(PM_LOG_DEBUG, _("new:      %s"), sha1_pkg);
                                         if(sha1_orig) {
-                                        _alpm_log(PM_LOG_DEBUG, _("original: %s"), sha1_orig);
+                                        _pacman_log(PM_LOG_DEBUG, _("original: %s"), sha1_orig);
 					}
 					}
 
@@ -592,18 +592,18 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 							snprintf(newpath, PATH_MAX, "%s.pacorig", expath);
 							if(rename(expath, newpath)) {
 								archive_entry_set_pathname (entry, expath);
-								_alpm_log(PM_LOG_ERROR, _("could not rename %s (%s)"), pathname, strerror(errno));
-								alpm_logaction(_("error: could not rename %s (%s)"), expath, strerror(errno));
+								_pacman_log(PM_LOG_ERROR, _("could not rename %s (%s)"), pathname, strerror(errno));
+								pacman_logaction(_("error: could not rename %s (%s)"), expath, strerror(errno));
 							}
-							if(_alpm_copyfile(temp, expath)) {
+							if(_pacman_copyfile(temp, expath)) {
 								archive_entry_set_pathname (entry, expath);
-								_alpm_log(PM_LOG_ERROR, _("could not copy %s to %s (%s)"), temp, pathname, strerror(errno));
-								alpm_logaction(_("error: could not copy %s to %s (%s)"), temp, expath, strerror(errno));
+								_pacman_log(PM_LOG_ERROR, _("could not copy %s to %s (%s)"), temp, pathname, strerror(errno));
+								pacman_logaction(_("error: could not copy %s to %s (%s)"), temp, expath, strerror(errno));
 								errors++;
 							} else {
 								archive_entry_set_pathname (entry, expath);
-								_alpm_log(PM_LOG_WARNING, _("%s saved as %s.pacorig"), pathname, pathname);
-								alpm_logaction(_("warning: %s saved as %s"), expath, newpath);
+								_pacman_log(PM_LOG_WARNING, _("%s saved as %s.pacorig"), pathname, pathname);
+								pacman_logaction(_("warning: %s saved as %s"), expath, newpath);
 							}
 						}
 					} else if(md5_orig || sha1_orig) {
@@ -613,35 +613,35 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 						/* the fun part */
 						if(!strcmp(md5_orig, md5_local)|| !strcmp(sha1_orig, sha1_local)) {
 							if(!strcmp(md5_local, md5_pkg) || !strcmp(sha1_local, sha1_pkg)) {
-								_alpm_log(PM_LOG_DEBUG, _("action: installing new file"));
+								_pacman_log(PM_LOG_DEBUG, _("action: installing new file"));
 								installnew = 1;
 							} else {
-								_alpm_log(PM_LOG_DEBUG, _("action: installing new file"));
+								_pacman_log(PM_LOG_DEBUG, _("action: installing new file"));
 								installnew = 1;
 							}
 						} else if(!strcmp(md5_orig, md5_pkg) || !strcmp(sha1_orig, sha1_pkg)) {
-							_alpm_log(PM_LOG_DEBUG, _("action: leaving existing file in place"));
+							_pacman_log(PM_LOG_DEBUG, _("action: leaving existing file in place"));
 						} else if(!strcmp(md5_local, md5_pkg) || !strcmp(sha1_local, sha1_pkg)) {
-							_alpm_log(PM_LOG_DEBUG, _("action: installing new file"));
+							_pacman_log(PM_LOG_DEBUG, _("action: installing new file"));
 							installnew = 1;
 						} else {
 							char newpath[PATH_MAX];
-							_alpm_log(PM_LOG_DEBUG, _("action: keeping current file and installing new one with .pacnew ending"));
+							_pacman_log(PM_LOG_DEBUG, _("action: keeping current file and installing new one with .pacnew ending"));
 							installnew = 0;
 							snprintf(newpath, PATH_MAX, "%s.pacnew", expath);
-							if(_alpm_copyfile(temp, newpath)) {
-								_alpm_log(PM_LOG_ERROR, _("could not install %s as %s: %s"), expath, newpath, strerror(errno));
-								alpm_logaction(_("error: could not install %s as %s: %s"), expath, newpath, strerror(errno));
+							if(_pacman_copyfile(temp, newpath)) {
+								_pacman_log(PM_LOG_ERROR, _("could not install %s as %s: %s"), expath, newpath, strerror(errno));
+								pacman_logaction(_("error: could not install %s as %s: %s"), expath, newpath, strerror(errno));
 							} else {
-								_alpm_log(PM_LOG_WARNING, _("%s installed as %s"), expath, newpath);
-								alpm_logaction(_("warning: %s installed as %s"), expath, newpath);
+								_pacman_log(PM_LOG_WARNING, _("%s installed as %s"), expath, newpath);
+								pacman_logaction(_("warning: %s installed as %s"), expath, newpath);
 							}
 						}
 
 						if(installnew) {
-							_alpm_log(PM_LOG_FLOW2, _("extracting %s"), pathname);
-							if(_alpm_copyfile(temp, expath)) {
-								_alpm_log(PM_LOG_ERROR, _("could not copy %s to %s (%s)"), temp, pathname, strerror(errno));
+							_pacman_log(PM_LOG_FLOW2, _("extracting %s"), pathname);
+							if(_pacman_copyfile(temp, expath)) {
+								_pacman_log(PM_LOG_ERROR, _("could not copy %s to %s (%s)"), temp, pathname, strerror(errno));
 								errors++;
 							}
 						    archive_entry_set_pathname (entry, expath);
@@ -659,12 +659,12 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 					close(fd);
 				} else {
 					if(!notouch) {
-						_alpm_log(PM_LOG_FLOW2, _("extracting %s"), pathname);
+						_pacman_log(PM_LOG_FLOW2, _("extracting %s"), pathname);
 					} else {
-						_alpm_log(PM_LOG_FLOW2, _("%s is in NoUpgrade -- skipping"), pathname);
+						_pacman_log(PM_LOG_FLOW2, _("%s is in NoUpgrade -- skipping"), pathname);
 						strncat(expath, ".pacnew", PATH_MAX);
-						_alpm_log(PM_LOG_WARNING, _("extracting %s as %s.pacnew"), pathname, pathname);
-						alpm_logaction(_("warning: extracting %s%s as %s"), handle->root, pathname, expath);
+						_pacman_log(PM_LOG_WARNING, _("extracting %s as %s.pacnew"), pathname, pathname);
+						pacman_logaction(_("warning: extracting %s%s as %s"), handle->root, pathname, expath);
 						/*tar_skip_regfile(tar);*/
 					}
 					if(trans->flags & PM_TRANS_FLAG_FORCE) {
@@ -677,8 +677,8 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 					}
 					archive_entry_set_pathname (entry, expath);
 					if(archive_read_extract (archive, entry, ARCHIVE_EXTRACT_FLAGS) != ARCHIVE_OK) {
-						_alpm_log(PM_LOG_ERROR, _("could not extract %s (%s)"), expath, strerror(errno));
-						alpm_logaction(_("error: could not extract %s (%s)"), expath, strerror(errno));
+						_pacman_log(PM_LOG_ERROR, _("could not extract %s (%s)"), expath, strerror(errno));
+						pacman_logaction(_("error: could not extract %s (%s)"), expath, strerror(errno));
 						errors++;
 					}
 					/* calculate an md5 or sha1 hash if this is in info->backup */
@@ -689,10 +689,10 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 
 						if(!file) continue;
 						if(!strcmp(file, pathname)) {
-							_alpm_log(PM_LOG_DEBUG, _("appending backup entry"));
+							_pacman_log(PM_LOG_DEBUG, _("appending backup entry"));
 							snprintf(path, PATH_MAX, "%s%s", handle->root, file);
 							if (info->sha1sum != NULL && info->sha1sum != '\0') {
-							    md5 = _alpm_MDFile(path);
+							    md5 = _pacman_MDFile(path);
 							    /* 32 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
 							    if((fn = (char *)malloc(strlen(file)+34)) == NULL) {
 										RET_ERR(PM_ERR_MEMORY, -1);
@@ -701,7 +701,7 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 							    FREE(md5);
 							} else {
 							    /* 41 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
-							    sha1 = _alpm_SHAFile(path);
+							    sha1 = _pacman_SHAFile(path);
 							    if((fn = (char *)malloc(strlen(file)+43)) == NULL) {
 										RET_ERR(PM_ERR_MEMORY, -1);
 									}
@@ -724,12 +724,12 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 
 			if(errors) {
 				ret = 1;
-				_alpm_log(PM_LOG_WARNING, _("errors occurred while %s %s"),
+				_pacman_log(PM_LOG_WARNING, _("errors occurred while %s %s"),
 					(pmo_upgrade ? _("upgrading") : _("installing")), info->name);
-				alpm_logaction(_("errors occurred while %s %s"),
+				pacman_logaction(_("errors occurred while %s %s"),
 					(pmo_upgrade ? _("upgrading") : _("installing")), info->name);
 			} else {
-			PROGRESS(trans, cb_state, what, 100, _alpm_list_count(trans->packages), (_alpm_list_count(trans->packages) - _alpm_list_count(targ) +1));
+			PROGRESS(trans, cb_state, what, 100, _pacman_list_count(trans->packages), (_pacman_list_count(trans->packages) - _pacman_list_count(targ) +1));
 			}
 		}
 
@@ -738,7 +738,7 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 
 		/* Update the requiredby field by scanning the whole database 
 		 * looking for packages depending on the package to add */
-		for(lp = _alpm_db_get_pkgcache(db); lp; lp = lp->next) {
+		for(lp = _pacman_db_get_pkgcache(db); lp; lp = lp->next) {
 			pmpkg_t *tmpp = lp->data;
 			pmlist_t *tmppm = NULL;
 			if(tmpp == NULL) {
@@ -746,12 +746,12 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 			}
 			for(tmppm = tmpp->depends; tmppm; tmppm = tmppm->next) {
 				pmdepend_t depend;
-				if(_alpm_splitdep(tmppm->data, &depend)) {
+				if(_pacman_splitdep(tmppm->data, &depend)) {
 					continue;
 				}
-				if(tmppm->data && (!strcmp(depend.name, info->name) || _alpm_list_is_strin(depend.name, info->provides))) {
-					_alpm_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), tmpp->name, info->name);
-					info->requiredby = _alpm_list_add(info->requiredby, strdup(tmpp->name));
+				if(tmppm->data && (!strcmp(depend.name, info->name) || _pacman_list_is_strin(depend.name, info->provides))) {
+					_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), tmpp->name, info->name);
+					info->requiredby = _pacman_list_add(info->requiredby, strdup(tmpp->name));
 				}
 			}
 		}
@@ -761,50 +761,50 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 		/* remove the extra line feed appended by asctime() */
 		info->installdate[strlen(info->installdate)-1] = 0;
 
-		_alpm_log(PM_LOG_FLOW1, _("updating database"));
-		_alpm_log(PM_LOG_FLOW2, _("adding database entry '%s'"), info->name);
-		if(_alpm_db_write(db, info, INFRQ_ALL)) {
-			_alpm_log(PM_LOG_ERROR, _("could not update database entry %s-%s"),
+		_pacman_log(PM_LOG_FLOW1, _("updating database"));
+		_pacman_log(PM_LOG_FLOW2, _("adding database entry '%s'"), info->name);
+		if(_pacman_db_write(db, info, INFRQ_ALL)) {
+			_pacman_log(PM_LOG_ERROR, _("could not update database entry %s-%s"),
 			          info->name, info->version);
-			alpm_logaction(NULL, _("error updating database for %s-%s!"), info->name, info->version);
+			pacman_logaction(NULL, _("error updating database for %s-%s!"), info->name, info->version);
 			RET_ERR(PM_ERR_DB_WRITE, -1);
 		}
-		if(_alpm_db_add_pkgincache(db, info) == -1) {
-			_alpm_log(PM_LOG_ERROR, _("could not add entry '%s' in cache"), info->name);
+		if(_pacman_db_add_pkgincache(db, info) == -1) {
+			_pacman_log(PM_LOG_ERROR, _("could not add entry '%s' in cache"), info->name);
 		}
 
 		/* update dependency packages' REQUIREDBY fields */
 		if(info->depends) {
-			_alpm_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
+			_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
 		}
 		for(lp = info->depends; lp; lp = lp->next) {
 			pmpkg_t *depinfo;
 			pmdepend_t depend;
-			if(_alpm_splitdep(lp->data, &depend)) {
+			if(_pacman_splitdep(lp->data, &depend)) {
 				continue;
 			}
-			depinfo = _alpm_db_get_pkgfromcache(db, depend.name);
+			depinfo = _pacman_db_get_pkgfromcache(db, depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
-				pmlist_t *provides = _alpm_db_whatprovides(db, depend.name);
+				pmlist_t *provides = _pacman_db_whatprovides(db, depend.name);
 				if(provides) {
 					/* TODO: should check _all_ packages listed in provides, not just
 					 *       the first one.
 					 */
 					/* use the first one */
-					depinfo = _alpm_db_get_pkgfromcache(db, ((pmpkg_t *)provides->data)->name);
+					depinfo = _pacman_db_get_pkgfromcache(db, ((pmpkg_t *)provides->data)->name);
 					FREELISTPTR(provides);
 				}
 				if(depinfo == NULL) {
-					_alpm_log(PM_LOG_ERROR, _("could not find dependency '%s'"), depend.name);
+					_pacman_log(PM_LOG_ERROR, _("could not find dependency '%s'"), depend.name);
 					/* wtf */
 					continue;
 				}
 			}
-			_alpm_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), info->name, depinfo->name);
-			depinfo->requiredby = _alpm_list_add(depinfo->requiredby, strdup(info->name));
-			if(_alpm_db_write(db, depinfo, INFRQ_DEPENDS)) {
-				_alpm_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
+			_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), info->name, depinfo->name);
+			depinfo->requiredby = _pacman_list_add(depinfo->requiredby, strdup(info->name));
+			if(_pacman_db_write(db, depinfo, INFRQ_DEPENDS)) {
+				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
 				          depinfo->name, depinfo->version);
 			}
 		}
@@ -817,9 +817,9 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 		if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", handle->root, handle->dbpath, db->treename, info->name, info->version);
 			if(pmo_upgrade) {
-				_alpm_runscriptlet(handle->root, pm_install, "post_upgrade", info->version, oldpkg ? oldpkg->version : NULL, trans);
+				_pacman_runscriptlet(handle->root, pm_install, "post_upgrade", info->version, oldpkg ? oldpkg->version : NULL, trans);
 			} else {
-				_alpm_runscriptlet(handle->root, pm_install, "post_install", info->version, NULL, trans);
+				_pacman_runscriptlet(handle->root, pm_install, "post_install", info->version, NULL, trans);
 			}
 		}
 
@@ -830,8 +830,8 @@ int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db)
 
 	/* run ldconfig if it exists */
 	if(handle->trans->state != STATE_INTERRUPTED) {
-		_alpm_log(PM_LOG_FLOW1, _("running \"ldconfig -r %s\""), handle->root);
-		_alpm_ldconfig(handle->root);
+		_pacman_log(PM_LOG_FLOW1, _("running \"ldconfig -r %s\""), handle->root);
+		_pacman_ldconfig(handle->root);
 	}
 
 	return(0);

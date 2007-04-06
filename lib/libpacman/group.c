@@ -29,15 +29,15 @@
 #include "error.h"
 #include "log.h"
 #include "group.h"
-#include "alpm.h"
+#include "pacman.h"
 
-pmgrp_t *_alpm_grp_new()
+pmgrp_t *_pacman_grp_new()
 {
 	pmgrp_t* grp;
 
 	grp = (pmgrp_t *)malloc(sizeof(pmgrp_t));
 	if(grp == NULL) {
-		_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"),
+		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"),
 		                        sizeof(pmgrp_t));
 		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
@@ -48,7 +48,7 @@ pmgrp_t *_alpm_grp_new()
 	return(grp);
 }
 
-void _alpm_grp_free(void *data)
+void _pacman_grp_free(void *data)
 {
 	pmgrp_t *grp = data;
 
@@ -64,7 +64,7 @@ void _alpm_grp_free(void *data)
 
 /* Helper function for sorting groups
  */
-int _alpm_grp_cmp(const void *g1, const void *g2)
+int _pacman_grp_cmp(const void *g1, const void *g2)
 {
 	pmgrp_t *grp1 = (pmgrp_t *)g1;
 	pmgrp_t *grp2 = (pmgrp_t *)g2;

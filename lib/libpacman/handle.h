@@ -18,13 +18,13 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_HANDLE_H
-#define _ALPM_HANDLE_H
+#ifndef _PACMAN_HANDLE_H
+#define _PACMAN_HANDLE_H
 
 #include "list.h"
 #include "db.h"
 #include "trans.h"
-#include "alpm.h"
+#include "pacman.h"
 
 typedef enum __pmaccess_t {
 	PM_ACCESS_RO,
@@ -62,13 +62,13 @@ typedef struct __pmhandle_t {
 
 extern pmhandle_t *handle;
 
-#define FREEHANDLE(p) do { if (p) { _alpm_handle_free(p); p = NULL; } } while (0)
+#define FREEHANDLE(p) do { if (p) { _pacman_handle_free(p); p = NULL; } } while (0)
 
-pmhandle_t *_alpm_handle_new(void);
-int _alpm_handle_free(pmhandle_t *handle);
-int _alpm_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long data);
-int _alpm_handle_get_option(pmhandle_t *handle, unsigned char val, long *data);
+pmhandle_t *_pacman_handle_new(void);
+int _pacman_handle_free(pmhandle_t *handle);
+int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long data);
+int _pacman_handle_get_option(pmhandle_t *handle, unsigned char val, long *data);
 
-#endif /* _ALPM_HANDLE_H */
+#endif /* _PACMAN_HANDLE_H */
 
 /* vim: set ts=2 sw=2 noet: */

@@ -384,7 +384,7 @@ documentation and/or software.
  */
 
 
-char* _alpm_SHAFile(char *filename) {
+char* _pacman_SHAFile(char *filename) {
     FILE *file;
     struct sha_ctx context;
     int len, i;

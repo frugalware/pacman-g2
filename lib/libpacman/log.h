@@ -18,18 +18,18 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_LOG_H
-#define _ALPM_LOG_H
+#ifndef _PACMAN_LOG_H
+#define _PACMAN_LOG_H
 
 #define LOG_STR_LEN 256
 
-typedef void (*alpm_cb_log)(unsigned short, char *);
+typedef void (*pacman_cb_log)(unsigned short, char *);
 
-extern alpm_cb_log pm_logcb;
+extern pacman_cb_log pm_logcb;
 extern unsigned char pm_logmask;
 
-void _alpm_log(unsigned char flag, char *fmt, ...);
+void _pacman_log(unsigned char flag, char *fmt, ...);
 
-#endif /* _ALPM_LOG_H */
+#endif /* _PACMAN_LOG_H */
 
 /* vim: set ts=2 sw=2 noet: */

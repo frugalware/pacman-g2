@@ -20,12 +20,12 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_DB_H
-#define _ALPM_DB_H
+#ifndef _PACMAN_DB_H
+#define _PACMAN_DB_H
 
 #include <limits.h>
 #include "package.h"
-#include "alpm.h"
+#include "pacman.h"
 
 /* Database entries */
 #define INFRQ_NONE     0x00
@@ -47,24 +47,24 @@ typedef struct __pmdb_t {
 	pmlist_t *servers;
 } pmdb_t;
 
-pmdb_t *_alpm_db_new(char *root, char *dbpath, char *treename);
-void _alpm_db_free(void *data);
-int _alpm_db_cmp(const void *db1, const void *db2);
-pmlist_t *_alpm_db_search(pmdb_t *db, pmlist_t *needles);
+pmdb_t *_pacman_db_new(char *root, char *dbpath, char *treename);
+void _pacman_db_free(void *data);
+int _pacman_db_cmp(const void *db1, const void *db2);
+pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles);
 
 /* Prototypes for backends functions */
-int _alpm_db_install(pmdb_t *db, const char *dbfile);
-int _alpm_db_open(pmdb_t *db);
-void _alpm_db_close(pmdb_t *db);
-void _alpm_db_rewind(pmdb_t *db);
-pmpkg_t *_alpm_db_scan(pmdb_t *db, char *target, unsigned int inforeq);
-int _alpm_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info);
-int _alpm_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
-int _alpm_db_remove(pmdb_t *db, pmpkg_t *info);
-int _alpm_db_getlastupdate(pmdb_t *db, char *ts);
-int _alpm_db_setlastupdate(pmdb_t *db, char *ts);
-pmdb_t *_alpm_db_register(char *treename, alpm_cb_db_register callback);
+int _pacman_db_install(pmdb_t *db, const char *dbfile);
+int _pacman_db_open(pmdb_t *db);
+void _pacman_db_close(pmdb_t *db);
+void _pacman_db_rewind(pmdb_t *db);
+pmpkg_t *_pacman_db_scan(pmdb_t *db, char *target, unsigned int inforeq);
+int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info);
+int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
+int _pacman_db_remove(pmdb_t *db, pmpkg_t *info);
+int _pacman_db_getlastupdate(pmdb_t *db, char *ts);
+int _pacman_db_setlastupdate(pmdb_t *db, char *ts);
+pmdb_t *_pacman_db_register(char *treename, pacman_cb_db_register callback);
 
-#endif /* _ALPM_DB_H */
+#endif /* _PACMAN_DB_H */
 
 /* vim: set ts=2 sw=2 noet: */

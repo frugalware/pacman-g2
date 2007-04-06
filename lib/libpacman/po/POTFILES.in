@@ -1,5 +1,5 @@
 add.c
-alpm.c
+pacman.c
 backup.c
 be_files.c
 cache.c

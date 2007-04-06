@@ -18,17 +18,17 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_ADD_H
-#define _ALPM_ADD_H
+#ifndef _PACMAN_ADD_H
+#define _PACMAN_ADD_H
 
 #include "list.h"
 #include "db.h"
 #include "trans.h"
 
-int _alpm_add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name);
-int _alpm_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data);
-int _alpm_add_commit(pmtrans_t *trans, pmdb_t *db);
+int _pacman_add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name);
+int _pacman_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data);
+int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db);
 
-#endif /* _ALPM_ADD_H */
+#endif /* _PACMAN_ADD_H */
 
 /* vim: set ts=2 sw=2 noet: */

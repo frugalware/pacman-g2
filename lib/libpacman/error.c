@@ -24,9 +24,9 @@
 
 #include <libintl.h>
 #include "util.h"
-#include "alpm.h"
+#include "pacman.h"
 
-char *alpm_strerror(int err)
+char *pacman_strerror(int err)
 {
 	switch(err) {
 		/* System */

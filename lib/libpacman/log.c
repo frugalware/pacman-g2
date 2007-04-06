@@ -24,14 +24,14 @@
 #include <stdarg.h>
 #include <time.h>
 /* pacman-g2 */
-#include "alpm.h"
+#include "pacman.h"
 #include "log.h"
 
 /* Internal library log mechanism */
-alpm_cb_log pm_logcb     = NULL;
+pacman_cb_log pm_logcb     = NULL;
 unsigned char pm_logmask = 0;
 
-void _alpm_log(unsigned char flag, char *fmt, ...)
+void _pacman_log(unsigned char flag, char *fmt, ...)
 {
 	if(pm_logcb == NULL) {
 		return;

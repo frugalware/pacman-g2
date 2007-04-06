@@ -17,8 +17,8 @@ case "${host}" in
 		;;
 esac
 
-dnl Define here the libalpm version number
-PM_MAJOR_VERSION=1
+dnl Define here the libpacman version number
+PM_MAJOR_VERSION=0
 PM_MINOR_VERSION=3
 PM_MICRO_VERSION=5
 PM_MICRO_VERSION_SUFFIX=.0
@@ -37,7 +37,7 @@ PACCONF=/etc/pacman.conf
 AC_DEFINE_UNQUOTED([PACCONF], ["$PACCONF"], [pacman.conf location])
 
 dnl Put out version numbers to config.h
-AC_DEFINE_UNQUOTED([PM_VERSION], ["$PM_VERSION"], [libalpm version number])
+AC_DEFINE_UNQUOTED([PM_VERSION], ["$PM_VERSION"], [libpacman version number])
 
 dnl Configuration files
 AC_CONFIG_FILES([etc/makepkg.conf] [etc/pacman.conf])
@@ -354,8 +354,8 @@ CFLAGS="$CFLAGS"
 dnl ==========================================================================
 
 AC_OUTPUT([
-lib/libalpm/Makefile
-lib/libalpm/po/Makefile.in
+lib/libpacman/Makefile
+lib/libpacman/po/Makefile.in
 lib/libftp/Makefile
 src/pacman-g2/Makefile
 src/pacman-g2/po/Makefile.in
@@ -381,7 +381,7 @@ pacman-g2-$VERSION:
         compiler                 : ${CC}
         compiler flags           : ${CFLAGS}
 
-	libalpm version          : ${PM_VERSION}
+	libpacman version          : ${PM_VERSION}
 	pacman.conf location     : ${PACCONF}
 
 	Architecture CARCH       : ${CARCH}

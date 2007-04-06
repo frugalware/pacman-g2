@@ -31,7 +31,7 @@
 
 /* return a pmlist_t of packages in "db" that provide "package"
  */
-pmlist_t *_alpm_db_whatprovides(pmdb_t *db, char *package)
+pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package)
 {
 	pmlist_t *pkgs = NULL;
 	pmlist_t *lp;
@@ -40,11 +40,11 @@ pmlist_t *_alpm_db_whatprovides(pmdb_t *db, char *package)
 		return(NULL);
 	}
 
-	for(lp = _alpm_db_get_pkgcache(db); lp; lp = lp->next) {
+	for(lp = _pacman_db_get_pkgcache(db); lp; lp = lp->next) {
 		pmpkg_t *info = lp->data;
 
-		if(_alpm_list_is_strin(package, _alpm_pkg_getinfo(info, PM_PKG_PROVIDES))) {
-			pkgs = _alpm_list_add(pkgs, info);
+		if(_pacman_list_is_strin(package, _pacman_pkg_getinfo(info, PM_PKG_PROVIDES))) {
+			pkgs = _pacman_list_add(pkgs, info);
 		}
 	}
 

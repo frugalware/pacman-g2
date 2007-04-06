@@ -22,8 +22,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
  *  USA.
  */
-#ifndef _ALPM_UTIL_H
-#define _ALPM_UTIL_H
+#ifndef _PACMAN_UTIL_H
+#define _PACMAN_UTIL_H
 
 #include <stdio.h>
 #if defined(__OpenBSD__)
@@ -46,7 +46,7 @@
 #define ARCHIVE_EXTRACT_FLAGS ARCHIVE_EXTRACT_OWNER | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_TIME
 
 #ifdef ENABLE_NLS
-#define _(str) dgettext ("libalpm", str)
+#define _(str) dgettext ("libpacman", str)
 #else
 #define _(s) s
 #endif
@@ -54,28 +54,28 @@
 #define STARTSTR "START "
 #define DONESTR "DONE "
 
-int _alpm_makepath(char *path);
-int _alpm_copyfile(char *src, char *dest);
-char *_alpm_strtoupper(char *str);
-char *_alpm_strtrim(char *str);
-int _alpm_lckmk(char *file);
-int _alpm_lckrm(char *file);
-int _alpm_unpack(const char *archive, const char *prefix, const char *fn);
-int _alpm_rmrf(char *path);
-int _alpm_logaction(unsigned char usesyslog, FILE *f, char *fmt, ...);
-int _alpm_ldconfig(char *root);
-#ifdef _ALPM_TRANS_H
-int _alpm_runscriptlet(char *util, char *installfn, char *script, char *ver, char *oldver, pmtrans_t *trans);
+int _pacman_makepath(char *path);
+int _pacman_copyfile(char *src, char *dest);
+char *_pacman_strtoupper(char *str);
+char *_pacman_strtrim(char *str);
+int _pacman_lckmk(char *file);
+int _pacman_lckrm(char *file);
+int _pacman_unpack(const char *archive, const char *prefix, const char *fn);
+int _pacman_rmrf(char *path);
+int _pacman_logaction(unsigned char usesyslog, FILE *f, char *fmt, ...);
+int _pacman_ldconfig(char *root);
+#ifdef _PACMAN_TRANS_H
+int _pacman_runscriptlet(char *util, char *installfn, char *script, char *ver, char *oldver, pmtrans_t *trans);
 #ifndef __sun__
-int _alpm_check_freespace(pmtrans_t *trans, pmlist_t **data);
+int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data);
 #endif
 #endif
-int _alpm_reg_match(char *string, char *pattern);
+int _pacman_reg_match(char *string, char *pattern);
 #ifdef __sun__
 char* strsep(char** str, const char* delims);
 char* mkdtemp(char *template);
 #endif
 
-#endif /* _ALPM_UTIL_H */
+#endif /* _PACMAN_UTIL_H */
 
 /* vim: set ts=2 sw=2 noet: */

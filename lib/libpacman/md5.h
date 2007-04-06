@@ -40,11 +40,11 @@ typedef struct {
   unsigned char buffer[64];                         /* input buffer */
 } MD5_CTX;
 
-void _alpm_MD5Init(MD5_CTX *);
-void _alpm_MD5Update(MD5_CTX *, unsigned char *, unsigned int);
-void _alpm_MD5Final(unsigned char [16], MD5_CTX *);
+void _pacman_MD5Init(MD5_CTX *);
+void _pacman_MD5Update(MD5_CTX *, unsigned char *, unsigned int);
+void _pacman_MD5Final(unsigned char [16], MD5_CTX *);
 
-char* _alpm_MDFile(char *);
-void  _alpm_MDPrint(unsigned char [16]);
+char* _pacman_MDFile(char *);
+void  _pacman_MDPrint(unsigned char [16]);
 
 /* vim: set ts=2 sw=2 noet: */

@@ -27,7 +27,7 @@
 /* pacman-g2 */
 #include "list.h"
 
-pmlist_t *_alpm_list_new()
+pmlist_t *_pacman_list_new()
 {
 	pmlist_t *list = NULL;
 	
@@ -42,7 +42,7 @@ pmlist_t *_alpm_list_new()
 	return(list);
 }
 
-void _alpm_list_free(pmlist_t *list, _alpm_fn_free fn)
+void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn)
 {
 	pmlist_t *ptr, *it = list;
 
@@ -56,23 +56,23 @@ void _alpm_list_free(pmlist_t *list, _alpm_fn_free fn)
 	}
 }
 
-pmlist_t *_alpm_list_add(pmlist_t *list, void *data)
+pmlist_t *_pacman_list_add(pmlist_t *list, void *data)
 {
 	pmlist_t *ptr, *lp;
 
 	ptr = list;
 	if(ptr == NULL) {
-		ptr = _alpm_list_new();
+		ptr = _pacman_list_new();
 		if(ptr == NULL) {
 			return(NULL);
 		}
 	}
 
-	lp = _alpm_list_last(ptr);
+	lp = _pacman_list_last(ptr);
 	if(lp == ptr && lp->data == NULL) {
 		/* nada */
 	} else {
-		lp->next = _alpm_list_new();
+		lp->next = _pacman_list_new();
 		if(lp->next == NULL) {
 			return(NULL);
 		}
@@ -90,13 +90,13 @@ pmlist_t *_alpm_list_add(pmlist_t *list, void *data)
 /* Add items to a list in sorted order. Use the given comparision func to 
  * determine order.
  */
-pmlist_t *_alpm_list_add_sorted(pmlist_t *list, void *data, _alpm_fn_cmp fn)
+pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn)
 {
 	pmlist_t *add;
 	pmlist_t *prev = NULL;
 	pmlist_t *iter = list;
 
-	add = _alpm_list_new();
+	add = _pacman_list_new();
 	add->data = data;
 
 	/* Find insertion point. */
@@ -139,7 +139,7 @@ pmlist_t *_alpm_list_add_sorted(pmlist_t *list, void *data, _alpm_fn_cmp fn)
  * Otherwise, it is set to NULL.
  * Return the new list (without the removed element).
  */
-pmlist_t *_alpm_list_remove(pmlist_t *haystack, void *needle, _alpm_fn_cmp fn, void **data)
+pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp fn, void **data)
 {
 	pmlist_t *i = haystack;
 
@@ -186,7 +186,7 @@ pmlist_t *_alpm_list_remove(pmlist_t *haystack, void *needle, _alpm_fn_cmp fn, v
 	return(haystack);
 }
 
-int _alpm_list_count(pmlist_t *list)
+int _pacman_list_count(pmlist_t *list)
 {
 	int i;
 	pmlist_t *lp;
@@ -196,7 +196,7 @@ int _alpm_list_count(pmlist_t *list)
 	return(i);
 }
 
-int _alpm_list_is_in(void *needle, pmlist_t *haystack)
+int _pacman_list_is_in(void *needle, pmlist_t *haystack)
 {
 	pmlist_t *lp;
 
@@ -210,7 +210,7 @@ int _alpm_list_is_in(void *needle, pmlist_t *haystack)
 
 /* Test for existence of a string in a pmlist_t
  */
-int _alpm_list_is_strin(char *needle, pmlist_t *haystack)
+int _pacman_list_is_strin(char *needle, pmlist_t *haystack)
 {
 	pmlist_t *lp;
 
@@ -222,7 +222,7 @@ int _alpm_list_is_strin(char *needle, pmlist_t *haystack)
 	return(0);
 }
 
-pmlist_t *_alpm_list_last(pmlist_t *list)
+pmlist_t *_pacman_list_last(pmlist_t *list)
 {
 	if(list == NULL) {
 		return(NULL);
@@ -239,13 +239,13 @@ pmlist_t *_alpm_list_last(pmlist_t *list)
  * a new list, using is_in() to check for dupes at each iteration.
  *
  */
-pmlist_t *_alpm_list_remove_dupes(pmlist_t *list)
+pmlist_t *_pacman_list_remove_dupes(pmlist_t *list)
 {
 	pmlist_t *i, *newlist = NULL;
 
 	for(i = list; i; i = i->next) {
-		if(!_alpm_list_is_strin(i->data, newlist)) {
-			newlist = _alpm_list_add(newlist, strdup(i->data));
+		if(!_pacman_list_is_strin(i->data, newlist)) {
+			newlist = _pacman_list_add(newlist, strdup(i->data));
 		}
 	}
 	return newlist;
@@ -255,7 +255,7 @@ pmlist_t *_alpm_list_remove_dupes(pmlist_t *list)
  *
  * The caller is responsible for freeing the old list
  */
-pmlist_t *_alpm_list_reverse(pmlist_t *list)
+pmlist_t *_pacman_list_reverse(pmlist_t *list)
 { 
 	/* simple but functional -- we just build a new list, starting
 	 * with the old list's tail
@@ -264,19 +264,19 @@ pmlist_t *_alpm_list_reverse(pmlist_t *list)
 	pmlist_t *lp;
 
 	for(lp = list->last; lp; lp = lp->prev) {
-		newlist = _alpm_list_add(newlist, lp->data);
+		newlist = _pacman_list_add(newlist, lp->data);
 	}
 
 	return(newlist);
 }
 
-pmlist_t *_alpm_list_strdup(pmlist_t *list)
+pmlist_t *_pacman_list_strdup(pmlist_t *list)
 {
 	pmlist_t *newlist = NULL;
 	pmlist_t *lp;
 
 	for(lp = list; lp; lp = lp->next) {
-		newlist = _alpm_list_add(newlist, strdup(lp->data));
+		newlist = _pacman_list_add(newlist, strdup(lp->data));
 	}
 
 	return(newlist);

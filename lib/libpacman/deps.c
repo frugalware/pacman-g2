@@ -44,14 +44,14 @@
 
 extern pmhandle_t *handle;
 
-pmdepmissing_t *_alpm_depmiss_new(const char *target, unsigned char type, unsigned char depmod,
+pmdepmissing_t *_pacman_depmiss_new(const char *target, unsigned char type, unsigned char depmod,
                                   const char *depname, const char *depversion)
 {
 	pmdepmissing_t *miss;
 
 	miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t));
 	if(miss == NULL) {
-		_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
+		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
 		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
 
@@ -68,7 +68,7 @@ pmdepmissing_t *_alpm_depmiss_new(const char *target, unsigned char type, unsign
 	return(miss);
 }
 
-int _alpm_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
+int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
 {
 	pmlist_t *i;
 
@@ -98,7 +98,7 @@ int _alpm_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
  * This function returns the new pmlist_t* target list.
  *
  */ 
-pmlist_t *_alpm_sortbydeps(pmlist_t *targets, int mode)
+pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 {
 	pmlist_t *newtargs = NULL;
 	pmlist_t *i, *j, *k, *l;
@@ -111,26 +111,26 @@ pmlist_t *_alpm_sortbydeps(pmlist_t *targets, int mode)
 	}
 
 	for(i = targets; i; i = i->next) {
-		newtargs = _alpm_list_add(newtargs, i->data);
+		newtargs = _pacman_list_add(newtargs, i->data);
 		numtargs++;
 	}
 
-	_alpm_log(PM_LOG_DEBUG, _("started sorting dependencies"));
+	_pacman_log(PM_LOG_DEBUG, _("started sorting dependencies"));
 	while(change) {
 		pmlist_t *tmptargs = NULL;
 		change = 0;
 		if(numscans > sqrt(numtargs)) {
-			_alpm_log(PM_LOG_DEBUG, _("possible dependency cycle detected"));
+			_pacman_log(PM_LOG_DEBUG, _("possible dependency cycle detected"));
 			continue;
 		}
 		numscans++;
 		/* run thru targets, moving up packages as necessary */
 		for(i = newtargs; i; i = i->next) {
 			pmpkg_t *p = (pmpkg_t*)i->data;
-			for(j = _alpm_pkg_getinfo(p, PM_PKG_DEPENDS); j; j = j->next) {
+			for(j = _pacman_pkg_getinfo(p, PM_PKG_DEPENDS); j; j = j->next) {
 				pmdepend_t dep;
 				pmpkg_t *q = NULL;
-				if(_alpm_splitdep(j->data, &dep)) {
+				if(_pacman_splitdep(j->data, &dep)) {
 					continue;
 				}
 				/* look for dep.name -- if it's farther down in the list, then
@@ -139,18 +139,18 @@ pmlist_t *_alpm_sortbydeps(pmlist_t *targets, int mode)
 				for(k = i->next; k; k = k->next) {
 					q = (pmpkg_t *)k->data;
 					if(!strcmp(dep.name, q->name)) {
-						if(!_alpm_pkg_isin(q->name, tmptargs)) {
+						if(!_pacman_pkg_isin(q->name, tmptargs)) {
 							change = 1;
-							tmptargs = _alpm_list_add(tmptargs, q);
+							tmptargs = _pacman_list_add(tmptargs, q);
 						}
 						break;
 					}
 					if(!change) {
-						for(l = _alpm_pkg_getinfo(q, PM_PKG_PROVIDES); l; l = l->next) {
+						for(l = _pacman_pkg_getinfo(q, PM_PKG_PROVIDES); l; l = l->next) {
 							if(!strcmp(dep.name, (char*)l->data)) {
-								if(!_alpm_pkg_isin((char*)l->data, tmptargs)) {
+								if(!_pacman_pkg_isin((char*)l->data, tmptargs)) {
 									change = 1;
-									tmptargs = _alpm_list_add(tmptargs, q);
+									tmptargs = _pacman_list_add(tmptargs, q);
 								}
 								break;
 							}
@@ -158,18 +158,18 @@ pmlist_t *_alpm_sortbydeps(pmlist_t *targets, int mode)
 					}
 				}
 			}
-			if(!_alpm_pkg_isin(p->name, tmptargs)) {
-				tmptargs = _alpm_list_add(tmptargs, p);
+			if(!_pacman_pkg_isin(p->name, tmptargs)) {
+				tmptargs = _pacman_list_add(tmptargs, p);
 			}
 		}
 		FREELISTPTR(newtargs);
 		newtargs = tmptargs;
 	}
-	_alpm_log(PM_LOG_DEBUG, _("sorting dependencies finished"));
+	_pacman_log(PM_LOG_DEBUG, _("sorting dependencies finished"));
 
 	if(mode == PM_TRANS_TYPE_REMOVE) {
 		/* we're removing packages, so reverse the order */
-		pmlist_t *tmptargs = _alpm_list_reverse(newtargs);
+		pmlist_t *tmptargs = _pacman_list_reverse(newtargs);
 		/* free the old one */
 		FREELISTPTR(newtargs);
 		newtargs = tmptargs;
@@ -183,7 +183,7 @@ pmlist_t *_alpm_sortbydeps(pmlist_t *targets, int mode)
  * dependencies can include versions with depmod operators.
  *
  */
-pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist_t *packages)
+pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist_t *packages)
 {
 	pmdepend_t depend;
 	pmlist_t *i, *j, *k;
@@ -207,31 +207,31 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 				continue;
 			}
 
-			if((oldpkg = _alpm_db_get_pkgfromcache(db, tp->name)) == NULL) {
+			if((oldpkg = _pacman_db_get_pkgfromcache(db, tp->name)) == NULL) {
 				continue;
 			}
-			for(j = _alpm_pkg_getinfo(oldpkg, PM_PKG_REQUIREDBY); j; j = j->next) {
+			for(j = _pacman_pkg_getinfo(oldpkg, PM_PKG_REQUIREDBY); j; j = j->next) {
 				char *ver;
 				pmpkg_t *p;
 				found = 0;
-				if((p = _alpm_db_get_pkgfromcache(db, j->data)) == NULL) {
+				if((p = _pacman_db_get_pkgfromcache(db, j->data)) == NULL) {
 					/* hmmm... package isn't installed.. */
 					continue;
 				}
-				if(_alpm_pkg_isin(p->name, packages)) {
+				if(_pacman_pkg_isin(p->name, packages)) {
 					/* this package is also in the upgrade list, so don't worry about it */
 					continue;
 				}
-				for(k = _alpm_pkg_getinfo(p, PM_PKG_DEPENDS); k && !found; k = k->next) {
+				for(k = _pacman_pkg_getinfo(p, PM_PKG_DEPENDS); k && !found; k = k->next) {
 					/* find the dependency info in p->depends */
-					_alpm_splitdep(k->data, &depend);
+					_pacman_splitdep(k->data, &depend);
 					if(!strcmp(depend.name, oldpkg->name)) {
 						found = 1;
 					}
 				}
 				if(found == 0) {
 					/* look for packages that list depend.name as a "provide" */
-					pmlist_t *provides = _alpm_db_whatprovides(db, depend.name);
+					pmlist_t *provides = _pacman_db_whatprovides(db, depend.name);
 					if(provides == NULL) {
 						/* not found */
 						continue;
@@ -250,7 +250,7 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 						for(ptr = ver; *ptr != '-'; ptr++);
 						*ptr = '\0';
 					}
-					cmp = _alpm_versioncmp(ver, depend.version);
+					cmp = _pacman_versioncmp(ver, depend.version);
 					switch(depend.mod) {
 						case PM_DEP_MOD_EQ: found = (cmp == 0); break;
 						case PM_DEP_MOD_GE: found = (cmp >= 0); break;
@@ -259,10 +259,10 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 					FREE(ver);
 				}
 				if(!found) {
-					_alpm_log(PM_LOG_DEBUG, _("checkdeps: found %s as required by %s"), depend.name, p->name);
-					miss = _alpm_depmiss_new(p->name, PM_DEP_TYPE_REQUIRED, depend.mod, depend.name, depend.version);
-					if(!_alpm_depmiss_isin(miss, baddeps)) {
-						baddeps = _alpm_list_add(baddeps, miss);
+					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s as required by %s"), depend.name, p->name);
+					miss = _pacman_depmiss_new(p->name, PM_DEP_TYPE_REQUIRED, depend.mod, depend.name, depend.version);
+					if(!_pacman_depmiss_isin(miss, baddeps)) {
+						baddeps = _pacman_list_add(baddeps, miss);
 					} else {
 						FREE(miss);
 					}
@@ -278,12 +278,12 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 				continue;
 			}
 
-			for(j = _alpm_pkg_getinfo(tp, PM_PKG_DEPENDS); j; j = j->next) {
+			for(j = _pacman_pkg_getinfo(tp, PM_PKG_DEPENDS); j; j = j->next) {
 				/* split into name/version pairs */
-				_alpm_splitdep((char *)j->data, &depend);
+				_pacman_splitdep((char *)j->data, &depend);
 				found = 0;
 				/* check database for literal packages */
-				for(k = _alpm_db_get_pkgcache(db); k && !found; k = k->next) {
+				for(k = _pacman_db_get_pkgcache(db); k && !found; k = k->next) {
 					pmpkg_t *p = (pmpkg_t *)k->data;
 					if(!strcmp(p->name, depend.name)) {
 						if(depend.mod == PM_DEP_MOD_ANY) {
@@ -299,7 +299,7 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 								for(ptr = ver; *ptr != '-'; ptr++);
 								*ptr = '\0';
 							}
-							cmp = _alpm_versioncmp(ver, depend.version);
+							cmp = _pacman_versioncmp(ver, depend.version);
 							switch(depend.mod) {
 								case PM_DEP_MOD_EQ: found = (cmp == 0); break;
 								case PM_DEP_MOD_GE: found = (cmp >= 0); break;
@@ -312,7 +312,7 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
  				/* check database for provides matches */
  				if(!found) {
  					pmlist_t *m;
- 					k = _alpm_db_whatprovides(db, depend.name);
+ 					k = _pacman_db_whatprovides(db, depend.name);
  					for(m = k; m && !found; m = m->next) {
  						/* look for a match that isn't one of the packages we're trying
  						 * to install.  this way, if we match against a to-be-installed
@@ -344,7 +344,7 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 								for(ptr = ver; *ptr != '-'; ptr++);
 								*ptr = '\0';
 							}
-							cmp = _alpm_versioncmp(ver, depend.version);
+							cmp = _pacman_versioncmp(ver, depend.version);
 							switch(depend.mod) {
 								case PM_DEP_MOD_EQ: found = (cmp == 0); break;
 								case PM_DEP_MOD_GE: found = (cmp >= 0); break;
@@ -359,7 +359,7 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
  				for(k = packages; k && !found; k = k->next) {
  					pmpkg_t *p = (pmpkg_t *)k->data;
  					/* see if the package names match OR if p provides depend.name */
- 					if(!strcmp(p->name, depend.name) || _alpm_list_is_strin(depend.name, _alpm_pkg_getinfo(p, PM_PKG_PROVIDES))) {
+ 					if(!strcmp(p->name, depend.name) || _pacman_list_is_strin(depend.name, _pacman_pkg_getinfo(p, PM_PKG_PROVIDES))) {
 						if(depend.mod == PM_DEP_MOD_ANY) {
 							/* accept any version */
 							found = 1;
@@ -373,7 +373,7 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 								for(ptr = ver; *ptr != '-'; ptr++);
 								*ptr = '\0';
 							}
-							cmp = _alpm_versioncmp(ver, depend.version);
+							cmp = _pacman_versioncmp(ver, depend.version);
 							switch(depend.mod) {
 								case PM_DEP_MOD_EQ: found = (cmp == 0); break;
 								case PM_DEP_MOD_GE: found = (cmp >= 0); break;
@@ -385,11 +385,11 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 				}
 				/* else if still not found... */
 				if(!found) {
-					_alpm_log(PM_LOG_DEBUG, _("checkdeps: found %s as a dependency for %s"),
+					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s as a dependency for %s"),
 					          depend.name, tp->name);
-					miss = _alpm_depmiss_new(tp->name, PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
-					if(!_alpm_depmiss_isin(miss, baddeps)) {
-						baddeps = _alpm_list_add(baddeps, miss);
+					miss = _pacman_depmiss_new(tp->name, PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
+					if(!_pacman_depmiss_isin(miss, baddeps)) {
+						baddeps = _pacman_list_add(baddeps, miss);
 					} else {
 						FREE(miss);
 					}
@@ -405,8 +405,8 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 			}
 
 			found=0;
-			for(j = _alpm_pkg_getinfo(tp, PM_PKG_REQUIREDBY); j; j = j->next) {
-				if(!_alpm_list_is_strin((char *)j->data, packages)) {
+			for(j = _pacman_pkg_getinfo(tp, PM_PKG_REQUIREDBY); j; j = j->next) {
+				if(!_pacman_list_is_strin((char *)j->data, packages)) {
 					/* check if a package in trans->packages provides this package */
 					for(k=trans->packages; !found && k; k=k->next) {
 						pmpkg_t *spkg = NULL;
@@ -416,15 +416,15 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 					} else {
 						spkg = k->data;
 					}
-						if(spkg && _alpm_list_is_strin(tp->name, _alpm_pkg_getinfo(spkg, PM_PKG_PROVIDES))) {
+						if(spkg && _pacman_list_is_strin(tp->name, _pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES))) {
 							found=1;
 						}
 					}
 					if(!found) {
-						_alpm_log(PM_LOG_DEBUG, _("checkdeps: found %s as required by %s"), (char *)j->data, tp->name);
-						miss = _alpm_depmiss_new(tp->name, PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, j->data, NULL);
-						if(!_alpm_depmiss_isin(miss, baddeps)) {
-							baddeps = _alpm_list_add(baddeps, miss);
+						_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s as required by %s"), (char *)j->data, tp->name);
+						miss = _pacman_depmiss_new(tp->name, PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, j->data, NULL);
+						if(!_pacman_depmiss_isin(miss, baddeps)) {
+							baddeps = _pacman_list_add(baddeps, miss);
 						} else {
 							FREE(miss);
 						}
@@ -437,7 +437,7 @@ pmlist_t *_alpm_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist
 	return(baddeps);
 }
 
-int _alpm_splitdep(char *depstr, pmdepend_t *depend)
+int _pacman_splitdep(char *depstr, pmdepend_t *depend)
 {
 	char *str = NULL;
 	char *ptr = NULL;
@@ -485,7 +485,7 @@ int _alpm_splitdep(char *depstr, pmdepend_t *depend)
  * I mean dependencies that are *only* required for packages in the target
  * list, so they can be safely removed.  This function is recursive.
  */
-pmlist_t *_alpm_removedeps(pmdb_t *db, pmlist_t *targs)
+pmlist_t *_pacman_removedeps(pmdb_t *db, pmlist_t *targs)
 {
 	pmlist_t *i, *j, *k;
 	pmlist_t *newtargs = targs;
@@ -495,59 +495,59 @@ pmlist_t *_alpm_removedeps(pmdb_t *db, pmlist_t *targs)
 	}
 
 	for(i = targs; i; i = i->next) {
-		for(j = (_alpm_pkg_getinfo((pmpkg_t *)i->data, PM_PKG_DEPENDS)); j; j = j->next) {
+		for(j = (_pacman_pkg_getinfo((pmpkg_t *)i->data, PM_PKG_DEPENDS)); j; j = j->next) {
 			pmdepend_t depend;
 			pmpkg_t *dep;
 			int needed = 0;
 
-			if(_alpm_splitdep(j->data, &depend)) {
+			if(_pacman_splitdep(j->data, &depend)) {
 				continue;
 			}
 
-			dep = _alpm_db_get_pkgfromcache(db, depend.name);
+			dep = _pacman_db_get_pkgfromcache(db, depend.name);
 			if(dep == NULL) {
 				/* package not found... look for a provisio instead */
-				k = _alpm_db_whatprovides(db, depend.name);
+				k = _pacman_db_whatprovides(db, depend.name);
 				if(k == NULL) {
-					_alpm_log(PM_LOG_WARNING, _("cannot find package \"%s\" or anything that provides it!"), depend.name);
+					_pacman_log(PM_LOG_WARNING, _("cannot find package \"%s\" or anything that provides it!"), depend.name);
 					continue;
 				}
-				dep = _alpm_db_get_pkgfromcache(db, ((pmpkg_t *)k->data)->name);
+				dep = _pacman_db_get_pkgfromcache(db, ((pmpkg_t *)k->data)->name);
 				if(dep == NULL) {
-					_alpm_log(PM_LOG_ERROR, _("dep is NULL!"));
+					_pacman_log(PM_LOG_ERROR, _("dep is NULL!"));
 					/* wtf */
 					continue;
 				}
 				FREELISTPTR(k);
 			}
-			if(_alpm_pkg_isin(dep->name, targs)) {
+			if(_pacman_pkg_isin(dep->name, targs)) {
 				continue;
 			}
 
 			/* see if it was explicitly installed */
 			if(dep->reason == PM_PKG_REASON_EXPLICIT) {
-				_alpm_log(PM_LOG_FLOW2, _("excluding %s -- explicitly installed"), dep->name);
+				_pacman_log(PM_LOG_FLOW2, _("excluding %s -- explicitly installed"), dep->name);
 				needed = 1;
 			}
 
 			/* see if other packages need it */
-			for(k = _alpm_pkg_getinfo(dep, PM_PKG_REQUIREDBY); k && !needed; k = k->next) {
-				pmpkg_t *dummy = _alpm_db_get_pkgfromcache(db, k->data);
-				if(!_alpm_pkg_isin(dummy->name, targs)) {
+			for(k = _pacman_pkg_getinfo(dep, PM_PKG_REQUIREDBY); k && !needed; k = k->next) {
+				pmpkg_t *dummy = _pacman_db_get_pkgfromcache(db, k->data);
+				if(!_pacman_pkg_isin(dummy->name, targs)) {
 					needed = 1;
 				}
 			}
 			if(!needed) {
-				pmpkg_t *pkg = _alpm_pkg_new(dep->name, dep->version);
+				pmpkg_t *pkg = _pacman_pkg_new(dep->name, dep->version);
 				if(pkg == NULL) {
 					continue;
 				}
 				/* add it to the target list */
-				_alpm_log(PM_LOG_DEBUG, _("loading ALL info for '%s'"), pkg->name);
-				_alpm_db_read(db, INFRQ_ALL, pkg);
-				newtargs = _alpm_list_add(newtargs, pkg);
-				_alpm_log(PM_LOG_FLOW2, _("adding '%s' to the targets"), pkg->name);
-				newtargs = _alpm_removedeps(db, newtargs);
+				_pacman_log(PM_LOG_DEBUG, _("loading ALL info for '%s'"), pkg->name);
+				_pacman_db_read(db, INFRQ_ALL, pkg);
+				newtargs = _pacman_list_add(newtargs, pkg);
+				_pacman_log(PM_LOG_FLOW2, _("adding '%s' to the targets"), pkg->name);
+				newtargs = _pacman_removedeps(db, newtargs);
 			}
 		}
 	}
@@ -560,7 +560,7 @@ pmlist_t *_alpm_removedeps(pmdb_t *db, pmlist_t *targs)
  *
  * make sure *list and *trail are already initialized
  */
-int _alpm_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pmlist_t *list,
+int _pacman_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pmlist_t *list,
                       pmlist_t *trail, pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *i, *j;
@@ -571,8 +571,8 @@ int _alpm_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pmlis
 		return(-1);
 	}
 
-	targ = _alpm_list_add(NULL, syncpkg);
-	deps = _alpm_checkdeps(trans, local, PM_TRANS_TYPE_ADD, targ);
+	targ = _pacman_list_add(NULL, syncpkg);
+	deps = _pacman_checkdeps(trans, local, PM_TRANS_TYPE_ADD, targ);
 	FREELISTPTR(targ);
 
 	if(deps == NULL) {
@@ -587,8 +587,8 @@ int _alpm_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pmlis
 		/* check if one of the packages in *list already provides this dependency */
 		for(j = list; j && !found; j = j->next) {
 			pmpkg_t *sp = (pmpkg_t *)j->data;
-			if(_alpm_list_is_strin(miss->depend.name, _alpm_pkg_getinfo(sp, PM_PKG_PROVIDES))) {
-				_alpm_log(PM_LOG_DEBUG, _("%s provides dependency %s -- skipping"),
+			if(_pacman_list_is_strin(miss->depend.name, _pacman_pkg_getinfo(sp, PM_PKG_PROVIDES))) {
+				_pacman_log(PM_LOG_DEBUG, _("%s provides dependency %s -- skipping"),
 				          sp->name, miss->depend.name);
 				found = 1;
 			}
@@ -600,76 +600,76 @@ int _alpm_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pmlis
 		/* find the package in one of the repositories */
 		/* check literals */
 		for(j = dbs_sync; !sync && j; j = j->next) {
-			sync = _alpm_db_get_pkgfromcache(j->data, miss->depend.name);
+			sync = _pacman_db_get_pkgfromcache(j->data, miss->depend.name);
 		}
 		/* check provides */
 		for(j = dbs_sync; !sync && j; j = j->next) {
 			pmlist_t *provides;
-			provides = _alpm_db_whatprovides(j->data, miss->depend.name);
+			provides = _pacman_db_whatprovides(j->data, miss->depend.name);
 			if(provides) {
 				sync = provides->data;
 			}
 			FREELISTPTR(provides);
 		}
 		if(sync == NULL) {
-			_alpm_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"),
+			_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"),
 			          miss->target, miss->depend.name);
 			if(data) {
 				if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
-					_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
+					_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
 					FREELIST(*data);
 					pm_errno = PM_ERR_MEMORY;
 					goto error;
 				}
 				*miss = *(pmdepmissing_t *)i->data;
-				*data = _alpm_list_add(*data, miss);
+				*data = _pacman_list_add(*data, miss);
 			}
 			pm_errno = PM_ERR_UNSATISFIED_DEPS;
 			goto error;
 		}
-		if(_alpm_pkg_isin(sync->name, list)) {
+		if(_pacman_pkg_isin(sync->name, list)) {
 			/* this dep is already in the target list */
-			_alpm_log(PM_LOG_DEBUG, _("dependency %s is already in the target list -- skipping"),
+			_pacman_log(PM_LOG_DEBUG, _("dependency %s is already in the target list -- skipping"),
 			          sync->name);
 			continue;
 		}
 
-		if(!_alpm_pkg_isin(sync->name, trail)) {
+		if(!_pacman_pkg_isin(sync->name, trail)) {
 			/* check pmo_ignorepkg and pmo_s_ignore to make sure we haven't pulled in
 			 * something we're not supposed to.
 			 */
 			int usedep = 1;
-			if(_alpm_list_is_strin(sync->name, handle->ignorepkg)) {
-				pmpkg_t *dummypkg = _alpm_pkg_new(miss->target, NULL);
+			if(_pacman_list_is_strin(sync->name, handle->ignorepkg)) {
+				pmpkg_t *dummypkg = _pacman_pkg_new(miss->target, NULL);
 				QUESTION(trans, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg, sync, NULL, &usedep);
 				FREEPKG(dummypkg);
 			}
 			if(usedep) {
-				trail = _alpm_list_add(trail, sync);
-				if(_alpm_resolvedeps(local, dbs_sync, sync, list, trail, trans, data)) {
+				trail = _pacman_list_add(trail, sync);
+				if(_pacman_resolvedeps(local, dbs_sync, sync, list, trail, trans, data)) {
 					goto error;
 				}
-				_alpm_log(PM_LOG_DEBUG, _("pulling dependency %s (needed by %s)"),
+				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s (needed by %s)"),
 				          sync->name, syncpkg->name);
-				list = _alpm_list_add(list, sync);
+				list = _pacman_list_add(list, sync);
 			} else {
-				_alpm_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\""), miss->target);
+				_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\""), miss->target);
 				if(data) {
 					if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
-						_alpm_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
+						_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
 						FREELIST(*data);
 						pm_errno = PM_ERR_MEMORY;
 						goto error;
 					}
 					*miss = *(pmdepmissing_t *)i->data;
-					*data = _alpm_list_add(*data, miss);
+					*data = _pacman_list_add(*data, miss);
 				}
 				pm_errno = PM_ERR_UNSATISFIED_DEPS;
 				goto error;
 			}
 		} else {
 			/* cycle detected -- skip it */
-			_alpm_log(PM_LOG_DEBUG, _("dependency cycle detected: %s"), sync->name);
+			_pacman_log(PM_LOG_DEBUG, _("dependency cycle detected: %s"), sync->name);
 		}
 	}
 
