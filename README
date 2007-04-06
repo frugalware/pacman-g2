@@ -47,10 +47,9 @@ destructive approach does not change, we do not plan to submit patches to him.
 The queue is too long already, he has some stuff already to merge.
 (Unfortunately probably he won't.)
 
-Of course this does not means that we hate the other contributors of pacman or
-Archlinux, we have a problem with the current "development" model of
-pacman-cvs. We are interested in any co-operation if the current approach
-changes.
+Of course this does not means that we hate the other contributors of pacman, we
+have a problem with the current "development" model of pacman-cvs. We are
+interested in any co-operation if the current approach changes.
 
 The current homepage of the fork can be found at:
 
