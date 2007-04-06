@@ -5,12 +5,12 @@ import_pootle()
 	po_dir=~/darcs/translations/po
 
 	if [ -d $po_dir ]; then
-		: > lib/libalpm/po/LINGUAS
+		: > lib/libpacman/po/LINGUAS
 		: > src/pacman-g2/po/LINGUAS
 		for i in $(/bin/ls $po_dir/pacman)
 		do
-			cp $po_dir/pacman/$i/libalpm.po lib/libalpm/po/$i.po
-			echo $i >> lib/libalpm/po/LINGUAS
+			cp $po_dir/pacman/$i/libpacman.po lib/libpacman/po/$i.po
+			echo $i >> lib/libpacman/po/LINGUAS
 			cp $po_dir/pacman/$i/pacman-g2.po src/pacman-g2/po/$i.po
 			echo $i >> src/pacman-g2/po/LINGUAS
 		done
@@ -19,7 +19,7 @@ import_pootle()
 	fi
 
 	# generate the pot files
-	for i in lib/libalpm/po src/pacman-g2/po
+	for i in lib/libpacman/po src/pacman-g2/po
 	do
 		cd $i
 		mv Makevars Makevars.tmp
@@ -64,7 +64,7 @@ if [ "$1" == "--dist" ]; then
 	exit 0
 elif [ "$1" == "--gettext-only" ]; then
 	sh autoclean.sh
-	for i in lib/libalpm/po src/pacman-g2/po
+	for i in lib/libpacman/po src/pacman-g2/po
 	do
 		cd $i
 		mv Makevars Makevars.tmp

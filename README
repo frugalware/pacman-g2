@@ -1,7 +1,7 @@
 ==========================================================================
 README:
 
-Overview and internals of the ALPM library and the PACMAN-G2 frontend.
+Overview and internals of the PACMAN library and the PACMAN-G2 frontend.
 
 This document describes the state of the implementation before its CVS
 import.
@@ -60,16 +60,16 @@ The project uses the "pacman-g2" name instead of the "pacman" one, so that users
 
 If you are interested in developing pacman-g2, please subscribe to the frugalware-devel@frugalware.org mailing list.
 
-ALPM library overview & internals
+PACMAN library overview & internals
 =================================
 
-Here is a list of the main objects and files from the ALPM (i.e. Arch
-Linux Package Management) library.
+Here is a list of the main objects and files from the PACMAN (i.e. Package
+Management) library.
 This document, whilst not exhaustive, also indicates some limitations
 (on purpose, or sometimes due to its poor design) of the library at the
 present time.
 
-Note: there is one special file ("alpm.h") which is the public interface
+Note: there is one special file ("pacman.h") which is the public interface
 that should be distributed and installed on systems with the library.
 Only structures, data and functions declared within this file are made
 available to the frontend.
@@ -84,12 +84,12 @@ and frontend spaces.
 Indeed, it is not possible to have two different functions with the same
 name declared in both spaces.
 To avoid such conflicts, some function names have been prepended with
-"_alpm_".
+"_pacman_".
 In a general manner, public library functions are named
-"alpm_<type>_<action>" (examples: alpm_trans_commit(),
-alpm_lib_release(), alpm_pkg_getinfo(), ...).
-Internal (and thus private) functions should be named "_alpm_XXX" for
-instance (examples: _alpm_needbackup(), _alpm_runscriplet(), ...).
+"pacman_<type>_<action>" (examples: pacman_trans_commit(),
+pacman_lib_release(), pacman_pkg_getinfo(), ...).
+Internal (and thus private) functions should be named "_pacman_XXX" for
+instance (examples: _pacman_needbackup(), _pacman_runscriplet(), ...).
 As of now, this scheme is only applied to most sensitive functions
 (mainly the ones from util.c), which have generic names, and thus, which
 are likely to be redefined in the frontend.
@@ -108,12 +108,12 @@ low level objects should not be aware of the handle object, like chained
 list, package or groups structures.
 
 There is only one instance, created by the frontend upon
-"alpm_lib_init()" call, and destroyed upon "alpm_lib_release()" call.
+"pacman_lib_init()" call, and destroyed upon "pacman_lib_release()" call.
 
-alpm_lib_init() is used to initialize library internals and to create
+pacman_lib_init() is used to initialize library internals and to create
 the handle object (handle != NULL).
 Before its call, the library can't be used.
-alpm_lib_release() just does the opposite (memory used by the library is
+pacman_lib_release() just does the opposite (memory used by the library is
 freed, and handle is set to NULL).
 After its call, the library is no more available.
 
@@ -133,7 +133,7 @@ troubleshooting purpose.
 Last, but not least, the handle holds a _unique_ transaction object.
 
 
-[TRANSACTION] (see trans.c, and also alpm.c)
+[TRANSACTION] (see trans.c, and also pacman.c)
 
 The transaction sturcture permits easy manipulations of several packages
 at a time (i.e. adding, upgrade and removal operations).
@@ -153,10 +153,10 @@ transaction (NOUPGRADE, IGNOREPKG, ...).
 Note: once a transaction has been initiated, it is not possible anymore
 to modify its type or its flags.
 
-One can also add some targets to a transaction (alpm_trans_addtarget()).
+One can also add some targets to a transaction (pacman_trans_addtarget()).
 These targets represent the list of packages to be handled.
 
-Then, a transaction needs to be prepared (alpm_trans_prepare()). It
+Then, a transaction needs to be prepared (pacman_trans_prepare()). It
 means that the various targets added, will be inspected and challenged
 against the set of alreayd installed packages (dependency checkings,
 
@@ -174,10 +174,10 @@ number of configuration options instead (IGNOREPKG, SYSLOG usage,
 log file name, registered databases, ...).
 It is up to the frontend to set the options of the library.
 Options can be manipulated using calls to
-alpm_set_option()/alpm_get_option().
+pacman_set_option()/pacman_get_option().
 
 Note: the file system root is a special option which can only be defined
-when calling alpm_lib_init(). It can't be modified afterwards.
+when calling pacman_lib_init(). It can't be modified afterwards.
 
 
 [CACHE] (see cache.c)
@@ -216,7 +216,7 @@ frontend are comming from the cache. As a consequence, the library needs
 to know exactly the level of information about packages it holds, and
 then decide if more data needs to be fetched from the database.
 
-In file alpm.c, have a look at alpm_pkg_getinfo() function to get an
+In file pacman.c, have a look at pacman_pkg_getinfo() function to get an
 overview.
 
 
@@ -231,11 +231,11 @@ If -1 is returned, the variable pm_errno is set to a meaningful value
 (not always yet, but it should improve ;).
 Wise frontends should always care for these returned values.
 
-Note: the helper function alpm_strerror() can also be used to translate
+Note: the helper function pacman_strerror() can also be used to translate
 the error code into a more friendly sentence.
 
 
-[LIST] (see list.c, and especially list wrappers in alpm.c)
+[LIST] (see list.c, and especially list wrappers in pacman.c)
 
 It is a double chained list structure, use only for the internal needs
 of the library.
@@ -246,7 +246,7 @@ as a consequence the glib library). The frontend will make use of the
 glib chained lists or trees.
 As a consequence, the library only provides a simple and very small
 interface to retrieve pointers to its internal data (see functions
-alpm_list_first(), alpm_list_next() and alpm_list_getdata()), giving to
+pacman_list_first(), pacman_list_next() and pacman_list_getdata()), giving to
 the frontend the responsibility to copy and store the data retrieved
 from the library in its own data structures.
 
@@ -269,7 +269,7 @@ perform a special action.
 
 [MAIN] (see pacman-g2.c)
 
-Calls for alpm_lib_init(), and alpm_lib_release().
+Calls for pacman_lib_init(), and pacman_lib_release().
 Read the configuration file, and parse command line arguments.
 Based on the action requested, it initiates the appropriate transactions
 (see pacman_add(), pacman_remove(), pacman_sync() in files add.c,

@@ -16,8 +16,8 @@ rm -rf src/util/Makefile
 rm -rf src/util/Makefile.in
 rm -rf lib/libftp/Makefile
 rm -rf lib/libftp/Makefile.in
-rm -rf lib/libalpm/Makefile.in
-rm -rf lib/libalpm/Makefile
+rm -rf lib/libpacman/Makefile.in
+rm -rf lib/libpacman/Makefile
 rm -rf aclocal.m4
 rm -rf ltmain.sh
 rm -rf doc/Makefile
@@ -49,8 +49,8 @@ rm -rf src/pacman-g2/po/POTFILES
 rm -rf src/pacman-g2/po/stamp-po
 rm -rf src/pacman-g2/po/*.{gmo,pot,po}
 
-rm -rf lib/libalpm/po/Makefile
-rm -rf lib/libalpm/po/Makefile.in
-rm -rf lib/libalpm/po/POTFILES
-rm -rf lib/libalpm/po/stamp-po
-rm -rf lib/libalpm/po/*.{gmo,pot,po}
+rm -rf lib/libpacman/po/Makefile
+rm -rf lib/libpacman/po/Makefile.in
+rm -rf lib/libpacman/po/POTFILES
+rm -rf lib/libpacman/po/stamp-po
+rm -rf lib/libpacman/po/*.{gmo,pot,po}

@@ -1,7 +1,7 @@
 #if defined(SWIGPERL)
-%module "Alpm::Core"
+%module "Pacman::Core"
 #else
-%module alpm
+%module pacman
 #endif
 %include "cpointer.i"
 
@@ -18,7 +18,7 @@
 %pointer_cast(void *, PM_CONFLICT *, void_to_PM_CONFLICT);
 %pointer_cast(void *, PM_DEPMISS *, void_to_PM_DEPMISS);
 
-%include "alpm.h"
+%include "pacman.h"
 
 %inline %{
 /* PM_PKG */

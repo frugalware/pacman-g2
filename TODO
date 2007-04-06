@@ -4,15 +4,6 @@ GLOBAL
 - get ride of "ORE" tags.
 
 
-LIBALPM
-=======
-
-- review errors handling (globalise pm_errno usage, improve error 
-meanings)
-
-- documentation (doxygen? man pages for public functions? ...)
-
-
 PACMAN
 ======
 
@@ -20,32 +11,6 @@ PACMAN
 verbose mode, which usage for the library log callback, debug levels, ...)
 
 - add .lastupdate files support for "files" db downloads
-
-TRANSLATION
-===========
-
-po files
---------
-cs.po - mail sent
-es.po - created by Matt, pending
-fr.po - mail sent
-nl.po - mail sent
-pl_PL.po - mail sent
-pt_BR.po - mail sent
-we need to mail them:
-pt_PT.po
-ru.po
-sv.po
-zh_CN.po
-
-manpages
---------
-we need to mail them:
-es
-hu - we need somebody who'll do the work
-pl_PL
-pt_BR
-zh_CN
 
 ADDITIONAL IDEAS FOR PERFORMANCE IMPROVEMENT
 ============================================
@@ -71,7 +36,7 @@ pacman-g2's Makefile.am and configure.in
 
 - find out how can we prevent automake/autoconf to build pacman-g2.static binary, if we
   are configured using --disable-static flag. Now if builded with this option, then pacman-g2.static
-  compile fails, because there will be no libalpm.a (just .so)
+  compile fails, because there will be no libpacman.a (just .so)
 
 global
 ======
@@ -80,8 +45,8 @@ global
 
 - Many things :)) If you got idea or request, then implement it.
 
-libalpm and codechanges
-=======================
+libpacman and codechanges
+=========================
 
 - Add much more defines in configure.in via options or not. Like CACHEDIR, PKGEXT, etc.
   Those will be available from config.h so not need a big codechange. But it is usefull.

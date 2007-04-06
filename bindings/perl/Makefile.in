@@ -26,12 +26,12 @@ pacman_wrap.c:
 install: install-so install-pm
 
 install-so: Core.so
-	mkdir -p $(DESTDIR)$(LIBDIR)/auto/Alpm/Core
-	install $^ $(DESTDIR)$(LIBDIR)/auto/Alpm/Core/
+	mkdir -p $(DESTDIR)$(LIBDIR)/auto/Pacman/Core
+	install $^ $(DESTDIR)$(LIBDIR)/auto/Pacman/Core/
 
 install-pm: Core.pm
-	mkdir -p $(DESTDIR)$(LIBDIR)/Alpm/
-	install -m644 $^ $(DESTDIR)$(LIBDIR)/Alpm/
+	mkdir -p $(DESTDIR)$(LIBDIR)/Pacman/
+	install -m644 $^ $(DESTDIR)$(LIBDIR)/Pacman/
 
 clean:
 	rm -f Core* pacman{.h,_wrap*}
