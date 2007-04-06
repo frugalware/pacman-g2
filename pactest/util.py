@@ -24,7 +24,7 @@ import md5
 import stat
 
 
-# ALPM
+# libpacman
 PM_ROOT     = "/"
 PM_DBPATH   = "var/lib/pacman"
 PM_CACHEDIR = "var/cache/pacman/pkg"
