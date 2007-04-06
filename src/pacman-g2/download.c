@@ -31,7 +31,7 @@
 #include <ftplib.h>
 #include <libintl.h>
 
-#include <alpm.h>
+#include <pacman.h>
 /* pacman-g2 */
 #include "util.h"
 #include "log.h"
@@ -74,7 +74,7 @@ int log_progress(netbuf *ctl, int xfered, void *arg)
 		return(1);
 	}
 
-	alpm_get_option(PM_OPT_CHOMP, (long *)&chomp);
+	pacman_get_option(PM_OPT_CHOMP, (long *)&chomp);
 
 	gettimeofday(&t1, NULL);
 	if(xfered+offset == fsz) {

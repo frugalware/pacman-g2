@@ -36,7 +36,7 @@ enum {
 	CL  /* current line */
 };
 
-/* callback to handle messages/notifications from alpm library */
+/* callback to handle messages/notifications from libpacman library */
 void cb_log(unsigned short level, char *msg);
 
 void pm_fprintf(FILE *file, unsigned short line, char *fmt, ...);

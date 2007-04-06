@@ -27,7 +27,7 @@
 #include <sys/stat.h>
 #include <libintl.h>
 
-#include <alpm.h>
+#include <pacman.h>
 /* pacman-g2 */
 #include "list.h"
 #include "package.h"
@@ -62,21 +62,21 @@ static int query_fileowner(PM_DB *db, char *filename)
 		return(1);
 	}
 
-	alpm_get_option(PM_OPT_ROOT, (long *)&root);
+	pacman_get_option(PM_OPT_ROOT, (long *)&root);
 
-	for(lp = alpm_db_getpkgcache(db); lp && !gotcha; lp = alpm_list_next(lp)) {
+	for(lp = pacman_db_getpkgcache(db); lp && !gotcha; lp = pacman_list_next(lp)) {
 		PM_PKG *info;
 		PM_LIST *i;
 
-		info = alpm_list_getdata(lp);
+		info = pacman_list_getdata(lp);
 
-		for(i = alpm_pkg_getinfo(info, PM_PKG_FILES); i && !gotcha; i = alpm_list_next(i)) {
+		for(i = pacman_pkg_getinfo(info, PM_PKG_FILES); i && !gotcha; i = pacman_list_next(i)) {
 			char path[PATH_MAX];
 
-			snprintf(path, PATH_MAX, "%s%s", root, (char *)alpm_list_getdata(i));
+			snprintf(path, PATH_MAX, "%s%s", root, (char *)pacman_list_getdata(i));
 			if(!strcmp(path, rpath)) {
-				printf(_("%s is owned by %s %s\n"), filename, (char *)alpm_pkg_getinfo(info, PM_PKG_NAME),
-				       (char *)alpm_pkg_getinfo(info, PM_PKG_VERSION));
+				printf(_("%s is owned by %s %s\n"), filename, (char *)pacman_pkg_getinfo(info, PM_PKG_NAME),
+				       (char *)pacman_pkg_getinfo(info, PM_PKG_VERSION));
 				gotcha = 1;
 				break;
 			}
@@ -101,20 +101,20 @@ int querypkg(list_t *targets)
 
 	if(config->op_q_search) {
 		for(i = targets; i; i = i->next) {
-			alpm_set_option(PM_OPT_NEEDLES, (long)i->data);
+			pacman_set_option(PM_OPT_NEEDLES, (long)i->data);
 		}
-		ret = alpm_db_search(db_local);
+		ret = pacman_db_search(db_local);
 		if(ret == NULL) {
 			return(1);
 		}
-		for(j = ret; j; j = alpm_list_next(j)) {
-			PM_PKG *pkg = alpm_list_getdata(j);
+		for(j = ret; j; j = pacman_list_next(j)) {
+			PM_PKG *pkg = pacman_list_getdata(j);
 
 			printf("local/%s/%s %s\n    ",
-					(char*)alpm_list_getdata(alpm_pkg_getinfo(pkg, PM_PKG_GROUPS)),
-					(char *)alpm_pkg_getinfo(pkg, PM_PKG_NAME),
-					(char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION));
-			indentprint((char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC), 4);
+					(char*)pacman_list_getdata(pacman_pkg_getinfo(pkg, PM_PKG_GROUPS)),
+					(char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME),
+					(char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION));
+			indentprint((char *)pacman_pkg_getinfo(pkg, PM_PKG_DESC), 4);
 			printf("\n");
 		}
 		return(0);
@@ -141,24 +141,24 @@ int querypkg(list_t *targets)
 		if(config->group) {
 			PM_LIST *lp;
 			if(targets == NULL) {
-				for(lp = alpm_db_getgrpcache(db_local); lp; lp = alpm_list_next(lp)) {
-					PM_GRP *grp = alpm_list_getdata(lp);
+				for(lp = pacman_db_getgrpcache(db_local); lp; lp = pacman_list_next(lp)) {
+					PM_GRP *grp = pacman_list_getdata(lp);
 					PM_LIST *i, *pkgnames;
 					char *grpname;
 
-					grpname = alpm_grp_getinfo(grp, PM_GRP_NAME);
-					pkgnames = alpm_grp_getinfo(grp, PM_GRP_PKGNAMES);
+					grpname = pacman_grp_getinfo(grp, PM_GRP_NAME);
+					pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
 
-					for(i = pkgnames; i; i = alpm_list_next(i)) {
-						MSG(NL, "%s %s\n", grpname, (char *)alpm_list_getdata(i));
+					for(i = pkgnames; i; i = pacman_list_next(i)) {
+						MSG(NL, "%s %s\n", grpname, (char *)pacman_list_getdata(i));
 					}
 				}
 			} else {
-				PM_GRP *grp = alpm_db_readgrp(db_local, package);
+				PM_GRP *grp = pacman_db_readgrp(db_local, package);
 				if(grp) {
-					PM_LIST *i, *pkgnames = alpm_grp_getinfo(grp, PM_GRP_PKGNAMES);
-					for(i = pkgnames; i; i = alpm_list_next(i)) {
-						MSG(NL, "%s %s\n", package, (char *)alpm_list_getdata(i));
+					PM_LIST *i, *pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
+					for(i = pkgnames; i; i = pacman_list_next(i)) {
+						MSG(NL, "%s %s\n", package, (char *)pacman_list_getdata(i));
 					}
 				} else {
 					ERR(NL, _("group \"%s\" was not found\n"), package);
@@ -174,8 +174,8 @@ int querypkg(list_t *targets)
 				ERR(NL, _("no package file was specified for --file\n"));
 				return(1);
 			}
-			if(alpm_pkg_load(package, &info) == -1) {
-				ERR(NL, _("failed to load package '%s' (%s)\n"), package, alpm_strerror(pm_errno));
+			if(pacman_pkg_load(package, &info) == -1) {
+				ERR(NL, _("failed to load package '%s' (%s)\n"), package, pacman_strerror(pm_errno));
 				return(1);
 			}
 			if(config->op_q_info) {
@@ -186,8 +186,8 @@ int querypkg(list_t *targets)
 				dump_pkg_files(info);
 			}
 			if(!config->op_q_info && !config->op_q_list) {
-				MSG(NL, "%s %s\n", (char *)alpm_pkg_getinfo(info, PM_PKG_NAME),
-				                   (char *)alpm_pkg_getinfo(info, PM_PKG_VERSION));
+				MSG(NL, "%s %s\n", (char *)pacman_pkg_getinfo(info, PM_PKG_NAME),
+				                   (char *)pacman_pkg_getinfo(info, PM_PKG_VERSION));
 			}
 			FREEPKG(info);
 			continue;
@@ -203,15 +203,15 @@ int querypkg(list_t *targets)
 		if(package == NULL) {
 			PM_LIST *lp;
 			/* no target */
-			for(lp = alpm_db_getpkgcache(db_local); lp; lp = alpm_list_next(lp)) {
-				PM_PKG *tmpp = alpm_list_getdata(lp);
+			for(lp = pacman_db_getpkgcache(db_local); lp; lp = pacman_list_next(lp)) {
+				PM_PKG *tmpp = pacman_list_getdata(lp);
 				char *pkgname, *pkgver;
 
-				pkgname = alpm_pkg_getinfo(tmpp, PM_PKG_NAME);
-				pkgver = alpm_pkg_getinfo(tmpp, PM_PKG_VERSION);
+				pkgname = pacman_pkg_getinfo(tmpp, PM_PKG_NAME);
+				pkgver = pacman_pkg_getinfo(tmpp, PM_PKG_VERSION);
 
 				if(config->op_q_list || config->op_q_orphans || config->op_q_foreign) {
-					info = alpm_db_readpkg(db_local, pkgname);
+					info = pacman_db_readpkg(db_local, pkgname);
 					if(info == NULL) {
 						/* something weird happened */
 						ERR(NL, _("package \"%s\" not found\n"), pkgname);
@@ -221,12 +221,12 @@ int querypkg(list_t *targets)
 						int match = 0;
 						for(i = pmc_syncs; i; i = i->next) {
 							sync_t *sync = (sync_t *)i->data;
-							for(j = alpm_db_getpkgcache(sync->db); j; j = alpm_list_next(j)) {
-								PM_PKG *pkg = alpm_list_getdata(j);
+							for(j = pacman_db_getpkgcache(sync->db); j; j = pacman_list_next(j)) {
+								PM_PKG *pkg = pacman_list_getdata(j);
 								char *haystack;
 								char *needle;
-								haystack = strdup(alpm_pkg_getinfo(pkg, PM_PKG_NAME));
-								needle = strdup(alpm_pkg_getinfo(info, PM_PKG_NAME));
+								haystack = strdup(pacman_pkg_getinfo(pkg, PM_PKG_NAME));
+								needle = strdup(pacman_pkg_getinfo(info, PM_PKG_NAME));
 								if(!strcmp(haystack, needle)) {
 									match = 1;
 								}
@@ -242,8 +242,8 @@ int querypkg(list_t *targets)
 						dump_pkg_files(info);
 					}
 					if(config->op_q_orphans) {
-						if(alpm_pkg_getinfo(info, PM_PKG_REQUIREDBY) == NULL
-						   && (long)alpm_pkg_getinfo(info, PM_PKG_REASON) == PM_PKG_REASON_DEPEND) {
+						if(pacman_pkg_getinfo(info, PM_PKG_REQUIREDBY) == NULL
+						   && (long)pacman_pkg_getinfo(info, PM_PKG_REASON) == PM_PKG_REASON_DEPEND) {
 							MSG(NL, "%s %s\n", pkgname, pkgver);
 						}
 					} 
@@ -254,7 +254,7 @@ int querypkg(list_t *targets)
 		} else {
 			char *pkgname, *pkgver, changelog[PATH_MAX];
 
-			info = alpm_db_readpkg(db_local, package);
+			info = pacman_db_readpkg(db_local, package);
 			if(info == NULL) {
 				ERR(NL, _("package \"%s\" not found\n"), package);
 				return(2);
@@ -264,13 +264,13 @@ int querypkg(list_t *targets)
 			if(config->op_q_changelog || config->op_q_info || config->op_q_list) {
 				if(config->op_q_changelog) {
 					char *dbpath;
-					alpm_get_option(PM_OPT_DBPATH, (long *)&dbpath);
+					pacman_get_option(PM_OPT_DBPATH, (long *)&dbpath);
 					snprintf(changelog, PATH_MAX, "%s%s/%s/%s-%s/changelog",
 						config->root, dbpath,
-						(char*)alpm_db_getinfo(db_local, PM_DB_TREENAME),
-						(char*)alpm_pkg_getinfo(info, PM_PKG_NAME),
-						(char*)alpm_pkg_getinfo(info, PM_PKG_VERSION));
-					dump_pkg_changelog(changelog, (char*)alpm_pkg_getinfo(info, PM_PKG_NAME));
+						(char*)pacman_db_getinfo(db_local, PM_DB_TREENAME),
+						(char*)pacman_pkg_getinfo(info, PM_PKG_NAME),
+						(char*)pacman_pkg_getinfo(info, PM_PKG_VERSION));
+					dump_pkg_changelog(changelog, (char*)pacman_pkg_getinfo(info, PM_PKG_NAME));
 				}
 				if(config->op_q_info) {
 					dump_pkg_full(info, config->op_q_info);
@@ -279,12 +279,12 @@ int querypkg(list_t *targets)
 					dump_pkg_files(info);
 				}
 			} else if(config->op_q_orphans) {
-					if(alpm_pkg_getinfo(info, PM_PKG_REQUIREDBY) == NULL) {
+					if(pacman_pkg_getinfo(info, PM_PKG_REQUIREDBY) == NULL) {
 						MSG(NL, "%s %s\n", pkgname, pkgver);
 					}
 			} else {
-				pkgname = alpm_pkg_getinfo(info, PM_PKG_NAME);
-				pkgver = alpm_pkg_getinfo(info, PM_PKG_VERSION);
+				pkgname = pacman_pkg_getinfo(info, PM_PKG_NAME);
+				pkgver = pacman_pkg_getinfo(info, PM_PKG_VERSION);
 				MSG(NL, "%s %s\n", pkgname, pkgver);
 			}
 		}

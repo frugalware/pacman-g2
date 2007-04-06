@@ -30,7 +30,7 @@
 #include <math.h>
 #include <libintl.h>
 
-#include <alpm.h>
+#include <pacman.h>
 /* pacman-g2 */
 #include "util.h"
 #include "log.h"
@@ -87,7 +87,7 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 		break;
 		case PM_TRANS_EVT_ADD_START:
 			if(config->noprogressbar) {
-				MSG(NL, _("installing %s... "), (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME));
+				MSG(NL, _("installing %s... "), (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME));
 			}
 		break;
 		case PM_TRANS_EVT_ADD_DONE:
@@ -95,13 +95,13 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 				MSG(CL, _("done.\n"));
 			}
 			snprintf(str, LOG_STR_LEN, _("installed %s (%s)"),
-			         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-			         (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
-			alpm_logaction(str);
+			         (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
+			         (char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
+			pacman_logaction(str);
 		break;
 		case PM_TRANS_EVT_REMOVE_START:
 			if(config->noprogressbar) {
-			MSG(NL, _("removing %s... "), (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME));
+			MSG(NL, _("removing %s... "), (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME));
 			}
 		break;
 		case PM_TRANS_EVT_REMOVE_DONE:
@@ -111,13 +111,13 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			    MSG(NL, "");
 			}
 			snprintf(str, LOG_STR_LEN, _("removed %s (%s)"),
-			         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-			         (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
-			alpm_logaction(str);
+			         (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
+			         (char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
+			pacman_logaction(str);
 		break;
 		case PM_TRANS_EVT_UPGRADE_START:
 			if(config->noprogressbar) {
-				MSG(NL, _("upgrading %s... "), (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME));
+				MSG(NL, _("upgrading %s... "), (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME));
 			}
 		break;
 		case PM_TRANS_EVT_UPGRADE_DONE:
@@ -125,10 +125,10 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 				MSG(CL, _("done.\n"));
 			}
 			snprintf(str, LOG_STR_LEN, _("upgraded %s (%s -> %s)"),
-			         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-			         (char *)alpm_pkg_getinfo(data2, PM_PKG_VERSION),
-			         (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
-			alpm_logaction(str);
+			         (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
+			         (char *)pacman_pkg_getinfo(data2, PM_PKG_VERSION),
+			         (char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
+			pacman_logaction(str);
 		break;
 		case PM_TRANS_EVT_INTEGRITY_START:
 			MSG(NL, _("checking package integrity... "));
@@ -183,8 +183,8 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 				}
 			} else {
 				snprintf(str, LOG_STR_LEN, _(":: %s requires %s, but it is in IgnorePkg. Install anyway? [Y/n] "),
-				         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-				         (char *)alpm_pkg_getinfo(data2, PM_PKG_NAME));
+				         (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
+				         (char *)pacman_pkg_getinfo(data2, PM_PKG_NAME));
 				*response = yesno(str);
 			}
 		break;
@@ -197,7 +197,7 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 				}
 			} else {
 				snprintf(str, LOG_STR_LEN, _(":: %s is designated as a HoldPkg.  Remove anyway? [Y/n] "),
-				         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME));
+				         (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME));
 				*response = yesno(str);
 			}
 		break;
@@ -210,9 +210,9 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 				}
 			} else {
 				snprintf(str, LOG_STR_LEN, _(":: Replace %s with %s/%s? [Y/n] "),
-				         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
+				         (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
 				         (char *)data3,
-				         (char *)alpm_pkg_getinfo(data2, PM_PKG_NAME));
+				         (char *)pacman_pkg_getinfo(data2, PM_PKG_NAME));
 				*response = yesno(str);
 			}
 		break;
@@ -241,8 +241,8 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 			} else {
 				if(!config->op_s_downloadonly) {
 					snprintf(str, LOG_STR_LEN, _(":: %s-%s: local version is newer. Upgrade anyway? [Y/n] "),
-				         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-				         (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
+				         (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
+				         (char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
 					*response = yesno(str);
 				} else {
 					*response = 1;
@@ -259,8 +259,8 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 			} else {
 				if(!config->op_s_downloadonly) {
 					snprintf(str, LOG_STR_LEN, _(":: %s-%s: local version is up to date. Upgrade anyway? [Y/n] "),
-				         (char *)alpm_pkg_getinfo(data1, PM_PKG_NAME),
-				         (char *)alpm_pkg_getinfo(data1, PM_PKG_VERSION));
+				         (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
+				         (char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
 					*response = yesno(str);
 				} else {
 					*response = 1;

@@ -27,7 +27,7 @@
 #include <time.h>
 #include <libintl.h>
 
-#include <alpm.h>
+#include <pacman.h>
 /* pacman-g2 */
 #include "log.h"
 #include "list.h"

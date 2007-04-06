@@ -42,7 +42,7 @@
 #include <time.h>
 #include <ftplib.h>
 
-#include <alpm.h>
+#include <pacman.h>
 /* pacman-g2 */
 #include "list.h"
 #include "util.h"
@@ -171,7 +171,7 @@ static void usage(int op, char *myname)
 static void version()
 {
 	printf("\n");
-	printf(" .--.                  Pacman-G2 v%s - libalpm v%s\n", PACKAGE_VERSION, PM_VERSION);
+	printf(" .--.                  Pacman-G2 v%s - libpacman v%s\n", PACKAGE_VERSION, PM_VERSION);
 	printf("/ _.-' .-.  .-.  .-.   Copyright (C) 2002-2007 Pacman-G2 Team\n");
 	printf("\\  '-. '-'  '-'  '-'   See /usr/share/doc/pacman-g2-*/AUTHORS for more info.\n");
 	printf(" '--'                  \n");
@@ -189,7 +189,7 @@ static void cleanup(int signum)
 		fprintf(stderr, "Internal pacman-g2 error: Segmentation fault\n"
 			"Please submit a full bug report, with the given package if appropriate.\n");
 		exit(signum);
-	} else if((signum == SIGINT) && (alpm_trans_release() == -1) && (pm_errno ==
+	} else if((signum == SIGINT) && (pacman_trans_release() == -1) && (pm_errno ==
 				PM_ERR_TRANS_COMMITING)) {
 		return;
 	}
@@ -197,9 +197,9 @@ static void cleanup(int signum)
 		fprintf(stderr, "\n");
 	}
 
-	/* free alpm library resources */
-	if(alpm_release() == -1) {
-		ERR(NL, "%s\n", alpm_strerror(pm_errno));
+	/* free libpacman library resources */
+	if(pacman_release() == -1) {
+		ERR(NL, "%s\n", pacman_strerror(pm_errno));
 	}
 
 	/* free memory */
@@ -508,80 +508,80 @@ int main(int argc, char *argv[])
 	}
 
 	/* initialize pm library */
-	if(alpm_initialize(config->root) == -1) {
-		ERR(NL, _("failed to initilize alpm library (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_initialize(config->root) == -1) {
+		ERR(NL, _("failed to initilize pacman library (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
 
 	/* Setup logging as soon as possible, to print out maximum debugging info */
-	if(alpm_set_option(PM_OPT_LOGMASK, (long)config->debug) == -1) {
-		ERR(NL, _("failed to set option LOGMASK (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_set_option(PM_OPT_LOGMASK, (long)config->debug) == -1) {
+		ERR(NL, _("failed to set option LOGMASK (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(alpm_set_option(PM_OPT_DBPATH, (long)config->dbpath) == -1) {
-		ERR(NL, _("failed to set option DBPATH (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_set_option(PM_OPT_DBPATH, (long)config->dbpath) == -1) {
+		ERR(NL, _("failed to set option DBPATH (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(alpm_set_option(PM_OPT_LOGCB, (long)cb_log) == -1) {
-		ERR(NL, _("failed to set option LOGCB (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_set_option(PM_OPT_LOGCB, (long)cb_log) == -1) {
+		ERR(NL, _("failed to set option LOGCB (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
 
 	if(config->configfile == NULL) {
 		config->configfile = strdup(PACCONF);
 	}
-	if(alpm_parse_config(config->configfile, cb_db_register, "") != 0) {
-		ERR(NL, _("failed to parse config (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_parse_config(config->configfile, cb_db_register, "") != 0) {
+		ERR(NL, _("failed to parse config (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
 
 	/* set library parameters */
-	if(alpm_set_option(PM_OPT_DLCB, (long)log_progress) == -1) {
-		ERR(NL, _("failed to set option DLCB (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_set_option(PM_OPT_DLCB, (long)log_progress) == -1) {
+		ERR(NL, _("failed to set option DLCB (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(alpm_set_option(PM_OPT_DLFNM, (long)sync_fnm) == -1) {
-		ERR(NL, _("failed to set option DLFNM (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_set_option(PM_OPT_DLFNM, (long)sync_fnm) == -1) {
+		ERR(NL, _("failed to set option DLFNM (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(alpm_set_option(PM_OPT_DLOFFSET, (long)&offset) == -1) {
-		ERR(NL, _("failed to set option DLOFFSET (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_set_option(PM_OPT_DLOFFSET, (long)&offset) == -1) {
+		ERR(NL, _("failed to set option DLOFFSET (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(alpm_set_option(PM_OPT_DLT0, (long)&t0) == -1) {
-		ERR(NL, _("failed to set option DLT0 (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_set_option(PM_OPT_DLT0, (long)&t0) == -1) {
+		ERR(NL, _("failed to set option DLT0 (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(alpm_set_option(PM_OPT_DLT, (long)&t) == -1) {
-		ERR(NL, _("failed to set option DLT (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_set_option(PM_OPT_DLT, (long)&t) == -1) {
+		ERR(NL, _("failed to set option DLT (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(alpm_set_option(PM_OPT_DLRATE, (long)&rate) == -1) {
-		ERR(NL, _("failed to set option DLRATE (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_set_option(PM_OPT_DLRATE, (long)&rate) == -1) {
+		ERR(NL, _("failed to set option DLRATE (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(alpm_set_option(PM_OPT_DLXFERED1, (long)&xfered1) == -1) {
-		ERR(NL, _("failed to set option DLXFERED1 (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_set_option(PM_OPT_DLXFERED1, (long)&xfered1) == -1) {
+		ERR(NL, _("failed to set option DLXFERED1 (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(alpm_set_option(PM_OPT_DLETA_H, (long)&eta_h) == -1) {
-		ERR(NL, _("failed to set option DLETA_H (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_set_option(PM_OPT_DLETA_H, (long)&eta_h) == -1) {
+		ERR(NL, _("failed to set option DLETA_H (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(alpm_set_option(PM_OPT_DLETA_M, (long)&eta_m) == -1) {
-		ERR(NL, _("failed to set option DLETA_M (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_set_option(PM_OPT_DLETA_M, (long)&eta_m) == -1) {
+		ERR(NL, _("failed to set option DLETA_M (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(alpm_set_option(PM_OPT_DLETA_S, (long)&eta_s) == -1) {
-		ERR(NL, _("failed to set option DLETA_S (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_set_option(PM_OPT_DLETA_S, (long)&eta_s) == -1) {
+		ERR(NL, _("failed to set option DLETA_S (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
 	FREE(config->cachedir);
-	alpm_get_option(PM_OPT_CACHEDIR, (long *)&config->cachedir);
+	pacman_get_option(PM_OPT_CACHEDIR, (long *)&config->cachedir);
 
 	for(lp = config->op_s_ignore; lp; lp = lp->next) {
-		if(alpm_set_option(PM_OPT_IGNOREPKG, (long)lp->data) == -1) {
-			ERR(NL, _("failed to set option IGNOREPKG (%s)\n"), alpm_strerror(pm_errno));
+		if(pacman_set_option(PM_OPT_IGNOREPKG, (long)lp->data) == -1) {
+			ERR(NL, _("failed to set option IGNOREPKG (%s)\n"), pacman_strerror(pm_errno));
 			cleanup(1);
 		}
 	}
@@ -593,9 +593,9 @@ int main(int argc, char *argv[])
 	}
 
 	/* Opening local database */
-	db_local = alpm_db_register("local");
+	db_local = pacman_db_register("local");
 	if(db_local == NULL) {
-		ERR(NL, _("could not register 'local' database (%s)\n"), alpm_strerror(pm_errno));
+		ERR(NL, _("could not register 'local' database (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
 

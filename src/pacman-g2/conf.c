@@ -25,7 +25,7 @@
 #include <limits.h>
 #include <libintl.h>
 
-#include <alpm.h>
+#include <pacman.h>
 /* pacman-g2 */
 #include "util.h"
 #include "log.h"

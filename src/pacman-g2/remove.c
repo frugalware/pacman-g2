@@ -24,7 +24,7 @@
 #include <string.h>
 #include <libintl.h>
 
-#include <alpm.h>
+#include <pacman.h>
 /* pacman-g2 */
 #include "util.h"
 #include "log.h"
@@ -54,19 +54,19 @@ int removepkg(list_t *targets)
 	for(i = targets; i; i = i->next) {
 		PM_GRP *grp;
 
-		grp = alpm_db_readgrp(db_local, i->data);
+		grp = pacman_db_readgrp(db_local, i->data);
 		if(grp) {
 			PM_LIST *lp, *pkgnames;
 			int all;
 
-			pkgnames = alpm_grp_getinfo(grp, PM_GRP_PKGNAMES);
+			pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
 
-			MSG(NL, _(":: group %s:\n"), alpm_grp_getinfo(grp, PM_GRP_NAME));
+			MSG(NL, _(":: group %s:\n"), pacman_grp_getinfo(grp, PM_GRP_NAME));
 			PM_LIST_display("   ", pkgnames);
 			all = yesno(_("    Remove whole content? [Y/n] "));
-			for(lp = alpm_list_first(pkgnames); lp; lp = alpm_list_next(lp)) {
-				if(all || yesno(_(":: Remove %s from group %s? [Y/n] "), (char *)alpm_list_getdata(lp), i->data)) {
-					finaltargs = list_add(finaltargs, strdup(alpm_list_getdata(lp)));
+			for(lp = pacman_list_first(pkgnames); lp; lp = pacman_list_next(lp)) {
+				if(all || yesno(_(":: Remove %s from group %s? [Y/n] "), (char *)pacman_list_getdata(lp), i->data)) {
+					finaltargs = list_add(finaltargs, strdup(pacman_list_getdata(lp)));
 				}
 			}
 		} else {
@@ -77,8 +77,8 @@ int removepkg(list_t *targets)
 
 	/* Step 1: create a new transaction
 	 */
-	if(alpm_trans_init(PM_TRANS_TYPE_REMOVE, config->flags, cb_trans_evt, cb_trans_conv, cb_trans_progress) == -1) {
-		ERR(NL, _("failed to init transaction (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_trans_init(PM_TRANS_TYPE_REMOVE, config->flags, cb_trans_evt, cb_trans_conv, cb_trans_progress) == -1) {
+		ERR(NL, _("failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
 		if(pm_errno == PM_ERR_HANDLE_LOCK) {
 			MSG(NL, _("       if you're sure a package manager is not already running,\n"
 			  			"       you can remove %s%s\n"), config->root, PM_LOCK);
@@ -88,8 +88,8 @@ int removepkg(list_t *targets)
 	}
 	/* and add targets to it */
 	for(i = finaltargs; i; i = i->next) {
-		if(alpm_trans_addtarget(i->data) == -1) {
-			ERR(NL, _("failed to add target '%s' (%s)\n"), (char *)i->data, alpm_strerror(pm_errno));
+		if(pacman_trans_addtarget(i->data) == -1) {
+			ERR(NL, _("failed to add target '%s' (%s)\n"), (char *)i->data, pacman_strerror(pm_errno));
 			retval = 1;
 			goto cleanup;
 		}
@@ -97,17 +97,17 @@ int removepkg(list_t *targets)
 
 	/* Step 2: prepare the transaction based on its type, targets and flags
 	 */
-	if(alpm_trans_prepare(&data) == -1) {
+	if(pacman_trans_prepare(&data) == -1) {
 		PM_LIST *lp;
-		ERR(NL, _("failed to prepare transaction (%s)\n"), alpm_strerror(pm_errno));
+		ERR(NL, _("failed to prepare transaction (%s)\n"), pacman_strerror(pm_errno));
 		switch(pm_errno) {
 			case PM_ERR_UNSATISFIED_DEPS:
-				for(lp = alpm_list_first(data); lp; lp = alpm_list_next(lp)) {
-					PM_DEPMISS *miss = alpm_list_getdata(lp);
-					MSG(NL, _("  %s: is required by %s\n"), alpm_dep_getinfo(miss, PM_DEP_TARGET),
-					    alpm_dep_getinfo(miss, PM_DEP_NAME));
+				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+					PM_DEPMISS *miss = pacman_list_getdata(lp);
+					MSG(NL, _("  %s: is required by %s\n"), pacman_dep_getinfo(miss, PM_DEP_TARGET),
+					    pacman_dep_getinfo(miss, PM_DEP_NAME));
 				}
-				alpm_list_free(data);
+				pacman_list_free(data);
 			break;
 			default:
 			break;
@@ -122,9 +122,9 @@ int removepkg(list_t *targets)
 		PM_LIST *lp;
 		/* list transaction targets */
 		i = NULL;
-		for(lp = alpm_list_first(alpm_trans_getinfo(PM_TRANS_PACKAGES)); lp; lp = alpm_list_next(lp)) {
-			PM_PKG *pkg = alpm_list_getdata(lp);
-			i = list_add(i, strdup(alpm_pkg_getinfo(pkg, PM_PKG_NAME)));
+		for(lp = pacman_list_first(pacman_trans_getinfo(PM_TRANS_PACKAGES)); lp; lp = pacman_list_next(lp)) {
+			PM_PKG *pkg = pacman_list_getdata(lp);
+			i = list_add(i, strdup(pacman_pkg_getinfo(pkg, PM_PKG_NAME)));
 		}
 		list_display(_("\nTargets:"), i);
 		FREELIST(i);
@@ -138,8 +138,8 @@ int removepkg(list_t *targets)
 
 	/* Step 3: actually perform the removal
 	 */
-	if(alpm_trans_commit(NULL) == -1) {
-		ERR(NL, _("failed to commit transaction (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_trans_commit(NULL) == -1) {
+		ERR(NL, _("failed to commit transaction (%s)\n"), pacman_strerror(pm_errno));
 		retval = 1;
 		goto cleanup;
 	}
@@ -148,8 +148,8 @@ int removepkg(list_t *targets)
 	 */
 cleanup:
 	FREELIST(finaltargs);
-	if(alpm_trans_release() == -1) {
-		ERR(NL, _("failed to release transaction (%s)\n"), alpm_strerror(pm_errno));
+	if(pacman_trans_release() == -1) {
+		ERR(NL, _("failed to release transaction (%s)\n"), pacman_strerror(pm_errno));
 		retval = 1;
 	}
 

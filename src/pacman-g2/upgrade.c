@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <alpm.h>
+#include <pacman.h>
 /* pacman-g2 */
 #include "list.h"
 #include "add.h"
