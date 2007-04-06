@@ -24,6 +24,7 @@ rm -rf doc/Makefile
 rm -rf doc/Makefile.in
 rm -rf doc/hu/Makefile
 rm -rf doc/hu/Makefile.in
+rm -rf doc/hu/*.8
 rm -rf doc/html/*.html
 rm -rf doc/man3/*.3
 rm -rf compile
@@ -45,12 +46,14 @@ rm -f dist/pacman-g2-*.fpm
 
 rm -rf src/pacman-g2/po/Makefile
 rm -rf src/pacman-g2/po/Makefile.in
-rm -rf src/pacman-g2/po/POTFILES
+rm -rf src/pacman-g2/po/{POTFILES,LINGUAS}
 rm -rf src/pacman-g2/po/stamp-po
 rm -rf src/pacman-g2/po/*.{gmo,pot,po}
 
 rm -rf lib/libpacman/po/Makefile
 rm -rf lib/libpacman/po/Makefile.in
-rm -rf lib/libpacman/po/POTFILES
+rm -rf lib/libpacman/po/{POTFILES,LINGUAS}
 rm -rf lib/libpacman/po/stamp-po
 rm -rf lib/libpacman/po/*.{gmo,pot,po}
+
+rm -f bindings/*/*.i
