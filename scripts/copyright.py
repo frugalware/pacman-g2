@@ -87,7 +87,7 @@ def gencopy(fn):
 	socket.close()
 	names.dump()
 
-for i in ["lib/libalpm"]:
+for i in ["lib/libpacman"]:
 	for root, dirs, files in os.walk(i):
 		for file in files:
 			if file[-2:] == ".h":
