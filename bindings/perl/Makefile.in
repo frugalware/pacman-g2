@@ -3,25 +3,25 @@ prefix = @prefix@
 
 CFLAGS = $(subst -Werror,,@CFLAGS@)
 CFLAGS += $(shell perl -MExtUtils::Embed -e ccopts)
-CFLAGS += -I$(top_srcdir)/lib/libalpm
+CFLAGS += -I$(top_srcdir)/lib/libpacman
 ifeq ($(shell arch),x86_64)
 CFLAGS += -fPIC
 endif
-LDFLAGS += -L$(top_srcdir)/lib/libalpm/.libs -lalpm
+LDFLAGS += -L$(top_srcdir)/lib/libpacman/.libs -lpacman
 LIBDIR += $(shell perl -V|grep site|sed 's/^ *//;s|/usr|$(prefix)|;q')
 
 all: Core.so
 
-Core.so: alpm_wrap.o
+Core.so: pacman_wrap.o
 	$(CC) -shared -Wl,-soname,$@ -o $@ $^ $(LDFLAGS)
 
-alpm_wrap.o: alpm_wrap.c
-	$(CC) $(CFLAGS) -c -o $@ -include alpm.h $^
+pacman_wrap.o: pacman_wrap.c
+	$(CC) $(CFLAGS) -c -o $@ -include pacman.h $^
 
-alpm_wrap.c:
-	cp $(top_srcdir)/lib/libalpm/alpm.h ./
-	cp $(top_srcdir)/bindings/alpm.i ./
-	swig -perl alpm.i
+pacman_wrap.c:
+	cp $(top_srcdir)/lib/libpacman/pacman.h ./
+	cp $(top_srcdir)/bindings/pacman.i ./
+	swig -perl pacman.i
 
 install: install-so install-pm
 
@@ -34,7 +34,7 @@ install-pm: Core.pm
 	install -m644 $^ $(DESTDIR)$(LIBDIR)/Alpm/
 
 clean:
-	rm -f Core* alpm{.h,_wrap*}
+	rm -f Core* pacman{.h,_wrap*}
 
 distclean: clean
 	rm -f Makefile

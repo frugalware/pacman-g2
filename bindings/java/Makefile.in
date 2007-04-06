@@ -9,41 +9,41 @@ CFLAGS += -fno-strict-aliasing # see the swig docs
 ifeq ($(shell arch),x86_64)
 CFLAGS += -fPIC
 endif
-LDFLAGS += -L$(top_srcdir)/lib/libalpm/.libs -lalpm
+LDFLAGS += -L$(top_srcdir)/lib/libpacman/.libs -lpacman
 
-all: libalpm_java.so alpm.jar
+all: libpacman_java.so pacman.jar
 
-libalpm_java.so: alpm_java_wrap.o
+libpacman_java.so: pacman_java_wrap.o
 	$(CC) -shared $^ -o $@ $(LDFLAGS)
 
-alpm_java_wrap.o: alpm_java_wrap.c
-	$(CC) $(CFLAGS) -c -o $@ -include alpm.h $^
+pacman_java_wrap.o: pacman_java_wrap.c
+	$(CC) $(CFLAGS) -c -o $@ -include pacman.h $^
 
-alpm_java_wrap.c:
-	cp $(top_srcdir)/lib/libalpm/alpm.h ./
-	cp $(top_srcdir)/bindings/alpm.i alpm_java.i
-	swig -java alpm_java.i
+pacman_java_wrap.c:
+	cp $(top_srcdir)/lib/libpacman/pacman.h ./
+	cp $(top_srcdir)/bindings/pacman.i pacman_java.i
+	swig -java pacman_java.i
 
-alpm.class: alpm.java
+pacman.class: pacman.java
 	javac *.java
 
-alpm.jar: alpm.class
-	jar -cf alpm.jar *.class
+pacman.jar: pacman.class
+	jar -cf pacman.jar *.class
 
-alpm.java: alpm_java_wrap.c
+pacman.java: pacman_java_wrap.c
 
 install: install-so install-jar
 
-install-so: libalpm_java.so
+install-so: libpacman_java.so
 	mkdir -p $(DESTDIR)$(prefix)/lib
 	install $^ $(DESTDIR)$(prefix)/lib
 
-install-jar: alpm.jar
+install-jar: pacman.jar
 	mkdir -p $(DESTDIR)$(prefix)/share/java
 	install -m644 $^ $(DESTDIR)$(prefix)/share/java
 
 clean:
-	rm -f *alpm* *.java *.class
+	rm -f *pacman* *.java *.class
 
 distclean: clean
 	rm -f Makefile
