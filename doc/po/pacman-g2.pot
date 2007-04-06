@@ -293,8 +293,8 @@ msgstr ""
 # type: Plain text
 #: pacman.8:94
 msgid ""
-"Finetune the --noconfirm switch by not answering \"yes\" to all libalpm "
-"questions, but you are able to specify yes/no for all type of libalpm "
+"Finetune the --noconfirm switch by not answering \"yes\" to all libpacman "
+"questions, but you are able to specify yes/no for all type of libpacman "
 "questions. The types are the followings:"
 msgstr ""
 
