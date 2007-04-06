@@ -381,7 +381,7 @@ pacman-g2-$VERSION:
         compiler                 : ${CC}
         compiler flags           : ${CFLAGS}
 
-	libpacman version          : ${PM_VERSION}
+	libpacman version        : ${PM_VERSION}
 	pacman.conf location     : ${PACCONF}
 
 	Architecture CARCH       : ${CARCH}
