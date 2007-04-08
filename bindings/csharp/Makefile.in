@@ -1,0 +1,50 @@
+top_srcdir = @top_srcdir@
+prefix = @prefix@
+
+CFLAGS = $(subst -Werror,,@CFLAGS@)
+ifneq ($(JAVA_HOME),/usr)
+CFLAGS += -I$(JAVA_HOME)/include/ -I$(JAVA_HOME)/include/linux/
+endif
+CFLAGS += -fno-strict-aliasing # see the swig docs
+ifeq ($(shell arch),x86_64)
+CFLAGS += -fPIC
+endif
+LDFLAGS += -L$(top_srcdir)/lib/libpacman/.libs -lpacman
+
+all: libpacman_csharp.so pacman-csharp.dll
+
+libpacman_csharp.so: pacman_csharp_wrap.o
+	$(CC) -shared $^ -o $@ $(LDFLAGS)
+
+pacman_csharp_wrap.o: pacman_csharp_wrap.c
+	$(CC) $(CFLAGS) -c -o $@ -include pacman.h $^
+
+pacman_csharp_wrap.c:
+	cp $(top_srcdir)/lib/libpacman/pacman.h ./
+	cp $(top_srcdir)/bindings/pacman.i pacman_csharp.i
+	swig -csharp -dllimport pacman_csharp pacman_csharp.i
+
+pacman-csharp.snk:
+	sn -k 1024 pacman-csharp.snk
+
+pacman-csharp.dll: pacman.cs pacman-csharp.snk
+	mcs /unsafe /out:pacman-csharp.dll /target:library /keyfile:pacman-csharp.snk *.cs
+
+pacman.cs: pacman_csharp_wrap.c
+
+install: install-so install-dll
+
+install-so: libpacman_csharp.so
+	mkdir -p $(DESTDIR)$(prefix)/lib
+	install $^ $(DESTDIR)$(prefix)/lib
+
+install-dll: pacman-csharp.dll
+	gacutil -i pacman-csharp.dll -f -package pacman-csharp -gacdir $(prefix)/lib -root $(DESTDIR)$(prefix)/lib
+
+clean:
+	rm -f pacman*{h,i,c,o,dll} libpacman_csharp.so *.cs
+
+distclean: clean
+	rm -f Makefile
+
+check:
