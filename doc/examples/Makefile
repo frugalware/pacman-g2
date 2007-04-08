@@ -6,5 +6,8 @@ compile-java:
 run-java:
 	CLASSPATH=$$CLASSPATH:$(PACMAN_JAR) java main
 
+compile-csharp:
+	mcs /r:/usr/lib/mono/pacman-csharp/pacman-csharp.dll runme.cs
+
 clean:
 	rm -f main.class
