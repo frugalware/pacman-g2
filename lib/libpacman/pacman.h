@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 /*
- * Arch Linux Package Management library
+ * Package Management library
  */
 
 #define PM_ROOT     "/"

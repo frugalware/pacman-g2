@@ -295,13 +295,12 @@ These 3 functions have been splitted too to ease the code reading.
 
 [DONWLOAD] (see download.c)
 
-The library is not providing download facilities. As a consequence, it
-is up the the frontend to retrieve packages from Arch Linux servers.
-To do so, pacman-g2 is linked against an improved version of libftp
-supporting both http and ftp donwloads.
-As a consequence, the frontend is repsonsible for the directory
-/var/cache/pacman/pkgs.
-One can consider that this cache is a facility provided by pacman-g2.
+The library is providing download facilities. As a consequence, it is no longer
+up the the frontend to retrieve packages from FTP servers.  To do so, libpacman
+is linked against an improved version of libftp supporting both http and ftp
+donwloads.  As a consequence, the library is repsonsible for the directory
+/var/cache/pacman/pkgs.  One can consider that this cache is a facility
+provided by the library.
 
 Note: other frontends have to download packages by themselves too,
 although the cache directory can be shared by several frontends.
