@@ -83,6 +83,11 @@ AC_ARG_ENABLE(java,
     AC_HELP_STRING([--disable-java], [Do not build Java bindings]),
     [wantjava=$enableval], [wantjava=yes])
 
+dnl Help line for csharp
+AC_ARG_ENABLE(csharp,
+    AC_HELP_STRING([--disable-csharp], [Do not build csharp bindings]),
+    [wantcsharp=$enableval], [wantcsharp=yes])
+
 dnl Check for architecture
 case "$host" in
 	i686-*) AC_DEFINE_UNQUOTED([CARCH], ["i686"], [Architecture])
@@ -294,6 +299,41 @@ else
     JAVASTATUS="no, disabled by configure"
 fi
 
+dnl Check for csharp support
+AC_MSG_CHECKING(if csharp bindings should be generated)
+if test x$wantcsharp = xyes ; then
+ 	AC_CHECK_PROGS([SWIG], [swig])
+ 	AC_CHECK_PROGS([MCS], [mcs])
+ 	AM_CONDITIONAL(HAS_CSHARP, test $SWIG)
+ 	AM_CONDITIONAL(HAS_CSHARP, test $MCS)
+ 	if test $MCS ; then
+ 		if test $SWIG ; then
+ 			AC_DEFINE([HAS_CSHARP], [TRUE], [Enabled csharp Support (mcs=ok swig=ok)])
+ 			AC_MSG_RESULT(yes)
+ 			CSHARPSTATUS="yes, path: `which $MCS`"
+ 		else
+ 			AC_DEFINE([HAS_CSHARP], [FALSE], [csharp support disabled because swig not found (mcs=ok swig=missing)])
+ 			AC_MSG_RESULT(no, swig not found and that is need for csharp)
+ 			CSHARPSTATUS="mcs found, swig not found"
+ 		fi
+ 	else
+ 		if test $SWIG ; then
+ 			AC_DEFINE([HAS_CSHARP], [FALSE], [Disabled csharp support (mcs=missing swig=ok])
+ 			AC_MSG_RESULT(no, mcs missing, swig ok)
+ 			CSHARPSTATUS="mcs not found, swig found"
+ 		else
+ 			AC_DEFINE([HAS_CSHARP], [FALSE], [Disabled csharp support (mcs=missing swig=missing])
+ 			AC_MSG_RESULT(no, mcs missing, swig missing)
+ 			CSHARPSTATUS="mcs not found, swig not found"
+ 		fi
+ 	fi
+else
+    AM_CONDITIONAL(HAS_CSHARP, test $MCS)
+    AC_DEFINE([HAS_CSHARP], [FALSE], [Not specified at configure line])
+    AC_MSG_RESULT(not requested by configure)
+    CSHARPSTATUS="no, disabled by configure"
+fi
+
 dnl Check for bzip2
 AC_CHECK_LIB([bz2], [BZ2_bzCompress], [AC_CHECK_HEADER([bzlib.h], [LIBBZ2='-lbz2'])])
 if test -n "$LIBBZ2"; then
@@ -370,6 +410,7 @@ etc/pacman.d/frugalware-current
 bindings/perl/Makefile
 bindings/python/Makefile
 bindings/java/Makefile
+bindings/csharp/Makefile
 Makefile
 ])
 
@@ -393,6 +434,7 @@ pacman-g2-$VERSION:
 	Perl bindings            : ${PERLSTATUS}
 	Python bindings          : ${PYTHONSTATUS}
 	Java bindings            : ${JAVASTATUS}
+	C# bindings              : ${CSHARPSTATUS}
 
 	debug support            : ${debug}
 	Werror build		 : ${werror}

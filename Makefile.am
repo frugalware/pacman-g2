@@ -9,6 +9,9 @@ endif
 if HAS_JAVA
 SUBDIRS += bindings/java
 endif
+if HAS_CSHARP
+SUBDIRS += bindings/csharp
+endif
 
 EXTRA_DIST =		\
 	ChangeLog  	\
