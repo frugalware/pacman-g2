@@ -1,5 +1,7 @@
 PACMAN_JAR = /usr/share/java/pacman.jar
 
+all: compile-java compile-csharp
+
 compile-java:
 	CLASSPATH=$$CLASSPATH:$(PACMAN_JAR) javac main.java
 
@@ -10,4 +12,4 @@ compile-csharp:
 	mcs /r:/usr/lib/mono/pacman-csharp/pacman-csharp.dll runme.cs
 
 clean:
-	rm -f main.class
+	rm -f main.class runme.exe
