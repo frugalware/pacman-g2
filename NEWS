@@ -1,5 +1,13 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.5.2         - added examples on how to use the existing bindings (python,
+                java, perl)
+              - added C# bindings
+	      - makepkg now supports retreiving packages from the repo mirrors
+		first (this should speed up building packages using repoman
+                merge)
+	      - new pacman_pkg_getowners() function in libpacman: implements
+	        the frontend's -Qo option but works for dirs, too
 3.5.1         - renamed libalpm to libpacman since this library is no longer
                 used by that distribution
               - fix for handling virtual reverse depends on remove
