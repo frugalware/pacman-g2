@@ -57,28 +57,39 @@ static int query_fileowner(PM_DB *db, char *filename)
 		return(1);
 	}
 
-	if(stat(filename, &buf) == -1 || S_ISDIR(buf.st_mode) || realpath(filename, rpath) == NULL) {
-		ERR(NL, _("%s is not a file.\n"), filename);
+	if(stat(filename, &buf) == -1 || realpath(filename, rpath) == NULL) {
+		ERR(NL, _("can't find %s.\n"), filename);
 		return(1);
+	}
+
+	if(S_ISDIR(buf.st_mode)) {
+		/* this is a directory and the db has a / suffix for dirs - add it here so
+		 * that we'll find dirs, too */
+		rpath[strlen(rpath)] = '/';
+		rpath[strlen(rpath)+1] = '\0';
 	}
 
 	pacman_get_option(PM_OPT_ROOT, (long *)&root);
 
-	for(lp = pacman_db_getpkgcache(db); lp && !gotcha; lp = pacman_list_next(lp)) {
+	for(lp = pacman_db_getpkgcache(db); lp; lp = pacman_list_next(lp)) {
 		PM_PKG *info;
 		PM_LIST *i;
 
 		info = pacman_list_getdata(lp);
 
-		for(i = pacman_pkg_getinfo(info, PM_PKG_FILES); i && !gotcha; i = pacman_list_next(i)) {
+		for(i = pacman_pkg_getinfo(info, PM_PKG_FILES); i; i = pacman_list_next(i)) {
 			char path[PATH_MAX];
 
 			snprintf(path, PATH_MAX, "%s%s", root, (char *)pacman_list_getdata(i));
 			if(!strcmp(path, rpath)) {
-				printf(_("%s is owned by %s %s\n"), filename, (char *)pacman_pkg_getinfo(info, PM_PKG_NAME),
-				       (char *)pacman_pkg_getinfo(info, PM_PKG_VERSION));
+				printf(_("%s %s is an owner of %s\n"), (char *)pacman_pkg_getinfo(info, PM_PKG_NAME),
+				       (char *)pacman_pkg_getinfo(info, PM_PKG_VERSION), filename);
+				if(rpath[strlen(rpath)-1] != '/') {
+					/* we are searching for a file and multiple packages won't contain
+					 * the same file */
+					return(0);
+				}
 				gotcha = 1;
-				break;
 			}
 		}
 	}
