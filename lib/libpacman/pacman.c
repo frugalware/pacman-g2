@@ -472,6 +472,15 @@ void *pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 	return(_pacman_pkg_getinfo(pkg, parm));
 }
 
+pmlist_t *pacman_pkg_getowners(char *filename)
+{
+	/* Sanity checks */
+	ASSERT(handle->db_local != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+	ASSERT(filename != NULL && strlen(filename) != 0, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	return(_pacman_pkg_getowners(filename));
+}
+
 /** Create a package from a file.
  * @param filename location of the package tarball
  * @param pkg address of the package pointer

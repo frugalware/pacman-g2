@@ -137,6 +137,8 @@ char *pacman_strerror(int err)
 			return _("connection to remote host failed");
 		case PM_ERR_FORK_FAILED:
 			return _("forking process failed");
+		case PM_ERR_NO_OWNER:
+			return _("no package owns the file");
 		default:
 			return _("unexpected error");
 	}

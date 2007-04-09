@@ -100,6 +100,7 @@ pmpkg_t *_pacman_pkg_load(char *pkgfile);
 pmpkg_t *_pacman_pkg_isin(char *needle, pmlist_t *haystack);
 int _pacman_pkg_splitname(char *target, char *name, char *version, int witharch);
 void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm);
+pmlist_t *_pacman_pkg_getowners(char *filename);
 
 #endif /* _PACMAN_PACKAGE_H */
 

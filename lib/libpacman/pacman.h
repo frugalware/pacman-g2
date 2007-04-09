@@ -198,6 +198,7 @@ enum {
 #define PM_PKG_WITH_ARCH    1 /* ie, pkgname-pkgver-pkgrel-arch, used under PM_CACHEDIR */
 
 void *pacman_pkg_getinfo(PM_PKG *pkg, unsigned char parm);
+PM_LIST *pacman_pkg_getowners(char *filename);
 int pacman_pkg_load(char *filename, PM_PKG **pkg);
 int pacman_pkg_free(PM_PKG *pkg);
 int pacman_pkg_checkmd5sum(PM_PKG *pkg);
@@ -469,7 +470,8 @@ extern enum __pmerrno_t {
 	PM_ERR_TRANS_DOWNLOADING,
   /* Downloading */
 	PM_ERR_CONNECT_FAILED,
-  PM_ERR_FORK_FAILED
+  PM_ERR_FORK_FAILED,
+	PM_ERR_NO_OWNER
 } pm_errno;
 
 char *pacman_strerror(int err);
