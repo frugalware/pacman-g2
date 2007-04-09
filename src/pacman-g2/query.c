@@ -41,66 +41,6 @@ extern config_t *config;
 extern PM_DB *db_local;
 extern list_t *pmc_syncs;
 
-static int query_fileowner(PM_DB *db, char *filename)
-{
-	struct stat buf;
-	int gotcha = 0;
-	char rpath[PATH_MAX];
-	PM_LIST *lp;
-	char *root;
-
-	if(db == NULL) {
-		return(0);
-	}
-	if(filename == NULL || strlen(filename) == 0) {
-		ERR(NL, _("no file was specified for --owns\n"));
-		return(1);
-	}
-
-	if(stat(filename, &buf) == -1 || realpath(filename, rpath) == NULL) {
-		ERR(NL, _("can't find %s.\n"), filename);
-		return(1);
-	}
-
-	if(S_ISDIR(buf.st_mode)) {
-		/* this is a directory and the db has a / suffix for dirs - add it here so
-		 * that we'll find dirs, too */
-		rpath[strlen(rpath)] = '/';
-		rpath[strlen(rpath)+1] = '\0';
-	}
-
-	pacman_get_option(PM_OPT_ROOT, (long *)&root);
-
-	for(lp = pacman_db_getpkgcache(db); lp; lp = pacman_list_next(lp)) {
-		PM_PKG *info;
-		PM_LIST *i;
-
-		info = pacman_list_getdata(lp);
-
-		for(i = pacman_pkg_getinfo(info, PM_PKG_FILES); i; i = pacman_list_next(i)) {
-			char path[PATH_MAX];
-
-			snprintf(path, PATH_MAX, "%s%s", root, (char *)pacman_list_getdata(i));
-			if(!strcmp(path, rpath)) {
-				printf(_("%s %s is an owner of %s\n"), (char *)pacman_pkg_getinfo(info, PM_PKG_NAME),
-				       (char *)pacman_pkg_getinfo(info, PM_PKG_VERSION), filename);
-				if(rpath[strlen(rpath)-1] != '/') {
-					/* we are searching for a file and multiple packages won't contain
-					 * the same file */
-					return(0);
-				}
-				gotcha = 1;
-			}
-		}
-	}
-	if(!gotcha) {
-		ERR(NL, _("No package owns %s\n"), filename);
-		return(1);
-	}
-
-	return(0);
-}
-
 int querypkg(list_t *targets)
 {
 	PM_PKG *info = NULL;
@@ -206,7 +146,18 @@ int querypkg(list_t *targets)
 
 		/* determine the owner of a file */
 		if(config->op_q_owns) {
-			errors += query_fileowner(db_local, package);
+				PM_LIST *data;
+			if((data = pacman_pkg_getowners(package)) == NULL) {
+				ERR(NL, _("No package owns %s\n"), package);
+				errors++;
+			} else {
+				PM_LIST *lp;
+				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+					PM_PKG *pkg = pacman_list_getdata(lp);
+					printf(_("%s %s is an owner of %s\n"), (char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME),
+							(char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION), package);
+				}
+			}
 			continue;
 		}
 
