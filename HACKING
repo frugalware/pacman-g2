@@ -2,7 +2,7 @@
 ===================
 
 For developers, using
---enable-debug --disable-doxygen --disable-fakeroot --disable-po4a
+--enable-werror --enable-debug --disable-doxygen --disable-fakeroot --disable-po4a
 is highly recommended.
 
 How to test pacman-g2?
