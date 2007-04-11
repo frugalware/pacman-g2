@@ -8,7 +8,7 @@ export FTPAGENT="/usr/bin/wget -U makepkg --continue --passive-ftp --tries=3 --w
 #export FTPAGENT="/usr/bin/lftpget -c"
 
 # The rsync utility that makepkg should use to access the Frugalware mirrors
-export RSYNCAGENT="rsync -e 'ssh -o GlobalKnownHostsFile=$HOME/.ssh/known_hosts -i $HOME/.ssh/id_dsa' -vP"
+export RSYNCAGENT="rsync -e 'ssh -q -o GlobalKnownHostsFile=$HOME/.ssh/known_hosts -i $HOME/.ssh/id_dsa' -vP"
 
 export CARCH="@CARCH@"
 export CHOST="@CHOST@"
