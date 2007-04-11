@@ -834,7 +834,8 @@ int pacman_trans_commit(pmlist_t **data)
 	ASSERT(handle->trans->state == STATE_PREPARED, RET_ERR(PM_ERR_TRANS_NOT_PREPARED, -1));
 
 	/* Check for database R/W permission */
-	ASSERT((handle->access == PM_ACCESS_RW) || (handle->trans->flags & PM_TRANS_FLAG_PRINTURIS), RET_ERR(PM_ERR_BADPERMS, -1));
+	ASSERT((handle->access == PM_ACCESS_RW) || (handle->trans->flags & PM_TRANS_FLAG_PRINTURIS),
+			RET_ERR(PM_ERR_BADPERMS, -1));
 
 	return(_pacman_trans_commit(handle->trans, data));
 }
