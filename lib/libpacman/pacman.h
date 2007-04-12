@@ -186,7 +186,8 @@ enum {
 	/* Sciplet */
 	PM_PKG_SCRIPLET,
 	/* Misc */
-	PM_PKG_DATA
+	PM_PKG_DATA,
+	PM_PKG_FORCE
 };
 
 /* reasons -- ie, why the package was installed */
