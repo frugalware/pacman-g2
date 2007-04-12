@@ -255,6 +255,10 @@ class pmdb:
 				data.append(_mksection("CSIZE", pkg.csize))
 			if pkg.md5sum:
 				data.append(_mksection("MD5SUM", pkg.md5sum))
+			if pkg.replaces:
+				data.append(_mksection("REPLACES", pkg.replaces))
+			if pkg.force:
+				data.append(_mksection("FORCE", ""))
 		if data:
 			data.append("")
 		filename = os.path.join(path, "desc")
@@ -291,11 +295,6 @@ class pmdb:
 			data.append(_mksection("CONFLICTS", pkg.conflicts))
 		if pkg.provides:
 			data.append(_mksection("PROVIDES", pkg.provides))
-		if not self.treename == "local":
-			if pkg.replaces:
-				data.append(_mksection("REPLACES", pkg.replaces))
-			if pkg.force:
-				data.append(_mksection("FORCE", ""))
 		if data:
 			data.append("")
 		filename = os.path.join(path, "depends")
