@@ -508,6 +508,7 @@ void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 			case PM_PKG_REASON:
 			case PM_PKG_MD5SUM:
 			case PM_PKG_SHA1SUM:
+			case PM_PKG_REPLACES:
 			case PM_PKG_FORCE:
 				if(!(pkg->infolevel & INFRQ_DESC)) {
 					_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), pkg->name);
@@ -519,7 +520,6 @@ void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 			case PM_PKG_REQUIREDBY:
 			case PM_PKG_CONFLICTS:
 			case PM_PKG_PROVIDES:
-			case PM_PKG_REPLACES:
 				if(!(pkg->infolevel & INFRQ_DEPENDS)) {
 					_pacman_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", pkg->name);
 					_pacman_db_read(pkg->data, INFRQ_DEPENDS, pkg);
