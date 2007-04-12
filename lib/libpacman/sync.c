@@ -213,7 +213,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sy
 
 		/* compare versions and see if we need to upgrade */
 		cmp = _pacman_versioncmp(local->version, spkg->version);
-		if(cmp > 0 && !spkg->force) {
+		if(cmp > 0 && !_pacman_pkg_getinfo(spkg, PM_PKG_FORCE)) {
 			/* local version is newer */
 			_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer"),
 				local->name, local->version);
