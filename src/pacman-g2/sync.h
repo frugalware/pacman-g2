@@ -21,12 +21,6 @@
 #ifndef _PM_SYNC_H
 #define _PM_SYNC_H
 
-/* Repositories */
-typedef struct __sync_t {
-	char *treename;
-	PM_DB *db;
-} sync_t;
-
 int syncpkg(list_t *targets);
 
 #endif /* _PM_SYNC_H */

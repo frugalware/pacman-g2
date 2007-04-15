@@ -63,12 +63,7 @@ int config_free(config_t *config)
 
 void cb_db_register(char *section, PM_DB *db)
 {
-	sync_t *sync;
-
-	MALLOC(sync, sizeof(sync_t));
-	sync->treename = strdup(section);
-	sync->db = db;
-	pmc_syncs = list_add(pmc_syncs, sync);
+	pmc_syncs = list_add(pmc_syncs, db);
 }
 
 /* vim: set ts=2 sw=2 noet: */

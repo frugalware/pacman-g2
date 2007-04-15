@@ -77,7 +77,7 @@ enum {
 config_t *config = NULL;
 
 PM_DB *db_local;
-/* list of (sync_t *) structs for sync locations */
+/* list of (PM_DB *) structs for sync locations */
 list_t *pmc_syncs = NULL;
 /* list of targets specified on command line */
 list_t *pm_targets  = NULL;
@@ -182,7 +182,6 @@ static void version()
 
 static void cleanup(int signum)
 {
-	list_t *lp;
 
 	if(signum==SIGSEGV)
 	{
@@ -203,11 +202,7 @@ static void cleanup(int signum)
 	}
 
 	/* free memory */
-	for(lp = pmc_syncs; lp; lp = lp->next) {
-		sync_t *sync = lp->data;
-		FREE(sync->treename);
-	}
-	FREELIST(pmc_syncs);
+	FREELISTPTR(pmc_syncs);
 	FREELIST(pm_targets);
 	FREECONF(config);
 

@@ -182,8 +182,8 @@ int querypkg(list_t *targets)
 					if(config->op_q_foreign) {
 						int match = 0;
 						for(i = pmc_syncs; i; i = i->next) {
-							sync_t *sync = (sync_t *)i->data;
-							for(j = pacman_db_getpkgcache(sync->db); j; j = pacman_list_next(j)) {
+							PM_DB *db = i->data;
+							for(j = pacman_db_getpkgcache(db); j; j = pacman_list_next(j)) {
 								PM_PKG *pkg = pacman_list_getdata(j);
 								char *haystack;
 								char *needle;
