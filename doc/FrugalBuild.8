@@ -332,6 +332,9 @@ nodocs     Don't add any documentation automatically (ie. when there'll be
 nostrip    Don't strip binaries/libraries.
 force      This is used to force the package to be upgraded by --sysupgrade,
            even if its an older version.
+stick      This is used to skip a package upgrade, even a newer version is
+           available (eg. for web applications where a manual upgrade is
+           better).
 nobuild    If this directive set, gensync will ignore this package, so users
            must build  these packages on their machines, they will not be able
            to install them with pacman-g2 -S. Useful for closed-source, but
