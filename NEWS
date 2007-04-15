@@ -1,9 +1,9 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
 3.5.3         - new RSYNCAGENT variable in makepkg.conf
-              - added curl example to pacman.conf
               - allow running -Sup for a user
               - no longer ignore replace/force package properties
+              - new options=('stick') feature, mainly for webapps
 3.5.2         - added examples on how to use the existing bindings (python,
                 java, perl)
               - added C# bindings
