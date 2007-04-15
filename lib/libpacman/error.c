@@ -139,6 +139,12 @@ char *pacman_strerror(int err)
 			return _("forking process failed");
 		case PM_ERR_NO_OWNER:
 			return _("no package owns the file");
+		case PM_ERR_NO_CACHE_ACCESS:
+			return _("could not access cache directory");
+		case PM_ERR_CANT_REMOVE_CACHE:
+			return _("could not remove cache directory");
+		case PM_ERR_CANT_CREATE_CACHE:
+			return _("could not create new cache directory");
 		default:
 			return _("unexpected error");
 	}

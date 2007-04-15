@@ -239,6 +239,7 @@ enum {
 };
 
 void *pacman_sync_getinfo(PM_SYNCPKG *sync, unsigned char parm);
+int pacman_sync_cleancache(int full);
 
 /*
  * Transactions
@@ -473,7 +474,11 @@ extern enum __pmerrno_t {
   /* Downloading */
 	PM_ERR_CONNECT_FAILED,
   PM_ERR_FORK_FAILED,
-	PM_ERR_NO_OWNER
+	PM_ERR_NO_OWNER,
+	/* Cache */
+	PM_ERR_NO_CACHE_ACCESS,
+	PM_ERR_CANT_REMOVE_CACHE,
+	PM_ERR_CANT_CREATE_CACHE
 } pm_errno;
 
 char *pacman_strerror(int err);

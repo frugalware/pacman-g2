@@ -52,108 +52,6 @@ extern config_t *config;
 
 extern list_t *pmc_syncs;
 
-static int sync_cleancache(int level)
-{
-	char *root, *cachedir;
-	char dirpath[PATH_MAX];
-
-	pacman_get_option(PM_OPT_ROOT, (long *)&root);
-	pacman_get_option(PM_OPT_CACHEDIR, (long *)&cachedir);
-
-	snprintf(dirpath, PATH_MAX, "%s%s", root, cachedir);
-
-	if(level == 1) {
-		/* incomplete cleanup: we keep latest packages and partial downloads */
-		DIR *dir;
-		struct dirent *ent;
-		list_t *cache = NULL;
-		list_t *clean = NULL;
-		list_t *i, *j;
-
-		if(!yesno(_("Do you want to remove old packages from cache? [Y/n] ")))
-			return(0);
-		MSG(NL, _("removing old packages from cache... "));
-		dir = opendir(dirpath);
-		if(dir == NULL) {
-			ERR(NL, _("could not access cache directory\n"));
-			return(1);
-		}
-		rewinddir(dir);
-		while((ent = readdir(dir)) != NULL) {
-			if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
-				continue;
-			}
-			cache = list_add(cache, strdup(ent->d_name));
-		}
-		closedir(dir);
-
-		for(i = cache; i; i = i->next) {
-			char *str = i->data;
-			char name[256], version[64];
-
-			if(strstr(str, PM_EXT_PKG) == NULL) {
-				clean = list_add(clean, strdup(str));
-				continue;
-			}
-			/* we keep partially downloaded files */
-			if(strstr(str, PM_EXT_PKG ".part")) {
-				continue;
-			}
-			if(split_pkgname(str, name, version) != 0) {
-				clean = list_add(clean, strdup(str));
-				continue;
-			}
-			for(j = i->next; j; j = j->next) {
-				char *s = j->data;
-				char n[256], v[64];
-
-				if(strstr(s, PM_EXT_PKG) == NULL) {
-					continue;
-				}
-				if(strstr(s, PM_EXT_PKG ".part")) {
-					continue;
-				}
-				if(split_pkgname(s, n, v) != 0) {
-					continue;
-				}
-				if(!strcmp(name, n)) {
-					char *ptr = (pacman_pkg_vercmp(version, v) < 0) ? str : s;
-					if(!list_is_strin(ptr, clean)) {
-						clean = list_add(clean, strdup(ptr));
-					}
-				}
-			}
-		}
-		FREELIST(cache);
-
-		for(i = clean; i; i = i->next) {
-			char path[PATH_MAX];
-
-			snprintf(path, PATH_MAX, "%s/%s", dirpath, (char *)i->data);
-			unlink(path);
-		}
-		FREELIST(clean);
-	} else {
-		/* full cleanup */
-		if(!yesno(_("Do you want to remove all packages from cache? [Y/n] ")))
-			return(0);
-		MSG(NL, _("removing all packages from cache... "));
-
-		if(rmrf(dirpath)) {
-			ERR(NL, _("could not remove cache directory\n"));
-			return(1);
-		}
-
-		if(makepath(dirpath)) {
-			ERR(NL, _("could not create new cache directory\n"));
-			return(1);
-		}
-	}
-
-	MSG(CL, _("done.\n"));
-	return(0);
-}
-
 static int sync_synctree(int level, list_t *syncs)
 {
 	list_t *i;
@@ -365,7 +263,25 @@ int syncpkg(list_t *targets)
 	}
 
 	if(config->op_s_clean) {
-		return(sync_cleancache(config->op_s_clean));
+		int level;
+		level = (config->op_s_clean == 1) ? 0 : 1;
+		if(!level) {
+			if(!yesno(_("Do you want to remove old packages from cache? [Y/n] ")))
+				return(0);
+			MSG(NL, _("removing old packages from cache... "));
+			retval = pacman_sync_cleancache(level);
+		} else {
+			if(!yesno(_("Do you want to remove all packages from cache? [Y/n] ")))
+				return(0);
+			MSG(NL, _("removing all packages from cache... "));
+			retval = pacman_sync_cleancache(level);
+		}
+		if(retval == 0) {
+			MSG(CL, _("done.\n"));
+		} else {
+			ERR(NL, _("failed to clean the cache (%s)\n"), pacman_strerror(pm_errno));
+			return(1);
+		}
 	}
 
 	if(config->op_s_sync) {

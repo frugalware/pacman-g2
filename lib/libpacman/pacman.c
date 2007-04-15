@@ -686,6 +686,17 @@ void *pacman_sync_getinfo(pmsyncpkg_t *sync, unsigned char parm)
 	return(data);
 }
 
+/** Cleans the cache
+ * @ param full 0: only old packages, 1: all packages
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
+int pacman_sync_cleancache(int full)
+{
+	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
+
+	return(_pacman_sync_cleancache(full));
+}
+
 /** Searches a database
  * @param db pointer to the package database to search in
  * @return the list of packages on success, NULL on error

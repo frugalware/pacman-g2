@@ -38,6 +38,7 @@ int _pacman_db_load_grpcache(pmdb_t *db);
 void _pacman_db_free_grpcache(pmdb_t *db);
 pmlist_t *_pacman_db_get_grpcache(pmdb_t *db);
 pmgrp_t *_pacman_db_get_grpfromcache(pmdb_t *db, char *target);
+int _pacman_sync_cleancache(int level);
 
 #endif /* _PACMAN_CACHE_H */
 
