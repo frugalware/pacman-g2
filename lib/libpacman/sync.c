@@ -227,10 +227,13 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sy
 			/* package too new (UpgradeDelay) */
 			_pacman_log(PM_LOG_FLOW1, _("%s-%s: delaying upgrade of package (%s)\n"),
 					local->name, local->version, spkg->version);
-		/* check if spkg->name is already in the packages list. */
+		} else if(_pacman_pkg_getinfo(spkg, PM_PKG_STICK)) {
+			_pacman_log(PM_LOG_WARNING, _("%s-%s: please upgrade manually (%s => %s)"),
+				local->name, local->version, local->version, spkg->version);
 		} else {
 			_pacman_log(PM_LOG_FLOW2, _("%s-%s elected for upgrade (%s => %s)"),
 				local->name, local->version, local->version, spkg->version);
+			/* check if spkg->name is already in the packages list. */
 			if(!find_pkginsync(spkg->name, trans->packages)) {
 				pmpkg_t *dummy = _pacman_pkg_new(local->name, local->version);
 				if(dummy == NULL) {

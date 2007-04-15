@@ -63,6 +63,7 @@ typedef struct __pmpkg_t {
 	unsigned long usize;
 	unsigned char scriptlet;
 	unsigned char force;
+	unsigned char stick;
 	time_t date;
 	unsigned char reason;
 	pmlist_t *desc_localized;

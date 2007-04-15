@@ -187,7 +187,8 @@ enum {
 	PM_PKG_SCRIPLET,
 	/* Misc */
 	PM_PKG_DATA,
-	PM_PKG_FORCE
+	PM_PKG_FORCE,
+	PM_PKG_STICK
 };
 
 /* reasons -- ie, why the package was installed */

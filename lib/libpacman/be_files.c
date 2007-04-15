@@ -333,6 +333,10 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				/* FORCE tag only appears in sync repositories,
 				 * not the local one. */
 				info->force = 1;
+			} else if(!strcmp(line, "%STICK%")) {
+				/* STICK tag only appears in sync repositories,
+				 * not the local one. */
+				info->stick = 1;
 			}
 		}
 		fclose(fp);
@@ -400,6 +404,10 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				/* FORCE tag only appears in sync repositories,
 				 * not the local one. */
 				info->force = 1;
+			} else if(!strcmp(line, "%STRICK%")) {
+				/* STICK tag only appears in sync repositories,
+				 * not the local one. */
+				info->stick = 1;
 			}
 		}
 		fclose(fp);
@@ -606,6 +614,10 @@ int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 			}
 			if(info->force) {
 				fprintf(fp, "%%FORCE%%\n"
+					"\n");
+			}
+			if(info->stick) {
+				fprintf(fp, "%%STICK%%\n"
 					"\n");
 			}
 		}

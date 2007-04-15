@@ -74,6 +74,7 @@ pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 	pkg->usize          = 0;
 	pkg->scriptlet      = 0;
 	pkg->force          = 0;
+	pkg->stick          = 0;
 	pkg->reason         = PM_PKG_REASON_EXPLICIT;
 	pkg->requiredby     = NULL;
 	pkg->conflicts      = NULL;
@@ -116,6 +117,7 @@ pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 	newpkg->size       = pkg->size;
 	newpkg->usize      = pkg->usize;
 	newpkg->force      = pkg->force;
+	newpkg->stick      = pkg->stick;
 	newpkg->scriptlet  = pkg->scriptlet;
 	newpkg->reason     = pkg->reason;
 	newpkg->license    = _pacman_list_strdup(pkg->license);
@@ -560,6 +562,7 @@ void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 		case PM_PKG_LICENSE:     data = pkg->license; break;
 		case PM_PKG_REPLACES:    data = pkg->replaces; break;
 		case PM_PKG_FORCE:       data = (void *)(long)pkg->force; break;
+		case PM_PKG_STICK:       data = (void *)(long)pkg->stick; break;
 		case PM_PKG_MD5SUM:      data = pkg->md5sum; break;
 		case PM_PKG_SHA1SUM:     data = pkg->sha1sum; break;
 		case PM_PKG_DEPENDS:     data = pkg->depends; break;
