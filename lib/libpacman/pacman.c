@@ -1312,7 +1312,7 @@ int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *
 					if(!strcmp(key, "SERVER")) {
 						/* add to the list */
 						_pacman_log(PM_LOG_DEBUG, _("config: %s: server: %s\n"), section, ptr);
-						if(pacman_db_setserver(db, strdup(ptr)) != 0) {
+						if(pacman_db_setserver(db, ptr) != 0) {
 							/* pm_errno is set by pacman_set_option */
 							return(-1);
 						}
