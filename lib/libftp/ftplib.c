@@ -1530,7 +1530,10 @@ GLOBALREF int HttpGet(const char *host, const char *outputfile, const char *path
 		strftime(mtime, sizeof(mtime), "%a, %d %b %Y %H:%M:%S GMT", mtime1);
 		sprintf(buf, "%sIf-Modified-Since: %s\r\n", buf, mtime);
 	}
-	sprintf(buf, "%s\r\n", buf);
+	if(strlen(buf)+3 > sizeof(buf))
+		return(0);
+	else
+		strcat(buf, "\r\n");
 
 	if (!HttpSendCmd(buf,'2',nControl))
 	{
