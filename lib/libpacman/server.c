@@ -269,14 +269,16 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				getcwd(cwd, PATH_MAX);
 				if(chdir(localpath)) {
 					_pacman_log(PM_LOG_WARNING, _("could not chdir to %s\n"), localpath);
-					return(PM_ERR_CONNECT_FAILED);
+					pm_errno = PM_ERR_CONNECT_FAILED;
+					goto error;
 				}
 				/* execute the parsed command via /bin/sh -c */
 				_pacman_log(PM_LOG_DEBUG, _("running command: %s\n"), parsedCmd);
 				ret = system(parsedCmd);
 				if(ret == -1) {
 					_pacman_log(PM_LOG_WARNING, _("running XferCommand: fork failed!\n"));
-					return(PM_ERR_FORK_FAILED);
+					pm_errno = PM_ERR_FORK_FAILED;
+					goto error;
 				} else if(ret != 0) {
 					/* download failed */
 					_pacman_log(PM_LOG_DEBUG, _("XferCommand command returned non-zero status code (%d)\n"), ret);
@@ -489,7 +491,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					snprintf(completefile, PATH_MAX, "%s/%s", localpath, fn);
 					rename(output, completefile);
 				} else if(filedone < 0) {
-					return(-1);
+					goto error;
 				}
 			}
 		}
@@ -507,7 +509,10 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	}
 
   _pacman_log(PM_LOG_DEBUG, _("end _pacman_downloadfiles_forreal - return %d"),!done);
-	return(!done);
+
+error:
+	FREELISTPTR(complete);
+	return(pm_errno == 0 ? !done : -1);
 }
 
 char *_pacman_fetch_pkgurl(char *target)
