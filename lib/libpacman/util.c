@@ -234,6 +234,7 @@ int _pacman_lckmk(char *file)
 		*ptr = '\0';
 	}
 	_pacman_makepath(dir);
+	FREE(dir);
 
 	while((fd = open(file, O_WRONLY | O_CREAT | O_EXCL, 0000)) == -1 && errno == EACCES) { 
 		if(++count < 1) {
