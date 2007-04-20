@@ -481,7 +481,11 @@ create_pkg()
 		if [ -x /usr/bin/chkdep ]; then
 			msg "Searching for depends..."
 			warning "Do not use this information without thinking!"
-			chkdep -d ./ -n $1 -i
+			if [ -n "$_F_makepkg_chkdep" ]; then
+				chkdep -m $_F_makepkg_chkdep -d ./ -n $1 -i
+			else
+				chkdep -d ./ -n $1 -i
+			fi
 		else
 			warning "Chkdep is not installed and is required to search depends."
 			plain "Install the pacman-tools package, which contains chkdep."
