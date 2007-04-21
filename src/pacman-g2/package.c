@@ -201,48 +201,4 @@ void dump_pkg_changelog(char *clfile, char *pkgname)
 		return;
 	}
 }
-
-int split_pkgname(char *target, char *name, char *version)
-{
-	char tmp[512];
-	char *p, *q;
-
-	if(target == NULL) {
-		return(-1);
-	}
-
-	/* trim path name (if any) */
-	if((p = strrchr(target, '/')) == NULL) {
-		p = target;
-	} else {
-		p++;
-	}
-	strncpy(tmp, p, 512);
-	/* trim file extension (if any) */
-	if((p = strstr(tmp, PM_EXT_PKG))) {
-		*p = 0;
-	}
-	/* trim architecture */
-	if((p = strrchr(tmp, '-'))) {
-		*p = 0;
-	}
-
-	p = tmp + strlen(tmp);
-
-	for(q = --p; *q && *q != '-'; q--);
-	if(*q != '-' || q == tmp) {
-		return(-1);
-	}
-	for(p = --q; *p && *p != '-'; p--);
-	if(*p != '-' || p == tmp) {
-		return(-1);
-	}
-	strncpy(version, p+1, 64);
-	*p = 0;
-
-	strncpy(name, tmp, 256);
-
-	return(0);
-}
-
 /* vim: set ts=2 sw=2 noet: */
