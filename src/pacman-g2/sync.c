@@ -87,23 +87,23 @@ static int sync_search(list_t *syncs, list_t *targets)
 	}
 	for(i = syncs; i; i = i->next) {
 		PM_DB *db = i->data;
-			PM_LIST *lp;
-			ret = pacman_db_search(db);
-			if(ret == NULL) {
-				continue;
-			}
-			for(lp = ret; lp; lp = pacman_list_next(lp)) {
-				PM_PKG *pkg = pacman_list_getdata(lp);
+		PM_LIST *lp;
+		ret = pacman_db_search(db);
+		if(ret == NULL) {
+			continue;
+		}
+		for(lp = ret; lp; lp = pacman_list_next(lp)) {
+			PM_PKG *pkg = pacman_list_getdata(lp);
 
-				char *group = (char *)pacman_list_getdata(pacman_pkg_getinfo(pkg,PM_PKG_GROUPS));
-				printf("%s/%s %s %s%s%s\n    ",
-							 (char *)pacman_db_getinfo(db, PM_DB_TREENAME),
-						   (char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME),
-						   (char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION),
-						   (group ? "(" : ""), (group ? group : ""), (group ? ")" : ""));
-				indentprint((char *)pacman_pkg_getinfo(pkg, PM_PKG_DESC), 4);
-				printf("\n");
-			}
+			char *group = (char *)pacman_list_getdata(pacman_pkg_getinfo(pkg,PM_PKG_GROUPS));
+			printf("%s/%s %s %s%s%s\n    ",
+					(char *)pacman_db_getinfo(db, PM_DB_TREENAME),
+					(char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME),
+					(char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION),
+					(group ? "(" : ""), (group ? group : ""), (group ? ")" : ""));
+			indentprint((char *)pacman_pkg_getinfo(pkg, PM_PKG_DESC), 4);
+			printf("\n");
+		}
 	}
 
 	return(0);
