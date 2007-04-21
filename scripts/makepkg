@@ -333,6 +333,21 @@ chroot_mount() {
     msg "Successfully mounted chroot directories."
 }
 
+chroot_lock() {
+	if [ -e $CHROOTDIR/var/tmp/fst/lock ]; then
+		error "Somebody already building in this chroot."
+		plain "If you're sure makepkg is not already running, you"
+		plain "can remove $CHROOTDIR/var/tmp/fst/lock."
+		exit 1
+	else
+		touch $CHROOTDIR/var/tmp/fst/lock
+	fi
+}
+
+chroot_unlock() {
+	rm -f $CHROOTDIR/var/tmp/fst/lock $_F_makepkg_pacconf
+}
+
 detect_pacman()
 {
 	if [ -e $CHROOTDIR/usr/bin/pacman-g2 ]; then
@@ -348,8 +363,7 @@ chroot_clean()
 
 	if [ "$CHROOT" = "1" ]; then
 		echo $CHROOTDIR |grep -q $TREE$ || CHROOTDIR="$CHROOTDIR/$TREE"
-		msg "Cleaning chroot."
-		rm -rf $CHROOTDIR/var/tmp/fst/*
+		chroot_lock
 		msg "Removing unnecessary packages."
 		for i in "$COREPKGS"
 		do
@@ -368,6 +382,8 @@ chroot_clean()
 				exit 1
 			fi
 		fi
+		msg "Cleaning chroot."
+		rm -rf $CHROOTDIR/var/tmp/fst/*
 	fi
 }
 
@@ -890,14 +906,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 
 	mkdir -p $CHROOTDIR/{dev,etc,proc,sys,var/cache/pacman,var/tmp/fst}
 
-	if [ -e $CHROOTDIR/var/tmp/fst/lock ]; then
-		error "Somebody already building in this chroot."
-		plain "If you're sure makepkg is not already running, you"
-		plain "can remove $CHROOTDIR/var/tmp/fst/lock."
-		exit 1
-	else
-		touch $CHROOTDIR/var/tmp/fst/lock
-	fi
+	chroot_lock
 
 	install -d -m 2775 {,$CHROOTDIR}/var/cache/ccache/$pkgname
 
@@ -918,8 +927,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		if [ "$?" != "0" ]; then
 			error "Failed to build chroot environment."
 			chroot_umount
-			msg "Removing lock file..."
-			rm -f $CHROOTDIR/var/tmp/fst/lock $_F_makepkg_pacconf
+			chroot_unlock
 			exit 1
 		fi
 		mv -f $_F_makepkg_pacconf $CHROOTDIR/etc/pacman.conf
@@ -934,8 +942,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		if [ "$?" != "0" ]; then
 			error "Failed to update chroot environment."
 			chroot_umount
-			msg "Removing lock file..."
-			rm -f $CHROOTDIR/var/tmp/fst/lock
+			chroot_unlock
 			exit 1
 		fi
 	fi
@@ -1010,7 +1017,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	fi
 
 	chroot_umount
-	rm -f $CHROOTDIR/var/tmp/fst/lock
+	chroot_unlock
 	exit $ret
 fi
 
