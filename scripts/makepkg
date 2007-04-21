@@ -719,6 +719,10 @@ if [ $CLEANCACHE -ge 1 ]; then
 			rm -rf /var/cache/pacman/src/*
 		fi
 		chroot_clean
+		for i in `grep $CHROOTDIR /proc/mounts|sed 's/^[^ ]* \([^ ]*\) .*/\1/'`
+		do
+			umount $i
+		done
 		exit 0
 	else
 		error "You must be root to clean the cache."
