@@ -1301,17 +1301,9 @@ else
 			fi
 			if grep -q sha1sums= ${BUILDSCRIPT}; then
 				Fmessage "updating \$sha1sums() in the FrugalBuild."
-				if grep -q '^sha1sums.*)' ${BUILDSCRIPT}; then
-					sed -i "/^sha1sums.*)/d" ${BUILDSCRIPT}
-				else
-					sed -i "/^sha1sums/,/)/d" ${BUILDSCRIPT}
-				fi
-				if grep -q "# optimization" "${BUILDSCRIPT}" ; then
-					# Always keep this line at the end
-					sed -i "s@^# optimization OK.*@${SHA1SUMS}\n# optimization OK@gi" ${BUILDSCRIPT}
-				else
-					echo -e "${SHA1SUMS}" >> ${BUILDSCRIPT}
-				fi
+				# doing this in one step causes sed hang. maybe this is a sed bug?
+				sed -e :a -e "\$!N;s/sha1sums=(.*)/MAKEPKG_$$/;ta;P;D" -i $BUILDSCRIPT
+				sed "s/MAKEPKG_$$/$SHA1SUMS/" -i $BUILDSCRIPT
 			else
 				warning "Initial \$sha1sums() array does not exist, Aborting..."
 			fi
