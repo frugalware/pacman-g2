@@ -59,6 +59,11 @@ The project uses the "pacman-g2" name instead of the "pacman" one, so that users
 
 If you are interested in developing pacman-g2, please subscribe to the frugalware-devel@frugalware.org mailing list.
 
+Also please note that the library shipped with pacman-g2 is called libpacman,
+not libalpm. This is because libpacman is meant to be a distro-independent
+package-management library, while libalpm depends on packages not available in
+most distributions (ie. libdownload).
+
 PACMAN library overview & internals
 =================================
 
