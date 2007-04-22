@@ -1,5 +1,9 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.5.4         - makepkg -C now umounts stale chroot mounts
+              - makepkg -G updates sha1sums() in-place
+              - libpacman: fixed 3 memleaks
+              - libpacman: new function: pacman_sync_cleancache()
 3.5.3         - new RSYNCAGENT variable in makepkg.conf
               - allow running -Sup for a user
               - no longer ignore replace/force package properties
