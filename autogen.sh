@@ -35,7 +35,6 @@ import_pootle()
 cd `dirname $0`
 
 if [ "$1" == "--dist" ]; then
-	import_pootle
 	if [ -d ../releases ]; then
 		release="yes"
 	fi
