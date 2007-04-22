@@ -8,6 +8,11 @@
 # -----------
 # Belgian National Research Network (1 GBit)
 Server = ftp://ftp5.frugalware.org/packages/frugalware/pub/frugalware/frugalware-current/frugalware-@CARCH@
+# -------------
+# - AUSTRALIA -
+# -------------
+# PlanetMirror (Unknown bandwidth)
+Server = ftp://ftp13.frugalware.org/pub/frugalware/frugalware-current/frugalware-@CARCH@
 # -----------
 # - GERMANY -
 # -----------
