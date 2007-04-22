@@ -9,6 +9,7 @@ import_pootle()
 		: > src/pacman-g2/po/LINGUAS
 		for i in $(/bin/ls $po_dir/pacman)
 		do
+			[ "$i" = "sk" ] && continue
 			cp $po_dir/pacman/$i/libpacman.po lib/libpacman/po/$i.po
 			echo $i >> lib/libpacman/po/LINGUAS
 			cp $po_dir/pacman/$i/pacman-g2.po src/pacman-g2/po/$i.po
