@@ -491,7 +491,10 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					snprintf(completefile, PATH_MAX, "%s/%s", localpath, fn);
 					rename(output, completefile);
 				} else if(filedone < 0) {
-					goto error;
+					/* -1 means here that the file is up to date, not a real error, so
+					 * don't go to error: */
+					FREELISTPTR(complete);
+					return(-1);
 				}
 			}
 		}
