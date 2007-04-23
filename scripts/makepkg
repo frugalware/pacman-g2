@@ -1312,6 +1312,11 @@ else
 			fi
 			if grep -q sha1sums= ${BUILDSCRIPT}; then
 				Fmessage "updating \$sha1sums() in the FrugalBuild."
+				# remove the sha1sum lines except the first and
+				# the last one. hopefully the regexp is complex
+				# enough that we won't remove something
+				# unrelated
+				sed "/\t\? \+'[a-z0-9]\{40\}' \?\\\\/d" -i $BUILDSCRIPT
 				# doing this in one step causes sed hang. maybe this is a sed bug?
 				sed -e :a -e "\$!N;s/sha1sums=(.*)/MAKEPKG_$$/;ta;P;D" -i $BUILDSCRIPT
 				sed "s/MAKEPKG_$$/$SHA1SUMS/" -i $BUILDSCRIPT
