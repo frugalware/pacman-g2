@@ -11,13 +11,17 @@ import_pootle()
 		do
 			[ "$i" = "sk" ] && continue
 			cp $po_dir/pacman/$i/libpacman.po lib/libpacman/po/$i.po
-			msgfmt -c --statistics -o lib/libpacman/po/$i.gmo lib/libpacman/po/$i.po || \
+			if msgfmt -c --statistics -o lib/libpacman/po/$i.gmo lib/libpacman/po/$i.po; then
+				echo $i >> lib/libpacman/po/LINGUAS
+			else
 				echo "WARNING: lib/libpacman/po/$i.po will break your build!"
-			echo $i >> lib/libpacman/po/LINGUAS
+			fi
 			cp $po_dir/pacman/$i/pacman-g2.po src/pacman-g2/po/$i.po
-			msgfmt -c --statistics -o lib/pacman-g2/po/$i.gmo lib/pacman-g2/po/$i.po || \
-				echo "WARNING: lib/pacman-g2/po/$i.po will break your build!"
-			echo $i >> src/pacman-g2/po/LINGUAS
+			if msgfmt -c --statistics -o src/pacman-g2/po/$i.gmo src/pacman-g2/po/$i.po; then
+				echo $i >> src/pacman-g2/po/LINGUAS
+			else
+				echo "WARNING: src/pacman-g2/po/$i.po will break your build!"
+			fi
 		done
 	else
 		echo "WARNING: no po files will be used"
