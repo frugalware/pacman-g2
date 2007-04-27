@@ -28,9 +28,7 @@ extern float rate;
 extern int xfered1;
 extern unsigned int eta_h, eta_m, eta_s;
 
-#ifdef __FTPLIB_H
-int log_progress(netbuf *ctl, int xfered, void *arg);
-#endif
+int log_progress(PM_NETBUF *ctl, int xfered, void *arg);
 
 #endif /* _PM_DOWNLOAD_H */
 

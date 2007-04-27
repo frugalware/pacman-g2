@@ -10,8 +10,7 @@ localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
 AM_CFLAGS = -D_GNU_SOURCE \
-	-I$(top_srcdir)/lib/libpacman \
-	-I$(top_srcdir)/lib/libftp
+	-I$(top_srcdir)/lib/libpacman
 
 pacman_g2_SOURCES = util.c log.c list.c package.c download.c trans.c add.c \
 	remove.c upgrade.c query.c sync.c conf.c deptest.c pacman-g2.c

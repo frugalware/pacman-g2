@@ -28,7 +28,6 @@
 #include <unistd.h>
 #include <time.h>
 #include <sys/time.h>
-#include <ftplib.h>
 #include <libintl.h>
 
 #include <pacman.h>
@@ -52,7 +51,7 @@ extern config_t *config;
 
 extern unsigned int maxcols;
 
-int log_progress(netbuf *ctl, int xfered, void *arg)
+int log_progress(PM_NETBUF *ctl, int xfered, void *arg)
 {
 	int fsz = *(int*)arg;
 	int pct = ((float)(xfered+offset) / fsz) * 100;

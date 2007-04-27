@@ -53,6 +53,7 @@ typedef struct __pmsyncpkg_t PM_SYNCPKG;
 typedef struct __pmtrans_t PM_TRANS;
 typedef struct __pmdepmissing_t PM_DEPMISS;
 typedef struct __pmconflict_t PM_CONFLICT;
+typedef struct NetBuf PM_NETBUF;
 
 /*
  * Library
@@ -325,6 +326,9 @@ typedef void (*pacman_trans_cb_conv)(unsigned char, void *, void *, void *, int 
 
 /* Transaction Progress callback */
 typedef void (*pacman_trans_cb_progress)(unsigned char, char *, int, int, int);
+
+/* Download Progress callback */
+typedef int (*pacman_trans_cb_download)(PM_NETBUF *ctl, int xfered, void *arg);
 
 /* Info parameters */
 enum {

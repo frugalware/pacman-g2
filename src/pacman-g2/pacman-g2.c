@@ -40,7 +40,6 @@
 #include <mcheck.h> /* debug */
 #endif
 #include <time.h>
-#include <ftplib.h>
 
 #include <pacman.h>
 /* pacman-g2 */
