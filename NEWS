@@ -1,5 +1,13 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.5.5         - support for compiling pacman-g2 on almost any Linux
+                distribution
+              - documentation updates
+	      - pacman_db_update() now returns -1 on error, just like the other
+	        libpacman functions
+              - makepkg: bugfix for -G
+	      - compiling your libpacman callback is now possible without
+	        having the source of libpacman
 3.5.4         - makepkg -C now umounts stale chroot mounts
               - makepkg -G updates sha1sums() in-place
               - libpacman: fixed 3 memleaks
