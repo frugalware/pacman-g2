@@ -399,7 +399,7 @@ lib/libpacman/po/Makefile.in
 lib/libftp/Makefile
 src/pacman-g2/Makefile
 src/pacman-g2/po/Makefile.in
-src/util/Makefile
+src/vercmp/Makefile
 scripts/Makefile
 doc/Makefile
 doc/hu/Makefile
