@@ -21,7 +21,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "versioncmp.h"
+#include <pacman.h>
 
 int main(int argc, char *argv[])
 {
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 		return(0);
 	}
 	
-	ret = _pacman_versioncmp(s1, s2);
+	ret = pacman_pkg_vercmp(s1, s2);
 	printf("%d\n", ret);
 	return(ret);
 }
