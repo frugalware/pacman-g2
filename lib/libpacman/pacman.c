@@ -305,7 +305,7 @@ int pacman_db_setserver(pmdb_t *db, char *url)
  * @param force if true, then forces the update, otherwise update only in case
  * the database isn't up to date
  * @param db pointer to the package database to update
- * @return 0 on success, > 0 on error (pm_errno is set accordingly), < 0 if up
+ * @return 0 on success, -1 on error (pm_errno is set accordingly), 1 if up
  * to date
  */
 int pacman_db_update(int force, PM_DB *db)
@@ -344,11 +344,11 @@ int pacman_db_update(int force, PM_DB *db)
 	ret = _pacman_downloadfiles_forreal(db->servers, path, files, lastupdate, newmtime);
 	FREELIST(files);
 	if(ret != 0) {
-		if(ret > 0) {
+		if(ret == -1) {
 			_pacman_log(PM_LOG_DEBUG, _("failed to sync db: %s [%d]\n"),  pacman_strerror(ret), ret);
 			pm_errno = PM_ERR_DB_SYNC;
 		}
-		return(ret);
+		return(1);
 	} else {
 		if(strlen(newmtime)) {
 			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %s\n"), db->treename, newmtime);

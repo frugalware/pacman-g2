@@ -61,7 +61,7 @@ static int sync_synctree(int level, list_t *syncs)
 		PM_DB *db = i->data;
 
 		ret = pacman_db_update((level < 2 ? 0 : 1), db);
-		if(ret > 0) {
+		if(ret == -1) {
 			if(pm_errno == PM_ERR_DB_SYNC) {
 				ERR(NL, _("failed to synchronize %s\n"), (char*)pacman_db_getinfo(db, PM_DB_TREENAME));
 			} else {
@@ -69,7 +69,7 @@ static int sync_synctree(int level, list_t *syncs)
 							PM_DB_TREENAME), pacman_strerror(pm_errno));
 			}
 			success--;
-		} else if(ret < 0) {
+		} else if(ret == 1) {
 			MSG(NL, _(" %s is up to date\n"), (char *)pacman_db_getinfo(db, PM_DB_TREENAME));
 		}
 	}

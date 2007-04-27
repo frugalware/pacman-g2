@@ -130,11 +130,15 @@ void _pacman_server_free(void *data)
  * Download a list of files from a list of servers
  *   - if one server fails, we try the next one in the list
  *
- * RETURN:  0 for successful download, 1 on error
+ * RETURN:  0 for successful download, -1 on error
  */
 int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *files)
 {
-	return(!!_pacman_downloadfiles_forreal(servers, localpath, files, NULL, NULL));
+	if(_pacman_downloadfiles_forreal(servers, localpath, files, NULL, NULL) != 0) {
+		return(-1);
+	} else {
+		return(0);
+	}
 }
 
 /*
@@ -147,8 +151,8 @@ int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *fi
  *     of the remote file (from MDTM FTP cmd or Last-Modified HTTP header).
  * 
  * RETURN:  0 for successful download
- *         -1 if the mtimes are identical
- *          1 on error
+ *          1 if the mtimes are identical
+ *         -1 on error
  */
 int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	pmlist_t *files, const char *mtime1, char *mtime2)
@@ -163,6 +167,8 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	if(files == NULL) {
 		return(0);
 	}
+
+	pm_errno = 0;
 
   _pacman_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
 	for(i = servers; i && !done; i = i->next) {
@@ -491,10 +497,10 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					snprintf(completefile, PATH_MAX, "%s/%s", localpath, fn);
 					rename(output, completefile);
 				} else if(filedone < 0) {
-					/* -1 means here that the file is up to date, not a real error, so
+					/* 1 means here that the file is up to date, not a real error, so
 					 * don't go to error: */
 					FREELISTPTR(complete);
-					return(-1);
+					return(1);
 				}
 			}
 		}
