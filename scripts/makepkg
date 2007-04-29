@@ -608,7 +608,7 @@ while [ "$#" -ne "0" ]; do
 		--nobuild)    NOBUILD=1 ;;
 		--nocolor)    USE_COLOR="n" ;;
 		--gensha1)    GENSHA1=1; CHROOT=0 ;;
-		--wrtsha1)    GENSHA1=1; WRITESHA1=1; CHROOT=0 ;;
+		--wrtsha1)    GENSHA1=1; WRITESHA1=1; CHROOT=0; NODEPS=1 ;;
 		--rmdeps)     RMDEPS=1 ;;
 		--chroot)     CHROOT=1 ;;
 		--host)       CHROOT=0 ;;
@@ -637,7 +637,7 @@ while [ "$#" -ne "0" ]; do
 					e) NOEXTRACT=1 ;;
 					f) FORCE=1 ;;
 					g) GENSHA1=1; CHROOT=0 ;;
-					G) GENSHA1=1; WRITESHA1=1; CHROOT=0 ;;
+					G) GENSHA1=1; WRITESHA1=1; CHROOT=0; NODEPS=1 ;;
 					h)
 						usage
 						exit 0
