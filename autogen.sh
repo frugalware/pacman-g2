@@ -1,5 +1,6 @@
 #!/bin/sh -e
 
+
 import_pootle()
 {
 	po_dir=~/darcs/translations/po

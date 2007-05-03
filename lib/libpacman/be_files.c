@@ -182,7 +182,7 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 	char line[512];
 	char *lang_tmp;
 	pmlist_t *tmplist;
-	char *foo;
+	char *ptr;
 
 	if(db == NULL) {
 		RET_ERR(PM_ERR_DB_NULL, -1);
@@ -232,9 +232,9 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 					if (tmplist->data && strncmp(tmplist->data, lang_tmp, strlen(lang_tmp))) {
 					    snprintf(info->desc, 512, "%s", (char*)info->desc_localized->data);
 					} else {
-					    foo = strdup(tmplist->data);
-					    snprintf(info->desc, 512, "%s", foo+strlen(lang_tmp)+1);
-					    FREE(foo);
+					    ptr = strdup(tmplist->data);
+					    snprintf(info->desc, 512, "%s", ptr+strlen(lang_tmp)+1);
+					    FREE(ptr);
 					    break;
 					}
 				    }
