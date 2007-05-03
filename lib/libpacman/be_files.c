@@ -355,6 +355,10 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 			_pacman_strtrim(line);
 			if(!strcmp(line, "%FILES%")) {
 				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+					if((ptr = strchr(line, '|'))) {
+						/* just ignore the content after the pipe for now */
+						*ptr = '\0';
+					}
 					info->files = _pacman_list_add(info->files, strdup(line));
 				}
 			} else if(!strcmp(line, "%BACKUP%")) {
