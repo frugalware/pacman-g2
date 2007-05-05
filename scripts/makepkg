@@ -962,22 +962,23 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		error "chroot was not found."
 	else
 		msg "Entering chroot environment"
+		BUILDLOG=${startdir}/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
 		if [ ! "`check_option NOFAKEROOT`" ]; then
 			/usr/sbin/chroot $CHROOTDIR \
 				/bin/su - fst -c "$0 --inchroot -S $ARGLIST"
 		else
 			echo "cd /var/tmp/fst/; $0 --inchroot -s $ARGLIST" | \
 				/usr/sbin/chroot $CHROOTDIR /bin/su - -c /bin/sh
+		fi 2>&1 | tee $BUILDLOG
+		if [ "$USE_COLOR" != "n" ]; then
+			# remove colors
+			sed -i "s|.[1;[0-9]\+m||g" $BUILDLOG
 		fi
 	fi
 
-	# save the build log if necessary
-	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log ]; then
-		mv $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log ./
-		if [ "`id -u`" = "0" ]; then
-			chown `stat -c %u:%g FrugalBuild` \
-				${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
-		fi
+	if [ "`id -u`" = "0" ]; then
+		chown `stat -c %u:%g FrugalBuild` \
+			${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
 	fi
 
 	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm ]; then
@@ -994,6 +995,20 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		fi
 		rm -rf $CHROOTDIR/var/tmp/fst/*
 		chroot_clean
+		# check optimization and write it to $BUILDSCRIPT
+		msg "Checking for optimization..."
+		if grep -q -- "\($CFLAGS\|$CXXFLAGS\)" "${BUILDLOG}" ; then
+			if ! grep -q "# optimization" "${BUILDSCRIPT}" ; then
+				echo -e "\n# optimization OK" >> "${BUILDSCRIPT}"
+			fi
+		else
+			warning "This package isn't ${CARCH}-optimized!"
+		fi
+		# copy build log to LOGDIR if set
+		if [ -d "$LOGDIR" ]; then
+			msg "Creating permanent copy of build log"
+			cp "${BUILDLOG}" "${LOGDIR}/${LOGDIR_APPEND}-${pkgname}-${pkgver}-${pkgrel}.log"
+		fi
 		ret=0
 	else
 		ret=1
