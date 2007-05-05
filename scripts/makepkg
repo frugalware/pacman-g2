@@ -876,7 +876,9 @@ fi
 if darcs --commands 2>&1|grep -q add && [ "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
 	if [ ! -e Changelog ] || [ `stat -c %Y Changelog` -lt `stat -c %Y $BUILDSCRIPT` ]; then
 		msg "Generating the Changelog..."
-		darcs changes $BUILDSCRIPT |sed "s|\(.*\)source/\(.*\)/FrugalBuild\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" >Changelog
+		darcs changes $BUILDSCRIPT | \
+			sed "s|\(.*\)source/\(.*\)/FrugalBuild\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" \
+			>Changelog
 		if [ "`id -u`" = "0" ]; then
 			chown `stat -c %u:%g FrugalBuild` \
 				Changelog
