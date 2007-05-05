@@ -48,7 +48,6 @@ NOEXTRACT=0
 NOSTRIP=0
 RMDEPS=0
 CHROOT=1
-LOGGING=0
 NOUP2DATE=0
 GZIP=0
 NODOCS=0
@@ -279,7 +278,6 @@ usage() {
 	echo "  -h, --help       This help"
 	echo "  -i, --install    Install package after successful build"
 	echo "  -j <jobs>        Set MAKEFLAGS to \"-j<jobs>\" before building"
-	echo "  -k, --logging    Logging package build process"
 	echo "  -l <pkgname>     Download buildscripts before building"
 	echo "  -m, --nocolor    Disable colorized output messages"
 	echo "  -n, --nostrip    Do not strip binaries/libraries"
@@ -602,7 +600,7 @@ while [ "$#" -ne "0" ]; do
 		--chroot)     CHROOT=1 ;;
 		--host)       CHROOT=0 ;;
 		--noup2date)  NOUP2DATE=1 ;;
-		--logging)    LOGGING=1 ;;
+		--logging)    ;; # we can remove this after Frugalware-0.7 is out
 		--gzip)       GZIP=1 ;;
 		--help)
 			usage
@@ -633,7 +631,7 @@ while [ "$#" -ne "0" ]; do
 						;;
 					i) INSTALL=1 ;;
 					j) export MAKEFLAGS="-j$OPTARG" ;;
-					k) LOGGING=1 ;;
+					k) ;; # see logging
 					l) DOWNLOAD="$OPTARG" ;;
 					L) ;; # see nolastmod
 					m) USE_COLOR="n" ;;
@@ -670,15 +668,6 @@ done
 if [ "$DEP_SUDO" = "1" -a ! "`type -p sudo`" ]; then
 	error "Cannot find the sudo binary! Is sudo installed?"
 	exit 1
-fi
-
-# check if log dir exists and create if necessary.
-if [ -n "$LOGDIR" -a ! -d "$LOGDIR" -a -w "`dirname \"$LOGDIR\"`" ]; then
-	mkdir -p $LOGDIR
-	if [ $? -ne 0 ]; then
-		error "Can't create LOGDIR ($LOGDIR)! Please create it or edit /etc/makepkg.conf."
-		exit 1
-	fi
 fi
 
 # convert a (possibly) relative path to absolute
@@ -1357,10 +1346,9 @@ fi
 
 # build
 msg "Starting build()..."
-BUILDLOG=${startdir}/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
 stime=`date +%s`
-build 2>&1 | tee "${BUILDLOG}"
-if [ ${PIPESTATUS[0]} -gt 0 ]; then
+build
+if [ $? -gt 0 ]; then
 	error "Build Failed.  Aborting..."
 	exit 2
 fi
@@ -1378,7 +1366,6 @@ elif [ ! -z "$SBU" ]; then
 	if [ `type -p bc` ]; then
 		pkgsbu=`echo -e "scale=2\n$(($(date +%s)-$stime))/$SBU"|bc /dev/stdin|sed 's/^\./0./'`
 		msg "Elapsed Time: $pkgsbu SBU"
-		echo "Elapsed Time: $pkgsbu SBU">> "${BUILDLOG}"
 	else
 		warning "The bc program is missing.  Cannot count SBU!"
 	fi
@@ -1510,28 +1497,6 @@ elif [ "$RMDEPS" = "1" -a "$DEP_SUDO" = "1" ]; then
 		export FAKEROOTKEY=$FAKEROOTKEY2
 		unset FAKEROOTKEY2
 	fi
-fi
-
-# check optimization and write it to $BUILDSCRIPT
-msg "Checking for optimization..."
-if grep -q -- "\($CFLAGS\|$CXXFLAGS\)" "${BUILDLOG}" ; then
-	if ! grep -q "# optimization" "${BUILDSCRIPT}" ; then
-		echo -e "\n# optimization OK" >> "${BUILDSCRIPT}"
-	fi
-else
-	warning "This package isn't ${CARCH} optimized!"
-fi
-
-# copy build log to LOGDIR if set
-if [ -d "$LOGDIR" ]; then
-	msg "Creating permanent copy of build log"
-	cp "${BUILDLOG}" "${LOGDIR}/${LOGDIR_APPEND}-${pkgname}-${pkgver}-${pkgrel}.log"
-fi
-
-# remove build log
-if [ "${LOGGING}" == "0" ] ; then
-	msg "Removing build log..."
-	rm -f "${BUILDLOG}"
 fi
 
 msg "Finished making: $pkgname  (`date`)"
