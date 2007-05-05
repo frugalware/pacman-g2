@@ -57,8 +57,8 @@ export PACKAGER="Frugalware Linux (http://frugalware.org)"
 # LOGDIR is the location where you would like to store a
 # permanant copy of the build log.
 # filename = [LOGDIR_APPEND]-[pkgname]-[pkgver]-[pkgrel]
-LOGDIR_APPEND=`date +%Y-%m-%d-%s`
-LOGDIR=/var/log/builds
+#LOGDIR_APPEND=`date +%Y-%m-%d-%s`
+#LOGDIR=/var/log/builds
 
 # The Standard Build Unit of this machine
 # If 1, then the build time will be displayed in seconds
