@@ -1364,7 +1364,7 @@ if [ ${PIPESTATUS[0]} -gt 0 ]; then
 fi
 
 if [ -n "`find . -name "*|*"`" ]; then
-	error "Files in a package must not contain pipes!"
+	error "Filenames in a package must not contain pipes!"
 	exit 2
 fi
 
