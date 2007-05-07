@@ -786,7 +786,10 @@ int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 					char path[PATH_MAX];
 
 					if(trans->flags & PM_TRANS_FLAG_PRINTURIS) {
-						snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG, spkg->name, spkg->version, spkg->arch);
+						snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG,
+								(char *)_pacman_pkg_getinfo(spkg, PM_PKG_NAME),
+								(char *)_pacman_pkg_getinfo(spkg, PM_PKG_VERSION),
+								(char *)_pacman_pkg_getinfo(spkg, PM_PKG_ARCH));
 						EVENT(trans, PM_TRANS_EVT_PRINTURI, pacman_db_getinfo(current, PM_DB_FIRSTSERVER), path);
 					} else {
 						struct stat buf;
