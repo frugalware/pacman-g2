@@ -1,5 +1,12 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.5.6         - makepkg -G now implies -d
+	      - makepkg -k is now the default and it uses a new, extended
+	        logging mechanism so that the installation of dependencies are
+                logged, too
+	      - dist/FrugalBuild now enables debug symbols and disabled
+	        stripping
+              - bugfix for -Sp
 3.5.5         - support for compiling pacman-g2 on almost any Linux
                 distribution
               - documentation updates
