@@ -15,4 +15,6 @@ archs=('i686' 'x86_64' 'ppc')
 up2date="@PACKAGE_VERSION@"
 source=($url/releases/$pkgname-$pkgver.tar.gz)
 sha1sums=('@SHA1SUM@')
+Fconfopts="$Fconfopts --enable-debug"
+options=('nostrip')
 # optimization OK
