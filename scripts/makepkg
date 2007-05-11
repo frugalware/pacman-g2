@@ -1110,6 +1110,9 @@ fi
 if grep -i -q "^# Compiling Time: [~0-9\.]\+ SBU$" $BUILDSCRIPT && \
 	[ ! -z "$SBU" ] && [ "$SBU" != "1" ]; then
 	pkgsbu=`grep -i "^# Compiling time: [~0-9\.]\+ SBU$" $BUILDSCRIPT|sed 's/^# Compiling [Tt]ime: ~*\([0-9\.]\+\) SBU$/\1/'`
+	if [ ! "`type -p bc`" ]; then
+		warning "Cannot find the bc binary! Is bc installed? Skipping calculating the estimated build time."
+	else
 	secs=`echo "$pkgsbu*$SBU"|bc /dev/stdin|sed 's/\.[0-9]*$//'`
 	if [ $secs -ge 3600 ]; then
 		hrs=`echo $(($secs/3600))`
@@ -1130,6 +1133,7 @@ if grep -i -q "^# Compiling Time: [~0-9\.]\+ SBU$" $BUILDSCRIPT && \
 		[ $secs -gt 1 ] && secs="$secs seconds " || secs="$secs second "
 	fi
 	msg "Estimated build time: $hrs$mins$secs"
+	fi
 fi
 
 # retrieve sources
