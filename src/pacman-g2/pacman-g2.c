@@ -138,6 +138,7 @@ static void usage(int op, char *myname)
 			printf(_("  -p, --file          pacman-g2 will query the package file [package] instead of\n"));
 			printf(_("                      looking in the database\n"));
 			printf(_("  -s, --search        search locally-installed packages for matching strings\n"));
+			printf(_("  -t, --test          search problems in the local database\n"));
 		} else if(op == PM_OP_SYNC) {
 			printf(_("usage:  %s {-S --sync} [options] [package]\n"), myname);
 			printf(_("options:\n"));
@@ -264,6 +265,7 @@ static int parseargs(int argc, char *argv[])
 		{"recursive",  no_argument,       0, 's'},
 		{"search",     no_argument,       0, 's'},
 		{"sysupgrade", no_argument,       0, 'u'},
+		{"test",       no_argument,       0, 't'},
 		{"verbose",    no_argument,       0, 'v'},
 		{"downloadonly", no_argument,     0, 'w'},
 		{"refresh",    no_argument,       0, 'y'},
@@ -279,7 +281,7 @@ static int parseargs(int argc, char *argv[])
 	};
 	char root[PATH_MAX];
 
-	while((opt = getopt_long(argc, argv, "ARUFQSTDYr:b:vkhscVfmnoldepiuwyg", opts, &option_index))) {
+	while((opt = getopt_long(argc, argv, "ARUFQSTDYr:b:vkhscVfmnoldepituwyg", opts, &option_index))) {
 		if(opt < 0) {
 			break;
 		}
@@ -367,6 +369,7 @@ static int parseargs(int argc, char *argv[])
 				config->flags |= PM_TRANS_FLAG_RECURSE;
 			break;
 			case 'u': config->op_s_upgrade = 1; break;
+			case 't': config->op_q_test = 1; break;
 			case 'v': config->verbose++; break;
 			case 'w':
 				config->op_s_downloadonly = 1;

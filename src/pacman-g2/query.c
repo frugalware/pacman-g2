@@ -71,6 +71,19 @@ int querypkg(list_t *targets)
 		return(0);
 	}
 
+	if(config->op_q_test) {
+		ret = pacman_db_test(db_local);
+		if(ret == NULL) {
+			printf(_(":: the database seems to be consistent\n"));
+			return(0);
+		}
+		for(j = ret; j; j = pacman_list_next(j)) {
+			char *str = pacman_list_getdata(j);
+			printf(":: %s\n", str);
+		}
+		return(0);
+	}
+
 	if(config->op_q_foreign) {
 		if(pmc_syncs == NULL || !list_count(pmc_syncs)) {
 			ERR(NL, _("no usable package repositories configured.\n"));
