@@ -145,6 +145,8 @@ char *pacman_strerror(int err)
 			return _("could not remove cache directory");
 		case PM_ERR_CANT_CREATE_CACHE:
 			return _("could not create new cache directory");
+		case PM_ERR_WRONG_ARCH:
+			return _("this package is not for this architecture");
 		default:
 			return _("unexpected error");
 	}

@@ -30,6 +30,7 @@
 #include <string.h>
 #include <libintl.h>
 #include <locale.h>
+#include <sys/utsname.h>
 /* pacman-g2 */
 #include "log.h"
 #include "util.h"
@@ -339,6 +340,24 @@ pmpkg_t *_pacman_pkg_load(char *pkgfile)
 			if(!strlen(info->version)) {
 				_pacman_log(PM_LOG_ERROR, _("missing package version in %s"), pkgfile);
 				pm_errno = PM_ERR_PKG_INVALID;
+				unlink(descfile);
+				FREE(descfile);
+				close(fd);
+				goto error;
+			}
+			if(!strlen(info->arch)) {
+				_pacman_log(PM_LOG_ERROR, _("missing package architecture in %s"), pkgfile);
+				pm_errno = PM_ERR_PKG_INVALID;
+				unlink(descfile);
+				FREE(descfile);
+				close(fd);
+				goto error;
+			}
+			struct utsname name;
+			uname (&name);
+			if(strcmp(name.machine, info->arch)) {
+				_pacman_log(PM_LOG_ERROR, _("wrong package architecture in %s"), pkgfile);
+				pm_errno = PM_ERR_WRONG_ARCH;
 				unlink(descfile);
 				FREE(descfile);
 				close(fd);
