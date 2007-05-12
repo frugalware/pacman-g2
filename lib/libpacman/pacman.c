@@ -697,6 +697,19 @@ int pacman_sync_cleancache(int full)
 	return(_pacman_sync_cleancache(full));
 }
 
+/** Tests a database
+ * @param db pointer to the package database to search in
+ * @return the list of problems found on success, NULL on error
+ */
+pmlist_t *pacman_db_test(pmdb_t *db)
+{
+	/* Sanity checks */
+	ASSERT(handle != NULL, return(NULL));
+	ASSERT(db != NULL, return(NULL));
+
+	return(_pacman_db_test(db));
+}
+
 /** Searches a database
  * @param db pointer to the package database to search in
  * @return the list of packages on success, NULL on error

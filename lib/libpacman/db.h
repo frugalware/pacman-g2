@@ -54,6 +54,7 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles);
 
 /* Prototypes for backends functions */
 int _pacman_db_install(pmdb_t *db, const char *dbfile);
+pmlist_t *_pacman_db_test(pmdb_t *db);
 int _pacman_db_open(pmdb_t *db);
 void _pacman_db_close(pmdb_t *db);
 void _pacman_db_rewind(pmdb_t *db);

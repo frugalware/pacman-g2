@@ -62,6 +62,39 @@ int _pacman_db_install(pmdb_t *db, const char *dbfile)
 	return unlink(dbfile);
 }
 
+pmlist_t *_pacman_db_test(pmdb_t *db)
+{
+	struct dirent *ent;
+	char path[PATH_MAX];
+	struct stat buf;
+	pmlist_t *ret = NULL;
+
+	while ((ent = readdir(db->handle)) != NULL) {
+		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
+			continue;
+		}
+		snprintf(path, PATH_MAX, "%s/%s/desc", db->path, ent->d_name);
+		if(stat(path, &buf))
+		{
+			snprintf(path, LOG_STR_LEN, _("%s: description file is missing"), ent->d_name);
+			ret = _pacman_list_add(ret, strdup(path));
+		}
+		snprintf(path, PATH_MAX, "%s/%s/depends", db->path, ent->d_name);
+		if(stat(path, &buf))
+		{
+			snprintf(path, LOG_STR_LEN, _("%s: dependency information is missing"), ent->d_name);
+			ret = _pacman_list_add(ret, strdup(path));
+		}
+		snprintf(path, PATH_MAX, "%s/%s/files", db->path, ent->d_name);
+		if(stat(path, &buf))
+		{
+			snprintf(path, LOG_STR_LEN, _("%s: file list is missing"), ent->d_name);
+			ret = _pacman_list_add(ret, strdup(path));
+		}
+	}
+	return(ret);
+}
+
 int _pacman_db_open(pmdb_t *db)
 {
 	if(db == NULL) {

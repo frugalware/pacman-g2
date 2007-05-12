@@ -150,6 +150,7 @@ PM_LIST *pacman_db_whatprovides(PM_DB *db, char *name);
 PM_GRP *pacman_db_readgrp(PM_DB *db, char *name);
 PM_LIST *pacman_db_getgrpcache(PM_DB *db);
 PM_LIST *pacman_db_search(PM_DB *db);
+PM_LIST *pacman_db_test(PM_DB *db);
 
 /*
  * Packages
