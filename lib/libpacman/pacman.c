@@ -1142,6 +1142,9 @@ int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *
 		if(strlen(line) == 0 || line[0] == '#') {
 			continue;
 		}
+		if((ptr = strchr(line, '#'))) {
+			*ptr = '\0';
+		}
 		if(line[0] == '[' && line[strlen(line)-1] == ']') {
 			/* new config section */
 			ptr = line;
