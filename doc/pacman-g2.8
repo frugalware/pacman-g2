@@ -217,6 +217,22 @@ file and query it.  This is useful with \fB--info\fP and \fB--list\fP.
 This will search each locally-installed package for names or descriptions
 that contains <regexp>.
 .TP
+.B "\-t, \-\-test"
+Tests the local database, by searching for missing informations. Example:
+
+.nf
+$ pacman-g2 -Qt
+:: zip-2.32-1: file list is missing
+.fi
+
+The recommended method in this case is to remove the database entry:
+
+# rm -rf /var/lib/pacman/local/zip-2.32-1
+
+and forcing the reinstall of the package:
+
+# pacman -Sf zip --noconfirm
+.TP
 .B "\-\-nointegrity"
 Skip the SHA1 integrity check for the downloaded packages.
 .SH HANDLING CONFIG FILES
