@@ -365,8 +365,10 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					}
 					if(!filedone) {
 						if(!stat(output, &st)) {
-							*pm_dloffset = (int)st.st_size;
-							if(!FtpRestart(*pm_dloffset, control)) {
+							if(pm_dloffset) {
+								*pm_dloffset = (int)st.st_size;
+							}
+							if(!pm_dloffset || !FtpRestart(*pm_dloffset, control)) {
 								_pacman_log(PM_LOG_WARNING, _("failed to resume download -- restarting\n"));
 								/* can't resume: */
 								/* unlink the file in order to restart download from scratch */
