@@ -1,5 +1,11 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.5.7         - libpacman: bugfix for resuming a download while --noprogressbar
+                is used
+              - don't allow to install packages built for other archs
+              - new option -Qt to test the local database
+	      - support for partial comments (ie.: when only a part of the line
+	        is comment)
 3.5.6         - makepkg -G now implies -d
 	      - makepkg -k is now the default and it uses a new, extended
 	        logging mechanism so that the installation of dependencies are
