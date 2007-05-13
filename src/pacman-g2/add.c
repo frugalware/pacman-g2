@@ -81,7 +81,7 @@ int addpkg(list_t *targets)
 			goto cleanup;
 		}
 	}
-	MSG(CL, _("done."));
+	MSG(CL, _("done.\n"));
 
 	/* Step 2: "compute" the transaction based on targets and flags
 	 */
