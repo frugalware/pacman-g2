@@ -1297,7 +1297,7 @@ else
 				# Don't be afraid but \\\n instead of \n coz of the \\ a little below
 				# \\\n would give \n (printed) but \\\\\n will give \
 				# and a new line carriage '\n' (i.e '\''\n')
-				SHA1SUMS="${SHA1SUMS}\\\\\n          "
+				SHA1SUMS="${SHA1SUMS} \\\\\n          "
 			fi
 		done
 		echo -e "${SHA1SUMS}"
