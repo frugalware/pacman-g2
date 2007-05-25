@@ -129,7 +129,7 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 
 			/* check description */
 			if(!match) {
-				haystack = strdup(pkg->desc);
+				haystack = strdup(_pacman_pkg_getinfo(pkg, PM_PKG_DESC));
 				retval = _pacman_reg_match(haystack, targ);
 				if(retval < 0) {
 					/* bad regexp */
@@ -143,7 +143,7 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 
 			/* check provides */
 			if(!match) {
-				for(k = pkg->provides; k; k = k->next) {
+				for(k = _pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES); k; k = k->next) {
 					haystack = strdup(k->data);
 					retval = _pacman_reg_match(haystack, targ);
 					if(retval < 0) {
