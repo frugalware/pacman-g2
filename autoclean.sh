@@ -57,5 +57,7 @@ rm -rf lib/libpacman/po/stamp-po
 rm -rf lib/libpacman/po/*.{gmo,pot,po}
 
 rm -f bindings/*/*.i
+rm -f bindings/*/*.so
+rm -f bindings/*/*.o
 
 rm -rf pactest/root
