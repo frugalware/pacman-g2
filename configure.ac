@@ -99,10 +99,10 @@ case "$host" in
 		CHOST="${host}"
 		;;
 	x86_64-*) AC_DEFINE_UNQUOTED([CARCH], ["x86_64"], [Architecture])
-		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["x86-64"], [Architecture])
+		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["k8"], [Architecture])
 		AC_DEFINE_UNQUOTED([MARCHFLAG], ["march"], [Architecture])
 		CARCH="x86_64"
-		CARCHFLAGS="x86-64"
+		CARCHFLAGS="k8"
 		MARCHFLAG="march"
 		CHOST="${host}"
 		;;
