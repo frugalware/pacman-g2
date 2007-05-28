@@ -1450,6 +1450,23 @@ find $startdir/pkg*/{usr{,/local,/share},opt/*}/man -type f 2>/dev/null | while 
 	fi
 done
 
+if [ -d "$startdir/pkg/usr/share/icons/hicolor" ]; then
+	if [ -z "$_F_gnome_iconcache" ]; then
+		warning "Package $pkgname contains hicolor icons but _F_gnome_iconcache is not set"
+	fi
+fi
+
+if [ -n "$subpkgs" ]; then
+	for subpkg in "${subpkgs[@]}"
+	do
+		if [ -d "$startdir/pkg.$subpkg/usr/share/icons/hicolor" ]; then
+			if [ -z "$_F_gnome_iconcache" ]; then
+				warning "Package $subpkg contains hicolor icons but _F_gnome_iconcache is not set"
+			fi
+		fi
+	done
+fi
+
 # strip binaries
 strip_pkg $pkgname
 if [ -n "$subpkgs" ]; then
