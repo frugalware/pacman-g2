@@ -280,7 +280,7 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 pmpkg_t *_pacman_pkg_load(char *pkgfile)
 {
 	char *expath;
-	int i;
+	int i, ret;
 	int config = 0;
 	int filelist = 0;
 	int scriptcheck = 0;
@@ -298,7 +298,7 @@ pmpkg_t *_pacman_pkg_load(char *pkgfile)
 	archive_read_support_compression_all (archive);
 	archive_read_support_format_all (archive);
 
-	if (archive_read_open_file (archive, pkgfile, ARCHIVE_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK)
+	if ((ret = archive_read_open_file (archive, pkgfile, ARCHIVE_DEFAULT_BYTES_PER_BLOCK)) != ARCHIVE_OK)
 		RET_ERR(PM_ERR_PKG_OPEN, NULL);
 
 	info = _pacman_pkg_new(NULL, NULL);
@@ -307,7 +307,7 @@ pmpkg_t *_pacman_pkg_load(char *pkgfile)
 		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
 
-	for(i = 0; archive_read_next_header (archive, &entry) == ARCHIVE_OK; i++) {
+	for(i = 0; (ret = archive_read_next_header (archive, &entry)) == ARCHIVE_OK; i++) {
 		if(config && filelist && scriptcheck) {
 			/* we have everything we need */
 			break;
@@ -433,7 +433,10 @@ pmpkg_t *_pacman_pkg_load(char *pkgfile)
 
 error:
 	FREEPKG(info);
-	archive_read_finish (archive);
+	if(!ret) {
+		archive_read_finish (archive);
+	}
+	pm_errno = PM_ERR_PKG_CORRUPTED;
 
 	return(NULL);
 }
