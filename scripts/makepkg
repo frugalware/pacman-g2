@@ -802,9 +802,12 @@ if ! in_array $CARCH ${archs[@]}; then
 	exit 1
 fi
 
-serverlist=${TREE}_servers
+eval "serverlist=${TREE}_servers"
+if [ -f "$fst_root/${TREE}/_darcs/prefs/defaultrepo" ]; then
+	serverlist="`cat $fst_root/${TREE}/_darcs/prefs/defaultrepo`"
+fi
 if [ -z "$CACHEURL" ]; then
-	CACHEURL="${!serverlist}/source/$groups/$pkgname"
+	CACHEURL="${serverlist}/source/$groups/$pkgname"
 fi
 
 if [ ! -z "$subpkgs" ]; then
