@@ -1,5 +1,9 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.5.8         - bugfix in -Ss
+              - makepkg: detect missing _F_gnome_iconcache
+              - libpacman: no longer segfault on an invalid package
+              - -Rd and -Ud no longer ruins the requriedby fields
 3.5.7         - libpacman: bugfix for resuming a download while --noprogressbar
                 is used
               - don't allow to install packages built for other archs
