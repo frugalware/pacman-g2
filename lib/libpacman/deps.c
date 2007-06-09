@@ -212,7 +212,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmli
 				continue;
 			}
 			for(j = _pacman_pkg_getinfo(oldpkg, PM_PKG_REQUIREDBY); j; j = j->next) {
-				char *ver;
+				//char *ver;
 				pmpkg_t *p;
 				found = 0;
 				if((p = _pacman_db_get_pkgfromcache(db, j->data)) == NULL) {
@@ -223,49 +223,19 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmli
 					/* this package is also in the upgrade list, so don't worry about it */
 					continue;
 				}
-				for(k = _pacman_pkg_getinfo(p, PM_PKG_DEPENDS); k && !found; k = k->next) {
-					/* find the dependency info in p->depends */
+				for(k = _pacman_pkg_getinfo(p, PM_PKG_DEPENDS); k; k = k->next) {
+					/* don't break any existing dependencies (possible provides) */
 					_pacman_splitdep(k->data, &depend);
-					if(!strcmp(depend.name, oldpkg->name)) {
-						found = 1;
-					}
-				}
-				if(found == 0) {
-					/* look for packages that list depend.name as a "provide" */
-					pmlist_t *provides = _pacman_db_whatprovides(db, depend.name);
-					if(provides == NULL) {
-						/* not found */
-						continue;
-					}
-					/* we found an installed package that provides depend.name */
-					FREELISTPTR(provides);
-				}
-				found = 0;
-				if(depend.mod == PM_DEP_MOD_ANY) {
-					found = 1;
-				} else {
-					/* note that we use the version from the NEW package in the check */
-					ver = strdup(tp->version);
-					if(!index(depend.version,'-')) {
-						char *ptr;
-						for(ptr = ver; *ptr != '-'; ptr++);
-						*ptr = '\0';
-					}
-					cmp = _pacman_versioncmp(ver, depend.version);
-					switch(depend.mod) {
-						case PM_DEP_MOD_EQ: found = (cmp == 0); break;
-						case PM_DEP_MOD_GE: found = (cmp >= 0); break;
-						case PM_DEP_MOD_LE: found = (cmp <= 0); break;
-					}
-					FREE(ver);
-				}
-				if(!found) {
-					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s as required by %s"), depend.name, p->name);
-					miss = _pacman_depmiss_new(p->name, PM_DEP_TYPE_REQUIRED, depend.mod, depend.name, depend.version);
-					if(!_pacman_depmiss_isin(miss, baddeps)) {
-						baddeps = _pacman_list_add(baddeps, miss);
-					} else {
-						FREE(miss);
+					if(_pacman_depcmp(oldpkg, &depend) && !_pacman_depcmp(tp, &depend)) {
+						_pacman_log(PM_LOG_DEBUG, _("checkdeps: updated '%s' won't satisfy a dependency of '%s'"),
+								oldpkg->name, p->name);
+						miss = _pacman_depmiss_new(p->name, PM_DEP_TYPE_REQUIRED, depend.mod,
+								depend.name, depend.version);
+						if(!_pacman_depmiss_isin(miss, baddeps)) {
+							baddeps = _pacman_list_add(baddeps, miss);
+						} else {
+							FREE(miss);
+						}
 					}
 				}
 			}

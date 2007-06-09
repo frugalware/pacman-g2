@@ -24,6 +24,7 @@
 #define _PM_RPMVERCMP_H
 
 int _pacman_versioncmp(const char *a, const char *b);
+int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep);
 
 #endif
 
