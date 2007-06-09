@@ -433,7 +433,7 @@ int syncpkg(list_t *targets)
 				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
 					PM_DEPMISS *miss = pacman_list_getdata(lp);
 					MSG(NL, ":: %s: %s %s", pacman_dep_getinfo(miss, PM_DEP_TARGET),
-					    (long)pacman_dep_getinfo(miss, PM_DEP_TYPE) == PM_DEP_TYPE_DEPEND ? _("is required by") : _("requries"),
+					    (long)pacman_dep_getinfo(miss, PM_DEP_TYPE) == PM_DEP_TYPE_DEPEND ? _("is required by") : _("requires"),
 					    pacman_dep_getinfo(miss, PM_DEP_NAME));
 					switch((long)pacman_dep_getinfo(miss, PM_DEP_MOD)) {
 						case PM_DEP_MOD_EQ: MSG(CL, "=%s", pacman_dep_getinfo(miss, PM_DEP_VERSION)); break;
