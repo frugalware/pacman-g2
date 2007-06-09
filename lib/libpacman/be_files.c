@@ -213,8 +213,7 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 	struct stat buf;
 	char path[PATH_MAX];
 	char line[512];
-	char *lang_tmp;
-	pmlist_t *tmplist;
+	pmlist_t *i;
 	char *ptr;
 
 	if(db == NULL) {
@@ -249,31 +248,13 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
 					info->desc_localized = _pacman_list_add(info->desc_localized, strdup(line));
 				}
-
-				if (setlocale(LC_ALL, "") == NULL) { /* To fix segfault when locale invalid */
-					setenv("LC_ALL", "C", 1);
-				}
-				if((lang_tmp = (char *)malloc(strlen(setlocale(LC_ALL, "")))) == NULL) {
-					RET_ERR(PM_ERR_MEMORY, -1);
-				}
-				snprintf(lang_tmp, strlen(setlocale(LC_ALL, "")), "%s", setlocale(LC_ALL, ""));
-
-				if(info->desc_localized && !info->desc_localized->next) {
-				    snprintf(info->desc, 512, "%s", (char*)info->desc_localized->data);
-				} else {
-				    for (tmplist = info->desc_localized; tmplist; tmplist = tmplist->next) {
-					if (tmplist->data && strncmp(tmplist->data, lang_tmp, strlen(lang_tmp))) {
-					    snprintf(info->desc, 512, "%s", (char*)info->desc_localized->data);
-					} else {
-					    ptr = strdup(tmplist->data);
-					    snprintf(info->desc, 512, "%s", ptr+strlen(lang_tmp)+1);
-					    FREE(ptr);
-					    break;
+				STRNCPY(info->desc, (char*)info->desc_localized->data, sizeof(info->desc));
+				for (i = info->desc_localized; i; i = i->next) {
+					if (!strncmp(i->data, handle->language, strlen(handle->language))) {
+						STRNCPY(info->desc, (char*)i->data+strlen(handle->language)+1, sizeof(info->desc));
 					}
-				    }
 				}
 				_pacman_strtrim(info->desc);
-				FREE(lang_tmp);
 			} else if(!strcmp(line, "%GROUPS%")) {
 				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
 					info->groups = _pacman_list_add(info->groups, strdup(line));

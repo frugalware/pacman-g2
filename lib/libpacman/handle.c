@@ -32,6 +32,7 @@
 #include <libintl.h>
 #include <time.h>
 #include <ftplib.h>
+#include <locale.h>
 /* pacman-g2 */
 #include "util.h"
 #include "log.h"
@@ -82,6 +83,9 @@ pmhandle_t *_pacman_handle_new()
 
 	handle->dbpath = strdup(PM_DBPATH);
 	handle->cachedir = strdup(PM_CACHEDIR);
+
+	handle->language = setlocale(LC_ALL, NULL);
+	printf("[DEBUG] ->language: '%s'\n", handle->language);
 
 	return(handle);
 }

@@ -58,6 +58,7 @@ typedef struct __pmhandle_t {
 	unsigned short chomp; /* if eye-candy features should be enabled or not */
 	unsigned short maxtries; /* for downloading */
 	pmlist_t *needles; /* for searching */
+	char *language;
 } pmhandle_t;
 
 extern pmhandle_t *handle;
