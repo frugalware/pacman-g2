@@ -85,7 +85,6 @@ pmhandle_t *_pacman_handle_new()
 	handle->cachedir = strdup(PM_CACHEDIR);
 
 	handle->language = setlocale(LC_ALL, NULL);
-	printf("[DEBUG] ->language: '%s'\n", handle->language);
 
 	return(handle);
 }
