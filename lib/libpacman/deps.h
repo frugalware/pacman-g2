@@ -47,6 +47,7 @@ int _pacman_splitdep(char *depstr, pmdepend_t *depend);
 pmlist_t *_pacman_removedeps(pmdb_t *db, pmlist_t *targs);
 int _pacman_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pmlist_t *list,
                 pmlist_t *trail, pmtrans_t *trans, pmlist_t **data);
+int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep);
 
 #endif /* _PACMAN_DEPS_H */
 
