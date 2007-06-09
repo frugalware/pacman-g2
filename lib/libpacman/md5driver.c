@@ -24,6 +24,7 @@ documentation and/or software.
 #include <time.h>
 #include <string.h>
 #include <libintl.h>
+#include "config.h"
 #include "util.h"
 #include "md5.h"
 

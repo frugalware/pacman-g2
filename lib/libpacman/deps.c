@@ -30,6 +30,7 @@
 #include <libintl.h>
 #include <math.h>
 /* pacman-g2 */
+#include "config.h"
 #include "util.h"
 #include "log.h"
 #include "error.h"

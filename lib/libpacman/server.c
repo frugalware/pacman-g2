@@ -31,6 +31,7 @@
 #include <ftplib.h>
 
 /* pacman-g2 */
+#include "config.h"
 #include "server.h"
 #include "error.h"
 #include "log.h"
