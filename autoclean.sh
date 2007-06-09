@@ -12,8 +12,8 @@ rm -rf install-sh
 rm -rf missing
 rm -rf src/pacman-g2/Makefile
 rm -rf src/pacman-g2/Makefile.in
-rm -rf src/util/Makefile
-rm -rf src/util/Makefile.in
+rm -rf src/vercmp/Makefile
+rm -rf src/vercmp/Makefile.in
 rm -rf lib/libftp/Makefile
 rm -rf lib/libftp/Makefile.in
 rm -rf lib/libpacman/Makefile.in
