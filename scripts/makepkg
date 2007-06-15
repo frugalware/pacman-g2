@@ -1193,10 +1193,10 @@ for netfile in "${source[@]}" "${signatures[@]}"; do
 	[ -z "$netfile" ] && continue
 	file=`strip_url "$netfile"`
 	if [ -f "../$file" ]; then
-		msg "    Found $file in build dir"
+		msg2 "Found $file in build dir"
 		cp "../$file" .
 	elif [ -f "/var/cache/pacman/src/$file" ]; then
-		msg "    Using local copy of $file"
+		msg2 "Using local copy of $file"
 		cp "/var/cache/pacman/src/$file" .
 	else
 		proto=`echo "$netfile" | sed 's|://.*||'`
@@ -1220,7 +1220,7 @@ for netfile in "${source[@]}" "${signatures[@]}"; do
 		fi
 		# if failed to retreive from cache download it from the master server
 		if [ ! -f "$file" ]; then
-			msg "    Downloading $file"
+			msg2 "Downloading $file"
 			$FTPAGENT "$netfile" 2>&1
 			if [ ! -f "$file" ]; then
 				error "Failed to download $file"
@@ -1358,7 +1358,7 @@ else
 				exit 1
 			fi
 			if grep -q sha1sums= ${BUILDSCRIPT}; then
-				Fmessage "updating \$sha1sums() in the FrugalBuild."
+				msg "Updating \$sha1sums() in the FrugalBuild."
 				# remove the sha1sum lines except the first and
 				# the last one. hopefully the regexp is complex
 				# enough that we won't remove something
