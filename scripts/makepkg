@@ -847,8 +847,15 @@ if ! in_array $CARCH ${archs[@]}; then
 fi
 
 eval "serverlist=${TREE}_servers"
+if [ "$_F_makepkg_scm" = "git" ]; then
+	_serverlist=`GIT_DIR=$fst_root/${TREE}/.git git config --get remote.origin.url 2>/dev/null`
+	if echo $_serverlist |grep -q :[^/]; then
+		serverlist=$_serverlist
+	fi
+else
 if [ -f "$fst_root/${TREE}/_darcs/prefs/defaultrepo" ]; then
 	serverlist="`cat $fst_root/${TREE}/_darcs/prefs/defaultrepo`"
+fi
 fi
 if [ -z "$CACHEURL" ]; then
 	CACHEURL="${serverlist}/source/$groups/$pkgname"
@@ -909,12 +916,22 @@ if [ -f $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm -a "$FORCE" = "0" -
 fi
 
 # Generate the Changelog if necessary.
-if darcs --commands 2>&1|grep -q add && [ "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
+indir=n
+if [ "$_F_makepkg_scm" = "git" ]; then
+	git rev-parse --git-dir &>/dev/null && indir=y
+else
+	darcs --commands 2>&1|grep -q add && indir=y
+fi
+if [ "$indir" = "y" ] && [ "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
 	if [ ! -e Changelog ] || [ `stat -c %Y Changelog` -lt `stat -c %Y $BUILDSCRIPT` ]; then
 		msg "Generating the Changelog..."
-		darcs changes $BUILDSCRIPT | \
-			sed "s|\(.*\)source/\(.*\)/FrugalBuild\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" \
-			>Changelog
+		if [ "$_F_makepkg_scm" = "git" ]; then
+			git log $BUILDSCRIPT >Changelog
+		else
+			darcs changes $BUILDSCRIPT | \
+				sed "s|\(.*\)source/\(.*\)/FrugalBuild\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" \
+				>Changelog
+		fi
 		if [ "`id -u`" = "0" ]; then
 			chown `stat -c %u:%g FrugalBuild` \
 				Changelog
