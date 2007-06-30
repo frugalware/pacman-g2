@@ -784,27 +784,25 @@ if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
 	fi
 	
 	confs=`cat /etc/pacman.conf |grep ^Include|sed 's/.* = \(.*\)/\1/'`
-	# TODO: -q option to download the src tarballs from Frugalware mirrros
-	quickdl="_darcs/current/"
 	
 	# searching for a mirror
 	repo=`pacman-g2 -Si $DOWNLOAD |grep ^Repo |sed -n 's/.* \([^ ]*\)/\1/;1 p'`
 	dir=`grep ^Server /etc/pacman.d/$repo |sed -n 's/.* = \(.*\)/\1/;1 p'`
 	arch=`grep ^Server /etc/pacman.d/$repo |sed -n 's/.*-\(.*\)/\1/;1 p'`
-	cat=`pacman-g2 -Si $DOWNLOAD |grep ^G |sed 's/.* : \([^ ]*\) .*/\1/; s/-extra$//'`
-	dlpath=`echo "$dir/../$quickdl"|sed "s|extra/frugalware-$CARCH/../$quickdl|${quickdl}extra/frugalware-$CARCH/../|"`
+	cat=`pacman-g2 -Si $DOWNLOAD |grep ^G |sed 's/.* : \([^ ]*\) .*/\1/;'`
+	dlpath="$dir/../"
 	
 	# download the script
 	mkdir $DOWNLOAD
 	cd $DOWNLOAD
-	# FIXME: apps other than wget maybe not support -m
-	$FTPAGENT -m $dlpath/source/$cat/$DOWNLOAD/ 2>&1
+	# FIXME: apps other than wget may not support -m and/or -l
+	$FTPAGENT -m -l 1 $dlpath/source/$cat/$DOWNLOAD/ 2>&1
 	if [ ! -f $file ]; then
 		error "Failed to download $file"
 		msg "Aborting..."
 		exit 1
 	fi
-	junk=`echo $dir|sed "s|^ftp://\(.*\)/frugalware-$arch|\1/$quickdl|;s|extra/$quickdl|${quickdl}extra/|"`/source/$cat/$DOWNLOAD/
+	junk=`echo $dir|sed "s|^.*://\(.*\)/frugalware-$arch|\1/$quickdl|"`/source/$cat/$DOWNLOAD/
 	mv $junk* ./
 	rm -rf `echo $junk|cut -d/ -f1`
 	for i in `find * -type d`
