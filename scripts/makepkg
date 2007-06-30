@@ -1383,7 +1383,7 @@ fi
 # check for existing pkg directory
 if [ -d $startdir/pkg ]; then
 	msg "Removing existing pkg/ directory..."
-	rm -rf $startdir/pkg*
+	rm -rf $startdir/{pkg,pkg.*}
 fi
 mkdir -p $startdir/pkg
 
@@ -1485,7 +1485,7 @@ fi
 
 # compress man pages
 msg "Compressing man pages..."
-find $startdir/pkg*/{usr{,/local,/share},opt/*}/man -type f 2>/dev/null | while read i ; do
+find $startdir/{pkg,pkg.*}/{usr{,/local,/share},opt/*}/man -type f 2>/dev/null | while read i ; do
 	ext="${i##*.}"
 	fn="${i##*/}"
 	if [ "$ext" != "gz" -a "$ext" != "bz2" ]; then
@@ -1565,7 +1565,7 @@ fi
 cd $startdir
 if [ "$CLEANUP" = "1" ]; then
 	msg "Cleaning up..."
-	rm -rf src pkg*
+	rm -rf src pkg pkg.*
 fi
 
 if [ "$RMDEPS" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" -a \( ! -z "$deplist" -o ! -z "$makedeplist" \) ]; then
