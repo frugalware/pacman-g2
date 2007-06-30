@@ -717,13 +717,17 @@ pmlist_t *pacman_db_test(pmdb_t *db)
  */
 pmlist_t *pacman_db_search(pmdb_t *db)
 {
+	pmlist_t *ret;
+
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(handle->needles != NULL, return(NULL));
 	ASSERT(handle->needles->data != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
-	return(_pacman_db_search(db, handle->needles));
+	ret = _pacman_db_search(db, handle->needles);
+	FREELIST(handle->needles);
+	return(ret);
 }
 /** @} */
 
