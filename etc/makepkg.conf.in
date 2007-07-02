@@ -25,6 +25,9 @@ export CXXFLAGS="-@MARCHFLAG@=@CARCHFLAGS@ -O2 -pipe"
 # SMP Systems
 #export MAKEFLAGS="-j2"
 
+# Default name of build scripts
+export BUILDSCRIPT="FrugalBuild"
+
 # Enable fakeroot for building packages as a non-root user
 export USE_FAKEROOT="y"
 

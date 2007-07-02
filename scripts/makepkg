@@ -262,7 +262,7 @@ handledeps() {
 				fi
 				success=0
 				for pkgdir in $candidates; do
-					if [ -f $pkgdir/FrugalBuild ]; then
+					if [ -f $pkgdir/$BUILDSCRIPT ]; then
 						cd $pkgdir
 						if [ "$RMDEPS" = "1" ]; then
 							makepkg -i -c -b -r -w $PKGDEST
@@ -328,7 +328,7 @@ usage() {
 	echo "  -m, --nocolor    Disable colorized output messages"
 	echo "  -n, --nostrip    Do not strip binaries/libraries"
 	echo "  -o, --nobuild    Download and extract files only"
-	echo "  -p <buildscript> Use an alternate build script (instead of FrugalBuild)"
+	echo "  -p <buildscript> Use an alternate build script (instead of $BUILDSCRIPT)"
 	echo "  -r, --rmdeps     Remove installed dependencies after a successful build"
 	echo "  -R, --chroot     Build the package in a chroot environment (default)"
 	echo "  -H, --host       Build the package on the host system"
@@ -344,7 +344,7 @@ usage() {
 	echo "  --noconfirm      Do not ask for confirmation when resolving dependencies"
 	echo "  --noprogressbar  Do not show a progress bar when downloading files"
 	echo
-	echo "If -p is not specified, makepkg will look for ./FrugalBuild"
+	echo "If -p is not specified, makepkg will look for $BUILDSCRIPT"
 	echo
 }
 
@@ -929,11 +929,11 @@ if [ "$indir" = "y" ] && [ "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
 			git log $BUILDSCRIPT >Changelog
 		else
 			darcs changes $BUILDSCRIPT | \
-				sed "s|\(.*\)source/\(.*\)/FrugalBuild\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" \
+				sed "s|\(.*\)source/\(.*\)/$BUILDSCRIPT\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" \
 				>Changelog
 		fi
 		if [ "`id -u`" = "0" ]; then
-			chown `stat -c %u:%g FrugalBuild` \
+			chown `stat -c %u:%g $BUILDSCRIPT` \
 				Changelog
 		fi
 	fi
@@ -1041,21 +1041,21 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	fi
 
 	if [ "`id -u`" = "0" ]; then
-		chown `stat -c %u:%g FrugalBuild` \
+		chown `stat -c %u:%g $BUILDSCRIPT` \
 			${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
 	fi
 
 	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm ]; then
 		mv $CHROOTDIR/var/tmp/fst/*-${pkgver}-${pkgrel}-${CARCH}.fpm $PKGDEST
 		if [ "`id -u`" = "0" ]; then
-			chown `stat -c %u:%g FrugalBuild` \
+			chown `stat -c %u:%g $BUILDSCRIPT` \
 				*-${pkgver}-${pkgrel}-${CARCH}.fpm
 		fi
 		# copy back the buildscript, maybe modified
-		cp $CHROOTDIR/var/tmp/fst/FrugalBuild ./
+		cp $CHROOTDIR/var/tmp/fst/$BUILDSCRIPT ./
 		if [ "$CLEANUP" != "1" ]; then
 			mv $CHROOTDIR/var/tmp/fst/{pkg,src} ./
-			chown -R `stat -c %u:%g FrugalBuild` pkg src
+			chown -R `stat -c %u:%g $BUILDSCRIPT` pkg src
 		fi
 		rm -rf $CHROOTDIR/var/tmp/fst/*
 		chroot_clean
@@ -1373,7 +1373,7 @@ else
 				exit 1
 			fi
 			if grep -q sha1sums= ${BUILDSCRIPT}; then
-				msg "Updating \$sha1sums() in the FrugalBuild."
+				msg "Updating \$sha1sums() in the $BUILDSCRIPT."
 				# remove the sha1sum lines except the first and
 				# the last one. hopefully the regexp is complex
 				# enough that we won't remove something
