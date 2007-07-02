@@ -22,11 +22,10 @@
 
 toplevel=`pwd`
 
-# makepkg configuration, mainly for $CARCH
+# makepkg configuration
 [ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
 
 # Frugalware functions
-CHROOT=1
 [ -e /usr/lib/frugalware/fwmakepkg ] && . /usr/lib/frugalware/fwmakepkg
 
 usage() {

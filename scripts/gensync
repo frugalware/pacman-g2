@@ -23,6 +23,8 @@
 #   USA.
 #
 
+# makepkg configuration
+[ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
 [ -z "$arch" ] && arch=`arch`
 CARCH="$arch"
 
