@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.5.9         - pacman_db_search(): flush the list of needles automatically
+              - makepkg: do not delete the binary package if -c is used and the
+                name of the pkg starts with "pkg"
+              - makepkg: git support
+              - the name "FrugalBuild" is now configurable from makepkg.conf
 3.5.8         - bugfix in -Ss
               - makepkg: detect missing _F_gnome_iconcache
               - libpacman: no longer segfault on an invalid package
