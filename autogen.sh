@@ -3,7 +3,7 @@
 
 import_pootle()
 {
-	po_dir=~/darcs/translations/po
+	po_dir=~/git/translations/po
 
 	if [ -d $po_dir ]; then
 		: > lib/libpacman/po/LINGUAS
