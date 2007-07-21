@@ -796,7 +796,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 						snprintf(path, PATH_MAX, "%s/%s-%s-%s" PM_EXT_PKG, ldir, spkg->name, spkg->version, spkg->arch);
 						if(stat(path, &buf)) {
 							/* file is not in the cache dir, so add it to the list */
-							snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG, spkg->name, spkg->version, spkg->arch);
+							snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG, (char*)_pacman_pkg_getinfo(spkg, PM_PKG_NAME), (char*)_pacman_pkg_getinfo(spkg, PM_PKG_VERSION), (char*)_pacman_pkg_getinfo(spkg, PM_PKG_ARCH));
 							files = _pacman_list_add(files, strdup(path));
 						} else {
 							_pacman_log(PM_LOG_DEBUG, _("%s-%s-%s%s is already in the cache\n"),
