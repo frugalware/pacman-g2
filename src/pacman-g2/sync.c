@@ -79,15 +79,16 @@ static int sync_synctree(int level, list_t *syncs)
 
 static int sync_search(list_t *syncs, list_t *targets)
 {
-	list_t *i;
+	list_t *i, *j;
 	PM_LIST *ret;
 
-	for(i = targets; i; i = i->next) {
-		pacman_set_option(PM_OPT_NEEDLES, (long)i->data);
-	}
 	for(i = syncs; i; i = i->next) {
 		PM_DB *db = i->data;
 		PM_LIST *lp;
+
+		for(j = targets; j; j = j->next) {
+			pacman_set_option(PM_OPT_NEEDLES, (long)j->data);
+		}
 		ret = pacman_db_search(db);
 		if(ret == NULL) {
 			continue;
