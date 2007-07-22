@@ -52,9 +52,13 @@ if [ "$1" == "--dist" ]; then
 	if [ ! "$release" ]; then
 		ver="${ver}_`date +%Y%m%d`"
 	fi
-	darcs changes >_darcs/current/ChangeLog
-	darcs dist -d pacman-g2-$ver
-	rm _darcs/current/ChangeLog
+	git-archive --format=tar --prefix=pacman-g2-$ver/ HEAD | tar xf -
+	git log --no-merges |git name-rev --tags --stdin > pacman-g2-$ver/ChangeLog
+	cd pacman-g2-$ver
+	./autogen.sh --git
+	cd ..
+	tar czf pacman-g2-$ver.tar.gz pacman-g2-$ver
+	rm -rf pacman-g2-$ver
 	if [ "$release" ]; then
 		dest="../releases"
 		gpg --comment "See http://ftp.frugalware.org/pub/README.GPG for info" \
@@ -130,6 +134,6 @@ cp -f $(dirname $(which automake))/../share/automake-$(automake --version|sed 's
 cp -f $(dirname $(which automake))/../share/gettext/config.rpath ./
 automake -a -c --gnu --foreign
 
-if [ "$1" == "--darcs" ]; then
+if [ "$1" == "--git" ]; then
 	rm -rf autom4te.cache
 fi
