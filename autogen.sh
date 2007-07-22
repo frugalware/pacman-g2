@@ -10,7 +10,7 @@ import_pootle()
 		: > src/pacman-g2/po/LINGUAS
 		for i in $(/bin/ls $po_dir/pacman)
 		do
-			[ "$i" = "sk" ] && continue
+			[ "$i" = "sk" -o "$i" = "ha" -o "$i" = "ig" -o "$i" = "yo" ] && continue
 			cp $po_dir/pacman/$i/libpacman.po lib/libpacman/po/$i.po
 			if msgfmt -c --statistics -o lib/libpacman/po/$i.gmo lib/libpacman/po/$i.po; then
 				echo $i >> lib/libpacman/po/LINGUAS
