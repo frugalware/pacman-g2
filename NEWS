@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.6.0         - -Ss searches again in all repos, not only in the first one
+              - updated curl example in pacman.conf so that it works again
+              - issue a warning when you didn't do a -Sy for a long time
+	      - fix for -Sp when sometimes the arch part of the filename was
+	        missing
 3.5.9         - pacman_db_search(): flush the list of needles automatically
               - makepkg: do not delete the binary package if -c is used and the
                 name of the pkg starts with "pkg"
