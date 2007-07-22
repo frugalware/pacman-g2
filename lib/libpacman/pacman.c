@@ -1311,6 +1311,13 @@ int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *
 							/* pm_errno is set by pacman_set_option */
 							return(-1);
 						}
+					} else if (!strcmp(key, "OLDDELAY")) {
+						/* The config value is in days, we use seconds */
+						_pacman_log(PM_LOG_DEBUG, _("config: OldDelay: %i\n"), (60*60*24) * atol(ptr));
+						if(pacman_set_option(PM_OPT_OLDDELAY, (60*60*24) * atol(ptr)) == -1) {
+							/* pm_errno is set by pacman_set_option */
+							return(-1);
+						}
 					} else if (!strcmp(key, "PROXYSERVER")) {
 						if(pacman_set_option(PM_OPT_PROXYHOST, (long)ptr) == -1) {
 							/* pm_errno is set by pacman_set_option */

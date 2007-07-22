@@ -262,6 +262,9 @@ int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned lo
 		case PM_OPT_UPGRADEDELAY:
 			handle->upgradedelay = data;
 		break;
+		case PM_OPT_OLDDELAY:
+			handle->olddelay = data;
+		break;
 		case PM_OPT_LOGMASK:
 			pm_logmask = (unsigned char)data;
 			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_LOGMASK set to '%02x'"), (unsigned char)data);
@@ -340,6 +343,7 @@ int _pacman_handle_get_option(pmhandle_t *handle, unsigned char val, long *data)
 		case PM_OPT_LOGCB:     *data = (long)pm_logcb; break;
 		case PM_OPT_DLCB:     *data = (long)pm_dlcb; break;
 		case PM_OPT_UPGRADEDELAY: *data = (long)handle->upgradedelay; break;
+		case PM_OPT_OLDDELAY:  *data = (long)handle->olddelay; break;
 		case PM_OPT_LOGMASK:   *data = pm_logmask; break;
 		case PM_OPT_DLFNM:     *data = (long)pm_dlfnm; break;
 		case PM_OPT_DLOFFSET:  *data = (long)pm_dloffset; break;

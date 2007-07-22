@@ -50,6 +50,7 @@ typedef struct __pmhandle_t {
 	pmlist_t *holdpkg; /* List of strings */
 	unsigned char usesyslog;
 	time_t upgradedelay;
+	time_t olddelay;
 	/* servers */
 	char *proxyhost;
 	unsigned short proxyport;

@@ -373,6 +373,31 @@ static int pkg_cmp(const void *p1, const void *p2)
 	return(strcmp(((pmpkg_t *)p1)->name, ((pmsyncpkg_t *)p2)->pkg->name));
 }
 
+static int check_olddelay()
+{
+	pmlist_t *i;
+	char lastupdate[16] = "";
+	struct tm tm;
+
+	if(!handle->olddelay) {
+		return(0);
+	}
+
+	for(i = handle->dbs_sync; i; i= i->next) {
+		pmdb_t *db = i->data;
+		if(_pacman_db_getlastupdate(db, lastupdate) == -1) {
+			continue;
+		}
+		if(strptime(lastupdate, "%Y%m%d%H%M%S", &tm) == NULL) {
+			continue;
+		}
+		if((time(NULL)-mktime(&tm)) > handle->olddelay) {
+			_pacman_log(PM_LOG_WARNING, _("local copy of '%s' repo is too old"), db->treename);
+		}
+	}
+	return(0);
+}
+
 int _pacman_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, pmlist_t **data)
 {
 	pmlist_t *deps = NULL;
@@ -746,6 +771,9 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync,
 		}
 	}
 #endif
+
+	/* issue warning if the local db is too old */
+	check_olddelay();
 
 cleanup:
 	FREELISTPTR(list);

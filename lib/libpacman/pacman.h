@@ -116,7 +116,8 @@ enum {
 	PM_OPT_HOLDPKG,
 	PM_OPT_CHOMP,
 	PM_OPT_NEEDLES,
-	PM_OPT_MAXTRIES
+	PM_OPT_MAXTRIES,
+	PM_OPT_OLDDELAY
 };
 
 int pacman_set_option(unsigned char parm, unsigned long data);
