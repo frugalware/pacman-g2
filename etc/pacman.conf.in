@@ -11,7 +11,7 @@
 LogFile     = /var/log/pacman-g2.log
 HoldPkg     = pacman-g2 glibc bash coreutils chkconfig
 # Use this if you need advanced features. YOUR_OTPS can be for example --limit-rate 800K
-#XferCommand = echo %o |sed -r 's/.(fpm|fdb).part$//'; curl -C - -# -o %o %u YOUR_OTPS; echo
+#XferCommand = echo %o |sed -r 's/.(fpm|fdb).part$//'; curl -C - --progress-bar -o %o %u YOUR_OTPS; echo
 
 # If you use the -current tree, you should disable the -stable
 # tree to avoid conflicts
