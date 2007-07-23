@@ -32,7 +32,7 @@ class pmpkg:
 	Object holding data from a pacman-g2 package.
 	"""
 
-	def __init__(self, name, version = "1.0-1", arch = 'i686'):
+	def __init__(self, name, version = "1.0-1", arch = os.uname()[-1]):
 		# desc
 		self.name = name
 		self.version = version
