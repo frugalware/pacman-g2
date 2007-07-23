@@ -46,12 +46,13 @@
  *
  * conflicts are always name only
  */
-pmlist_t *_pacman_checkconflicts(pmdb_t *db, pmlist_t *packages)
+pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmdb_t *db, pmlist_t *packages)
 {
 	pmpkg_t *info = NULL;
 	pmlist_t *i, *j, *k;
 	pmlist_t *baddeps = NULL;
 	pmdepmissing_t *miss = NULL;
+	double percent;
 
 	if(db == NULL) {
 		return(NULL);
@@ -59,9 +60,14 @@ pmlist_t *_pacman_checkconflicts(pmdb_t *db, pmlist_t *packages)
 
 	for(i = packages; i; i = i->next) {
 		pmpkg_t *tp = i->data;
+		percent = (double)(_pacman_list_count(packages) - _pacman_list_count(i) + 1) / _pacman_list_count(packages);
 		if(tp == NULL) {
 			continue;
 		}
+
+		PROGRESS(trans, PM_TRANS_PROGRESS_INTERCONFLICTS_START, "",
+		    (percent * 100), _pacman_list_count(packages),
+		    (_pacman_list_count(packages) - _pacman_list_count(i) +1));
 
 		for(j = _pacman_pkg_getinfo(tp, PM_PKG_CONFLICTS); j; j = j->next) {
 			if(!strcmp(tp->name, j->data)) {

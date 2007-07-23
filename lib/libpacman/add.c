@@ -223,7 +223,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
 
 		/* no unsatisfied deps, so look for conflicts */
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		lp = _pacman_checkconflicts(db, trans->packages);
+		lp = _pacman_checkconflicts(trans, db, trans->packages);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
