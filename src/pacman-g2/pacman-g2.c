@@ -574,6 +574,14 @@ int main(int argc, char *argv[])
 		ERR(NL, _("failed to set option DLETA_S (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
+	if(pacman_set_option(PM_OPT_DLREMAIN, (long)&remain) == -1) {
+		ERR(NL, _("failed to set option DLREMAIN (%s)\n"), pacman_strerror(pm_errno));
+		cleanup(1);
+	}
+	if(pacman_set_option(PM_OPT_DLHOWMANY, (long)&howmany) == -1) {
+		ERR(NL, _("failed to set option DLHOWMANY (%s)\n"), pacman_strerror(pm_errno));
+		cleanup(1);
+	}
 	FREE(config->cachedir);
 	pacman_get_option(PM_OPT_CACHEDIR, (long *)&config->cachedir);
 
