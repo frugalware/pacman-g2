@@ -392,7 +392,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmli
 						}
 					}
 					if(!found) {
-						_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s as required by %s"), (char *)j->data, tp->name);
+						_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s which requires %s"), (char *)j->data, tp->name);
 						miss = _pacman_depmiss_new(tp->name, PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, j->data, NULL);
 						if(!_pacman_depmiss_isin(miss, baddeps)) {
 							baddeps = _pacman_list_add(baddeps, miss);
