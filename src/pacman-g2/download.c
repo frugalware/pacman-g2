@@ -45,17 +45,17 @@ struct timeval t0, t;
 float rate;
 int xfered1;
 unsigned int eta_h, eta_m, eta_s;
+static int remain = 1;
 
 /* pacman options */
 extern config_t *config;
 
 extern unsigned int maxcols;
 
-int log_progress(PM_NETBUF *ctl, int xfered, void *arg, void *arg2, void *arg3)
+int log_progress(PM_NETBUF *ctl, int xfered, void *arg, void *arg2)
 {
 	int fsz = *(int*)arg;
 	int howmany = *(int*)arg2;
-	int remain = *(int*)arg3;
 	int pct = ((float)(xfered+offset) / fsz) * 100;
 	static int lastpct=0;
 	unsigned int i, cur;
@@ -109,6 +109,7 @@ int log_progress(PM_NETBUF *ctl, int xfered, void *arg, void *arg2, void *arg3)
 	putchar('(');
 	for(i = 0; i<(int)log10(howmany)-(int)log10(remain); i++)
 	    putchar(' ');
+
 	printf("%d/%d) %s [", remain, howmany, sync_fnm);
 	cur = (int)((maxcols-68)*pct/100);
 	for(i = 0; i < maxcols-68; i++) {
@@ -146,6 +147,7 @@ int log_progress(PM_NETBUF *ctl, int xfered, void *arg, void *arg2, void *arg3)
 	}
 	if(lastpct != 100 && pct == 100) {
 		printf("\n");
+		remain = remain + 1;
 	}
 	lastcur = cur;
 	lastpct = pct;
