@@ -59,13 +59,14 @@
 #define FTPLIB_CALLBACKARG 4
 #define FTPLIB_CALLBACKBYTES 5
 #define FTPLIB_CALLBACKARG2 6
+#define FTPLIB_CALLBACKARG3 7
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct NetBuf netbuf;
-typedef int (*FtpCallback)(netbuf *nControl, int xfered, void *arg, void *arg2);
+typedef int (*FtpCallback)(netbuf *nControl, int xfered, void *arg, void *arg2, void *arg3);
 
 /* v1 compatibility stuff */
 #if !defined(_FTPLIB_NO_COMPAT)

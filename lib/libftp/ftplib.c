@@ -83,6 +83,7 @@ struct NetBuf {
 	FtpCallback idlecb;
 	void *idlearg;
 	void *idlearg2;
+	void *idlearg3;
 	int xfered;
 	int cbbytes;
 	int xfered1;
@@ -171,7 +172,7 @@ static int socket_wait(netbuf *ctl)
 			break;
 		}
 	}
-	while ((rv = ctl->idlecb(ctl, ctl->xfered, ctl->idlearg, ctl->idlearg2)));
+	while ((rv = ctl->idlecb(ctl, ctl->xfered, ctl->idlearg, ctl->idlearg2, ctl->idlearg3)));
 	return rv;
 }
 
@@ -476,6 +477,7 @@ GLOBALDEF int FtpConnect(const char *host, netbuf **nControl)
 	ctrl->idletime.tv_sec = ctrl->idletime.tv_usec = 0;
 	ctrl->idlearg = NULL;
 	ctrl->idlearg2 = NULL;
+	ctrl->idlearg3 = NULL;
 	ctrl->xfered = 0;
 	ctrl->xfered1 = 0;
 	ctrl->cbbytes = 0;
@@ -525,6 +527,10 @@ GLOBALDEF int FtpOptions(int opt, long val, netbuf *nControl)
 		case FTPLIB_CALLBACKARG2:
 			rv = 1;
 			nControl->idlearg2 = (void *) val;
+			break;
+		case FTPLIB_CALLBACKARG3:
+			rv = 1;
+			nControl->idlearg3 = (void *) val;
 			break;
 		case FTPLIB_CALLBACKBYTES:
 			rv = 1;
@@ -717,6 +723,7 @@ static int FtpOpenPort(netbuf *nControl, netbuf **nData, int mode, int dir)
 	ctrl->idletime = nControl->idletime;
 	ctrl->idlearg = nControl->idlearg;
 	ctrl->idlearg2 = nControl->idlearg2;
+	ctrl->idlearg3 = nControl->idlearg3;
 	ctrl->xfered = 0;
 	ctrl->xfered1 = 0;
 	ctrl->cbbytes = nControl->cbbytes;
@@ -897,7 +904,7 @@ GLOBALDEF int FtpRead(void *buf, int max, netbuf *nData)
 		nData->xfered1 += i;
 		if (nData->xfered1 > nData->cbbytes)
 		{
-			if (nData->idlecb(nData, nData->xfered, nData->idlearg, nData->idlearg2) == 0)
+			if (nData->idlecb(nData, nData->xfered, nData->idlearg, nData->idlearg2, nData->idlearg3) == 0)
 				return 0;
 			nData->xfered1 = 0;
 		}
@@ -928,7 +935,7 @@ GLOBALDEF int FtpWrite(void *buf, int len, netbuf *nData)
 		nData->xfered1 += i;
 		if (nData->xfered1 > nData->cbbytes)
 		{
-			nData->idlecb(nData, nData->xfered, nData->idlearg, nData->idlearg2);
+			nData->idlecb(nData, nData->xfered, nData->idlearg, nData->idlearg2, nData->idlearg3);
 			nData->xfered1 = 0;
 		}
 	}
@@ -1405,6 +1412,7 @@ GLOBALREF int HttpConnect(const char *host, unsigned short port, netbuf **nContr
 	ctrl->idletime.tv_sec = ctrl->idletime.tv_usec = 0;
 	ctrl->idlearg = NULL;
 	ctrl->idlearg2 = NULL;
+	ctrl->idlearg3 = NULL;
 	ctrl->xfered = 0;
 	ctrl->xfered1 = 0;
 	ctrl->cbbytes = 0;
