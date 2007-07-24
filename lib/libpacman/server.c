@@ -164,12 +164,19 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	int done = 0;
 	pmlist_t *complete = NULL;
 	pmlist_t *i;
+	int *remain = handle->dlremain, *howmany = handle->dlhowmany;
 
 	if(files == NULL) {
 		return(0);
 	}
 
 	pm_errno = 0;
+	if(howmany) {
+		*howmany = _pacman_list_count(files);
+	}
+	if(remain) {
+		*remain = 0;
+	}
 
   _pacman_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
 	for(i = servers; i && !done; i = i->next) {
@@ -236,6 +243,10 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 
 			if(_pacman_list_is_strin(fn, complete)) {
 				continue;
+			}
+
+			if(remain) {
+				*remain += 1;
 			}
 
 			if(handle->xfercommand && strcmp(server->protocol, "file")) {
