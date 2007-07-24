@@ -29,6 +29,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <libintl.h>
+#include <math.h>
 
 #include <pacman.h>
 /* pacman-g2 */
@@ -44,7 +45,7 @@ int offset;
 struct timeval t0, t;
 float rate;
 int xfered1;
-unsigned int eta_h, eta_m, eta_s;
+unsigned int eta_h, eta_m, eta_s, remain = 1, howmany = 10;
 
 /* pacman options */
 extern config_t *config;
@@ -65,6 +66,7 @@ int log_progress(PM_NETBUF *ctl, int xfered, void *arg)
 	int chomp;
 	static unsigned short mouth;
 	static unsigned int   lastcur = 0;
+	unsigned int maxpkglen;
 
 	/* we don't need that parameter */
 	ctl=NULL;
@@ -103,7 +105,18 @@ int log_progress(PM_NETBUF *ctl, int xfered, void *arg)
 		eta_s -= eta_m * 60;
 	}
 
-	printf(" %s [", sync_fnm);
+	// if the package name is too long, then slice the ending
+	maxpkglen=PM_DLFNM_LEN-(3+2*(int)log10(howmany));
+	if(strlen(sync_fnm)>maxpkglen)
+		sync_fnm[maxpkglen-1]='\0';
+
+	putchar('(');
+	for(i=0;i<(int)log10(howmany)-(int)log10(remain);i++)
+		putchar(' ');
+	printf("%d/%d) %s [", remain, howmany, sync_fnm);
+	if (strlen(sync_fnm)<maxpkglen)
+		for (i=maxpkglen-strlen(sync_fnm)-1; i>0; i--)
+			putchar(' ');
 	cur = (int)((maxcols-64)*pct/100);
 	for(i = 0; i < maxcols-64; i++) {
 		if(chomp) {

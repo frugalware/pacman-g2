@@ -259,6 +259,12 @@ int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned lo
 		case PM_OPT_DLETA_S:
 			pm_dleta_s = (unsigned char *)data;
 		break;
+		case PM_OPT_DLREMAIN:
+			handle->dlremain = (int *)data;
+		break;
+		case PM_OPT_DLHOWMANY:
+			handle->dlhowmany = (int *)data;
+		break;
 		case PM_OPT_UPGRADEDELAY:
 			handle->upgradedelay = data;
 		break;
@@ -354,6 +360,8 @@ int _pacman_handle_get_option(pmhandle_t *handle, unsigned char val, long *data)
 		case PM_OPT_DLETA_H:   *data = (long)pm_dleta_h; break;
 		case PM_OPT_DLETA_M:   *data = (long)pm_dleta_m; break;
 		case PM_OPT_DLETA_S:   *data = (long)pm_dleta_s; break;
+		case PM_OPT_DLREMAIN:  *data = (long)handle->dlremain; break;
+		case PM_OPT_DLHOWMANY: *data = (long)handle->dlhowmany; break;
 		case PM_OPT_PROXYHOST: *data = (long)handle->proxyhost; break;
 		case PM_OPT_PROXYPORT: *data = handle->proxyport; break;
 		case PM_OPT_XFERCOMMAND: *data = (long)handle->xfercommand; break;

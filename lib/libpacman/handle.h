@@ -60,6 +60,8 @@ typedef struct __pmhandle_t {
 	unsigned short maxtries; /* for downloading */
 	pmlist_t *needles; /* for searching */
 	char *language;
+	int *dlremain;
+	int *dlhowmany;
 } pmhandle_t;
 
 extern pmhandle_t *handle;
