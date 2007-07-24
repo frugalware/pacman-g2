@@ -21,8 +21,6 @@
 #ifndef _PM_DOWNLOAD_H
 #define _PM_DOWNLOAD_H
 
-#include <math.h>
-
 extern char sync_fnm[PM_DLFNM_LEN+1];
 extern int offset;
 extern struct timeval t0, t;
@@ -30,7 +28,7 @@ extern float rate;
 extern int xfered1;
 extern unsigned int eta_h, eta_m, eta_s;
 
-int log_progress(PM_NETBUF *ctl, int xfered, void *arg, void *arg2);
+int log_progress(PM_NETBUF *ctl, int xfered, void *arg);
 
 #endif /* _PM_DOWNLOAD_H */
 

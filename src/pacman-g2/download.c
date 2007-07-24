@@ -45,17 +45,15 @@ struct timeval t0, t;
 float rate;
 int xfered1;
 unsigned int eta_h, eta_m, eta_s;
-static int remain = 1;
 
 /* pacman options */
 extern config_t *config;
 
 extern unsigned int maxcols;
 
-int log_progress(PM_NETBUF *ctl, int xfered, void *arg, void *arg2)
+int log_progress(PM_NETBUF *ctl, int xfered, void *arg)
 {
 	int fsz = *(int*)arg;
-	int howmany = *(int*)arg2;
 	int pct = ((float)(xfered+offset) / fsz) * 100;
 	static int lastpct=0;
 	unsigned int i, cur;
@@ -105,14 +103,9 @@ int log_progress(PM_NETBUF *ctl, int xfered, void *arg, void *arg2)
 		eta_s -= eta_m * 60;
 	}
 
-	/* Need fixup :S i cant backport it from trans.c :S */
-	putchar('(');
-	for(i = 0; i<(int)log10(howmany)-(int)log10(remain); i++)
-	    putchar(' ');
-
-	printf("%d/%d) %s [", remain, howmany, sync_fnm);
-	cur = (int)((maxcols-68)*pct/100);
-	for(i = 0; i < maxcols-68; i++) {
+	printf(" %s [", sync_fnm);
+	cur = (int)((maxcols-64)*pct/100);
+	for(i = 0; i < maxcols-64; i++) {
 		if(chomp) {
 			if(i < cur) {
 				printf("-");
@@ -147,7 +140,6 @@ int log_progress(PM_NETBUF *ctl, int xfered, void *arg, void *arg2)
 	}
 	if(lastpct != 100 && pct == 100) {
 		printf("\n");
-		remain = remain + 1;
 	}
 	lastcur = cur;
 	lastpct = pct;
