@@ -82,6 +82,7 @@ struct NetBuf {
 	struct timeval idletime;
 	FtpCallback idlecb;
 	void *idlearg;
+	void *idlearg2;
 	int xfered;
 	int cbbytes;
 	int xfered1;
@@ -170,7 +171,7 @@ static int socket_wait(netbuf *ctl)
 			break;
 		}
 	}
-	while ((rv = ctl->idlecb(ctl, ctl->xfered, ctl->idlearg)));
+	while ((rv = ctl->idlecb(ctl, ctl->xfered, ctl->idlearg, ctl->idlearg2)));
 	return rv;
 }
 
@@ -474,6 +475,7 @@ GLOBALDEF int FtpConnect(const char *host, netbuf **nControl)
 	ctrl->idlecb = NULL;
 	ctrl->idletime.tv_sec = ctrl->idletime.tv_usec = 0;
 	ctrl->idlearg = NULL;
+	ctrl->idlearg2 = NULL;
 	ctrl->xfered = 0;
 	ctrl->xfered1 = 0;
 	ctrl->cbbytes = 0;
@@ -519,6 +521,10 @@ GLOBALDEF int FtpOptions(int opt, long val, netbuf *nControl)
 		case FTPLIB_CALLBACKARG:
 			rv = 1;
 			nControl->idlearg = (void *) val;
+			break;
+		case FTPLIB_CALLBACKARG2:
+			rv = 1;
+			nControl->idlearg2 = (void *) val;
 			break;
 		case FTPLIB_CALLBACKBYTES:
 			rv = 1;
@@ -710,6 +716,7 @@ static int FtpOpenPort(netbuf *nControl, netbuf **nData, int mode, int dir)
 	ctrl->dir = dir;
 	ctrl->idletime = nControl->idletime;
 	ctrl->idlearg = nControl->idlearg;
+	ctrl->idlearg2 = nControl->idlearg2;
 	ctrl->xfered = 0;
 	ctrl->xfered1 = 0;
 	ctrl->cbbytes = nControl->cbbytes;
@@ -890,7 +897,7 @@ GLOBALDEF int FtpRead(void *buf, int max, netbuf *nData)
 		nData->xfered1 += i;
 		if (nData->xfered1 > nData->cbbytes)
 		{
-			if (nData->idlecb(nData, nData->xfered, nData->idlearg) == 0)
+			if (nData->idlecb(nData, nData->xfered, nData->idlearg, nData->idlearg2) == 0)
 				return 0;
 			nData->xfered1 = 0;
 		}
@@ -921,7 +928,7 @@ GLOBALDEF int FtpWrite(void *buf, int len, netbuf *nData)
 		nData->xfered1 += i;
 		if (nData->xfered1 > nData->cbbytes)
 		{
-			nData->idlecb(nData, nData->xfered, nData->idlearg);
+			nData->idlecb(nData, nData->xfered, nData->idlearg, nData->idlearg2);
 			nData->xfered1 = 0;
 		}
 	}
@@ -1397,6 +1404,7 @@ GLOBALREF int HttpConnect(const char *host, unsigned short port, netbuf **nContr
 	ctrl->idlecb = NULL;
 	ctrl->idletime.tv_sec = ctrl->idletime.tv_usec = 0;
 	ctrl->idlearg = NULL;
+	ctrl->idlearg2 = NULL;
 	ctrl->xfered = 0;
 	ctrl->xfered1 = 0;
 	ctrl->cbbytes = 0;
