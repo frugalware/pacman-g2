@@ -27,6 +27,11 @@ G2 TODO
 - untouched dirs from pacman:
   - pamcan.conf, pacman.d
   - /var/lib/pacman, /var/cache/pacman
+- Review that where PROGRESSBAR is used, then how to count packages
+  - In remove.c there is two progressbar entry and we use twice the
+    _pacman_list_count function() We can bring a variable in and put
+    list_count values to there.
+
 
 autoconf/automake
 =================
