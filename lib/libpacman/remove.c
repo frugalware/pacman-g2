@@ -259,7 +259,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmdb_t *db)
 						} else {
 							_pacman_log(PM_LOG_FLOW2, _("unlinking %s"), file);
 							/* Need at here because we count only real unlinked files ? */
-				PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, (double)(percent * 100), _pacman_list_count(trans->packages), (_pacman_list_count(trans->packages) - _pacman_list_count(targ) +1));
+							PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, (int)(percent * 100), _pacman_list_count(trans->packages), (_pacman_list_count(trans->packages) - _pacman_list_count(targ) +1));
 							position++;
 							if(unlink(line)) {
 								_pacman_log(PM_LOG_ERROR, _("cannot remove file %s"), file);
