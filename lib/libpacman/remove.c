@@ -161,9 +161,12 @@ int _pacman_remove_commit(pmtrans_t *trans, pmdb_t *db)
 	struct stat buf;
 	pmlist_t *targ, *lp;
 	char line[PATH_MAX+1];
+	int howmany, remain;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+
+	howmany = _pacman_list_count(trans->packages);
 
 	for(targ = trans->packages; targ; targ = targ->next) {
 		int position = 0;
@@ -173,6 +176,8 @@ int _pacman_remove_commit(pmtrans_t *trans, pmdb_t *db)
 		if(handle->trans->state == STATE_INTERRUPTED) {
 			break;
 		}
+
+		remain = _pacman_list_count(targ);
 
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			EVENT(trans, PM_TRANS_EVT_REMOVE_START, info, NULL);
@@ -259,7 +264,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmdb_t *db)
 						} else {
 							_pacman_log(PM_LOG_FLOW2, _("unlinking %s"), file);
 							/* Need at here because we count only real unlinked files ? */
-							PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, (int)(percent * 100), _pacman_list_count(trans->packages), (_pacman_list_count(trans->packages) - _pacman_list_count(targ) +1));
+							PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, (int)(percent * 100), howmany, howmany - remain + 1);
 							position++;
 							if(unlink(line)) {
 								_pacman_log(PM_LOG_ERROR, _("cannot remove file %s"), file);
@@ -270,7 +275,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmdb_t *db)
 			}
 		}
 
-		PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, 100, _pacman_list_count(trans->packages), (_pacman_list_count(trans->packages) - _pacman_list_count(targ) +1));
+		PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, 100, howmany, howmany - remain + 1);
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			/* run the post-remove script if it exists */
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {

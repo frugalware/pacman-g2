@@ -294,6 +294,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
 int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 {
 	int i, ret = 0, errors = 0, needdisp = 0;
+	int remain, howmany;
 	double percent;
 	register struct archive *archive;
 	struct archive_entry *entry;
@@ -315,6 +316,8 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 		pmpkg_t *info = (pmpkg_t *)targ->data;
 		pmpkg_t *oldpkg = NULL;
 		errors = 0;
+		remain = _pacman_list_count(targ);
+		howmany = _pacman_list_count(trans->packages);
 
 		if(handle->trans->state == STATE_INTERRUPTED) {
 			break;
@@ -443,7 +446,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 				if (info->size != 0)
 		    			percent = (double)archive_position_uncompressed(archive) / info->size;
 				if (needdisp == 0) {
-					PROGRESS(trans, cb_state, what, (int)(percent * 100), _pacman_list_count(trans->packages), (_pacman_list_count(trans->packages) - _pacman_list_count(targ) +1));
+					PROGRESS(trans, cb_state, what, (int)(percent * 100), howmany, (howmany - remain +1));
 				}
 
 				if(!strcmp(pathname, ".PKGINFO") || !strcmp(pathname, ".FILELIST")) {
@@ -717,7 +720,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 				pacman_logaction(_("errors occurred while %s %s"),
 					(pmo_upgrade ? _("upgrading") : _("installing")), info->name);
 			} else {
-			PROGRESS(trans, cb_state, what, 100, _pacman_list_count(trans->packages), (_pacman_list_count(trans->packages) - _pacman_list_count(targ) +1));
+			PROGRESS(trans, cb_state, what, 100, howmany, howmany - remain + 1);
 			}
 		}
 
