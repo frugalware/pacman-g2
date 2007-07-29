@@ -731,6 +731,10 @@ if [ ! -z "$CLEANCCACHE" ]; then
 	exit 0
 fi
 
+if [ "$INCHROOT" = "1" ]; then
+	echo $$ >lock
+fi
+
 if [ $CLEANCACHE -ge 1 ]; then
 	if [ $CLEANCACHE -ge 2 ]; then
 		msg "Cleaning up the compiler cache."
