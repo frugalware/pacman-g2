@@ -101,8 +101,6 @@ int pacman_initialize(char *root)
  */
 int pacman_release()
 {
-	pmlist_t *i;
-
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
 	/* free the transaction if there is any */
@@ -112,13 +110,13 @@ int pacman_release()
 
 	/* close local database */
 	if(handle->db_local) {
+		/* db_unregister() will set handle->db_local to NULL */
 		pacman_db_unregister(handle->db_local);
-		handle->db_local = NULL;
 	}
 	/* and also sync ones */
-	for(i = handle->dbs_sync; i; i = i->next) {
-		pacman_db_unregister(i->data);
-		i->data = NULL;
+	while(handle->dbs_sync) {
+		/* db_unregister() will also update the handle->dbs_sync list */
+		pacman_db_unregister(handle->dbs_sync->data);
 	}
 
 	FREEHANDLE(handle);
