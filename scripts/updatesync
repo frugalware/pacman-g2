@@ -167,6 +167,8 @@ db_write_entry()
 		done
 		echo "" >>depends
 	fi
+	cd ..
+	tar rf $udb $1-$pkgver-$pkgrel
 }
 
 in_array()
@@ -194,11 +196,11 @@ delete_entry()
 	else
 		pkgname=$1
 	fi
-	for i in *; do
+	for i in `tar tf $udb|grep /$`; do
 		for j in $pkgname ${subpkgs[@]}; do
 			if [ "$j" == "${i%-*-*}" ]; then
-				echo "updatesync: deleting $i" >&2
-				rm -rf $i
+				echo "updatesync: deleting `basename $i`" >&2
+				tar --delete -f $udb $i
 			fi
 		done
 	done
@@ -252,8 +254,10 @@ if [ "$action" = "upd" -a ! -f $option ]; then
 	option=$curdir/$option
 fi
 
+bdb=`basename $pkgdb`
+udb=`basename $bdb .fdb`.tar
 echo "updatesync: uncompressing to $ustmpdir..." >&2
-tar xf $pkgdb || die "error uncompressing $pkgdb"
+bunzip2 -c -d $pkgdb > $udb || die "error uncompressing $pkgdb"
 if [ "$action" = "upd" ]; then
 	# INSERT / UPDATE
 	delete_entry $option
@@ -304,10 +308,9 @@ else
 	delete_entry $option
 fi
 
-bdb=`basename $pkgdb`
 echo "updatesync: compressing to $bdb..." >&2
 cd $ustmpdir
-tar cjf $bdb * || die "error writing to $pkgdb"
+bzip2 -c $udb >$bdb || die "error writing to $bdb"
 mv $bdb $pkgdb || die "error moving $bdb to $pkgdb"
 
 cd $curdir
