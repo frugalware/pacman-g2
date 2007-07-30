@@ -99,7 +99,7 @@ int pacman_initialize(char *root)
 /** Release the library.  This should be the last libpacman call you make.
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int pacman_release()
+int pacman_release(void)
 {
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
