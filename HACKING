@@ -24,14 +24,14 @@ cd pactest; python pactest.py --test=tests/sync990.py -p ../../src/pacman-g2/pac
 
 That's all.
 
-How to test pacman-g2 more using valgring?
+How to test pacman-g2 more using valgrind?
 =========================================
 
 Try to run some commands using valgrind with a command like:
 
 valgrind --leak-check=full --trace-children=yes -- src/pacman-g2/pacman-g2 -Syu
 
-Be carefull, valgrind reports lots of errors, even some errors that may not be related to
+Be careful, valgrind reports lots of errors, even some errors that may not be related to
 pacman-g2. You should have a little experience of valgrind to ignore the noise.
 
 How to add new localized manpage to pacman-g2 (configure and all things)
