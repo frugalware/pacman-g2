@@ -616,7 +616,7 @@ int pacman_pkg_checkmd5sum(pmpkg_t *pkg)
 
 /** Compare versions.
  * @param ver1 first version
- * @param ver2 secont version
+ * @param ver2 second version
  * @return negative, 0 or positive if ver1 is less, equal or more than ver2,
  * respectively.
  */
