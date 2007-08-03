@@ -178,7 +178,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		*remain = 0;
 	}
 
-  _pacman_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
+	_pacman_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
 	for(i = servers; i && !done; i = i->next) {
 		_pacman_log(PM_LOG_DEBUG, _("server check, done? %d\n"),done);
 		pmserver_t *server = (pmserver_t*)i->data;
@@ -531,7 +531,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		}
 	}
 
-  _pacman_log(PM_LOG_DEBUG, _("end _pacman_downloadfiles_forreal - return %d"),!done);
+	_pacman_log(PM_LOG_DEBUG, _("end _pacman_downloadfiles_forreal - return %d"),!done);
 
 error:
 	FREELISTPTR(complete);
