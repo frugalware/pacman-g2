@@ -923,18 +923,22 @@ fi
 indir=n
 if [ "$F_makepkg_scm" = "git" ]; then
 	git rev-parse --git-dir &>/dev/null && indir=y
-else
+elif [ "$F_makepkg_scm" = "darcs" ]; then
 	darcs --commands 2>&1|grep -q add && indir=y
+elif [ "$F_makepkg_scm" = "svn" ]; then
+	svn info $BUILDSCRIPT &>/dev/null && indir=y
 fi
 if [ "$indir" = "y" ] && [ "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
 	if [ ! -e Changelog ] || [ `stat -c %Y Changelog` -lt `stat -c %Y $BUILDSCRIPT` ]; then
 		msg "Generating the Changelog..."
 		if [ "$F_makepkg_scm" = "git" ]; then
 			git log $BUILDSCRIPT >Changelog
-		else
+		elif [ "$F_makepkg_scm" = "darcs" ]; then
 			darcs changes $BUILDSCRIPT | \
 				sed "s|\(.*\)source/\(.*\)/$BUILDSCRIPT\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" \
 				>Changelog
+		elif [ "$F_makepkg_scm" = "svn" ]; then
+			svn log $BUILDSCRIPT >Changelog
 		fi
 		if [ "`id -u`" = "0" ]; then
 			chown `stat -c %u:%g $BUILDSCRIPT` \
