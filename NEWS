@@ -1,5 +1,6 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+              - makepkg: various minor fixes and improvements
 3.6.0         - -Ss searches again in all repos, not only in the first one
               - updated curl example in pacman.conf so that it works again
               - issue a warning when you didn't do a -Sy for a long time
