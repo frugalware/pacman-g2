@@ -1509,7 +1509,7 @@ find $startdir/{pkg,pkg.*}/{usr{,/local,/share},opt/*}/{info,man} -type f 2>/dev
 	fn="${i##*/}"
 	if [ "$ext" != "gz" -a "$ext" != "bz2" ]; then
 		# update symlinks to this manpage
-		find $startdir/pkg/{usr{,/local,/share},opt/*}/man -lname "$fn" 2> /dev/null | while read ln ; do
+		find $startdir/{pkg,pkg.*}/{usr{,/local,/share},opt/*}/man -lname "$fn" 2> /dev/null | while read ln ; do
 			rm -f "$ln"
 			ln -sf "${fn}.gz" "${ln}.gz"
 		done
