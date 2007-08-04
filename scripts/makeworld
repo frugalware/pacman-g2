@@ -135,13 +135,13 @@ for category in $*; do
 		if [ -f $BUILDSCRIPT ]; then
 			. $BUILDSCRIPT
 			buildstatus=0
-			if [ ! -f $dest/$pkgname-$pkgver-$pkgrel-$CARCH.fpm ]; then
+			if [ ! -f $dest/$pkgname-$pkgver-$pkgrel-$CARCH.$PKG_EXT ]; then
 				sudo makepkg $MAKEPKG_OPTS -R -L -u -k -m 2>>$toplevel/makepkg.log
 				if [ $? -gt 0 ]; then
 					buildstatus=2
 				else
 					buildstatus=1
-					mv $pkgname-$pkgver-$pkgrel-$CARCH.fpm $dest/
+					mv $pkgname-$pkgver-$pkgrel-$CARCH.$PKG_EXT $dest/
 				fi
 			fi
 			d=`date +"[%b %d %H:%M]"`

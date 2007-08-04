@@ -502,7 +502,7 @@ create_pkg()
 	tar cvf /dev/null * | sort >.FILELIST
 
 	# tar it up
-	msg2 "Compressing $1-$pkgver-$pkgrel-$CARCH.fpm " >&2
+	msg2 "Compressing $1-$pkgver-$pkgrel-$CARCH.$PKG_EXT " >&2
 	unset extra
 	if [ -f .INSTALL ]; then
 		extra=".INSTALL"
@@ -519,10 +519,10 @@ create_pkg()
 	fi
 
 	if [ "$INCHROOT" != "1" ]; then
-		tar $tarargs $PKGDEST/$1-$pkgver-$pkgrel-$CARCH.fpm .PKGINFO .FILELIST \
+		tar $tarargs $PKGDEST/$1-$pkgver-$pkgrel-$CARCH.$PKG_EXT .PKGINFO .FILELIST \
 		$extra *
 	else
-		tar $tarargs ../$1-$pkgver-$pkgrel-$CARCH.fpm .PKGINFO .FILELIST \
+		tar $tarargs ../$1-$pkgver-$pkgrel-$CARCH.$PKG_EXT .PKGINFO .FILELIST \
 			$extra *
 	fi
 
@@ -582,23 +582,23 @@ install_pkg()
 {
 	if [ "$INSTALL" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
 		msg "Installing package(s) with pacman-g2 -U..."
-		targs="$PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm"
+		targs="$PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
 		if [ ! -z "$subpkgs" ]; then
 			i=0
 			for subpkg in "${subpkgs[@]}"
 			do
-				targs="$targs $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.fpm"
+				targs="$targs $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
 			done
 		fi
 		pacman-g2 $PACMAN_OPTS -U $targs || exit $?
 	elif [ "$INSTALL" = "1" -a "$DEP_SUDO" = "1" ]; then
 		msg "Installing package(s) with sudo pacman-g2 -U..."
-		targs="$PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm"
+		targs="$PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
 		if [ ! -z "$subpkgs" ]; then
 			i=0
 			for subpkg in "${subpkgs[@]}"
 			do
-				targs="$targs $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.fpm"
+				targs="$targs $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
 			done
 		fi
 		if [ "$INFAKEROOT" = "1" ]; then
@@ -909,7 +909,7 @@ if [ ! -z "$subpkgs" ]; then
 	fi
 fi
 
-if [ -f $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm -a "$FORCE" = "0" -a "$GENSHA1" = "0" ]; then
+if [ -f $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT -a "$FORCE" = "0" -a "$GENSHA1" = "0" ]; then
 	if [ "$INSTALL" = "1" ]; then
 		warning "a package has already been built, installing existing package."
 		install_pkg
@@ -970,7 +970,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		cat /etc/pacman.conf |grep -v Include >$_F_makepkg_pacconf
 		for i in `echo $TREE|sed 's/,/ /g'`
 		do
-			repo=$(eval "echo \${${i}_fdb/.fdb}")
+			repo=$(eval "echo \${${i}_$DB_EXT/.$DB_EXT}")
 			[ -z "$repo" ] && repo="$i"
 			echo "Include = /etc/pacman.d/$repo" >>$_F_makepkg_pacconf
 		done
@@ -1049,11 +1049,11 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
 	fi
 
-	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm ]; then
-		mv $CHROOTDIR/var/tmp/fst/*-${pkgver}-${pkgrel}-${CARCH}.fpm $PKGDEST
+	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT ]; then
+		mv $CHROOTDIR/var/tmp/fst/*-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT $PKGDEST
 		if [ "`id -u`" = "0" ]; then
 			chown `stat -c %u:%g $BUILDSCRIPT` \
-				*-${pkgver}-${pkgrel}-${CARCH}.fpm
+				*-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT
 		fi
 		# copy back the buildscript, maybe modified
 		cp $CHROOTDIR/var/tmp/fst/$BUILDSCRIPT ./
