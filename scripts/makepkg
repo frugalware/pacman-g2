@@ -89,7 +89,7 @@ Fextract() {
 		cmd="" ;;
 	esac
 	if [ "$cmd" != "" ]; then
-		msg "    $cmd"
+		msg2 "$cmd"
 		$cmd
 		if [ $? -ne 0 ]; then
 			# unzip will return a 1 as a warning, it is not an error
