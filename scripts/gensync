@@ -237,7 +237,7 @@ for file in `find $rootdir -name $BUILDSCRIPT`; do
 		cd - >/dev/null
 		db_write_entry $pkgname || die "error writing entry for $pkgname ($file)"
 	fi
-	if [ ! -z "$subpkgs" ] && [ ! "$nobuild" -a ! "`check_option NOBUILD`" ]; then
+	if [ ! -z "$subpkgs" ]; then
 		i=0
 		for subpkg in "${subpkgs[@]}"
 		do
@@ -254,7 +254,7 @@ for file in `find $rootdir -name $BUILDSCRIPT`; do
 			conflicts="${subconflicts[$i]}"
 			provides="${subprovides[$i]}"
 			options="${suboptions[$i]}"
-			if in_array $arch ${archs[@]}; then
+			if in_array $arch ${archs[@]} && [ ! "`check_option NOBUILD`"]; then
 				db_write_entry $subpkg || die "error writing entry for $subpkg ($file)"
 			fi
 			i=$(($i+1))

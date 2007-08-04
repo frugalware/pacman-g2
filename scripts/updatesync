@@ -280,7 +280,7 @@ if [ "$action" = "upd" ]; then
 		cd - >/dev/null
 		db_write_entry $pkgname || die "error writing entry for $pkgname ($option)"
 	fi
-	if [ ! -z "$subpkgs" ] || [ "$nobuild" -o "`check_option NOBUILD`" ]; then
+	if [ ! -z "$subpkgs" ]; then
 		i=0
 		for subpkg in "${subpkgs[@]}"
 		do
@@ -297,7 +297,7 @@ if [ "$action" = "upd" ]; then
 			conflicts="${subconflicts[$i]}"
 			provides="${subprovides[$i]}"
 			options="${suboptions[$i]}"
-			if in_array $arch ${archs[@]}; then
+			if in_array $arch ${archs[@]} && [ ! "`check_option NOBUILD`"]; then
 				db_write_entry $subpkg || die "error writing entry for $subpkg ($option)"
 			fi
 			i=$(($i+1))
