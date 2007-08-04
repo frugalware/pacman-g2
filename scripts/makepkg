@@ -1588,7 +1588,7 @@ fi
 cd $startdir
 if [ "$CLEANUP" = "1" ]; then
 	msg "Cleaning up..."
-	rm -rf src pkg pkg.*
+	rm -rf src pkg pkg.* Changelog
 fi
 
 if [ "$RMDEPS" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" -a \( ! -z "$deplist" -o ! -z "$makedeplist" \) ]; then
