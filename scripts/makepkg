@@ -1488,11 +1488,11 @@ if [ -d pkg/usr/share/doc ]; then
 	fi
 fi
 
-# move /usr/share/info files to /usr/info
-if [ -d pkg/usr/share/info ]; then
-	mkdir -p pkg/usr/info
-	cp -a pkg/usr/share/info/* pkg/usr/info/
-	rm -rf pkg/usr/share/info
+# move /usr/info files to /usr/share/info
+if [ -d pkg/usr/info ]; then
+	mkdir -p pkg/usr/share/info
+	cp -a pkg/usr/info/* pkg/usr/share/info/
+	rm -rf pkg/usr/info
 fi
 
 # move /usr/man files to /usr/share/man
