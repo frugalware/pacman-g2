@@ -1502,9 +1502,9 @@ if [ -d pkg/usr/man ]; then
 	rm -rf pkg/usr/man
 fi
 
-# compress man pages
-msg "Compressing man pages..."
-find $startdir/{pkg,pkg.*}/{usr{,/local,/share},opt/*}/man -type f 2>/dev/null | while read i ; do
+# compress info and manual pages
+msg "Compressing info and manual pages..."
+find $startdir/{pkg,pkg.*}/{usr{,/local,/share},opt/*}/{info,man} -type f 2>/dev/null | while read i ; do
 	ext="${i##*.}"
 	fn="${i##*/}"
 	if [ "$ext" != "gz" -a "$ext" != "bz2" ]; then
