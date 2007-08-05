@@ -28,6 +28,12 @@ export CXXFLAGS="-@MARCHFLAG@=@CARCHFLAGS@ -O2 -pipe"
 # Default name of build scripts
 export BUILDSCRIPT="FrugalBuild"
 
+# Package extension
+export PKG_EXT="fpm"
+
+# Database extension
+export DB_EXT="fdb"
+
 # Enable fakeroot for building packages as a non-root user
 export USE_FAKEROOT="y"
 

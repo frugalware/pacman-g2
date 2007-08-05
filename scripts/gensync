@@ -40,12 +40,12 @@ usage() {
 	echo "<destfile>, unless an alternate [package_directory] is specified."
 	echo
 	echo "note: The <destfile> name is important.  It must be of the form"
-	echo "      {treename}.fdb where {treename} is the name of the custom"
+	echo "      {treename}.$DB_EXT where {treename} is the name of the custom"
 	echo "      package repository you configured in /etc/pacman.conf.  The"
 	echo "      generated database must reside in the same directory as your"
 	echo "      custom packages (also configured in /etc/pacman.conf)"
 	echo
-	echo "example:  gensync /var/fst/local /home/mypkgs/custom.fdb"
+	echo "example:  gensync /var/fst/local /home/mypkgs/custom.$DB_EXT"
 	echo
   echo
   exit 0
@@ -74,9 +74,9 @@ get_sha1checksum()
 db_write_entry()
 {
 	if [ "$pkgdir" != "" ]; then
-		pkgfile="$pkgdir/$1-$pkgver-$pkgrel-$arch.fpm"
+		pkgfile="$pkgdir/$1-$pkgver-$pkgrel-$arch.$PKG_EXT"
 	else
-		pkgfile="$destdir/$1-$pkgver-$pkgrel-$arch.fpm"
+		pkgfile="$destdir/$1-$pkgver-$pkgrel-$arch.$PKG_EXT"
 	fi
 	csize=`du -b $pkgfile 2>/dev/null | cut -f1`
 	usize=`LANG= LC_ALL= pacman-g2 -Qi -p $pkgfile 2>/dev/null|grep ^Size|sed 's/.*: \(.*\)/\1/'`
@@ -237,7 +237,7 @@ for file in `find $rootdir -name $BUILDSCRIPT`; do
 		cd - >/dev/null
 		db_write_entry $pkgname || die "error writing entry for $pkgname ($file)"
 	fi
-	if [ ! -z "$subpkgs" ] && [ ! "$nobuild" -a ! "`check_option NOBUILD`" ]; then
+	if [ ! -z "$subpkgs" ]; then
 		i=0
 		for subpkg in "${subpkgs[@]}"
 		do
@@ -254,7 +254,7 @@ for file in `find $rootdir -name $BUILDSCRIPT`; do
 			conflicts="${subconflicts[$i]}"
 			provides="${subprovides[$i]}"
 			options="${suboptions[$i]}"
-			if in_array $arch ${archs[@]}; then
+			if in_array $arch ${archs[@]} && [ ! "`check_option NOBUILD`"]; then
 				db_write_entry $subpkg || die "error writing entry for $subpkg ($file)"
 			fi
 			i=$(($i+1))

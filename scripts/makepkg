@@ -89,7 +89,7 @@ Fextract() {
 		cmd="" ;;
 	esac
 	if [ "$cmd" != "" ]; then
-		msg "    $cmd"
+		msg2 "$cmd"
 		$cmd
 		if [ $? -ne 0 ]; then
 			# unzip will return a 1 as a warning, it is not an error
@@ -502,7 +502,7 @@ create_pkg()
 	tar cvf /dev/null * | sort >.FILELIST
 
 	# tar it up
-	msg2 "Compressing $1-$pkgver-$pkgrel-$CARCH.fpm " >&2
+	msg2 "Compressing $1-$pkgver-$pkgrel-$CARCH.$PKG_EXT " >&2
 	unset extra
 	if [ -f .INSTALL ]; then
 		extra=".INSTALL"
@@ -519,10 +519,10 @@ create_pkg()
 	fi
 
 	if [ "$INCHROOT" != "1" ]; then
-		tar $tarargs $PKGDEST/$1-$pkgver-$pkgrel-$CARCH.fpm .PKGINFO .FILELIST \
+		tar $tarargs $PKGDEST/$1-$pkgver-$pkgrel-$CARCH.$PKG_EXT .PKGINFO .FILELIST \
 		$extra *
 	else
-		tar $tarargs ../$1-$pkgver-$pkgrel-$CARCH.fpm .PKGINFO .FILELIST \
+		tar $tarargs ../$1-$pkgver-$pkgrel-$CARCH.$PKG_EXT .PKGINFO .FILELIST \
 			$extra *
 	fi
 
@@ -582,23 +582,23 @@ install_pkg()
 {
 	if [ "$INSTALL" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
 		msg "Installing package(s) with pacman-g2 -U..."
-		targs="$PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm"
+		targs="$PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
 		if [ ! -z "$subpkgs" ]; then
 			i=0
 			for subpkg in "${subpkgs[@]}"
 			do
-				targs="$targs $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.fpm"
+				targs="$targs $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
 			done
 		fi
 		pacman-g2 $PACMAN_OPTS -U $targs || exit $?
 	elif [ "$INSTALL" = "1" -a "$DEP_SUDO" = "1" ]; then
 		msg "Installing package(s) with sudo pacman-g2 -U..."
-		targs="$PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm"
+		targs="$PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
 		if [ ! -z "$subpkgs" ]; then
 			i=0
 			for subpkg in "${subpkgs[@]}"
 			do
-				targs="$targs $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.fpm"
+				targs="$targs $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
 			done
 		fi
 		if [ "$INFAKEROOT" = "1" ]; then
@@ -909,7 +909,7 @@ if [ ! -z "$subpkgs" ]; then
 	fi
 fi
 
-if [ -f $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm -a "$FORCE" = "0" -a "$GENSHA1" = "0" ]; then
+if [ -f $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT -a "$FORCE" = "0" -a "$GENSHA1" = "0" ]; then
 	if [ "$INSTALL" = "1" ]; then
 		warning "a package has already been built, installing existing package."
 		install_pkg
@@ -923,18 +923,22 @@ fi
 indir=n
 if [ "$F_makepkg_scm" = "git" ]; then
 	git rev-parse --git-dir &>/dev/null && indir=y
-else
+elif [ "$F_makepkg_scm" = "darcs" ]; then
 	darcs --commands 2>&1|grep -q add && indir=y
+elif [ "$F_makepkg_scm" = "svn" ]; then
+	svn info $BUILDSCRIPT &>/dev/null && indir=y
 fi
 if [ "$indir" = "y" ] && [ "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
 	if [ ! -e Changelog ] || [ `stat -c %Y Changelog` -lt `stat -c %Y $BUILDSCRIPT` ]; then
 		msg "Generating the Changelog..."
 		if [ "$F_makepkg_scm" = "git" ]; then
 			git log $BUILDSCRIPT >Changelog
-		else
+		elif [ "$F_makepkg_scm" = "darcs" ]; then
 			darcs changes $BUILDSCRIPT | \
 				sed "s|\(.*\)source/\(.*\)/$BUILDSCRIPT\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" \
 				>Changelog
+		elif [ "$F_makepkg_scm" = "svn" ]; then
+			svn log $BUILDSCRIPT >Changelog
 		fi
 		if [ "`id -u`" = "0" ]; then
 			chown `stat -c %u:%g $BUILDSCRIPT` \
@@ -970,7 +974,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		cat /etc/pacman.conf |grep -v Include >$_F_makepkg_pacconf
 		for i in `echo $TREE|sed 's/,/ /g'`
 		do
-			repo=$(eval "echo \${${i}_fdb/.fdb}")
+			repo=$(eval "echo \${${i}_$DB_EXT/.$DB_EXT}")
 			[ -z "$repo" ] && repo="$i"
 			echo "Include = /etc/pacman.d/$repo" >>$_F_makepkg_pacconf
 		done
@@ -1049,11 +1053,11 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
 	fi
 
-	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.fpm ]; then
-		mv $CHROOTDIR/var/tmp/fst/*-${pkgver}-${pkgrel}-${CARCH}.fpm $PKGDEST
+	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT ]; then
+		mv $CHROOTDIR/var/tmp/fst/*-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT $PKGDEST
 		if [ "`id -u`" = "0" ]; then
 			chown `stat -c %u:%g $BUILDSCRIPT` \
-				*-${pkgver}-${pkgrel}-${CARCH}.fpm
+				*-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT
 		fi
 		# copy back the buildscript, maybe modified
 		cp $CHROOTDIR/var/tmp/fst/$BUILDSCRIPT ./
@@ -1488,11 +1492,11 @@ if [ -d pkg/usr/share/doc ]; then
 	fi
 fi
 
-# move /usr/share/info files to /usr/info
-if [ -d pkg/usr/share/info ]; then
-	mkdir -p pkg/usr/info
-	cp -a pkg/usr/share/info/* pkg/usr/info/
-	rm -rf pkg/usr/share/info
+# move /usr/info files to /usr/share/info
+if [ -d pkg/usr/info ]; then
+	mkdir -p pkg/usr/share/info
+	cp -a pkg/usr/info/* pkg/usr/share/info/
+	rm -rf pkg/usr/info
 fi
 
 # move /usr/man files to /usr/share/man
@@ -1502,14 +1506,14 @@ if [ -d pkg/usr/man ]; then
 	rm -rf pkg/usr/man
 fi
 
-# compress man pages
-msg "Compressing man pages..."
-find $startdir/{pkg,pkg.*}/{usr{,/local,/share},opt/*}/man -type f 2>/dev/null | while read i ; do
+# compress info and manual pages
+msg "Compressing info and manual pages..."
+find $startdir/{pkg,pkg.*}/{usr{,/local,/share},opt/*}/{info,man} -type f 2>/dev/null | while read i ; do
 	ext="${i##*.}"
 	fn="${i##*/}"
 	if [ "$ext" != "gz" -a "$ext" != "bz2" ]; then
 		# update symlinks to this manpage
-		find $startdir/pkg/{usr{,/local,/share},opt/*}/man -lname "$fn" 2> /dev/null | while read ln ; do
+		find $startdir/{pkg,pkg.*}/{usr{,/local,/share},opt/*}/man -lname "$fn" 2> /dev/null | while read ln ; do
 			rm -f "$ln"
 			ln -sf "${fn}.gz" "${ln}.gz"
 		done
@@ -1584,7 +1588,7 @@ fi
 cd $startdir
 if [ "$CLEANUP" = "1" ]; then
 	msg "Cleaning up..."
-	rm -rf src pkg pkg.*
+	rm -rf src pkg pkg.* Changelog
 fi
 
 if [ "$RMDEPS" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" -a \( ! -z "$deplist" -o ! -z "$makedeplist" \) ]; then
