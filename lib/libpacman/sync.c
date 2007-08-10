@@ -952,7 +952,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 		goto error;
 	}
 
-	if(_pacman_trans_init(tr, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, NULL, NULL, NULL) == -1) {
+	if(_pacman_trans_init(tr, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, trans->cb_event, trans->cb_conv, trans->cb_progress) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("could not initialize the removal transaction"));
 		goto error;
 	}
