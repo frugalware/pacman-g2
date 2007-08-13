@@ -818,7 +818,11 @@ fi
 if [ "$PACKAGER" != "" ]; then
 	packager="$PACKAGER"
 else
-	error "Please make sure that you edit /etc/makepkg.conf and set the PACKAGER= vairable"
+	error "Please make sure that you edit /etc/makepkg.conf and set the PACKAGER= variable"
+	exit 1
+fi
+if [ -z "$PKG_EXT" ]; then
+	error "Please make sure that you edit /etc/makepkg.conf and set the PKG_EXT= variable"
 	exit 1
 fi
 if [ ! -f $BUILDSCRIPT ]; then

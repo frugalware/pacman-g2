@@ -204,6 +204,7 @@ if [ "$1" = "-f" -o "$1" = "--force" ]; then
 	shift 1
 fi
 
+[ -z "$DB_EXT" ] && die "Please make sure that you edit /etc/makepkg.conf and set the DB_EXT= variable"
 d=`dirname $1`
 rootdir=`cd $d && pwd`/`basename $1`
 d=`dirname $2`
