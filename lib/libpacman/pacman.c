@@ -686,7 +686,7 @@ void *pacman_sync_getinfo(pmsyncpkg_t *sync, unsigned char parm)
 }
 
 /** Cleans the cache
- * @ param full 0: only old packages, 1: all packages
+ * @param full 0: only old packages, 1: all packages
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
 int pacman_sync_cleancache(int full)

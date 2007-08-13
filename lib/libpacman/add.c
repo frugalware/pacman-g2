@@ -515,6 +515,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 					archive_entry_set_pathname (entry, temp);
 
 					if(archive_read_extract (archive, entry, ARCHIVE_EXTRACT_FLAGS) != ARCHIVE_OK) {
+						_pacman_log(PM_LOG_ERROR, _("could not extract %s (%s)"), pathname, strerror(errno));
 						pacman_logaction(_("could not extract %s (%s)"), pathname, strerror(errno));
 						errors++;
 						unlink(temp);
