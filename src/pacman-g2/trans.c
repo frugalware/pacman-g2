@@ -310,9 +310,7 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 
 	if (!pkgname)
 		return;
-	if (percent > 100)
-		return;
-	if(percent == prevpercent)
+	if ((percent > 100) || (percent < 0) || (percent == prevpercent))
 		return;
 
 	prevpercent=percent;
