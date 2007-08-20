@@ -69,9 +69,11 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmdb_t *db, pmlist_t *package
 		remain = _pacman_list_count(i);
 		percent = (double)(howmany - remain + 1) / howmany;
 
-		PROGRESS(trans, PM_TRANS_PROGRESS_INTERCONFLICTS_START, "",
-		    (percent * 100), howmany,
-		    howmany - remain + 1);
+		if(trans->type == PM_TRANS_TYPE_SYNC) {
+			PROGRESS(trans, PM_TRANS_PROGRESS_INTERCONFLICTS_START, "",
+					(percent * 100), howmany,
+					howmany - remain + 1);
+		}
 
 		for(j = _pacman_pkg_getinfo(tp, PM_PKG_CONFLICTS); j; j = j->next) {
 			if(!strcmp(tp->name, j->data)) {
