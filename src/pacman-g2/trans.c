@@ -79,6 +79,8 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 		break;
 		case PM_TRANS_EVT_CHECKDEPS_DONE:
 		case PM_TRANS_EVT_RESOLVEDEPS_DONE:
+			MSG(CL, _("done.\n"));
+		break;
 		case PM_TRANS_EVT_INTERCONFLICTS_DONE:
 			if(config->noprogressbar) {
 				MSG(CL, _("done.\n"));
