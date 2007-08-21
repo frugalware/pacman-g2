@@ -34,6 +34,15 @@ valgrind --leak-check=full --trace-children=yes -- src/pacman-g2/pacman-g2 -Syu
 Be careful, valgrind reports lots of errors, even some errors that may not be related to
 pacman-g2. You should have a little experience of valgrind to ignore the noise.
 
+How should I make benchmarks?
+=============================
+
+pacman-g2 spends most time with reading and writing the database. because of
+this, it's important to drop caches before doing a benchmark. here is how to do
+so:
+
+# echo 3 > /proc/sys/vm/drop_caches
+
 How to add new localized manpage to pacman-g2 (configure and all things)
 =====================================================================
 
