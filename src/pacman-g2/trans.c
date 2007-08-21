@@ -84,8 +84,6 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 		case PM_TRANS_EVT_INTERCONFLICTS_DONE:
 			if(config->noprogressbar) {
 				MSG(CL, _("done.\n"));
-			} else {
-				MSG(NL, "");
 			}
 		break;
 		case PM_TRANS_EVT_EXTRACT_DONE:
