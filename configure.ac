@@ -154,6 +154,11 @@ AC_ARG_ENABLE(werror,
 	AC_HELP_STRING([ --enable-werror],  [Enable building with Werror]),
 	[werror=$enableval], [werror=no])
 
+dnl Build with strict :) (bunch of flags :P)
+AC_ARG_ENABLE(strict,
+	AC_HELP_STRING([ --enable-strict],  [Enable building with 'Strict' flags]),
+	[strict=$enableval], [strict=no])
+
 dnl Help line for debug
 AC_ARG_ENABLE(debug, [  --enable-debug    Enable debugging support], debug=yes)
 
@@ -380,6 +385,24 @@ else
 	AC_MSG_RESULT(no)
 fi
 
+dnl Enable or disable building with 'strict' flags
+AC_MSG_CHECKING(for building with 'strict' flags)
+if test x$strict = xyes ; then
+	CFLAGS="$CFLAGS -Wextra -Wall -pedantic -Wshadow \
+	    -Wmissing-declarations -Wpointer-arith -Wcast-align \
+	    -Wfloat-equal -Wstrict-prototypes -Wmissing-prototypes \
+	    -Wredundant-decls -Wunused-variable -Wunused-parameter \
+	    -Wparentheses -Wno-long-long -Wwrite-strings -Wimplicit \
+	    -Wnested-externs -Wno-unused -Wundef -Wpacked \
+	    -Wbad-function-cast -Wunused-function -Wunused-label \
+	    -Wunused-value -Wfloat-equal -Wchar-subscripts -Wswitch \
+	    -Wmissing-braces -Wsequence-point -Wunknown-pragmas \
+	    -Wdeclaration-after-statement -Wsign-compare"
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+fi
+
 dnl Enable or disable fakeroot code
 AC_MSG_CHECKING(for fakeroot proof support)
 if test x$fakeroot = xyes ; then
@@ -438,4 +461,5 @@ pacman-g2-$VERSION:
 
 	debug support            : ${debug}
 	Werror build		 : ${werror}
+	Strict flags             : ${strict}
 "
