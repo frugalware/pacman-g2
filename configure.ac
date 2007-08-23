@@ -151,12 +151,12 @@ AC_SUBST(CHOST)
 
 dnl Build with Werror
 AC_ARG_ENABLE(werror,
-	AC_HELP_STRING([ --enable-werror],  [Enable building with Werror]),
+	AC_HELP_STRING([  --enable-werror],  [Enable building with Werror]),
 	[werror=$enableval], [werror=no])
 
 dnl Build with strict :) (bunch of flags :P)
 AC_ARG_ENABLE(strict,
-	AC_HELP_STRING([ --enable-strict],  [Enable building with 'Strict' flags]),
+	AC_HELP_STRING([  --enable-strict],  [Enable building with 'Strict' flags]),
 	[strict=$enableval], [strict=no])
 
 dnl Help line for debug
