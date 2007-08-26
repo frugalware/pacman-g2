@@ -27,6 +27,7 @@ G2 TODO
 - untouched dirs from pacman:
   - pamcan.conf, pacman.d
   - /var/lib/pacman, /var/cache/pacman
+- Review stuffs which gives warnings when using --enable-strict and fix those.
 
 
 autoconf/automake
