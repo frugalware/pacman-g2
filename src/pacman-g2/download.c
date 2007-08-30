@@ -106,7 +106,7 @@ int log_progress(PM_NETBUF *ctl, int xfered, void *arg)
 	}
 
 	// if the package name is too long, then slice the ending
-	maxpkglen=PM_DLFNM_LEN-(3+2*(int)log10(howmany));
+	maxpkglen=DLFNM_PROGRESS_LEN-(3+2*(int)log10(howmany));
 	if(strlen(sync_fnm)>maxpkglen)
 		sync_fnm[maxpkglen-1]='\0';
 

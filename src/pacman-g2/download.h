@@ -21,6 +21,8 @@
 #ifndef _PM_DOWNLOAD_H
 #define _PM_DOWNLOAD_H
 
+#define DLFNM_PROGRESS_LEN 22
+
 extern char sync_fnm[PM_DLFNM_LEN+1];
 extern int offset;
 extern struct timeval t0, t;
