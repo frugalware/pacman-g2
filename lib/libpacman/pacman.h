@@ -80,7 +80,7 @@ int pacman_logaction(char *fmt, ...);
  * Options
  */
 
-#define PM_DLFNM_LEN 22
+#define PM_DLFNM_LEN 1024
 
 /* Parameters */
 enum {
