@@ -23,14 +23,15 @@ Vinet).
 So it provides a library interface to create realy frontends (not just
 wrappers) to this great package management tool.
 
-This fork has the following goals:
+Some features that pacman-g2 has over pacman: (September 2007)
 
-1) It provides a stable API.
-2) It has a stable release in every 2 months (at least).
-3) We _are_ interested in contributors' patches.
+1) It provides bindings C#, Java, Perl and Python bindings for libpacman.
+2) It provides a configuration file parser (for parsing pacman.conf).
+3) It provides support for subpackages, ie. creating more than one binary
+package using a single buildscript.
 
-This is guaranteed as we already has a patch queue for almost a year with the
-same goals, just finally we lost our motivation to submit patches to the cvs.
+Pacman-g2 has a stable library API and it has frequent releases (at least one
+maintainance release in every 2 months).
 
 Pacman has been forked because Aaron Griffin, the current "maintainer" of
 pacman3:
