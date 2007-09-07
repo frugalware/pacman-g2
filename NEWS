@@ -1,5 +1,12 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.6.2         - makepkg: more check for invalid config variables in
+                makepkg.conf
+	      - pacman-g2: don't allow values other than <0 or >100 as a
+	        progressbar value
+	      - fix -A and -U output, it was messed up with the
+	        "inter-conflicts" progressbar
+              - when using -S, two unnecessary newlines are no longer printed
 3.6.1         - makepkg: various minor fixes and improvements
               - new progressbars for download and checking internal conflicts
               - updatesync: speed improvements
