@@ -62,6 +62,7 @@ typedef struct __pmhandle_t {
 	char *language;
 	int *dlremain;
 	int *dlhowmany;
+	int sysupgrade;
 } pmhandle_t;
 
 extern pmhandle_t *handle;
