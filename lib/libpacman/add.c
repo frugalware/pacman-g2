@@ -184,6 +184,12 @@ int _pacman_add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 		info->reason = PM_PKG_REASON_DEPEND;
 	}
 
+	/* copy over the install reason */
+	pmpkg_t *local = _pacman_db_get_pkgfromcache(db, info->name);
+	if(local) {
+		info->reason = (int)_pacman_pkg_getinfo(local, PM_PKG_REASON);
+	}
+
 	/* add the package to the transaction */
 	trans->packages = _pacman_list_add(trans->packages, info);
 
@@ -348,13 +354,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 					strncpy(oldpkg->name, local->name, PKG_NAME_LEN);
 					strncpy(oldpkg->version, local->version, PKG_VERSION_LEN);
 				}
-
-				/* copy over the install reason */
-				if(!(local->infolevel & INFRQ_DESC)) {
-					_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), local->name);
-					_pacman_db_read(db, INFRQ_DESC, local);
-				}
-				info->reason = local->reason;
 
 				/* pre_upgrade scriptlet */
 				if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
