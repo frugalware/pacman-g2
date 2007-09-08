@@ -1534,7 +1534,6 @@ GLOBALREF int HttpGet(const char *host, const char *outputfile, const char *path
 		strftime(mtime, sizeof(mtime), "%a, %d %b %Y %H:%M:%S GMT", mtime1);
 		setlocale(LC_ALL, lang);
 		sprintf(buf, "%sIf-Modified-Since: %s\r\n", buf, mtime);
-		printf("mtime: '%s'\n", mtime);
 	}
 	if(strlen(buf)+3 > sizeof(buf))
 		return(0);
