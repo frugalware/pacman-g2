@@ -1524,7 +1524,7 @@ GLOBALREF int HttpGet(const char *host, const char *outputfile, const char *path
 		sprintf(buf, "%sRange: bytes=%d-\r\n", buf, offset);
 	if (mtime1 && mtime1->tm_year)
 	{
-		char mtime[30];
+		char mtime[256];
 		/* Format:
 		 * "If-Modified-Since: Sat, 29 Oct 1994 19:43:31 GMT\r\n" */
 		strftime(mtime, sizeof(mtime), "%a, %d %b %Y %H:%M:%S GMT", mtime1);
