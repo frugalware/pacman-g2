@@ -1517,23 +1517,30 @@ GLOBALREF int HttpGet(const char *host, const char *outputfile, const char *path
 	int *size, netbuf *nControl, unsigned int offset,
 	const struct tm *mtime1, struct tm *mtime2)
 {
-	char buf[512];
+	char buf[512], tmp[512];
 
-	sprintf(buf, "GET %s HTTP/1.1\r\nHost: %s\r\n", path, host);
+	snprintf(buf, sizeof(buf), "GET %s HTTP/1.1\r\nHost: %s\r\n", path, host);
+
 	if (offset > 0)
-		sprintf(buf, "%sRange: bytes=%d-\r\n", buf, offset);
+	{
+		snprintf(tmp, sizeof(tmp); "Range: bytes=%d-\r\n", offset);
+		strncat(buf, tmp, sizeof(buf)-strlen(buf)-1);
+	}
+
 	if (mtime1 && mtime1->tm_year)
 	{
 		char mtime[30];
 		/* Format:
 		 * "If-Modified-Since: Sat, 29 Oct 1994 19:43:31 GMT\r\n" */
 		strftime(mtime, sizeof(mtime), "%a, %d %b %Y %H:%M:%S GMT", mtime1);
-		sprintf(buf, "%sIf-Modified-Since: %s\r\n", buf, mtime);
+		snprintf(tmp, sizeof(tmp), "If-Modified-Since: %s\r\n", mtime);
+		strncat(buf, tmp, sizeof(buf)-strlen(buf)-1);
 	}
-	if(strlen(buf)+3 > sizeof(buf))
+
+	strncat(buf, "\r\n", sizeof(buf));
+
+	if(strlen(buf) == sizeof(buf)-1)
 		return(0);
-	else
-		strcat(buf, "\r\n");
 
 	if (!HttpSendCmd(buf,'2',nControl))
 	{
