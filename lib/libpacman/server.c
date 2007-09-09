@@ -457,7 +457,8 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						tmref.tm_mday = 1;
 						tref = mktime(&tmref);
 						/* then we compute the difference with mtime1 */
-						t = mktime(&fmtime1);
+						memcpy(&tmref, &fmtime1, sizeof(struct tm));
+						t = mktime(&tmref);
 						diff = ((t-tref)/3600/24)%7;
 						fmtime1.tm_wday = diff+(diff >= 3 ? -3 : 4);
 

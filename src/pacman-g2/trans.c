@@ -79,17 +79,14 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 		break;
 		case PM_TRANS_EVT_CHECKDEPS_DONE:
 		case PM_TRANS_EVT_RESOLVEDEPS_DONE:
+			MSG(CL, _("done.\n"));
+		break;
 		case PM_TRANS_EVT_INTERCONFLICTS_DONE:
 			if(config->noprogressbar) {
 				MSG(CL, _("done.\n"));
-			} else {
-				MSG(NL, "");
 			}
 		break;
 		case PM_TRANS_EVT_EXTRACT_DONE:
-			if(!config->noprogressbar) {
-				MSG(NL, "");
-			}
 		break;
 		case PM_TRANS_EVT_ADD_START:
 			if(config->noprogressbar) {
@@ -310,9 +307,7 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 
 	if (!pkgname)
 		return;
-	if (percent > 100)
-		return;
-	if(percent == prevpercent)
+	if ((percent > 100) || (percent < 0) || (percent == prevpercent))
 		return;
 
 	prevpercent=percent;
@@ -376,6 +371,11 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 			printf("-");
 	}
 	MSG(CL, "] %3d%%\r", percent);
+	/* avoid adding a new line for the last package */
+	if(percent == 100 && (event == PM_TRANS_PROGRESS_ADD_START || event ==
+			PM_TRANS_PROGRESS_UPGRADE_START) && remain != howmany) {
+		MSG(NL, "");
+	}
 	FREE(addstr);
 	FREE(upgstr);
 	FREE(removestr);

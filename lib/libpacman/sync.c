@@ -122,6 +122,9 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sy
 {
 	pmlist_t *i, *j, *k;
 
+	/* this is a sysupgrade, so that install reasons are not touched */
+	handle->sysupgrade = 1;
+
 	/* check for "recommended" package replacements */
 	_pacman_log(PM_LOG_FLOW1, _("checking for package replacements"));
 	for(i = dbs_sync; i; i = i->next) {
@@ -952,7 +955,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 		goto error;
 	}
 
-	if(_pacman_trans_init(tr, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, NULL, NULL, NULL) == -1) {
+	if(_pacman_trans_init(tr, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, trans->cb_event, trans->cb_conv, trans->cb_progress) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("could not initialize the removal transaction"));
 		goto error;
 	}
@@ -1012,6 +1015,8 @@ int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 		spkg = _pacman_list_last(tr->packages)->data;
 		if(sync->type == PM_SYNC_TYPE_DEPEND) {
 			spkg->reason = PM_PKG_REASON_DEPEND;
+		} else if(sync->type == PM_SYNC_TYPE_UPGRADE && !handle->sysupgrade) {
+			spkg->reason = PM_PKG_REASON_EXPLICIT;
 		}
 	}
 	if(_pacman_trans_prepare(tr, data) == -1) {

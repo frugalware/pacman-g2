@@ -49,6 +49,7 @@
 #elif defined(_WIN32)
 #include <winsock.h>
 #endif
+#include <locale.h>
 
 #define BUILDING_LIBRARY
 #include "ftplib.h"
@@ -1529,10 +1530,14 @@ GLOBALREF int HttpGet(const char *host, const char *outputfile, const char *path
 
 	if (mtime1 && mtime1->tm_year)
 	{
-		char mtime[30];
+		char mtime[256], lang[256];
 		/* Format:
-		 * "If-Modified-Since: Sat, 29 Oct 1994 19:43:31 GMT\r\n" */
+		 * "If-Modified-Since: Sat, 29 Oct 1994 19:43:31 GMT\r\n"
+		 * We don't like strftime()'s localized output. */
+		snprintf(lang, sizeof(lang), setlocale(LC_ALL, NULL));
+		setlocale(LC_ALL, "C");
 		strftime(mtime, sizeof(mtime), "%a, %d %b %Y %H:%M:%S GMT", mtime1);
+		setlocale(LC_ALL, lang);
 		snprintf(tmp, sizeof(tmp), "If-Modified-Since: %s\r\n", mtime);
 		strncat(buf, tmp, sizeof(buf)-strlen(buf)-1);
 	}

@@ -254,6 +254,7 @@ if [ "$action" = "upd" -a ! -f $option ]; then
 	option=$curdir/$option
 fi
 
+[ -z "$DB_EXT" ] && die "Please make sure that you edit /etc/makepkg.conf and set the DB_EXT= variable"
 bdb=`basename $pkgdb`
 udb=`basename $bdb .fdb`.tar
 echo "updatesync: uncompressing to $ustmpdir..." >&2

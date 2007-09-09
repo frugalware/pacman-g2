@@ -20,49 +20,42 @@ Pacman-G2 is a fork of the not-yet-released cvs version of the complete rewrite
 of pacman by Aurelien Foret (the old monolithic pacman is written by Judd
 Vinet).
 
-So it provides a library interface to create realy frontends (not just
+So it provides a library interface to create real front-ends (not just
 wrappers) to this great package management tool.
 
-This fork has the following goals:
+Some features that pacman-g2 has over pacman: (September 2007)
 
-1) It provides a stable API.
-2) It has a stable release in every 2 months (at least).
-3) We _are_ interested in contributors' patches.
+1) It provides bindings C#, Java, Perl and Python bindings for libpacman.
+2) It provides a configuration file parser (for parsing pacman.conf).
+3) It provides support for subpackages, ie. creating more than one binary
+package using a single build script.
 
-This is guaranteed as we already has a patch queue for almost a year with the
-same goals, just finally we lost our motivation to submit patches to the cvs.
+Pacman-g2 has a stable library API and it has frequent releases (at least one
+maintenance release in every 2 months).
 
-Pacman has been forked because Aaron Griffin, the current "maintainer" of
-pacman3:
+Using patches to provide this features modify enough pacman to change its name.
+Additionally the maintainers of pacman asked us to do so and they have reason.
 
-1) requested to do so.
-2) always says there will be a pre-release soon, but there isn't any for more than half of the year.
-3) likes cosmetics changes even with changing the API so developing frontends are almost impossible.
-4) regularly ignores contributors' patches, then after he did his own changes,
-   then requires ''you'' to port your patch to the changed api, so it really does
-   not worth submitting patches to him.
+Patches to port features or bugfixes from pacman are welcome, but in fact we
+differed too much to regularly sync the common codebase between the two
+projects.
 
-We plan to pull functional changes from the cvs regularly. Till the current
-destructive approach does not change, we do not plan to submit patches to him.
-The queue is too long already, he has some stuff already to merge.
-(Unfortunately probably he won't.)
-
-Of course this does not means that we hate the other contributors of pacman, we
-have a problem with the current "development" model of pacman-cvs. We are
-interested in any co-operation if the current approach changes.
+Of course we would like to thank the original pacman developers for all their
+effort till we worked together before the fork.
 
 The current homepage of the fork can be found at:
 
 http://ftp.frugalware.org/pub/other/pacman-g2/
 
-The project uses the "pacman-g2" name instead of the "pacman" one, so that users won't be confused.
+The project uses the "pacman-g2" name instead of the "pacman" one, so that
+users won't be confused.
 
-If you are interested in developing pacman-g2, please subscribe to the frugalware-devel@frugalware.org mailing list.
+If you are interested in developing pacman-g2, please subscribe to the
+frugalware-devel@frugalware.org mailing list.
 
 Also please note that the library shipped with pacman-g2 is called libpacman,
-not libalpm. This is because libpacman is meant to be a distro-independent
-package-management library, while libalpm depends on packages not available in
-most distributions (ie. libdownload).
+not libalpm. This is because libpacman is no longer meant to be specific
+Archlinux, the distribution created by Judd Vinet, the original pacman author.
 
 PACMAN library overview & internals
 =================================
@@ -316,17 +309,3 @@ although the cache directory can be shared by several frontends.
 Single chained list.
 A minimalistic chained list implementation to store options from the
 configuration file, and targets passed to pacman-g2 on the command line.
-
-
-LIMITATIONS/BEHAVIOR CHANGES COMPARED TO PACMAN 2.9
-===================================================
-
-Excepted missing features still needing to be implemented, one can
-notice the following limitations:
-
-- If pacman-g2 is out of date, the frontend displays a warning and recommends
-to give up the on-going transanction. The frontend does not allow to
-upgrade pacman-g2 itself on-the-fly, and thus it should be restarted with
-only "pacman-g2" as a target.
-
-- ...

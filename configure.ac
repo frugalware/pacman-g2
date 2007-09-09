@@ -2,7 +2,7 @@ ENV_CFLAGS=$CFLAGS
 
 AC_PREREQ(2.59)
 dnl Update it right before the release since $pkgver_foo are all _post_ release snapshots
-AC_INIT([pacman-g2 package manager], 3.6.0, [frugalware-devel@frugalware.org], pacman-g2)
+AC_INIT([pacman-g2 package manager], 3.6.2, [frugalware-devel@frugalware.org], pacman-g2)
 AC_LANG(C)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_SYSTEM
@@ -21,7 +21,7 @@ dnl Define here the libpacman version number
 PM_MAJOR_VERSION=0
 PM_MINOR_VERSION=3
 PM_MICRO_VERSION=6
-PM_MICRO_VERSION_SUFFIX=.0
+PM_MICRO_VERSION_SUFFIX=.2
 PM_VERSION=$PM_MAJOR_VERSION.$PM_MINOR_VERSION.$PM_MICRO_VERSION$PM_MICRO_VERSION_SUFFIX
 dnl Needed for libtool to create proper shared lib version
 PM_VERSION_INFO=`expr $PM_MAJOR_VERSION + $PM_MINOR_VERSION`:$PM_MICRO_VERSION:$PM_MINOR_VERSION
@@ -55,37 +55,37 @@ AC_MSG_RESULT([a bit high, but we can proceed])
 
 dnl Help line for man2html
 AC_ARG_ENABLE(man2html,
-    AC_HELP_STRING([--enable-man2html], [Build html docs via man2html]),
+    AC_HELP_STRING([  --enable-man2html], [Build html docs via man2html]),
     [wantman2html=$enableval], [wantman2html=no])
 
 dnl Help line for po4a
 AC_ARG_ENABLE(po4a,
-    AC_HELP_STRING([--disable-po4a], [Do not build localized manpages via po4a]),
+    AC_HELP_STRING([  --disable-po4a], [Do not build localized manpages via po4a]),
     [wantpo4a=$enableval], [wantpo4a=yes])
 
 dnl Help line for doxygen
 AC_ARG_ENABLE(doxygen,
-    AC_HELP_STRING([--disable-doxygen], [Do not build API docs via Doxygen]),
+    AC_HELP_STRING([  --disable-doxygen], [Do not build API docs via Doxygen]),
     [wantdoxygen=$enableval], [wantdoxygen=yes])
 
 dnl Help line for python
 AC_ARG_ENABLE(python,
-    AC_HELP_STRING([--disable-python], [Do not build Python bindings]),
+    AC_HELP_STRING([  --disable-python], [Do not build Python bindings]),
     [wantpython=$enableval], [wantpython=yes])
 
 dnl Help line for perl
 AC_ARG_ENABLE(perl,
-    AC_HELP_STRING([--disable-perl], [Do not build Perl bindings]),
+    AC_HELP_STRING([  --disable-perl], [Do not build Perl bindings]),
     [wantperl=$enableval], [wantperl=yes])
 
 dnl Help line for java
 AC_ARG_ENABLE(java,
-    AC_HELP_STRING([--disable-java], [Do not build Java bindings]),
+    AC_HELP_STRING([  --disable-java], [Do not build Java bindings]),
     [wantjava=$enableval], [wantjava=yes])
 
 dnl Help line for csharp
 AC_ARG_ENABLE(csharp,
-    AC_HELP_STRING([--disable-csharp], [Do not build csharp bindings]),
+    AC_HELP_STRING([  --disable-csharp], [Do not build csharp bindings]),
     [wantcsharp=$enableval], [wantcsharp=yes])
 
 dnl Check for architecture
@@ -151,15 +151,22 @@ AC_SUBST(CHOST)
 
 dnl Build with Werror
 AC_ARG_ENABLE(werror,
-	AC_HELP_STRING([ --enable-werror],  [Enable building with Werror]),
+	AC_HELP_STRING([  --enable-werror],  [Enable building with Werror]),
 	[werror=$enableval], [werror=no])
 
+dnl Build with strict :) (bunch of flags :P)
+AC_ARG_ENABLE(strict,
+	AC_HELP_STRING([  --enable-strict],  [Enable building with 'Strict' flags]),
+	[strict=$enableval], [strict=no])
+
 dnl Help line for debug
-AC_ARG_ENABLE(debug, [  --enable-debug    Enable debugging support], debug=yes)
+AC_ARG_ENABLE(debug,
+	AC_HELP_STRING([  --enable-debug],  [Enable debugging support]),
+	[debug=$enableval], [debug=yes])
 
 dnl Help line for fakeroot
 AC_ARG_ENABLE(fakeroot,
-    AC_HELP_STRING([--disable-fakeroot], [Disable fakeroot proof  support]),
+    AC_HELP_STRING([  --disable-fakeroot], [Disable fakeroot proof  support]),
     [fakeroot=$enableval], [fakeroot=yes])
 
 dnl Check for man2html binary
@@ -380,6 +387,24 @@ else
 	AC_MSG_RESULT(no)
 fi
 
+dnl Enable or disable building with 'strict' flags
+AC_MSG_CHECKING(for building with 'strict' flags)
+if test x$strict = xyes ; then
+	CFLAGS="$CFLAGS -Wextra -Wall -pedantic -Wshadow \
+	    -Wmissing-declarations -Wpointer-arith -Wcast-align \
+	    -Wfloat-equal -Wstrict-prototypes -Wmissing-prototypes \
+	    -Wredundant-decls -Wunused-variable -Wunused-parameter \
+	    -Wparentheses -Wno-long-long -Wwrite-strings -Wimplicit \
+	    -Wnested-externs -Wno-unused -Wundef -Wpacked \
+	    -Wbad-function-cast -Wunused-function -Wunused-label \
+	    -Wunused-value -Wfloat-equal -Wchar-subscripts -Wswitch \
+	    -Wmissing-braces -Wsequence-point -Wunknown-pragmas \
+	    -Wdeclaration-after-statement -Wsign-compare"
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+fi
+
 dnl Enable or disable fakeroot code
 AC_MSG_CHECKING(for fakeroot proof support)
 if test x$fakeroot = xyes ; then
@@ -438,4 +463,5 @@ pacman-g2-$VERSION:
 
 	debug support            : ${debug}
 	Werror build		 : ${werror}
+	Strict flags             : ${strict}
 "
