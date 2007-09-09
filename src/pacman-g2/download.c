@@ -67,13 +67,18 @@ int log_progress(PM_NETBUF *ctl, int xfered, void *arg)
 	static unsigned short mouth;
 	static unsigned int   lastcur = 0;
 	unsigned int maxpkglen;
+	static char prev_fnm[DLFNM_PROGRESS_LEN+1]="";
 
 	/* we don't need that parameter */
 	ctl=NULL;
 
-	if(config->noprogressbar || (pct == 100 && lastpct == 100)) {
+	if(strcmp(prev_fnm, sync_fnm) && lastpct == 100) {
+		lastpct = 0;
+	}
+	else if(config->noprogressbar || (!strcmp(prev_fnm, sync_fnm) && pct == 100 && lastpct == 100)) {
 		return(1);
 	}
+	snprintf(prev_fnm, DLFNM_PROGRESS_LEN, "%s", sync_fnm);
 
 	pacman_get_option(PM_OPT_CHOMP, (long *)&chomp);
 
