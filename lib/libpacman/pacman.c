@@ -220,7 +220,7 @@ int pacman_db_unregister(pmdb_t *db)
 	return(0);
 }
 
-/** Get informations about a database.
+/** Get information about a database.
  * @param db database pointer
  * @param parm name of the info to get
  * @return a void* on success (the value), NULL on error
@@ -457,7 +457,7 @@ pmlist_t *pacman_db_getgrpcache(pmdb_t *db)
  * @{
  */
 
-/** Get informations about a package.
+/** Get information about a package.
  * @param pkg package pointer
  * @param parm name of the info to get
  * @return a void* on success (the value), NULL on error
@@ -628,11 +628,11 @@ int pacman_pkg_vercmp(const char *ver1, const char *ver2)
 /** @} */
 
 /** @defgroup pacman_groups Group Functions
- * @brief Functions to get informations about libpacman groups
+ * @brief Functions to get information about libpacman groups
  * @{
  */
 
-/** Get informations about a group.
+/** Get information about a group.
  * @param grp group pointer
  * @param parm name of the info to get
  * @return a void* on success (the value), NULL on error
@@ -657,11 +657,11 @@ void *pacman_grp_getinfo(pmgrp_t *grp, unsigned char parm)
 /** @} */
 
 /** @defgroup pacman_sync Sync Functions
- * @brief Functions to get informations about libpacman syncs
+ * @brief Functions to get information about libpacman syncs
  * @{
  */
 
-/** Get informations about a sync.
+/** Get information about a sync.
  * @param sync pointer
  * @param parm name of the info to get
  * @return a void* on success (the value), NULL on error
@@ -734,7 +734,7 @@ pmlist_t *pacman_db_search(pmdb_t *db)
  * @{
  */
 
-/** Get informations about the transaction.
+/** Get information about the transaction.
  * @param parm name of the info to get
  * @return a void* on success (the value), NULL on error
  */
@@ -909,11 +909,11 @@ int pacman_trans_release()
 /** @} */
 
 /** @defgroup pacman_dep Dependency Functions
- * @brief Functions to get informations about a libpacman dependency
+ * @brief Functions to get information about a libpacman dependency
  * @{
  */
 
-/** Get informations about a dependency.
+/** Get information about a dependency.
  * @param miss dependency pointer
  * @param parm name of the info to get
  * @return a void* on success (the value), NULL on error
@@ -941,11 +941,11 @@ void *pacman_dep_getinfo(pmdepmissing_t *miss, unsigned char parm)
 /** @} */
 
 /** @defgroup pacman_conflict File Conflicts Functions
- * @brief Functions to get informations about a libpacman file conflict
+ * @brief Functions to get information about a libpacman file conflict
  * @{
  */
 
-/** Get informations about a file conflict.
+/** Get information about a file conflict.
  * @param conflict database conflict structure
  * @param parm name of the info to get
  * @return a void* on success (the value), NULL on error
