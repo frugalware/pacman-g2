@@ -75,7 +75,7 @@ enum __pmerrno_t pm_errno;
  * @param root the full path of the root we'll be installing to (usually /)
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int pacman_initialize(char *root)
+int pacman_initialize(const char *root)
 {
 	char str[PATH_MAX];
 
@@ -384,7 +384,7 @@ int pacman_db_update(int force, PM_DB *db)
  * @param name of the package
  * @return the package entry on success, NULL on error
  */
-pmpkg_t *pacman_db_readpkg(pmdb_t *db, char *name)
+pmpkg_t *pacman_db_readpkg(pmdb_t *db, const char *name)
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
