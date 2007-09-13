@@ -59,6 +59,7 @@ class pmpkg:
 		# files
 		self.files = []
 		self.backup = []
+		self.removes = []
 		# install
 		self.install = {
 			"pre_install": "",
@@ -159,6 +160,8 @@ class pmpkg:
 			data.append("provides = %s" % i)
 		for i in self.backup:
 			data.append("backup = %s" % i)
+		for i in self.removes:
+			data.append("remove = %s" % i)
 		mkfile(".PKGINFO", "\n".join(data))
 		targets = ".PKGINFO"
 

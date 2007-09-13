@@ -163,6 +163,8 @@ def mkdescfile(filename, pkg):
 		data.append("provides = %s" % i)
 	for i in pkg.backup:
 		data.append("backup = %s" % i)
+	for i in pkg.removes:
+		data.append("remove = %s" % i)
 	if pkg.force:
 		data.append("force = 1")
 
