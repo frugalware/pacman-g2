@@ -59,7 +59,7 @@ typedef struct NetBuf PM_NETBUF;
  * Library
  */
 
-int pacman_initialize(char *root);
+int pacman_initialize(const char *root);
 int pacman_release(void);
 
 /*
@@ -146,7 +146,7 @@ int pacman_db_setserver(PM_DB *db, char *url);
 
 int pacman_db_update(int level, PM_DB *db);
 
-PM_PKG *pacman_db_readpkg(PM_DB *db, char *name);
+PM_PKG *pacman_db_readpkg(PM_DB *db, const char *name);
 PM_LIST *pacman_db_getpkgcache(PM_DB *db);
 PM_LIST *pacman_db_whatprovides(PM_DB *db, char *name);
 

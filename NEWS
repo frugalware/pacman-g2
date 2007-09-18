@@ -1,5 +1,11 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.6.3         - documentation update (README)
+	      - if a package is installed as a dependency, then -S package will
+	        update its reason to "installed explicitly"
+	      - libftp http donwload: fix the "is the fdb up to date?" check if
+	        LANG != C
+              - new tests in the testsuite
 3.6.2         - makepkg: more check for invalid config variables in
                 makepkg.conf
 	      - pacman-g2: don't allow values other than <0 or >100 as a

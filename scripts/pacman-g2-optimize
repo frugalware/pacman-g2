@@ -63,7 +63,7 @@ fi
 
 # make sure pacman-g2 isn't running
 if [ -f /tmp/pacman-g2.lck ]; then
-	die "Pacman lockfile was found.  Cannot run while pacman-g2 is running."
+	die "pacman-g2 lockfile was found.  Cannot run while pacman-g2 is running."
 fi
 
 if [ ! -d $dbroot ]; then

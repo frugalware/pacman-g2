@@ -44,14 +44,8 @@ import_pootle()
 
 cd `dirname $0`
 
+ver=`grep AC_INIT configure.ac|sed 's/.*, \([0-9\.]*\), .*/\1/'`
 if [ "$1" == "--dist" ]; then
-	if [ -d ../releases ]; then
-		release="yes"
-	fi
-	ver=`grep AC_INIT configure.ac|sed 's/.*, \([0-9\.]*\), .*/\1/'`
-	if [ ! "$release" ]; then
-		ver="${ver}_`date +%Y%m%d`"
-	fi
 	git-archive --format=tar --prefix=pacman-g2-$ver/ HEAD | tar xf -
 	git log --no-merges |git name-rev --tags --stdin > pacman-g2-$ver/ChangeLog
 	cd pacman-g2-$ver
@@ -59,22 +53,13 @@ if [ "$1" == "--dist" ]; then
 	cd ..
 	tar czf pacman-g2-$ver.tar.gz pacman-g2-$ver
 	rm -rf pacman-g2-$ver
-	if [ "$release" ]; then
-		dest="../releases"
-		gpg --comment "See http://ftp.frugalware.org/pub/README.GPG for info" \
-			-ba -u 20F55619 pacman-g2-$ver.tar.gz
-		mv pacman-g2-$ver.tar.gz.asc $dest
-	else
-		dest="dist"
-	fi
-	mv pacman-g2-$ver.tar.gz $dest
-	if [ ! "$release" ]; then
-		sed "s/@PACKAGE_VERSION@/$ver/;
-			s/@SHA1SUM@/`sha1sum $dest/pacman-g2-$ver.tar.gz|sed 's/  .*//'`/" \
-			dist/FrugalBuild.in > dist/FrugalBuild
-		echo "Now type: 'cd dist; makepkg -ci'."
-	fi
 	exit 0
+elif [ "$1" == "--release" ]; then
+	dg tag $ver
+	sh $0 --dist
+	gpg --comment "See http://ftp.frugalware.org/pub/README.GPG for info" \
+		-ba -u 20F55619 pacman-g2-$ver.tar.gz
+	mv pacman-g2-$ver.tar.gz{,.asc} ../releases
 elif [ "$1" == "--gettext-only" ]; then
 	sh autoclean.sh
 	for i in lib/libpacman/po src/pacman-g2/po
