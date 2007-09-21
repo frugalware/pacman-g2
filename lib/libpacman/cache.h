@@ -32,12 +32,12 @@ void _pacman_db_free_pkgcache(pmdb_t *db);
 int _pacman_db_add_pkgincache(pmdb_t *db, pmpkg_t *pkg);
 int _pacman_db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg);
 pmlist_t *_pacman_db_get_pkgcache(pmdb_t *db);
-pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, char *target);
+pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, const char *target);
 /* groups */
 int _pacman_db_load_grpcache(pmdb_t *db);
 void _pacman_db_free_grpcache(pmdb_t *db);
 pmlist_t *_pacman_db_get_grpcache(pmdb_t *db);
-pmgrp_t *_pacman_db_get_grpfromcache(pmdb_t *db, char *target);
+pmgrp_t *_pacman_db_get_grpfromcache(pmdb_t *db, const char *target);
 int _pacman_sync_cleancache(int level);
 
 #endif /* _PACMAN_CACHE_H */

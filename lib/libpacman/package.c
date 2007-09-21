@@ -438,7 +438,7 @@ error:
 /* Test for existence of a package in a pmlist_t*
  * of pmpkg_t*
  */
-pmpkg_t *_pacman_pkg_isin(char *needle, pmlist_t *haystack)
+pmpkg_t *_pacman_pkg_isin(const char *needle, pmlist_t *haystack)
 {
 	pmlist_t *lp;
 
