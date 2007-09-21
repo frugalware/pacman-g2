@@ -340,24 +340,24 @@ pmpkg_t *_pacman_pkg_load(char *pkgfile)
 				goto error;
 			}
 			if(!(handle->trans->flags & PM_TRANS_FLAG_NOARCH)) {
-			if(!strlen(info->arch)) {
-				_pacman_log(PM_LOG_ERROR, _("missing package architecture in %s"), pkgfile);
-				pm_errno = PM_ERR_PKG_INVALID;
-				unlink(descfile);
-				FREE(descfile);
-				close(fd);
-				goto error;
-			}
-			struct utsname name;
-			uname (&name);
-			if(strcmp(name.machine, info->arch)) {
-				_pacman_log(PM_LOG_ERROR, _("wrong package architecture in %s"), pkgfile);
-				pm_errno = PM_ERR_WRONG_ARCH;
-				unlink(descfile);
-				FREE(descfile);
-				close(fd);
-				goto error;
-			}
+				if(!strlen(info->arch)) {
+					_pacman_log(PM_LOG_ERROR, _("missing package architecture in %s"), pkgfile);
+					pm_errno = PM_ERR_PKG_INVALID;
+					unlink(descfile);
+					FREE(descfile);
+					close(fd);
+					goto error;
+				}
+				struct utsname name;
+				uname (&name);
+				if(strcmp(name.machine, info->arch)) {
+					_pacman_log(PM_LOG_ERROR, _("wrong package architecture in %s"), pkgfile);
+					pm_errno = PM_ERR_WRONG_ARCH;
+					unlink(descfile);
+					FREE(descfile);
+					close(fd);
+					goto error;
+				}
 			}
 			config = 1;
 			unlink(descfile);
