@@ -273,6 +273,7 @@ enum {
 #define PM_TRANS_FLAG_NOCONFLICTS 0x800
 #define PM_TRANS_FLAG_PRINTURIS 0x1000
 #define PM_TRANS_FLAG_NOINTEGRITY 0x2000
+#define PM_TRANS_FLAG_NOARCH 0x4000
 
 /* Transaction Events */
 enum {

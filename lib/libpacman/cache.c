@@ -139,7 +139,7 @@ int _pacman_db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg)
 	return(0);
 }
 
-pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, char *target)
+pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, const char *target)
 {
 	if(db == NULL) {
 		return(NULL);
@@ -228,7 +228,7 @@ pmlist_t *_pacman_db_get_grpcache(pmdb_t *db)
 	return(db->grpcache);
 }
 
-pmgrp_t *_pacman_db_get_grpfromcache(pmdb_t *db, char *target)
+pmgrp_t *_pacman_db_get_grpfromcache(pmdb_t *db, const char *target)
 {
 	pmlist_t *i;
 

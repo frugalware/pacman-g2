@@ -107,6 +107,7 @@ static void usage(int op, char *myname)
 			printf(_("options:\n"));
 			printf(_("  -d, --nodeps        skip dependency checks\n"));
 			printf(_("  -f, --force         force install, overwrite conflicting files\n"));
+			printf(_("      --noarch        install the package, even if it is for an other arch\n"));
 		} else if(op == PM_OP_REMOVE) {
 			printf(_("usage:  %s {-R --remove} [options] <package>\n"), myname);
 			printf(_("options:\n"));
@@ -277,6 +278,7 @@ static int parseargs(int argc, char *argv[])
 		{"noscriptlet", no_argument,      0, 1005},
 		{"ask",        required_argument, 0, 1006},
 		{"nointegrity", no_argument,      0, 1007},
+		{"noarch", no_argument, 0, 1008},
 		{0, 0, 0, 0}
 	};
 	char root[PATH_MAX];
@@ -304,6 +306,7 @@ static int parseargs(int argc, char *argv[])
 			case 1005: config->flags |= PM_TRANS_FLAG_NOSCRIPTLET; break;
 			case 1006: config->noask = 1; config->ask = atoi(optarg); break;
 			case 1007: config->flags |= PM_TRANS_FLAG_NOINTEGRITY; break;
+			case 1008: config->flags |= PM_TRANS_FLAG_NOARCH; break;
 			case 'A': config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_ADD); break;
 			case 'D':
 				config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_DEPTEST);

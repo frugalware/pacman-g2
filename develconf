@@ -1,4 +1,5 @@
 #!/bin/sh
 
 ./configure --enable-werror --enable-debug --disable-doxygen --disable-fakeroot \
-    --disable-po4a --disable-python --disable-perl --disable-java --disable-csharp
+    --disable-po4a --disable-python --disable-perl --disable-java --disable-csharp \
+	--prefix=/usr
