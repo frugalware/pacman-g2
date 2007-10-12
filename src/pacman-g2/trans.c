@@ -37,6 +37,7 @@
 #include "trans.h"
 #include "list.h"
 #include "conf.h"
+#include "download.h"
 
 #define LOG_STR_LEN 256
 
@@ -161,7 +162,8 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			fflush(stdout);
 		break;
 		case PM_TRANS_EVT_RETRIEVE_LOCAL:
-			MSG(NL, " %s [", (char*)data1);
+			STRNCPY(str, (char*)data1, DLFNM_PROGRESS_LEN);
+			MSG(NL, " %s [", str);
 			STRNCPY(out, (char*)data2, maxcols-42);
 			MSG(CL, "%s", out);
 			for(i = strlen(out); i < maxcols-43; i++) {
