@@ -795,6 +795,7 @@ int pacman_trans_init(unsigned char type, unsigned int flags, pacman_trans_cb_ev
 }
 
 /** Search for packages to upgrade and add them to the transaction.
+ * You must register the local database or you it won't find anything.
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
 int pacman_trans_sysupgrade()
