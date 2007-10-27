@@ -45,6 +45,7 @@ typedef struct __pmdb_t {
 	pmlist_t *pkgcache;
 	pmlist_t *grpcache;
 	pmlist_t *servers;
+	char lastupdate[16];
 } pmdb_t;
 
 pmdb_t *_pacman_db_new(char *root, char *dbpath, char *treename);

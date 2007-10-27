@@ -105,6 +105,9 @@ int _pacman_db_open(pmdb_t *db)
 	if(db->handle == NULL) {
 		RET_ERR(PM_ERR_DB_OPEN, -1);
 	}
+	if(_pacman_db_getlastupdate(db, db->lastupdate) == -1) {
+		db->lastupdate[0] = '\0';
+	}
 
 	return(0);
 }
