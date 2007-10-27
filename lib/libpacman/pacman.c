@@ -894,6 +894,11 @@ int pacman_trans_release()
 
 	FREETRANS(handle->trans);
 
+	char lastupdate[15] = "";
+	time_t t = time(NULL);
+	strftime(lastupdate, 15, "%Y%m%d%H%M%S", localtime(&t));
+	_pacman_db_setlastupdate(handle->db_local, lastupdate);
+
 	/* unlock db */
 	if(handle->lckfd != -1) {
 		close(handle->lckfd);
