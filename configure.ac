@@ -425,6 +425,7 @@ lib/libftp/Makefile
 src/pacman-g2/Makefile
 src/pacman-g2/po/Makefile.in
 src/vercmp/Makefile
+src/versort/Makefile
 scripts/Makefile
 doc/Makefile
 doc/hu/Makefile
