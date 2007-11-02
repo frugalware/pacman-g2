@@ -434,7 +434,9 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					}
 
 					if(!stat(output, &st)) {
-						*pm_dloffset = (int)st.st_size;
+						if (pm_dloffset) {
+								*pm_dloffset = (int)st.st_size;
+						}
 					}
 					if(!handle->proxyhost) {
 						snprintf(src, PATH_MAX, "%s%s", server->path, fn);
@@ -464,7 +466,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 
 					}
 					fmtime2.tm_year = 0;
-					if(!HttpGet(server->server, output, src, &fsz, control, *pm_dloffset,
+					if(!HttpGet(server->server, output, src, &fsz, control, (pm_dloffset ? *pm_dloffset:0),
 					            (mtime1) ? &fmtime1 : NULL, (mtime2) ? &fmtime2 : NULL)) {
 						if(strstr(FtpLastResponse(control), "304")) {
 							_pacman_log(PM_LOG_DEBUG, _("mtimes are identical, skipping %s\n"), fn);

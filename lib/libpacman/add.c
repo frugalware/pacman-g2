@@ -187,7 +187,7 @@ int _pacman_add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 	/* copy over the install reason */
 	pmpkg_t *local = _pacman_db_get_pkgfromcache(db, info->name);
 	if(local) {
-		info->reason = (int)_pacman_pkg_getinfo(local, PM_PKG_REASON);
+		info->reason = (long)_pacman_pkg_getinfo(local, PM_PKG_REASON);
 	}
 
 	/* add the package to the transaction */

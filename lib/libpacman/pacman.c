@@ -795,6 +795,7 @@ int pacman_trans_init(unsigned char type, unsigned int flags, pacman_trans_cb_ev
 }
 
 /** Search for packages to upgrade and add them to the transaction.
+ * You must register the local database or you it won't find anything.
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
 int pacman_trans_sysupgrade()
@@ -892,6 +893,11 @@ int pacman_trans_release()
 	}
 
 	FREETRANS(handle->trans);
+
+	char lastupdate[15] = "";
+	time_t t = time(NULL);
+	strftime(lastupdate, 15, "%Y%m%d%H%M%S", localtime(&t));
+	_pacman_db_setlastupdate(handle->db_local, lastupdate);
 
 	/* unlock db */
 	if(handle->lckfd != -1) {
