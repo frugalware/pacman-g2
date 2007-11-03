@@ -19,14 +19,29 @@
  *  USA.
  */
 
-#include <pacman.h>
+#include "config.h"
 
+#include <getopt.h>
+#include <libgen.h>
+#include <libintl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+#include "pacman.h"
+#include "util.h"
+
 #define BUFFER_CHUNK 4096
+
+static char const short_options[] = "hr";
+
+static struct option const long_options[] =
+{
+  {"help", no_argument, NULL, 'h'},
+  {"reverse", no_argument, NULL, 'r'},
+  {NULL, 0, NULL, 0},
+};
 
 static char *buffer = NULL;
 static size_t buffer_nmemb = 0;
@@ -35,6 +50,16 @@ static size_t buffer_size = 0;
 static char **index = NULL;
 static size_t index_nmemb = 0;
 static size_t index_size = 0;
+
+static int sort_reverse = 0;
+
+static void usage(const char *appname)
+{
+	printf(_("usage:  %s [options]\n"), appname);
+	printf(_("options:\n"));
+	printf(_("  -h, --help          display this help\n"));
+	printf(_("  -r, --reverse       reverse ordering of the sort\n"));
+}
 
 static void readfd(int fd)
 {
@@ -116,11 +141,27 @@ static void printindex()
 
 static int vercmpp(const void *p1, const void *p2)
 {
-	return pacman_pkg_vercmp(*(const char **)p1, *(const char **)p2);
+	int result = pacman_pkg_vercmp(*(const char **)p1, *(const char **)p2);
+	return sort_reverse ? -result : result;
 }
 
 int main(int argc, char *argv[])
 {
+	int opt;
+
+	while((opt = getopt_long(argc, argv, short_options, long_options, NULL)) >= 0)
+	{
+		switch(opt)
+		{
+		case 'r':
+			sort_reverse = 1;
+			break;
+		case 'h':
+		default:
+			usage(basename(argv[0]));
+			exit(EXIT_FAILURE);
+		}
+	}
 
 	readfd(0); //stdin
 
