@@ -339,7 +339,7 @@ pmpkg_t *_pacman_pkg_load(char *pkgfile)
 				close(fd);
 				goto error;
 			}
-			if(!(handle->trans->flags & PM_TRANS_FLAG_NOARCH)) {
+			if(handle->trans && !(handle->trans->flags & PM_TRANS_FLAG_NOARCH)) {
 				if(!strlen(info->arch)) {
 					_pacman_log(PM_LOG_ERROR, _("missing package architecture in %s"), pkgfile);
 					pm_errno = PM_ERR_PKG_INVALID;
