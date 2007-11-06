@@ -1524,7 +1524,7 @@ GLOBALREF int HttpGet(const char *host, const char *outputfile, const char *path
 
 	if (offset > 0)
 	{
-		snprintf(tmp, sizeof(tmp); "Range: bytes=%d-\r\n", offset);
+		snprintf(tmp, sizeof(tmp), "Range: bytes=%d-\r\n", offset);
 		strncat(buf, tmp, sizeof(buf)-strlen(buf)-1);
 	}
 
