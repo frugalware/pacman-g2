@@ -1,0 +1,29 @@
+= libpacman(3)
+
+== NAME
+
+libpacman - A .tar.bz2 based package manager library with dependency support
+
+== SYNOPSIS
+
+For ease of access, the frugalwareutils manual has been split up into several sections.
+
+pacman_databases::	Database Functions
+pacman_dep::	Dependency Functions
+pacman_groups::	Group Functions
+pacman_interface::	Interface Functions
+pacman_list::	List Functions
+pacman_log::	Logging Functions
+pacman_misc::	Miscellaneous Functions
+pacman_options::	Library Options
+pacman_packages::	Package Functions
+pacman_sync::	Sync Functions
+pacman_trans::	Transaction Functions
+
+== AUTHORS
+
+See /usr/share/doc/pacman-g2-*/AUTHORS.
+
+== REPORTING BUGS
+
+If you find any bug, then please file a bugreport at <http://bugs.frugalware.org/>.
