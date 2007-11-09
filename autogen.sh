@@ -87,10 +87,12 @@ elif [ "$1" == "--gettext-only" ]; then
 		mv Makevars.tmp Makevars
 		cd - >/dev/null
 	done
-	# FIXME: implement --pot-only for po4a, too
-	[ "$2" == "--pot-only" ] && exit 0
 	cd doc
 	po4a -k 0 po4a.cfg
+	if [ "$2" == "--pot-only" ]; then
+		rm -rf po/*.po `grep '\[po4a_langs\]' po4a.cfg |sed 's/\[po4a_langs\] //'`
+		exit 0
+	fi
 	cd po
 	for i in *po
 	do

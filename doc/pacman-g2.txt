@@ -1,0 +1,403 @@
+= pacman-g2(8)
+
+== NAME
+
+pacman-g2 - package manager utility
+
+== SYNOPSIS
+
+pacman-g2 <operation> [options] <package> [package] ...
+
+== DESCRIPTION
+
+pacman-g2 is a package management utility that tracks installed packages on a
+linux system. It has simple dependency support and the ability to connect to a
+remote ftp server and automatically upgrade packages on the local system.
+pacman-g2 packages are in a bzipped tar format.
+
+== OPERATIONS
+
+-A, --add::
+	Add a package to the system. Package will be uncompressed into the installation
+	root and the database will be updated.
+
+-F, --freshen::
+	This is like --upgrade except that, unlike --upgrade, this will only upgrade
+	packages that are already installed on your system.
+
+-Q, --query::
+	Query the package database. This operation allows you to view installed
+	packages and their files, as well as meta-info about individual packages
+	(dependencies, conflicts, install date, build date, size). This can be run
+	against the local package database or can be used on individual .fpm packages.
+	See QUERY OPTIONS below.
+
+-R, --remove::
+	Remove a package from the system. Files belonging to the specified package will
+	be deleted, and the database will be updated. Most configuration files will be
+	saved with a .pacsave extension unless the --nosave option was used.
+
+-S, --sync::
+	Synchronize packages. With this function you can install packages directly from
+	the ftp servers, complete with all dependencies required to run the packages.
+	For example, pacman-g2 -S qt will download qt and all the packages it depends
+	on and install them. You could also use pacman-g2 -Su to upgrade all packages
+	that are out of date (see below).
+
+-U, --upgrade::
+	Upgrade a package. This is essentially a "remove-then-add" process. See
+	HANDLING CONFIG FILES for an explanation on how pacman-g2 takes care of config
+	files.
+
+-V, --version::
+	Display version and exit.
+
+-h, --help::
+	Display syntax for the given operation. If no operation was supplied then the
+	general syntax is shown.
+
+== OPTIONS
+
+-d, --nodeps::
+	Skips all dependency checks. Normally, pacman-g2 will always check a package's
+	dependency fields to ensure that all dependencies are installed and there are
+	no package conflicts in the system. This switch disables these checks.
+
+-f, --force::
+	Bypass file conflict checks, overwriting conflicting files. If the package that
+	is about to be installed contains files that are already installed, this option
+	will cause all those files to be overwritten. This option should be used with
+	care, ideally not at all.
+
+-r, --root <path>::
+	Specify alternative installation root (default is "/"). This should not be used
+	as a way to install software into e.g. /usr/local instead of /usr. Instead this
+	should be used if you want to install a package on a temporary mounted
+	partition, which is "owned" by another system. By using this option you not
+	only specify where the software should be installed, but you also specify which
+	package database to use.
+
+-v, --verbose::
+	Output more status and error messages.
+
+--config <path>::
+	Specify an alternate configuration file.
+
+--noconfirm::
+	Bypass any and all "Are you sure?" messages. It's not a good idea to do this
+	unless you want to run pacman-g2 from a script.
+
+--ask <number>::
+	Finetune the --noconfirm switch by not answering "yes" to all libpacman
+	questions, but you are able to specify yes/no for all type of them. The types
+	are the followings:
+
+	* The given package is in IgnorePkg. (1)
+	* Replace package foo with bar? (2)
+	* foo conflicts with bar. Remove bar? (4)
+	* Do you want to delete the corrupted package? (8)
+	* Local version is newer. (16)
+	* Local version is up to date. (32)
+
+	Select for what types do you want to answer yes, sum up the values and use the
+	result as a parameter to this option.
+
+--noprogressbar::
+	Do not show a progress bar when downloading files. This can be useful for
+	scripts that call pacman-g2 and capture the output.
+
+== SYNC OPTIONS
+
+-c, --clean::
+	Remove old packages from the cache. When pacman-g2 downloads packages, it saves
+	them in /var/cache/pacman/pkg. If you need to free up diskspace, you can remove
+	these packages by using the --clean option. Using one --clean (or -c) switch
+	will only remove old packages. Use it twice to remove all packages from the
+	cache.
+
+-e, --dependsonly::
+	Don't install the packages itself, only their dependencies. This can be handy
+	if you want to install the packages themselves with different options or from
+	source.
+
+-g, --groups::
+	Display all the members for each package group specified. If no group names are
+	provided, all groups will be listed.
+
+-i, --info::
+	Display dependency information for a given package. This will search through
+	all repositories for a matching package and display the dependencies,
+	conflicts, etc.
+
+-l, --list::
+	List all files in the specified repositories. Multiple repositories can be
+	specified on the command line.
+
+-p, --print-uris::
+	Print out URIs for each package that will be installed, including any
+	dependencies that have yet to be installed. These can be piped to a file and
+	downloaded at a later time, using a program like wget.
+
+-s, --search <regexp>::
+	This will search each package in the package list for names or descriptions
+	that contains <regexp>.
+
+-u, --sysupgrade::
+	Upgrades all packages that are out of date. pacman-g2 will examine every
+	package installed on the system, and if a newer package exists on the server it
+	will upgrade. pacman-g2 will present a report of all packages it wants to
+	upgrade and will not proceed without user confirmation. Dependencies are
+	automatically resolved at this level and will be installed/upgraded if
+	necessary.
+
+-w, --downloadonly::
+	Retrieve all packages from the server, but do not install/upgrade anything.
+
+-y, --refresh::
+	Download a fresh copy of the master package list from the ftp server defined in
+	/etc/pacman.conf. This should typically be used each time you use
+	--sysupgrade.
+
+--ignore <pkg>::
+	This option functions exactly the same as the IgnorePkg configuration
+	directive. Sometimes it can be handy to skip some package updates without
+	having to edit pacman.conf each time.
+
+== REMOVE OPTIONS
+
+-c, --cascade::
+	Remove all target packages, as well as all packages that depend on one or more
+	target packages. This operation is recursive.
+
+-k, --keep::
+	Removes the database entry only. Leaves all files in place.
+
+-n, --nosave::
+	Instructs pacman-g2 to ignore file backup designations. Normally, when a file
+	is about to be removed from the system the database is first checked to see if
+	the file should be renamed to a .pacsave extension. If --nosave is used, these
+	designations are ignored and the files are removed.
+
+-s, --recursive::
+	For each target specified, remove it and all its dependencies, provided that
+	(A) they are not required by other packages; and (B) they were not explicitly
+	installed by the user. This option is analagous to a backwards --sync
+	operation.
+
+== QUERY OPTIONS
+
+-c, --changelog::
+	View the changelog of a package.
+
+-e, --orphans::
+	List all packages that were installed as a dependency (ie, not installed
+	explicitly) and are not required by any other packages.
+
+-g, --groups::
+	Display all groups that a specified package is part of. If no package names are
+	provided, all groups and members will be listed.
+
+-i, --info::
+	Display information on a given package. If it is used with the -p option then
+	the .PKGINFO file will be printed.
+
+-l, --list::
+	List all files owned by <package>. Multiple packages can be specified on the
+	command line.
+
+-m, --foreign::
+	List all packages that were not found in the sync database(s). Typically these
+	are packages that were downloaded manually and installed with --add.
+
+-o, --owns <path>::
+	Search for the package that owns a given file or directory.
+
+-p, --file::
+	Tells pacman-g2 that the package supplied on the command line is a file, not an
+	entry in the database. Pacman will decompress the file and query it. This is
+	useful with --info and --list.
+
+-s, --search <regexp>::
+	This will search each locally-installed package for names or descriptions that
+	contains <regexp>.
+
+-t, --test::
+	Tests the local database, by searching for missing informations. Example:
+
+	----
+	$ pacman-g2 -Qt
+	:: zip-2.32-1: file list is missing
+	----
+
+	The recommended method in this case is to remove the database entry:
+
+	----
+	# rm -rf /var/lib/pacman/local/zip-2.32-1
+	----
+
+	and forcing the reinstall of the package:
+
+	----
+	# pacman-g2 -Sf zip --noconfirm
+	----
+
+--nointegrity::
+	Skip the SHA1 integrity check for the downloaded packages.
+
+== HANDLING CONFIG FILES
+
+pacman-g2 uses the same logic as rpm to determine action against files that are
+designated to be backed up. During an upgrade, it uses 3 md5 hashes for each
+backup file to determine the required action: one for the original file
+installed, one for the new file that's about to be installed, and one for the
+actual file existing on the filesystem. After comparing these 3 hashes, the
+follow scenarios can result:
+
+original=X, current=X, new=X::
+	All three files are the same, so we win either way. Install the new file.
+
+original=X, current=X, new=Y::
+	The current file is un-altered from the original but the new one is different.
+	Since the user did not ever modify the file, and the new one may contain
+	improvements/bugfixes, we install the new file.
+
+original=X, current=Y, new=X::
+	Both package versions contain the exact same file, but the one on the
+	filesystem has been modified since. In this case, we leave the current file in
+	place.
+
+original=X, current=Y, new=Y::
+	The new one is identical to the current one. Win win. Install the new file.
+
+original=X, current=Y, new=Z::
+	All three files are different, so we install the new file with a .pacnew
+	extension and warn the user, so she can manually move the file into place after
+	making any necessary customizations.
+
+== CONFIGURATION
+
+pacman-g2 will attempt to read /etc/pacman.conf each time it is invoked. This
+configuration file is divided into sections or repositories. Each section
+defines a package repository that pacman-g2 can use when searching for packages
+in --sync mode. The exception to this is the options section, which defines
+global options.
+
+Example:
+
+----
+[options]
+HoldPkg = pacman-g2 glibc bash coreutils
+HoldPkg = chkconfig
+
+Include = /etc/pacman.d/frugalware-current
+
+[custom]
+Server = file:///home/pkgs
+----
+
+== CONFIG: OPTIONS
+
+DBPath = path/to/db/dir::
+	Overrides the default location of the toplevel database directory. The default
+	is var/lib/pacman.
+
+CacheDir = path/to/cache/dir::
+	Overrides the default location of the package cache directory. The default is
+	var/cache/pacman.
+
+HoldPkg = <package> [package] ...::
+	If a user tries to --remove a package that's listed in HoldPkg, pacman-g2 will
+	ask for confirmation before proceeding.
+
+IgnorePkg = <package> [package] ...::
+	Instructs pacman-g2 to ignore any upgrades for this package when performing a
+	--sysupgrade.
+
+UpgradeDelay = <number>::
+	Upgrade only the packages that are at least <number> days old when performing a
+	--sysupgrade.
+
+OldDelay = <number>::
+	Issue a warning when you install a package, but the local sync database (which
+	can be upgraded using -Sy) haven't been updated for <number> days.
+
+MaxTries = <number>::
+	Try to download packages <number> times. This is useful in case you have a bad
+	internet connection and your packages often get corrupted during the download.
+
+Include = <path>::
+	Include another config file. This config file can include repositories or
+	general configuration options.
+
+ProxyServer = <host|ip>[:port]::
+	If set, pacman-g2 will use this proxy server for all ftp/http transfers.
+
+XferCommand = /path/to/command %u::
+	If set, pacman-g2 will use this external program to download all remote files.
+	All instances of %u will be replaced with the URL to be downloaded. If present,
+	instances of %o will be replaced with the local filename, plus a ".part"
+	extension, which allows programs like wget to do file resumes properly.
+
+	This option is useful for users who experience problems with pacman-g2's
+	built-in http/ftp support, or need the more advanced proxy support that comes
+	with utilities like curl.
+
+NoPassiveFtp::
+	Disables passive ftp connections when downloading packages. (aka Active Mode)
+
+NoUpgrade = <file> [file] ...::
+	All files listed with a NoUpgrade directive will never be touched during a
+	package install/upgrade.
+
+	NOTE: Do not include the leading slash when specifying files.
+
+NoExtract = <file> [file] ...::
+	All files listed with a NoExtract directive will never be extracted from a
+	package into the filesystem. This can be useful when you don't want part of a
+	package to be installed. For example, if your httpd root uses an index.php,
+	then you would not want the index.html file to be extracted from the apache
+	package.
+
+UseSyslog::
+	Log action messages through *syslog*(2). This will insert pacman-g2 log entries
+	into your /var/log/messages or equivalent.
+
+LogFile = /path/to/file::
+	Log actions directly to a file, usually /var/log/pacman-g2.log.
+
+== CONFIG: REPOSITORIES
+
+Each repository section defines a section name and at least one location where
+the packages can be found. The section name is defined by the string within
+square brackets (eg, the two above are 'current' and 'custom'). Locations are
+defined with the Server directive and follow a URL naming structure. Currently
+only ftp is supported for remote servers. If you want to use a local directory,
+you can specify the full path with a 'file://' prefix, as shown above.
+
+== USING YOUR OWN REPOSITORY
+
+Let's say you have a bunch of custom packages in /home/pkgs and their
+respective FrugalBuild files are all in /var/fst/local. All you need to do is
+generate a compressed package database in the /home/pkgs directory so pacman-g2
+can find it when run with --refresh.
+
+----
+# gensync /var/fst/local /home/pkgs/custom.fdb
+----
+
+The above command will read all FrugalBuild files in /var/fst/local and
+generate a compressed database called /home/pkgs/custom.fdb. Note that the
+database must be of the form {treename}.fdb, where {treename} is the name of
+the section defined in the configuration file. That's it! Now configure your
+custom section in the configuration file as shown in the config example above.
+Pacman will now use your package repository. If you add new packages to the
+repository, remember to re-generate the database and use pacman-g2's --refresh
+option.
+
+== SEE ALSO
+
+*makepkg*(8)
+
+== AUTHORS
+
+See /usr/share/doc/pacman-g2-*/AUTHORS.
