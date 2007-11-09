@@ -53,11 +53,6 @@ dnl Humor lowers blood pressure
 AC_MSG_CHECKING(your blood pressure)
 AC_MSG_RESULT([a bit high, but we can proceed])
 
-dnl Help line for man2html
-AC_ARG_ENABLE(man2html,
-    AC_HELP_STRING([  --enable-man2html], [Build html docs via man2html]),
-    [wantman2html=$enableval], [wantman2html=no])
-
 dnl Help line for po4a
 AC_ARG_ENABLE(po4a,
     AC_HELP_STRING([  --disable-po4a], [Do not build localized manpages via po4a]),
@@ -168,24 +163,6 @@ dnl Help line for fakeroot
 AC_ARG_ENABLE(fakeroot,
     AC_HELP_STRING([  --disable-fakeroot], [Disable fakeroot proof  support]),
     [fakeroot=$enableval], [fakeroot=yes])
-
-dnl Check for man2html binary
-AC_MSG_CHECKING(for support man2html)
-if test x$wantman2html = xyes ; then
-    AC_CHECK_PROGS([MAN2HTML], [man2html])
-    AM_CONDITIONAL(HAS_MAN2HTML, test $MAN2HTML)
-    if test $MAN2HTML ; then
-        AC_DEFINE([HAS_MAN2HTML], [TRUE], [Enabled HTML generation from man via man2html])
-	AC_MSG_RESULT(yes)
-    else
-        AC_DEFINE([HAS_MAN2HTML], [FALSE], [Disabled HTML generation from man via man2html])
-	AC_MSG_RESULT(no, man2html missing)
-    fi
-else
-    AM_CONDITIONAL(HAS_MAN2HTML, test $MAN2HTML)
-    AC_DEFINE([HAS_MAN2HTML], [FALSE], [Not specified at configure line])
-    AC_MSG_RESULT(not requested by configure)
-fi
 
 dnl Check for po4a binary
 AC_MSG_CHECKING(for support po4a)
