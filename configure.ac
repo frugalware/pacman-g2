@@ -58,6 +58,11 @@ AC_ARG_ENABLE(po4a,
     AC_HELP_STRING([  --disable-po4a], [Do not build localized manpages via po4a]),
     [wantpo4a=$enableval], [wantpo4a=yes])
 
+dnl Help line for asciidoc
+AC_ARG_ENABLE(asciidoc,
+    AC_HELP_STRING([  --disable-asciidoc], [Do not build manpages via asciidoc]),
+    [wantasciidoc=$enableval], [wantasciidoc=yes])
+
 dnl Help line for doxygen
 AC_ARG_ENABLE(doxygen,
     AC_HELP_STRING([  --disable-doxygen], [Do not build API docs via Doxygen]),
@@ -453,6 +458,7 @@ pacman-g2-$VERSION:
 	Architecture CHOST       : ${CHOST}
 
 	Doxygen support          : ${DOXYSTATUS}
+	Manpages                 : ${ASCIISTATUS}
 	Manpage localization     : ${POSTATUS}
 	Perl bindings            : ${PERLSTATUS}
 	Python bindings          : ${PYTHONSTATUS}
