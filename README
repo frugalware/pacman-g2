@@ -29,9 +29,13 @@ Some features that pacman-g2 has over pacman: (September 2007)
 2) It provides a configuration file parser (for parsing pacman.conf).
 3) It provides support for subpackages, ie. creating more than one binary
 package using a single build script.
-
-Pacman-g2 has a stable library API and it has frequent releases (at least one
-maintenance release in every 2 months).
+4) Localized manpages.
+5) Stable library API. This means that we care about keeping the API
+backwards-compatible. (Changes like
+http://www.archlinux.org/pipermail/pacman-dev/2007-November/009886.html[this]
+are
+http://www.archlinux.org/pipermail/pacman-dev/2007-November/009893.html[applied]
+without any problem by the pacman developers and we don't do so.)
 
 Using patches to provide this features modify enough pacman to change its name.
 Additionally the maintainers of pacman asked us to do so and they have reason.
