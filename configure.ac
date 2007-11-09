@@ -428,7 +428,6 @@ src/vercmp/Makefile
 src/versort/Makefile
 scripts/Makefile
 doc/Makefile
-doc/hu/Makefile
 etc/Makefile
 etc/pacman.d/Makefile
 etc/pacman.d/frugalware

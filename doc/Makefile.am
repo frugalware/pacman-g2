@@ -1,7 +1,5 @@
 all: po4a makepkg.8 FrugalBuild.8 pacman-g2.8
 
-SUBDIRS = hu
-
 po4a:
 if HAS_PO4A
 	@$(NORMAL_INSTALL)
@@ -21,7 +19,6 @@ endif
 
 clean:
 	rm -f html/*.html
-	rm -f hu/*.8
 	rm -f man3/*.3
 
 man_MANS = pacman-g2.8 makepkg.8 FrugalBuild.8 libpacman.3
