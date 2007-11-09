@@ -185,6 +185,27 @@ else
     POSTATUS="no, disabled by configure"
 fi
 
+dnl Check for asciidoc
+AC_MSG_CHECKING(for support asciidoc)
+if test x$wantasciidoc = xyes ; then
+    AC_CHECK_PROGS([ASCIIDOC], [asciidoc])
+    AM_CONDITIONAL(HAS_ASCIIDOC, test $ASCIIDOC)
+    if test $ASCIIDOC ; then
+        AC_DEFINE([HAS_ASCIIDOC], [TRUE], [Enabled ASCIIDOC (needed to generate manpages)])
+	AC_MSG_RESULT(yes)
+	ASCIISTATUS="yes, path: `which $ASCIIDOC`"
+    else
+        AC_DEFINE([HAS_ASCIIDOC], [FALSE], [Disabled ASCIIDOC (needed to generate manpages)])
+	AC_MSG_RESULT(no, asciidoc binary missing)
+	ASCIISTATUS="no, missing asciidoc binary"
+    fi
+else
+    AM_CONDITIONAL(HAS_ASCIIDOC, test $ASCIIDOC)
+    AC_DEFINE([HAS_ASCIIDOC], [FALSE], [Not specified at configure line])
+    AC_MSG_RESULT(not requested by configure)
+    ASCIISTATUS="no, disabled by configure"
+fi
+
 dnl Check for doxygen support
 AC_MSG_CHECKING(for support Doxygen)
 if test x$wantdoxygen = xyes ; then
