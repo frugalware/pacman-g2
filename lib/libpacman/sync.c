@@ -401,23 +401,6 @@ static int check_olddelay()
 	return(0);
 }
 
-static int check_oldcache()
-{
-	pmdb_t *db = handle->db_local;
-	char lastupdate[16] = "";
-
-	if(_pacman_db_getlastupdate(db, lastupdate) == -1) {
-		return(-1);
-	}
-	if(strlen(db->lastupdate) && strcmp(lastupdate, db->lastupdate) != 0) {
-		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is too old"), db->treename);
-		_pacman_db_free_pkgcache(db);
-	} else {
-		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is up to date"), db->treename);
-	}
-	return(0);
-}
-
 int _pacman_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, pmlist_t **data)
 {
 	pmlist_t *deps = NULL;
@@ -438,8 +421,6 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync,
 		pmsyncpkg_t *sync = i->data;
 		list = _pacman_list_add(list, sync->pkg);
 	}
-
-	check_oldcache();
 
 	if(!(trans->flags & PM_TRANS_FLAG_NODEPS)) {
 		trail = _pacman_list_new();

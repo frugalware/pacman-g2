@@ -39,6 +39,23 @@
 #include "sync.h"
 #include "pacman.h"
 
+static int check_oldcache()
+{
+	pmdb_t *db = handle->db_local;
+	char lastupdate[16] = "";
+
+	if(_pacman_db_getlastupdate(db, lastupdate) == -1) {
+		return(-1);
+	}
+	if(strlen(db->lastupdate) && strcmp(lastupdate, db->lastupdate) != 0) {
+		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is too old"), db->treename);
+		_pacman_db_free_pkgcache(db);
+	} else {
+		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is up to date"), db->treename);
+	}
+	return(0);
+}
+
 pmtrans_t *_pacman_trans_new()
 {
 	pmtrans_t *trans;
@@ -96,6 +113,8 @@ int _pacman_trans_init(pmtrans_t *trans, unsigned char type, unsigned int flags,
 	trans->cb_conv = conv;
 	trans->cb_progress = progress;
 	trans->state = STATE_INITIALIZED;
+
+	check_oldcache();
 
 	return(0);
 }
