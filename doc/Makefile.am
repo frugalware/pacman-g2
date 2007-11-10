@@ -1,8 +1,10 @@
+if HAS_ASCIIDOC
 man3_MANS = libpacman.3
 
 man5_MANS = FrugalBuild.5
 
 man8_MANS = makepkg.8 pacman-g2.8
+endif
 
 localized_MANS = $(man5_MANS) $(man8_MANS)
 
@@ -19,6 +21,7 @@ else
 man_MANS =
 endif
 
+if HAS_ASCIIDOC
 %.3: %.txt
 	a2x -f manpage $^
 	$(call convert_MAN,$@)
@@ -38,7 +41,6 @@ if HAS_PO4A
 	po4a -k 0 po4a.cfg
 endif
 
-if HAS_ASCIIDOC
 if HAS_PO4A
 localized_mans: $(shell for i in $(localized_LANGS); do for j in $(localized_MANS); do echo $$i/$$j; done; done)
 install-data-local: install-man5-local install-man8-local
