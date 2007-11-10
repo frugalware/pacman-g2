@@ -8,7 +8,11 @@ localized_MANS = $(man5_MANS) $(man8_MANS)
 
 localized_LANGS = $(shell grep '\[po4a_langs\]' po4a.cfg |sed 's/\[po4a_langs\] //')
 
+if HAS_ASCIIDOC
 man_MANS = $(localized_MANS) $(man3_MANS)
+else
+man_MANS =
+endif
 
 %.3: %.txt
 	a2x -f manpage $^
@@ -22,11 +26,19 @@ man_MANS = $(localized_MANS) $(man3_MANS)
 all: $(man_MANS) po4a localized_mans
 
 po4a:
+if HAS_PO4A
 	po4a -k 0 po4a.cfg
+endif
 
+if HAS_ASCIIDOC
+if HAS_PO4A
 localized_mans: $(shell for i in $(localized_LANGS); do for j in $(localized_MANS); do echo $$i/$$j; done; done)
-
 install-data-local: install-man5-local install-man8-local
+endif
+else
+localized_mans:
+endif
+
 
 install-man5-local:
 	for i in $(localized_LANGS); do \
@@ -44,6 +56,8 @@ install-man8-local:
 		done; \
 	done
 
+if HAS_DOXYGEN
 man_MANS += man3/*
+endif
 
 EXTRA_DIST = $(man_MANS)
