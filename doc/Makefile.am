@@ -54,7 +54,7 @@ install-man5-local:
 	for i in $(localized_LANGS); do \
 		test -z "$(mandir)/$$i/man5" || $(MKDIR_P) "$(DESTDIR)$(mandir)/$$i/man5"; \
 		for j in $(man5_MANS); do \
-			$(INSTALL_DATA) $$j "$(DESTDIR)$(mandir)/$$i/man5/$$j"; \
+			$(INSTALL_DATA) $$i/$$j "$(DESTDIR)$(mandir)/$$i/man5/$$j"; \
 		done; \
 	done
 
@@ -62,7 +62,7 @@ install-man8-local:
 	for i in $(localized_LANGS); do \
 		test -z "$(mandir)/$$i/man8" || $(MKDIR_P) "$(DESTDIR)$(mandir)/$$i/man8"; \
 		for j in $(man8_MANS); do \
-			$(INSTALL_DATA) $$j "$(DESTDIR)$(mandir)/$$i/man8/$$j"; \
+			$(INSTALL_DATA) $$i/$$j "$(DESTDIR)$(mandir)/$$i/man8/$$j"; \
 		done; \
 	done
 
