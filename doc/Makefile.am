@@ -8,6 +8,11 @@ localized_MANS = $(man5_MANS) $(man8_MANS)
 
 localized_LANGS = $(shell grep '\[po4a_langs\]' po4a.cfg |sed 's/\[po4a_langs\] //')
 
+convert_MAN = \
+	      if echo $(1)|grep -q /; then \
+	      iconv -t $(shell locale -a |grep "$(shell dirname $(1))_.*\."|sed -n 's/.*\.//;1 p') -f UTF8 < $(1) > tmp; mv tmp $(1); \
+	      fi
+
 if HAS_ASCIIDOC
 man_MANS = $(localized_MANS) $(man3_MANS)
 else
@@ -16,12 +21,15 @@ endif
 
 %.3: %.txt
 	a2x -f manpage $^
+	$(call convert_MAN,$@)
 
 %.5: %.txt
 	a2x -f manpage $^
+	$(call convert_MAN,$@)
 
 %.8: %.txt
 	a2x -f manpage $^
+	$(call convert_MAN,$@)
 
 all: $(man_MANS) po4a localized_mans
 
