@@ -65,6 +65,7 @@ CHROOT=1
 get_sha1checksum()
 {
 	if [ -f $pkgfile ]; then
+		bzip2 --test $pkgfile || die "corrupted package: $pkgfile"
 		sha1line=`sha1sum $pkgfile`
 		[ ! -z "$sha1line" ] && pkgsha1sum=${sha1line%  *}
 		echo $pkgsha1sum
