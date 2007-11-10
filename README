@@ -25,8 +25,8 @@ wrappers) to this great package management tool.
 
 Some features that pacman-g2 has over pacman: (September 2007)
 
-1) It provides bindings C#, Java, Perl and Python bindings for libpacman.
-2) It provides a configuration file parser (for parsing pacman.conf).
+1) It provides C#, Java, Perl and Python bindings for libpacman.
+2) libpacman provides a configuration file parser (for pacman.conf).
 3) It provides support for subpackages, ie. creating more than one binary
 package using a single build script.
 4) Localized manpages.
