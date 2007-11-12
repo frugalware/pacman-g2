@@ -45,6 +45,22 @@
 
 extern pmhandle_t *handle;
 
+static pmgraph_t *_pacman_graph_new(void)
+{
+	pmgraph_t *graph = NULL;
+
+	graph = (pmgraph_t *)malloc(sizeof(pmgraph_t));
+	memset(graph, 0, sizeof(pmgraph_t));
+	return(graph);
+}
+
+static void _pacman_graph_free(void *data)
+{
+	pmgraph_t *graph = data;
+	FREELISTPTR(graph->children);
+	FREE(graph);
+}
+
 pmdepmissing_t *_pacman_depmiss_new(const char *target, unsigned char type, unsigned char depmod,
                                   const char *depname, const char *depversion)
 {
@@ -102,69 +118,76 @@ int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
 pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 {
 	pmlist_t *newtargs = NULL;
-	pmlist_t *i, *j, *k, *l;
-	int change = 1;
-	int numscans = 0;
-	int numtargs = 0;
+	pmlist_t *i, *j, *k;
+	pmlist_t *vertices = NULL;
+	pmlist_t *vptr;
+	pmgraph_t *vertex;
 
 	if(targets == NULL) {
 		return(NULL);
 	}
 
+	_pacman_log(PM_LOG_DEBUG, _("started sorting dependencies"));
+
+	/* We create the vertices */
 	for(i = targets; i; i = i->next) {
-		newtargs = _pacman_list_add(newtargs, i->data);
-		numtargs++;
+		pmgraph_t *vertex = _pacman_graph_new();
+		vertex->data = (void *)i->data;
+		vertices = _pacman_list_add(vertices, vertex);
 	}
 
-	_pacman_log(PM_LOG_DEBUG, _("started sorting dependencies"));
-	while(change) {
-		pmlist_t *tmptargs = NULL;
-		change = 0;
-		if(numscans > sqrt(numtargs)) {
-			_pacman_log(PM_LOG_DEBUG, _("possible dependency cycle detected"));
-			continue;
-		}
-		numscans++;
-		/* run thru targets, moving up packages as necessary */
-		for(i = newtargs; i; i = i->next) {
-			pmpkg_t *p = (pmpkg_t*)i->data;
-			for(j = _pacman_pkg_getinfo(p, PM_PKG_DEPENDS); j; j = j->next) {
-				pmdepend_t dep;
-				pmpkg_t *q = NULL;
-				if(_pacman_splitdep(j->data, &dep)) {
-					continue;
-				}
-				/* look for dep.name -- if it's farther down in the list, then
-				 * move it up above p
-				 */
-				for(k = i->next; k; k = k->next) {
-					q = (pmpkg_t *)k->data;
-					if(!strcmp(dep.name, q->name)) {
-						if(!_pacman_pkg_isin(q->name, tmptargs)) {
-							change = 1;
-							tmptargs = _pacman_list_add(tmptargs, q);
-						}
-						break;
-					}
-					if(!change) {
-						for(l = _pacman_pkg_getinfo(q, PM_PKG_PROVIDES); l; l = l->next) {
-							if(!strcmp(dep.name, (char*)l->data)) {
-								if(!_pacman_pkg_isin((char*)l->data, tmptargs)) {
-									change = 1;
-									tmptargs = _pacman_list_add(tmptargs, q);
-								}
-								break;
-							}
-						}
-					}
-				}
+	/* We compute the edges */
+	for(i = vertices; i; i = i->next) {
+		pmgraph_t *vertex_i = i->data;
+		pmpkg_t *p_i = vertex_i->data;
+		/* TODO this should be somehow combined with _pacman_checkdeps */
+		for(j = vertices; j; j = j->next) {
+			pmgraph_t *vertex_j = j->data;
+			pmpkg_t *p_j = vertex_j->data;
+			int child = 0;
+			for(k = _pacman_pkg_getinfo(p_i, PM_PKG_DEPENDS); k && !child; k = k->next) {
+				pmdepend_t depend;
+				_pacman_splitdep(k->data, &depend);
+				child = _pacman_depcmp(p_j, &depend);
 			}
-			if(!_pacman_pkg_isin(p->name, tmptargs)) {
-				tmptargs = _pacman_list_add(tmptargs, p);
+			if(child) {
+				vertex_i->children = _pacman_list_add(vertex_i->children, vertex_j);
 			}
 		}
-		FREELISTPTR(newtargs);
-		newtargs = tmptargs;
+		vertex_i->childptr = vertex_i->children;
+	}
+
+	vptr = vertices;
+	vertex = vertices->data;
+	while(vptr) {
+		/* mark that we touched the vertex */
+		vertex->state = -1;
+		int found = 0;
+		while(vertex->childptr && !found) {
+			pmgraph_t *nextchild = (vertex->childptr)->data;
+			vertex->childptr = (vertex->childptr)->next;
+			if (nextchild->state == 0) {
+				found = 1;
+				nextchild->parent = vertex;
+				vertex = nextchild;
+			} else if(nextchild->state == -1) {
+				_pacman_log(PM_LOG_DEBUG, _("dependency cycle detected"));
+			}
+		}
+		if(!found) {
+			newtargs = _pacman_list_add(newtargs, vertex->data);
+			/* mark that we've left this vertex */
+			vertex->state = 1;
+			vertex = vertex->parent;
+			if(!vertex) {
+				vptr = vptr->next;
+				while(vptr) {
+					vertex = vptr->data;
+					if (vertex->state == 0) break;
+					vptr = vptr->next;
+				}
+			}
+		}
 	}
 	_pacman_log(PM_LOG_DEBUG, _("sorting dependencies finished"));
 
@@ -175,6 +198,8 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 		FREELISTPTR(newtargs);
 		newtargs = tmptargs;
 	}
+
+	_FREELIST(vertices, _pacman_graph_free);
 
 	return(newtargs);
 }

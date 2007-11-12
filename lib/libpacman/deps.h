@@ -38,6 +38,14 @@ typedef struct __pmdepmissing_t {
 	pmdepend_t depend;
 } pmdepmissing_t;
 
+typedef struct __pmgraph_t {
+	int state; /* 0: untouched, -1: entered, other: leaving time */
+	void *data;
+	struct __pmgraph_t *parent; /* where did we come from? */
+	pmlist_t *children;
+	pmlist_t *childptr; /* points to a child in children list */
+} pmgraph_t;
+
 pmdepmissing_t *_pacman_depmiss_new(const char *target, unsigned char type, unsigned char depmod,
                             const char *depname, const char *depversion);
 int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack);
