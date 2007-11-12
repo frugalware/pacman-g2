@@ -37,6 +37,7 @@
 #include "add.h"
 #include "remove.h"
 #include "sync.h"
+#include "cache.h"
 #include "pacman.h"
 
 static int check_oldcache()
