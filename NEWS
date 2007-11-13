@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.6.4         - speeded up sorting dependencies (this especially affects mkiso)
+              - converted documentation to asciidoc
+              - *sync now dies if the fpm is corrupted
+              - new utility: versort to sort versions from commandline
+              - new --noarch option to disable arch check
 3.6.3         - documentation update (README)
 	      - if a package is installed as a dependency, then -S package will
 	        update its reason to "installed explicitly"
