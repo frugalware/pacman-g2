@@ -69,6 +69,10 @@ pacman-g2 packages are in a bzipped tar format.
 	will cause all those files to be overwritten. This option should be used with
 	care, ideally not at all.
 
+--noarch::
+	Bypass the architecture check, so that you can for example install an `i686`
+	package on `x86_64` if you know what you're doing.
+
 -r, --root <path>::
 	Specify alternative installation root (default is "/"). This should not be used
 	as a way to install software into e.g. /usr/local instead of /usr. Instead this
@@ -76,6 +80,9 @@ pacman-g2 packages are in a bzipped tar format.
 	partition, which is "owned" by another system. By using this option you not
 	only specify where the software should be installed, but you also specify which
 	package database to use.
+
+-b, --dbpath:
+	Specify an alternative database path (default is `var/lib/pacman`).
 
 -v, --verbose::
 	Output more status and error messages.
@@ -105,6 +112,12 @@ pacman-g2 packages are in a bzipped tar format.
 --noprogressbar::
 	Do not show a progress bar when downloading files. This can be useful for
 	scripts that call pacman-g2 and capture the output.
+
+--noscriptlet::
+	Do not execute install scriptlets, if any.
+
+--nointegrity::
+	Skip the SHA1 integrity check for the downloaded packages.
 
 == SYNC OPTIONS
 
@@ -241,9 +254,6 @@ pacman-g2 packages are in a bzipped tar format.
 	# pacman-g2 -Sf zip --noconfirm
 	----
 
---nointegrity::
-	Skip the SHA1 integrity check for the downloaded packages.
-
 == HANDLING CONFIG FILES
 
 pacman-g2 uses the same logic as rpm to determine action against files that are
@@ -329,8 +339,12 @@ Include = <path>::
 	Include another config file. This config file can include repositories or
 	general configuration options.
 
-ProxyServer = <host|ip>[:port]::
+ProxyServer = <host|ip>::
 	If set, pacman-g2 will use this proxy server for all ftp/http transfers.
+
+ProxyPort = port::
+	If set, pacman-g2 will use this proxy port for all ftp/http transfers.
+	(Default: 80).
 
 XferCommand = /path/to/command %u::
 	If set, pacman-g2 will use this external program to download all remote files.
