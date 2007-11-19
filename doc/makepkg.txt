@@ -10,19 +10,25 @@ makepkg [options]
 
 == DESCRIPTION
 
-makepkg will build packages for you. All it needs is a build-capable Linux
-platform, wget, and some build scripts. The advantage to a script-based build
+`makepkg` will build packages for you. All it needs is a build-capable Linux
+platform, `wget`, and some build scripts. The advantage to a script-based build
 is that you only really do the work once. Once you have the build script for a
-package, you just need to run makepkg and it will do the rest: download and
+package, you just need to run `makepkg` and it will do the rest: download and
 validate source files, check dependencies, configure the build-time settings,
 build the package, install the package into a temporary root, make
 customizations, generate meta-info, and package the whole thing up for
-pacman-g2 to use.
+`pacman-g2` to use.
 
-makeworld can be used to rebuild an entire package group or the entire build
-tree. See makeworld --help for syntax.
+`makeworld` can be used to rebuild an entire package group or the entire build
+tree. See `makeworld --help` for syntax.
 
 == OPTIONS
+
+-a, --searchdeps::
+	Try to guess the correct value of the depends() array.
+
+-A <url>::
+	rsync cache url to use before downloading anything.
 
 -b, --builddeps::
 	Build missing dependencies from source. When makepkg finds missing build-time
@@ -63,6 +69,10 @@ tree. See makeworld --help for syntax.
 -g, --gensha1::
 	Download all source files (if required) and use sha1sum to generate sha1 hashes
 	for each of them.
+
+-G, --wrtsha1::
+	Same as `-g`, but replace the contents of the sha1sums() array in the FrugalBuild
+	with the result.
 
 -h, --help::
 	Output syntax and commandline options.
@@ -124,6 +134,9 @@ tree. See makeworld --help for syntax.
 -w <destdir>::
 	Write the resulting package file to the directory <destdir> instead of the
 	current working directory.
+
+--gzip::
+	Use gzip compression for a package instead of bzip2.
 
 --noconfirm::
 	When calling pacman-g2 to resolve dependencies or conflicts, makepkg can pass
