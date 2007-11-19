@@ -27,108 +27,109 @@ Finclude sourceforge
 groups=('xapps')
 archs=('i686' 'x86_64')
 sha1sums=('a99ea7ef6e50646b77ad47a015127925053d34ea')
-
 # optimization OK
 ----
 
-As you can see, the setup is fairly simple. The first line tracks the time of the last update,
-this is automatically updated after a successful build.
+As you can see, the setup is fairly simple. The first line tracks the time of
+the last update, this is automatically updated after a successful build.
 
 The next line defines its build time. Of course, it depends on your hardware,
 so we use `SBU`s instead of minutes as a unit.
 
 `SBU` is the Static Binutils Unit, which means the time `repoman merge
-binutils` takes on your machine. By default makepkg will print out how many
-seconds the build took. After you have built binutils, you should update your
+binutils` takes on your machine. By default `makepkg` will print out how many
+seconds the build took. After you have built `binutils`, you should update your
 `/etc/makepkg.conf`:
 
 ----
 SBU="257"
 ----
 
-The line above means compiling binutils on your machine took 257 seconds.
-Starting from this point, makepkg will print out SBUs instead of seconds after
+The line above means compiling `binutils` on your machine took 257 seconds.
+Starting from this point, `makepkg` will print out SBUs instead of seconds after
 successful builds, and this SBU value will be equal on everyone's machine.
 
 If you wish to maintain the package, write your name or nick and e-mail address
-on the third line. If you just wrote the FrugalBuild don't plan to maintain the
-package , then write Contributor instead of Maintainer, and then someone can
-take it and will add his/her line later. Other lines like "Modified by" are not
-allowed. Use the commit message to mention others if you wish.
+on the second line. If you just wrote the FrugalBuild don't plan to maintain
+the package, then write `Contributor` instead of `Maintainer`, and then someone
+can take it and will add his/her line later. Other lines like `Modified by` are
+not allowed. Use the commit message to mention others if you wish.
 
-pkgname defines the package name. It should not contain any uppercase letters.
-The package version defines the upstream version, while the package release
-tracks the Frugalware-specific changes. pkgrel should be an integer, pkgrels
-like 5wanda1 are reserved for security updates. There the rule is the
-following: If the original package's pkgrel was 4, then increment it once when
-you add a security patch, but then use 5wanda1, 5wanda2 and so on. This way the
-user can easily upgrade to pkgrel=5 which is in -current.
+`pkgname` defines the package name. It should not contain any uppercase
+letters.  The package version defines the upstream version, while the package
+release tracks the Frugalware-specific changes. `pkgrel` should be an integer,
+the ones like `5wanda1` are reserved for security updates. In the later case
+the rule is the following: If the original package's `pkgrel` was 4, then
+increment it once when you add a security patch, but then use `5wanda1`,
+`5wanda2` and so on. This way the user can easily upgrade to `pkgrel=5` which
+is in `-current`.
 
-pkgdesc is a short one-line description for the package. Usually taken from the
+`pkgdesc` is a short one-line description for the package. Usually taken from the
 project's homepage or manpage. Try to keep the length under 80 chars.
 
-depends() is a bash array which defines the dependencies of the package.
-depends() lists those packages required for building and using the current one.
-If the dependency is runtime-only, then use rodepends(), if buildtime-only then
-use makedepends().
+`depends()` is a bash array which defines the dependencies of the package.
+`depends()` lists those packages required for building and using the current one.
+If the dependency is runtime-only, then use `rodepends()`, if buildtime-only then
+use `makedepends()`.
 
-The next line is a special Finclude command which allows you to inherit any
-directive from a FrugalBuild scheme. They can be found in the FST, under
-/source/include. The "util" scheme is always included, since its provided
+The next line is a special `Finclude` command which allows you to inherit any
+directive from a FrugalBuild scheme. They can be found in the `FST`, under
+`/source/include`. The `util` scheme is always included, since its provided
 functions are used by almost every FrugalBuild. Look at the
-/source/include/sourceforge.sh, it provides the url, up2date and source()
-directives, so we don't have to specify them here. After the Finclude you can
-overwrite the inherited directives, for example define a custom up2date if the
-inherited one is not suitable for you.
+`/source/include/sourceforge.sh`, it provides the `url`, `up2date` and
+`source()` directives, so we don't have to specify them here. After the
+`Finclude` you can overwrite the inherited directives, for example define a
+custom `up2date` if the inherited one is not suitable for you.
 
-The groups() array's first element is mandatory, and it should be a valid
-"first group". This means it should be in a foo or foo-extra format, where foo
-or foo-extra is a dir under /source in the FST.
+The `groups()` array's first element is mandatory, and it should be a valid
+"first group". This means it should be in a `foo` or `foo-extra` format, where
+`foo` or `foo-extra` is a directory under `/source` in the `FST`.
 
-The archs() array defines for which architectures the given package is
-available. If it's not available, it means that gensync will skip it when
+The `archs()` array defines for which architectures the given package is
+available. If it's not available, it means that `gensync` will skip it when
 generating the package databases. If you are not able to provide a binary
-package for a given arch, don't include that in archs()! For example, no
-matter if the package could be compiled in x86_64, if you haven't compiled it
-yourself, don't include it. If you're sure it won't be available on a given
-arch (for example it's written in x86 asm), then use !arch, for example
-!x86_64.
+package for a given arch, don't include that in `archs()`! For example, no
+matter if the package could be compiled fir `x86_64`, if you haven't compiled
+it yourself, don't include it. If you're sure it won't be available on a given
+arch (for example it's written in assembly), then use !arch, for example
+`!x86_64`.
 
-The sha1sums() array can be generated with the makepkg -g command. Its purpose
-is to prevent compiling from corrupt sources, especially when the build is
-automatic. Where it is available you can use signatures(), its goal is that you
-don't have to update it manually every time.
+The `sha1sums()` array can be generated with the `makepkg -G` command. Its
+purpose is to prevent compiling from corrupt sources, especially when the build
+is automatic. You can use signatures() if a digital signature is provided by
+upstream, its goal is that you don't have to update it manually every time.
 
 The last line will be added automatically to the end of the FrugalBuild if the
-build() function used your $CFLAGS or $CXXFLAGS. This is handy if you want to
-cross-compile on a faster machine for a slower architecture. If the package
-doesn't use our $CFLAGS we can't cross-compile it, so please try to avoid
-creating "unoptimized" packages. If the package doesn't contain any architec-
-ture-dependent file, then you can add this line manually as makepkg will not
-detect this.
+`build()` function used your `$CFLAGS` or `$CXXFLAGS`. This is handy if you
+want to cross-compile on a faster machine for a slower architecture. If the
+package doesn't use our `$CFLAGS` we can't cross-compile it, so please try to
+avoid creating 'unoptimized' packages. If the package doesn't contain any
+architecture-dependent file, then you can add this line manually as `makepkg`
+will not detect this.
 
-Finally we define a build() function that will build the package. If you don't
-want to do anything special, you probably don't have to specify anything, as
-the default build() (inherited from util.sh) will fit your needs. Even if you
-define a custom build(), probably you can re-use parts of the default build().
-For the list of special functions provided by util.sh and others refer to the
-/source/include dir. Again, util.sh is included automatically, but you have to
-Finclude the others before using them!
+Finally we define a `build()` function that will build the package. If you
+don't want to do anything special, you probably don't have to specify anything,
+as the default build() (inherited from `util.sh`) will fit your needs. Even if
+you define a custom build(), probably you can reuse parts of the default
+build().  For the list of special functions provided by util.sh and others
+refer to the `fwmakepkg` manpage. Again, `util.sh` is included automatically,
+but you have to `Finclude` the others before using them!
 
 Once the package is successfully installed into the package root, makepkg will
-prepare some docu- mentation. It will then strip debugging info from libraries
+prepare some documentation. It will then strip debugging info from libraries
 and binaries and generate a meta-info file. Finally, it will compress
-everything into a .fpm file and leave it in the directory from which you ran
-makepkg.
+everything into a `.fpm` file and leave it in the directory from which you ran
+`makepkg`.
 
 At this point you should have a package file in the current directory, named
-something like name-version-release-arch.fpm. Done!
+something like `name-version-release-arch.fpm`. Done!
 
 === Install/Upgrade/Remove Scripting
 
-pacman-g2 has the ability to store and execute a package-specific script when it
-installs, removes, or upgrades a package. This allows a package to "configure
-itself" after installation and do the opposite right before it is removed.
+`pacman-g2` has the ability to store and execute a package-specific
+non-interactive script when it installs, removes, or upgrades a package. This
+allows a package to 'configure itself' after installation and do the opposite
+right before it is removed.
 
 The exact time the script is run varies with each operation:
 
@@ -161,7 +162,7 @@ The install script does not need to be specified in the source array. If you
 omit the install directive then makepkg will check for the $pkgname.install
 script and will use it if it's present.
 
-You can find a scriptlet skeleton in the /docs/skel/ directory, use it when
+You can find a scriptlet skeleton in the `/docs/skel/` directory, use it when
 creating new packages.
 
 The scriptlet messages are parsed, a simple example tells you everything:
@@ -180,8 +181,8 @@ post_upgrade()
 === FrugalBuild Directives
 
 pkgname::
-	The name of the package. This has be a unix-friendly name as it will be
-	used in the pack- age filename.
+	The name of the package. It can contain hyphens and should be lowercase. It is
+	usually the name part of the source tarball.
 
 pkgver::
 	This is the version of the software as released from the author (eg,
@@ -226,14 +227,14 @@ up2date::
 source (array)::
 	The source line is an array of source files required to build the package.
 	Source files must reside in the same directory as the FrugalBuild file, unless
-	they have a fully-quali- fied URL. Then if the source file does not already
-	exist in /var/cache/pacman/src, the file is downloaded by wget.
+	they have a fully-qualified URL. Then if the source file does not already exist
+	in `/var/cache/pacman/src`, the file is downloaded by wget.
 
 sha1sums (array)::
 	If this field is present, it should contain an SHA1 hash for every source file
-	specified in the source array (in the same order). makepkg will use this to
+	specified in the source array (in the same order). `makepkg` will use this to
 	verify source file integrity during subsequent builds. To easily update
-	sha1sums in the FrugalBuild, run makepkg -G.
+	sha1sums in the FrugalBuild, run `makepkg -G`.
 
 signatures (array)::
 	If this field is present, it should contain an array of gpg signatures required
@@ -258,8 +259,8 @@ backup (array)::
 	A space-delimited array of filenames (without a preceding slash). The backup
 	line will be propagated to the package meta-info file for pacman-g2. This will
 	designate all files listed there to be backed up if this package is ever
-	removed from a system. See HANDLING CONFIG FILES in the pacman-g2 manpage for
-	more information.
+	removed from a system. See 'HANDLING CONFIG FILES' in the `pacman-g2` manual
+	page for more information.
 
 depends (array)::
 	An array of packages that this package depends on to build and run. Packages in
@@ -323,63 +324,66 @@ options (array)::
 
 === What is the process of chrooted build?
 
-First, what is chroot? We currently use fakeroot to prevent build() from
-modifying the host sys- tem, and we use a prefix or DESTDIR directive to
-install everything to a directory and not under to the host system. This is
-good, but not enough.
+First, what is chroot? If you use `makepkg -H`, then you use fakeroot to
+prevent build() from modifying the host system, and you use a prefix or DESTDIR
+directive to install everything to a directory and not under to the host
+system. This is good, but not enough.
 
 This system lacks the ability to control the list of installed packages during
 the build on the system of a packager. Because of this, the given compiled
 package may link itself to an extra installed library. This way we can't really
-control the list of real dependencies. For example if libquicktime is installed
-from source on my system, then mplayer or any other program can link itself to
-that, and so that depends() will be incorrect. Or if I have the closed source
-binary NVidia drivers installed, some programs link to NVidia's libraries.
+control the list of real dependencies. For example if `libquicktime` is
+installed from source on your system, then `mplayer` or any other program can
+link itself to that, and so that depends() will be incorrect. Or if you have
+the closed source binary NVidia drivers installed, some programs will link to
+NVidia's libraries.
 
-Of course there is a solution to avoid this, to use a real chroot instead of a
-simple fakeroot. What does this mean? The following:
+Of course there is a solution to avoid this, to use a real `chroot` instead of
+a simple `fakeroot`. What does this mean? The following:
 
 When starting the build, a core chroot system is installed under /var/chroot.
-(Of course you can change this value under /etc/makepkg.conf.) The core system
-contains ~ 60 packages which are must installed to build any package in a
-chrooted environment. These packages (for example gcc, ker- nel-headers, make)
+(Of course you can change this value under `/etc/makepkg.conf`.) The core
+system contains ~ 60 packages which must be installed to build any package in a
+chrooted environment. These packages (for example gcc, kernel-headers, make)
 should not be mentioned in makedepends(). `pacman-g2 -Sg core chroot-core
 devel-core` should show you the actual list. (We try to change this list rarely
-of course.)
+and try to keep it short, of course.)
 
-When you start building with makepkg -R, pacman-g2 will install these packages
-to /var/chroot if necessary. This will produce a fully "clean" Frugalware
-system, that consists of base packages only. This /var/chroot is fully
-separated from the host system so that this will solve the prob- lems mentioned
-above. (Linking to a library installed from source, etc.)
+When you start building with `makepkg` (without `-H`), pacman-g2 will install
+these packages to /var/chroot if necessary. This will produce a fully 'clean'
+Frugalware system, that consists of base packages only. This `/var/chroot` is
+fully separated from the host system so that this will solve the problems
+mentioned above. (Linking to a library installed from source, etc.)
 
 Here comes the fun part. The packages listed in depends() and makedepends() are
-installed to this clean (/var/chroot) system. From this point, this chroot is
-capable to build the specified pack- age in it without any unnecessary package
+installed to this clean (`/var/chroot`) system. From this point, this chroot is
+capable to build the specified package in it without unnecessary packages being
 installed, fully separated from the host system.
 
-After this the chroot should be cleaned up which means the removal of the
+After this, the chroot should be cleaned up which means the removal of the
 installed depends() and makedepends(). This ensures you do not have to build
-the core chroot from scratch.
+the core chroot from scratch. This action is performed by `makepkg` after a
+successful build.
 
 This way we can prevent lots of dependency problems and it is even possible to
 build packages for a different Frugalware version. This is quite efficient when
-building security updates or fixing critical bugs in the -stable tree.
+building security updates or fixing critical bugs in the `-stable` tree.
 
 If the build fails, the working directory will not be deleted, you can find it
-under /var/chroot/$tree/var/tmp/fst. Later if you want to clean your chroot
+under `/var/chroot/$tree/var/tmp/fst`. Later if you want to clean your chroot
 (delete the working directory and remove unnecessary packages) you can use
-'makepkg -C'.
+`makepkg -C`.
 
-To deactivate building in a chroot (for testing purposes), you should run
-makepkg with the -H option.
+To deactivate building in a `chroot` (for testing purposes), you should run
+`makepkg` with the `-H` option.
 
 === Package splitting
 
-Package splitting means moving out a list of specified files to subpackages
-(like libmysql out of mysql) and then defining the properties of subpackages.
+Package splitting means moving out a list of specified files to 'subpackages'
+(like `libmysql` out of `mysql`) and then defining the properties of
+subpackages.
 
-NOTE: if you create several subpackages, maintaining those packages will
+NOTE: If you create several subpackages, maintaining those packages will
 require more and more time. Thus, unnecessary splits aren't welcome.
 Especially, if you split out a library, then don't move the headers to the
 package just to speed up building with a few seconds!
