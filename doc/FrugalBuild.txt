@@ -327,6 +327,11 @@ options (array)::
 
 	scriptlet: Don't skip executing scriptlets even if we're in chroot.
 
+	nomirror: This means that the source should not be mirrored.
+
+NOTE: Feel free to use `nomirror` in a WIP repo but please try avoid it when
+pushing to a production repository.
+
 === What is the process of chrooted build?
 
 First, what is chroot? If you use `makepkg -H`, then you use fakeroot to
