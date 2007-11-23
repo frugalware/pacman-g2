@@ -23,15 +23,15 @@ endif
 
 if HAS_ASCIIDOC
 %.3: %.txt
-	a2x -f manpage $^
+	a2x -a lang=$(shell dirname $@|tr -d .) -f manpage $^
 	$(call convert_MAN,$@)
 
 %.5: %.txt
-	a2x -f manpage $^
+	a2x -a lang=$(shell dirname $@|tr -d .) -f manpage $^
 	$(call convert_MAN,$@)
 
 %.8: %.txt
-	a2x -f manpage $^
+	a2x -a lang=$(shell dirname $@|tr -d .) -f manpage $^
 	$(call convert_MAN,$@)
 
 all: $(man_MANS) po4a localized_mans
