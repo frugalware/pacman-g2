@@ -1501,16 +1501,8 @@ fi
 
 # remove /usr/share/doc/$pkgname-$pkgver directory if empty
 if [ -d pkg/usr/share/doc/$pkgname-$pkgver ]; then
-	if [ -z "`ls -1 pkg/usr/share/doc/$pkgname-$pkgver`" ]; then
-		rmdir pkg/usr/share/doc/$pkgname-$pkgver
-	fi
-fi
-
-# remove /usr/share/doc/ directory if empty
-if [ -d pkg/usr/share/doc ]; then
-	if [ -z "`ls -1 pkg/usr/share/doc`" ]; then
-		rmdir pkg/usr/share/doc
-	fi
+	rmdir -p --ignore-fail-on-non-empty pkg/usr/share/doc/$pkgname-$pkgver 2> /dev/null
+	mkdir -p pkg
 fi
 
 # move /usr/info files to /usr/share/info
