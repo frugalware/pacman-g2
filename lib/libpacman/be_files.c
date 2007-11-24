@@ -70,7 +70,7 @@ pmlist_t *_pacman_db_test(pmdb_t *db)
 	pmlist_t *ret = NULL;
 
 	while ((ent = readdir(db->handle)) != NULL) {
-		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
+		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..") || !strcmp(ent->d_name, ".lastupdate")) {
 			continue;
 		}
 		snprintf(path, PATH_MAX, "%s/%s/desc", db->path, ent->d_name);
