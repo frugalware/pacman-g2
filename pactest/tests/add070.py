@@ -1,15 +1,13 @@
 self.description = "Remove a file because of removes()"
 
-p1 = pmpkg("p1")
-p1.files = ["usr/lib/generated"]
-self.addpkg2db("local", p1)
+self.filesystem = ["bin/dummy"]
 
-p2 = pmpkg("p2")
-p2.removes = ["usr/lib/generated"]
-self.addpkg2db("sync", p2)
+p = pmpkg("p")
+p.removes = ["bin/dummy"]
+p.files = ["bin/dummy"]
+self.addpkg2db("sync", p)
 
-self.args = "-S p2"
+self.args = "-S p"
 
-self.addrule("PKG_EXIST=p1")
-self.addrule("PKG_EXIST=p2")
-self.addrule("!FILE_EXIST=usr/lib/generated")
+self.addrule("PKG_EXIST=p")
+self.addrule("FILE_EXIST=bin/dummy")
