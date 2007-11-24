@@ -1466,9 +1466,26 @@ elif [ ! -z "$SBU" ]; then
 	fi
 fi
 
+cd $startdir
+
+# unwanted files
+msg "Removing unwanted files..."
+for f in `find pkg*/usr/lib/perl? -type f 2> /dev/null` ; do
+	case "$f" in
+		*/.packlist|*/perllocal.pod)
+			rm -f "$f"
+			rmdir -p --ignore-fail-on-non-empty `dirname $f` 2> /dev/null
+		;;
+	esac
+done
+rm -f pkg*/{usr{,/local,/share},opt/*}/info/dir 2> /dev/null
+for f in `find pkg*/ -type f -name encodings.dir -o -type f -name fonts.dir -o -type f -name fonts.scale` ; do
+	msg2 "`echo $f | sed 's|pkg[^/]\+||'`"
+	rm -f "$f"
+done
+
 # documentation
 msg "Preparing package documentation..."
-cd $startdir
 if [ -d pkg/usr/doc ]; then
 	mkdir -p pkg/usr/share/doc
 	cp -a pkg/usr/doc/* pkg/usr/share/doc/
