@@ -213,6 +213,7 @@ int pacman_pkg_checksha1sum(PM_PKG *pkg);
 char *pacman_fetch_pkgurl(char *url);
 int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *this_section);
 int pacman_pkg_vercmp(const char *ver1, const char *ver2);
+int pacman_reg_match(char *string, char *pattern);
 
 /*
  * Groups
