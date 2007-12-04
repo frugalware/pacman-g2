@@ -10,22 +10,27 @@ import_pootle()
 		: > src/pacman-g2/po/LINGUAS
 		for i in $(/bin/ls $po_dir/pacman)
 		do
-			[ "$i" = "sk" -o "$i" = "ha" -o "$i" = "ig" -o "$i" = "yo" ] && continue
+			if [ -e $po_dir/pacman/$i/libpacman.po ]; then
 			cp $po_dir/pacman/$i/libpacman.po lib/libpacman/po/$i.po
 			if msgfmt -c --statistics -o lib/libpacman/po/$i.gmo lib/libpacman/po/$i.po; then
 				echo $i >> lib/libpacman/po/LINGUAS
 			else
 				echo "WARNING: lib/libpacman/po/$i.po would break your build!"
 			fi
+			fi
+			if [ -e $po_dir/pacman/$i/pacman-g2.po ]; then
 			cp $po_dir/pacman/$i/pacman-g2.po src/pacman-g2/po/$i.po
 			if msgfmt -c --statistics -o src/pacman-g2/po/$i.gmo src/pacman-g2/po/$i.po; then
 				echo $i >> src/pacman-g2/po/LINGUAS
 			else
 				echo "WARNING: src/pacman-g2/po/$i.po would break your build!"
 			fi
+			fi
+			if [ -e $po_dir/pacman/$i/mans.po ]; then
 			cp $po_dir/pacman/$i/mans.po doc/po/$i.po
 			if ! msgfmt -c --statistics -o doc/po/$i.gmo doc/po/$i.po; then
 				echo "WARNING: doc/po/$i.po will break your build!"
+			fi
 			fi
 		done
 	else
