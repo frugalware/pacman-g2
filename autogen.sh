@@ -64,7 +64,7 @@ if [ "$1" == "--dist" ]; then
 	rm -rf pacman-g2-$ver
 	exit 0
 elif [ "$1" == "--release" ]; then
-	dg tag $ver
+	git tag -l |grep -q $ver || dg tag $ver
 	sh $0 --dist
 	gpg --comment "See http://ftp.frugalware.org/pub/README.GPG for info" \
 		-ba -u 20F55619 pacman-g2-$ver.tar.gz
