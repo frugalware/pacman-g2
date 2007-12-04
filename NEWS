@@ -1,5 +1,11 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.6.5         - updated pacman-g2, FrugalBuild and makepkg manpage
+	      - pacman-g2 -Qt no longer states the db is corrupted when it
+	        isn't
+              - makepkg now handles the xpi extenstion
+	      - pacman-g2 -S now handles regular expressions if no package
+	        found
 3.6.4         - speeded up sorting dependencies (this especially affects mkiso)
               - converted documentation to asciidoc
               - *sync now dies if the fpm is corrupted
