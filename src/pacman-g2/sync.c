@@ -401,6 +401,7 @@ int syncpkg(list_t *targets)
 					}
 				}
 				/* targ is not a group, see if it's a regex */
+				if(!found) {
 				for(j = pmc_syncs; j; j = j->next) {
 					PM_DB *db = j->data;
 					PM_LIST *k;
@@ -417,6 +418,7 @@ int syncpkg(list_t *targets)
 							targets = list_add(targets, strdup(pkgname));
 						}
 					}
+				}
 				}
 				if(!found) {
 					/* targ not found in sync db, searching for providers... */
