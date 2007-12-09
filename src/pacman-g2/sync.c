@@ -402,23 +402,23 @@ int syncpkg(list_t *targets)
 				}
 				/* targ is not a group, see if it's a regex */
 				if(!found) {
-				for(j = pmc_syncs; j; j = j->next) {
-					PM_DB *db = j->data;
-					PM_LIST *k;
-					for(k = pacman_db_getpkgcache(db); k; k = pacman_list_next(k)) {
-						PM_PKG *p = pacman_list_getdata(k);
-						char *pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
-						int match = pacman_reg_match(pkgname, targ);
-						if(match == -1) {
-							ERR(NL, _("could not add target '%s': %s\n"), targ, pacman_strerror(pm_errno));
-							retval = 1;
-							goto cleanup;
-						} else if(match) {
-							found++;
-							targets = list_add(targets, strdup(pkgname));
+					for(j = pmc_syncs; j; j = j->next) {
+						PM_DB *db = j->data;
+						PM_LIST *k;
+						for(k = pacman_db_getpkgcache(db); k; k = pacman_list_next(k)) {
+							PM_PKG *p = pacman_list_getdata(k);
+							char *pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
+							int match = pacman_reg_match(pkgname, targ);
+							if(match == -1) {
+								ERR(NL, _("could not add target '%s': %s\n"), targ, pacman_strerror(pm_errno));
+								retval = 1;
+								goto cleanup;
+							} else if(match) {
+								found++;
+								targets = list_add(targets, strdup(pkgname));
+							}
 						}
 					}
-				}
 				}
 				if(!found) {
 					/* targ not found in sync db, searching for providers... */
