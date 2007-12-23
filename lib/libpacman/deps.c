@@ -253,7 +253,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmli
 					if(_pacman_depcmp(oldpkg, &depend) && !_pacman_depcmp(tp, &depend)) {
 						_pacman_log(PM_LOG_DEBUG, _("checkdeps: updated '%s' won't satisfy a dependency of '%s'"),
 								oldpkg->name, p->name);
-						miss = _pacman_depmiss_new(p->name, PM_DEP_TYPE_REQUIRED, depend.mod,
+						miss = _pacman_depmiss_new(p->name, PM_DEP_TYPE_DEPEND, depend.mod,
 								depend.name, depend.version);
 						if(!_pacman_depmiss_isin(miss, baddeps)) {
 							baddeps = _pacman_list_add(baddeps, miss);
