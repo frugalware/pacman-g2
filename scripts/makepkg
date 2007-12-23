@@ -1540,6 +1540,26 @@ find $startdir/{pkg,pkg.*}/{usr{,/local,/share},opt/*}/{info,man} -type f 2>/dev
 	fi
 done
 
+# check symbolic links
+msg "Checking symbolic links..."
+for d in $startdir/pkg* ; do
+	for l in `find $d -type l 2> /dev/null` ; do
+		if [ ! -e "$l" -a ! -e "$d/`ls -l $l | awk '{print $NF}'`" ]; then
+			if [ "$d" = "$startdir/pkg" ]; then
+				msg2 "Maybe broken link ${l#$d} in pkg $pkgname found."
+			else
+				msg2 "Maybe broken link ${l#$d} in pkg ${d##*/pkg.} found."
+			fi
+		elif ls -l "$l" | awk '{print $NF}' | grep -q "$startdir" ; then
+			if [ "$d" = "$startdir/pkg" ]; then
+				msg2 "Broken link ${l#$d} in pkg $pkgname found."
+			else
+				msg2 "Broken link ${l#$d} in pkg ${d##*/pkg.} found."
+			fi
+		fi
+	done
+done
+
 if [ -d "$startdir/pkg/usr/share/icons/hicolor" ]; then
 	if [ -z "$_F_gnome_iconcache" ]; then
 		warning "Package $pkgname contains hicolor icons but _F_gnome_iconcache is not set"
