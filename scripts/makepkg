@@ -913,6 +913,11 @@ if [ ! -z "$subpkgs" ]; then
 	fi
 fi
 
+if [ ! -e $install -a ! -e $startdir/$install -a ! "`check_option GENSCRIPTLET`" ]; then
+	error "Missing install scriptlet. If this is intentional, add 'genscriptlet' to options()."
+	exit 1
+fi
+
 if [ -f $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT -a "$FORCE" = "0" -a "$GENSHA1" = "0" ]; then
 	if [ "$INSTALL" = "1" ]; then
 		warning "a package has already been built, installing existing package."
