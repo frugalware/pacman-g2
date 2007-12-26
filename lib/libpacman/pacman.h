@@ -36,6 +36,7 @@ extern "C" {
 #define PM_DBPATH   "var/lib/pacman"
 #define PM_CACHEDIR "var/cache/pacman/pkg"
 #define PM_LOCK     "/tmp/pacman-g2.lck"
+#define PM_HOOKSDIR "etc/pacman-g2/hooks"
 
 
 #define PM_EXT_PKG ".fpm"
@@ -119,7 +120,8 @@ enum {
 	PM_OPT_MAXTRIES,
 	PM_OPT_OLDDELAY,
 	PM_OPT_DLREMAIN,
-	PM_OPT_DLHOWMANY
+	PM_OPT_DLHOWMANY,
+	PM_OPT_HOOKSDIR
 };
 
 int pacman_set_option(unsigned char parm, unsigned long data);

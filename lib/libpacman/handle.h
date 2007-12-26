@@ -44,6 +44,7 @@ typedef struct __pmhandle_t {
 	char *dbpath;
 	char *cachedir;
 	char *logfile;
+	char *hooksdir;
 	pmlist_t *noupgrade; /* List of strings */
 	pmlist_t *noextract; /* List of strings */
 	pmlist_t *ignorepkg; /* List of strings */

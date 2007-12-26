@@ -1083,6 +1083,10 @@ int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 			unlink(i->data);
 		}
 	}
+
+	if(handle->sysupgrade) {
+		_pacman_runhook(handle->root, handle->hooksdir, "post_sysupgrade", trans);
+	}
 	return(0);
 
 error:

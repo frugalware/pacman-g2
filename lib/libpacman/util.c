@@ -537,6 +537,112 @@ cleanup:
 	return(retval);
 }
 
+int _pacman_runhook(char *root, char *hookdir, char *hookname, pmtrans_t *trans)
+{
+	char scriptfn[PATH_MAX];
+	char *scriptpath;
+	char hookpath[PATH_MAX];
+	char cmdline[PATH_MAX];
+	char cwd[PATH_MAX] = "";
+	pid_t pid;
+	int retval = 0;
+	DIR *dir;
+	struct dirent *ent;
+
+	_pacman_log(PM_LOG_FLOW2, _("executing %s hooks..."), hookname);
+
+	/* save the cwd so we can restore it later */
+	if(getcwd(cwd, PATH_MAX) == NULL) {
+		_pacman_log(PM_LOG_ERROR, _("could not get current working directory"));
+		/* in case of error, cwd content is undefined: so we set it to something */
+		cwd[0] = 0;
+	}
+
+	/* just in case our cwd was removed in the upgrade operation */
+	if(chdir(root) != 0) {
+		_pacman_log(PM_LOG_ERROR, _("could not change directory to %s (%s)"), root, strerror(errno));
+	}
+
+	snprintf(hookpath, PATH_MAX, "%s/%s", root, hookdir);
+
+	dir = opendir(hookpath);
+	if (!dir) {
+		_pacman_log(PM_LOG_ERROR, _("opening hooks directory failed (%s)"), strerror(errno));
+		retval = 1;
+		goto cleanup;
+	}
+	while ((ent = readdir(dir)) != NULL) {
+		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
+			continue;
+		}
+		snprintf(scriptfn, PATH_MAX, "%s/%s", hookpath, ent->d_name);
+		/* chop off the root so we can find the script in the chroot */
+		scriptpath = scriptfn + strlen(root) - 1;
+		if(!grep(scriptfn, hookname)) {
+			/* script not found in scriptlet file */
+			continue;
+		}
+		snprintf(cmdline, PATH_MAX, "source %s %s", scriptpath, hookname);
+		_pacman_log(PM_LOG_DEBUG, "%s", cmdline);
+		pid = fork();
+		if(pid == -1) {
+			_pacman_log(PM_LOG_ERROR, _("could not fork a new process (%s)"), strerror(errno));
+			retval = 1;
+			goto cleanup;
+		}
+
+		if(pid == 0) {
+			FILE *pp;
+			_pacman_log(PM_LOG_DEBUG, _("chrooting in %s"), root);
+			if(chroot(root) != 0) {
+				_pacman_log(PM_LOG_ERROR, _("could not change the root directory (%s)"), strerror(errno));
+				return(1);
+			}
+			if(chdir("/") != 0) {
+				_pacman_log(PM_LOG_ERROR, _("could not change directory to / (%s)"), strerror(errno));
+				return(1);
+			}
+			umask(0022);
+			_pacman_log(PM_LOG_DEBUG, _("executing \"%s\""), cmdline);
+			pp = popen(cmdline, "r");
+			if(!pp) {
+				_pacman_log(PM_LOG_ERROR, _("call to popen failed (%s)"), strerror(errno));
+				retval = 1;
+				goto cleanup;
+			}
+			while(!feof(pp)) {
+				char line[1024];
+				if(fgets(line, 1024, pp) == NULL)
+					break;
+				/* "START <event desc>" */
+				if((strlen(line) > strlen(STARTSTR)) && !strncmp(line, STARTSTR, strlen(STARTSTR))) {
+					EVENT(trans, PM_TRANS_EVT_SCRIPTLET_START, _pacman_strtrim(line + strlen(STARTSTR)), NULL);
+				/* "DONE <ret code>" */
+				} else if((strlen(line) > strlen(DONESTR)) && !strncmp(line, DONESTR, strlen(DONESTR))) {
+					EVENT(trans, PM_TRANS_EVT_SCRIPTLET_DONE, (void*)atol(_pacman_strtrim(line + strlen(DONESTR))), NULL);
+				} else {
+					EVENT(trans, PM_TRANS_EVT_SCRIPTLET_INFO, _pacman_strtrim(line), NULL);
+				}
+			}
+			pclose(pp);
+			exit(0);
+		} else {
+			if(waitpid(pid, 0, 0) == -1) {
+				_pacman_log(PM_LOG_ERROR, _("call to waitpid failed (%s)"), strerror(errno));
+				retval = 1;
+				goto cleanup;
+			}
+		}
+	}
+
+cleanup:
+	if(strlen(cwd)) {
+		chdir(cwd);
+	}
+
+	return(retval);
+}
+
 #ifndef __sun__
 static long long get_freespace()
 {

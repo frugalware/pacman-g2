@@ -83,6 +83,7 @@ pmhandle_t *_pacman_handle_new()
 
 	handle->dbpath = strdup(PM_DBPATH);
 	handle->cachedir = strdup(PM_CACHEDIR);
+	handle->hooksdir = strdup(PM_HOOKSDIR);
 
 	handle->language = setlocale(LC_ALL, NULL);
 
@@ -108,6 +109,7 @@ int _pacman_handle_free(pmhandle_t *handle)
 	FREE(handle->root);
 	FREE(handle->dbpath);
 	FREE(handle->cachedir);
+	FREE(handle->hooksdir);
 	FREE(handle->logfile);
 	FREE(handle->proxyhost);
 	FREE(handle->xfercommand);
@@ -142,6 +144,13 @@ int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned lo
 			}
 			handle->cachedir = strdup((data && strlen((char *)data) != 0) ? (char *)data : PM_CACHEDIR);
 			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_CACHEDIR set to '%s'"), handle->cachedir);
+		break;
+		case PM_OPT_HOOKSDIR:
+			if(handle->hooksdir) {
+				FREE(handle->hooksdir);
+			}
+			handle->hooksdir = strdup((data && strlen((char *)data) != 0) ? (char *)data : PM_HOOKSDIR);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_HOOKSDIR set to '%s'"), handle->hooksdir);
 		break;
 		case PM_OPT_LOGFILE:
 			if((char *)data == NULL || handle->uid != 0) {
@@ -337,6 +346,7 @@ int _pacman_handle_get_option(pmhandle_t *handle, unsigned char val, long *data)
 		case PM_OPT_ROOT:      *data = (long)handle->root; break;
 		case PM_OPT_DBPATH:    *data = (long)handle->dbpath; break;
 		case PM_OPT_CACHEDIR:  *data = (long)handle->cachedir; break;
+		case PM_OPT_HOOKSDIR:  *data = (long)handle->hooksdir; break;
 		case PM_OPT_LOCALDB:   *data = (long)handle->db_local; break;
 		case PM_OPT_SYNCDB:    *data = (long)handle->dbs_sync; break;
 		case PM_OPT_LOGFILE:   *data = (long)handle->logfile; break;
