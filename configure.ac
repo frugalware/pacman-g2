@@ -432,11 +432,11 @@ src/versort/Makefile
 scripts/Makefile
 doc/Makefile
 etc/Makefile
-etc/pacman.d/Makefile
-etc/pacman.d/frugalware
-etc/pacman.d/frugalware-current
 etc/pacman-g2/Makefile
 etc/pacman-g2/hooks/Makefile
+etc/pacman-g2/repos/Makefile
+etc/pacman-g2/repos/frugalware
+etc/pacman-g2/repos/frugalware-current
 bindings/perl/Makefile
 bindings/python/Makefile
 bindings/java/Makefile

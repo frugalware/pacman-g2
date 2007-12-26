@@ -791,8 +791,8 @@ if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
 	
 	# searching for a mirror
 	repo=`pacman-g2 -Si $DOWNLOAD |grep ^Repo |sed -n 's/.* \([^ ]*\)/\1/;1 p'`
-	dir=`grep ^Server /etc/pacman.d/$repo |sed -n 's/.* = \(.*\)/\1/;1 p'`
-	arch=`grep ^Server /etc/pacman.d/$repo |sed -n 's/.*-\(.*\)/\1/;1 p'`
+	dir=`grep ^Server /etc/pacman-g2/repos/$repo |sed -n 's/.* = \(.*\)/\1/;1 p'`
+	arch=`grep ^Server /etc/pacman-g2/repos/$repo |sed -n 's/.*-\(.*\)/\1/;1 p'`
 	cat=`pacman-g2 -Si $DOWNLOAD |grep ^G |sed 's/.* : \([^ ]*\) .*/\1/;'`
 	dlpath="$dir/../"
 	
@@ -985,7 +985,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		do
 			repo=$(eval "echo \${${i}_$DB_EXT/.$DB_EXT}")
 			[ -z "$repo" ] && repo="$i"
-			echo "Include = /etc/pacman.d/$repo" >>$_F_makepkg_pacconf
+			echo "Include = /etc/pacman-g2/repos/$repo" >>$_F_makepkg_pacconf
 		done
 		mkdir -p $CHROOTDIR/{tmp,var/log}
 		pacman-g2 -r "$CHROOTDIR" -Syf $COREPKGS --noconfirm --config $_F_makepkg_pacconf
@@ -1014,7 +1014,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	chmod 1777 $CHROOTDIR/{var,}/tmp
 	
 	msg "Copying config files to chroot"
-	cp -pf /etc/pacman.d/* $CHROOTDIR/etc/pacman.d >/dev/null &
+	cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null &
 	for i in makepkg.conf resolv.conf passwd shadow group fstab mtab
 	do
 		cp -pf /etc/$i $CHROOTDIR/etc >/dev/null &

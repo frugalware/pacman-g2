@@ -1,1 +1,1 @@
-SUBDIRS = hooks
+SUBDIRS = hooks repos

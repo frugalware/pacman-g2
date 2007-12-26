@@ -301,7 +301,7 @@ Example:
 HoldPkg = pacman-g2 glibc bash coreutils
 HoldPkg = chkconfig
 
-Include = /etc/pacman.d/frugalware-current
+Include = /etc/pacman-g2/repos/frugalware-current
 
 [custom]
 Server = file:///home/pkgs
