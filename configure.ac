@@ -435,6 +435,8 @@ etc/Makefile
 etc/pacman.d/Makefile
 etc/pacman.d/frugalware
 etc/pacman.d/frugalware-current
+etc/pacman-g2/Makefile
+etc/pacman-g2/hooks/Makefile
 bindings/perl/Makefile
 bindings/python/Makefile
 bindings/java/Makefile
