@@ -25,5 +25,5 @@ pacman_g2_static_LDADD = $(pacman_g2_LDADD)
 pacman_g2_static_LDFLAGS = -all-static $(LDFLAGS)
 
 install-exec-hook:
-	ln -s pacman-g2 $(DESTDIR)$(bindir)/pacman
+	ln -sf pacman-g2 $(DESTDIR)$(bindir)/pacman
 
