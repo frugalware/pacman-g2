@@ -787,7 +787,7 @@ if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
 		exit 1
 	fi
 	
-	confs=`cat /etc/pacman.conf |grep ^Include|sed 's/.* = \(.*\)/\1/'`
+	confs=`cat /etc/pacman-g2.conf |grep ^Include|sed 's/.* = \(.*\)/\1/'`
 	
 	# searching for a mirror
 	repo=`pacman-g2 -Si $DOWNLOAD |grep ^Repo |sed -n 's/.* \([^ ]*\)/\1/;1 p'`
@@ -977,10 +977,10 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 
 	chroot_mount
 
-	if [ ! -d "$CHROOTDIR/usr" -o ! -e "$CHROOTDIR/etc/pacman.conf" ]; then
+	if [ ! -d "$CHROOTDIR/usr" -o ! -e "$CHROOTDIR/etc/pacman-g2.conf" ]; then
 		msg "Building a '-$TREE' chroot environment"
 		_F_makepkg_pacconf=`mktemp`
-		cat /etc/pacman.conf |grep -v Include >$_F_makepkg_pacconf
+		cat /etc/pacman-g2.conf |grep -v Include >$_F_makepkg_pacconf
 		for i in `echo $TREE|sed 's/,/ /g'`
 		do
 			repo=$(eval "echo \${${i}_$DB_EXT/.$DB_EXT}")
@@ -995,7 +995,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			chroot_unlock
 			exit 1
 		fi
-		mv -f $_F_makepkg_pacconf $CHROOTDIR/etc/pacman.conf
+		mv -f $_F_makepkg_pacconf $CHROOTDIR/etc/pacman-g2.conf
 	else
 		msg "Updating the chroot environment"
 		# copy these before any update since without them we can't even reach the servers

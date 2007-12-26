@@ -32,15 +32,15 @@ AC_SUBST(PM_MICRO_VERSION)
 AC_SUBST(PM_VERSION)
 AC_SUBST(PM_VERSION_INFO)
 
-dnl Define the default config file path for pacman.conf
-PACCONF=/etc/pacman.conf
-AC_DEFINE_UNQUOTED([PACCONF], ["$PACCONF"], [pacman.conf location])
+dnl Define the default config file path for pacman-g2.conf
+PACCONF=/etc/pacman-g2.conf
+AC_DEFINE_UNQUOTED([PACCONF], ["$PACCONF"], [pacman-g2.conf location])
 
 dnl Put out version numbers to config.h
 AC_DEFINE_UNQUOTED([PM_VERSION], ["$PM_VERSION"], [libpacman version number])
 
 dnl Configuration files
-AC_CONFIG_FILES([etc/makepkg.conf] [etc/pacman.conf])
+AC_CONFIG_FILES([etc/makepkg.conf] [etc/pacman-g2.conf])
 
 AC_PROG_CC
 AC_HEADER_STDC
@@ -453,7 +453,7 @@ pacman-g2-$VERSION:
         compiler flags           : ${CFLAGS}
 
 	libpacman version        : ${PM_VERSION}
-	pacman.conf location     : ${PACCONF}
+	pacman-g2.conf location     : ${PACCONF}
 
 	Architecture CARCH       : ${CARCH}
 	Architecture used cflag  : ${CARCHFLAGS}

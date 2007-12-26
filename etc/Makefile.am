@@ -1,3 +1,3 @@
 SUBDIRS = pacman.d pacman-g2
-EXTRA_DIST = makepkg.conf pacman.conf
-dist_sysconf_DATA = makepkg.conf pacman.conf
+EXTRA_DIST = makepkg.conf pacman-g2.conf
+dist_sysconf_DATA = makepkg.conf pacman-g2.conf

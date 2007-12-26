@@ -18,7 +18,7 @@ pactest creates the environment in the subdirectory "root" created in the
 current directory.
 The following directory structure is used:
   - var/lib/pacman-g2: databases path (local and sync ones)
-  - etc/pacman.conf for pacman-g2 configuration file
+  - etc/pacman-g2.conf for pacman-g2 configuration file
   - var/cache/pkg: sync packages cache
   - var/log/pactest.log: log file
   - var/pub: location for pseudo sync repositories
@@ -105,7 +105,7 @@ It has 3 keys, each one of them pointing at a list of strings:
 
 Examples:
 	self.option["noupgrade"] = ["etc/X11/xorg.conf",
-	                            "etc/pacman.conf"]
+	                            "etc/pacman-g2.conf"]
 	self.option["noextract"] = ["etc/lilo.conf"]
 
 	filesystem

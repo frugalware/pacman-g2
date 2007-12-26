@@ -36,7 +36,7 @@ PM_PACORIG  = ".pacorig"
 PM_PACSAVE  = ".pacsave"
 
 # Pacman
-PACCONF     = "etc/pacman.conf"
+PACCONF     = "etc/pacman-g2.conf"
 
 # Pactest
 TMPDIR      = "tmp"

@@ -56,7 +56,7 @@
 #include "sync.h"
 #include "deptest.h"
 
-#define PACCONF "/etc/pacman.conf"
+#define PACCONF "/etc/pacman-g2.conf"
 
 #if defined(__OpenBSD__) || defined(__APPLE__)
 #define BSD

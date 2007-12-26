@@ -170,13 +170,13 @@ pacman-g2 packages are in a bzipped tar format.
 
 -y, --refresh::
 	Download a fresh copy of the master package list from the ftp server defined in
-	/etc/pacman.conf. This should typically be used each time you use
+	/etc/pacman-g2.conf. This should typically be used each time you use
 	--sysupgrade.
 
 --ignore <pkg>::
 	This option functions exactly the same as the IgnorePkg configuration
 	directive. Sometimes it can be handy to skip some package updates without
-	having to edit pacman.conf each time.
+	having to edit pacman-g2.conf each time.
 
 == REMOVE OPTIONS
 
@@ -288,7 +288,7 @@ original=X, current=Y, new=Z::
 
 == CONFIGURATION
 
-pacman-g2 will attempt to read /etc/pacman.conf each time it is invoked. This
+pacman-g2 will attempt to read /etc/pacman-g2.conf each time it is invoked. This
 configuration file is divided into sections or repositories. Each section
 defines a package repository that pacman-g2 can use when searching for packages
 in --sync mode. The exception to this is the options section, which defines

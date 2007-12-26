@@ -41,9 +41,9 @@ usage() {
 	echo
 	echo "note: The <destfile> name is important.  It must be of the form"
 	echo "      {treename}.$DB_EXT where {treename} is the name of the custom"
-	echo "      package repository you configured in /etc/pacman.conf.  The"
+	echo "      package repository you configured in /etc/pacman-g2.conf.  The"
 	echo "      generated database must reside in the same directory as your"
-	echo "      custom packages (also configured in /etc/pacman.conf)"
+	echo "      custom packages (also configured in /etc/pacman-g2.conf)"
 	echo
 	echo "example:  gensync /var/fst/local /home/mypkgs/custom.$DB_EXT"
 	echo
