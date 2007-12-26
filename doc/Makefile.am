@@ -34,15 +34,10 @@ if HAS_ASCIIDOC
 	a2x -a lang=$(shell dirname $@|tr -d .) -f manpage $^
 	$(call convert_MAN,$@)
 
-all: $(man_MANS) po4a localized_mans
-
-po4a:
-if HAS_PO4A
-	po4a -k 0 po4a.cfg
-endif
+all: $(man_MANS) localized_mans
 
 if HAS_PO4A
-localized_mans: $(shell for i in $(localized_LANGS); do for j in $(localized_MANS); do echo $$i/$$j; done; done)
+localized_mans: $(shell po4a po4a.cfg >&2; for i in $(localized_LANGS); do for j in $(localized_MANS); do if [ -e $$i/`echo $$j|sed 's/\..//'`.txt ]; then echo $$i/$$j; fi; done; done)
 install-data-local: install-man5-local install-man8-local
 endif
 else
