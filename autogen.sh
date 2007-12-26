@@ -49,6 +49,8 @@ import_pootle()
 		mv Makevars.tmp Makevars
 		cd - >/dev/null
 	done
+	# avoing having the Makevars file as modified ones
+	git update-index --refresh >/dev/null
 }
 
 cd `dirname $0`
