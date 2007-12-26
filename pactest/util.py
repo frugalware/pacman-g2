@@ -27,7 +27,7 @@ import stat
 # libpacman
 PM_ROOT     = "/"
 PM_DBPATH   = "var/lib/pacman-g2"
-PM_CACHEDIR = "var/cache/pacman/pkg"
+PM_CACHEDIR = "var/cache/pacman-g2/pkg"
 PM_LOCK     = "/tmp/pacman-g2.lck"
 PM_EXT_PKG  = ".fpm"
 PM_EXT_DB   = ".fdb"

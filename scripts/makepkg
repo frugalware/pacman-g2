@@ -353,7 +353,7 @@ chroot_umount() {
     umount $CHROOTDIR/proc >/dev/null
     umount $CHROOTDIR/sys >/dev/null
     umount $CHROOTDIR/dev >/dev/null
-    umount $CHROOTDIR/var/cache/pacman >/dev/null
+    umount $CHROOTDIR/var/cache/pacman-g2 >/dev/null
     umount $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
     if [ "$?" != "0" ]; then
 	error "An error occurred while attempting to umount chroot directories."
@@ -367,7 +367,7 @@ chroot_mount() {
     mount -t proc none $CHROOTDIR/proc >/dev/null &
     mount -t sysfs none $CHROOTDIR/sys >/dev/null &
     mount -o bind /dev $CHROOTDIR/dev >/dev/null &
-    mount -o bind /var/cache/pacman $CHROOTDIR/var/cache/pacman >/dev/null &
+    mount -o bind /var/cache/pacman-g2 $CHROOTDIR/var/cache/pacman-g2 >/dev/null &
     mount -o bind /var/cache/ccache/$pkgname \
     $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null &
     if [ "$?" != "0" ]; then
@@ -744,7 +744,7 @@ if [ $CLEANCACHE -ge 1 ]; then
 	if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
 		if [ $CLEANCACHE -ge 2 ]; then
 			msg "Cleaning up source files from the cache."
-			rm -rf /var/cache/pacman/src/*
+			rm -rf /var/cache/pacman-g2/src/*
 		fi
 		chroot_clean
 		for i in `grep $CHROOTDIR /proc/mounts|sed 's/^[^ ]* \([^ ]*\) .*/\1/'`
@@ -969,7 +969,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	fi
 	CHROOTDIR="$CHROOTDIR/$TREE"
 
-	mkdir -p $CHROOTDIR/{dev,etc,proc,sys,var/cache/pacman,var/tmp/fst}
+	mkdir -p $CHROOTDIR/{dev,etc,proc,sys,var/cache/pacman-g2,var/tmp/fst}
 
 	chroot_lock
 
@@ -1227,9 +1227,9 @@ for netfile in "${source[@]}" "${signatures[@]}"; do
 	if [ -f "../$file" ]; then
 		msg2 "Found $file in build dir"
 		cp "../$file" .
-	elif [ -f "/var/cache/pacman/src/$file" ]; then
+	elif [ -f "/var/cache/pacman-g2/src/$file" ]; then
 		msg2 "Using local copy of $file"
-		cp "/var/cache/pacman/src/$file" .
+		cp "/var/cache/pacman-g2/src/$file" .
 	else
 		proto=`echo "$netfile" | sed 's|://.*||'`
 		if [ "$proto" != "ftp" -a "$proto" != "http" -a "$proto" != "https" ]; then
@@ -1261,7 +1261,7 @@ for netfile in "${source[@]}" "${signatures[@]}"; do
 			fi
 		fi
 		if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
-			mkdir -p /var/cache/pacman/src && cp "$file" /var/cache/pacman/src
+			mkdir -p /var/cache/pacman-g2/src && cp "$file" /var/cache/pacman-g2/src
 		else
 			cp "$file" ..
 		fi

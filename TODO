@@ -26,7 +26,6 @@ G2 TODO
 - Review #1079 (BTS) and maybe implement it
 - untouched dirs from pacman:
   - pamcan.conf, pacman.d
-  - /var/cache/pacman
 - Review stuffs which gives warnings when using --enable-strict and fix those.
 
 

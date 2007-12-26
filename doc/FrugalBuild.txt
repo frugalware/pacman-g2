@@ -228,7 +228,7 @@ source (array)::
 	The source line is an array of source files required to build the package.
 	Source files must reside in the same directory as the FrugalBuild file, unless
 	they have a fully-qualified URL. Then if the source file does not already exist
-	in `/var/cache/pacman/src`, the file is downloaded by wget.
+	in `/var/cache/pacman-g2/src`, the file is downloaded by wget.
 
 sha1sums (array)::
 	If this field is present, it should contain an SHA1 hash for every source file

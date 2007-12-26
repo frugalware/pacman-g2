@@ -125,7 +125,7 @@ pacman-g2 packages are in a bzipped tar format.
 
 -c, --clean::
 	Remove old packages from the cache. When pacman-g2 downloads packages, it saves
-	them in /var/cache/pacman/pkg. If you need to free up diskspace, you can remove
+	them in /var/cache/pacman-g2/pkg. If you need to free up diskspace, you can remove
 	these packages by using the --clean option. Using one --clean (or -c) switch
 	will only remove old packages. Use it twice to remove all packages from the
 	cache.
@@ -315,7 +315,7 @@ DBPath = path/to/db/dir::
 
 CacheDir = path/to/cache/dir::
 	Overrides the default location of the package cache directory. The default is
-	var/cache/pacman.
+	var/cache/pacman-g2.
 
 HoldPkg = <package> [package] ...::
 	If a user tries to --remove a package that's listed in HoldPkg, pacman-g2 will

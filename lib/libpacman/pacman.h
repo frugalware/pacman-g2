@@ -34,7 +34,7 @@ extern "C" {
 
 #define PM_ROOT     "/"
 #define PM_DBPATH   "var/lib/pacman-g2"
-#define PM_CACHEDIR "var/cache/pacman/pkg"
+#define PM_CACHEDIR "var/cache/pacman-g2/pkg"
 #define PM_LOCK     "/tmp/pacman-g2.lck"
 #define PM_HOOKSDIR "etc/pacman-g2/hooks"
 

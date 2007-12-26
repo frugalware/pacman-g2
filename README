@@ -301,7 +301,7 @@ The library is providing download facilities. As a consequence, it is no longer
 up the the frontend to retrieve packages from FTP servers.  To do so, libpacman
 is linked against an improved version of libftp supporting both http and ftp
 donwloads.  As a consequence, the library is repsonsible for the directory
-/var/cache/pacman/pkgs.  One can consider that this cache is a facility
+/var/cache/pacman-g2/pkgs.  One can consider that this cache is a facility
 provided by the library.
 
 Note: other frontends have to download packages by themselves too,
