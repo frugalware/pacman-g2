@@ -15,8 +15,8 @@ verbose mode, which usage for the library log callback, debug levels, ...)
 ADDITIONAL IDEAS FOR PERFORMANCE IMPROVEMENT
 ============================================
 
-- idea from Christian Hamar: have a /var/lib/pacman/{repo}/.cache file
-that basically contains the output of `ls -1 /var/lib/pacman/{repo}`.  This
+- idea from Christian Hamar: have a /var/lib/pacman-g2/{repo}/.cache file
+that basically contains the output of `ls -1 /var/lib/pacman-g2/{repo}`.  This
 cache file could be used in -Q and -Si/s operations to speed up package
 listings.
 
@@ -26,7 +26,7 @@ G2 TODO
 - Review #1079 (BTS) and maybe implement it
 - untouched dirs from pacman:
   - pamcan.conf, pacman.d
-  - /var/lib/pacman, /var/cache/pacman
+  - /var/cache/pacman
 - Review stuffs which gives warnings when using --enable-strict and fix those.
 
 

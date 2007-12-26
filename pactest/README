@@ -17,7 +17,7 @@ the environment.
 pactest creates the environment in the subdirectory "root" created in the 
 current directory.
 The following directory structure is used:
-  - var/lib/pacman: databases path (local and sync ones)
+  - var/lib/pacman-g2: databases path (local and sync ones)
   - etc/pacman.conf for pacman-g2 configuration file
   - var/cache/pkg: sync packages cache
   - var/log/pactest.log: log file

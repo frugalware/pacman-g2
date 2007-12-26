@@ -47,7 +47,7 @@ die_r() {
 }
 
 
-dbroot="/var/lib/pacman"
+dbroot="/var/lib/pacman-g2"
 
 if [ "$1" != "" ]; then
 	if [ "$1" = "-h" -o "$1" = "--help" ]; then

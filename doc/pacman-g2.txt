@@ -247,7 +247,7 @@ pacman-g2 packages are in a bzipped tar format.
 	The recommended method in this case is to remove the database entry:
 
 	----
-	# rm -rf /var/lib/pacman/local/zip-2.32-1
+	# rm -rf /var/lib/pacman-g2/local/zip-2.32-1
 	----
 
 	and forcing the reinstall of the package:
@@ -311,7 +311,7 @@ Server = file:///home/pkgs
 
 DBPath = path/to/db/dir::
 	Overrides the default location of the toplevel database directory. The default
-	is var/lib/pacman.
+	is var/lib/pacman-g2.
 
 CacheDir = path/to/cache/dir::
 	Overrides the default location of the package cache directory. The default is
