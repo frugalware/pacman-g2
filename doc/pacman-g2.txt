@@ -410,6 +410,15 @@ Pacman will now use your package repository. If you add new packages to the
 repository, remember to re-generate the database and use pacman-g2's --refresh
 option.
 
+== HOOKS
+
+pacman-g2 will attempt to execute hooks in the /etc/pacman-g2/hooks directory.
+The hooks are like package scriptlets: each file can provide functions for a
+given hook. At the moment the following hooks are supported:
+
+post_sysupgrade::
+	Executed after a successful `pacman-g2 -S --sysupgrade`.
+
 == SEE ALSO
 
 *makepkg*(8)
