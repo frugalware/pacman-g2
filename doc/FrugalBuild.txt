@@ -266,9 +266,10 @@ depends (array)::
 	An array of packages that this package depends on to build and run. Packages in
 	this list should be surrounded with single quotes and contain at least the
 	package name. They can also include a version requirement of the form
-	name<>version, where <> is one of these three comparisons: >= (greater than
-	equal to), <= (less than or equal to), or = (equal to). See the FrugalBuild
-	example above for an example of the depends directive.
+	'name<>version', where <> is one of five comparisons: >= (greater than or equal
+	to), <= (less than or equal to), = (equal to), > (greater than), or < (less
+	than). See the FrugalBuild example above for an example of the depends
+	directive.
 
 makedepends (array)::
 	An array of packages that this package depends on to build (ie, not required to

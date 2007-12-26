@@ -299,6 +299,8 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmli
 								case PM_DEP_MOD_EQ: found = (cmp == 0); break;
 								case PM_DEP_MOD_GE: found = (cmp >= 0); break;
 								case PM_DEP_MOD_LE: found = (cmp <= 0); break;
+								case PM_DEP_MOD_LT: found = (cmp < 0); break;
+								case PM_DEP_MOD_GT: found = (cmp > 0); break;
 							}
 							FREE(ver);
 						}
@@ -344,6 +346,8 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmli
 								case PM_DEP_MOD_EQ: found = (cmp == 0); break;
 								case PM_DEP_MOD_GE: found = (cmp >= 0); break;
 								case PM_DEP_MOD_LE: found = (cmp <= 0); break;
+								case PM_DEP_MOD_LT: found = (cmp < 0); break;
+								case PM_DEP_MOD_GT: found = (cmp > 0); break;
 							}
 							FREE(ver);
 						}
@@ -373,6 +377,8 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmli
 								case PM_DEP_MOD_EQ: found = (cmp == 0); break;
 								case PM_DEP_MOD_GE: found = (cmp >= 0); break;
 								case PM_DEP_MOD_LE: found = (cmp <= 0); break;
+								case PM_DEP_MOD_LT: found = (cmp < 0); break;
+								case PM_DEP_MOD_GT: found = (cmp > 0); break;
 							}
 							FREE(ver);
 						}
@@ -453,6 +459,10 @@ int _pacman_splitdep(char *depstr, pmdepend_t *depend)
 		depend->mod = PM_DEP_MOD_LE;
 	} else if((ptr = strstr(str, "="))) {
 		depend->mod = PM_DEP_MOD_EQ;
+	} else if((ptr = strstr(str, "<"))) {
+		depend->mod = PM_DEP_MOD_LT;
+	} else if((ptr = strstr(str, ">"))) {
+		depend->mod = PM_DEP_MOD_GT;
 	} else {
 		/* no version specified - accept any */
 		depend->mod = PM_DEP_MOD_ANY;
@@ -466,7 +476,7 @@ int _pacman_splitdep(char *depstr, pmdepend_t *depend)
 	*ptr = '\0';
 	STRNCPY(depend->name, str, PKG_NAME_LEN);
 	ptr++;
-	if(depend->mod != PM_DEP_MOD_EQ) {
+	if(depend->mod == PM_DEP_MOD_GE || depend->mod == PM_DEP_MOD_LE) {
 		ptr++;
 	}
 	STRNCPY(depend->version, ptr, PKG_VERSION_LEN);
@@ -691,6 +701,8 @@ int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep)
 				case PM_DEP_MOD_EQ: equal = (cmp == 0); break;
 				case PM_DEP_MOD_GE: equal = (cmp >= 0); break;
 				case PM_DEP_MOD_LE: equal = (cmp <= 0); break;
+				case PM_DEP_MOD_LT: equal = (cmp < 0); break;
+				case PM_DEP_MOD_GT: equal = (cmp > 0); break;
 				default: equal = 1; break;
 			}
 		}
@@ -700,6 +712,8 @@ int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep)
 			case PM_DEP_MOD_EQ: mod = "=="; break;
 			case PM_DEP_MOD_GE: mod = ">="; break;
 			case PM_DEP_MOD_LE: mod = "<="; break;
+			case PM_DEP_MOD_LT: mod = "<"; break;
+			case PM_DEP_MOD_GT: mod = ">"; break;
 			default: break;
 		}
 
