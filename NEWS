@@ -1,5 +1,14 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.6.6         - support for ">" and "<"-style deps (after "<=", ">=" and "=")
+              - path renames:
+                - /etc/pacman.conf -> /etc/pacman-g2.conf
+                - /etc/pacman.d -> /etc/pacman-g2/repos
+                - /var/lib/pacman -> /var/lib/pacman-g2
+                - /var/cache/pacman -> /var/cache/pacman-g2
+	      - "poorly localized" manpages (with translation percentage less
+	        than 80%) are no longer installed
+              - added support for libpacman hooks, see pacman-g2(8) for more
 3.6.5         - updated pacman-g2, FrugalBuild and makepkg manpage
 	      - pacman-g2 -Qt no longer states the db is corrupted when it
 	        isn't
