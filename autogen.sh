@@ -71,6 +71,7 @@ elif [ "$1" == "--release" ]; then
 	gpg --comment "See http://ftp.frugalware.org/pub/README.GPG for info" \
 		-ba -u 20F55619 pacman-g2-$ver.tar.gz
 	mv pacman-g2-$ver.tar.gz{,.asc} ../releases
+	exit 0
 elif [ "$1" == "--gettext-only" ]; then
 	sh autoclean.sh
 	for i in lib/libpacman/po src/pacman-g2/po
