@@ -264,9 +264,19 @@ for file in `find $rootdir -name $BUILDSCRIPT`; do
 	fi
 done
 
+ver=""
+if ( cd $rootdir; git rev-parse --get-root &>/dev/null); then
+	ver=`cd $rootdir; git describe 2>/dev/null`
+fi
+extra=""
+if [ -n "$ver" ]; then
+	echo ${ver//-/.} > .version
+	extra=".version"
+fi
+
 echo "gensync: compressing to $destfile..." >&2
 cd $gstmpdir
-tar cjf $destfile *
+tar cjf $destfile $extra *
 [ $? -gt 0 ] && die "error writing to $destfile"
 
 rm -rf $gstmpdir
