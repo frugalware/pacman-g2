@@ -220,6 +220,13 @@ then decide if more data needs to be fetched from the database.
 In file pacman.c, have a look at pacman_pkg_getinfo() function to get an
 overview.
 
+Also note that the whole database consists of plain text files. If there is
+something wrong, all you need is to delete the corrupted directory and
+reinstall the given package using --force. No more messages like:
+
+----
+bdb_db_open: Database cannot be opened, err 22. Restore from backup!
+----
 
 [ERRORS] (error.c)
 
