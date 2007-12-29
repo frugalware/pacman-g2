@@ -312,6 +312,7 @@ if [ "$action" = "upd" ]; then
 	fi
 	if [ -n "$ver" ]; then
 		echo ${ver//-/.} > .version
+		tar --delete -f $udb .version
 		tar rf $udb .version
 	fi
 else
