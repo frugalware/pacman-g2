@@ -946,6 +946,9 @@ int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 		return(0);
 	}
 
+	if(handle->sysupgrade) {
+		_pacman_runhook(handle->root, handle->hooksdir, "pre_sysupgrade", trans);
+	}
 	/* remove conflicting and to-be-replaced packages */
 	trans->state = STATE_COMMITING;
 	tr = _pacman_trans_new();
