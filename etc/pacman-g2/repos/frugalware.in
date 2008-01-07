@@ -14,11 +14,6 @@ Server = ftp://ftp5.frugalware.org/packages/frugalware/pub/frugalware/frugalware
 # PlanetMirror (Unknown bandwidth)
 Server = ftp://ftp13.frugalware.org/pub/frugalware/frugalware-stable/frugalware-@CARCH@
 # -----------
-# - GERMANY -
-# -----------
-# Sebastian Vassiliou (100 MBit)
-Server = http://www7.frugalware.org/pub/frugalware/frugalware-stable/frugalware-@CARCH@
-# -----------
 # - HUNGARY -
 # -----------
 # Schmidt Computer Ltd. (100 MBit)
