@@ -452,9 +452,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync,
 			} else {
 				/* remove the original targets from the list if requested */
 				if((trans->flags & PM_TRANS_FLAG_DEPENDSONLY)) {
-					pmpkg_t *p;
-					trans->packages = _pacman_list_remove(trans->packages, spkg, pkg_cmp, (void**)&p);
-					FREEPKG(p);
+					/* they are just pointers so we don't have to free them */
+					trans->packages = _pacman_list_remove(trans->packages, spkg, pkg_cmp, NULL);
 				}
 			}
 		}
