@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.6.7         - bugfix in gensync: honor nobuild in suboptions()
+	      - updatesync/gensync: write a .version file to the package
+	        database if possible
+              - new pre_upgrade hook on -Syu
+              - bugfix for the -Se option
 3.6.6         - support for ">" and "<"-style deps (after "<=", ">=" and "=")
               - path renames:
                 - /etc/pacman.conf -> /etc/pacman-g2.conf
