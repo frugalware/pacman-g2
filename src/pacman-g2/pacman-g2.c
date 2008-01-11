@@ -2,6 +2,7 @@
  *  pacman-g2.c
  * 
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
+ *  Copyright (c) 2007-2008 by Miklos Vajna <vmiklos@frugalware.org>
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -173,7 +174,7 @@ static void version()
 {
 	printf("\n");
 	printf(" .--.                  Pacman-G2 v%s - libpacman v%s\n", PACKAGE_VERSION, PM_VERSION);
-	printf("/ _.-' .-.  .-.  .-.   Copyright (C) 2002-2007 Pacman-G2 Team\n");
+	printf("/ _.-' .-.  .-.  .-.   Copyright (C) 2002-2008 Pacman-G2 Team\n");
 	printf("\\  '-. '-'  '-'  '-'   See /usr/share/doc/pacman-g2-*/AUTHORS for more info.\n");
 	printf(" '--'                  \n");
 	printf(_("                       This program may be freely redistributed under\n"));
