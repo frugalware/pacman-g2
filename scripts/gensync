@@ -79,6 +79,12 @@ db_write_entry()
 	else
 		pkgfile="$destdir/$1-$pkgver-$pkgrel-$arch.$PKG_EXT"
 	fi
+	if [ "$check_only" ]; then
+		if [ ! -e "$pkgfile" ]; then
+			echo "missing package: $1-$pkgver-$pkgrel-$arch"
+		fi
+		return 0
+	fi
 	csize=`du -b $pkgfile 2>/dev/null | cut -f1`
 	usize=`LANG= LC_ALL= pacman-g2 -Qi -p $pkgfile 2>/dev/null|grep ^Size|sed 's/.*: \(.*\)/\1/'`
 	pkgsha1sum=`get_sha1checksum $pkgfile`
@@ -205,6 +211,11 @@ if [ "$1" = "-f" -o "$1" = "--force" ]; then
 	shift 1
 fi
 
+if [ "$1" = "-c" -o "$1" = "--check-only" ]; then
+	check_only=1
+	shift 1
+fi
+
 [ -z "$DB_EXT" ] && die "Please make sure that you edit /etc/makepkg.conf and set the DB_EXT= variable"
 d=`dirname $1`
 rootdir=`cd $d && pwd`/`basename $1`
@@ -215,10 +226,14 @@ pkgdir=
 if [ "$3" != "" ]; then
 	pkgdir=$3
 fi
-gstmpdir=$(mktemp -d /tmp/gensync.XXXXXXXXXX) || exit 1
+if [ ! "$check_only" ]; then
+	gstmpdir=$(mktemp -d /tmp/gensync.XXXXXXXXXX) || exit 1
+fi
 
 [ ! -d $rootdir ] && die "invalid root dir: $rootdir"
-echo "gensync: building database entries, generating sha1sums..." >&2
+if [ ! "$check_only" ]; then
+	echo "gensync: building database entries, generating sha1sums..." >&2
+fi
 cd `dirname $2`
 for file in `find $rootdir -name $BUILDSCRIPT`; do
 	unset nobuild archs options subpkgs
@@ -264,6 +279,7 @@ for file in `find $rootdir -name $BUILDSCRIPT`; do
 	fi
 done
 
+if [ ! "$check_only" ]; then
 ver=""
 if ( cd $rootdir; git rev-parse --get-root &>/dev/null); then
 	ver=`cd $rootdir; git describe 2>/dev/null`
@@ -280,4 +296,5 @@ tar cjf $destfile $extra *
 [ $? -gt 0 ] && die "error writing to $destfile"
 
 rm -rf $gstmpdir
+fi
 exit 0
