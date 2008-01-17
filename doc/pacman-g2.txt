@@ -171,7 +171,8 @@ pacman-g2 packages are in a bzipped tar format.
 -y, --refresh::
 	Download a fresh copy of the master package list from the ftp server defined in
 	/etc/pacman-g2.conf. This should typically be used each time you use
-	--sysupgrade.
+	--sysupgrade. If used more than once, then it forces the re-download of the
+	package database, even in case it's up to date.
 
 --ignore <pkg>::
 	This option functions exactly the same as the IgnorePkg configuration
