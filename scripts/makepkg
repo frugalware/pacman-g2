@@ -1494,44 +1494,44 @@ msg "Preparing package documentation..."
 for d in $startdir/{pkg,pkg.*}
 do
 	[ ! -d $d ] && continue
-if [ -d $d/usr/doc ]; then
-	mkdir -p $d/usr/share/doc
-	cp -a $d/usr/doc/* $d/usr/share/doc/
-	rm -rf $d/usr/doc
-fi
-if [ ! "`check_option NODOCS`" -a "$NODOCS" = "0" ]; then
-	mkdir -p $d/usr/share/doc/$pkgname-$pkgver
-	for i in `find src -maxdepth 2 -name ANNOUNCE -o -name AUTHORS -o -name *BUGS* -o -name CHANGES -o -name CONFIGURATION -o -name *COPYING* -o -name *COPYRIGHT* -o -name CREDITS -o -name ChangeLog -o -name Changelog -o -name CHANGELOG -o -name CONTRIBUTORS -o -name *FAQ* -o -name FEATURES -o -name FILES -o -name HACKING -o -name History -o -name HISTORY -o -name INSTALL* -o -name LICENSE -o -name LSM -o -name MANIFEST -o -name NEWS -o -name *README* -o -name *Readme* -o -name SITES -o -name *RELEASE* -o -name RELNOTES -o -name THANKS -o -name TIPS -o -name TODO -o -name VERSION -o -name CONFIGURATION* -o -name GPLLicense`
-	do
-		cp -a $i $d/usr/share/doc/$pkgname-$pkgver/
-	done
-fi
-
-# remove /usr/share/doc/$pkgname-$pkgver directory if empty
-if [ -d $d/usr/share/doc/$pkgname-$pkgver ]; then
-	rmdir -p --ignore-fail-on-non-empty $d/usr/share/doc/$pkgname-$pkgver 2> /dev/null
-	mkdir -p pkg
-fi
-
-# move /usr/info files to /usr/share/info
-if [ -d $d/usr/info ]; then
-	mkdir -p $d/usr/share/info
-	cp -a $d/usr/info/* $d/usr/share/info/
-	rm -rf $d/usr/info
-fi
-
-# move /usr/man files to /usr/share/man
-if [ -d $d/usr/man ]; then
-	mkdir -p $d/usr/share/man
-	cp -a $d/usr/man/* $d/usr/share/man/
-	rm -rf $d/usr/man
-fi
-
-if [ -d "$d/usr/share/icons/hicolor" ]; then
-	if [ -z "$_F_gnome_iconcache" ]; then
-		warning "Package $pkgname contains hicolor icons but _F_gnome_iconcache is not set"
+	if [ -d $d/usr/doc ]; then
+		mkdir -p $d/usr/share/doc
+		cp -a $d/usr/doc/* $d/usr/share/doc/
+		rm -rf $d/usr/doc
 	fi
-fi
+	if [ ! "`check_option NODOCS`" -a "$NODOCS" = "0" ]; then
+		mkdir -p $d/usr/share/doc/$pkgname-$pkgver
+		for i in `find src -maxdepth 2 -name ANNOUNCE -o -name AUTHORS -o -name *BUGS* -o -name CHANGES -o -name CONFIGURATION -o -name *COPYING* -o -name *COPYRIGHT* -o -name CREDITS -o -name ChangeLog -o -name Changelog -o -name CHANGELOG -o -name CONTRIBUTORS -o -name *FAQ* -o -name FEATURES -o -name FILES -o -name HACKING -o -name History -o -name HISTORY -o -name INSTALL* -o -name LICENSE -o -name LSM -o -name MANIFEST -o -name NEWS -o -name *README* -o -name *Readme* -o -name SITES -o -name *RELEASE* -o -name RELNOTES -o -name THANKS -o -name TIPS -o -name TODO -o -name VERSION -o -name CONFIGURATION* -o -name GPLLicense`
+		do
+			cp -a $i $d/usr/share/doc/$pkgname-$pkgver/
+		done
+	fi
+
+	# remove /usr/share/doc/$pkgname-$pkgver directory if empty
+	if [ -d $d/usr/share/doc/$pkgname-$pkgver ]; then
+		rmdir -p --ignore-fail-on-non-empty $d/usr/share/doc/$pkgname-$pkgver 2> /dev/null
+		mkdir -p pkg
+	fi
+
+	# move /usr/info files to /usr/share/info
+	if [ -d $d/usr/info ]; then
+		mkdir -p $d/usr/share/info
+		cp -a $d/usr/info/* $d/usr/share/info/
+		rm -rf $d/usr/info
+	fi
+
+	# move /usr/man files to /usr/share/man
+	if [ -d $d/usr/man ]; then
+		mkdir -p $d/usr/share/man
+		cp -a $d/usr/man/* $d/usr/share/man/
+		rm -rf $d/usr/man
+	fi
+
+	if [ -d "$d/usr/share/icons/hicolor" ]; then
+		if [ -z "$_F_gnome_iconcache" ]; then
+			warning "Package $pkgname contains hicolor icons but _F_gnome_iconcache is not set"
+		fi
+	fi
 done
 
 # compress info and manual pages
