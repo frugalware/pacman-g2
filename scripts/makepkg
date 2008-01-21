@@ -1502,8 +1502,8 @@ for d in $startdir/{pkg,pkg.*}
 do
 	[ ! -d $d ] && continue
 	if [ -d $d/usr/doc ]; then
-		mkdir -p $d/usr/share/doc
-		cp -a $d/usr/doc/* $d/usr/share/doc/
+		mkdir -p $d/usr/share/doc/$pkgname-$pkgver
+		cp -a $d/usr/doc/* $d/usr/share/doc/$pkgname-$pkgver
 		rm -rf $d/usr/doc
 	fi
 
