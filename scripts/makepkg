@@ -1493,6 +1493,7 @@ done
 msg "Preparing package documentation..."
 for d in $startdir/{pkg,pkg.*}
 do
+	[ ! -d $d ] && continue
 if [ -d $d/usr/doc ]; then
 	mkdir -p $d/usr/share/doc
 	cp -a $d/usr/doc/* $d/usr/share/doc/
