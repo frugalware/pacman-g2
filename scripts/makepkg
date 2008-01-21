@@ -1414,7 +1414,7 @@ fi
 
 # check for existing pkg directory
 if [ -d $startdir/pkg ]; then
-	msg "Removing existing pkg/ directory..."
+	msg "Removing existing pkg and pkg.* directories..."
 	rm -rf $startdir/{pkg,pkg.*}
 fi
 mkdir -p $startdir/pkg
@@ -1475,7 +1475,7 @@ cd $startdir
 
 # unwanted files
 msg "Removing unwanted files..."
-for f in `find pkg*/usr/lib/perl? -type f 2> /dev/null` ; do
+for f in `find {pkg,pkg.*}/usr/lib/perl? -type f 2> /dev/null` ; do
 	case "$f" in
 		*/.packlist|*/perllocal.pod)
 			rm -f "$f"
@@ -1483,8 +1483,8 @@ for f in `find pkg*/usr/lib/perl? -type f 2> /dev/null` ; do
 		;;
 	esac
 done
-rm -f pkg*/{usr{,/local,/share},opt/*}/info/dir 2> /dev/null
-for f in `find pkg*/ -type f -name encodings.dir -o -type f -name fonts.dir -o -type f -name fonts.scale` ; do
+rm -f {pkg,pkg.*}/{usr{,/local,/share},opt/*}/info/dir 2> /dev/null
+for f in `find {pkg,pkg.*}/ -type f -name encodings.dir -o -type f -name fonts.dir -o -type f -name fonts.scale` ; do
 	msg2 "`echo $f | sed 's|pkg[^/]\+||'`"
 	rm -f "$f"
 done
@@ -1542,7 +1542,7 @@ done
 
 # check symbolic links
 msg "Checking symbolic links..."
-for d in $startdir/pkg* ; do
+for d in $startdir/{pkg,pkg.*} ; do
 	for l in `find $d -type l 2> /dev/null` ; do
 		if [ ! -e "$l" -a ! -e "$d/`ls -l $l | awk '{print $NF}'`" ]; then
 			if [ "$d" = "$startdir/pkg" ]; then
