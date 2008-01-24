@@ -1476,7 +1476,7 @@ cd $startdir
 # unwanted files
 msg "Removing unwanted files..."
 extra=
-[ -n "$subpkgs" ] && extra=pkg.*/usr/lib/perl?
+ls pkg.* &>/dev/null && extra=pkg.*/usr/lib/perl?
 for f in `find pkg/usr/lib/perl? $extra -type f 2> /dev/null` ; do
 	case "$f" in
 		*/.packlist|*/perllocal.pod)
@@ -1486,7 +1486,7 @@ for f in `find pkg/usr/lib/perl? $extra -type f 2> /dev/null` ; do
 	esac
 done
 extra=
-[ -n "$subpkgs" ] && extra=pkg.*
+ls pkg.* &>/dev/null && extra=pkg.*
 rm -f {pkg,pkg.*}/{usr{,/local,/share},opt/*}/info/dir 2> /dev/null
 for f in `find pkg $extra -type f -name encodings.dir -o -type f -name fonts.dir -o -type f -name fonts.scale` ; do
 	msg2 "`echo $f | sed 's|pkg[^/]\+||'`"
