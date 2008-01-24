@@ -1603,7 +1603,7 @@ if [ ! -z "$subpkgs" ]; then
 	for subpkg in "${subpkgs[@]}"
 	do
 		unset pkgdesc license replaces groups depends rodepends removes conflicts provides backup install
-		unset options pkgdesc_localized
+		unset options pkgdesc_localized archs
 		pkgdesc="${subdescs[$i]}"
 		pkgdesc_localized="${subdescs_localized[$i]}"
 		license="${sublicense[$i]}"
@@ -1617,7 +1617,10 @@ if [ ! -z "$subpkgs" ]; then
 		backup="${subbackup[$i]}"
 		install="${subinstall[$i]}"
 		options="${suboptions[$i]}"
-		create_pkg $subpkg
+		archs="${subarchs[$i]}"
+		if in_array $CARCH ${archs[@]}; then
+			create_pkg $subpkg
+		fi
 		i=$(($i+1))
 	done
 fi
