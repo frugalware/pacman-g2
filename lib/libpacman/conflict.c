@@ -214,6 +214,43 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmdb_t *db, pmlist_t *package
 	return(baddeps);
 }
 
+/* Returns a pmlist_t* of file conflicts.
+ *  Hooray for set-intersects!
+ *  Pre-condition: both lists are sorted!
+ */
+static pmlist_t *chk_fileconflicts(pmlist_t *filesA, pmlist_t *filesB)
+{
+	pmlist_t *ret = NULL;
+	pmlist_t *pA = filesA, *pB = filesB;
+
+	while(pA && pB) {
+		const char *strA = pA->data;
+		const char *strB = pB->data;
+		/* skip directories, we don't care about dir conflicts */
+		if(strA[strlen(strA)-1] == '/') {
+			pA = pA->next;
+		} else if(strB[strlen(strB)-1] == '/') {
+			pB = pB->next;
+		} else {
+			int cmp = strcmp(strA, strB);
+			if(cmp < 0) {
+				/* item only in filesA, ignore it */
+				pA = pA->next;
+			} else if(cmp > 0) {
+				/* item only in filesB, ignore it */
+				pB = pB->next;
+			} else {
+				/* item in both, record it */
+				ret = _pacman_list_add(ret, strdup(strA));
+				pA = pA->next;
+				pB = pB->next;
+			}
+	  }
+	}
+
+	return(ret);
+}
+
 pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pmlist_t **skip_list)
 {
 	pmlist_t *i, *j, *k;
@@ -239,16 +276,8 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 		for(j = i; j; j = j->next) {
 			pmpkg_t *p2 = (pmpkg_t*)j->data;
 			if(strcmp(p1->name, p2->name)) {
-				for(k = p1->files; k; k = k->next) {
-					filestr = k->data;
-					if(filestr[strlen(filestr)-1] == '/') {
-						/* this filename has a trailing '/', so it's a directory -- skip it. */
-						continue;
-					}
-					if(!strcmp(filestr, "._install") || !strcmp(filestr, ".INSTALL")) {
-						continue;
-					}
-					if(_pacman_list_is_strin(filestr, p2->files)) {
+				pmlist_t *ret = chk_fileconflicts(p1->files, p2->files);
+				for(k = ret; k; k = k->next) {
 						pmconflict_t *conflict = malloc(sizeof(pmconflict_t));
 						if(conflict == NULL) {
 							_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"),
@@ -257,11 +286,11 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 						}
 						conflict->type = PM_CONFLICT_TYPE_TARGET;
 						STRNCPY(conflict->target, p1->name, PKG_NAME_LEN);
-						STRNCPY(conflict->file, filestr, CONFLICT_FILE_LEN);
+						STRNCPY(conflict->file, j->data, CONFLICT_FILE_LEN);
 						STRNCPY(conflict->ctarget, p2->name, PKG_NAME_LEN);
 						conflicts = _pacman_list_add(conflicts, conflict);
-					}
 				}
+				FREELIST(ret);
 			}
 		}
 
