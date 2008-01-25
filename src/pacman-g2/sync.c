@@ -211,7 +211,7 @@ static int sync_list(list_t *syncs, list_t *targets)
 				return(1);
 			}
 
-			ls = list_add(ls, sync);
+			ls = list_add(ls, db);
 		}
 	} else {
 		ls = syncs;
