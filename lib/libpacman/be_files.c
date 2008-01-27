@@ -50,7 +50,7 @@
  */
 int _pacman_db_install(pmdb_t *db, const char *dbfile)
 {
-	/* ORE
+	/* TODO
 		 we should not simply unpack the archive, but better parse it and 
 		 db_write each entry (see sync_load_dbarchive to get archive content) */
 	_pacman_log(PM_LOG_FLOW2, _("unpacking database '%s'"), dbfile);

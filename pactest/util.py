@@ -235,7 +235,7 @@ def getmtime(filename):
 	return st[stat.ST_ATIME], st[stat.ST_MTIME], st[stat.ST_CTIME]
 
 def diffmtime(mt1, mt2):
-	"""ORE: TBD
+	"""TODO: TBD
 	"""
 	return not mt1 == mt2
 

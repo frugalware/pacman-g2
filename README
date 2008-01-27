@@ -8,7 +8,7 @@ import.
 At this stage, the code is in pre-alpha state, but the design should not
 change that much.
 There's still need for some work to get the current code properly working.
-The tag "ORE" was added in various places in the code, each time a point
+The tag "TODO" was added in various places in the code, each time a point
 remains unclear or is not yet implemented.
 
 ==========================================================================

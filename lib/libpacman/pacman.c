@@ -998,7 +998,7 @@ int pacman_logaction(char *fmt, ...)
 	vsnprintf(str, LOG_STR_LEN, fmt, args);
 	va_end(args);
 
-	/* ORE
+	/* TODO
 	We should add a prefix to log strings depending on who called us.
 	If logaction was called by the frontend:
 		USER: <the frontend log>
