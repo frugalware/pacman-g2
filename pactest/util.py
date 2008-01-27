@@ -234,11 +234,6 @@ def getmtime(filename):
 	st = os.stat(filename)
 	return st[stat.ST_ATIME], st[stat.ST_MTIME], st[stat.ST_CTIME]
 
-def diffmtime(mt1, mt2):
-	"""TODO: TBD
-	"""
-	return not mt1 == mt2
-
 
 #
 # Miscellaneous
