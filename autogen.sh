@@ -129,7 +129,7 @@ libtoolize -f -c
 aclocal --force
 autoheader -f
 autoconf -f
-cp -f $(dirname $(which automake))/../share/automake-$(automake --version|sed 's/.* //;q')/mkinstalldirs ./
+cp -f $(dirname $(which automake))/../share/automake-$(automake --version|sed 's/.*) //;s/\([0-9]\+\.[0-9]\+\)\.[0-9]\+/\1/;q')/mkinstalldirs ./
 cp -f $(dirname $(which automake))/../share/gettext/config.rpath ./
 automake -a -c --gnu --foreign
 
