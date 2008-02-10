@@ -120,6 +120,11 @@ class pmrule:
 						success = 0
 				else:
 					success = -1
+		elif kind == "LINK":
+			filename = os.path.join(root, key)
+			if case == "EXIST":
+				if not os.path.islink(filename):
+					success = 0
 		else:
 			success = -1
 
