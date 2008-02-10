@@ -470,6 +470,9 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 				} else {
 					/* build the new pathname relative to handle->root */
 					snprintf(expath, PATH_MAX, "%s%s", handle->root, pathname);
+					if(expath[strlen(expath)-1] == '/') {
+						expath[strlen(expath)-1] = '\0';
+					}
 				}
 
 				/* if a file is in NoExtract then we never extract it.
@@ -483,19 +486,24 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 					continue;
 				}
 
-				if(!stat(expath, &buf) && !S_ISDIR(buf.st_mode)) {
+				if(!lstat(expath, &buf)) {
 					/* file already exists */
-					if(_pacman_list_is_strin(pathname, handle->noupgrade)) {
-						notouch = 1;
-					} else {
-						if(!pmo_upgrade || oldpkg == NULL) {
-							nb = _pacman_list_is_strin(pathname, info->backup);
+					printf("expath: %s\n", expath);
+					if(S_ISLNK(buf.st_mode)) {
+						continue;
+					} else if(!S_ISDIR(buf.st_mode)) {
+						if(_pacman_list_is_strin(pathname, handle->noupgrade)) {
+							notouch = 1;
 						} else {
-							/* op == PM_TRANS_TYPE_UPGRADE */
-							md5_orig = _pacman_needbackup(pathname, oldpkg->backup);
-							sha1_orig = _pacman_needbackup(pathname, oldpkg->backup);
-							if(md5_orig || sha1_orig) {
-								nb = 1;
+							if(!pmo_upgrade || oldpkg == NULL) {
+								nb = _pacman_list_is_strin(pathname, info->backup);
+							} else {
+								/* op == PM_TRANS_TYPE_UPGRADE */
+								md5_orig = _pacman_needbackup(pathname, oldpkg->backup);
+								sha1_orig = _pacman_needbackup(pathname, oldpkg->backup);
+								if(md5_orig || sha1_orig) {
+									nb = 1;
+								}
 							}
 						}
 					}
