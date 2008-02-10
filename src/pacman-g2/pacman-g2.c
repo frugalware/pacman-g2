@@ -156,6 +156,7 @@ static void usage(int op, char *myname)
 			printf(_("  -y, --refresh       download fresh package databases from the server\n"));
 			printf(_("      --ignore <pkg>  ignore a package upgrade (can be used more than once)\n"));
 			printf(_("      --nointegrity   don't check the integrity of the packages using sha1\n"));
+			printf(_("      --regex         threat targets as regexs if no package found\n"));
 		}
 		printf(_("      --config <path> set an alternate configuration file\n"));
 		printf(_("      --noconfirm     do not ask for anything confirmation\n"));
@@ -279,7 +280,9 @@ static int parseargs(int argc, char *argv[])
 		{"noscriptlet", no_argument,      0, 1005},
 		{"ask",        required_argument, 0, 1006},
 		{"nointegrity", no_argument,      0, 1007},
+		{"nointegrity", no_argument,      0, 1007},
 		{"noarch", no_argument, 0, 1008},
+		{"regex", no_argument, 0, 1009},
 		{0, 0, 0, 0}
 	};
 	char root[PATH_MAX];
@@ -308,6 +311,7 @@ static int parseargs(int argc, char *argv[])
 			case 1006: config->noask = 1; config->ask = atoi(optarg); break;
 			case 1007: config->flags |= PM_TRANS_FLAG_NOINTEGRITY; break;
 			case 1008: config->flags |= PM_TRANS_FLAG_NOARCH; break;
+			case 1009: config->regex = 1; break;
 			case 'A': config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_ADD); break;
 			case 'D':
 				config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_DEPTEST);

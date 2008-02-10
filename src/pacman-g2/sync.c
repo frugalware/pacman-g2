@@ -401,7 +401,7 @@ int syncpkg(list_t *targets)
 					}
 				}
 				/* targ is not a group, see if it's a regex */
-				if(!found) {
+				if(!found && config->regex) {
 					for(j = pmc_syncs; j; j = j->next) {
 						PM_DB *db = j->data;
 						PM_LIST *k;

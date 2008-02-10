@@ -42,9 +42,7 @@ pacman-g2 packages are in a bzipped tar format.
 	the ftp servers, complete with all dependencies required to run the packages.
 	For example, pacman-g2 -S qt will download qt and all the packages it depends
 	on and install them. You could also use pacman-g2 -Su to upgrade all packages
-	that are out of date (see below). Target can be a regex, like:
-
-	# pacman-g2 -S gst-.*
+	that are out of date (see below).
 
 -U, --upgrade::
 	Upgrade a package. This is essentially a "remove-then-add" process. See
@@ -120,6 +118,14 @@ pacman-g2 packages are in a bzipped tar format.
 
 --nointegrity::
 	Skip the SHA1 integrity check for the downloaded packages.
+
+--regex::
+	Threat the target names as regular expressions if no target found.
+
+	Example:
+	----
+	# pacman-g2 -S --regex perl-.*
+	----
 
 == SYNC OPTIONS
 
