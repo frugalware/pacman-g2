@@ -25,6 +25,8 @@
 #   USA.
 #
 
+## bash's 'echo' is buggy and does not check on write() for errors
+ECHO="/bin/echo"
 startdir=`pwd`
 PKGDEST=$startdir
 USE_COLOR="n"
@@ -66,7 +68,7 @@ PACMAN_OPTS=
 Fextract() {
 	local cmd file tmp
 	file="${1}"
-	tmp="$(echo "${file}" | tr 'A-Z' 'a-z')"
+	tmp="$($ECHO "${file}" | tr 'A-Z' 'a-z')"
 	case "${tmp}" in
 		*.tar.gz|*.tar.z|*.tgz)
 		cmd="tar --use-compress-program=gzip -xf $file" ;;
@@ -128,44 +130,44 @@ fi
 
 plain() {
 	if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
-		echo -e "    \033[1;1m$1\033[1;0m" >&2
+		$ECHO -e "    \033[1;1m$1\033[1;0m" >&2
 	else
-		echo "    $1" >&2
+		$ECHO "    $1" >&2
 	fi
 }
 msg() {
 	if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
-		echo -e "\033[1;32m==>\033[1;0m \033[1;1m$1\033[1;0m" >&2
+		$ECHO -e "\033[1;32m==>\033[1;0m \033[1;1m$1\033[1;0m" >&2
 	else
-		echo "==> $1" >&2
+		$ECHO "==> $1" >&2
 	fi
 }
 
 msg2() {
         if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
-                echo -e "   \033[1;34m->\033[1;0m \033[1;1m$1\033[1;0m" >&2
+                $ECHO -e "   \033[1;34m->\033[1;0m \033[1;1m$1\033[1;0m" >&2
         else
-                echo "   -> $1" >&2
+                $ECHO "   -> $1" >&2
         fi
 }
 
 warning() {
 	if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
-		echo -e "\033[1;33m==> WARNING:\033[1;0m \033[1;1m$1\033[1;0m" >&2
+		$ECHO -e "\033[1;33m==> WARNING:\033[1;0m \033[1;1m$1\033[1;0m" >&2
 	else
-		echo "==> WARNING: $1" >&2
+		$ECHO "==> WARNING: $1" >&2
 	fi
 }
 error() {
 	if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
-		echo -e "\033[1;31m==> ERROR:\033[1;0m \033[1;1m$1\033[1;0m" >&2
+		$ECHO -e "\033[1;31m==> ERROR:\033[1;0m \033[1;1m$1\033[1;0m" >&2
 	else
-		echo "==> ERROR: $1" >&2
+		$ECHO "==> ERROR: $1" >&2
 	fi
 }
 
 strip_url() {
-	echo "$1" | sed 's|^.*://.*/||g'
+	$ECHO "$1" | sed 's|^.*://.*/||g'
 }
 
 checkdeps() {
@@ -182,12 +184,12 @@ checkdeps() {
 			msg ""
 			nl=0
 			for dep in $missdep; do
-				echo -ne "$dep " >&2
+				$ECHO -ne "$dep " >&2
 				if [ "$nl" = "1" ]; then
 					nl=0
-					echo -ne "\n" >&2
+					$ECHO -ne "\n" >&2
 					# add this dep to the list
-					depname=`echo $dep | sed 's|=.*$||' | sed 's|>.*$||' | sed 's|<.*$||'`
+					depname=`$ECHO $dep | sed 's|=.*$||' | sed 's|>.*$||' | sed 's|<.*$||'`
 					deplist="$deplist $depname"
 					continue
 				fi
@@ -199,7 +201,7 @@ checkdeps() {
 			exit 1
 		fi
 	fi
-	echo $deplist
+	$ECHO $deplist
 }
 
 handledeps() {
@@ -304,48 +306,48 @@ handledeps() {
 }
 
 usage() {
-	echo "makepkg"
-	echo
-	echo "Usage: $0 [options]"
-	echo
-	echo "Options:"
-	echo "  -a, --searchdeps Search for package dependencies automatically"
-	echo "  -A <url>         rsync cache url to use before downloading anything"
-	echo "  -b, --builddeps  Build missing dependencies from source"
-	echo "  -B, --noccache   Do not use ccache during build"
-	echo "  -c, --clean      Clean up work files after build"
-	echo "  -C, --cleancache Clean up source files from the cache"
-	echo "  -d, --nodeps     Skip all dependency checks"
-	echo "  -D <pkgname>     Clean up the compiler cache for a package"
-	echo "  -e, --noextract  Do not extract source files (use existing src/ dir)"
-	echo "  -f, --force      Overwrite existing package"
-	echo "  -g, --gensha1    Generate SHA1sums for source files"
-	echo "  -G, --wrtsha1    Generate SHA1sums for source files and add it to the build script"
-	echo "  -h, --help       This help"
-	echo "  -i, --install    Install package after successful build"
-	echo "  -j <jobs>        Set MAKEFLAGS to \"-j<jobs>\" before building"
-	echo "  -l <pkgname>     Download buildscripts before building"
-	echo "  -m, --nocolor    Disable colorized output messages"
-	echo "  -n, --nostrip    Do not strip binaries/libraries"
-	echo "  -o, --nobuild    Download and extract files only"
-	echo "  -p <buildscript> Use an alternate build script (instead of $BUILDSCRIPT)"
-	echo "  -r, --rmdeps     Remove installed dependencies after a successful build"
-	echo "  -R, --chroot     Build the package in a chroot environment (default)"
-	echo "  -H, --host       Build the package on the host system"
-	echo "  -s, --syncdeps   Install missing dependencies with pacman-g2"
-	echo "  -S, --sudosync   Install missing dependencies with pacman-g2 and sudo"
-	echo "  -u, --noup2date  Do not check for newer version"
-	echo "  -t <tree>        Use the given tree's chroot to build in"
-	echo "  -w <destdir>     Write package to <destdir> instead of the working dir"
-	echo "  --gzip           Use gzip compression for a package instead of bzip2"
-	echo
-	echo "These options can be passed to pacman-g2:"
-	echo
-	echo "  --noconfirm      Do not ask for confirmation when resolving dependencies"
-	echo "  --noprogressbar  Do not show a progress bar when downloading files"
-	echo
-	echo "If -p is not specified, makepkg will look for $BUILDSCRIPT"
-	echo
+	$ECHO "makepkg"
+	$ECHO
+	$ECHO "Usage: $0 [options]"
+	$ECHO
+	$ECHO "Options:"
+	$ECHO "  -a, --searchdeps Search for package dependencies automatically"
+	$ECHO "  -A <url>         rsync cache url to use before downloading anything"
+	$ECHO "  -b, --builddeps  Build missing dependencies from source"
+	$ECHO "  -B, --noccache   Do not use ccache during build"
+	$ECHO "  -c, --clean      Clean up work files after build"
+	$ECHO "  -C, --cleancache Clean up source files from the cache"
+	$ECHO "  -d, --nodeps     Skip all dependency checks"
+	$ECHO "  -D <pkgname>     Clean up the compiler cache for a package"
+	$ECHO "  -e, --noextract  Do not extract source files (use existing src/ dir)"
+	$ECHO "  -f, --force      Overwrite existing package"
+	$ECHO "  -g, --gensha1    Generate SHA1sums for source files"
+	$ECHO "  -G, --wrtsha1    Generate SHA1sums for source files and add it to the build script"
+	$ECHO "  -h, --help       This help"
+	$ECHO "  -i, --install    Install package after successful build"
+	$ECHO "  -j <jobs>        Set MAKEFLAGS to \"-j<jobs>\" before building"
+	$ECHO "  -l <pkgname>     Download buildscripts before building"
+	$ECHO "  -m, --nocolor    Disable colorized output messages"
+	$ECHO "  -n, --nostrip    Do not strip binaries/libraries"
+	$ECHO "  -o, --nobuild    Download and extract files only"
+	$ECHO "  -p <buildscript> Use an alternate build script (instead of $BUILDSCRIPT)"
+	$ECHO "  -r, --rmdeps     Remove installed dependencies after a successful build"
+	$ECHO "  -R, --chroot     Build the package in a chroot environment (default)"
+	$ECHO "  -H, --host       Build the package on the host system"
+	$ECHO "  -s, --syncdeps   Install missing dependencies with pacman-g2"
+	$ECHO "  -S, --sudosync   Install missing dependencies with pacman-g2 and sudo"
+	$ECHO "  -u, --noup2date  Do not check for newer version"
+	$ECHO "  -t <tree>        Use the given tree's chroot to build in"
+	$ECHO "  -w <destdir>     Write package to <destdir> instead of the working dir"
+	$ECHO "  --gzip           Use gzip compression for a package instead of bzip2"
+	$ECHO
+	$ECHO "These options can be passed to pacman-g2:"
+	$ECHO
+	$ECHO "  --noconfirm      Do not ask for confirmation when resolving dependencies"
+	$ECHO "  --noprogressbar  Do not show a progress bar when downloading files"
+	$ECHO
+	$ECHO "If -p is not specified, makepkg will look for $BUILDSCRIPT"
+	$ECHO
 }
 
 chroot_umount() {
@@ -395,7 +397,7 @@ chroot_unlock() {
 chroot_clean()
 {
 	if [ "$CHROOT" = "1" ]; then
-		echo $CHROOTDIR |grep -q $TREE$ || CHROOTDIR="$CHROOTDIR/$TREE"
+		$ECHO $CHROOTDIR |grep -q $TREE$ || CHROOTDIR="$CHROOTDIR/$TREE"
 		chroot_lock
 		msg "Removing unnecessary packages."
 		for i in "$COREPKGS"
@@ -404,7 +406,7 @@ chroot_clean()
 		done
 		for i in `/usr/sbin/chroot $CHROOTDIR pacman-g2 -Q|sed 's/\([^ ]*\) .*/\1/'`
 		do
-			if ! echo $corelist |grep -q $i; then
+			if ! $ECHO $corelist |grep -q $i; then
 				removelist="$removelist $i"
 			fi
 		done
@@ -431,52 +433,52 @@ create_pkg()
 		cd $startdir/pkg.$1
 	fi
 	size=`du -cb . | tail -n 1 | awk '{print $1}'`
-	echo "# Generated by makepkg" >.PKGINFO
-	echo -n "# " >>.PKGINFO
+	$ECHO "# Generated by makepkg" >.PKGINFO
+	$ECHO -n "# " >>.PKGINFO
 	date >>.PKGINFO
-	echo "pkgname = $1" >>.PKGINFO
-	echo "pkgver = $pkgver-$pkgrel" >>.PKGINFO
-	echo "pkgdesc = $pkgdesc" >>.PKGINFO
+	$ECHO "pkgname = $1" >>.PKGINFO
+	$ECHO "pkgver = $pkgver-$pkgrel" >>.PKGINFO
+	$ECHO "pkgdesc = $pkgdesc" >>.PKGINFO
 	if [ -n "$pkgdesc_localized" ]; then
 		for it in "${pkgdesc_localized[@]}"; do
-			echo "pkgdesc = $it" >>.PKGINFO
+			$ECHO "pkgdesc = $it" >>.PKGINFO
 		done
 	fi
-	echo "url = $url" >>.PKGINFO
-	echo "builddate = $builddate" >>.PKGINFO
-	echo "buildtype = $buildtype" >>.PKGINFO
-	echo "packager = $packager" >>.PKGINFO
-	echo "size = $size" >>.PKGINFO
+	$ECHO "url = $url" >>.PKGINFO
+	$ECHO "builddate = $builddate" >>.PKGINFO
+	$ECHO "buildtype = $buildtype" >>.PKGINFO
+	$ECHO "packager = $packager" >>.PKGINFO
+	$ECHO "size = $size" >>.PKGINFO
 	if [ "$CARCH" != "" ]; then
-		echo "arch = $CARCH" >>.PKGINFO
+		$ECHO "arch = $CARCH" >>.PKGINFO
 	fi
 
 	for it in ${license[@]}; do
-		echo "license = $it" >>.PKGINFO
+		$ECHO "license = $it" >>.PKGINFO
 	done
 	for it in ${replaces[@]}; do
-		echo "replaces = $it" >>.PKGINFO
+		$ECHO "replaces = $it" >>.PKGINFO
 	done
 	for it in ${groups[@]}; do
-		echo "group = $it" >>.PKGINFO
+		$ECHO "group = $it" >>.PKGINFO
 	done
 	for it in ${depends[@]}; do
-		echo "depend = $it" >>.PKGINFO
+		$ECHO "depend = $it" >>.PKGINFO
 	done
 	for it in ${rodepends[@]}; do
-		echo "depend = $it" >>.PKGINFO
+		$ECHO "depend = $it" >>.PKGINFO
 	done
 	for it in ${removes[@]}; do
-		echo "remove = $it" >>.PKGINFO
+		$ECHO "remove = $it" >>.PKGINFO
 	done
 	for it in ${conflicts[@]}; do
-		echo "conflict = $it" >>.PKGINFO
+		$ECHO "conflict = $it" >>.PKGINFO
 	done
 	for it in ${provides[@]}; do
-		echo "provides = $it" >>.PKGINFO
+		$ECHO "provides = $it" >>.PKGINFO
 	done
 	for it in ${backup[@]}; do
-		echo "backup = $it" >>.PKGINFO
+		$ECHO "backup = $it" >>.PKGINFO
 	done
 
 	# check for an install script
@@ -485,7 +487,7 @@ create_pkg()
 	fi
 	if [ "$install" != "" ]; then
 		msg2 ".INSTALL file... " >&2
-		if [ "`echo $install |sed 's/^\(.\).*/\1/'`" = "/" ]; then
+		if [ "`$ECHO $install |sed 's/^\(.\).*/\1/'`" = "/" ]; then
 			cp $install .INSTALL
 		else
 			cp $startdir/$install .INSTALL
@@ -733,7 +735,7 @@ if [ ! -z "$CLEANCCACHE" ]; then
 fi
 
 if [ "$INCHROOT" = "1" ]; then
-	echo $$ >lock
+	$ECHO $$ >lock
 fi
 
 if [ $CLEANCACHE -ge 1 ]; then
@@ -781,7 +783,7 @@ if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
 		msg "Aborting..."
 		exit 1
 	fi
-	ftpclient=`echo $FTPAGENT | awk {'print $1'}`
+	ftpclient=`$ECHO $FTPAGENT | awk {'print $1'}`
 	if [ ! -x $ftpclient ]; then
 		error "ftpclient `basename $ftpclient` is not installed."
 		msg "Aborting..."
@@ -807,9 +809,9 @@ if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
 		msg "Aborting..."
 		exit 1
 	fi
-	junk=`echo $dir|sed "s|^.*://\(.*\)/frugalware-$arch|\1/$quickdl|"`/source/$cat/$DOWNLOAD/
+	junk=`$ECHO $dir|sed "s|^.*://\(.*\)/frugalware-$arch|\1/$quickdl|"`/source/$cat/$DOWNLOAD/
 	mv $junk* ./
-	rm -rf `echo $junk|cut -d/ -f1`
+	rm -rf `$ECHO $junk|cut -d/ -f1`
 	for i in `find * -type d`
 	do
 		( cd $i && [ -e .listing ] && rm .listing )
@@ -842,11 +844,11 @@ if [ -z "$pkgrel" ]; then
 	error "pkgrel is not allowed to be empty."
 	exit 1
 fi
-if [ `echo $pkgver | grep '-'` ]; then
+if [ `$ECHO $pkgver | grep '-'` ]; then
 	error "pkgver is not allowed to contain hyphens."
 	exit 1
 fi
-if [ `echo $pkgrel | grep '-'` ]; then
+if [ `$ECHO $pkgrel | grep '-'` ]; then
 	error "pkgrel is not allowed to contain hyphens."
 	exit 1
 fi
@@ -982,11 +984,11 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		msg "Building a '-$TREE' chroot environment"
 		_F_makepkg_pacconf=`mktemp`
 		cat /etc/pacman-g2.conf |grep -v Include >$_F_makepkg_pacconf
-		for i in `echo $TREE|sed 's/,/ /g'`
+		for i in `$ECHO $TREE|sed 's/,/ /g'`
 		do
-			repo=$(eval "echo \${${i}_$DB_EXT/.$DB_EXT}")
+			repo=$(eval "$ECHO \${${i}_$DB_EXT/.$DB_EXT}")
 			[ -z "$repo" ] && repo="$i"
-			echo "Include = /etc/pacman-g2/repos/$repo" >>$_F_makepkg_pacconf
+			$ECHO "Include = /etc/pacman-g2/repos/$repo" >>$_F_makepkg_pacconf
 		done
 		mkdir -p $CHROOTDIR/{tmp,var/log}
 		pacman-g2 -r "$CHROOTDIR" -Syf $COREPKGS --noconfirm --config $_F_makepkg_pacconf
@@ -1021,7 +1023,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		cp -pf /etc/$i $CHROOTDIR/etc >/dev/null &
 	done
 	chmod 644 $CHROOTDIR/etc/sudoers
-	echo "fst ALL=(ALL)       NOPASSWD: ALL" >$CHROOTDIR/etc/sudoers
+	$ECHO "fst ALL=(ALL)       NOPASSWD: ALL" >$CHROOTDIR/etc/sudoers
 	chmod 440 $CHROOTDIR/etc/sudoers
 	cp -Ppf /etc/localtime $CHROOTDIR/etc >/dev/null &
 	cp -pf /etc/services $CHROOTDIR/etc > /dev/null &
@@ -1049,7 +1051,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			/usr/sbin/chroot $CHROOTDIR \
 				/bin/su - fst -c "$0 --inchroot -S $ARGLIST"
 		else
-			echo "cd /var/tmp/fst/; $0 --inchroot -s $ARGLIST" | \
+			$ECHO "cd /var/tmp/fst/; $0 --inchroot -s $ARGLIST" | \
 				/usr/sbin/chroot $CHROOTDIR /bin/su - -c /bin/sh
 		fi 2>&1 | tee $BUILDLOG
 		if [ "$USE_COLOR" != "n" ]; then
@@ -1081,7 +1083,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		msg "Checking for optimization..."
 		if grep -q -- "\($CFLAGS\|$CXXFLAGS\)" "${BUILDLOG}" ; then
 			if ! grep -q "# optimization" "${BUILDSCRIPT}" ; then
-				echo -e "\n# optimization OK" >> "${BUILDSCRIPT}"
+				$ECHO -e "\n# optimization OK" >> "${BUILDSCRIPT}"
 			fi
 		else
 			warning "This package isn't ${CARCH}-optimized!"
@@ -1163,8 +1165,8 @@ cd $startdir
 # version checking
 if [ "$NOUP2DATE" = "0" ]; then
 	msg "Checking for newer version..."
-	if echo "$up2date"|grep -q " "; then
-		cmd=`echo "$up2date"|sed 's/^\([^ ]*\) .*/\1/'`
+	if $ECHO "$up2date"|grep -q " "; then
+		cmd=`$ECHO "$up2date"|sed 's/^\([^ ]*\) .*/\1/'`
 		if type -p $cmd &>/dev/null; then
 			up2date=`eval "$up2date"`
 		else
@@ -1174,16 +1176,16 @@ if [ "$NOUP2DATE" = "0" ]; then
 		fi
 	fi
 	if [ -z "$up2date" ]; then
-			echo "   FAILED" >&2
+			$ECHO "   FAILED" >&2
 			error "There was no output!"
 			exit 1
 	else
 		if [ "$pkgver" != "$up2date" ]; then
-			echo "   FAILED" >&2
+			$ECHO "   FAILED" >&2
 			error "Newer version available! ($pkgver < $up2date)"
 			exit 1
 		else
-		echo "   Passed" >&2
+		$ECHO "   Passed" >&2
 		fi
 	fi
 fi
@@ -1195,15 +1197,15 @@ if grep -i -q "^# Compiling Time: [~0-9\.]\+ SBU$" $BUILDSCRIPT && \
 	if [ ! "`type -p bc`" ]; then
 		warning "Cannot find the bc binary! Is bc installed? Skipping calculating the estimated build time."
 	else
-		secs=`echo "$pkgsbu*$SBU"|bc /dev/stdin|sed 's/\.[0-9]*$//'`
+		secs=`$ECHO "$pkgsbu*$SBU"|bc /dev/stdin|sed 's/\.[0-9]*$//'`
 		if [ $secs -ge 3600 ]; then
-			hrs=`echo $(($secs/3600))`
-			secs=`echo $(($secs%3600))`
-			mins=`echo $(($secs/60))`
-			secs=`echo $(($secs%60))`
+			hrs=`$ECHO $(($secs/3600))`
+			secs=`$ECHO $(($secs%3600))`
+			mins=`$ECHO $(($secs/60))`
+			secs=`$ECHO $(($secs%60))`
 		elif [ $secs -ge 60 ]; then
-			mins=`echo $(($secs/60))`
-			secs=`echo $(($secs%60))`
+			mins=`$ECHO $(($secs/60))`
+			secs=`$ECHO $(($secs%60))`
 		fi
 		if [ ! -z "$hrs" ]; then
 			[ $hrs -gt 1 ] && hrs="$hrs hours " || hrs="$hrs hour "
@@ -1232,7 +1234,7 @@ for netfile in "${source[@]}" "${signatures[@]}"; do
 		msg2 "Using local copy of $file"
 		cp "/var/cache/pacman-g2/src/$file" .
 	else
-		proto=`echo "$netfile" | sed 's|://.*||'`
+		proto=`$ECHO "$netfile" | sed 's|://.*||'`
 		if [ "$proto" != "ftp" -a "$proto" != "http" -a "$proto" != "https" ]; then
 			error "$netfile was not found in the build directory and is not a proper URL."
 			msg "Aborting..."
@@ -1282,13 +1284,13 @@ if [ "$GENSHA1" = "0" ]; then
 				idx=0
 				for netfile in "${source[@]}"; do
 					file=`strip_url "$netfile"`
-					echo -n "    $file ... " >&2
-					echo "${sha1sums[$idx]}  $file" | sha1sum -c - >/dev/null 2>&1
+					$ECHO -n "    $file ... " >&2
+					$ECHO "${sha1sums[$idx]}  $file" | sha1sum -c - >/dev/null 2>&1
 					if [ $? -ne 0 ]; then
-						echo "FAILED" >&2
+						$ECHO "FAILED" >&2
 						errors=1
 					else
-						echo "Passed" >&2
+						$ECHO "Passed" >&2
 					fi
 					idx=$(($idx+1))
 				done
@@ -1310,7 +1312,7 @@ if [ "$GENSHA1" = "0" ]; then
 				if [ ! -d ~/.gnupg ]; then
 					msg "Configuring gpg..."
 					gpg --list-keys
-					echo "keyserver-options auto-key-retrieve" >>~/.gnupg/gpg.conf
+					$ECHO "keyserver-options auto-key-retrieve" >>~/.gnupg/gpg.conf
 				fi
 				msg "Validating source files with gpg"
 				errors=0
@@ -1318,17 +1320,17 @@ if [ "$GENSHA1" = "0" ]; then
 				for netfile in "${source[@]}"; do
 					file=`strip_url "$netfile"`
 					sig=`strip_url "${signatures[$idx]}"`
-					echo -n "    $file ... " >&2
+					$ECHO -n "    $file ... " >&2
 					if [ ! -z "$sig" ]; then
 						gpg --batch --verify $sig $file >/dev/null 2>&1
 						if [ $? -ne 0 ]; then
-							echo "FAILED" >&2
+							$ECHO "FAILED" >&2
 							errors=1
 						else
-							echo "Passed" >&2
+							$ECHO "Passed" >&2
 						fi
 					else
-						echo "Skipping" >&2
+						$ECHO "Skipping" >&2
 					fi
 					idx=$(($idx+1))
 				done
@@ -1382,7 +1384,7 @@ else
 				SHA1SUMS="${SHA1SUMS} \\\\\n          "
 			fi
 		done
-		echo -e "${SHA1SUMS}"
+		$ECHO -e "${SHA1SUMS}"
 		plain ""
 		if [ "${WRITESHA1}" = 1 ]; then
 			cd ${startdir}
@@ -1465,7 +1467,7 @@ if [ "$SBU" == "1" ]; then
 	msg "Elapsed Time: $(($(date +%s)-$stime)) seconds"
 elif [ ! -z "$SBU" ]; then
 	if [ `type -p bc` ]; then
-		pkgsbu=`echo -e "scale=2\n$(($(date +%s)-$stime))/$SBU"|bc /dev/stdin|sed 's/^\./0./'`
+		pkgsbu=`$ECHO -e "scale=2\n$(($(date +%s)-$stime))/$SBU"|bc /dev/stdin|sed 's/^\./0./'`
 		msg "Elapsed Time: $pkgsbu SBU"
 	else
 		warning "The bc program is missing.  Cannot count SBU!"
@@ -1490,7 +1492,7 @@ extra=
 ls pkg.* &>/dev/null && extra=pkg.*
 rm -f {pkg,pkg.*}/{usr{,/local,/share},opt/*}/info/dir 2> /dev/null
 for f in `find pkg $extra -type f -name encodings.dir -o -type f -name fonts.dir -o -type f -name fonts.scale` ; do
-	msg2 "`echo $f | sed 's|pkg[^/]\+||'`"
+	msg2 "`$ECHO $f | sed 's|pkg[^/]\+||'`"
 	rm -f "$f"
 done
 
