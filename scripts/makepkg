@@ -398,27 +398,32 @@ chroot_clean()
 {
 	if [ "$CHROOT" = "1" ]; then
 		$ECHO $CHROOTDIR |grep -q $TREE$ || CHROOTDIR="$CHROOTDIR/$TREE"
-		chroot_lock
-		msg "Removing unnecessary packages."
-		for i in "$COREPKGS"
-		do
-			corelist="$corelist `/usr/sbin/chroot $CHROOTDIR pacman-g2 -Sg $i |grep -v '^\w'`"
-		done
-		for i in `/usr/sbin/chroot $CHROOTDIR pacman-g2 -Q|sed 's/\([^ ]*\) .*/\1/'`
-		do
-			if ! $ECHO $corelist |grep -q $i; then
-				removelist="$removelist $i"
+		if [ -d "$CHROOTDIR" ]; then
+			chroot_lock
+			msg "Removing unnecessary packages."
+			for i in "$COREPKGS"
+			do
+				corelist="$corelist `/usr/sbin/chroot $CHROOTDIR pacman-g2 -Sg $i |grep -v '^\w'`"
+			done
+			for i in `/usr/sbin/chroot $CHROOTDIR pacman-g2 -Q|sed 's/\([^ ]*\) .*/\1/'`
+			do
+				if ! $ECHO $corelist |grep -q $i; then
+					removelist="$removelist $i"
+				fi
+			done
+			if [ ! -z "$removelist" ]; then
+				/usr/sbin/chroot $CHROOTDIR pacman-g2 -Rcn $removelist --noconfirm
+				if [ "$?" != "0" ]; then
+					error "Failed to remove packages."
+					exit 1
+				fi
 			fi
-		done
-		if [ ! -z "$removelist" ]; then
-			/usr/sbin/chroot $CHROOTDIR pacman-g2 -Rcn $removelist --noconfirm
-			if [ "$?" != "0" ]; then
-				error "Failed to remove packages."
-				exit 1
-			fi
+			msg "Cleaning chroot."
+			rm -rf $CHROOTDIR/var/tmp/fst/*
+		else
+			error "$CHROOTDIR does not exist, can't clean a non-existing chroot."
+			exit 1
 		fi
-		msg "Cleaning chroot."
-		rm -rf $CHROOTDIR/var/tmp/fst/*
 	fi
 }
 
