@@ -1,10 +1,11 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
-              - gensync has a new -c option for just checking missing files
+3.6.8         - gensync has a new -c option for just checking missing files
               - makepkg now skips creating pkgs if $CARCH is not in archs()
 	        (gensync / updatesync already skipped those packages)
               - avoid duplicated entires in pacman-g2.log
               - speeded up file conflict checking
+              - new -S --regex switch
 3.6.7         - bugfix in gensync: honor nobuild in suboptions()
 	      - updatesync/gensync: write a .version file to the package
 	        database if possible
