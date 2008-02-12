@@ -407,7 +407,7 @@ chroot_clean()
 			done
 			for i in `/usr/sbin/chroot $CHROOTDIR pacman-g2 -Q|sed 's/\([^ ]*\) .*/\1/'`
 			do
-				if ! $ECHO $corelist |grep -q $i; then
+				if ! $ECHO $corelist |grep -qw $i; then
 					removelist="$removelist $i"
 				fi
 			done
