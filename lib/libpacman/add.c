@@ -488,7 +488,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 
 				if(!lstat(expath, &buf)) {
 					/* file already exists */
-					printf("expath: %s\n", expath);
 					if(S_ISLNK(buf.st_mode)) {
 						continue;
 					} else if(!S_ISDIR(buf.st_mode)) {
