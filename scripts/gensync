@@ -286,7 +286,7 @@ if ( cd $rootdir; git rev-parse --get-root &>/dev/null); then
 fi
 extra=""
 if [ -n "$ver" ]; then
-	echo ${ver//-/.} > .version
+	echo ${ver//-/.} > $gstmpdir/.version
 	extra=".version"
 fi
 
