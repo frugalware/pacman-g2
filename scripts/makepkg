@@ -1053,6 +1053,15 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		msg "Entering chroot environment"
 		BUILDLOG=${startdir}/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
 		if [ ! "`check_option NOFAKEROOT`" ]; then
+			# add the fst user in case the host system is not a Frugalware one
+			if ! getent passwd fst >/dev/null; then
+				echo "fst:x:19:2::/var/tmp/fst:" >> $CHROOTDIR/etc/passwd
+			fi
+			# add fst to the ccache group if necessary
+			if ! getent group ccache|grep -q fst; then
+				/usr/sbin/chroot $CHROOTDIR \
+					/usr/sbin/usermod -a -G ccache fst
+			fi
 			/usr/sbin/chroot $CHROOTDIR \
 				/bin/su - fst -c "$0 --inchroot -S $ARGLIST"
 		else
