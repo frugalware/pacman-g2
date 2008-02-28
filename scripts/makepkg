@@ -1088,8 +1088,8 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		# copy back the buildscript, maybe modified
 		cp $CHROOTDIR/var/tmp/fst/$BUILDSCRIPT ./
 		if [ "$CLEANUP" != "1" ]; then
-			mv $CHROOTDIR/var/tmp/fst/{pkg,src} ./
-			chown -R `stat -c %u:%g $BUILDSCRIPT` pkg src
+			mv $CHROOTDIR/var/tmp/fst/{pkg,src,pkg.*} ./ 2> /dev/null
+			chown -R `stat -c %u:%g $BUILDSCRIPT` pkg src pkg.* 2> /dev/null
 		fi
 		rm -rf $CHROOTDIR/var/tmp/fst/*
 		chroot_clean
