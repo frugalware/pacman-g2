@@ -114,6 +114,14 @@ Fextract() {
 # makepkg configuration
 [ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
 
+# we need -fno-strict-aliasing for gcc 4.2*++
+_gccver=`type -p gcc >/dev/null && gcc -dumpversion`
+if [ "${_gccver%%.?}" == "4.3" ]; then
+        export CFLAGS="$CFLAGS -fno-strict-aliasing"
+        export CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
+fi
+
+
 INFAKEROOT=
 if [ "$1" = "-F" ]; then
 	INFAKEROOT=1
