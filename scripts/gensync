@@ -236,7 +236,7 @@ if [ ! "$check_only" ]; then
 fi
 cd `dirname $2`
 for file in `find $rootdir -name $BUILDSCRIPT`; do
-	unset nobuild archs options subpkgs
+	unset nobuild archs options subpkgs pkgver
 	cd `dirname $file`
 	startdir=`pwd`
 	source $file || die "errors parsing $file"
