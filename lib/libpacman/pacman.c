@@ -314,7 +314,7 @@ int pacman_db_update(int force, PM_DB *db)
 	pmlist_t *files = NULL;
 	char newmtime[16] = "";
 	char lastupdate[16] = "";
-	int ret;
+	int ret, updated=0;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -351,7 +351,7 @@ int pacman_db_update(int force, PM_DB *db)
 	} else {
 		if(strlen(newmtime)) {
 			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %s\n"), db->treename, newmtime);
-			_pacman_db_setlastupdate(db, newmtime);
+			updated = 1;
 		}
 		snprintf(path, PATH_MAX, "%s%s/%s" PM_EXT_DB, handle->root, handle->dbpath, db->treename);
 
@@ -373,6 +373,9 @@ int pacman_db_update(int force, PM_DB *db)
 		/* uncompress the sync database */
 		if(_pacman_db_install(db, path) == -1) {
 			return -1;
+		}
+		if(updated) {
+			_pacman_db_setlastupdate(db, newmtime);
 		}
 	}
 
