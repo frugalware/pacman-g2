@@ -88,6 +88,9 @@ AC_ARG_ENABLE(csharp,
     AC_HELP_STRING([  --disable-csharp], [Do not build csharp bindings]),
     [wantcsharp=$enableval], [wantcsharp=yes])
 
+dnl Help line for chost
+AC_ARG_WITH(chost, AC_HELP_STRING([--with-chost], [Build with a specific CHOST (default: CARCH-frugalware-linux)]))
+
 dnl Check for architecture
 case "$host" in
 	i686-*) AC_DEFINE_UNQUOTED([CARCH], ["i686"], [Architecture])
@@ -96,7 +99,6 @@ case "$host" in
 		CARCH="i686"
 		CARCHFLAGS="i686"
 		MARCHFLAG="march"
-		CHOST="${host}"
 		;;
 	x86_64-*) AC_DEFINE_UNQUOTED([CARCH], ["x86_64"], [Architecture])
 		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["k8"], [Architecture])
@@ -104,7 +106,6 @@ case "$host" in
 		CARCH="x86_64"
 		CARCHFLAGS="k8"
 		MARCHFLAG="march"
-		CHOST="${host}"
 		;;
 	ia64-*) AC_DEFINE_UNQUOTED([CARCH], ["ia64"], [Architecture])
 		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["ia64"], [Architecture])
@@ -112,7 +113,6 @@ case "$host" in
 		CARCH="ia64"
 		CARCHFLAGS="ia64"
 		MARCHFLAG="march"
-		CHOST="${host}"
 		;;
 	sparc-*) AC_DEFINE_UNQUOTED([CARCH], ["sparc"], [Architecture])
 		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["v9"], [Architecture])
@@ -120,7 +120,6 @@ case "$host" in
 		CARCH="sparc"
 		CARCHFLAGS="v9"
 		MARCHFLAG="mcpu"
-		CHOST="${host}"
 		;;
 	ppc-* | powerpc-*)
 		AC_DEFINE_UNQUOTED([CARCH], ["ppc"], [Architecture])
@@ -129,7 +128,6 @@ case "$host" in
 		CARCH="ppc"
 		CARCHFLAGS="750"
 		MARCHFLAG="mcpu"
-		CHOST="${host}"
 		;;
 	i386-*) AC_DEFINE_UNQUOTED([CARCH], ["i386"], [Architecture])
 		AC_DEFINE_UNQUOTED([CARCHFLAGS], ["i386"], [Architecture])
@@ -137,12 +135,18 @@ case "$host" in
 		CARCH="i386"
 		CARCHFLAGS="i386"
 		MARCHFLAG="march"
-		CHOST="${host}"
 		;;
 	*)
 		AC_MSG_ERROR([Your architecture is not supported])
 		;;
 esac
+
+dnl Check for chost
+if test "z$with_chost" != "z"; then
+	CHOST="$with_chost"
+else
+	CHOST="${CARCH}-frugalware-linux"
+fi
 
 AC_SUBST(CARCH)
 AC_SUBST(CARCHFLAGS)
