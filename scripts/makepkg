@@ -877,6 +877,13 @@ if ! in_array $CARCH ${archs[@]}; then
 	exit 1
 fi
 
+if [ "`type -p fblint`" ]; then
+	if ! fblint -p $BUILDSCRIPT &>/dev/null; then
+		warning "fblint says some needed variables are missing or incomplete."
+		plain "Abort the build unless you know what you are doing."
+	fi
+fi
+
 eval "serverlist=${TREE}_servers"
 if [ "$F_makepkg_scm" = "git" ]; then
 	_serverlist=`GIT_DIR=$fst_root/${TREE}/.git git config --get remote.origin.url 2>/dev/null`
@@ -1331,9 +1338,6 @@ if [ "$GENSHA1" = "0" ]; then
 				warning "The sha1sum program is missing.  Cannot verify source files!"
 				sleep 1
 			fi
-		elif [ ${#signatures[@]} -ne ${#source[@]} ]; then
-			warning "SHA1sums and signatures are missing or incomplete."
-			plain "Cannot verify source integrity."
 		fi
 		# gpg validation
 		if [ ${#signatures[@]} -eq ${#source[@]} ]; then
