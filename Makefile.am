@@ -20,4 +20,4 @@ EXTRA_DIST =		\
 	TODO
 
 check:
-	cd pactest; python pactest.py --test=tests/*.py -p ../src/pacman-g2/pacman-g2 --debug=-1
+	python $(top_srcdir)/pactest/pactest.py --test=$(top_srcdir)/pactest/tests/*.py -p $(top_builddir)/src/pacman-g2/pacman-g2 --debug=-1
