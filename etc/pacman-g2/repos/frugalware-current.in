@@ -3,16 +3,28 @@
 #
 
 [frugalware-current]
-# -----------
-# - BELGIUM -
-# -----------
-# Belgian National Research Network (1 GBit)
-Server = ftp://ftp5.frugalware.org/packages/frugalware/pub/frugalware/frugalware-current/frugalware-@CARCH@
+# -------
+# - USA -
+# -------
+# TDS Telecom (1 GBit)
+Server = ftp://ftp10.frugalware.org/pub/linux/frugalware/frugalware-current/frugalware-@CARCH@
+# SourceMirrors (100 MBit)
+Server = ftp://ftp6.frugalware.org/pub/linux/frugalware/frugalware-current/frugalware-@CARCH@
 # -------------
 # - AUSTRALIA -
 # -------------
 # PlanetMirror (Unknown bandwidth)
 Server = ftp://ftp13.frugalware.org/pub/frugalware/frugalware-current/frugalware-@CARCH@
+# -----------
+# - BELGIUM -
+# -----------
+# Belgian National Research Network (1 GBit)
+Server = ftp://ftp5.frugalware.org/packages/frugalware/pub/frugalware/frugalware-current/frugalware-@CARCH@
+# ----------
+# - FRENCH -
+# ----------
+# botux.net (100 MBit)
+Server = ftp://ftp7.frugalware.org/pub/frugalware/frugalware-current/frugalware-@CARCH@
 # -----------
 # - HUNGARY -
 # -----------
@@ -30,10 +42,3 @@ Server = ftp://ftp12.frugalware.org/mirrors/ftp.frugalware.org/pub/frugalware/fr
 # ----------
 # National Taiwan University (Unknown bandwidth)
 Server = ftp://ftp9.frugalware.org/pub/frugalware/frugalware-current/frugalware-@CARCH@
-# -------
-# - USA -
-# -------
-# SourceMirrors (100 MBit)
-Server = ftp://ftp6.frugalware.org/pub/linux/frugalware/frugalware-current/frugalware-@CARCH@
-# TDS Telecom (1 GBit)
-Server = ftp://ftp10.frugalware.org/pub/linux/frugalware/frugalware-current/frugalware-@CARCH@
