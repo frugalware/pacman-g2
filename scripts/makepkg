@@ -1535,10 +1535,41 @@ done
 msg "Preparing package documentation..."
 if [ ! "`check_option NODOCS`" -a "$NODOCS" = "0" ]; then
 	mkdir -p pkg/usr/share/doc/$pkgname-$pkgver
-	for i in `find src -maxdepth 2 -name ANNOUNCE -o -name AUTHORS -o -name *BUGS* -o -name CHANGES -o -name CONFIGURATION -o -name *COPYING* -o -name *COPYRIGHT* -o -name CREDITS -o -name ChangeLog -o -name Changelog -o -name CHANGELOG -o -name CONTRIBUTORS -o -name *FAQ* -o -name FEATURES -o -name FILES -o -name HACKING -o -name History -o -name HISTORY -o -name INSTALL* -o -name LICENSE -o -name LSM -o -name MANIFEST -o -name NEWS -o -name *README* -o -name *Readme* -o -name SITES -o -name *RELEASE* -o -name RELNOTES -o -name THANKS -o -name TIPS -o -name TODO -o -name VERSION -o -name CONFIGURATION* -o -name GPLLicense`
-	do
-		cp -a $i pkg/usr/share/doc/$pkgname-$pkgver/
-	done
+	find src -maxdepth 2 -name ANNOUNCE \
+		-or -name AUTHORS \
+		-or -name '*BUGS*' \
+		-or -name CHANGES \
+		-or -name CONFIGURATION \
+		-or -name '*COPYING*' \
+		-or -name '*COPYRIGHT*' \
+		-or -name CREDITS \
+		-or -name ChangeLog \
+		-or -name Changelog \
+		-or -name CHANGELOG \
+		-or -name CONTRIBUTORS \
+		-or -name '*FAQ*' \
+		-or -name FEATURES \
+		-or -name FILES \
+		-or -name HACKING \
+		-or -name History \
+		-or -name HISTORY \
+		-or -name 'INSTALL*' \
+		-or -name LICENSE \
+		-or -name LSM \
+		-or -name MANIFEST \
+		-or -name NEWS \
+		-or -name '*README*' \
+		-or -name '*Readme*' \
+		-or -name SITES \
+		-or -name '*RELEASE*' \
+		-or -name RELNOTES \
+		-or -name THANKS \
+		-or -name TIPS \
+		-or -name TODO \
+		-or -name VERSION \
+		-or -name 'CONFIGURATION*' \
+		-or -name GPLLicense \
+		-exec cp -a "{}" pkg/usr/share/doc/$pkgname-$pkgver/ \;
 fi
 for d in $startdir/{pkg,pkg.*}
 do
