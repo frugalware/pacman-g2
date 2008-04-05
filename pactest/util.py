@@ -204,14 +204,17 @@ def mkcfgfile(filename, root, option, db):
 def getmd5sum(filename):
 	"""
 	"""
-	fd = open(filename, "rb")
 	checksum = md5.new()
-	while 1:
-		block = fd.read(1048576)
-		if not block:
-			break
-		checksum.update(block)
-	fd.close()
+	try:
+		fd = open(filename, "rb")
+		while 1:
+			block = fd.read(1048576)
+			if not block:
+				break
+			checksum.update(block)
+		fd.close()
+	except IOError:
+		pass
 	digest = checksum.digest()
 	return "%02x"*len(digest) % tuple(map(ord, digest))
 
@@ -231,7 +234,7 @@ def mkmd5sum(data):
 def getmtime(filename):
 	"""
 	"""
-	st = os.stat(filename)
+	st = os.lstat(filename)
 	return st[stat.ST_ATIME], st[stat.ST_MTIME], st[stat.ST_CTIME]
 
 
