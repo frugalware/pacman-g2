@@ -1,5 +1,13 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.6.9         - makepkg: improved the chroot cleaning code
+              - makepkg: fixed ccache support
+              - properly continue a -Sy after a previous one was
+                interrupted (so no -Syy is necessary)
+              - new --with-chost parameter to configure (no longer
+                hardwire these values to configure.ac)
+              - add support for 7z files in makepkg
+              - other minor bugfixes
 3.6.8         - gensync has a new -c option for just checking missing files
               - makepkg now skips creating pkgs if $CARCH is not in archs()
 	        (gensync / updatesync already skipped those packages)
