@@ -256,7 +256,7 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 	pmlist_t *i, *j, *k;
 	char *filestr = NULL;
 	char path[PATH_MAX+1];
-	struct stat buf, buf2;
+	struct stat buf;
 	pmlist_t *conflicts = NULL;
 	pmlist_t *targets = trans->packages;
 	double percent;
@@ -323,20 +323,6 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 					}
 					if(dbpkg && _pacman_list_is_strin(j->data, dbpkg->files)) {
 						ok = 1;
-					}
-					/* Make sure that the supposedly-conflicting file is not actually just
-					 * a symlink that points to a path that used to exist in the package.
-					 */
-					/* Check if any part of the conflicting file's path is a symlink */
-					if(dbpkg && !ok) {
-						char str[PATH_MAX];
-						for(k = dbpkg->files; k; k = k->next) {
-							snprintf(str, PATH_MAX, "%s%s", root, (char*)k->data);
-							stat(str, &buf2);
-							if(buf.st_ino == buf2.st_ino) {
-								ok = 1;
-							}
-						}
 					}
 					/* Check if the conflicting file has been moved to another package/target */
 					if(!ok) {
