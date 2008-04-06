@@ -515,7 +515,7 @@ int main(int argc, char *argv[])
 
 	/* initialize pm library */
 	if(pacman_initialize(config->root) == -1) {
-		ERR(NL, _("failed to initilize pacman library (%s)\n"), pacman_strerror(pm_errno));
+		ERR(NL, _("failed to initialize pacman library (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
 
