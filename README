@@ -88,7 +88,7 @@ To avoid such conflicts, some function names have been prepended with
 "_pacman_".
 In a general manner, public library functions are named
 "pacman_<type>_<action>" (examples: pacman_trans_commit(),
-pacman_lib_release(), pacman_pkg_getinfo(), ...).
+pacman_release(), pacman_pkg_getinfo(), ...).
 Internal (and thus private) functions should be named "_pacman_XXX" for
 instance (examples: _pacman_needbackup(), _pacman_runscriplet(), ...).
 As of now, this scheme is only applied to most sensitive functions
@@ -109,12 +109,12 @@ low level objects should not be aware of the handle object, like chained
 list, package or groups structures.
 
 There is only one instance, created by the frontend upon
-"pacman_lib_init()" call, and destroyed upon "pacman_lib_release()" call.
+"pacman_init()" call, and destroyed upon "pacman_release()" call.
 
-pacman_lib_init() is used to initialize library internals and to create
+pacman_init() is used to initialize library internals and to create
 the handle object (handle != NULL).
 Before its call, the library can't be used.
-pacman_lib_release() just does the opposite (memory used by the library is
+pacman_release() just does the opposite (memory used by the library is
 freed, and handle is set to NULL).
 After its call, the library is no more available.
 
@@ -178,7 +178,7 @@ Options can be manipulated using calls to
 pacman_set_option()/pacman_get_option().
 
 Note: the file system root is a special option which can only be defined
-when calling pacman_lib_init(). It can't be modified afterwards.
+when calling pacman_init(). It can't be modified afterwards.
 
 
 [CACHE] (see cache.c)
@@ -277,7 +277,7 @@ perform a special action.
 
 [MAIN] (see pacman-g2.c)
 
-Calls for pacman_lib_init(), and pacman_lib_release().
+Calls for pacman_init(), and pacman_release().
 Read the configuration file, and parse command line arguments.
 Based on the action requested, it initiates the appropriate transactions
 (see pacman_add(), pacman_remove(), pacman_sync() in files add.c,
