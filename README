@@ -148,7 +148,7 @@ The frontend can't request for mixed operations: it has to run several
 transactions, one at a time, in such a case.
 
 The flags allow to tweak the library behaviour during its resolution.
-Note, that some options of the handle can also modify the behavior of a
+Note, that some options of the handle can also modify the behaviour of a
 transaction (NOUPGRADE, IGNOREPKG, ...).
 
 Note: once a transaction has been initiated, it is not possible anymore
@@ -210,7 +210,7 @@ name of the file, and infolevel is set to the highest possible value
 Otherwise, if the package comes from a database, data is a pointer to
 the database structure hosting the package, and infolevel is set
 according to the db_read() infolevel parameter (it is possible using
-db_read() to only read a part of the package datas).
+db_read() to only read a part of the package data).
 
 Indeed, to reduce database access, all packages data requested by the
 frontend are coming from the cache. As a consequence, the library needs
@@ -264,7 +264,7 @@ PACMAN-G2 frontend overview & internals
 
 Here are some words about the frontend responsibilities.
 The library can operate only a small set of well defined operations and
-dumy operations.
+dummy operations.
 
 High level features are left to the frontend ;)
 
@@ -287,7 +287,7 @@ remove.c and sync.c).
 [CONFIGURATION] (see conf.c)
 
 The frontend is using a configuration file, usually "/etc/pacman-g2.conf".
-Part of these options are only useful for the frontend only (mainly,
+Part of these options are useful for the frontend only (mainly,
 the download stuffs, and some options like HOLDPKG).
 The rest is used to configure the library.
 
@@ -299,7 +299,7 @@ Nothing new here, excepted some reorganization.
 The file pacman.c has been divided into several smaller files, namely
 add.c, remove.c, sync.c and query.c, to hold the big parts: pacman_add,
 pacman_remove, pacman_sync.
-These 3 functions have been splitted too to ease the code reading.
+These 3 functions have been splitted too in order to ease the code reading.
 
 
 [DOWNLOAD] (see download.c)
@@ -310,9 +310,6 @@ is linked against an improved version of libftp supporting both http and ftp
 downloads.  As a consequence, the library is responsible for the directory
 /var/cache/pacman-g2/pkgs.  One can consider that this cache is a facility
 provided by the library.
-
-Note: other frontends have to download packages by themselves too,
-although the cache directory can be shared by several frontends.
 
 
 [LIST] (see list.c)
