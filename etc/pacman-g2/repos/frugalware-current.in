@@ -26,6 +26,11 @@ Server = ftp://ftp5.frugalware.org/packages/frugalware/pub/frugalware/frugalware
 # botux.net (100 MBit)
 Server = ftp://ftp7.frugalware.org/pub/frugalware/frugalware-current/frugalware-@CARCH@
 # -----------
+# - GERMANY -
+# -----------
+# Schlund + Partner AG (10 MBit)
+Server = ftp://ftp8.frugalware.org/distro/frugalware/frugalware-current/frugalware-@CARCH@
+# -----------
 # - HUNGARY -
 # -----------
 # Schmidt Computer Ltd. (100 MBit)
