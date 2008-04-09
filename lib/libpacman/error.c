@@ -148,6 +148,8 @@ char *pacman_strerror(int err)
 			return _("could not create new cache directory");
 		case PM_ERR_WRONG_ARCH:
 			return _("this package is not for this architecture");
+		case PM_ERR_RETRIEVE:
+			return _("coult not retrieve the file");
 		default:
 			return _("unexpected error");
 	}

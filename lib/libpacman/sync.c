@@ -859,6 +859,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 				}
 				if(_pacman_downloadfiles(current->servers, ldir, files) == -1) {
 					_pacman_log(PM_LOG_WARNING, _("failed to retrieve some files from %s\n"), current->treename);
+					trans->state = STATE_INTERRUPTED;
 					RET_ERR(PM_ERR_RETRIEVE, -1);
 				}
 				FREELIST(files);

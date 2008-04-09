@@ -887,11 +887,14 @@ int pacman_trans_release()
 	ASSERT(trans->state != STATE_IDLE, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	/* during a commit do not interrupt inmediatelly, just after a target */
-	if(trans->state == STATE_COMMITING || trans->state == STATE_INTERRUPTED) {
+	if(trans->state == STATE_COMMITING || trans->state == STATE_DOWNLOADING) {
 		if(trans->state == STATE_COMMITING) {
 			trans->state = STATE_INTERRUPTED;
+			pm_errno = PM_ERR_TRANS_COMMITING;
+		} else if(trans->state == STATE_DOWNLOADING) {
+			trans->state = STATE_INTERRUPTED;
+			pm_errno = PM_ERR_TRANS_DOWNLOADING;
 		}
-		pm_errno = PM_ERR_TRANS_COMMITING;
 		return(-1);
 	}
 
