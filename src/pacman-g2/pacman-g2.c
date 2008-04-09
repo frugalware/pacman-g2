@@ -191,8 +191,10 @@ static void cleanup(int signum)
 		fprintf(stderr, "Internal pacman-g2 error: Segmentation fault\n"
 			"Please submit a full bug report, with the given package if appropriate.\n");
 		exit(signum);
-	} else if((signum == SIGINT) && (pacman_trans_release() == -1) && (pm_errno ==
-				PM_ERR_TRANS_COMMITING)) {
+	} else if((signum == SIGINT) && (pacman_trans_release() == -1) &&
+			((pm_errno == PM_ERR_TRANS_COMMITING) || (pm_errno == PM_ERR_TRANS_DOWNLOADING))) {
+		if(pm_errno == PM_ERR_TRANS_DOWNLOADING)
+			config->dl_interrupted = 1;
 		return;
 	}
 	if(signum != 0 && config->op_d_vertest == 0) {

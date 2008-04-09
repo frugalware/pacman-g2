@@ -609,18 +609,17 @@ int syncpkg(list_t *targets)
 					}
 				}
 				pacman_list_free(data);
-				MSG(NL, _("\nerrors occurred, no packages were upgraded.\n"));
 			break;
 			case PM_ERR_PKG_CORRUPTED:
 				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
 					MSG(NL, "%s", (char*)pacman_list_getdata(lp));
 				}
 				pacman_list_free(data);
-				MSG(NL, _("\nerrors occurred, no packages were upgraded.\n"));
 			break;
 			default:
 			break;
 		}
+		MSG(NL, _("\nerrors occurred, no packages were upgraded.\n"));
 		retval = 1;
 		goto cleanup;
 	}

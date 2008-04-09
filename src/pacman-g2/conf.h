@@ -59,6 +59,7 @@ typedef struct __config_t {
 	unsigned short noask;
 	unsigned int ask;
 	unsigned short regex;
+	unsigned short dl_interrupted;
 } config_t;
 
 #define FREECONF(p) do { if(p) { config_free(p); p = NULL; } } while(0)
