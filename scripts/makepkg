@@ -1047,6 +1047,9 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	
 	msg "Copying config files to chroot"
 	cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
+	if [ -d ~/.pacman-g2/repos ]; then
+		cp -pf ~/.pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
+	fi
 	for i in makepkg.conf resolv.conf passwd shadow group fstab mtab
 	do
 		cp -pf /etc/$i $CHROOTDIR/etc >/dev/null
