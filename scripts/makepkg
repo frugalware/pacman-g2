@@ -383,12 +383,12 @@ chroot_umount() {
 
 chroot_mount() {
     msg "Attempting to mount chroot directories..."
-    mount -t proc none $CHROOTDIR/proc >/dev/null &
-    mount -t sysfs none $CHROOTDIR/sys >/dev/null &
-    mount -o bind /dev $CHROOTDIR/dev >/dev/null &
-    mount -o bind /var/cache/pacman-g2 $CHROOTDIR/var/cache/pacman-g2 >/dev/null &
+    mount -t proc none $CHROOTDIR/proc >/dev/null
+    mount -t sysfs none $CHROOTDIR/sys >/dev/null
+    mount -o bind /dev $CHROOTDIR/dev >/dev/null
+    mount -o bind /var/cache/pacman-g2 $CHROOTDIR/var/cache/pacman-g2 >/dev/null
     mount -o bind /var/cache/ccache/$pkgname \
-    $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null &
+    $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
     if [ "$?" != "0" ]; then
 	error "An error occurred while attempting to mount chroot directories."
 	exit 1
@@ -1046,16 +1046,16 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	chmod 1777 $CHROOTDIR/{var,}/tmp
 	
 	msg "Copying config files to chroot"
-	cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null &
+	cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
 	for i in makepkg.conf resolv.conf passwd shadow group fstab mtab
 	do
-		cp -pf /etc/$i $CHROOTDIR/etc >/dev/null &
+		cp -pf /etc/$i $CHROOTDIR/etc >/dev/null
 	done
 	chmod 644 $CHROOTDIR/etc/sudoers
 	$ECHO "fst ALL=(ALL)       NOPASSWD: ALL" >$CHROOTDIR/etc/sudoers
 	chmod 440 $CHROOTDIR/etc/sudoers
-	cp -Ppf /etc/localtime $CHROOTDIR/etc >/dev/null &
-	cp -pf /etc/services $CHROOTDIR/etc > /dev/null &
+	cp -Ppf /etc/localtime $CHROOTDIR/etc >/dev/null
+	cp -pf /etc/services $CHROOTDIR/etc > /dev/null
 	if [ "$?" != "0" ]; then
 		error "An error occurred while attempting to copy config files to chroot."
 		chroot_umount
