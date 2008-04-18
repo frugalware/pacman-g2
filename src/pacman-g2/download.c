@@ -69,8 +69,10 @@ int log_progress(PM_NETBUF *ctl, int xfered, void *arg)
 	unsigned int maxpkglen;
 	static char prev_fnm[DLFNM_PROGRESS_LEN+1]="";
 
-	if(config->dl_interrupted)
+	if(config->dl_interrupted) {
+		printf("\n");
 		return 0;
+	}
 
 	/* we don't need that parameter */
 	ctl=NULL;
