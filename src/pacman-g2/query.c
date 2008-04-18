@@ -217,8 +217,14 @@ int querypkg(list_t *targets)
 						dump_pkg_files(info);
 					}
 					if(config->op_q_orphans) {
+						int reason;
+						if(config->op_q_orphans_deps) {
+							reason = PM_PKG_REASON_EXPLICIT;
+						} else {
+							reason = PM_PKG_REASON_DEPEND;
+						}
 						if(pacman_pkg_getinfo(info, PM_PKG_REQUIREDBY) == NULL
-						   && (long)pacman_pkg_getinfo(info, PM_PKG_REASON) == PM_PKG_REASON_DEPEND) {
+						   && (long)pacman_pkg_getinfo(info, PM_PKG_REASON) == reason) {
 							MSG(NL, "%s %s\n", pkgname, pkgver);
 						}
 					} 

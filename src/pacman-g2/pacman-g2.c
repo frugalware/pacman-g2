@@ -130,6 +130,8 @@ static void usage(int op, char *myname)
 			printf(_("usage:  %s {-Q --query} [options] [package]\n"), myname);
 			printf(_("options:\n"));
 			printf(_("  -c, --changelog     view the changelog of a package\n"));
+			printf(_("  -d, --nodeps        if used with -e, list packages that were not installed\n"));
+			printf(_("                      as a dependency\n"));
 			printf(_("  -e, --orphans       list all packages that were installed as a dependency\n"));
 			printf(_("                      and are not required by any other packages\n"));
 			printf(_("  -g, --groups        view all members of a package group\n"));
@@ -345,7 +347,7 @@ static int parseargs(int argc, char *argv[])
 				config->flags |= PM_TRANS_FLAG_CASCADE;
 				config->op_q_changelog = 1;
 			break;
-			case 'd': config->flags |= PM_TRANS_FLAG_NODEPS; break;
+			case 'd': config->flags |= PM_TRANS_FLAG_NODEPS; config->op_q_orphans_deps = 1; break;
 			case 'e': config->op_q_orphans = 1; config->flags |= PM_TRANS_FLAG_DEPENDSONLY; break;
 			case 'f': config->flags |= PM_TRANS_FLAG_FORCE; break;
 			case 'g': config->group++; break;

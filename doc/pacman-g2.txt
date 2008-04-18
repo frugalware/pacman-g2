@@ -211,6 +211,10 @@ pacman-g2 packages are in a bzipped tar format.
 -c, --changelog::
 	View the changelog of a package.
 
+-d, --nodeps::
+	When used with -e, list all packages that were not installed as
+        a dependency and are not required by any other packages.
+
 -e, --orphans::
 	List all packages that were installed as a dependency (ie, not installed
 	explicitly) and are not required by any other packages.
