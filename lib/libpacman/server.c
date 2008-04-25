@@ -175,14 +175,13 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		*howmany = _pacman_list_count(files);
 	}
 	if(remain) {
-		*remain = 0;
+		*remain = 1;
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
 	for(i = servers; i && !done; i = i->next) {
 		_pacman_log(PM_LOG_DEBUG, _("server check, done? %d\n"),done);
 		pmserver_t *server = (pmserver_t*)i->data;
-
 		if(!handle->xfercommand && strcmp(server->protocol, "file")) {
 			if(!strcmp(server->protocol, "ftp") && !handle->proxyhost) {
 				FtpInit();
@@ -243,10 +242,6 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 
 			if(_pacman_list_is_strin(fn, complete)) {
 				continue;
-			}
-
-			if(remain) {
-				*remain += 1;
 			}
 
 			if(handle->xfercommand && strcmp(server->protocol, "file")) {
@@ -513,6 +508,9 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					/* rename "output.part" file to "output" file */
 					snprintf(completefile, PATH_MAX, "%s/%s", localpath, fn);
 					rename(output, completefile);
+					if(remain) {
+						(*remain)++;
+					}
 				} else if(filedone < 0) {
 					/* 1 means here that the file is up to date, not a real error, so
 					 * don't go to error: */
