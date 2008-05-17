@@ -1239,6 +1239,7 @@ if grep -i -q "^# Compiling Time: [~0-9\.]\+ SBU$" $BUILDSCRIPT && \
 		warning "Cannot find the bc binary! Is bc installed? Skipping calculating the estimated build time."
 	else
 		secs=`$ECHO "$pkgsbu*$SBU"|bc /dev/stdin|sed 's/\.[0-9]*$//'`
+		[ -z "$secs" ] && secs=0
 		if [ $secs -ge 3600 ]; then
 			hrs=`$ECHO $(($secs/3600))`
 			secs=`$ECHO $(($secs%3600))`
