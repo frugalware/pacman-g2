@@ -85,7 +85,7 @@ pmhandle_t *_pacman_handle_new()
 	handle->cachedir = strdup(PM_CACHEDIR);
 	handle->hooksdir = strdup(PM_HOOKSDIR);
 
-	handle->language = setlocale(LC_ALL, NULL);
+	handle->language = strdup(setlocale(LC_ALL, NULL));
 
 	return(handle);
 }
@@ -110,6 +110,7 @@ int _pacman_handle_free(pmhandle_t *handle)
 	FREE(handle->dbpath);
 	FREE(handle->cachedir);
 	FREE(handle->hooksdir);
+	FREE(handle->language);
 	FREE(handle->logfile);
 	FREE(handle->proxyhost);
 	FREE(handle->xfercommand);
