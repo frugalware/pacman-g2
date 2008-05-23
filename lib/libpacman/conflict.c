@@ -328,17 +328,17 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 					if(!ok) {
 						/* Look at all the targets */
 						for(k = targets; k && !ok; k = k->next) {
-							pmpkg_t *p1 = (pmpkg_t *)k->data;
+							pmpkg_t *p2 = (pmpkg_t *)k->data;
 							/* As long as they're not the current package */
-							if(strcmp(p1->name, p->name)) {
+							if(strcmp(p2->name, p->name)) {
 								pmpkg_t *dbpkg2 = NULL;
-								dbpkg2 = _pacman_db_get_pkgfromcache(db, p1->name);
+								dbpkg2 = _pacman_db_get_pkgfromcache(db, p2->name);
 								if(dbpkg2 && !(dbpkg2->infolevel & INFRQ_FILES)) {
 									_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg2->name);
 									_pacman_db_read(db, INFRQ_FILES, dbpkg2);
 								}
 								/* If it used to exist in there, but doesn't anymore */
-								if(dbpkg2 && !_pacman_list_is_strin(filestr, p1->files) && _pacman_list_is_strin(filestr, dbpkg2->files)) {
+								if(dbpkg2 && !_pacman_list_is_strin(filestr, p2->files) && _pacman_list_is_strin(filestr, dbpkg2->files)) {
 									ok = 1;
 									/* Add to the "skip list" of files that we shouldn't remove during an upgrade.
 									 *
