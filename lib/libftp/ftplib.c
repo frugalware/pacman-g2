@@ -1564,18 +1564,18 @@ GLOBALREF int HttpGet(const char *host, const char *outputfile, const char *path
 	while (1)
 	{
 		int ret = 0;
-		char *buf = nControl->response;
+		char *ptr = nControl->response;
 		while (ret < 256) {
 			if (socket_wait(nControl) != 1)
 				return 0;
-			if (net_read(nControl->handle,buf,1) != 1)
+			if (net_read(nControl->handle,ptr,1) != 1)
 				break;
 			ret++;
-			if (*buf == '\r') continue;
-			if (*buf == '\n') break;
-			buf++;
+			if (*ptr == '\r') continue;
+			if (*ptr == '\n') break;
+			ptr++;
 		}
-		*buf = 0;
+		*ptr = 0;
 		if (strstr(nControl->response,"Content-Length"))
 		{
 			sscanf(nControl->response,"Content-Length: %d",size);
