@@ -63,7 +63,7 @@ static void usage(const char *appname)
 
 static void readfd(int fd)
 {
-	size_t buffer_read = 0;
+	ssize_t buffer_read = 0;
 	ssize_t buffer_left = -1; // Extra '\0' at the end.
 
 	do {
