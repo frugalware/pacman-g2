@@ -181,7 +181,7 @@ sha_process_bytes (const void *buffer, size_t len, struct sha_ctx *ctx)
   /* Process available complete blocks.  */
   if (len >= 64)
     {
-#if !_STRING_ARCH_unaligned
+#if !defined(_STRING_ARCH_unaligned) || !_STRING_ARCH_unaligned
 /* To check alignment gcc has an appropriate operator.  Other
    compilers don't.  */
 # if __GNUC__ >= 2
