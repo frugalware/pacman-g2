@@ -31,9 +31,9 @@ typedef struct __list_t {
 
 #define FREELIST(p) do { if(p) { list_free(p); p = NULL; } } while(0)
 #define FREELISTPTR(p) do { \
-	list_t *i; \
-	for(i = p; i; i = i->next) { \
-		i->data = NULL; \
+	list_t *q; \
+	for(q = p; q; q = q->next) { \
+		q->data = NULL; \
 	} \
 	FREELIST(p); \
 } while(0)

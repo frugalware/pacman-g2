@@ -107,22 +107,22 @@ int querypkg(list_t *targets)
 			if(targets == NULL) {
 				for(lp = pacman_db_getgrpcache(db_local); lp; lp = pacman_list_next(lp)) {
 					PM_GRP *grp = pacman_list_getdata(lp);
-					PM_LIST *i, *pkgnames;
+					PM_LIST *lq, *pkgnames;
 					char *grpname;
 
 					grpname = pacman_grp_getinfo(grp, PM_GRP_NAME);
 					pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
 
-					for(i = pkgnames; i; i = pacman_list_next(i)) {
-						MSG(NL, "%s %s\n", grpname, (char *)pacman_list_getdata(i));
+					for(lq = pkgnames; lq; lq = pacman_list_next(lq)) {
+						MSG(NL, "%s %s\n", grpname, (char *)pacman_list_getdata(lq));
 					}
 				}
 			} else {
 				PM_GRP *grp = pacman_db_readgrp(db_local, package);
 				if(grp) {
-					PM_LIST *i, *pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
-					for(i = pkgnames; i; i = pacman_list_next(i)) {
-						MSG(NL, "%s %s\n", package, (char *)pacman_list_getdata(i));
+					PM_LIST *lq, *pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
+					for(lq = pkgnames; lq; lq = pacman_list_next(lq)) {
+						MSG(NL, "%s %s\n", package, (char *)pacman_list_getdata(lq));
 					}
 				} else {
 					ERR(NL, _("group \"%s\" was not found\n"), package);

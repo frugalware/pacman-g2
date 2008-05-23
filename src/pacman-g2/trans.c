@@ -292,7 +292,7 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 	}
 }
 
-void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howmany, int remain)
+void cb_trans_progress(unsigned char event, char *pkgname, int percent, int count, int remaining)
 {
 	int i, hash;
 	unsigned int maxpkglen, progresslen = maxcols - 57;
@@ -337,7 +337,7 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 	hash=percent*progresslen/100;
 
 	// if the package name is too long, then slice the ending
-	maxpkglen=46-strlen(ptr)-(3+2*(int)log10(howmany));
+	maxpkglen=46-strlen(ptr)-(3+2*(int)log10(count));
 	if(strlen(pkgname)>maxpkglen)
 		pkgname[maxpkglen-1]='\0';
 
@@ -346,9 +346,9 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 	case PM_TRANS_PROGRESS_UPGRADE_START:
 	case PM_TRANS_PROGRESS_REMOVE_START:
 		putchar('(');
-		for(i=0;i<(int)log10(howmany)-(int)log10(remain);i++)
+		for(i=0;i<(int)log10(count)-(int)log10(remaining);i++)
 			putchar(' ');
-		printf("%d/%d) %s %s ", remain, howmany, ptr, pkgname);
+		printf("%d/%d) %s %s ", remaining, count, ptr, pkgname);
 		if (strlen(pkgname)<maxpkglen)
 			for (i=maxpkglen-strlen(pkgname)-1; i>0; i--)
 				putchar(' ');
@@ -357,9 +357,9 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 	case PM_TRANS_PROGRESS_INTERCONFLICTS_START:
 	case PM_TRANS_PROGRESS_CONFLICTS_START:
 		printf("%s (", ptr);
-		for(i=0;i<(int)log10(howmany)-(int)log10(remain);i++)
+		for(i=0;i<(int)log10(count)-(int)log10(remaining);i++)
 			putchar(' ');
-		printf("%d/%d) ", remain, howmany);
+		printf("%d/%d) ", remaining, count);
 		for (i=maxpkglen; i>0; i--)
 			putchar(' ');
 		break;
@@ -375,7 +375,7 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howm
 	MSG(CL, "] %3d%%\r", percent);
 	/* avoid adding a new line for the last package */
 	if(percent == 100 && (event == PM_TRANS_PROGRESS_ADD_START || event ==
-			PM_TRANS_PROGRESS_UPGRADE_START) && remain != howmany) {
+			PM_TRANS_PROGRESS_UPGRADE_START) && remaining != count) {
 		MSG(NL, "");
 	}
 	FREE(addstr);

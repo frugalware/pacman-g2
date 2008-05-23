@@ -324,8 +324,8 @@ int syncpkg(list_t *targets)
 		 */
 		data = pacman_trans_getinfo(PM_TRANS_PACKAGES);
 		for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
-			PM_SYNCPKG *sync = pacman_list_getdata(lp);
-			PM_PKG *spkg = pacman_sync_getinfo(sync, PM_SYNC_PKG);
+			PM_SYNCPKG *ps = pacman_list_getdata(lp);
+			PM_PKG *spkg = pacman_sync_getinfo(ps, PM_SYNC_PKG);
 			if(!strcmp("pacman-g2", pacman_pkg_getinfo(spkg, PM_PKG_NAME)) && pacman_list_count(data) > 1) {
 				MSG(NL, _("\n:: pacman-g2 has detected a newer version of the \"pacman-g2\" package.\n"));
 				MSG(NL, _(":: It is recommended that you allow pacman-g2 to upgrade itself\n"));
@@ -506,16 +506,16 @@ int syncpkg(list_t *targets)
 		double mb, umb;
 
 		for(lp = pacman_list_first(packages); lp; lp = pacman_list_next(lp)) {
-			PM_SYNCPKG *sync = pacman_list_getdata(lp);
-			PM_PKG *pkg = pacman_sync_getinfo(sync, PM_SYNC_PKG);
+			PM_SYNCPKG *ps = pacman_list_getdata(lp);
+			PM_PKG *pkg = pacman_sync_getinfo(ps, PM_SYNC_PKG);
 			char *pkgname, *pkgver;
 
-			if((long)pacman_sync_getinfo(sync, PM_SYNC_TYPE) == PM_SYNC_TYPE_REPLACE) {
-				PM_LIST *j, *data;
-				data = pacman_sync_getinfo(sync, PM_SYNC_DATA);
+			if((long)pacman_sync_getinfo(ps, PM_SYNC_TYPE) == PM_SYNC_TYPE_REPLACE) {
+				PM_LIST *j;
+				data = pacman_sync_getinfo(ps, PM_SYNC_DATA);
 				for(j = pacman_list_first(data); j; j = pacman_list_next(j)) {
 					PM_PKG *p = pacman_list_getdata(j);
-					char *pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
+					pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
 					if(!list_is_strin(pkgname, list_remove)) {
 						list_remove = list_add(list_remove, strdup(pkgname));
 					}

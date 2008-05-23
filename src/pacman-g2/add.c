@@ -87,13 +87,13 @@ int addpkg(list_t *targets)
 	 */
 	if(pacman_trans_prepare(&data) == -1) {
 		long long *pkgsize, *freespace;
-		PM_LIST *i;
+		PM_LIST *lp;
 
 		ERR(NL, _("failed to prepare transaction (%s)\n"), pacman_strerror(pm_errno));
 		switch(pm_errno) {
 			case PM_ERR_UNSATISFIED_DEPS:
-				for(i = pacman_list_first(data); i; i = pacman_list_next(i)) {
-					PM_DEPMISS *miss = pacman_list_getdata(i);
+				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+					PM_DEPMISS *miss = pacman_list_getdata(lp);
 					MSG(NL, _(":: %s: requires %s"), pacman_dep_getinfo(miss, PM_DEP_TARGET),
 					                              pacman_dep_getinfo(miss, PM_DEP_NAME));
 					switch((long)pacman_dep_getinfo(miss, PM_DEP_MOD)) {
@@ -106,16 +106,16 @@ int addpkg(list_t *targets)
 				pacman_list_free(data);
 			break;
 			case PM_ERR_CONFLICTING_DEPS:
-				for(i = pacman_list_first(data); i; i = pacman_list_next(i)) {
-					PM_DEPMISS *miss = pacman_list_getdata(i);
+				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+					PM_DEPMISS *miss = pacman_list_getdata(lp);
 					MSG(NL, _(":: %s: conflicts with %s"),
 						pacman_dep_getinfo(miss, PM_DEP_TARGET), pacman_dep_getinfo(miss, PM_DEP_NAME));
 				}
 				pacman_list_free(data);
 			break;
 			case PM_ERR_FILE_CONFLICTS:
-				for(i = pacman_list_first(data); i; i = pacman_list_next(i)) {
-					PM_CONFLICT *conflict = pacman_list_getdata(i);
+				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+					PM_CONFLICT *conflict = pacman_list_getdata(lp);
 					switch((long)pacman_conflict_getinfo(conflict, PM_CONFLICT_TYPE)) {
 						case PM_CONFLICT_TYPE_TARGET:
 							MSG(NL, _("%s%s exists in \"%s\" (target) and \"%s\" (target)"),
@@ -136,10 +136,10 @@ int addpkg(list_t *targets)
 				MSG(NL, _("\nerrors occurred, no packages were upgraded.\n"));
 			break;
 			case PM_ERR_DISK_FULL:
-				i = pacman_list_first(data);
-				pkgsize = pacman_list_getdata(i);
-				i = pacman_list_next(i);
-				freespace = pacman_list_getdata(i);
+				lp = pacman_list_first(data);
+				pkgsize = pacman_list_getdata(lp);
+				lp = pacman_list_next(lp);
+				freespace = pacman_list_getdata(lp);
 					MSG(NL, _(":: %.1f MB required, have %.1f MB"),
 						(double)(*pkgsize / 1048576.0), (double)(*freespace / 1048576.0));
 				pacman_list_free(data);
