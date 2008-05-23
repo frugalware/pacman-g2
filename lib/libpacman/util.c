@@ -673,9 +673,9 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 	for(i = trans->packages; i; i = i->next) {
 		if(trans->type == PM_TRANS_TYPE_SYNC)
 		{
-			pmsyncpkg_t *sync = i->data;
-			if(sync->type != PM_SYNC_TYPE_REPLACE) {
-				pmpkg_t *pkg = sync->pkg;
+			pmsyncpkg_t *ps = i->data;
+			if(ps->type != PM_SYNC_TYPE_REPLACE) {
+				pmpkg_t *pkg = ps->pkg;
 				pkgsize += pkg->usize;
 			}
 		}
