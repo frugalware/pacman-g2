@@ -42,8 +42,6 @@
 #include "versioncmp.h"
 #include "handle.h"
 
-extern pmhandle_t *handle;
-
 static pmgraph_t *_pacman_graph_new(void)
 {
 	pmgraph_t *graph = NULL;
@@ -130,9 +128,9 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 
 	/* We create the vertices */
 	for(i = targets; i; i = i->next) {
-		pmgraph_t *vertex = _pacman_graph_new();
-		vertex->data = (void *)i->data;
-		vertices = _pacman_list_add(vertices, vertex);
+		pmgraph_t *v = _pacman_graph_new();
+		v->data = (void *)i->data;
+		vertices = _pacman_list_add(vertices, v);
 	}
 
 	/* We compute the edges */
@@ -412,8 +410,8 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmli
 					for(k=trans->packages; !found && k; k=k->next) {
 						pmpkg_t *spkg = NULL;
 					if(trans->type == PM_TRANS_TYPE_SYNC) {
-						pmsyncpkg_t *sync = k->data;
-						spkg = sync->pkg;
+						pmsyncpkg_t *ps = k->data;
+						spkg = ps->pkg;
 					} else {
 						spkg = k->data;
 					}
@@ -587,7 +585,7 @@ int _pacman_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pml
 	for(i = deps; i; i = i->next) {
 		int found = 0;
 		pmdepmissing_t *miss = i->data;
-		pmpkg_t *sync = NULL;
+		pmpkg_t *ps = NULL;
 
 		/* check if one of the packages in *list already provides this dependency */
 		for(j = list; j && !found; j = j->next) {
@@ -604,19 +602,19 @@ int _pacman_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pml
 
 		/* find the package in one of the repositories */
 		/* check literals */
-		for(j = dbs_sync; !sync && j; j = j->next) {
-			sync = _pacman_db_get_pkgfromcache(j->data, miss->depend.name);
+		for(j = dbs_sync; !ps && j; j = j->next) {
+			ps = _pacman_db_get_pkgfromcache(j->data, miss->depend.name);
 		}
 		/* check provides */
-		for(j = dbs_sync; !sync && j; j = j->next) {
+		for(j = dbs_sync; !ps && j; j = j->next) {
 			pmlist_t *provides;
 			provides = _pacman_db_whatprovides(j->data, miss->depend.name);
 			if(provides) {
-				sync = provides->data;
+				ps = provides->data;
 			}
 			FREELISTPTR(provides);
 		}
-		if(sync == NULL) {
+		if(ps == NULL) {
 			_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"),
 			          miss->target, miss->depend.name);
 			if(data) {
@@ -632,31 +630,31 @@ int _pacman_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pml
 			pm_errno = PM_ERR_UNSATISFIED_DEPS;
 			goto error;
 		}
-		if(_pacman_pkg_isin(sync->name, list)) {
+		if(_pacman_pkg_isin(ps->name, list)) {
 			/* this dep is already in the target list */
 			_pacman_log(PM_LOG_DEBUG, _("dependency %s is already in the target list -- skipping"),
-			          sync->name);
+			          ps->name);
 			continue;
 		}
 
-		if(!_pacman_pkg_isin(sync->name, trail)) {
+		if(!_pacman_pkg_isin(ps->name, trail)) {
 			/* check pmo_ignorepkg and pmo_s_ignore to make sure we haven't pulled in
 			 * something we're not supposed to.
 			 */
 			int usedep = 1;
-			if(_pacman_list_is_strin(sync->name, handle->ignorepkg)) {
+			if(_pacman_list_is_strin(ps->name, handle->ignorepkg)) {
 				pmpkg_t *dummypkg = _pacman_pkg_new(miss->target, NULL);
-				QUESTION(trans, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg, sync, NULL, &usedep);
+				QUESTION(trans, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg, ps, NULL, &usedep);
 				FREEPKG(dummypkg);
 			}
 			if(usedep) {
-				trail = _pacman_list_add(trail, sync);
-				if(_pacman_resolvedeps(local, dbs_sync, sync, list, trail, trans, data)) {
+				trail = _pacman_list_add(trail, ps);
+				if(_pacman_resolvedeps(local, dbs_sync, ps, list, trail, trans, data)) {
 					goto error;
 				}
 				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s (needed by %s)"),
-				          sync->name, syncpkg->name);
-				list = _pacman_list_add(list, sync);
+				          ps->name, syncpkg->name);
+				list = _pacman_list_add(list, ps);
 			} else {
 				_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\""), miss->target);
 				if(data) {
@@ -674,7 +672,7 @@ int _pacman_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pml
 			}
 		} else {
 			/* cycle detected -- skip it */
-			_pacman_log(PM_LOG_DEBUG, _("dependency cycle detected: %s"), sync->name);
+			_pacman_log(PM_LOG_DEBUG, _("dependency cycle detected: %s"), ps->name);
 		}
 	}
 
