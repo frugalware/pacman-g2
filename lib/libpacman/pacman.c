@@ -669,17 +669,17 @@ void *pacman_grp_getinfo(pmgrp_t *grp, unsigned char parm)
  * @param parm name of the info to get
  * @return a void* on success (the value), NULL on error
  */
-void *pacman_sync_getinfo(pmsyncpkg_t *sync, unsigned char parm)
+void *pacman_sync_getinfo(pmsyncpkg_t *ps, unsigned char parm)
 {
 	void *data;
 
 	/* Sanity checks */
-	ASSERT(sync != NULL, return(NULL));
+	ASSERT(ps != NULL, return(NULL));
 
 	switch(parm) {
-		case PM_SYNC_TYPE: data = (void *)(long)sync->type; break;
-		case PM_SYNC_PKG:  data = sync->pkg; break;
-		case PM_SYNC_DATA: data = sync->data; break;
+		case PM_SYNC_TYPE: data = (void *)(long)ps->type; break;
+		case PM_SYNC_PKG:  data = ps->pkg; break;
+		case PM_SYNC_DATA: data = ps->data; break;
 		default:
 			data = NULL;
 		break;

@@ -45,179 +45,179 @@
 
 pmhandle_t *_pacman_handle_new()
 {
-	pmhandle_t *handle;
+	pmhandle_t *ph;
 
-	handle = (pmhandle_t *)malloc(sizeof(pmhandle_t));
-	if(handle == NULL) {
+	ph = (pmhandle_t *)malloc(sizeof(pmhandle_t));
+	if(ph == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmhandle_t));
 		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
 
-	memset(handle, 0, sizeof(pmhandle_t));
-	handle->lckfd = -1;
-	handle->maxtries = 1;
+	memset(ph, 0, sizeof(pmhandle_t));
+	ph->lckfd = -1;
+	ph->maxtries = 1;
 
 #ifndef CYGWIN
 	/* see if we're root or not */
-	handle->uid = geteuid();
+	ph->uid = geteuid();
 #ifndef FAKEROOT
-	if(!handle->uid && getenv("FAKEROOTKEY")) {
+	if(!ph->uid && getenv("FAKEROOTKEY")) {
 		/* fakeroot doesn't count, we're non-root */
-		handle->uid = 99;
+		ph->uid = 99;
 	}
 #endif
 
 	/* see if we're root or not (fakeroot does not count) */
 #ifndef FAKEROOT
-	if(handle->uid == 0 && !getenv("FAKEROOTKEY")) {
+	if(ph->uid == 0 && !getenv("FAKEROOTKEY")) {
 #else
-	if(handle->uid == 0) {
+	if(ph->uid == 0) {
 #endif
-		handle->access = PM_ACCESS_RW;
+		ph->access = PM_ACCESS_RW;
 	} else {
-		handle->access = PM_ACCESS_RO;
+		ph->access = PM_ACCESS_RO;
 	}
 #else
-	handle->access = PM_ACCESS_RW;
+	ph->access = PM_ACCESS_RW;
 #endif
 
-	handle->dbpath = strdup(PM_DBPATH);
-	handle->cachedir = strdup(PM_CACHEDIR);
-	handle->hooksdir = strdup(PM_HOOKSDIR);
+	ph->dbpath = strdup(PM_DBPATH);
+	ph->cachedir = strdup(PM_CACHEDIR);
+	ph->hooksdir = strdup(PM_HOOKSDIR);
 
-	handle->language = strdup(setlocale(LC_ALL, NULL));
+	ph->language = strdup(setlocale(LC_ALL, NULL));
 
-	return(handle);
+	return(ph);
 }
 
-int _pacman_handle_free(pmhandle_t *handle)
+int _pacman_handle_free(pmhandle_t *ph)
 {
-	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
+	ASSERT(ph != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
 	/* close logfiles */
-	if(handle->logfd) {
-		fclose(handle->logfd);
-		handle->logfd = NULL;
+	if(ph->logfd) {
+		fclose(ph->logfd);
+		ph->logfd = NULL;
 	}
-	if(handle->usesyslog) {
-		handle->usesyslog = 0;
+	if(ph->usesyslog) {
+		ph->usesyslog = 0;
 		closelog();
 	}
 
 	/* free memory */
-	FREETRANS(handle->trans);
-	FREE(handle->root);
-	FREE(handle->dbpath);
-	FREE(handle->cachedir);
-	FREE(handle->hooksdir);
-	FREE(handle->language);
-	FREE(handle->logfile);
-	FREE(handle->proxyhost);
-	FREE(handle->xfercommand);
-	FREELIST(handle->dbs_sync);
-	FREELIST(handle->noupgrade);
-	FREELIST(handle->noextract);
-	FREELIST(handle->ignorepkg);
-	FREELIST(handle->holdpkg);
-	FREELIST(handle->needles);
-	free(handle);
+	FREETRANS(ph->trans);
+	FREE(ph->root);
+	FREE(ph->dbpath);
+	FREE(ph->cachedir);
+	FREE(ph->hooksdir);
+	FREE(ph->language);
+	FREE(ph->logfile);
+	FREE(ph->proxyhost);
+	FREE(ph->xfercommand);
+	FREELIST(ph->dbs_sync);
+	FREELIST(ph->noupgrade);
+	FREELIST(ph->noextract);
+	FREELIST(ph->ignorepkg);
+	FREELIST(ph->holdpkg);
+	FREELIST(ph->needles);
+	free(ph);
 
 	return(0);
 }
 
-int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long data)
+int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long data)
 {
 	/* Sanity checks */
-	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
+	ASSERT(ph != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
 	char *p;
 	switch(val) {
 		case PM_OPT_DBPATH:
-			if(handle->dbpath) {
-				FREE(handle->dbpath);
+			if(ph->dbpath) {
+				FREE(ph->dbpath);
 			}
-			handle->dbpath = strdup((data && strlen((char *)data) != 0) ? (char *)data : PM_DBPATH);
-			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_DBPATH set to '%s'"), handle->dbpath);
+			ph->dbpath = strdup((data && strlen((char *)data) != 0) ? (char *)data : PM_DBPATH);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_DBPATH set to '%s'"), ph->dbpath);
 		break;
 		case PM_OPT_CACHEDIR:
-			if(handle->cachedir) {
-				FREE(handle->cachedir);
+			if(ph->cachedir) {
+				FREE(ph->cachedir);
 			}
-			handle->cachedir = strdup((data && strlen((char *)data) != 0) ? (char *)data : PM_CACHEDIR);
-			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_CACHEDIR set to '%s'"), handle->cachedir);
+			ph->cachedir = strdup((data && strlen((char *)data) != 0) ? (char *)data : PM_CACHEDIR);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_CACHEDIR set to '%s'"), ph->cachedir);
 		break;
 		case PM_OPT_HOOKSDIR:
-			if(handle->hooksdir) {
-				FREE(handle->hooksdir);
+			if(ph->hooksdir) {
+				FREE(ph->hooksdir);
 			}
-			handle->hooksdir = strdup((data && strlen((char *)data) != 0) ? (char *)data : PM_HOOKSDIR);
-			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_HOOKSDIR set to '%s'"), handle->hooksdir);
+			ph->hooksdir = strdup((data && strlen((char *)data) != 0) ? (char *)data : PM_HOOKSDIR);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_HOOKSDIR set to '%s'"), ph->hooksdir);
 		break;
 		case PM_OPT_LOGFILE:
-			if((char *)data == NULL || handle->uid != 0) {
+			if((char *)data == NULL || ph->uid != 0) {
 				return(0);
 			}
-			if(handle->logfile) {
-				FREE(handle->logfile);
+			if(ph->logfile) {
+				FREE(ph->logfile);
 			}
-			if(handle->logfd) {
-				if(fclose(handle->logfd) != 0) {
-					handle->logfd = NULL;
+			if(ph->logfd) {
+				if(fclose(ph->logfd) != 0) {
+					ph->logfd = NULL;
 					RET_ERR(PM_ERR_OPT_LOGFILE, -1);
 				}
-				handle->logfd = NULL;
+				ph->logfd = NULL;
 			}
 			char path[PATH_MAX];
-			snprintf(path, PATH_MAX, "%s/%s", handle->root, (char *)data);
-			if((handle->logfd = fopen(path, "a")) == NULL) {
+			snprintf(path, PATH_MAX, "%s/%s", ph->root, (char *)data);
+			if((ph->logfd = fopen(path, "a")) == NULL) {
 				_pacman_log(PM_LOG_ERROR, _("can't open log file %s"), path);
 				RET_ERR(PM_ERR_OPT_LOGFILE, -1);
 			}
-			handle->logfile = strdup(path);
+			ph->logfile = strdup(path);
 			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_LOGFILE set to '%s'"), path);
 		break;
 		case PM_OPT_NOUPGRADE:
 			if((char *)data && strlen((char *)data) != 0) {
-				handle->noupgrade = _pacman_list_add(handle->noupgrade, strdup((char *)data));
+				ph->noupgrade = _pacman_list_add(ph->noupgrade, strdup((char *)data));
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NOUPGRADE"), (char *)data);
 			} else {
-				FREELIST(handle->noupgrade);
+				FREELIST(ph->noupgrade);
 				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_NOUPGRADE flushed"));
 			}
 		break;
 		case PM_OPT_NOEXTRACT:
 			if((char *)data && strlen((char *)data) != 0) {
-				handle->noextract = _pacman_list_add(handle->noextract, strdup((char *)data));
+				ph->noextract = _pacman_list_add(ph->noextract, strdup((char *)data));
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NOEXTRACT"), (char *)data);
 			} else {
-				FREELIST(handle->noextract);
+				FREELIST(ph->noextract);
 				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_NOEXTRACT flushed"));
 			}
 		break;
 		case PM_OPT_IGNOREPKG:
 			if((char *)data && strlen((char *)data) != 0) {
-				handle->ignorepkg = _pacman_list_add(handle->ignorepkg, strdup((char *)data));
+				ph->ignorepkg = _pacman_list_add(ph->ignorepkg, strdup((char *)data));
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_IGNOREPKG"), (char *)data);
 			} else {
-				FREELIST(handle->ignorepkg);
+				FREELIST(ph->ignorepkg);
 				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_IGNOREPKG flushed"));
 			}
 		break;
 		case PM_OPT_HOLDPKG:
 			if((char *)data && strlen((char *)data) != 0) {
-				handle->holdpkg = _pacman_list_add(handle->holdpkg, strdup((char *)data));
+				ph->holdpkg = _pacman_list_add(ph->holdpkg, strdup((char *)data));
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_HOLDPKG"), (char *)data);
 			} else {
-				FREELIST(handle->holdpkg);
+				FREELIST(ph->holdpkg);
 				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_HOLDPKG flushed"));
 			}
 		break;
 		case PM_OPT_NEEDLES:
 			if((char *)data && strlen((char *)data) != 0) {
-				handle->needles = _pacman_list_add(handle->needles, strdup((char *)data));
+				ph->needles = _pacman_list_add(ph->needles, strdup((char *)data));
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NEEDLES"), (char *)data);
 			} else {
-				FREELIST(handle->needles);
+				FREELIST(ph->needles);
 				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_NEEDLES flushed"));
 			}
 		break;
@@ -225,16 +225,16 @@ int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned lo
 			if(data != 0 && data != 1) {
 				RET_ERR(PM_ERR_OPT_USESYSLOG, -1);
 			}
-			if(handle->usesyslog == data) {
+			if(ph->usesyslog == data) {
 				return(0);
 			}
-			if(handle->usesyslog) {
+			if(ph->usesyslog) {
 				closelog();
 			} else {
 				openlog("libpacman", 0, LOG_USER);
 			}
-			handle->usesyslog = (unsigned short)data;
-			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_USESYSLOG set to '%d'"), handle->usesyslog);
+			ph->usesyslog = (unsigned short)data;
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_USESYSLOG set to '%d'"), ph->usesyslog);
 		break;
 		case PM_OPT_LOGCB:
 			pm_logcb = (pacman_cb_log)data;
@@ -270,24 +270,24 @@ int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned lo
 			pm_dleta_s = (unsigned char *)data;
 		break;
 		case PM_OPT_DLREMAIN:
-			handle->dlremain = (int *)data;
+			ph->dlremain = (int *)data;
 		break;
 		case PM_OPT_DLHOWMANY:
-			handle->dlhowmany = (int *)data;
+			ph->dlhowmany = (int *)data;
 		break;
 		case PM_OPT_UPGRADEDELAY:
-			handle->upgradedelay = data;
+			ph->upgradedelay = data;
 		break;
 		case PM_OPT_OLDDELAY:
-			handle->olddelay = data;
+			ph->olddelay = data;
 		break;
 		case PM_OPT_LOGMASK:
 			pm_logmask = (unsigned char)data;
 			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_LOGMASK set to '%02x'"), (unsigned char)data);
 		break;
 		case PM_OPT_PROXYHOST:
-			if(handle->proxyhost) {
-				FREE(handle->proxyhost);
+			if(ph->proxyhost) {
+				FREE(ph->proxyhost);
 			}
 			p = strstr((char*)data, "://");
 			if(p) {
@@ -298,38 +298,38 @@ int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned lo
 				data = (long)p;
 			}
 #if defined(__APPLE__) || defined(__OpenBSD__)
-			handle->proxyhost = strdup((char*)data);
+			ph->proxyhost = strdup((char*)data);
 #else
-			handle->proxyhost = strndup((char*)data, PATH_MAX);
+			ph->proxyhost = strndup((char*)data, PATH_MAX);
 #endif
-			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_PROXYHOST set to '%s'"), handle->proxyhost);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_PROXYHOST set to '%s'"), ph->proxyhost);
 		break;
 		case PM_OPT_PROXYPORT:
-			handle->proxyport = (unsigned short)data;
-			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_PROXYPORT set to '%d'"), handle->proxyport);
+			ph->proxyport = (unsigned short)data;
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_PROXYPORT set to '%d'"), ph->proxyport);
 		break;
 		case PM_OPT_XFERCOMMAND:
-			if(handle->xfercommand) {
-				FREE(handle->xfercommand);
+			if(ph->xfercommand) {
+				FREE(ph->xfercommand);
 			}
 #if defined(__APPLE__) || defined(__OpenBSD__)
-			handle->xfercommand = strdup((char*)data);
+			ph->xfercommand = strdup((char*)data);
 #else
-			handle->xfercommand = strndup((char*)data, PATH_MAX);
+			ph->xfercommand = strndup((char*)data, PATH_MAX);
 #endif
-			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_XFERCOMMAND set to '%s'"), handle->xfercommand);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_XFERCOMMAND set to '%s'"), ph->xfercommand);
 		break;
 		case PM_OPT_NOPASSIVEFTP:
-			handle->nopassiveftp = (unsigned short)data;
-			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_NOPASSIVEFTP set to '%d'"), handle->nopassiveftp);
+			ph->nopassiveftp = (unsigned short)data;
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_NOPASSIVEFTP set to '%d'"), ph->nopassiveftp);
 		break;
 		case PM_OPT_CHOMP:
-			handle->chomp = (unsigned short)data;
-			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_CHOMP set to '%d'"), handle->chomp);
+			ph->chomp = (unsigned short)data;
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_CHOMP set to '%d'"), ph->chomp);
 		break;
 		case PM_OPT_MAXTRIES:
-			handle->maxtries = (unsigned short)data;
-			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_MAXTRIES set to '%d'"), handle->maxtries);
+			ph->maxtries = (unsigned short)data;
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_MAXTRIES set to '%d'"), ph->maxtries);
 		break;
 		default:
 			RET_ERR(PM_ERR_WRONG_ARGS, -1);
@@ -338,29 +338,29 @@ int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned lo
 	return(0);
 }
 
-int _pacman_handle_get_option(pmhandle_t *handle, unsigned char val, long *data)
+int _pacman_handle_get_option(pmhandle_t *ph, unsigned char val, long *data)
 {
 	/* Sanity checks */
-	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
+	ASSERT(ph != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
 	switch(val) {
-		case PM_OPT_ROOT:      *data = (long)handle->root; break;
-		case PM_OPT_DBPATH:    *data = (long)handle->dbpath; break;
-		case PM_OPT_CACHEDIR:  *data = (long)handle->cachedir; break;
-		case PM_OPT_HOOKSDIR:  *data = (long)handle->hooksdir; break;
-		case PM_OPT_LOCALDB:   *data = (long)handle->db_local; break;
-		case PM_OPT_SYNCDB:    *data = (long)handle->dbs_sync; break;
-		case PM_OPT_LOGFILE:   *data = (long)handle->logfile; break;
-		case PM_OPT_NOUPGRADE: *data = (long)handle->noupgrade; break;
-		case PM_OPT_NOEXTRACT: *data = (long)handle->noextract; break;
-		case PM_OPT_IGNOREPKG: *data = (long)handle->ignorepkg; break;
-		case PM_OPT_HOLDPKG:   *data = (long)handle->holdpkg; break;
-		case PM_OPT_NEEDLES:   *data = (long)handle->needles; break;
-		case PM_OPT_USESYSLOG: *data = handle->usesyslog; break;
+		case PM_OPT_ROOT:      *data = (long)ph->root; break;
+		case PM_OPT_DBPATH:    *data = (long)ph->dbpath; break;
+		case PM_OPT_CACHEDIR:  *data = (long)ph->cachedir; break;
+		case PM_OPT_HOOKSDIR:  *data = (long)ph->hooksdir; break;
+		case PM_OPT_LOCALDB:   *data = (long)ph->db_local; break;
+		case PM_OPT_SYNCDB:    *data = (long)ph->dbs_sync; break;
+		case PM_OPT_LOGFILE:   *data = (long)ph->logfile; break;
+		case PM_OPT_NOUPGRADE: *data = (long)ph->noupgrade; break;
+		case PM_OPT_NOEXTRACT: *data = (long)ph->noextract; break;
+		case PM_OPT_IGNOREPKG: *data = (long)ph->ignorepkg; break;
+		case PM_OPT_HOLDPKG:   *data = (long)ph->holdpkg; break;
+		case PM_OPT_NEEDLES:   *data = (long)ph->needles; break;
+		case PM_OPT_USESYSLOG: *data = ph->usesyslog; break;
 		case PM_OPT_LOGCB:     *data = (long)pm_logcb; break;
 		case PM_OPT_DLCB:     *data = (long)pm_dlcb; break;
-		case PM_OPT_UPGRADEDELAY: *data = (long)handle->upgradedelay; break;
-		case PM_OPT_OLDDELAY:  *data = (long)handle->olddelay; break;
+		case PM_OPT_UPGRADEDELAY: *data = (long)ph->upgradedelay; break;
+		case PM_OPT_OLDDELAY:  *data = (long)ph->olddelay; break;
 		case PM_OPT_LOGMASK:   *data = pm_logmask; break;
 		case PM_OPT_DLFNM:     *data = (long)pm_dlfnm; break;
 		case PM_OPT_DLOFFSET:  *data = (long)pm_dloffset; break;
@@ -371,14 +371,14 @@ int _pacman_handle_get_option(pmhandle_t *handle, unsigned char val, long *data)
 		case PM_OPT_DLETA_H:   *data = (long)pm_dleta_h; break;
 		case PM_OPT_DLETA_M:   *data = (long)pm_dleta_m; break;
 		case PM_OPT_DLETA_S:   *data = (long)pm_dleta_s; break;
-		case PM_OPT_DLREMAIN:  *data = (long)handle->dlremain; break;
-		case PM_OPT_DLHOWMANY: *data = (long)handle->dlhowmany; break;
-		case PM_OPT_PROXYHOST: *data = (long)handle->proxyhost; break;
-		case PM_OPT_PROXYPORT: *data = handle->proxyport; break;
-		case PM_OPT_XFERCOMMAND: *data = (long)handle->xfercommand; break;
-		case PM_OPT_NOPASSIVEFTP: *data = handle->nopassiveftp; break;
-		case PM_OPT_CHOMP: *data = handle->chomp; break;
-		case PM_OPT_MAXTRIES: *data = handle->maxtries; break;
+		case PM_OPT_DLREMAIN:  *data = (long)ph->dlremain; break;
+		case PM_OPT_DLHOWMANY: *data = (long)ph->dlhowmany; break;
+		case PM_OPT_PROXYHOST: *data = (long)ph->proxyhost; break;
+		case PM_OPT_PROXYPORT: *data = ph->proxyport; break;
+		case PM_OPT_XFERCOMMAND: *data = (long)ph->xfercommand; break;
+		case PM_OPT_NOPASSIVEFTP: *data = ph->nopassiveftp; break;
+		case PM_OPT_CHOMP: *data = ph->chomp; break;
+		case PM_OPT_MAXTRIES: *data = ph->maxtries; break;
 		default:
 			RET_ERR(PM_ERR_WRONG_ARGS, -1);
 		break;
