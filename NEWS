@@ -1,5 +1,15 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.7.0         - makepkg now properly installes documentation in some
+		special cases as well (for example README was missing
+		when there was a README.Frugalware)
+              - libpacman now handles the case better when a download is
+                interrupted
+              - improved documentation (README)
+              - makepkg now gives better error message when ccache is
+                misconfigured
+              - fixed a bug in the progressbar when it outputed a large
+                number of spaces on failed downloads
 3.6.9         - makepkg: improved the chroot cleaning code
               - makepkg: fixed ccache support
               - properly continue a -Sy after a previous one was
