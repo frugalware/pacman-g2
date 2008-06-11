@@ -1285,7 +1285,7 @@ for netfile in "${source[@]}" "${signatures[@]}"; do
 		# try to download the file from the cache server
 		if [ -n "$RSYNCAGENT" -a -n "$CACHEURL" ]; then
 			# check if the file is there
-			eval $RSYNCAGENT $CACHEURL/$file &>/dev/null
+			eval $RSYNCAGENT $CACHEURL/${file/;/\;} &>/dev/null
 			if [ "$?" = "0" ]; then
 				eval $RSYNCAGENT $CACHEURL/$file ./
 				if [ ! -f "$file" ]; then
