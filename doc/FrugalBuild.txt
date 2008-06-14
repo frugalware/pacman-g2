@@ -333,6 +333,10 @@ options (array)::
 	genscriptlet: Informs makepkg about not having a scriptlet is intentional. You
 	want to use this when the scriptlet is generated during build().
 
+	noversrc: Informs makepkg about the source tarball does not contain the
+	package version, so it should be always downloaded from upstream, rather
+	than using an rsync mirror.
+
 NOTE: Feel free to use `nomirror` in a WIP repo but please try avoid it when
 pushing to a production repository.
 

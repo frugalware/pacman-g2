@@ -887,7 +887,7 @@ if [ "`type -p fblint`" ]; then
 fi
 
 eval "serverlist=${TREE}_servers"
-if [ "$F_makepkg_scm" = "git" ]; then
+if [ "$F_makepkg_scm" = "git" -a ! "`check_option NOVERSRC`" ]; then
 	_serverlist=`GIT_DIR=$fst_root/${TREE}/.git git config --get remote.origin.url 2>/dev/null`
 	if [ -n "$_serverlist" ]; then
 		serverlist=$_serverlist
