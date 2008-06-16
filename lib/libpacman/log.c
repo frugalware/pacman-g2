@@ -46,6 +46,7 @@ void _pacman_log(unsigned char flag, char *fmt, ...)
 		va_end(args);
 
 		pm_logcb(flag, str);
+		pacman_logaction(str);
 	}
 }
 
