@@ -167,8 +167,17 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 				}
 				ph->logfd = NULL;
 			}
-			char path[PATH_MAX];
+			char logdir[PATH_MAX], path[PATH_MAX], *p, *q;
 			snprintf(path, PATH_MAX, "%s/%s", ph->root, (char *)data);
+			p = strdup((char*)data);
+			q = strrchr(p, '/');
+			if (q) {
+				*q = '\0';
+			}
+			snprintf(logdir, PATH_MAX, "%s/%s", ph->root, p);
+			free(p);
+			printf("debug, creating '%s'\n", logdir);
+			_pacman_makepath(logdir);
 			if((ph->logfd = fopen(path, "a")) == NULL) {
 				_pacman_log(PM_LOG_ERROR, _("can't open log file %s"), path);
 				RET_ERR(PM_ERR_OPT_LOGFILE, -1);
