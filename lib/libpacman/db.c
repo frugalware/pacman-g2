@@ -111,7 +111,7 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 
 		for(j = _pacman_db_get_pkgcache(db); j; j = j->next) {
 			pmpkg_t *pkg = j->data;
-			char *haystack;
+			char *haystack, *ptr;
 			int match = 0;
 
 			/* check name */
@@ -123,6 +123,8 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 				return(NULL);
 			} else if(retval) {
 				_pacman_log(PM_LOG_DEBUG, "    search target '%s' matched '%s'", targ, haystack);
+				match = 1;
+			} else if (!match && (ptr = strstr(haystack, targ))) {
 				match = 1;
 			}
 			FREE(haystack);
@@ -136,6 +138,8 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 					FREE(haystack);
 					return(NULL);
 				} else if(retval) {
+					match = 1;
+				} else if (!match && (ptr = strstr(haystack, targ))) {
 					match = 1;
 				}
 				FREE(haystack);
@@ -151,6 +155,8 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 						FREE(haystack);
 						return(NULL);
 					} else if(retval) {
+						match = 1;
+					} else if (!match && (ptr = strstr(haystack, targ))) {
 						match = 1;
 					}
 					FREE(haystack);
