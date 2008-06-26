@@ -176,7 +176,6 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 			}
 			snprintf(logdir, PATH_MAX, "%s/%s", ph->root, p);
 			free(p);
-			printf("debug, creating '%s'\n", logdir);
 			_pacman_makepath(logdir);
 			if((ph->logfd = fopen(path, "a")) == NULL) {
 				_pacman_log(PM_LOG_ERROR, _("can't open log file %s"), path);
