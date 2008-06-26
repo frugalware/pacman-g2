@@ -315,17 +315,24 @@ int pacman_db_setserver(pmdb_t *db, char *url)
 int pacman_db_update(int force, PM_DB *db)
 {
 	pmlist_t *lp;
-	char path[PATH_MAX];
+	char path[PATH_MAX], lckpath[PATH_MAX];
 	pmlist_t *files = NULL;
 	char newmtime[16] = "";
 	char lastupdate[16] = "";
-	int ret, updated=0;
+	int ret, updated=0, status=0;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 	ASSERT(db != NULL && db != handle->db_local, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	/* Do not update a database if a transaction is on-going */
 	ASSERT(handle->trans == NULL, RET_ERR(PM_ERR_TRANS_NOT_NULL, -1));
+
+	/* lock db */
+	snprintf(lckpath, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
+	handle->lckfd = _pacman_lckmk(lckpath);
+	if(handle->lckfd == -1) {
+		RET_ERR(PM_ERR_HANDLE_LOCK, -1);
+	}
 
 	if(!_pacman_list_is_in(db, handle->dbs_sync)) {
 		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
@@ -352,7 +359,8 @@ int pacman_db_update(int force, PM_DB *db)
 			_pacman_log(PM_LOG_DEBUG, _("failed to sync db: %s [%d]\n"),  pacman_strerror(ret), ret);
 			pm_errno = PM_ERR_DB_SYNC;
 		}
-		return(1);
+		status = 1;
+		goto rmlck;
 	} else {
 		if(strlen(newmtime)) {
 			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %s\n"), db->treename, newmtime);
@@ -377,14 +385,20 @@ int pacman_db_update(int force, PM_DB *db)
 
 		/* uncompress the sync database */
 		if(_pacman_db_install(db, path) == -1) {
-			return -1;
+			status = -1;
+			goto rmlck;
 		}
 		if(updated) {
 			_pacman_db_setlastupdate(db, newmtime);
 		}
 	}
 
-	return(0);
+rmlck:
+	if(_pacman_lckrm(lckpath)) {
+		_pacman_log(PM_LOG_WARNING, _("could not remove lock file %s"), path);
+		pacman_logaction(_("warning: could not remove lock file %s"), path);
+	}
+	return status;
 }
 
 /** Get a package entry from a package database
