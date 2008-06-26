@@ -101,6 +101,7 @@ int pacman_initialize(const char *root)
  */
 int pacman_release(void)
 {
+	char path[PATH_MAX];
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
 	/* free the transaction if there is any */
@@ -118,6 +119,10 @@ int pacman_release(void)
 		/* db_unregister() will also update the handle->dbs_sync list */
 		pacman_db_unregister(handle->dbs_sync->data);
 	}
+
+	/* unlock the db */
+	snprintf(path, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
+	_pacman_lckrm(path);
 
 	FREEHANDLE(handle);
 
