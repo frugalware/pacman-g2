@@ -292,7 +292,7 @@ fi
 
 echo "gensync: compressing to $destfile..." >&2
 cd $gstmpdir
-tar cjf $destfile $extra *
+fakeroot tar cjf $destfile $extra *
 [ $? -gt 0 ] && die "error writing to $destfile"
 
 rm -rf $gstmpdir

@@ -169,7 +169,7 @@ db_write_entry()
 		echo "" >>depends
 	fi
 	cd ..
-	tar rf $udb $1-$pkgver-$pkgrel
+	fakeroot tar rf $udb $1-$pkgver-$pkgrel
 }
 
 in_array()
@@ -313,7 +313,7 @@ if [ "$action" = "upd" ]; then
 	if [ -n "$ver" ]; then
 		echo ${ver//-/.} > .version
 		tar --delete -f $udb .version
-		tar rf $udb .version
+		fakeroot tar rf $udb .version
 	fi
 else
 	# DELETE
