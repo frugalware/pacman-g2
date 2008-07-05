@@ -1167,6 +1167,9 @@ int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *
 	char section[256] = "";
 	PM_DB *db = NULL;
 
+	/* Sanity checks */
+	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
+
 	fp = fopen(file, "r");
 	if(fp == NULL) {
 		return(0);
@@ -1180,6 +1183,9 @@ int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *
 		if(strcmp(section, "options")) {
 			db = _pacman_db_register(section, callback);
 		}
+	} else {
+		FREELIST(handle->ignorepkg);
+		FREELIST(handle->holdpkg);
 	}
 
 	while(fgets(line, PATH_MAX, fp)) {
