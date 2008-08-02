@@ -15,12 +15,10 @@ export CHOST="@CHOST@"
 
 # Pentium Pro/Pentium II/Pentium III+/Pentium 4/Athlon exclusive (binaries
 # will use the P6 instruction set and only run on P6+ systems)
-export CFLAGS="-@MARCHFLAG@=@CARCHFLAGS@ -O2 -pipe"
-export CXXFLAGS="-@MARCHFLAG@=@CARCHFLAGS@ -O2 -pipe"
-# Pentium Pro/Pentium II/Pentium III+/Pentium 4/Athlon optimized (but binaries
-# will run on any x86 system)
-#export CFLAGS="-mcpu=i686 -O2 -pipe"
-#export CXXFLAGS="-mcpu=i686 -O2 -pipe"
+# As of GCC 4.2 -mtune=generic can be used to generate code running well on
+# common x86 chips.
+export CFLAGS="-@MARCHFLAG@=@CARCHFLAGS@ -mtune=generic -O2 -pipe"
+export CXXFLAGS="-@MARCHFLAG@=@CARCHFLAGS@ -mtune=generic -O2 -pipe"
 
 # SMP Systems
 #export MAKEFLAGS="-j2"

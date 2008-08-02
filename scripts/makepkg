@@ -124,10 +124,48 @@ if [ -e /etc/frugalware-release ] && $ECHO $CHOST|grep -q linux-gnu; then
 fi
 
 # we need -fno-strict-aliasing for gcc 4.2*++
+_gccminver_generic="4.2"
 _gccver=`type -p gcc >/dev/null && gcc -dumpversion`
-if [ "${_gccver%%.?}" == "4.3" ]; then
+if [[ "${_gccver%%.?}" == "${_gccminver_generic}" ]] || [[ "${_gccver%%.?}" > "${_gccminver_generic}" ]]; then
         export CFLAGS="$CFLAGS -fno-strict-aliasing"
         export CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
+fi
+
+
+## another hack for syncpkgd almost , before 1.0 this should be removed
+_glibcver_generic="2.8"
+_glibcver=`ldd --version|head -n1 |sed 's/.*) //'`
+if [ -e /etc/frugalware-release ]; then
+	if [[ "${_glibcver} == ${_glibcver_generic}" ]] || [[ "${_glibcver}" > "${_glibcver_generic}" ]]; then
+		if [ "$CARCH" == "i686" ]; then
+			if ! $ECHO ${CFLAGS}|grep -q "mtune=generic"; then
+				export CFLAGS="$CFLAGS -mtune=generic"
+			fi
+			if ! $ECHO ${CXXFLAGS}|grep -q "mtune=generic"; then
+				export CXXFLAGS="$CXXFLAGS -mtune=generic"
+			fi
+		fi
+
+		if [ "$CARCH" == "x86_64" ]; then
+			## so test for k8 since when is there this system doesn't uses x86-64 generic
+			if $ECHO ${CFLAGS}|grep -q "march=k8"; then
+				CFLAGS=${CFLAGS/-march=k8}
+				export CFLAGS="-march=x86-64 -mtune=generic $CFLAGS"
+			fi
+			if $ECHO ${CXXFLAGS}|grep -q "march=k8"; then
+				CXXFLAGS=${CXXFLAGS/-march=k8}
+				export CXXFLAGS="-march=x86-64 -mtune=generic $CXXFLAGS"
+			fi
+		fi
+	fi
+fi
+
+## this has to stay here until we remove oldish gcc versions
+if [[ "${_gccver%%.?}" < "${_gccminver_generic}" ]]; then
+        # well we have gcc 3.3 and gcc 4.1 , these doesn't support -mtune=generic
+        # so kill generic for these
+        export CFLAGS="${CFLAGS/-mtune=generic}"
+        export CXXFLAGS="${CXXFLAGS/-mtune=generic}"
 fi
 
 
