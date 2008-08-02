@@ -57,7 +57,7 @@ cd `dirname $0`
 
 ver=`grep AC_INIT configure.ac|sed 's/.*, \([0-9\.]*\), .*/\1/'`
 if [ "$1" == "--dist" ]; then
-	git-archive --format=tar --prefix=pacman-g2-$ver/ HEAD | tar xf -
+	git archive --format=tar --prefix=pacman-g2-$ver/ HEAD | tar xf -
 	git log --no-merges |git name-rev --tags --stdin > pacman-g2-$ver/ChangeLog
 	cd pacman-g2-$ver
 	./autogen.sh --git
