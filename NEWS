@@ -1,5 +1,15 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.7.1         - makepkg now properly escapes ';' in the source tarball
+                filename when downloading via rsync.
+	      - makepkg now has a new 'noversrc' option, see man
+	        FrugalBuild
+              - added fakeroot support to updatesync and gensync
+              - a lock is now required to do a database update, so two
+                -Sy at the same time is no longer allowed
+              - libpacman: fixed ignorepkg and holdpkg parsing when the
+                config parser is called multiple times
+              - changed default CFLAGS to include -mtune=generic
 3.7.0         - makepkg now properly installes documentation in some
 		special cases as well (for example README was missing
 		when there was a README.Frugalware)
