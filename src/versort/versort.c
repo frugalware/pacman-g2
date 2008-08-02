@@ -47,7 +47,7 @@ static char *buffer = NULL;
 static size_t buffer_nmemb = 0;
 static size_t buffer_size = 0;
 
-static char **index = NULL;
+static char **ver_index = NULL;
 static size_t index_nmemb = 0;
 static size_t index_size = 0;
 
@@ -102,15 +102,15 @@ static void makeindex()
 		{
 			if (tmp_index == index_size) {
 				index_size += BUFFER_CHUNK;
-				index = realloc(index, index_size * sizeof(char *));
-				if (!index)
+				ver_index = realloc(ver_index, index_size * sizeof(char *));
+				if (!ver_index)
 					exit(EXIT_FAILURE);
 			}
 
 			switch (status)
 			{
 			case STATUS_MARK: // Mark a new buffer
-				index[index_nmemb] = &buffer[tmp_index];
+				ver_index[index_nmemb] = &buffer[tmp_index];
 				++index_nmemb;
 				status = STATUS_SEARCH;
 				break;
@@ -136,7 +136,7 @@ static void printindex()
 	size_t i;
 
 	for (i = 0; i < index_nmemb; i++)
-		puts(index[i]);
+		puts(ver_index[i]);
 }
 
 static int vercmpp(const void *p1, const void *p2)
@@ -167,11 +167,11 @@ int main(int argc, char *argv[])
 
 	makeindex();
 
-	qsort(index, index_nmemb, sizeof(char *), vercmpp);
+	qsort(ver_index, index_nmemb, sizeof(char *), vercmpp);
 
 	printindex();
 
-	free(index);
+	free(ver_index);
 	free(buffer);
 
 	exit(EXIT_SUCCESS);
