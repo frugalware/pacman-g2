@@ -17,8 +17,8 @@ export CHOST="@CHOST@"
 # will use the P6 instruction set and only run on P6+ systems)
 # As of GCC 4.2 -mtune=generic can be used to generate code running well on
 # common x86 chips.
-export CFLAGS="-@MARCHFLAG@=@CARCHFLAGS@ -mtune=generic -O2 -pipe"
-export CXXFLAGS="-@MARCHFLAG@=@CARCHFLAGS@ -mtune=generic -O2 -pipe"
+export CFLAGS="@CARCHFLAGS@ -O2 -pipe"
+export CXXFLAGS="@CARCHFLAGS@ -O2 -pipe"
 
 # SMP Systems
 #export MAKEFLAGS="-j2"
