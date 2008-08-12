@@ -123,17 +123,6 @@ void *memccpy(void *dest, const void *src, int c, size_t n)
 		return NULL;
 	return op;
 }
-/*
- * strdup - return a malloc'ed copy of a string
- */
-char *strdup(const char *src)
-{
-	int l = strlen(src) + 1;
-	char *dst = malloc(l);
-	if (dst)
-		strcpy(dst,src);
-	return dst;
-}
 
 /*
  * socket_wait - wait for socket to receive or flush data
