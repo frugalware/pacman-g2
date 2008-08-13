@@ -39,6 +39,8 @@ all: $(man_MANS) localized_mans
 if HAS_PO4A
 localized_mans: $(shell po4a po4a.cfg >&2; for i in $(localized_LANGS); do for j in $(localized_MANS); do if [ -e $$i/`echo $$j|sed 's/\..//'`.txt ]; then echo $$i/$$j; fi; done; done)
 install-data-local: install-man5-local install-man8-local
+else
+localized_mans:
 endif
 else
 localized_mans:
