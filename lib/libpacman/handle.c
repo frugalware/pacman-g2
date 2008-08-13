@@ -130,7 +130,6 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 	/* Sanity checks */
 	ASSERT(ph != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
-	char *p;
 	switch(val) {
 		case PM_OPT_DBPATH:
 			if(ph->dbpath) {
