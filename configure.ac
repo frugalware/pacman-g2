@@ -9,6 +9,7 @@ AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION(0.13.1)
+AC_C_BIGENDIAN
 
 dnl Host dependant flags
 case "${host}" in
