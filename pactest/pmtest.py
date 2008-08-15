@@ -133,7 +133,7 @@ class pmtest:
 				archive = pkg.filename()
 				vprint("\t%s" % os.path.join(PM_CACHEDIR, archive))
 				pkg.makepkg(cachedir)
-				pkg.md5sum = getmd5sum(os.path.join(cachedir, archive))
+				pkg.sha1sum = getsha1sum(os.path.join(cachedir, archive))
 				pkg.csize = os.stat(os.path.join(cachedir, archive))[stat.ST_SIZE]
 
 		# Populating databases

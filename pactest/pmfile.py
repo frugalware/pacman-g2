@@ -32,7 +32,7 @@ class pmfile:
 		self.root = root
 
 		filename = os.path.join(self.root, self.name)
-		self.checksum = getmd5sum(filename)
+		self.checksum = getsha1sum(filename)
 		self.mtime = getmtime(filename)
 
 	def __str__(self):
@@ -45,7 +45,7 @@ class pmfile:
 		retval = 0
 
 		filename = os.path.join(self.root, self.name)
-		checksum = getmd5sum(filename)
+		checksum = getsha1sum(filename)
 		mtime = getmtime(filename)
 
 		if debug:

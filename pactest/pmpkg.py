@@ -47,7 +47,7 @@ class pmpkg:
 		self.size = 0
 		self.csize = 0
 		self.reason = 0
-		self.md5sum = ""      # sync only
+		self.sha1sum = ""      # sync only
 		self.replaces = []    # sync only
 		self.force = 0        # sync only
 		self.stick = 0        # sync only

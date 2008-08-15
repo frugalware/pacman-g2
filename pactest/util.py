@@ -1,6 +1,7 @@
 #! /usr/bin/python
 #
 #  Copyright (c) 2006 by Aurelien Foret <orelien@chez.com>
+#  Copyright (c) 2008 by Miklos Vajna <vmiklos@frugalware.org>
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -21,6 +22,7 @@
 import sys
 import os
 import md5
+import sha
 import stat
 
 
@@ -149,8 +151,8 @@ def mkdescfile(filename, pkg):
 		data.append("group = %s" % i)
 	for i in pkg.license:
 		data.append("license = %s" % i)
-	if pkg.md5sum:
-		data.append("md5sum = %s" % pkg.md5sum)
+	if pkg.sha1sum:
+		data.append("sha1sum = %s" % pkg.sha1sum)
 
 	# depends
 	for i in pkg.replaces:
@@ -222,6 +224,36 @@ def mkmd5sum(data):
 	"""
 	"""
 	checksum = md5.new()
+	checksum.update("%s\n" % data)
+	digest = checksum.digest()
+	return "%02x"*len(digest) % tuple(map(ord, digest))
+
+
+#
+# SHA1 helpers
+#
+
+def getsha1sum(filename):
+	"""
+	"""
+	checksum = sha.new()
+	try:
+		fd = open(filename, "rb")
+		while 1:
+			block = fd.read(1048576)
+			if not block:
+				break
+			checksum.update(block)
+		fd.close()
+	except IOError:
+		pass
+	digest = checksum.digest()
+	return "%02x"*len(digest) % tuple(map(ord, digest))
+
+def mksha1sum(data):
+	"""
+	"""
+	checksum = sha.new()
 	checksum.update("%s\n" % data)
 	digest = checksum.digest()
 	return "%02x"*len(digest) % tuple(map(ord, digest))

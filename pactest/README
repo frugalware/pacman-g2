@@ -144,7 +144,7 @@ Example:
 All fields from a pacman-g2 package can be set and modified directly with no 
 methods to access them.
 Note: some fields are automatically set by pactest and should preferably not 
-be modified by hand (i.e. "md5sum", "size", or "csize").
+be modified by hand (i.e. "sha1sum", "size", or "csize").
 
 Examples:
 	pkg.depends = ["pkg2", "pkg3>=2.0"]

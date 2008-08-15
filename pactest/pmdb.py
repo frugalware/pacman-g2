@@ -53,7 +53,7 @@ def _mkfilelist(files):
 def _mkbackuplist(backup):
 	"""
 	"""
-	return ["%s\t%s" % (getfilename(i), mkmd5sum(i)) for i in backup]
+	return ["%s\t%s" % (getfilename(i), mksha1sum(i)) for i in backup]
 
 def _getsection(fd):
 	"""
@@ -147,8 +147,8 @@ class pmdb:
 				pkg.reason = int(fd.readline().strip("\n"))
 			elif line == "%SIZE%" or line == "%CSIZE%":
 				pkg.size = int(fd.readline().strip("\n"))
-			elif line == "%MD5SUM%":
-				pkg.md5sum = fd.readline().strip("\n")
+			elif line == "%SHA1SUM%":
+				pkg.sha1sum = fd.readline().strip("\n")
 			elif line == "%REPLACES%":
 				pkg.replaces = _getsection(fd)
 			elif line == "%FORCE%":
@@ -158,7 +158,7 @@ class pmdb:
 				fd.readline()
 				pkg.stick = 1
 		fd.close()
-		pkg.checksum["desc"] = getmd5sum(filename)
+		pkg.checksum["desc"] = getsha1sum(filename)
 		pkg.mtime["desc"] = getmtime(filename)
 
 		# files
@@ -177,7 +177,7 @@ class pmdb:
 			if line == "%BACKUP%":
 				pkg.backup = _getsection(fd)
 		fd.close()
-		pkg.checksum["files"] = getmd5sum(filename)
+		pkg.checksum["files"] = getsha1sum(filename)
 		pkg.mtime["files"] = getmtime(filename)
 
 		# depends
@@ -205,13 +205,13 @@ class pmdb:
 				fd.readline()
 				pkg.stick = 1
 		fd.close()
-		pkg.checksum["depends"] = getmd5sum(filename)
+		pkg.checksum["depends"] = getsha1sum(filename)
 		pkg.mtime["depends"] = getmtime(filename)
 
 		# install
 		filename = os.path.join(path, "install")
 		if os.path.isfile(filename):
-			pkg.checksum["install"] = getmd5sum(filename)
+			pkg.checksum["install"] = getsha1sum(filename)
 			pkg.mtime["install"] = getmtime(filename)
 
 		return pkg
@@ -231,8 +231,8 @@ class pmdb:
 		# for local db entries: name, version, desc, groups, url, license,
 		#                       arch, builddate, installdate, packager,
 		#                       size, reason
-		# for sync entries: name, version, desc, groups, csize, md5sum,
-		#                   replaces, force
+		# for sync entries: name, version, desc, groups, csize,
+		# sha1sum, replaces, force
 		data = [_mksection("NAME", pkg.name)]
 		data.append(_mksection("VERSION", pkg.version))
 		if pkg.desc:
@@ -259,8 +259,8 @@ class pmdb:
 		else:
 			if pkg.csize:
 				data.append(_mksection("CSIZE", pkg.csize))
-			if pkg.md5sum:
-				data.append(_mksection("MD5SUM", pkg.md5sum))
+			if pkg.sha1sum:
+				data.append(_mksection("SHA1SUM", pkg.sha1sum))
 			if pkg.replaces:
 				data.append(_mksection("REPLACES", pkg.replaces))
 			if pkg.force:
@@ -271,7 +271,7 @@ class pmdb:
 			data.append("")
 		filename = os.path.join(path, "desc")
 		mkfile(filename, "\n".join(data))
-		pkg.checksum["desc"] = getmd5sum(filename)
+		pkg.checksum["desc"] = getsha1sum(filename)
 		pkg.mtime["desc"] = getmtime(filename)
 
 		# files
@@ -287,7 +287,7 @@ class pmdb:
 				data.append("")
 			filename = os.path.join(path, "files")
 			mkfile(filename, "\n".join(data))
-			pkg.checksum["files"] = getmd5sum(filename)
+			pkg.checksum["files"] = getsha1sum(filename)
 			pkg.mtime["files"] = getmtime(filename)
 
 		# depends
@@ -307,7 +307,7 @@ class pmdb:
 			data.append("")
 		filename = os.path.join(path, "depends")
 		mkfile(filename, "\n".join(data))
-		pkg.checksum["depends"] = getmd5sum(filename)
+		pkg.checksum["depends"] = getsha1sum(filename)
 		pkg.mtime["depends"] = getmtime(filename)
 
 		# install
@@ -319,7 +319,7 @@ class pmdb:
 			if not empty:
 				filename = os.path.join(path, "install")
 				mkinstallfile(filename, pkg.install)
-				pkg.checksum["install"] = getmd5sum(filename)
+				pkg.checksum["install"] = getsha1sum(filename)
 				pkg.mtime["install"] = getmtime(filename)
 
 	def gensync(self, path):
