@@ -906,6 +906,10 @@ int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 					continue;
 				}
 				if((strcmp(md5sum1, md5sum2) != 0) && (strcmp(sha1sum1, sha1sum2) != 0)) {
+					_pacman_log(PM_LOG_DEBUG, _("expected md5:  '%s'"), md5sum1);
+					_pacman_log(PM_LOG_DEBUG, _("actual md5:    '%s'"), md5sum2);
+					_pacman_log(PM_LOG_DEBUG, _("expected sha1: '%s'"), sha1sum1);
+					_pacman_log(PM_LOG_DEBUG, _("actual sha1:   '%s'"), sha1sum2);
 					int doremove=0;
 					if((ptr = (char *)malloc(512)) == NULL) {
 						RET_ERR(PM_ERR_MEMORY, -1);
