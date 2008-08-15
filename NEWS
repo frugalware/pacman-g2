@@ -1,5 +1,9 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.7.2         - support for bigendian machines
+              - fix build when asciidoc is available but po4a is not
+	      - removed x86-specific hardwired -mtune=generic from
+	        makepkg.conf
 3.7.1         - makepkg now properly escapes ';' in the source tarball
                 filename when downloading via rsync.
 	      - makepkg now has a new 'noversrc' option, see man
