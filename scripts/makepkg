@@ -1264,7 +1264,7 @@ if [ "$NOUP2DATE" = "0" ]; then
 	else
 		if [ "$pkgver" != "$up2date" ]; then
 			$ECHO "   FAILED" >&2
-			error "Newer version available! ($pkgver < $up2date)"
+                       error "Upstream version differs! ($pkgver != $up2date)"
 			exit 1
 		else
 		$ECHO "   Passed" >&2
