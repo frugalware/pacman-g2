@@ -98,7 +98,7 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			if(config->noprogressbar) {
 				MSG(CL, _("done.\n"));
 			}
-			snprintf(str, LOG_STR_LEN, _("installed %s (%s)"),
+			snprintf(str, LOG_STR_LEN, "installed %s (%s)",
 			         (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
 			         (char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
 			pacman_logaction(str);
@@ -114,7 +114,7 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			} else {
 			    MSG(NL, "");
 			}
-			snprintf(str, LOG_STR_LEN, _("removed %s (%s)"),
+			snprintf(str, LOG_STR_LEN, "removed %s (%s)",
 			         (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
 			         (char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
 			pacman_logaction(str);
@@ -128,7 +128,7 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			if(config->noprogressbar) {
 				MSG(CL, _("done.\n"));
 			}
-			snprintf(str, LOG_STR_LEN, _("upgraded %s (%s -> %s)"),
+			snprintf(str, LOG_STR_LEN, "upgraded %s (%s -> %s)",
 			         (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
 			         (char *)pacman_pkg_getinfo(data2, PM_PKG_VERSION),
 			         (char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));

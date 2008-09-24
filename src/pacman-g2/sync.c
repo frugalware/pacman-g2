@@ -309,7 +309,7 @@ int syncpkg(list_t *targets)
 
 	if(config->op_s_upgrade) {
 		MSG(NL, _(":: Starting local database upgrade...\n"));
-		pacman_logaction(_("starting full system upgrade"));
+		pacman_logaction("starting full system upgrade");
 		if(pacman_trans_sysupgrade() == -1) {
 			ERR(NL, "%s\n", pacman_strerror(pm_errno));
 			retval = 1;
