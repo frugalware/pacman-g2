@@ -1092,7 +1092,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	do
 		cp -pf /etc/$i $CHROOTDIR/etc >/dev/null
 		if [ -e $HOME/.$i ]; then
-			cp $HOME/.$i $CHROOTDIR/etc >/dev/null
+			cp $HOME/.$i $CHROOTDIR/etc/$i >/dev/null
 		fi
 	done
 	chmod 644 $CHROOTDIR/etc/sudoers
