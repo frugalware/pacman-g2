@@ -708,7 +708,6 @@ while [ "$#" -ne "0" ]; do
 		--chroot)     CHROOT=1 ;;
 		--host)       CHROOT=0 ;;
 		--noup2date)  NOUP2DATE=1 ;;
-		--logging)    ;; # we can remove this after Frugalware-0.7 is out
 		--gzip)       USEGZIP=1 ;;
 		--help)
 			usage
@@ -739,9 +738,7 @@ while [ "$#" -ne "0" ]; do
 						;;
 					i) INSTALL=1 ;;
 					j) export MAKEFLAGS="-j$OPTARG" ;;
-					k) ;; # see logging
 					l) DOWNLOAD="$OPTARG" ;;
-					L) ;; # see nolastmod
 					m) USE_COLOR="n" ;;
 					n) NOSTRIP=1 ;;
 					o) NOBUILD=1; CHROOT=0 ;;
