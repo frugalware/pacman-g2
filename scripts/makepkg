@@ -698,7 +698,6 @@ while [ "$#" -ne "0" ]; do
 		--nodeps)     NODEPS=1 ;;
 		--noextract)  NOEXTRACT=1 ;;
 		--install)    INSTALL=1 ;;
-		--nolastmod)  ;; # we can remove this after Frugalware-0.6 is out
 		--force)      FORCE=1 ;;
 		--nostrip)    NOSTRIP=1 ;;
 		--nobuild)    NOBUILD=1 ;;
