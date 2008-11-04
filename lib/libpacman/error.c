@@ -149,7 +149,7 @@ char *pacman_strerror(int err)
 		case PM_ERR_WRONG_ARCH:
 			return _("this package is not for this architecture");
 		case PM_ERR_RETRIEVE:
-			return _("coult not retrieve the file");
+			return _("could not retrieve the file");
 		default:
 			return _("unexpected error");
 	}
