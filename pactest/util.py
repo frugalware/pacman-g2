@@ -21,8 +21,7 @@
 
 import sys
 import os
-import md5
-import sha
+import hashlib
 import stat
 
 
@@ -206,7 +205,7 @@ def mkcfgfile(filename, root, option, db):
 def getmd5sum(filename):
 	"""
 	"""
-	checksum = md5.new()
+	checksum = hashlib.new("md5")
 	try:
 		fd = open(filename, "rb")
 		while 1:
@@ -223,7 +222,7 @@ def getmd5sum(filename):
 def mkmd5sum(data):
 	"""
 	"""
-	checksum = md5.new()
+	checksum = hashlib.new("md5")
 	checksum.update("%s\n" % data)
 	digest = checksum.digest()
 	return "%02x"*len(digest) % tuple(map(ord, digest))
@@ -236,7 +235,7 @@ def mkmd5sum(data):
 def getsha1sum(filename):
 	"""
 	"""
-	checksum = sha.new()
+	checksum = hashlib.new("sha1")
 	try:
 		fd = open(filename, "rb")
 		while 1:
@@ -253,7 +252,7 @@ def getsha1sum(filename):
 def mksha1sum(data):
 	"""
 	"""
-	checksum = sha.new()
+	checksum = hashlib.new("sha1")
 	checksum.update("%s\n" % data)
 	digest = checksum.digest()
 	return "%02x"*len(digest) % tuple(map(ord, digest))
