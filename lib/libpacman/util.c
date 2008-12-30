@@ -260,12 +260,66 @@ int _pacman_lckrm(char *file)
 /* Compression functions
  */
 
+/*
+ * 1) scan the old dir
+ * 2) scan the compressed archive, extract new entries and mark the
+ *    skipped entries in the list
+ * 3) delete the entries which are still in the list
+ */
+
+typedef struct __cache_t {
+	char *str;
+	int hit;
+} cache_t;
+
+static int list_startswith(char *needle, pmlist_t *haystack)
+{
+	pmlist_t *i;
+
+	for (i = haystack; i; i = i->next) {
+		cache_t *c = i->data;
+		if (!strncmp(c->str, needle, strlen(c->str))) {
+			c->hit = 1;
+			return(1);
+		}
+	}
+	return(0);
+}
+
 int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 {
 	register struct archive *_archive;
 	struct archive_entry *entry;
 	char expath[PATH_MAX];
+	pmlist_t *cache = NULL, *i;
+	DIR *handle;
+	struct dirent *ent;
+	struct stat buf;
 
+	/* first scan though the old dir to see what package entries do we have */
+	handle = opendir(prefix);
+	if (handle != NULL) {
+		while((ent = readdir(handle)) != NULL) {
+			cache_t *c;
+			if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
+				continue;
+			}
+			/* we cache only dirs */
+			snprintf(expath, PATH_MAX, "%s/%s", prefix, ent->d_name);
+			if(stat(expath, &buf) || !S_ISDIR(buf.st_mode)) {
+				continue;
+			}
+			c = (cache_t *)malloc(sizeof(cache_t));
+			if (!c)
+				RET_ERR(PM_ERR_MEMORY, -1);
+			memset(c, 0, sizeof(cache_t));
+			c->str = strdup(ent->d_name);
+			cache = _pacman_list_add(cache, c);
+		}
+	}
+	closedir(handle);
+
+	/* now extract the new entries */
 	if ((_archive = archive_read_new ()) == NULL)
 		RET_ERR(PM_ERR_LIBARCHIVE_ERROR, -1);
 
@@ -281,6 +335,9 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 				return(1);
 			continue;
 		}
+		if (list_startswith((char*)archive_entry_pathname(entry), cache)) {
+			continue;
+		}
 		snprintf(expath, PATH_MAX, "%s/%s", prefix, archive_entry_pathname (entry));
 		archive_entry_set_pathname (entry, expath);
 		if (archive_read_extract (_archive, entry, ARCHIVE_EXTRACT_FLAGS) != ARCHIVE_OK) {
@@ -293,6 +350,16 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 	}
 	
 	archive_read_finish (_archive);
+
+	/* finally delete the old ones */
+	for (i = cache; i; i = i->next) {
+		cache_t *c = i->data;
+		if (!c->hit) {
+			snprintf(expath, PATH_MAX, "%s/%s", prefix, c->str);
+			_pacman_rmrf(expath);
+		}
+	}
+	FREELIST(cache);
 	return(0);
 }
 

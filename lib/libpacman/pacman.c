@@ -369,6 +369,7 @@ int pacman_db_update(int force, PM_DB *db)
 		snprintf(path, PATH_MAX, "%s%s/%s" PM_EXT_DB, handle->root, handle->dbpath, db->treename);
 
 		/* remove the old dir */
+		if (force) {
 		_pacman_log(PM_LOG_FLOW2, _("flushing database %s/%s"), handle->dbpath, db->treename);
 		for(lp = _pacman_db_get_pkgcache(db); lp; lp = lp->next) {
 			if(_pacman_db_remove(db, lp->data) == -1) {
@@ -378,6 +379,7 @@ int pacman_db_update(int force, PM_DB *db)
 				}
 				RET_ERR(PM_ERR_DB_REMOVE, -1);
 			}
+		}
 		}
 
 		/* Cache needs to be rebuild */
