@@ -20,7 +20,7 @@ NOTE: if you got FAILED for all test then try pacman-g2 -S fakeroot and try agai
 If some of them failed, probably you'll want to run only one test,
 for example sync990:
 
-cd pactest; python pactest.py --test=tests/sync990.py -p ../../src/pacman-g2/pacman-g2 --debug=-1
+cd pactest; python pactest.py --test=tests/sync990.py -p ../src/pacman-g2/pacman-g2 --debug=-1
 
 That's all.
 
