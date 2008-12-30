@@ -254,7 +254,8 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				}
 				STRNCPY(info->desc, (char*)info->desc_localized->data, sizeof(info->desc));
 				for (i = info->desc_localized; i; i = i->next) {
-					if (!strncmp(i->data, handle->language, strlen(handle->language))) {
+					if (!strncmp(i->data, handle->language, strlen(handle->language)) &&
+							*((char*)i->data+strlen(handle->language)) == ' ') {
 						STRNCPY(info->desc, (char*)i->data+strlen(handle->language)+1, sizeof(info->desc));
 					}
 				}
