@@ -70,7 +70,8 @@ pmlist_t *_pacman_db_test(pmdb_t *db)
 	pmlist_t *ret = NULL;
 
 	while ((ent = readdir(db->handle)) != NULL) {
-		stat(ent->d_name, &buf);
+		snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
+		stat(path, &buf);
 		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..") || !S_ISDIR(buf.st_mode)) {
 			continue;
 		}
