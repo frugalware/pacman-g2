@@ -21,9 +21,9 @@
 #ifndef _PACMAN_LOG_H
 #define _PACMAN_LOG_H
 
-#define LOG_STR_LEN 256
+#include "pacman.h"
 
-typedef void (*pacman_cb_log)(unsigned short, char *);
+#define LOG_STR_LEN 256
 
 extern pacman_cb_log pm_logcb;
 extern unsigned char pm_logmask;

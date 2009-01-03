@@ -75,6 +75,9 @@ int pacman_release(void);
 #define PM_LOG_FLOW2    0x10
 #define PM_LOG_FUNCTION 0x20
 
+/* Log callback */
+typedef void (*pacman_cb_log)(unsigned short, char *);
+
 int pacman_logaction(char *fmt, ...);
 
 /*
