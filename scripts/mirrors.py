@@ -32,8 +32,11 @@ for i in xmldoc.getElementsByTagName('mirror'):
 	for j in i.getElementsByTagName('type'):
 		m.types.append(j.firstChild.toxml())
 	for j in ['id', 'path', 'ftp_path', 'http_path', 'rsync_path', 'country', 'supplier', 'bandwidth']:
-		if i.getElementsByTagName(j) and i.getElementsByTagName(j)[0].firstChild:
-			m.__setattr__(j, i.getElementsByTagName(j)[0].firstChild.toxml())
+		if i.getElementsByTagName(j):
+			if i.getElementsByTagName(j)[0].firstChild:
+				m.__setattr__(j, i.getElementsByTagName(j)[0].firstChild.toxml())
+			else:
+				m.__setattr__(j, "")
 	try:
 		mirrors[m.country]
 	except KeyError:
@@ -63,6 +66,8 @@ for i in countries:
 				path = j.http_path
 		except AttributeError:
 			path = j.path
-		sock.write("Server = %s://%s%s.frugalware.org/%s/%s/frugalware-@CARCH@\n" %
+		if len(path):
+			path = "/%s" % path
+		sock.write("Server = %s://%s%s.frugalware.org%s/%s/frugalware-@CARCH@\n" %
 				(proto, domain, j.id, path, ver))
 sock.close()
