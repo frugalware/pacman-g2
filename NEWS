@@ -1,5 +1,12 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.7.3         - pacman-g2: fixed a bug in -Si / -Qi output when
+                localized pkgdescs were present
+              - bindings: added a new cast function
+              - pacman-g2 -Sy now updates the database incrementall
+                (like rsync would), idea by Csaba Henk
+              - makepkg now supports verifying signatures when a
+                keyserver is not available
 3.7.2         - support for bigendian machines
               - fix build when asciidoc is available but po4a is not
 	      - removed x86-specific hardwired -mtune=generic from
