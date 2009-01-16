@@ -237,9 +237,13 @@ sha1sums (array)::
 	sha1sums in the FrugalBuild, run `makepkg -G`.
 
 signatures (array)::
-	If this field is present, it should contain an array of gpg signatures required
-	to validate the source files. Where there is no signature available just leave
-	it empty, like:
+	If this field is present, it should contain an array of gpg signatures
+	required to validate the source files. It is recommended (but not
+	required) that you also add the key or keyring of upstream to a file
+	named $pkgname.key to make off-line build possible. If there is no such
+	file, and the key is available on a public keyserver, it will be
+	retrieved automatically. Otherwise the build will be aborted. Where
+	there is no signature available just leave it empty, like:
 
 ----
 signatures=(${source[0]}.asc '')

@@ -1390,6 +1390,10 @@ if [ "$GENSHA1" = "0" ]; then
 					gpg --list-keys
 					$ECHO "keyserver-options auto-key-retrieve" >>~/.gnupg/gpg.conf
 				fi
+				if [ -e $startdir/$pkgname.key ]; then
+					msg "Importing $pkgname.key"
+					gpg --import $startdir/$pkgname.key
+				fi
 				msg "Validating source files with gpg"
 				errors=0
 				idx=0
