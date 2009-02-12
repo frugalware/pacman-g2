@@ -415,6 +415,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 				RET_ERR(PM_ERR_LIBARCHIVE_ERROR, -1);
 
 			archive_read_support_compression_all (archive);
+			archive_read_support_compression_lzma (archive);
 			archive_read_support_format_all (archive);
 
 			if (archive_read_open_file (archive, info->data, ARCHIVE_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
