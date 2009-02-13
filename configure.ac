@@ -332,6 +332,14 @@ else
     AC_MSG_ERROR("bzip2 library and its include files are needed to build pacman-g2!");
 fi
 
+dnl Check for lzmadec
+AC_CHECK_LIB([lzmadec], [lzmadec_init], [AC_CHECK_HEADER([lzmadec.h], [LIBLZMADEC='-llzmadec'])])
+if test -n "$LIBLZMADEC"; then
+    LDFLAGS="$LDFLAGS $LIBLZMADEC"
+else
+    AC_MSG_ERROR("lzma library and its include files are needed to build pacman-g2!");
+fi
+
 dnl Check for math
 AC_CHECK_LIB([m], [log10], [AC_CHECK_HEADER([math.h], [LIBM='-lm'])])
 if test -n "$LIBM"; then
