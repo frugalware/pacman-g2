@@ -428,7 +428,7 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				/* FORCE tag only appears in sync repositories,
 				 * not the local one. */
 				info->force = 1;
-			} else if(!strcmp(line, "%STRICK%")) {
+			} else if(!strcmp(line, "%STICK%")) {
 				/* STICK tag only appears in sync repositories,
 				 * not the local one. */
 				info->stick = 1;
