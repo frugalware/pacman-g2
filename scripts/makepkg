@@ -435,13 +435,13 @@ chroot_mount() {
 }
 
 chroot_lock() {
-	if [ -e $CHROOTDIR/var/tmp/fst/lock ]; then
-		error "Somebody already building in this chroot."
-		plain "If you're sure makepkg is not already running, you"
+	if [ -e $CHROOTDIR/var/tmp/fst/lock -a -d /proc/$(cat $CHROOTDIR/var/tmp/fst/lock) ]; then
+		error "Process $(cat $CHROOTDIR/var/tmp/fst/lock) is already building in this chroot."
+		plain "If you know what you are doing, you"
 		plain "can remove $CHROOTDIR/var/tmp/fst/lock."
 		exit 1
 	else
-		touch $CHROOTDIR/var/tmp/fst/lock
+		echo $$ >$CHROOTDIR/var/tmp/fst/lock
 	fi
 }
 
