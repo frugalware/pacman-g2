@@ -111,10 +111,11 @@ void dump_pkg_full(PM_PKG *pkg, int level)
 					FREE(str);
 					continue;
 				}
-				if (!sha1sum) 
-				    printf(_("%sMODIFIED\t%s\n"), strcmp(md5sum, ptr) ? "" : _("NOT "), path);
-				if (!md5sum)
-				    printf(_("%sMODIFIED\t%s\n"), strcmp(sha1sum, ptr) ? "" : _("NOT "), path);
+				if((sha1sum && !strcmp(sha1sum, ptr)) || (md5sum && !strcmp(md5sum, ptr))) {
+					printf(_("NOT MODIFIED\t%s\n"), path);
+				} else {
+					printf(_("MODIFIED\t%s\n"), path);
+				}
 				FREE(md5sum);
 				FREE(sha1sum);
 			} else {
