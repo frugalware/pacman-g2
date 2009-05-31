@@ -56,37 +56,37 @@ AC_MSG_RESULT([a bit high, but we can proceed])
 
 dnl Help line for po4a
 AC_ARG_ENABLE(po4a,
-    AC_HELP_STRING([  --disable-po4a], [Do not build localized manpages via po4a]),
+    AC_HELP_STRING([--disable-po4a], [Do not build localized manpages via po4a]),
     [wantpo4a=$enableval], [wantpo4a=yes])
 
 dnl Help line for asciidoc
 AC_ARG_ENABLE(asciidoc,
-    AC_HELP_STRING([  --disable-asciidoc], [Do not build manpages via asciidoc]),
+    AC_HELP_STRING([--disable-asciidoc], [Do not build manpages via asciidoc]),
     [wantasciidoc=$enableval], [wantasciidoc=yes])
 
 dnl Help line for doxygen
 AC_ARG_ENABLE(doxygen,
-    AC_HELP_STRING([  --disable-doxygen], [Do not build API docs via Doxygen]),
+    AC_HELP_STRING([--disable-doxygen], [Do not build API docs via Doxygen]),
     [wantdoxygen=$enableval], [wantdoxygen=yes])
 
 dnl Help line for python
 AC_ARG_ENABLE(python,
-    AC_HELP_STRING([  --disable-python], [Do not build Python bindings]),
+    AC_HELP_STRING([--disable-python], [Do not build Python bindings]),
     [wantpython=$enableval], [wantpython=yes])
 
 dnl Help line for perl
 AC_ARG_ENABLE(perl,
-    AC_HELP_STRING([  --disable-perl], [Do not build Perl bindings]),
+    AC_HELP_STRING([--disable-perl], [Do not build Perl bindings]),
     [wantperl=$enableval], [wantperl=yes])
 
 dnl Help line for java
 AC_ARG_ENABLE(java,
-    AC_HELP_STRING([  --disable-java], [Do not build Java bindings]),
+    AC_HELP_STRING([--disable-java], [Do not build Java bindings]),
     [wantjava=$enableval], [wantjava=yes])
 
 dnl Help line for csharp
 AC_ARG_ENABLE(csharp,
-    AC_HELP_STRING([  --disable-csharp], [Do not build csharp bindings]),
+    AC_HELP_STRING([--disable-csharp], [Do not build csharp bindings]),
     [wantcsharp=$enableval], [wantcsharp=yes])
 
 dnl Help line for chost
@@ -131,22 +131,22 @@ AC_SUBST(CHOST)
 
 dnl Build with Werror
 AC_ARG_ENABLE(werror,
-	AC_HELP_STRING([  --enable-werror],  [Enable building with Werror]),
+	AC_HELP_STRING([--enable-werror], [Enable building with Werror]),
 	[werror=$enableval], [werror=no])
 
 dnl Build with strict :) (bunch of flags :P)
 AC_ARG_ENABLE(strict,
-	AC_HELP_STRING([  --enable-strict],  [Enable building with 'Strict' flags]),
+	AC_HELP_STRING([--enable-strict], [Enable building with 'Strict' flags]),
 	[strict=$enableval], [strict=no])
 
 dnl Help line for debug
 AC_ARG_ENABLE(debug,
-	AC_HELP_STRING([  --enable-debug],  [Enable debugging support]),
+	AC_HELP_STRING([--enable-debug], [Enable debugging support]),
 	[debug=$enableval], [debug=yes])
 
 dnl Help line for fakeroot
 AC_ARG_ENABLE(fakeroot,
-    AC_HELP_STRING([  --disable-fakeroot], [Disable fakeroot proof  support]),
+    AC_HELP_STRING([--disable-fakeroot], [Disable fakeroot proof support]),
     [fakeroot=$enableval], [fakeroot=yes])
 
 dnl Check for po4a binary
