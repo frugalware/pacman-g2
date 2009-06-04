@@ -190,7 +190,7 @@ pmdb_t *_pacman_db_register(char *treename, pacman_cb_db_register callback)
 		for(i = handle->dbs_sync; i; i = i->next) {
 			pmdb_t *sdb = i->data;
 			if(strcmp(treename, sdb->treename) == 0) {
-				_pacman_log(PM_LOG_DEBUG, _("attempt to re-register the '%s' databse, using existing\n"), sdb->treename);
+				_pacman_log(PM_LOG_DEBUG, _("attempt to re-register the '%s' database, using existing\n"), sdb->treename);
 				return sdb;
 			}
 		}
