@@ -499,7 +499,8 @@ void *pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 
 /** Get a list of packages that own the specified file
  * @param filename name of the file
- * @return the list of packages on success, NULL on error
+ * @return the list of packages on success, NULL on error. The returned
+ * list is an internally cached list and shouldn't be freed.
  */
 pmlist_t *pacman_pkg_getowners(char *filename)
 {
