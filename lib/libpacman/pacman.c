@@ -420,7 +420,8 @@ pmpkg_t *pacman_db_readpkg(pmdb_t *db, const char *name)
 
 /** Get the package cache of a package database
  * @param db pointer to the package database to get the package from
- * @return the list of packages on success, NULL on error
+ * @return the list of packages on success, NULL on error. Returned list
+ * is an internally cached list and shouldn't be freed.
  */
 pmlist_t *pacman_db_getpkgcache(pmdb_t *db)
 {
@@ -463,7 +464,8 @@ pmgrp_t *pacman_db_readgrp(pmdb_t *db, char *name)
 
 /** Get the group cache of a package database
  * @param db pointer to the package database to get the group from
- * @return the list of groups on success, NULL on error
+ * @return the list of groups on success, NULL on error. Returned list
+ * is an internally cached list and shouldn't be freed.
  */
 pmlist_t *pacman_db_getgrpcache(pmdb_t *db)
 {
