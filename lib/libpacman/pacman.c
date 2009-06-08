@@ -495,6 +495,10 @@ void *pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 	return(_pacman_pkg_getinfo(pkg, parm));
 }
 
+/** Get a list of packages that own the specified file
+ * @param filename name of the file
+ * @return the list of packages on success, NULL on error
+ */
 pmlist_t *pacman_pkg_getowners(char *filename)
 {
 	/* Sanity checks */
