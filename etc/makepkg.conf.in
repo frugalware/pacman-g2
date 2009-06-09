@@ -27,7 +27,10 @@ export CXXFLAGS="@CARCHFLAGS@ -O2 -pipe"
 export BUILDSCRIPT="FrugalBuild"
 
 # Package extension
-export PKG_EXT="fpm"
+export PKG_EXT="@PKG_EXT@"
+
+# Package compression
+export PKG_COMP="@PKG_COMP@"
 
 # Database extension
 export DB_EXT="fdb"

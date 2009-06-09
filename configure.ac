@@ -129,6 +129,18 @@ AC_SUBST(CARCH)
 AC_SUBST(CARCHFLAGS)
 AC_SUBST(CHOST)
 
+dnl Default package file extension
+AC_ARG_WITH([package-extension],
+	[AS_HELP_STRING([--with-package-extension=<extension>], [define the default package extension (default: fpm)])],
+	[PKG_EXT="$withval"], [PKG_EXT="fpm"])
+AC_SUBST(PKG_EXT)
+
+dnl Default package file compression
+AC_ARG_WITH([package-compression],
+	[AS_HELP_STRING([--with-package-compression=<compression>], [define the default package compression (default: bzip2)])],
+	[PKG_COMP="$withval"], [PKG_COMP="bzip2"])
+AC_SUBST(PKG_COMP)
+
 dnl Build with Werror
 AC_ARG_ENABLE(werror,
 	AC_HELP_STRING([--enable-werror], [Enable building with Werror]),
@@ -446,6 +458,9 @@ pacman-g2-$VERSION:
 	Architecture CARCH	: ${CARCH}
 	Architecture used cflag	: ${CARCHFLAGS}
 	Architecture CHOST	: ${CHOST}
+
+	Default package extension	: ${PKG_EXT}
+	Default package compression	: ${PKG_COMP}
 
 	Doxygen support		: ${DOXYSTATUS}
 	Manpages		: ${ASCIISTATUS}
