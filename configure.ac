@@ -447,30 +447,30 @@ Makefile
 echo "
 pacman-g2-$VERSION:
 
-	prefix			: ${prefix}
-	source code location	: ${srcdir}
-	compiler		: ${CC}
-	compiler flags		: ${CFLAGS}
+	prefix				: ${prefix}
+	source code location		: ${srcdir}
+	compiler			: ${CC}
+	compiler flags			: ${CFLAGS}
 
-	libpacman version	: ${PM_VERSION}
-	pacman-g2.conf location	: ${PACCONF}
+	libpacman version		: ${PM_VERSION}
+	pacman-g2.conf location		: ${PACCONF}
 
-	Architecture CARCH	: ${CARCH}
-	Architecture used cflag	: ${CARCHFLAGS}
-	Architecture CHOST	: ${CHOST}
+	Architecture CARCH		: ${CARCH}
+	Architecture used cflag		: ${CARCHFLAGS}
+	Architecture CHOST		: ${CHOST}
 
 	Default package extension	: ${PKG_EXT}
 	Default package compression	: ${PKG_COMP}
 
-	Doxygen support		: ${DOXYSTATUS}
-	Manpages		: ${ASCIISTATUS}
-	Manpage localization	: ${POSTATUS}
-	Perl bindings		: ${PERLSTATUS}
-	Python bindings		: ${PYTHONSTATUS}
-	Java bindings		: ${JAVASTATUS}
-	C# bindings		: ${CSHARPSTATUS}
+	Doxygen support			: ${DOXYSTATUS}
+	Manpages			: ${ASCIISTATUS}
+	Manpage localization		: ${POSTATUS}
+	Perl bindings			: ${PERLSTATUS}
+	Python bindings			: ${PYTHONSTATUS}
+	Java bindings			: ${JAVASTATUS}
+	C# bindings			: ${CSHARPSTATUS}
 
-	debug support		: ${debug}
-	Werror build		: ${werror}
-	Strict flags		: ${strict}
+	debug support			: ${debug}
+	Werror build			: ${werror}
+	Strict flags			: ${strict}
 "
