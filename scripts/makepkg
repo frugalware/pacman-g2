@@ -74,6 +74,8 @@ Fextract() {
 		cmd="tar --use-compress-program=gzip -xf $file" ;;
 		*.tar.bz2|*.tbz2)
 		cmd="tar --use-compress-program=bzip2 -xf $file" ;;
+		*.tar.lzma)
+		cmd="tar --use-compress-program=lzma -xf $file" ;;
 		*.tar)
 		cmd="tar -xf $file" ;;
 		*.zip|*.xpi)
