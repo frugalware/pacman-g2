@@ -51,7 +51,6 @@ NOSTRIP=0
 RMDEPS=0
 CHROOT=1
 NOUP2DATE=0
-USEGZIP=0
 NODOCS=0
 TREE=""
 CACHEURL=""
@@ -396,7 +395,7 @@ usage() {
 	$ECHO "  -u, --noup2date  Do not check for newer version"
 	$ECHO "  -t <tree>        Use the given tree's chroot to build in"
 	$ECHO "  -w <destdir>     Write package to <destdir> instead of the working dir"
-	$ECHO "  --gzip           Use gzip compression for a package instead of bzip2"
+	$ECHO "  -z <compression> Use compression program for a package (instead of $PKG_COMP)"
 	$ECHO
 	$ECHO "These options can be passed to pacman-g2:"
 	$ECHO
@@ -405,6 +404,8 @@ usage() {
 	$ECHO
 	$ECHO "If -p is not specified, makepkg will look for $BUILDSCRIPT"
 	$ECHO
+	$ECHO "Compatibility options (these may be removed in any future release):"
+	$ECHO "  --gzip           Use gzip compression for a package"
 }
 
 chroot_umount() {
@@ -575,12 +576,10 @@ create_pkg()
 		extra="$extra .CHANGELOG"
 	fi
 
-	if [ "$USEGZIP" == "1" ]; then
-		tarargs="czf"
-		warning "Using gzip compression - this is not optimal!"
-	else
-		tarargs="cjf"
-	fi
+	case "$COMPRESS_PROGRAM" in
+	none)	tarargs="-cf" ;;
+	*)	tarargs="--use-compress-program=$COMPRESS_PROGRAM -cf" ;;
+	esac
 
 	if [ "$INCHROOT" != "1" ]; then
 		tar $tarargs $PKGDEST/$1-$pkgver-$pkgrel-$CARCH.$PKG_EXT .PKGINFO .FILELIST \
@@ -682,7 +681,21 @@ install_pkg()
 	exit 0
 }
 
+if [ -z "$PKG_EXT" ]; then
+	error "The PKG_EXT environment variable is not defined, check your /etc/makepkg.conf!"
+	exit 1
+fi
+
+if [ -z "$PKG_COMP" ]; then
+#	Enable the following after frugalware-1.1
+#	error "The PKG_COMP environment variable is not defined, check your /etc/makepkg.conf!"
+#	exit 1
+	warning "The PKG_COMP environment variable is not defined, check your /etc/makepkg.conf! Using default compression bzip2"
+	PKG_COMP="bzip2"
+fi
+
 ARGLIST=$@
+COMPRESS_PROGRAM="$PKG_COMP"
 
 while [ "$#" -ne "0" ]; do
 	case $1 in
@@ -710,7 +723,7 @@ while [ "$#" -ne "0" ]; do
 		--chroot)     CHROOT=1 ;;
 		--host)       CHROOT=0 ;;
 		--noup2date)  NOUP2DATE=1 ;;
-		--gzip)       USEGZIP=1 ;;
+		--gzip)       COMPRESS_PROGRAM="gzip" ;;
 		--help)
 			usage
 			exit 0
@@ -720,7 +733,7 @@ while [ "$#" -ne "0" ]; do
 			exit 1
 			;;
 		-*)
-			while getopts "aA:bBcCdD:efgGhij:kl:Lmnop:urRHsSt:w:-" opt; do
+			while getopts "aA:bBcCdD:efgGhij:kl:Lmnop:urRHsSt:w:z:-" opt; do
 				case $opt in
 					a) SEARCHDEPS=1 ;;
 					A) CACHEURL=$OPTARG ;;
@@ -753,6 +766,7 @@ while [ "$#" -ne "0" ]; do
 					t) TREE="$OPTARG" ;;
 					u) NOUP2DATE=1 ;;
 					w) PKGDEST=$OPTARG ;;
+					z) COMPRESS_PROGRAM=$OPTARG ;;
 					-)
 						OPTIND=0
 						break
@@ -770,6 +784,12 @@ while [ "$#" -ne "0" ]; do
 	esac
 	shift
 done
+
+# check for COMPRESS_PROGRAM program to be in the path
+if [ -z "`which $COMPRESS_PROGRAM 2>/dev/null`" ]; then
+	error "Cannot find compress program ($COMPRESS_PROGRAM) in PATH"
+	exit 1
+fi
 
 # check for sudo
 if [ "$DEP_SUDO" = "1" -a ! "`type -p sudo`" ]; then
