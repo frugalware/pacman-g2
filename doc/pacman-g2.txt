@@ -120,7 +120,7 @@ pacman-g2 packages are in a bzipped tar format.
 	Skip the SHA1 integrity check for the downloaded packages.
 
 --regex::
-	Threat the target names as regular expressions if no target found.
+	Treat the target names as regular expressions if no target found.
 
 	Example:
 	----
@@ -203,7 +203,7 @@ pacman-g2 packages are in a bzipped tar format.
 -s, --recursive::
 	For each target specified, remove it and all its dependencies, provided that
 	(A) they are not required by other packages; and (B) they were not explicitly
-	installed by the user. This option is analagous to a backwards --sync
+	installed by the user. This option is analogous to a backwards --sync
 	operation.
 
 == QUERY OPTIONS
