@@ -158,7 +158,7 @@ static void usage(int op, char *myname)
 			printf(_("  -y, --refresh       download fresh package databases from the server\n"));
 			printf(_("      --ignore <pkg>  ignore a package upgrade (can be used more than once)\n"));
 			printf(_("      --nointegrity   don't check the integrity of the packages using sha1\n"));
-			printf(_("      --regex         threat targets as regexs if no package found\n"));
+			printf(_("      --regex         treat targets as regexs if no package found\n"));
 		}
 		printf(_("      --config <path> set an alternate configuration file\n"));
 		printf(_("      --noconfirm     do not ask for anything confirmation\n"));
