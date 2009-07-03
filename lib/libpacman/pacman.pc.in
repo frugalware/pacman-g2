@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=${prefix}
+libdir=@libdir@
+includedir=@includedir@
+
+Name: pacman-g2 library
+Description: package management library
+Version: @PM_VERSION@
+Libs: -L${libdir} -lpacman
+Cflags: -I${includedir}

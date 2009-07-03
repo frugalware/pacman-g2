@@ -41,6 +41,9 @@ libpacman_la_SOURCES = $(TARGETS)
 libpacman_la_LDFLAGS = -no-undefined -version-info $(PM_VERSION_INFO)
 libpacman_la_LIBADD = $(top_builddir)/lib/libftp/libftp.la
 
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = pacman.pc
+
 if HAS_DOXYGEN
 all: doxygen.in
 

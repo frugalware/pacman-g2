@@ -161,6 +161,15 @@ AC_ARG_ENABLE(fakeroot,
 	AC_HELP_STRING([--disable-fakeroot], [Disable fakeroot proof support]),
 	[fakeroot=$enableval], [fakeroot=yes])
 
+dnl Check for pkg-config binary
+AC_PATH_PROG(PKG_CONFIG, pkg-config)
+if test ! -x "$PKG_CONFIG" ; then
+   AC_MSG_ERROR([
+*** You need pkg-config. Get it from
+*** <http://pkg-config.freedesktop.org/>.])
+fi
+AC_SUBST(PKG_CONFIG)
+
 dnl Check for po4a binary
 AC_MSG_CHECKING(for support po4a)
 if test x$wantpo4a = xyes ; then
@@ -424,6 +433,7 @@ dnl ==========================================================================
 AC_OUTPUT([
 lib/libpacman/Makefile
 lib/libpacman/po/Makefile.in
+lib/libpacman/pacman.pc
 lib/libftp/Makefile
 src/pacman-g2/Makefile
 src/pacman-g2/po/Makefile.in
