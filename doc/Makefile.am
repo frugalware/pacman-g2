@@ -21,7 +21,7 @@ man_MANS =
 endif
 
 if HAS_DOXYGEN
-man_MANS += man3/*
+man_MANS += libpacman.3 man3/*
 else
 man3_MANS = libpacman.3
 endif
