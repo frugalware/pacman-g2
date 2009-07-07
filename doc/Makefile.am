@@ -1,11 +1,5 @@
 if HAS_ASCIIDOC
 
-if HAS_DOXYGEN
-man_MANS += man3/*
-else
-man3_MANS = libpacman.3
-endif
-
 man5_MANS = FrugalBuild.5
 
 man8_MANS = makepkg.8 pacman-g2.8
@@ -24,6 +18,12 @@ if HAS_ASCIIDOC
 man_MANS = $(localized_MANS) $(man3_MANS)
 else
 man_MANS =
+endif
+
+if HAS_DOXYGEN
+man_MANS += man3/*
+else
+man3_MANS = libpacman.3
 endif
 
 if HAS_ASCIIDOC
