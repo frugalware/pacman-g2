@@ -1,11 +1,11 @@
 if HAS_ASCIIDOC
 
-man5_MANS = FrugalBuild.5
+man5 = FrugalBuild.5
 
-man8_MANS = makepkg.8 pacman-g2.8
+man8 = makepkg.8 pacman-g2.8
 endif
 
-localized_MANS = $(man5_MANS) $(man8_MANS)
+localized_MANS = $(man5) $(man8)
 
 localized_LANGS = $(shell grep '\[po4a_langs\]' po4a.cfg |sed 's/\[po4a_langs\] //')
 
@@ -54,7 +54,7 @@ endif
 
 install-man5-local:
 	for i in $(localized_LANGS); do \
-		for j in $(man5_MANS); do \
+		for j in $(man5); do \
 			if [ -e $$i/$$j ]; then \
 				test -z "$(mandir)/$$i/man5" || $(MKDIR_P) "$(DESTDIR)$(mandir)/$$i/man5"; \
 				$(INSTALL_DATA) $$i/$$j "$(DESTDIR)$(mandir)/$$i/man5/$$j"; \
@@ -64,7 +64,7 @@ install-man5-local:
 
 install-man8-local:
 	for i in $(localized_LANGS); do \
-		for j in $(man8_MANS); do \
+		for j in $(man8); do \
 			if [ -e $$i/$$j ]; then \
 			test -z "$(mandir)/$$i/man8" || $(MKDIR_P) "$(DESTDIR)$(mandir)/$$i/man8"; \
 				$(INSTALL_DATA) $$i/$$j "$(DESTDIR)$(mandir)/$$i/man8/$$j"; \
