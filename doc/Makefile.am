@@ -71,5 +71,3 @@ install-man8-local:
 			fi; \
 		done; \
 	done
-
-EXTRA_DIST = $(man_MANS)
