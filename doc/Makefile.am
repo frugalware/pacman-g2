@@ -1,5 +1,10 @@
 if HAS_ASCIIDOC
+
+if HAS_DOXYGEN
+man_MANS += man3/*
+else
 man3_MANS = libpacman.3
+endif
 
 man5_MANS = FrugalBuild.5
 
@@ -66,9 +71,5 @@ install-man8-local:
 			fi; \
 		done; \
 	done
-
-if HAS_DOXYGEN
-man_MANS += man3/*
-endif
 
 EXTRA_DIST = $(man_MANS)
