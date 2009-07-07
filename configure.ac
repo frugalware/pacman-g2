@@ -89,6 +89,11 @@ AC_ARG_ENABLE(csharp,
 	AC_HELP_STRING([--disable-csharp], [Do not build csharp bindings]),
 	[wantcsharp=$enableval], [wantcsharp=yes])
 
+dnl Help line for vala
+AC_ARG_ENABLE(vala,
+	AC_HELP_STRING([--disable-vala], [Do not build vala bindings]),
+	[wantvala=$enableval], [wantvala=yes])
+
 dnl Help line for chost
 AC_ARG_WITH(chost, AC_HELP_STRING([--with-chost], [Build with a specific CHOST (default: CARCH-frugalware-linux)]))
 
@@ -345,6 +350,27 @@ else
 	CSHARPSTATUS="no, disabled by configure"
 fi
 
+dnl Check for python support
+AC_MSG_CHECKING(if Vala bindings should be generated)
+if test x$wantvala = xyes ; then
+	AC_CHECK_PROGS([VALAC], [valac])
+	AM_CONDITIONAL(HAS_VALA, test $VALAC)
+	if test $VALAC ; then
+		AC_DEFINE([HAS_VALA], [TRUE], [Enabled Vala Support])
+	AC_MSG_RESULT(yes)
+	VALASTATUS="yes"
+	else
+		AC_DEFINE([HAS_VALA], [FALSE], [Disabled Vala support])
+	AC_MSG_RESULT(no, valac missing)
+	VALASTATUS="valac binary not found"
+	fi
+else
+	AM_CONDITIONAL(HAS_VALA, test $VALAC)
+	AC_DEFINE([HAS_VALA], [FALSE], [Not specified at configure line])
+	AC_MSG_RESULT(not requested by configure)
+	VALASTATUS="no, disabled by configure"
+fi
+
 dnl Check for bzip2
 AC_CHECK_LIB([bz2], [BZ2_bzCompress], [AC_CHECK_HEADER([bzlib.h], [LIBBZ2='-lbz2'])])
 if test -n "$LIBBZ2"; then
@@ -451,6 +477,7 @@ bindings/perl/Makefile
 bindings/python/Makefile
 bindings/java/Makefile
 bindings/csharp/Makefile
+bindings/vala/Makefile
 Makefile
 ])
 
@@ -479,6 +506,7 @@ pacman-g2-$VERSION:
 	Python bindings			: ${PYTHONSTATUS}
 	Java bindings			: ${JAVASTATUS}
 	C# bindings			: ${CSHARPSTATUS}
+	Vala bindings			: ${VALASTATUS}
 
 	debug support			: ${debug}
 	Werror build			: ${werror}

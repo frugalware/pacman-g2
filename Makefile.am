@@ -12,6 +12,9 @@ endif
 if HAS_CSHARP
 SUBDIRS += bindings/csharp
 endif
+if HAS_VALA
+SUBDIRS += bindings/vala
+endif
 
 EXTRA_DIST =		\
 	ChangeLog  	\

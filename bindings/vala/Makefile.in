@@ -1,0 +1,13 @@
+top_srcdir = @top_srcdir@
+prefix = @prefix@
+
+all:
+
+install:
+	mkdir -p $(DESTDIR)/$(prefix)/share/vala/vapi
+	install -m644 pacman.vapi $(DESTDIR)/$(prefix)/share/vala/vapi/pacman.vapi
+
+distclean:
+	rm -f Makefile
+
+check:
