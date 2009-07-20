@@ -1006,6 +1006,13 @@ if [ ! -z "$subpkgs" ]; then
 		error "Subpackage infos are incomplete. Cannot create subpackages."
 		exit 1
 	fi
+
+	makedepends=${makedepends[@]}
+	for i in $(seq 0 $((${#subpkgs[@]} - 1)))
+	do
+		makedepends="$makedepends ${subdepends[$i]}"
+	done
+	makedepends=( $makedepends )
 fi
 
 if [ ! -e "$install" -a ! -e "$startdir/$install" -a ! "`check_option GENSCRIPTLET`" ]; then
