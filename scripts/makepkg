@@ -963,6 +963,9 @@ if [ ! -z "$subpkgs" ]; then
 	if [ "${#subdescs[@]}" != 0 ] && [ "${#subdescs[@]}" != "${#subpkgs[@]}" ]; then
 		goodsubpkgs=0
 	fi
+	if [ "${#subdescs_localized[@]}" != 0 ] && [ "${#subdescs_localized[@]}" != "${#subpkgs[@]}" ]; then
+		goodsubpkgs=0
+	fi
 	if [ "${#sublicense[@]}" != 0 ] && [ "${#sublicense[@]}" != "${#subpkgs[@]}" ]; then
 		goodsubpkgs=0
 	fi
@@ -994,6 +997,9 @@ if [ ! -z "$subpkgs" ]; then
 		goodsubpkgs=0
 	fi
 	if [ "${#suboptions[@]}" != 0 ] && [ "${#suboptions[@]}" != "${#subpkgs[@]}" ]; then
+		goodsubpkgs=0
+	fi
+	if [ "${#subarchs[@]}" != 0 ] && [ "${#subarchs[@]}" != "${#subpkgs[@]}" ]; then
 		goodsubpkgs=0
 	fi
 	if [ $goodsubpkgs -ne 1 ]; then
