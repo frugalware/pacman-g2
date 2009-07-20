@@ -55,6 +55,7 @@ NODOCS=0
 TREE=""
 CACHEURL=""
 
+PACMAN=pacman-g2
 PACMAN_OPTS=
 
 # compat functions. these are useful if one would like to use makepkg outside
@@ -233,7 +234,7 @@ checkdeps() {
 
 	[ $# -gt 0 ] || return
 
-	missdep=`pacman-g2 $PACMAN_OPTS -T $*`
+	missdep=`$PACMAN $PACMAN_OPTS -T $*`
 	ret=$?
 	if [ "$ret" != "0" ]; then
 		if [ "$ret" = "127" ]; then
@@ -254,7 +255,7 @@ checkdeps() {
 			done
 			msg ""
 		else
-			error "pacman-g2 returned a fatal error."
+			error "$PACMAN returned a fatal error."
 			exit 1
 		fi
 	fi
@@ -274,9 +275,9 @@ handledeps() {
 			# install missing deps from binary packages (using pacman-g2 -S)
 			msg "Installing missing dependencies..."
 			if [ "$INCHROOT" != "1" -o "`check_option SCRIPTLET`" ]; then
-				pacman-g2 $PACMAN_OPTS -D $deplist
+				$PACMAN $PACMAN_OPTS -D $deplist
 			else
-				pacman-g2 $PACMAN_OPTS --noscriptlet -D $deplist
+				$PACMAN $PACMAN_OPTS --noscriptlet -D $deplist
 			fi
 			if [ "$?" = "127" ]; then
 				error "Failed to install missing dependencies."
@@ -292,9 +293,9 @@ handledeps() {
 				unset FAKEROOTKEY
 			fi
 			if [ "$INCHROOT" != "1" -o "`check_option SCRIPTLET`" ]; then
-				sudo pacman-g2 $PACMAN_OPTS -D $deplist
+				sudo $PACMAN $PACMAN_OPTS -D $deplist
 			else
-				sudo pacman-g2 $PACMAN_OPTS --noscriptlet -D $deplist
+				sudo $PACMAN $PACMAN_OPTS --noscriptlet -D $deplist
 			fi
 			if [ "$?" = "127" ]; then
 				error "Failed to install missing dependencies."
@@ -462,16 +463,16 @@ chroot_clean()
 			msg "Removing unnecessary packages."
 			for i in "$COREPKGS"
 			do
-				corelist="$corelist `/usr/sbin/chroot $CHROOTDIR pacman-g2 -Sg $i |grep -v '^\w'`"
+				corelist="$corelist `/usr/sbin/chroot $CHROOTDIR $PACMAN -Sg $i |grep -v '^\w'`"
 			done
-			for i in `/usr/sbin/chroot $CHROOTDIR pacman-g2 -Q|sed 's/\([^ ]*\) .*/\1/'`
+			for i in `/usr/sbin/chroot $CHROOTDIR $PACMAN -Q|sed 's/\([^ ]*\) .*/\1/'`
 			do
 				if ! $ECHO $corelist |grep -qw $i; then
 					removelist="$removelist $i"
 				fi
 			done
 			if [ ! -z "$removelist" ]; then
-				/usr/sbin/chroot $CHROOTDIR pacman-g2 -Rcn $removelist --noconfirm
+				/usr/sbin/chroot $CHROOTDIR $PACMAN -Rcn $removelist --noconfirm
 				if [ "$?" != "0" ]; then
 					error "Failed to remove packages."
 					exit 1
@@ -646,7 +647,7 @@ in_array()
 install_pkg()
 {
 	if [ "$INSTALL" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
-		msg "Installing package(s) with pacman-g2 -U..."
+		msg "Installing package(s) with $PACMAN -U..."
 		targs="$PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
 		if [ ! -z "$subpkgs" ]; then
 			i=0
@@ -655,9 +656,9 @@ install_pkg()
 				targs="$targs $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
 			done
 		fi
-		pacman-g2 $PACMAN_OPTS -U $targs || exit $?
+		$PACMAN $PACMAN_OPTS -U $targs || exit $?
 	elif [ "$INSTALL" = "1" -a "$DEP_SUDO" = "1" ]; then
-		msg "Installing package(s) with sudo pacman-g2 -U..."
+		msg "Installing package(s) with sudo $PACMAN -U..."
 		targs="$PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
 		if [ ! -z "$subpkgs" ]; then
 			i=0
@@ -670,7 +671,7 @@ install_pkg()
 			FAKEROOTKEY2=$FAKEROOTKEY
 			unset FAKEROOTKEY
 		fi
-		sudo pacman-g2 $PACMAN_OPTS -U $targs || exit $?
+		sudo $PACMAN $PACMAN_OPTS -U $targs || exit $?
 		if [ "$INFAKEROOT" = "1" ]; then
 			export FAKEROOTKEY=$FAKEROOTKEY2
 			unset FAKEROOTKEY2
@@ -851,7 +852,7 @@ if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
 	msg "Retrieving $DOWNLOAD's buildscript..."
 	
 	# find the package
-	if ! pacman-g2 -Si $DOWNLOAD >/dev/null 2>&1; then
+	if ! $PACMAN -Si $DOWNLOAD >/dev/null 2>&1; then
 		error "Package \"$DOWNLOAD\" was not found."
 		exit 1
 	fi
@@ -872,10 +873,10 @@ if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
 	confs=`cat /etc/pacman-g2.conf |grep ^Include|sed 's/.* = \(.*\)/\1/'`
 	
 	# searching for a mirror
-	repo=`pacman-g2 -Si $DOWNLOAD |grep ^Repo |sed -n 's/.* \([^ ]*\)/\1/;1 p'`
+	repo=`$PACMAN -Si $DOWNLOAD |grep ^Repo |sed -n 's/.* \([^ ]*\)/\1/;1 p'`
 	dir=`grep ^Server /etc/pacman-g2/repos/$repo |sed -n 's/.* = \(.*\)/\1/;1 p'`
 	arch=`grep ^Server /etc/pacman-g2/repos/$repo |sed -n 's/.*-\(.*\)/\1/;1 p'`
-	cat=`pacman-g2 -Si $DOWNLOAD |grep ^G |sed 's/.* : \([^ ]*\) .*/\1/;'`
+	cat=`$PACMAN -Si $DOWNLOAD |grep ^G |sed 's/.* : \([^ ]*\) .*/\1/;'`
 	dlpath="$dir/../"
 	
 	# download the script
@@ -1090,7 +1091,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			$ECHO "Include = /etc/pacman-g2/repos/$repo" >>$_F_makepkg_pacconf
 		done
 		mkdir -p $CHROOTDIR/{tmp,var/log}
-		pacman-g2 -r "$CHROOTDIR" -Syf $COREPKGS --noconfirm --config $_F_makepkg_pacconf
+		$PACMAN -r "$CHROOTDIR" -Syf $COREPKGS --noconfirm --config $_F_makepkg_pacconf
 		if [ "$?" != "0" ]; then
 			error "Failed to build chroot environment."
 			chroot_umount
@@ -1103,8 +1104,8 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		# copy these before any update since without them we can't even reach the servers
 		cp -pf /etc/{resolv.conf,services} $CHROOTDIR/etc
 		# run pacman-g2 -Su twice in case pacman-g2 updated
-		yes "" | /usr/sbin/chroot "$CHROOTDIR" pacman-g2 -Sy pacman-g2 --ask 94 && \
-			/usr/sbin/chroot "$CHROOTDIR" pacman-g2 -Su --noconfirm
+		yes "" | /usr/sbin/chroot "$CHROOTDIR" $PACMAN -Sy $PACMAN --ask 94 && \
+			/usr/sbin/chroot "$CHROOTDIR" $PACMAN -Su --noconfirm
 		if [ "$?" != "0" ]; then
 			error "Failed to update chroot environment."
 			chroot_umount
@@ -1249,7 +1250,7 @@ fi
 msg "Making package: $pkgname $pkgver-$pkgrel (`date`)"
 
 unset deplist makedeplist
-if [ `type -p pacman-g2` -a "$NODEPS" = "0" ]; then
+if [ `type -p $PACMAN` -a "$NODEPS" = "0" ]; then
 	msg "Checking Runtime Dependencies..."
 	deplist=`checkdeps ${depends[@]}`
 	handledeps $deplist
@@ -1271,7 +1272,7 @@ if [ `type -p pacman-g2` -a "$NODEPS" = "0" ]; then
 elif [ "$NODEPS" = "1" ]; then
 	warning "skipping dependency checks."
 else
-	warning "pacman-g2 was not found in PATH. skipping dependency checks."
+	warning "$PACMAN was not found in PATH. skipping dependency checks."
 fi
 
 cd $startdir
@@ -1794,14 +1795,14 @@ fi
 
 if [ "$RMDEPS" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" -a \( ! -z "$deplist" -o ! -z "$makedeplist" \) ]; then
 	msg "Removing installed dependencies..."
-	pacman-g2 $PACMAN_OPTS -R $makedeplist $deplist
+	$PACMAN $PACMAN_OPTS -R $makedeplist $deplist
 elif [ "$RMDEPS" = "1" -a "$DEP_SUDO" = "1" ]; then
 	msg "Removing installed dependencies..."
 	if [ "$INFAKEROOT" = "1" ]; then
 		FAKEROOTKEY2=$FAKEROOTKEY
 		unset FAKEROOTKEY
 	fi
-	sudo pacman-g2 $PACMAN_OPTS -R $makedeplist $deplist
+	sudo $PACMAN $PACMAN_OPTS -R $makedeplist $deplist
 	if [ "$INFAKEROOT" = "1" ]; then
 		export FAKEROOTKEY=$FAKEROOTKEY2
 		unset FAKEROOTKEY2
