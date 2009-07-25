@@ -1,5 +1,12 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.7.4         - libpacman: added lzma decoding support
+              - makepkg now ignores the chroot lock file in case the
+                process is no longer running
+              - API documentation improvements
+              - added vala bindings and a pkg-config file for libpacman
+              - makepkg: subdepends are now automatically added to
+                makedepends, just like depends
 3.7.3         - pacman-g2: fixed a bug in -Si / -Qi output when
                 localized pkgdescs were present
               - bindings: added a new cast function
