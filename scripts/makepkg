@@ -884,7 +884,7 @@ if [ ! -f $BUILDSCRIPT ]; then
 	exit 1
 fi
 
-source $BUILDSCRIPT
+source ./$BUILDSCRIPT
 
 # check for no-no's
 if [ -z "$pkgver" ]; then
