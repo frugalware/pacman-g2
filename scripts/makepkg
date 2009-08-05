@@ -411,7 +411,7 @@ chroot_mount() {
 }
 
 chroot_lock() {
-	if [ -e $CHROOTDIR/var/tmp/fst/lock -a -d /proc/$(cat $CHROOTDIR/var/tmp/fst/lock) ]; then
+	if [ -e $CHROOTDIR/var/tmp/fst/lock -a -d /proc/$(cat $CHROOTDIR/var/tmp/fst/lock 2>/dev/null) ]; then
 		error "Process $(cat $CHROOTDIR/var/tmp/fst/lock) is already building in this chroot."
 		plain "If you know what you are doing, you"
 		plain "can remove $CHROOTDIR/var/tmp/fst/lock."
