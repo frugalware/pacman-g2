@@ -118,6 +118,10 @@ case "$host" in
 	i386-*) CARCH="i386"
 		CARCHFLAGS="-march=i386 -mtune=generic"
 		;;
+	arm*)
+		CARCH="arm"
+		CARCHFLAGS="-march=armv5te"
+		;;
 	*)
 		AC_MSG_ERROR([Your architecture is not supported])
 		;;
