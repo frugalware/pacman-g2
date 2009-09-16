@@ -23,11 +23,13 @@ Server = ftp://ftp5.frugalware.org/packages/frugalware/pub/frugalware/frugalware
 # ----------
 # - FRANCE -
 # ----------
-# frugalware-fr.org by botux.net (1 GBit)
-Server = ftp://ftp7.frugalware.org/frugalware-stable/frugalware-@CARCH@
+# Fondation Free (2 GBit)
+Server = ftp://ftp7.frugalware.org/pub/frugalware/frugalware-stable/frugalware-@CARCH@
 # -----------
 # - GERMANY -
 # -----------
+# Host Europe (1 GBit)
+Server = ftp://ftp2.frugalware.org/mirror/ftp.frugalware.org/pub/frugalware//frugalware-stable/frugalware-@CARCH@
 # linux-de.org (100 MBit)
 Server = ftp://ftp8.frugalware.org/distro/frugalware/frugalware-stable/frugalware-@CARCH@
 # -----------
