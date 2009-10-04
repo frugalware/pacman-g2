@@ -1,5 +1,9 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.7.5         - update mirror list
+              - initial arm support
+              - support for bash 4.0
+              - dropped support for glibc < 2.8
 3.7.4         - libpacman: added lzma decoding support
               - makepkg now ignores the chroot lock file in case the
                 process is no longer running
