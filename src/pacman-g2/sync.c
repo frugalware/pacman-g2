@@ -346,7 +346,7 @@ int syncpkg(list_t *targets)
 						return(1);
 					}
 					if(pacman_trans_addtarget("pacman-g2") == -1) {
-						ERR(NL, _("could not add target '%s': %s\n"), (char *)i->data, pacman_strerror(pm_errno));
+						ERR(NL, _("could not add target '%s': %s\n"), "pacman-g2", pacman_strerror(pm_errno));
 						retval = 1;
 						goto cleanup;
 					}
