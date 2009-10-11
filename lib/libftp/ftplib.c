@@ -417,7 +417,6 @@ GLOBALDEF int FtpConnect(const char *host, netbuf **nControl)
 	{
 		if ((phe = gethostbyname(lhost)) == NULL)
 		{
-			perror("gethostbyname");
 			return 0;
 		}
 		memcpy((char *)&sin.sin_addr, phe->h_addr, phe->h_length);
@@ -1354,7 +1353,6 @@ GLOBALREF int HttpConnect(const char *host, unsigned short port, netbuf **nContr
 	{
 		if ((phe = gethostbyname(lhost)) == NULL)
 		{
-			perror("gethostbyname");
 			return 0;
 		}
 		memcpy((char *)&sin.sin_addr, phe->h_addr, phe->h_length);
