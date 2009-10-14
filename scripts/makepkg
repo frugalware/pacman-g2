@@ -1240,6 +1240,12 @@ if [ `type -p $PACMAN` -a "$NODEPS" = "0" ]; then
 	if [ $? -gt 0 ]; then
 		exit 1
 	fi
+	# check deps again to make sure they were resolved
+	deplist=`checkdeps ${makedepends[@]}`
+	if [ ! -z "$deplist" ]; then
+		error "Failed to install missing buildtime dependencies."
+		exit 1
+	fi
 elif [ "$NODEPS" = "1" ]; then
 	warning "skipping dependency checks."
 else
