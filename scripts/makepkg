@@ -337,7 +337,7 @@ handledeps() {
 usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 [options]"
+	$ECHO "Usage: $0 [options] [variable assignations]"
 	$ECHO
 	$ECHO "Options:"
 	$ECHO "  -a, --searchdeps Search for package dependencies automatically"
@@ -376,6 +376,7 @@ usage() {
 	$ECHO "  --noprogressbar  Do not show a progress bar when downloading files"
 	$ECHO
 	$ECHO "If -p is not specified, makepkg will look for $BUILDSCRIPT"
+	$ECHO "Variable assignations are user defined shell assignations (eg. USE_FOO=BAR) used to interact with makepkg and the FrugalBuilds."
 	$ECHO
 	$ECHO "Compatibility options (these may be removed in any future release):"
 	$ECHO "  --gzip           Use gzip compression for a package"
@@ -750,6 +751,8 @@ while [ "$#" -ne "0" ]; do
 						;;
 				esac
 			done
+			;;
+		*=*)	eval $(IFS= ; printf 'export %q=%q' "${1%%=*}" "${1#*=}")
 			;;
 		*)
 			true
