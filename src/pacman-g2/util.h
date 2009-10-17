@@ -44,7 +44,6 @@
 
 #define _(str) gettext(str)
 
-int makepath(char *path);
 int rmrf(char *path);
 void indentprint(char *str, int indent);
 char *buildstring(list_t *strlist);

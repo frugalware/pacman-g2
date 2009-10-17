@@ -49,37 +49,6 @@ extern int maxcols;
 extern config_t *config;
 extern int neednl;
 
-/* does the same thing as 'mkdir -p' */
-int makepath(char *path)
-{
-	char *orig, *str, *ptr;
-	char full[PATH_MAX] = "";
-	mode_t oldmask;
-
-	oldmask = umask(0000);
-
-	orig = strdup(path);
-	str = orig;
-	while((ptr = strsep(&str, "/"))) {
-		if(strlen(ptr)) {
-			struct stat buf;
-
-			strcat(full, "/");
-			strcat(full, ptr);
-			if(stat(full, &buf)) {
-				if(mkdir(full, 0755)) {
-					free(orig);
-					umask(oldmask);
-					return(1);
-				}
-			}
-		}
-	}
-	free(orig);
-	umask(oldmask);
-	return(0);
-}
-
 /* does the same thing as 'rm -rf' */
 int rmrf(char *path)
 {
