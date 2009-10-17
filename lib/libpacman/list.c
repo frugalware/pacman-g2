@@ -1,8 +1,8 @@
 /*
  *  list.c
- * 
+ *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -15,7 +15,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
 
@@ -30,7 +30,7 @@
 pmlist_t *_pacman_list_new()
 {
 	pmlist_t *list = NULL;
-	
+
 	list = (pmlist_t *)malloc(sizeof(pmlist_t));
 	if(list == NULL) {
 		return(NULL);
@@ -87,7 +87,7 @@ pmlist_t *_pacman_list_add(pmlist_t *list, void *data)
 	return(ptr);
 }
 
-/* Add items to a list in sorted order. Use the given comparision func to 
+/* Add items to a list in sorted order. Use the given comparision func to
  * determine order.
  */
 pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn)
@@ -256,7 +256,7 @@ pmlist_t *_pacman_list_remove_dupes(pmlist_t *list)
  * The caller is responsible for freeing the old list
  */
 pmlist_t *_pacman_list_reverse(pmlist_t *list)
-{ 
+{
 	/* simple but functional -- we just build a new list, starting
 	 * with the old list's tail
 	 */

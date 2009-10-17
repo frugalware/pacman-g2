@@ -1,12 +1,12 @@
 /*
  *  add.c
- * 
+ *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *  Copyright (c) 2005 by Aurelien Foret <orelien@chez.com>
  *  Copyright (c) 2005 by Christian Hamar <krics@linuxforum.hu>
  *  Copyright (c) 2006 by David Kimpe <dnaku@frugalware.org>
  *  Copyright (c) 2005, 2006 by Miklos Vajna <vmiklos@frugalware.org>
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -19,7 +19,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
 
@@ -455,7 +455,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 				}
 
 				/*if(!strcmp(pathname, "._install") || !strcmp(pathname, ".INSTALL")) {
-				*	 the install script goes inside the db 
+				*	 the install script goes inside the db
 				*	snprintf(expath, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version); */
 				if(!strcmp(pathname, "._install") || !strcmp(pathname, ".INSTALL") ||
 					!strcmp(pathname, ".CHANGELOG")) {
@@ -518,7 +518,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 					/* extract the package's version to a temporary file and md5 it */
 					temp = strdup("/tmp/pacman_XXXXXX");
 					fd = mkstemp(temp);
-					
+
 					archive_entry_set_pathname (entry, temp);
 
 					if(archive_read_extract (archive, entry, ARCHIVE_EXTRACT_FLAGS) != ARCHIVE_OK) {
@@ -735,7 +735,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 		/* Add the package to the database */
 		t = time(NULL);
 
-		/* Update the requiredby field by scanning the whole database 
+		/* Update the requiredby field by scanning the whole database
 		 * looking for packages depending on the package to add */
 		for(lp = _pacman_db_get_pkgcache(db); lp; lp = lp->next) {
 			pmpkg_t *tmpp = lp->data;

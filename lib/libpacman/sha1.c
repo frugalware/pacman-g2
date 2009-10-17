@@ -390,7 +390,7 @@ char* _pacman_SHAFile(char *filename) {
     int len, i;
     unsigned char buffer[1024], digest[20];
     char *ret;
-    
+
     if((file = fopen(filename, "rb")) == NULL) {
 	fprintf(stderr, _("%s can't be opened\n"), filename);
     } else {

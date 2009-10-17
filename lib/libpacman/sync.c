@@ -1,11 +1,11 @@
 /*
  *  sync.c
- * 
+ *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *  Copyright (c) 2005 by Aurelien Foret <orelien@chez.com>
  *  Copyright (c) 2005 by Christian Hamar <krics@linuxforum.hu>
  *  Copyright (c) 2005-2008 by Miklos Vajna <vmiklos@frugalware.org>
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
 
@@ -67,7 +67,7 @@ pmsyncpkg_t *_pacman_sync_new(int type, pmpkg_t *spkg, void *data)
 	ps->type = type;
 	ps->pkg = spkg;
 	ps->data = data;
-	
+
 	return(ps);
 }
 
@@ -198,7 +198,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sy
 			_pacman_log(PM_LOG_DEBUG, _("'%s' not found in sync db -- skipping"), local->name);
 			continue;
 		}
-	
+
 		/* we don't care about a to-be-replaced package's newer version */
 		for(j = trans->packages; j && !replace; j=j->next) {
 			ps = j->data;
@@ -406,7 +406,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync,
 	pmlist_t *deps = NULL;
 	pmlist_t *list = NULL; /* list allowing checkdeps usage with data from trans->packages */
 	pmlist_t *trail = NULL; /* breadcrum list to avoid running into circles */
-	pmlist_t *asked = NULL; 
+	pmlist_t *asked = NULL;
 	pmlist_t *i, *j, *k, *l;
 	int ret = 0;
 

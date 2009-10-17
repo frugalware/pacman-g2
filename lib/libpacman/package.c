@@ -5,7 +5,7 @@
  *  Copyright (c) 2005 by Aurelien Foret <orelien@chez.com>
  *  Copyright (c) 2005, 2006 by Christian Hamar <krics@linuxforum.hu>
  *  Copyright (c) 2005, 2006. 2007 by Miklos Vajna <vmiklos@frugalware.org>
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
 
@@ -374,7 +374,7 @@ pmpkg_t *_pacman_pkg_load(char *pkgfile)
 			char *fn;
 			char *str;
 			int fd;
-			
+
 			if((str = (char *)malloc(PATH_MAX)) == NULL) {
 				RET_ERR(PM_ERR_MEMORY, (pmpkg_t *)-1);
 			}

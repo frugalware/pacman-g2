@@ -1,12 +1,12 @@
 /*
  *  remove.c
- * 
+ *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *  Copyright (c) 2005 by Aurelien Foret <orelien@chez.com>
  *  Copyright (c) 2005 by Christian Hamar <krics@linuxforum.hu>
  *  Copyright (c) 2006 by David Kimpe <dnaku@frugalware.org>
  *  Copyright (c) 2005, 2006, 2007 by Miklos Vajna <vmiklos@frugalware.org>
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -19,7 +19,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
 
@@ -135,7 +135,7 @@ int _pacman_remove_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
 			trans->packages = _pacman_removedeps(db, trans->packages);
 		}
 
-		/* re-order w.r.t. dependencies */ 
+		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
 		lp = _pacman_sortbydeps(trans->packages, PM_TRANS_TYPE_REMOVE);
 		/* free the old alltargs */
@@ -303,8 +303,8 @@ int _pacman_remove_commit(pmtrans_t *trans, pmdb_t *db)
 			if(_pacman_splitdep((char*)lp->data, &depend)) {
 				continue;
 			}
-			/* if this dependency is in the transaction targets, no need to update 
-			 * its requiredby info: it is in the process of being removed (if not 
+			/* if this dependency is in the transaction targets, no need to update
+			 * its requiredby info: it is in the process of being removed (if not
 			 * already done!)
 			 */
 			if(_pacman_pkg_isin(depend.name, trans->packages)) {

@@ -1,8 +1,8 @@
 /*
  *  server.c
- * 
+ *
  *  Copyright (c) 2006 by Miklos Vajna <vmiklos@frugalware.org>
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -15,7 +15,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
 
@@ -150,7 +150,7 @@ int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *fi
  *     "YYYYMMDDHHMMSS" to match the form of ftplib's FtpModDate() function.
  *   - if *mtime2 is non-NULL, then it will be filled with the mtime
  *     of the remote file (from MDTM FTP cmd or Last-Modified HTTP header).
- * 
+ *
  * RETURN:  0 for successful download
  *          1 if the mtimes are identical
  *         -1 on error
@@ -194,7 +194,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					_pacman_log(PM_LOG_WARNING, _("anonymous login failed\n"));
 					FtpQuit(control);
 					continue;
-				}	
+				}
 				if(!FtpChdir(server->path, control)) {
 					_pacman_log(PM_LOG_WARNING, _("could not cwd to %s: %s\n"), server->path, FtpLastResponse(control));
 					FtpQuit(control);

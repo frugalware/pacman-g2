@@ -1,9 +1,9 @@
 /*
  *  sync.c
- * 
+ *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *  Copyright (c) 2007 by Miklos Vajna <vmiklos@frugalware.org>
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -16,7 +16,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
 
@@ -176,7 +176,7 @@ static int sync_info(list_t *syncs, list_t *targets)
 		for(j = syncs; j; j = j->next) {
 			PM_DB *db = j->data;
 			PM_LIST *lp;
-			
+
 			for(lp = pacman_db_getpkgcache(db); lp; lp = pacman_list_next(lp)) {
 				dump_pkg_sync(pacman_list_getdata(lp), (char *)pacman_db_getinfo(db, PM_DB_TREENAME));
 				MSG(NL, "\n");
