@@ -74,6 +74,20 @@ enum {
 	PM_OP_DEPTEST
 };
 
+/* Long operations */
+enum {
+	OPT_NOCONFIRM = 1000,
+	OPT_CONFIG,
+	OPT_IGNORE,
+	OPT_DEBUG,
+	OPT_NOPROGRESSBAR,
+	OPT_NOSCRIPTLET,
+	OPT_ASK,
+	OPT_NOINTEGRITY,
+	OPT_NOARCH,
+	OPT_REGEX
+};
+
 config_t *config = NULL;
 
 PM_DB *db_local;
@@ -276,17 +290,16 @@ static int parseargs(int argc, char *argv[])
 		{"verbose",    no_argument,       0, 'v'},
 		{"downloadonly", no_argument,     0, 'w'},
 		{"refresh",    no_argument,       0, 'y'},
-		{"noconfirm",  no_argument,       0, 1000},
-		{"config",     required_argument, 0, 1001},
-		{"ignore",     required_argument, 0, 1002},
-		{"debug",      required_argument, 0, 1003},
-		{"noprogressbar",  no_argument,   0, 1004},
-		{"noscriptlet", no_argument,      0, 1005},
-		{"ask",        required_argument, 0, 1006},
-		{"nointegrity", no_argument,      0, 1007},
-		{"nointegrity", no_argument,      0, 1007},
-		{"noarch", no_argument, 0, 1008},
-		{"regex", no_argument, 0, 1009},
+		{"noconfirm",  no_argument,       0, OPT_NOCONFIRM},
+		{"config",     required_argument, 0, OPT_CONFIG},
+		{"ignore",     required_argument, 0, OPT_IGNORE},
+		{"debug",      required_argument, 0, OPT_DEBUG},
+		{"noprogressbar",  no_argument,   0, OPT_NOPROGRESSBAR},
+		{"noscriptlet", no_argument,      0, OPT_NOSCRIPTLET},
+		{"ask",        required_argument, 0, OPT_ASK},
+		{"nointegrity", no_argument,      0, OPT_NOINTEGRITY},
+		{"noarch", no_argument, 0, OPT_NOARCH},
+		{"regex", no_argument, 0, OPT_REGEX},
 		{0, 0, 0, 0}
 	};
 	char root[PATH_MAX];
@@ -297,8 +310,8 @@ static int parseargs(int argc, char *argv[])
 		}
 		switch(opt) {
 			case 0: break;
-			case 1000: config->noconfirm = 1; break;
-			case 1001:
+			case OPT_NOCONFIRM: config->noconfirm = 1; break;
+			case OPT_CONFIG:
 				if(config->configfile) {
 					free(config->configfile);
 				}
@@ -308,14 +321,14 @@ static int parseargs(int argc, char *argv[])
 				config->configfile = strndup(optarg, PATH_MAX);
 				#endif
 			break;
-			case 1002: config->op_s_ignore = list_add(config->op_s_ignore, strdup(optarg)); break;
-			case 1003: config->debug = atoi(optarg); break;
-			case 1004: config->noprogressbar = 1; break;
-			case 1005: config->flags |= PM_TRANS_FLAG_NOSCRIPTLET; break;
-			case 1006: config->noask = 1; config->ask = atoi(optarg); break;
-			case 1007: config->flags |= PM_TRANS_FLAG_NOINTEGRITY; break;
-			case 1008: config->flags |= PM_TRANS_FLAG_NOARCH; break;
-			case 1009: config->regex = 1; break;
+			case OPT_IGNORE: config->op_s_ignore = list_add(config->op_s_ignore, strdup(optarg)); break;
+			case OPT_DEBUG: config->debug = atoi(optarg); break;
+			case OPT_NOPROGRESSBAR: config->noprogressbar = 1; break;
+			case OPT_NOSCRIPTLET: config->flags |= PM_TRANS_FLAG_NOSCRIPTLET; break;
+			case OPT_ASK: config->noask = 1; config->ask = atoi(optarg); break;
+			case OPT_NOINTEGRITY: config->flags |= PM_TRANS_FLAG_NOINTEGRITY; break;
+			case OPT_NOARCH: config->flags |= PM_TRANS_FLAG_NOARCH; break;
+			case OPT_REGEX: config->regex = 1; break;
 			case 'A': config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_ADD); break;
 			case 'D':
 				config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_DEPTEST);
