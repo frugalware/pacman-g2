@@ -304,13 +304,13 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int coun
 	interconflictstr = strdup(_("looking for inter-conflicts"));
 
 	if(config->noprogressbar) {
-		return;
+		goto cleanup;
 	}
 
 	if (!pkgname)
-		return;
+		goto cleanup;
 	if ((percent > 100) || (percent < 0) || (percent == prevpercent))
-		return;
+		goto cleanup;
 
 	prevpercent=percent;
 	switch (event) {
@@ -378,9 +378,14 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int coun
 			PM_TRANS_PROGRESS_UPGRADE_START) && remaining != count) {
 		MSG(NL, "");
 	}
+
+cleanup:
+
 	FREE(addstr);
 	FREE(upgstr);
 	FREE(removestr);
+	FREE(conflictstr);
+	FREE(interconflictstr);
 }
 
 /* vim: set ts=2 sw=2 noet: */
