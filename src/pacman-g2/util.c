@@ -49,50 +49,6 @@ extern int maxcols;
 extern config_t *config;
 extern int neednl;
 
-/* does the same thing as 'rm -rf' */
-int rmrf(char *path)
-{
-	int errflag = 0;
-	struct dirent *dp;
-	DIR *dirp;
-
-	if(!unlink(path)) {
-		return(0);
-	} else {
-		if(errno == ENOENT) {
-			return(0);
-		} else if(errno == EPERM) {
-			/* fallthrough */
-		} else if(errno == EISDIR) {
-			/* fallthrough */
-		} else if(errno == ENOTDIR) {
-			return(1);
-		} else {
-			/* not a directory */
-			return(1);
-		}
-
-		if((dirp = opendir(path)) == (DIR *)-1) {
-			return(1);
-		}
-		for(dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
-			if(dp->d_ino) {
-				char name[PATH_MAX];
-				sprintf(name, "%s/%s", path, dp->d_name);
-				if(strcmp(dp->d_name, "..") && strcmp(dp->d_name, ".")) {
-					errflag += rmrf(name);
-				}
-			}
-		}
-		closedir(dirp);
-		if(rmdir(path)) {
-			errflag++;
-		}
-		return(errflag);
-	}
-	return(0);
-}
-
 /* output a string, but wrap words properly with a specified indentation
  */
 void indentprint(char *str, int indent)
