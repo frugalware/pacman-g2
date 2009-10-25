@@ -253,6 +253,7 @@ void *pacman_db_getinfo(PM_DB *db, unsigned char parm)
 			data = strdup(path);
 		break;
 		default:
+			free(data);
 			data = NULL;
 	}
 
