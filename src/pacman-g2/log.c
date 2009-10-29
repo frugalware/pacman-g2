@@ -133,6 +133,7 @@ int yesno(char *fmt, ...)
 {
 	char str[LOG_STR_LEN];
 	char response[32];
+	int sresponse = sizeof(response)-1;
 	va_list args;
 
 	if(config->noconfirm) {
@@ -144,7 +145,7 @@ int yesno(char *fmt, ...)
 	va_end(args);
 	pm_fprintf(stderr, NL, str);
 
-	if(fgets(response, 32, stdin)) {
+	if(fgets(response, sresponse, stdin)) {
 		/* trim whitespace and newlines */
 		char *pch = response;
 		while(isspace(*pch)) {

@@ -412,10 +412,11 @@ int _pacman_rmrf(char *path)
 int _pacman_logaction(unsigned char usesyslog, FILE *f, char *fmt, ...)
 {
 	char msg[1024];
+	int smsg = sizeof(msg)-1;
 	va_list args;
 
 	va_start(args, fmt);
-	vsnprintf(msg, 1024, fmt, args);
+	vsnprintf(msg, smsg, fmt, args);
 	va_end(args);
 
 	if(usesyslog) {
@@ -469,7 +470,8 @@ static int grep(const char *fn, const char *needle)
 	}
 	while(!feof(fp)) {
 		char line[1024];
-		fgets(line, 1024, fp);
+		int sline = sizeof(line)-1;
+		fgets(line, sline, fp);
 		if(feof(fp)) {
 			continue;
 		}
@@ -574,7 +576,8 @@ int _pacman_runscriptlet(char *root, char *installfn, char *script, char *ver, c
 		}
 		while(!feof(pp)) {
 			char line[1024];
-			if(fgets(line, 1024, pp) == NULL)
+			int sline = sizeof(line)-1;
+			if(fgets(line, sline, pp) == NULL)
 				break;
 			/* "START <event desc>" */
 			if((strlen(line) > strlen(STARTSTR)) && !strncmp(line, STARTSTR, strlen(STARTSTR))) {
@@ -682,7 +685,8 @@ int _pacman_runhook(char *root, char *hookdir, char *hookname, pmtrans_t *trans)
 			}
 			while(!feof(pp)) {
 				char line[1024];
-				if(fgets(line, 1024, pp) == NULL)
+				int sline = sizeof(line)-1;
+				if(fgets(line, sline, pp) == NULL)
 					break;
 				/* "START <event desc>" */
 				if((strlen(line) > strlen(STARTSTR)) && !strncmp(line, STARTSTR, strlen(STARTSTR))) {

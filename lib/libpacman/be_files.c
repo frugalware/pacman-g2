@@ -218,6 +218,7 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 	struct stat buf;
 	char path[PATH_MAX];
 	char line[512];
+	int sline = sizeof(line)-1;
 	pmlist_t *i;
 	char *ptr;
 
@@ -250,7 +251,7 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 			}
 			_pacman_strtrim(line);
 			if(!strcmp(line, "%DESC%")) {
-				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->desc_localized = _pacman_list_add(info->desc_localized, strdup(line));
 				}
 				STRNCPY(info->desc, (char*)info->desc_localized->data, sizeof(info->desc));
@@ -262,7 +263,7 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				}
 				_pacman_strtrim(info->desc);
 			} else if(!strcmp(line, "%GROUPS%")) {
-				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->groups = _pacman_list_add(info->groups, strdup(line));
 				}
 			} else if(!strcmp(line, "%URL%")) {
@@ -271,7 +272,7 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				}
 				_pacman_strtrim(info->url);
 			} else if(!strcmp(line, "%LICENSE%")) {
-				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->license = _pacman_list_add(info->license, strdup(line));
 				}
 			} else if(!strcmp(line, "%ARCH%")) {
@@ -346,7 +347,7 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 			} else if(!strcmp(line, "%REPLACES%")) {
 				/* the REPLACES tag is special -- it only appears in sync repositories,
 				 * not the local one. */
-				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->replaces = _pacman_list_add(info->replaces, strdup(line));
 				}
 			} else if(!strcmp(line, "%FORCE%")) {
@@ -374,7 +375,7 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 		while(fgets(line, 256, fp)) {
 			_pacman_strtrim(line);
 			if(!strcmp(line, "%FILES%")) {
-				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					if((ptr = strchr(line, '|'))) {
 						/* just ignore the content after the pipe for now */
 						*ptr = '\0';
@@ -382,7 +383,7 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 					info->files = _pacman_list_add(info->files, strdup(line));
 				}
 			} else if(!strcmp(line, "%BACKUP%")) {
-				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->backup = _pacman_list_add(info->backup, strdup(line));
 				}
 			}
@@ -403,25 +404,25 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 			fgets(line, 255, fp);
 			_pacman_strtrim(line);
 			if(!strcmp(line, "%DEPENDS%")) {
-				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->depends = _pacman_list_add(info->depends, strdup(line));
 				}
 			} else if(!strcmp(line, "%REQUIREDBY%")) {
-				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->requiredby = _pacman_list_add(info->requiredby, strdup(line));
 				}
 			} else if(!strcmp(line, "%CONFLICTS%")) {
-				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->conflicts = _pacman_list_add(info->conflicts, strdup(line));
 				}
 			} else if(!strcmp(line, "%PROVIDES%")) {
-				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->provides = _pacman_list_add(info->provides, strdup(line));
 				}
 			} else if(!strcmp(line, "%REPLACES%")) {
 				/* the REPLACES tag is special -- it only appears in sync repositories,
 				 * not the local one. */
-				while(fgets(line, 512, fp) && strlen(_pacman_strtrim(line))) {
+				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->replaces = _pacman_list_add(info->replaces, strdup(line));
 				}
 			} else if(!strcmp(line, "%FORCE%")) {
