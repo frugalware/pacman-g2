@@ -133,7 +133,7 @@ pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn)
 	return(list);
 }
 
-/* Remove an item in a list. Use the given comparaison function to find the
+/* Remove an item in a list. Use the given comparison function to find the
  * item.
  * If the item is found, 'data' is pointing to the removed element.
  * Otherwise, it is set to NULL.
