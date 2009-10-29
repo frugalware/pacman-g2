@@ -87,7 +87,7 @@ pmlist_t *_pacman_list_add(pmlist_t *list, void *data)
 	return(ptr);
 }
 
-/* Add items to a list in sorted order. Use the given comparision func to
+/* Add items to a list in sorted order. Use the given comparison function to
  * determine order.
  */
 pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn)
