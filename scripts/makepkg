@@ -1137,6 +1137,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 				/usr/sbin/chroot $CHROOTDIR \
 					/usr/sbin/usermod -a -G ccache fst
 			fi
+			/usr/sbin/chroot $CHROOTDIR /usr/sbin/pwconv
 			/usr/sbin/chroot $CHROOTDIR \
 				/bin/su - fst -c "$0 --inchroot -S $ARGLIST"
 		else
