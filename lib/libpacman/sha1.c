@@ -387,7 +387,7 @@ documentation and/or software.
 char* _pacman_SHAFile(char *filename) {
     FILE *file;
     struct sha_ctx context;
-    int len, i;
+    int len = 0, i, x;
     unsigned char buffer[1024], digest[20];
     char *ret;
 
@@ -406,8 +406,10 @@ char* _pacman_SHAFile(char *filename) {
 	ret = (char*)malloc(41);
 	ret[0] = '\0';
 	for(i = 0; i < 20; i++) {
-	    sprintf(ret, "%s%02x", ret, digest[i]);
+	    x = sprintf(ret + len, "%02x", digest[i]);
+	    if (x >= 0) { len += x; }
 	}
+	ret[40] = '\0';
 	return(ret);
     }
 

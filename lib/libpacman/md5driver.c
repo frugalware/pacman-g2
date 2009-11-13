@@ -42,14 +42,14 @@ char* _pacman_MDFile(char *filename)
 {
 	FILE *file;
 	MD_CTX context;
-	int len;
+	int len = 0;
 	unsigned char buffer[1024], digest[16];
 
 	if((file = fopen(filename, "rb")) == NULL) {
 		printf (_("%s can't be opened\n"), filename);
 	} else {
 		char *ret;
-		int i;
+		int i, x;
 
 		MDInit(&context);
 		while((len = fread(buffer, 1, 1024, file))) {
@@ -64,9 +64,10 @@ char* _pacman_MDFile(char *filename)
 		ret = (char*)malloc(33);
 		ret[0] = '\0';
 		for(i = 0; i < 16; i++) {
-			sprintf(ret, "%s%02x", ret, digest[i]);
+			x = sprintf(ret + len, "%02x", digest[i]);
+			if (x >= 0) { len+= x; }
 		}
-
+		ret[32] = '\0';
 		return(ret);
 	}
 	return(NULL);
