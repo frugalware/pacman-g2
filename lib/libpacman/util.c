@@ -240,7 +240,7 @@ int _pacman_lckmk(char *file)
 		if(++count < 1) {
 			sleep(1);
 		}	else {
-			close(file);
+			close(fd);
 			return(-1);
 		}
 	}
