@@ -124,14 +124,7 @@ fi
 # copy in the po files
 import_pootle
 
-cp /usr/share/aclocal/libtool.m4 aclocal.m4
-libtoolize -f -c
-aclocal --force
-autoheader -f
-autoconf -f
-cp -f $(dirname $(which automake))/../share/automake-$(automake --version|sed 's/.*) //;s/\([0-9]\+\.[0-9]\+\)\.[0-9]\+/\1/;q')/mkinstalldirs ./
-cp -f $(dirname $(which automake))/../share/gettext/config.rpath ./
-automake -a -c --gnu --foreign
+autoreconf -fi
 
 if [ "$1" == "--git" ]; then
 	rm -rf autom4te.cache

@@ -7,9 +7,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_LANG(C)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_SYSTEM
-AM_INIT_AUTOMAKE
-AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION(0.13.1)
+AM_INIT_AUTOMAKE([foreign])
 AC_C_BIGENDIAN
 
 dnl Host dependant flags
@@ -49,6 +47,8 @@ AC_HEADER_STDC
 AC_PROG_INSTALL
 AC_CHECK_FUNCS([strverscmp])
 AM_PROG_LIBTOOL
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION(0.13.1)
 AM_CONDITIONAL(LINKSTATIC, test "$enable_static" = "yes")
 
 dnl Humor lowers blood pressure
