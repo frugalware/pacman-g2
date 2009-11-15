@@ -1,3 +1,5 @@
+ACLOCAL_AMFLAGS = -I m4
+
 SUBDIRS = lib/libftp lib/libpacman src/vercmp src/versort src/pacman-g2 scripts doc etc
 
 if HAS_PERL
