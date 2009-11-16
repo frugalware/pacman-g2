@@ -25,14 +25,17 @@ cd pactest; python pactest.py --test=tests/sync990.py -p ../src/pacman-g2/pacman
 That's all.
 
 How to test pacman-g2 more using valgrind?
-=========================================
+============================================
 
-Try to run some commands using valgrind with a command like:
+When using GDB or valgrind on pacman-g2, you will want to run it on the actual
+binary rather than the shell script wrapper produced by libtool. The actual
+binary lives at `src/pacman-g2/.libs/lt-pacman-g2, and will exist after running
+`./src/pacman-g2/pacman-g2` at least once.
 
-valgrind --leak-check=full --trace-children=yes -- src/pacman-g2/pacman-g2 -Syu
+For example, to run valgrind:
 
-Be careful, valgrind reports lots of errors, even some errors that may not be related to
-pacman-g2. You should have a little experience of valgrind to ignore the noise.
+    ./src/pacman-g2/pacman-g2
+    valgrind --leak-check=full -- src/pacman-g2/.libs/lt-pacman-g2 -Syu
 
 How should I make benchmarks?
 =============================
