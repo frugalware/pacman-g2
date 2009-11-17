@@ -48,6 +48,8 @@
 #include "sync.h"
 #include "conf.h"
 
+extern PM_DB *db_local;
+
 extern config_t *config;
 
 extern list_t *pmc_syncs;
@@ -95,13 +97,22 @@ static int sync_search(list_t *syncs, list_t *targets)
 		}
 		for(lp = ret; lp; lp = pacman_list_next(lp)) {
 			PM_PKG *pkg = pacman_list_getdata(lp);
+			char *name = (char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME);
 
 			char *group = (char *)pacman_list_getdata(pacman_pkg_getinfo(pkg,PM_PKG_GROUPS));
-			printf("%s/%s %s %s%s%s\n    ",
+			printf("%s/%s %s %s%s%s",
 					(char *)pacman_db_getinfo(db, PM_DB_TREENAME),
-					(char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME),
+					name,
 					(char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION),
 					(group ? "(" : ""), (group ? group : ""), (group ? ")" : ""));
+
+			PM_PKG *ipkg = pacman_db_readpkg(db_local, name);
+			if (ipkg) {
+				char *iversion = (char*)pacman_pkg_getinfo(ipkg, PM_PKG_VERSION);
+				printf(" [%s: %s]", _("installed"), iversion);
+			}
+			printf("\n    ");
+
 			indentprint((char *)pacman_pkg_getinfo(pkg, PM_PKG_DESC), 4);
 			printf("\n");
 		}
