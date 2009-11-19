@@ -61,12 +61,11 @@ int querypkg(list_t *targets)
 		for(j = ret; j; j = pacman_list_next(j)) {
 			PM_PKG *pkg = pacman_list_getdata(j);
 
-			printf("local/%s/%s %s\n    ",
+			printf("local/%s %s %s (%s)\n",
 					(char*)pacman_list_getdata(pacman_pkg_getinfo(pkg, PM_PKG_GROUPS)),
 					(char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME),
-					(char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION));
-			indentprint((char *)pacman_pkg_getinfo(pkg, PM_PKG_DESC), 4);
-			printf("\n");
+					(char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION),
+					pacman_pkg_getinfo(pkg, PM_PKG_DESC));
 		}
 		return(0);
 	}
