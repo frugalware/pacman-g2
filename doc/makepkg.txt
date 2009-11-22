@@ -161,6 +161,8 @@ variables. Some of them are flaky...
 
 *FrugalBuild*(5), *pacman-g2*(8)
 
+include::bugs.txt[]
+
 == AUTHORS
 
 See /usr/share/doc/pacman-g2-*/AUTHORS.

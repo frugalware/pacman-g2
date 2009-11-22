@@ -1,0 +1,7 @@
+== BUGS
+
+The best way to report a bug is to use the form at http://bugs.frugalware.org/.
+The reason for this is that you will then be able to track progress in fixing
+the problem. Comments, patches can be sent to the frugalware-devel@frugalware.org
+mailing list too. To join the list, visit the following page:
+http://frugalware.org/mailman/listinfo/frugalware-devel.

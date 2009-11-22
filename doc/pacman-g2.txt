@@ -438,6 +438,8 @@ post_sysupgrade::
 
 *makepkg*(8)
 
+include::bugs.txt[]
+
 == AUTHORS
 
 See /usr/share/doc/pacman-g2-*/AUTHORS.

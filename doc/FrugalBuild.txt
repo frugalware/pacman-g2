@@ -467,6 +467,8 @@ it!
 
 *makepkg*(8), *pacman-g2*(8)
 
+include::bugs.txt[]
+
 == AUTHORS
 
 See /usr/share/doc/pacman-g2-*/AUTHORS.
