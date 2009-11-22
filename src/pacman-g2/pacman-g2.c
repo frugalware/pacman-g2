@@ -376,6 +376,9 @@ static int parseargs(int argc, char *argv[])
 			case 'o': config->op_q_owns = 1; break;
 			case 'p':
 				config->op_q_isfile = 1;
+				if (config->flags & PM_TRANS_FLAG_PRINTURIS) {
+					config->flags |= PM_TRANS_FLAG_PRINTURIS_CACHED;
+				}
 				config->flags |= PM_TRANS_FLAG_PRINTURIS;
 			break;
 			case 'r':

@@ -156,8 +156,9 @@ pacman-g2 packages are in a bzipped tar format.
 
 -p, --print-uris::
 	Print out URIs for each package that will be installed, including any
-	dependencies that have yet to be installed. These can be piped to a file and
-	downloaded at a later time, using a program like wget.
+	dependencies. These can be piped to a file and downloaded at a later time,
+	using a program like wget. If you need to get the URIs even if they're downloaded,
+	just use -pp for it.
 
 -s, --search <regexp>::
 	This will search each package in the package list for names or descriptions
