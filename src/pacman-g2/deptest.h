@@ -1,5 +1,5 @@
 /*
- *  deptest.h
+ *  pacman-g2.h
  *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *
@@ -18,11 +18,28 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef _PM_DEPTEST_H
-#define _PM_DEPTEST_H
+#ifndef _PM_PACMAN_G2_H
+#define _PM_PACMAN_G2_H
 
+/* add.c */
+int addpkg(list_t *targets);
+
+/* sync.c */
+int syncpkg(list_t *targets);
+
+/* upgrade.c */
+int upgradepkg(list_t *targets);
+
+/* query.c */
+int querypkg(list_t *targets);
+
+/* remove.c */
+int removepkg(list_t *targets);
+
+
+/* deptest.c */
 int deptestpkg(list_t *targets);
 
-#endif /* _PM_DEPTEST_H */
+#endif /* _PM_PACMAN_G2_H */
 
 /* vim: set ts=2 sw=2 noet: */
