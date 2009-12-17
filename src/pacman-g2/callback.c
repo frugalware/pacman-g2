@@ -32,9 +32,9 @@
 
 #include <pacman.h>
 /* pacman-g2 */
+#include "callback.h"
 #include "util.h"
 #include "log.h"
-#include "trans.h"
 #include "list.h"
 #include "conf.h"
 #include "download.h"

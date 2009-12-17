@@ -1,5 +1,5 @@
 /*
- *  trans.h
+ *  callback.h
  *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *
@@ -18,8 +18,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef _PM_TRANS_H
-#define _PM_TRANS_H
+#ifndef _PM_CALLBACK_H
+#define _PM_CALLBACK_H
 
 /* callback to handle messages/notifications from libpacman transactions */
 void cb_trans_evt(unsigned char event, void *data1, void *data2);
@@ -29,6 +29,6 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 
 void cb_trans_progress(unsigned char event, char *pkgname, int percent, int howmany, int remain);
 
-#endif /* _PM_TRANS_H */
+#endif /* _PM_CALLBACK_H */
 
 /* vim: set ts=2 sw=2 noet: */
