@@ -1201,7 +1201,7 @@ int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *
 	while(fgets(line, PATH_MAX, fp)) {
 		linenum++;
 		_pacman_strtrim(line);
-		if(strlen(line) == 0 || line[0] == '#') {
+		if(line[0] == '\0' || line[0] == '#') {
 			continue;
 		}
 		if((ptr = strchr(line, '#'))) {
