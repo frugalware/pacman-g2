@@ -1519,6 +1519,10 @@ if [ -d $startdir/pkg ]; then
 	rm -rf $startdir/{pkg,pkg.*}
 fi
 mkdir -p $startdir/pkg
+for subpkg in "${subpkgs[@]}"
+do
+	mkdir -p $startdir/pkg.$subpkg
+done
 
 if [ "$NOBUILD" = "1" ]; then
 	msg "Sources are ready."
