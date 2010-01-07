@@ -921,7 +921,7 @@ fi
 eval "serverlist=${TREE}_servers"
 if [ "$F_makepkg_scm" = "git" -a ! "`check_option NOVERSRC`" ]; then
 	_serverlist=`GIT_DIR=$fst_root/${TREE}/.git git config --get remote.origin.url 2>/dev/null`
-	if [ -n "$_serverlist" ]; then
+	if [ -n "$_serverlist" -a "${_serverlist:0:6}" != "git://" ]; then
 		serverlist=$_serverlist
 	fi
 else
