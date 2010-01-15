@@ -1,5 +1,12 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.7.6         - corrected meaningless "gethostbyname: Success" errors
+              - makepkg now checks for the versions of makedepends as
+                well
+              - the output of -Ss and -Qs is not more compact to help
+                script parsing like grep and friends
+              - the -Sp option now just prints urls for packages missing
+                from the cache, -Spp prints every url
 3.7.5         - update mirror list
               - initial arm support
               - support for bash 4.0
