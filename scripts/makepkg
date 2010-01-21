@@ -432,6 +432,7 @@ chroot_clean()
 		$ECHO $CHROOTDIR |grep -q $TREE$ || CHROOTDIR="$CHROOTDIR/$TREE"
 		if [ -d "$CHROOTDIR" ]; then
 			chroot_lock
+			msg "Chroot size before cleaning: $(du -sh $CHROOTDIR |sed "s/\t.*//")"
 			msg "Removing unnecessary packages."
 			for i in "$COREPKGS"
 			do
