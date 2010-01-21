@@ -432,7 +432,6 @@ chroot_clean()
 		$ECHO $CHROOTDIR |grep -q $TREE$ || CHROOTDIR="$CHROOTDIR/$TREE"
 		if [ -d "$CHROOTDIR" ]; then
 			chroot_lock
-			msg "Chroot size before cleaning: $(du -sh $CHROOTDIR |sed "s/\t.*//")"
 			msg "Removing unnecessary packages."
 			for i in "$COREPKGS"
 			do
@@ -1775,6 +1774,11 @@ fi
 
 cd $startdir
 if [ "$CLEANUP" = "1" ]; then
+	if [ "$INCHROOT" == "1" ]; then
+		exclude="--exclude=/proc --exclude=/sys --exclude=/dev"
+		exclude="$exclude --exclude=/var/cache/pacman-g2 --exclude=/var/cache/ccache/$pkgname"
+		msg "Chroot size before cleaning: $(sudo du -sh $exclude / |sed "s/\t.*//")"
+	fi
 	msg "Cleaning up..."
 	rm -rf src pkg pkg.* Changelog
 fi
