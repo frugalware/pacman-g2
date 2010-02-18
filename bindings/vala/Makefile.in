@@ -8,8 +8,8 @@ install:
 	install -m644 pacman.vapi $(DESTDIR)/$(prefix)/share/vala/vapi/pacman.vapi
 
 clean:
-	rm -f Makefile
-
+	
 distclean: clean
+	 rm -f Makefile
 
 check:
