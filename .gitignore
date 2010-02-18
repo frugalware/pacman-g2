@@ -25,3 +25,4 @@ LINGUAS
 POTFILES
 libtool
 ltmain.sh
+m4
