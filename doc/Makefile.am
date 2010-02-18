@@ -1,11 +1,12 @@
 if HAS_ASCIIDOC
 
+man3 = libpacman.3
 man5 = FrugalBuild.5
 
 man8 = makepkg.8 pacman-g2.8
 endif
 
-localized_MANS = $(man5) $(man8)
+localized_MANS = $(man5) $(man8) $(man3)
 
 localized_LANGS = $(shell grep '\[po4a_langs\]' po4a.cfg |sed 's/\[po4a_langs\] //')
 
@@ -16,14 +17,11 @@ convert_MAN = \
 
 if HAS_ASCIIDOC
 man_MANS = $(localized_MANS) $(man3_MANS)
-else
-man_MANS =
-endif
-
 if HAS_DOXYGEN
 man_MANS += libpacman.3 man3/*
+endif
 else
-man3_MANS = libpacman.3
+man_MANS =
 endif
 
 if HAS_ASCIIDOC
