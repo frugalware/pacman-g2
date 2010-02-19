@@ -129,10 +129,6 @@ fi
 # we need -fno-strict-aliasing for gcc 4.2*++
 _gccminver_generic="4.2"
 _gccver=`type -p gcc >/dev/null && gcc -dumpversion`
-if [[ "${_gccver%%.?}" == "${_gccminver_generic}" ]] || [[ "${_gccver%%.?}" > "${_gccminver_generic}" ]]; then
-        export CFLAGS="$CFLAGS -fno-strict-aliasing"
-        export CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
-fi
 
 ## this has to stay here until we remove oldish gcc versions
 if [[ "${_gccver%%.?}" < "${_gccminver_generic}" ]]; then
