@@ -131,6 +131,9 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 				if(grp) {
 					MSG(NL, "%s\n", (char *)pacman_grp_getinfo(grp, PM_GRP_NAME));
 					PM_LIST_display("   ", pacman_grp_getinfo(grp, PM_GRP_PKGNAMES));
+				} else {
+					ERR(NL, _("group \"%s\" was not found\n"), (char *)i->data);
+					return(1);
 				}
 			}
 		}
