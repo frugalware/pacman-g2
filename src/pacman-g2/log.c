@@ -115,11 +115,11 @@ void pm_fprintf(FILE *file, unsigned short line, char *fmt, ...)
  */
 void vprint(char *fmt, ...)
 {
-	va_list args;
-
-	char str[LOG_STR_LEN];
 
 	if(config->verbose > 0) {
+		va_list args;
+		char str[LOG_STR_LEN];
+
 		va_start(args, fmt);
 		vsnprintf(str, LOG_STR_LEN, fmt, args);
 		va_end(args);
