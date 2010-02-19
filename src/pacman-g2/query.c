@@ -61,7 +61,7 @@ int querypkg(list_t *targets)
 		for(j = ret; j; j = pacman_list_next(j)) {
 			PM_PKG *pkg = pacman_list_getdata(j);
 
-			printf("local/%s %s %s (%s)\n",
+			printf("local/%s %s %s [Desc: %s]\n",
 					(char *)pacman_list_getdata(pacman_pkg_getinfo(pkg, PM_PKG_GROUPS)),
 					(char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME),
 					(char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION),

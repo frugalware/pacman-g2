@@ -108,10 +108,10 @@ static int sync_search(list_t *syncs, list_t *targets)
 			PM_PKG *ipkg = pacman_db_readpkg(db_local, name);
 			if (ipkg) {
 				char *iversion = (char*)pacman_pkg_getinfo(ipkg, PM_PKG_VERSION);
-				printf("[%s: %s] ", _("installed"), iversion);
+				printf("[%s: %s] ", _("Installed"), iversion);
 			}
-			
-			printf("(%s)\n", (char *)pacman_pkg_getinfo(pkg, PM_PKG_DESC));
+
+			printf("[%s: %s]\n", _("Desc"), (char *)pacman_pkg_getinfo(pkg, PM_PKG_DESC));
 		}
 	}
 
