@@ -31,7 +31,7 @@
 pacman_cb_log pm_logcb     = NULL;
 unsigned char pm_logmask = 0;
 
-void _pacman_log(unsigned char flag, char *fmt, ...)
+void _pacman_log(unsigned char flag, const char *fmt, ...)
 {
 	if(pm_logcb == NULL) {
 		return;

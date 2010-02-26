@@ -718,7 +718,7 @@ cleanup:
 }
 
 #ifndef __sun__
-static long long get_freespace()
+static long long get_freespace(void)
 {
 	struct mntent *mnt;
 	char *table = MOUNTED;

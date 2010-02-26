@@ -28,7 +28,7 @@
 extern pacman_cb_log pm_logcb;
 extern unsigned char pm_logmask;
 
-void _pacman_log(unsigned char flag, char *fmt, ...);
+void _pacman_log(unsigned char flag, const char *fmt, ...);
 
 #endif /* _PACMAN_LOG_H */
 

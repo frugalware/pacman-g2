@@ -89,7 +89,7 @@ void cb_log(unsigned short level, char *msg)
 /* Wrapper to fprintf() that allows to choose if we want the output
  * to be appended on the current line, or written to a new one
  */
-void pm_fprintf(FILE *file, unsigned short line, char *fmt, ...)
+void pm_fprintf(FILE *file, unsigned short line, const char *fmt, ...)
 {
 	va_list args;
 

@@ -91,7 +91,7 @@ static void readfd(int fd)
 #define STATUS_MARK   0
 #define STATUS_SEARCH 1
 
-static void makeindex()
+static void makeindex(void)
 {
 	size_t tmp_index = 0;
 	int status = STATUS_MARK;

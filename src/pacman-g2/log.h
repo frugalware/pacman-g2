@@ -21,14 +21,14 @@
 #ifndef _PM_LOG_H
 #define _PM_LOG_H
 
-#define MSG(line, fmt, args...) pm_fprintf(stdout, line, fmt, ##args)
-#define ERR(line, fmt, args...) do { \
+#define MSG(line, ...) pm_fprintf(stdout, line,## __VA_ARGS__)
+#define ERR(line, fmt, ...) do { \
 	pm_fprintf(stderr, line, _("error: ")); \
-	pm_fprintf(stderr, CL, fmt, ##args); \
+	pm_fprintf(stderr, CL, fmt,## __VA_ARGS__); \
 } while(0)
-#define WARN(line, fmt, args...) do { \
+#define WARN(line, fmt, ...) do { \
 	pm_fprintf(stderr, line, _("warning: ")); \
-	pm_fprintf(stderr, CL, fmt, ##args); \
+	pm_fprintf(stderr, CL, fmt,## __VA_ARGS__); \
 } while(0)
 
 enum {
@@ -39,7 +39,7 @@ enum {
 /* callback to handle messages/notifications from libpacman library */
 void cb_log(unsigned short level, char *msg);
 
-void pm_fprintf(FILE *file, unsigned short line, char *fmt, ...);
+void pm_fprintf(FILE *file, unsigned short line, const char *fmt, ...);
 void vprint(char *fmt, ...);
 
 int yesno(char *fmt, ...);

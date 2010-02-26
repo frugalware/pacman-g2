@@ -40,7 +40,7 @@
 #include "cache.h"
 #include "pacman.h"
 
-static int check_oldcache()
+static int check_oldcache(void)
 {
 	pmdb_t *db = handle->db_local;
 	char lastupdate[16] = "";
