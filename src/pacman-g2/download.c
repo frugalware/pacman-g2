@@ -52,6 +52,7 @@ extern config_t *config;
 
 extern unsigned int maxcols;
 
+/* FIXME: log10() want float */
 int log_progress(PM_NETBUF *ctl, int xfered, void *arg)
 {
 	int fsz = *(int*)arg;

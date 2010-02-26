@@ -259,6 +259,7 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 	struct stat buf;
 	pmlist_t *conflicts = NULL;
 	pmlist_t *targets = trans->packages;
+	pmpkg_t *p, *dbpkg;
 	double percent;
 	int howmany, remain;
 
@@ -295,8 +296,8 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 		}
 
 		/* CHECK 2: check every target against the filesystem */
-		pmpkg_t *p = (pmpkg_t*)i->data;
-		pmpkg_t *dbpkg = NULL;
+		p = (pmpkg_t*)i->data;
+		dbpkg = NULL;
 		for(j = p->files; j; j = j->next) {
 			int isdir = 0;
 			filestr = (char*)j->data;

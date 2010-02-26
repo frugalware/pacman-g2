@@ -484,7 +484,7 @@ static int grep(const char *fn, const char *needle)
 	return(0);
 }
 
-int _pacman_runscriptlet(char *root, char *installfn, char *script, char *ver, char *oldver, pmtrans_t *trans)
+int _pacman_runscriptlet(char *root, char *installfn, const char *script, char *ver, char *oldver, pmtrans_t *trans)
 {
 	char scriptfn[PATH_MAX];
 	char cmdline[PATH_MAX];
@@ -610,7 +610,7 @@ cleanup:
 	return(retval);
 }
 
-int _pacman_runhook(char *root, char *hookdir, char *hookname, pmtrans_t *trans)
+int _pacman_runhook(char *root, char *hookdir, const char *hookname, pmtrans_t *trans)
 {
 	char scriptfn[PATH_MAX];
 	char *scriptpath;
@@ -721,7 +721,7 @@ cleanup:
 static long long get_freespace(void)
 {
 	struct mntent *mnt;
-	char *table = MOUNTED;
+	const char *table = MOUNTED;
 	FILE *fp;
 	long long ret=0;
 

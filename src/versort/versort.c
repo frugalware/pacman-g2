@@ -131,7 +131,7 @@ static void makeindex(void)
 	}
 }
 
-static void printindex()
+static void printindex(void)
 {
 	size_t i;
 

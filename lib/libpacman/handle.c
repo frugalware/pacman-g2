@@ -127,6 +127,9 @@ int _pacman_handle_free(pmhandle_t *ph)
 
 int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long data)
 {
+
+	char logdir[PATH_MAX], path[PATH_MAX], *p, *q;
+
 	/* Sanity checks */
 	ASSERT(ph != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
@@ -166,7 +169,7 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 				}
 				ph->logfd = NULL;
 			}
-			char logdir[PATH_MAX], path[PATH_MAX], *p, *q;
+
 			snprintf(path, PATH_MAX, "%s/%s", ph->root, (char *)data);
 			p = strdup((char*)data);
 			q = strrchr(p, '/');

@@ -50,7 +50,7 @@
 #include "cache.h"
 #include "pacman.h"
 
-pmdb_t *_pacman_db_new(char *root, char* dbpath, char *treename)
+pmdb_t *_pacman_db_new(char *root, char* dbpath, const char *treename)
 {
 	pmdb_t *db;
 
@@ -174,7 +174,7 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 	return(ret);
 }
 
-pmdb_t *_pacman_db_register(char *treename, pacman_cb_db_register callback)
+pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback)
 {
 	struct stat buf;
 	pmdb_t *db;

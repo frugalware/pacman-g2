@@ -210,7 +210,7 @@ int _pacman_list_is_in(void *needle, pmlist_t *haystack)
 
 /* Test for existence of a string in a pmlist_t
  */
-int _pacman_list_is_strin(char *needle, pmlist_t *haystack)
+int _pacman_list_is_strin(const char *needle, pmlist_t *haystack)
 {
 	pmlist_t *lp;
 

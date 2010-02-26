@@ -78,7 +78,7 @@ int pacman_release(void);
 /* Log callback */
 typedef void (*pacman_cb_log)(unsigned short, char *);
 
-int pacman_logaction(char *fmt, ...);
+int pacman_logaction(const char *fmt, ...);
 
 /*
  * Options
@@ -141,9 +141,9 @@ enum {
 };
 
 /* Database registration callback */
-typedef void (*pacman_cb_db_register)(char *, PM_DB *);
+typedef void (*pacman_cb_db_register)(const char *, PM_DB *);
 
-PM_DB *pacman_db_register(char *treename);
+PM_DB *pacman_db_register(const char *treename);
 int pacman_db_unregister(PM_DB *db);
 
 void *pacman_db_getinfo(PM_DB *db, unsigned char parm);
@@ -354,7 +354,7 @@ enum {
 void *pacman_trans_getinfo(unsigned char parm);
 int pacman_trans_init(unsigned char type, unsigned int flags, pacman_trans_cb_event cb_event, pacman_trans_cb_conv conv, pacman_trans_cb_progress cb_progress);
 int pacman_trans_sysupgrade(void);
-int pacman_trans_addtarget(char *target);
+int pacman_trans_addtarget(const char *target);
 int pacman_trans_prepare(PM_LIST **data);
 int pacman_trans_commit(PM_LIST **data);
 int pacman_trans_release(void);

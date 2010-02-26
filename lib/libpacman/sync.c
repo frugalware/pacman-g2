@@ -260,7 +260,7 @@ error:
 	return(-1);
 }
 
-int _pacman_sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, char *name)
+int _pacman_sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, const char *name)
 {
 	char targline[PKG_FULLNAME_LEN];
 	char *targ;
@@ -376,7 +376,7 @@ static int pkg_cmp(const void *p1, const void *p2)
 	return(strcmp(((pmpkg_t *)p1)->name, ((pmsyncpkg_t *)p2)->pkg->name));
 }
 
-static int check_olddelay()
+static int check_olddelay(void)
 {
 	pmlist_t *i;
 	char lastupdate[16] = "";
@@ -791,7 +791,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 	int replaces = 0, retval;
 	char ldir[PATH_MAX];
 	int varcache = 1;
-	int tries = 0;
+	int tries = 0, doremove;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -920,7 +920,8 @@ int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 					_pacman_log(PM_LOG_DEBUG, _("actual md5:    '%s'"), md5sum2);
 					_pacman_log(PM_LOG_DEBUG, _("expected sha1: '%s'"), sha1sum1);
 					_pacman_log(PM_LOG_DEBUG, _("actual sha1:   '%s'"), sha1sum2);
-					int doremove=0;
+
+					doremove = 0;
 					if((ptr = (char *)malloc(512)) == NULL) {
 						RET_ERR(PM_ERR_MEMORY, -1);
 					}

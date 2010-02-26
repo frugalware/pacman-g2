@@ -164,6 +164,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	int done = 0;
 	pmlist_t *complete = NULL;
 	pmlist_t *i;
+	pmserver_t *server;
 	int *remain = handle->dlremain, *howmany = handle->dlhowmany;
 
 	if(files == NULL) {
@@ -181,7 +182,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	_pacman_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
 	for(i = servers; i && !done; i = i->next) {
 		_pacman_log(PM_LOG_DEBUG, _("server check, done? %d\n"),done);
-		pmserver_t *server = (pmserver_t*)i->data;
+		server = (pmserver_t*)i->data;
 		if(!handle->xfercommand && strcmp(server->protocol, "file")) {
 			if(!strcmp(server->protocol, "ftp") && !handle->proxyhost) {
 				FtpInit();

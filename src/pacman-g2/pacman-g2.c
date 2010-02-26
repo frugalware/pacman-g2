@@ -187,7 +187,7 @@ static void usage(int op, char *myname)
 
 /* Version
  */
-static void version()
+static void version(void)
 {
 	printf("\n");
 	printf(" .--.                  Pacman-G2 v%s - libpacman v%s\n", PACKAGE_VERSION, PM_VERSION);

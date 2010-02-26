@@ -25,7 +25,7 @@
 #include "db.h"
 #include "trans.h"
 
-int _pacman_add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name);
+int _pacman_add_loadtarget(pmtrans_t *trans, pmdb_t *db, const char *name);
 int _pacman_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data);
 int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db);
 

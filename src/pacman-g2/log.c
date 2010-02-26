@@ -45,6 +45,9 @@ int neednl; /* for cleaner message output */
 void cb_log(unsigned short level, char *msg)
 {
 	char str[LOG_STR_LEN] = "";
+	time_t t;
+	struct tm *tmp;
+	char timestr[10] = {0};
 
 	if(!strlen(msg)) {
 		return;
@@ -74,9 +77,6 @@ void cb_log(unsigned short level, char *msg)
 		break;
 	}
 
-	time_t t;
-	struct tm *tmp;
-	char timestr[10] = {0};
 
 	t = time(NULL);
 	tmp = localtime(&t);

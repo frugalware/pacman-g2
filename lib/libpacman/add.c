@@ -58,7 +58,7 @@
 #include "remove.h"
 #include "handle.h"
 
-static int add_faketarget(pmtrans_t *trans, char *name)
+static int add_faketarget(pmtrans_t *trans, const char *name)
 {
 	char *ptr, *p;
 	char *str = NULL;
@@ -105,11 +105,12 @@ static int add_faketarget(pmtrans_t *trans, char *name)
 	return(0);
 }
 
-int _pacman_add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
+int _pacman_add_loadtarget(pmtrans_t *trans, pmdb_t *db, const char *name)
 {
 	pmpkg_t *info = NULL;
 	pmpkg_t *dummy;
 	pmlist_t *i;
+	pmpkg_t *local;
 	struct stat buf;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -185,7 +186,7 @@ int _pacman_add_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
 	}
 
 	/* copy over the install reason */
-	pmpkg_t *local = _pacman_db_get_pkgfromcache(db, info->name);
+	local =  _pacman_db_get_pkgfromcache(db, info->name);
 	if(local) {
 		info->reason = (long)_pacman_pkg_getinfo(local, PM_PKG_REASON);
 	}
@@ -300,7 +301,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
 int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 {
 	int i, ret = 0, errors = 0, needdisp = 0;
-	int remain, howmany;
+	int remain, howmany, archive_ret;
 	double percent;
 	register struct archive *archive;
 	struct archive_entry *entry;
@@ -432,7 +433,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 			/* libarchive requires this for extracting hard links */
 			chdir(handle->root);
 
-			int archive_ret;
 			for(i = 0; (archive_ret = archive_read_next_header (archive, &entry)) == ARCHIVE_OK; i++) {
 				int nb = 0;
 				int notouch = 0;
@@ -444,7 +444,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 				STRNCPY(pathname, archive_entry_pathname (entry), PATH_MAX);
 
 				if (info->size != 0)
-		    			percent = (double)archive_position_uncompressed(archive) / info->size;
+		    			percent = archive_position_uncompressed(archive) / info->size;
 				if (needdisp == 0) {
 					PROGRESS(trans, cb_state, what, (int)(percent * 100), howmany, (howmany - remain +1));
 				}

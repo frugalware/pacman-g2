@@ -44,7 +44,7 @@ pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn)
 pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 int _pacman_list_count(pmlist_t *list);
 int _pacman_list_is_in(void *needle, pmlist_t *haystack);
-int _pacman_list_is_strin(char *needle, pmlist_t *haystack);
+int _pacman_list_is_strin(const char *needle, pmlist_t *haystack);
 pmlist_t *_pacman_list_last(pmlist_t *list);
 pmlist_t *_pacman_list_remove_dupes(pmlist_t *list);
 pmlist_t *_pacman_list_reverse(pmlist_t *list);

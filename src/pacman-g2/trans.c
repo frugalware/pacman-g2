@@ -166,7 +166,7 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			MSG(NL, " %s [", str);
 			STRNCPY(out, (char*)data2, maxcols-42);
 			MSG(CL, "%s", out);
-			for(i = strlen(out); i < maxcols-43; i++) {
+			for(i = strlen(out); i < (int)maxcols-43; i++) {
 				MSG(CL, " ");
 			}
 			fputs(_("] 100%    LOCAL "), stdout);
@@ -292,6 +292,7 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 	}
 }
 
+/* FIXME: log10() want float .. */
 void cb_trans_progress(unsigned char event, char *pkgname, int percent, int count, int remaining)
 {
 	int i, hash;
@@ -367,7 +368,7 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int coun
 
 	printf("[");
 	for (i = progresslen; i > 0; i--) {
-		if (i >= progresslen - hash)
+		if (i >= (int)(progresslen - hash))
 			printf("#");
 		else
 			printf("-");

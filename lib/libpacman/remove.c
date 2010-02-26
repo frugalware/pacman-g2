@@ -58,7 +58,7 @@
 #include "handle.h"
 #include "pacman.h"
 
-int _pacman_remove_loadtarget(pmtrans_t *trans, pmdb_t *db, char *name)
+int _pacman_remove_loadtarget(pmtrans_t *trans, pmdb_t *db, const char *name)
 {
 	pmpkg_t *info;
 

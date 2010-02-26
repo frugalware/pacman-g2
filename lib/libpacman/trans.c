@@ -128,7 +128,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	return(_pacman_sync_sysupgrade(trans, handle->db_local, handle->dbs_sync));
 }
 
-int _pacman_trans_addtarget(pmtrans_t *trans, char *target)
+int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 {
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));

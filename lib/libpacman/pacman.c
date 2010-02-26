@@ -172,7 +172,7 @@ int pacman_get_option(unsigned char parm, long *data)
  * @param treename the name of the repository
  * @return a pmdb_t* on success (the value), NULL on error
  */
-pmdb_t *pacman_db_register(char *treename)
+pmdb_t *pacman_db_register(const char *treename)
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, NULL));
@@ -848,7 +848,7 @@ int pacman_trans_sysupgrade()
  * @param target the name of the target to add
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int pacman_trans_addtarget(char *target)
+int pacman_trans_addtarget(const char *target)
 {
 	pmtrans_t *trans;
 
@@ -906,7 +906,8 @@ int pacman_trans_commit(pmlist_t **data)
 int pacman_trans_release()
 {
 	pmtrans_t *trans;
-	char path[PATH_MAX];
+	char path[PATH_MAX], lastupdate[15] = "";
+	time_t t;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -929,8 +930,7 @@ int pacman_trans_release()
 
 	FREETRANS(handle->trans);
 
-	char lastupdate[15] = "";
-	time_t t = time(NULL);
+	t = time(NULL);
 	strftime(lastupdate, 15, "%Y%m%d%H%M%S", localtime(&t));
 	_pacman_db_setlastupdate(handle->db_local, lastupdate);
 
@@ -1021,7 +1021,7 @@ void *pacman_conflict_getinfo(pmconflict_t *conflict, unsigned char parm)
  * @param fmt output format
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int pacman_logaction(char *fmt, ...)
+int pacman_logaction(const char *fmt, ...)
 {
 	char str[LOG_STR_LEN];
 	va_list args;

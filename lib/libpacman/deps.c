@@ -119,6 +119,7 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 	pmlist_t *vertices = NULL;
 	pmlist_t *vptr;
 	pmgraph_t *vertex;
+	int found;
 
 	if(targets == NULL) {
 		return(NULL);
@@ -159,7 +160,7 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 	while(vptr) {
 		/* mark that we touched the vertex */
 		vertex->state = -1;
-		int found = 0;
+		found = 0;
 		while(vertex->childptr && !found) {
 			pmgraph_t *nextchild = (vertex->childptr)->data;
 			vertex->childptr = (vertex->childptr)->next;
@@ -687,25 +688,25 @@ error:
 
 int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep)
 {
-	int equal = 0;
+	int equal = 0, cmp;
+	const char *mod = "~=";
 
-  if(strcmp(pkg->name, dep->name) == 0
-	    || _pacman_list_is_strin(dep->name, _pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES))) {
-		if(dep->mod == PM_DEP_MOD_ANY) {
-			equal = 1;
-		} else {
-			int cmp = _pacman_versioncmp(_pacman_pkg_getinfo(pkg, PM_PKG_VERSION), dep->version);
-			switch(dep->mod) {
-				case PM_DEP_MOD_EQ: equal = (cmp == 0); break;
-				case PM_DEP_MOD_GE: equal = (cmp >= 0); break;
-				case PM_DEP_MOD_LE: equal = (cmp <= 0); break;
-				case PM_DEP_MOD_LT: equal = (cmp < 0); break;
-				case PM_DEP_MOD_GT: equal = (cmp > 0); break;
-				default: equal = 1; break;
+	if(strcmp(pkg->name, dep->name) == 0
+	    	|| _pacman_list_is_strin(dep->name, _pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES))) {
+			if(dep->mod == PM_DEP_MOD_ANY) {
+				equal = 1;
+			} else {
+				cmp = _pacman_versioncmp(_pacman_pkg_getinfo(pkg, PM_PKG_VERSION), dep->version);
+				switch(dep->mod) {
+					case PM_DEP_MOD_EQ: equal = (cmp == 0); break;
+					case PM_DEP_MOD_GE: equal = (cmp >= 0); break;
+					case PM_DEP_MOD_LE: equal = (cmp <= 0); break;
+					case PM_DEP_MOD_LT: equal = (cmp < 0); break;
+					case PM_DEP_MOD_GT: equal = (cmp > 0); break;
+					default: equal = 1; break;
+				}
 			}
-		}
 
-		char *mod = "~=";
 		switch(dep->mod) {
 			case PM_DEP_MOD_EQ: mod = "=="; break;
 			case PM_DEP_MOD_GE: mod = ">="; break;

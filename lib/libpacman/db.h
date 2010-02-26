@@ -48,7 +48,7 @@ typedef struct __pmdb_t {
 	char lastupdate[16];
 } pmdb_t;
 
-pmdb_t *_pacman_db_new(char *root, char *dbpath, char *treename);
+pmdb_t *_pacman_db_new(char *root, char *dbpath, const char *treename);
 void _pacman_db_free(void *data);
 int _pacman_db_cmp(const void *db1, const void *db2);
 pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles);
@@ -59,13 +59,13 @@ pmlist_t *_pacman_db_test(pmdb_t *db);
 int _pacman_db_open(pmdb_t *db);
 void _pacman_db_close(pmdb_t *db);
 void _pacman_db_rewind(pmdb_t *db);
-pmpkg_t *_pacman_db_scan(pmdb_t *db, char *target, unsigned int inforeq);
+pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq);
 int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info);
 int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
 int _pacman_db_remove(pmdb_t *db, pmpkg_t *info);
 int _pacman_db_getlastupdate(pmdb_t *db, char *ts);
 int _pacman_db_setlastupdate(pmdb_t *db, char *ts);
-pmdb_t *_pacman_db_register(char *treename, pacman_cb_db_register callback);
+pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback);
 
 #endif /* _PACMAN_DB_H */
 

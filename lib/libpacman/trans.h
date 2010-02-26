@@ -78,7 +78,7 @@ pmtrans_t *_pacman_trans_new(void);
 void _pacman_trans_free(void *data);
 int _pacman_trans_init(pmtrans_t *trans, unsigned char type, unsigned int flags, pacman_trans_cb_event event, pacman_trans_cb_conv conv, pacman_trans_cb_progress progress);
 int _pacman_trans_sysupgrade(pmtrans_t *trans);
-int _pacman_trans_addtarget(pmtrans_t *trans, char *target);
+int _pacman_trans_addtarget(pmtrans_t *trans, const char *target);
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data);
 int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data);
 

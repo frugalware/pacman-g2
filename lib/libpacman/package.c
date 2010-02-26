@@ -271,7 +271,7 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 	return(0);
 }
 
-pmpkg_t *_pacman_pkg_load(char *pkgfile)
+pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 {
 	char *expath;
 	int i, ret;
@@ -280,6 +280,7 @@ pmpkg_t *_pacman_pkg_load(char *pkgfile)
 	int scriptcheck = 0;
 	register struct archive *archive;
 	struct archive_entry *entry;
+	struct utsname name;
 	pmpkg_t *info = NULL;
 
 	if(pkgfile == NULL || strlen(pkgfile) == 0) {
@@ -349,7 +350,7 @@ pmpkg_t *_pacman_pkg_load(char *pkgfile)
 					close(fd);
 					goto error;
 				}
-				struct utsname name;
+
 				uname (&name);
 				if(strcmp(name.machine, info->arch)) {
 					_pacman_log(PM_LOG_ERROR, _("wrong package architecture in %s"), pkgfile);

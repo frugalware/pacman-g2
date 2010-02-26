@@ -222,6 +222,7 @@ int querypkg(list_t *targets)
 						} else {
 							reason = PM_PKG_REASON_DEPEND;
 						}
+
 						if(pacman_pkg_getinfo(info, PM_PKG_REQUIREDBY) == NULL
 						   && (long)pacman_pkg_getinfo(info, PM_PKG_REASON) == reason) {
 							MSG(NL, "%s %s\n", pkgname, pkgver);

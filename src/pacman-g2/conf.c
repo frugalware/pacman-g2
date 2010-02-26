@@ -61,7 +61,7 @@ int config_free(config_t *config)
 	return(0);
 }
 
-void cb_db_register(char *section, PM_DB *db)
+void cb_db_register(const char *section, PM_DB *db)
 {
 	pmc_syncs = list_add(pmc_syncs, db);
 }

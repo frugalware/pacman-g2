@@ -83,6 +83,7 @@ static int sync_search(list_t *syncs, list_t *targets)
 {
 	list_t *i, *j;
 	PM_LIST *ret;
+	PM_PKG *ipkg;
 
 	for(i = syncs; i; i = i->next) {
 		PM_DB *db = i->data;
@@ -105,7 +106,7 @@ static int sync_search(list_t *syncs, list_t *targets)
 					(char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME),
 					(char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION));
 
-			PM_PKG *ipkg = pacman_db_readpkg(db_local, name);
+			ipkg = pacman_db_readpkg(db_local, name);
 			if (ipkg) {
 				char *iversion = (char*)pacman_pkg_getinfo(ipkg, PM_PKG_VERSION);
 				printf("[%s: %s] ", _("Installed"), iversion);

@@ -22,13 +22,13 @@
 #define _PM_LOG_H
 
 #define MSG(line, ...) pm_fprintf(stdout, line,## __VA_ARGS__)
-#define ERR(line, fmt, ...) do { \
+#define ERR(line, ...) do { \
 	pm_fprintf(stderr, line, _("error: ")); \
-	pm_fprintf(stderr, CL, fmt,## __VA_ARGS__); \
+	pm_fprintf(stderr, CL,## __VA_ARGS__); \
 } while(0)
-#define WARN(line, fmt, ...) do { \
+#define WARN(line, ...) do { \
 	pm_fprintf(stderr, line, _("warning: ")); \
-	pm_fprintf(stderr, CL, fmt,## __VA_ARGS__); \
+	pm_fprintf(stderr, CL,## __VA_ARGS__); \
 } while(0)
 
 enum {
