@@ -175,6 +175,18 @@ int querypkg(list_t *targets)
 
 		/* find packages in the db */
 		if(package == NULL) {
+			/* Do not allow -Qc , -Qi , -Ql without package arg .. */
+			if(config->op_q_changelog || config->op_q_info || config->op_q_list) {
+				ERR(NL, _("This query option require an package name as argument\n"));
+				return(1);
+			}
+
+			/* -Qd is not valid */
+			if(config->op_q_orphans_deps && !config->op_q_orphans) {
+				ERR(NL, _("Invalid query option , use 'pacman-g2 -Qed'\n"));
+				return(1);
+			}
+
 			PM_LIST *lp;
 			/* no target */
 			for(lp = pacman_db_getpkgcache(db_local); lp; lp = pacman_list_next(lp)) {
@@ -183,8 +195,7 @@ int querypkg(list_t *targets)
 
 				pkgname = pacman_pkg_getinfo(tmpp, PM_PKG_NAME);
 				pkgver = pacman_pkg_getinfo(tmpp, PM_PKG_VERSION);
-
-				if(config->op_q_list || config->op_q_orphans || config->op_q_foreign) {
+				if(config->op_q_orphans || config->op_q_foreign) {
 					info = pacman_db_readpkg(db_local, pkgname);
 					if(info == NULL) {
 						/* something weird happened */
@@ -212,9 +223,6 @@ int querypkg(list_t *targets)
 							MSG(NL, "%s %s\n", pkgname, pkgver);
 						}
 					}
-					if(config->op_q_list) {
-						dump_pkg_files(info);
-					}
 					if(config->op_q_orphans) {
 						int reason;
 						if(config->op_q_orphans_deps) {
@@ -233,7 +241,11 @@ int querypkg(list_t *targets)
 				}
 			}
 		} else {
-			char *pkgname, *pkgver, changelog[PATH_MAX];
+			/* Do not allow -Qe , -Qm with package arg */
+			if(config->op_q_orphans || config->op_q_foreign) {
+				ERR(NL, _("This query option cannot have an package argument\n"));
+				return(1);
+			}
 
 			info = pacman_db_readpkg(db_local, package);
 			if(info == NULL) {
@@ -244,7 +256,7 @@ int querypkg(list_t *targets)
 			/* find a target */
 			if(config->op_q_changelog || config->op_q_info || config->op_q_list) {
 				if(config->op_q_changelog) {
-					char *dbpath;
+					char *dbpath, changelog[PATH_MAX];
 					pacman_get_option(PM_OPT_DBPATH, (long *)&dbpath);
 					snprintf(changelog, PATH_MAX, "%s%s/%s/%s-%s/changelog",
 						config->root, dbpath,
@@ -259,14 +271,11 @@ int querypkg(list_t *targets)
 				if(config->op_q_list) {
 					dump_pkg_files(info);
 				}
-			} else if(config->op_q_orphans) {
-					if(pacman_pkg_getinfo(info, PM_PKG_REQUIREDBY) == NULL) {
-						MSG(NL, "%s %s\n", pkgname, pkgver);
-					}
 			} else {
-				pkgname = pacman_pkg_getinfo(info, PM_PKG_NAME);
-				pkgver = pacman_pkg_getinfo(info, PM_PKG_VERSION);
-				MSG(NL, "%s %s\n", pkgname, pkgver);
+                               char *pkgname = pacman_pkg_getinfo(info, PM_PKG_NAME);
+                               char *pkgver = pacman_pkg_getinfo(info, PM_PKG_VERSION);
+                               MSG(NL, "%s %s\n", pkgname, pkgver);
+
 			}
 		}
 	}
