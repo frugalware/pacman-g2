@@ -136,7 +136,7 @@ tree. See `makeworld --help` for syntax.
 	current working directory.
 
 --gzip::
-	Use gzip compression for a package instead of bzip2.
+	Use gzip compression for a package instead of the default.
 
 --noconfirm::
 	When calling pacman-g2 to resolve dependencies or conflicts, makepkg can pass

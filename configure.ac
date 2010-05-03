@@ -147,8 +147,8 @@ AC_SUBST(PKG_EXT)
 
 dnl Default package file compression
 AC_ARG_WITH([package-compression],
-	[AS_HELP_STRING([--with-package-compression=<compression>], [define the default package compression (default: bzip2)])],
-	[PKG_COMP="$withval"], [PKG_COMP="bzip2"])
+	[AS_HELP_STRING([--with-package-compression=<compression>], [define the default package compression (default: xz)])],
+	[PKG_COMP="$withval"], [PKG_COMP="xz"])
 AC_SUBST(PKG_COMP)
 
 dnl Build with Werror
