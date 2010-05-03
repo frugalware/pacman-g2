@@ -18,7 +18,7 @@ convert_MAN = \
 if HAS_ASCIIDOC
 man_MANS = $(localized_MANS) $(man3_MANS)
 if HAS_DOXYGEN
-man_MANS += libpacman.3 man3/*
+man_MANS += man3/*
 endif
 else
 man_MANS =
