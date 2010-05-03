@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.7.7         - change from bzip2 to xz by default for fpms (not fdbs)
+              - makepkg now logs the size of the chroot before cleanup
+              - pacman-g2: various cleanups, build fixes
+              - pacman-g2: invalid option combinations are now rejected
+                with better error messages
 3.7.6         - corrected meaningless "gethostbyname: Success" errors
               - makepkg now checks for the versions of makedepends as
                 well
