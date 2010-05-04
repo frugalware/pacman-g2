@@ -122,9 +122,11 @@ static int sync_search(list_t *syncs, list_t *targets)
 static int sync_group(int level, list_t *syncs, list_t *targets)
 {
 	list_t *i, *j;
+	int ret = 0;
 
 	if(targets) {
 		for(i = targets; i; i = i->next) {
+			int found = 0;
 			for(j = syncs; j; j = j->next) {
 				PM_DB *db = j->data;
 				PM_GRP *grp = pacman_db_readgrp(db, i->data);
@@ -132,10 +134,12 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 				if(grp) {
 					MSG(NL, "%s\n", (char *)pacman_grp_getinfo(grp, PM_GRP_NAME));
 					PM_LIST_display("   ", pacman_grp_getinfo(grp, PM_GRP_PKGNAMES));
-				} else {
-					ERR(NL, _("group \"%s\" was not found\n"), (char *)i->data);
-					return(1);
+					found = 1;
 				}
+			}
+			if (!found) {
+				ERR(NL, _("group \"%s\" was not found\n"), (char *)i->data);
+				ret = 1;
 			}
 		}
 	} else {
@@ -154,7 +158,7 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 		}
 	}
 
-	return(0);
+	return(ret);
 }
 
 static int sync_info(list_t *syncs, list_t *targets)
