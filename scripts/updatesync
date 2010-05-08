@@ -65,7 +65,14 @@ CHROOT=1
 get_sha1checksum()
 {
 	if [ -f $pkgfile ]; then
-		bzip2 --test $pkgfile || die "corrupted package: $pkgfile"
+		format=`file -i $pkgfile |sed 's/.*: \(.*\);.*/\1/'`
+		if [ "$format" == "application/x-bzip2" ]; then
+			bzip2 --test $pkgfile || die "corrupted bzip2 package: $pkgfile"
+		elif [ "$format" == "application/x-xz" ]; then
+			xz --test $pkgfile || die "corrupted xz package: $pkgfile"
+		else
+			die "unsupported package format: $format"
+		fi
 		sha1line=`sha1sum $pkgfile`
 		[ ! -z "$sha1line" ] && pkgsha1sum=${sha1line%  *}
 		echo $pkgsha1sum
