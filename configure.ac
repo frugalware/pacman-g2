@@ -473,6 +473,7 @@ src/versort/Makefile
 scripts/Makefile
 doc/Makefile
 etc/Makefile
+etc/bash_completion.d/Makefile
 etc/pacman-g2/Makefile
 etc/pacman-g2/hooks/Makefile
 etc/pacman-g2/repos/Makefile
