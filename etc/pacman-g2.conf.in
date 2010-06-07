@@ -12,8 +12,8 @@ LogFile     = /var/log/pacman-g2.log
 HoldPkg     = pacman-g2 glibc bash coreutils chkconfig
 # Issue a warning before install when you haven't done a -Sy for X days
 OldDelay    = 3
-# Use this if you need advanced features. YOUR_OTPS can be for example --limit-rate 800K
-#XferCommand = echo %o |sed -r 's/.(fpm|fdb).part$//'; curl -C - --progress-bar -o %o %u YOUR_OTPS; echo
+# Use this if you need advanced features. YOUR_OPTIONS can be for example --limit-rate 800K
+#XferCommand = echo %o |sed -r 's/.(fpm|fdb).part$//'; curl -C - --progress-bar -o %o %u YOUR_OPTIONS; echo
 
 # If you use the -current tree, you should disable the -stable
 # tree to avoid conflicts
