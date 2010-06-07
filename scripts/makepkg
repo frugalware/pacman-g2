@@ -55,7 +55,7 @@ NODOCS=0
 TREE=""
 CACHEURL=""
 
-PACMAN=pacman-g2
+PACMAN="pacman-g2.static"
 PACMAN_OPTS=
 
 # compat functions. these are useful if one would like to use makepkg outside
