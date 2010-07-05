@@ -1537,13 +1537,14 @@ fi
 
 # use ccache if it's available
 if [ "$NOCCACHE" = "0" -a -d /usr/lib/ccache/bin ]; then
-	export PATH=/usr/lib/ccache/bin:$PATH
-	FCC="ccache $FCC"
-	install -d -m 2775 /var/cache/ccache/$pkgname
-	export CCACHE_DIR=/var/cache/ccache/$pkgname
-	export CCACHE_NOLINK=1
-	export CCACHE_UMASK=002
-	if [ ! -w /var/cache/ccache/ ]; then
+	if [ -w /var/cache/ccache/ ]; then
+		export PATH=/usr/lib/ccache/bin:$PATH
+		FCC="ccache $FCC"
+		install -d -m 2775 /var/cache/ccache/$pkgname
+		export CCACHE_DIR=/var/cache/ccache/$pkgname
+		export CCACHE_NOLINK=1
+		export CCACHE_UMASK=002
+	else
 		if [ "$INCHROOT" != "1" ]; then
 			error "You installed ccache but you are not in the ccache group."
 			plain "Either add yourserlf to the ccache group or"
