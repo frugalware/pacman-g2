@@ -1,5 +1,9 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.7.8         - fix ccache support
+              - fix progressbar, now it can be other than 0% or 100% again
+              - add bash-completion support
+              - Sg: don't return an error if not all repos contain a given group
 3.7.7         - change from bzip2 to xz by default for fpms (not fdbs)
               - makepkg now logs the size of the chroot before cleanup
               - pacman-g2: various cleanups, build fixes
