@@ -670,6 +670,10 @@ if [ -z "$PKG_COMP" ]; then
 	PKG_COMP="xz"
 fi
 
+if [ -n "$MAKEFLAGS_AUTO" ]; then
+	export MAKEFLAGS="-j`grep -c ^processor /proc/cpuinfo`"
+fi
+
 ARGLIST=$@
 COMPRESS_PROGRAM="$PKG_COMP"
 
