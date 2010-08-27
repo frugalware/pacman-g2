@@ -670,7 +670,7 @@ if [ -z "$PKG_COMP" ]; then
 	PKG_COMP="xz"
 fi
 
-if [ -n "$MAKEFLAGS_AUTO" ]; then
+if [ "$USE_AUTO_MAKEFLAGS" != "n" ]; then
 	export MAKEFLAGS="-j`grep -c ^processor /proc/cpuinfo`"
 fi
 

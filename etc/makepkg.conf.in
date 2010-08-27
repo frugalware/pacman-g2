@@ -22,7 +22,7 @@ export CXXFLAGS="@CARCHFLAGS@ -O2 -pipe"
 
 # SMP Systems
 #export MAKEFLAGS="-j2"
-export MAKEFLAGS_AUTO=1
+export USE_AUTO_MAKEFLAGS="y"
 
 # Default name of build scripts
 export BUILDSCRIPT="FrugalBuild"
