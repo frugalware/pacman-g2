@@ -814,6 +814,14 @@ if [ $CLEANCACHE -ge 1 ]; then
 		do
 			umount $i
 		done
+		if [ "$CLEANUP" = "1" ]; then
+			if [ -z "`grep $CHROOTDIR /proc/mounts`" ]; then
+				msg "Removing the chroot."
+				rm -rf $CHROOTDIR
+			else
+				error "Failed to umount some bind mounts, can't remove the chroot."
+			fi
+		fi
 		exit 0
 	else
 		error "You must be root to clean the cache."
