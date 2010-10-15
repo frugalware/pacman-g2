@@ -365,10 +365,14 @@ XferCommand = /path/to/command %u::
 	All instances of %u will be replaced with the URL to be downloaded. If present,
 	instances of %o will be replaced with the local filename, plus a ".part"
 	extension, which allows programs like wget to do file resumes properly.
-
-	This option is useful for users who experience problems with pacman-g2's
-	built-in http/ftp support, or need the more advanced proxy support that comes
-	with utilities like curl.
++
+This option is useful for users who experience problems with pacman-g2's
+built-in http/ftp support, or need the more advanced proxy support that comes
+with utilities like curl.
++
+In case you want to make the output more user-friendly, there is also %c to
+mention the number of the currently downloaded file and %t to show the total
+number of files.
 
 NoPassiveFtp::
 	Disables passive ftp connections when downloading packages. (aka Active Mode)

@@ -279,6 +279,37 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					ptr1 = ptr2 + 2;
 				}
 				strcat(parsedCmd, ptr1);
+				/* replace all occurrences of %c with the current position */
+				if (remain) {
+					strncpy(origCmd, parsedCmd, sizeof(origCmd));
+					parsedCmd[0] = '\0';
+					ptr1 = origCmd;
+					while((ptr2 = strstr(ptr1, "%c"))) {
+						char numstr[PATH_MAX];
+						ptr2[0] = '\0';
+						strcat(parsedCmd, ptr1);
+						printf("debug, remain is %d\n", *remain);
+						snprintf(numstr, PATH_MAX, "%d", *remain);
+						strcat(parsedCmd, numstr);
+						ptr1 = ptr2 + 2;
+					}
+					strcat(parsedCmd, ptr1);
+				}
+				/* replace all occurrences of %t with the current position */
+				if (howmany) {
+					strncpy(origCmd, parsedCmd, sizeof(origCmd));
+					parsedCmd[0] = '\0';
+					ptr1 = origCmd;
+					while((ptr2 = strstr(ptr1, "%t"))) {
+						char numstr[PATH_MAX];
+						ptr2[0] = '\0';
+						strcat(parsedCmd, ptr1);
+						snprintf(numstr, PATH_MAX, "%d", *howmany);
+						strcat(parsedCmd, numstr);
+						ptr1 = ptr2 + 2;
+					}
+					strcat(parsedCmd, ptr1);
+				}
 				/* cwd to the download directory */
 				getcwd(cwd, PATH_MAX);
 				if(chdir(localpath)) {
@@ -509,15 +540,15 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					/* rename "output.part" file to "output" file */
 					snprintf(completefile, PATH_MAX, "%s/%s", localpath, fn);
 					rename(output, completefile);
-					if(remain) {
-						(*remain)++;
-					}
 				} else if(filedone < 0) {
 					/* 1 means here that the file is up to date, not a real error, so
 					 * don't go to error: */
 					FREELISTPTR(complete);
 					return(1);
 				}
+			}
+			if(remain) {
+				(*remain)++;
 			}
 		}
 		if(!handle->xfercommand) {
