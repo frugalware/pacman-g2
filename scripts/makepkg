@@ -1029,7 +1029,7 @@ elif [ "$F_makepkg_scm" = "svn" ]; then
 	svn info $BUILDSCRIPT &>/dev/null && indir=y
 fi
 if [ "$indir" = "y" ] && [ "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
-	if [ ! -e Changelog ] || [ `stat -c %Y Changelog` -lt `stat -c %Y $BUILDSCRIPT` ]; then
+	if [ ! -e Changelog ] || [ `stat -c %Y Changelog|sed 's/\..*//'` -lt `stat -c %Y $BUILDSCRIPT|sed 's/\..*//'` ]; then
 		msg "Generating the Changelog..."
 		if [ "$F_makepkg_scm" = "git" ]; then
 			git log $BUILDSCRIPT >Changelog
