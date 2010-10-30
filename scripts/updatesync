@@ -266,7 +266,14 @@ fi
 bdb=`basename $pkgdb`
 udb=`basename $bdb .fdb`.tar
 echo "updatesync: uncompressing to $ustmpdir..." >&2
-bunzip2 -c -d $pkgdb > $udb || die "error uncompressing $pkgdb"
+format=`file -i $pkgdb |sed 's/.*: \(.*\);.*/\1/'`
+if [ "$format" == "application/x-bzip2" ]; then
+	bunzip2 -c -d $pkgdb > $udb || die "error uncompressing $pkgdb"
+elif [ "$format" == "application/x-xz" ]; then
+	xz -c -d $pkgdb > $udb || die "error uncompressing $pkgdb"
+else
+	die "unsupported package format: $format"
+fi
 if [ "$action" = "upd" ]; then
 	# INSERT / UPDATE
 	delete_entry $option
@@ -329,7 +336,7 @@ fi
 
 echo "updatesync: compressing to $bdb..." >&2
 cd $ustmpdir
-bzip2 -c $udb >$bdb || die "error writing to $bdb"
+xz -c $udb >$bdb || die "error writing to $bdb"
 mv $bdb $pkgdb || die "error moving $bdb to $pkgdb"
 
 cd $curdir
