@@ -1,5 +1,12 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.7.9         - updatesync/gensync now compresses using xz by default
+              - fix warning when makepkg did not handle stat -c
+                returning a float
+              - the current and total number of packages is now passed
+                to xfercommand
+              - makepkg now automatically sets the number of jobs by
+                default to the number of cores available
 3.7.8         - fix ccache support
               - fix progressbar, now it can be other than 0% or 100% again
               - add bash-completion support
