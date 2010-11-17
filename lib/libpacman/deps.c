@@ -358,8 +358,10 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmli
  					pmpkg_t *p = (pmpkg_t *)k->data;
  					/* see if the package names match OR if p provides depend.name */
  					if(!strcmp(p->name, depend.name) || _pacman_list_is_strin(depend.name, _pacman_pkg_getinfo(p, PM_PKG_PROVIDES))) {
-						if(depend.mod == PM_DEP_MOD_ANY) {
-							/* accept any version */
+						if(depend.mod == PM_DEP_MOD_ANY ||
+								_pacman_list_is_strin(depend.name, _pacman_pkg_getinfo(p, PM_PKG_PROVIDES))) {
+							/* depend accepts any version or p provides depend (provides - by
+							 * definition - is for all versions) */
 							found = 1;
 						} else {
 							char *ver = strdup(p->version);
