@@ -760,6 +760,10 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 		}
 	}
 	freespace = get_freespace();
+	if(freespace < 0) {
+		_pacman_log(PM_LOG_WARNING, _("check_freespace: total pkg size: %lld, disk space: unknown"), pkgsize);
+		return(0);
+	}
 	_pacman_log(PM_LOG_DEBUG, _("check_freespace: total pkg size: %lld, disk space: %lld"), pkgsize, freespace);
 	if(pkgsize > freespace) {
 		if(data) {
