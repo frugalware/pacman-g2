@@ -727,7 +727,7 @@ static long long get_freespace(void)
 
 	fp = setmntent (table, "r");
 	if(!fp)
-		        return(-1);
+		return(-1);
 	while ((mnt = getmntent (fp)))
 	{
 		struct statvfs64 buf;
@@ -735,6 +735,7 @@ static long long get_freespace(void)
 		statvfs64(mnt->mnt_dir, &buf);
 		ret += buf.f_bavail * buf.f_bsize;
 	}
+	endmntent(fp);
 	return(ret);
 }
 
