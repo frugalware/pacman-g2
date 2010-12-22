@@ -387,6 +387,14 @@ installed depends() and makedepends(). This ensures you do not have to build
 the core chroot from scratch. This action is performed by `makepkg` after a
 successful build.
 
+NOTE: The cleanup is done by removing every package not listed in the
+`COREPKGS` group list (see `makepkg.conf`), and everything depending on
+such packages. So be careful when you add a new dependency to such a
+package (for example `gcc`): first add the new dependency to one of
+those groups and once the change is available on each arch, you can add
+the dependency itself. Otherwise it can easily happen that `gcc` gets
+removed from the chroot, which means most build will just fail.
+
 This way we can prevent lots of dependency problems and it is even possible to
 build packages for a different Frugalware version. This is quite efficient when
 building security updates or fixing critical bugs in the `-stable` tree.
