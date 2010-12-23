@@ -1109,8 +1109,13 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	if [ -d ~/.pacman-g2/repos ]; then
 		cp -pf ~/.pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
 	fi
+	# mtab can be removed once Frugalware-1.4 is out
 	for i in makepkg.conf resolv.conf passwd shadow group fstab mtab
 	do
+		if [ -h $CHROOTDIR/etc/$i ]; then
+			# it's a symlink, don't touch it
+			continue
+		fi
 		cp -pf /etc/$i $CHROOTDIR/etc >/dev/null
 		if [ -e $HOME/.$i ]; then
 			cp $HOME/.$i $CHROOTDIR/etc/$i >/dev/null
