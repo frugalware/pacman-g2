@@ -113,11 +113,11 @@ namespace Pacman
 
 	public static string	strerror (int err);
 
-	public static int parse_config (string file, void* db_register, string? section);
+	public static int parse_config (string file, cb_db_register? callback=null, string? section="");
 
 	/* library callbacks */
-	[CCode (cprefix = "pacman_cb_")]
-	public delegate void* db_register (string db, Database d);
+	[CCode (has_target = false)]
+	public delegate void* cb_db_register (string db, Database d);
 	public delegate void* log (ushort s, string str);
 	
 	[CCode (cprefix = "PM_OPT")]
