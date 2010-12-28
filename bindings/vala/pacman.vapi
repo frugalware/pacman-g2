@@ -29,44 +29,77 @@
 [CCode (cprefix = "pacman_", lower_case_cprefix = "pacman_", cheader_filename = "pacman.h")]
 namespace Pacman
 {
-	const string	ROOT		= "/";
-	const string	DBPATH		= "var/lib/pacman-g2";
-	const string	CACHEDIR	= "var/cache/pacman-g2/pkg";
-	const string	LOCK		= "/tmp/pacman-g2.lck";
-	const string	HOOKSDIR	= "etc/pacman-g2/hooks";
-	const string	EXT_PKG		= ".fpm";
-	const string	EXT_DB		= ".fdb";
+	[CCode (cname="PM_ROOT")]
+	public const string ROOT;
+	[CCode (cname="PM_DBPATH")]
+	const string	DBPATH;
+	[CCode (cname="PM_CACHEDIR")]
+	const string	CACHEDIR;
+	[CCode (cname="PM_LOCK")]
+	const string	LOCK;
+	[CCode (cname="PM_HOOKSDIR")]
+	const string	HOOKSDIR;
+	[CCode (cname="PM_EXT_PKG")]
+	const string	EXT_PKG;
+	[CCode (cname="PM_EXT_DB")]
+	const string	EXT_DB;
 	
-	const ushort	LOG_DEBUG	= 0x01;
-	const ushort	LOG_ERROR	= 0x02;
-	const ushort	LOG_WARNING	= 0x04;
-	const ushort	LOG_FLOW1	= 0x08;
-	const ushort	LOG_FLOW2	= 0x010;
-	const ushort	LOG_FUNCTION	= 0x020;
+	[CCode (cname="PM_LOG_DEBUG")]
+	const ushort	LOG_DEBUG;
+	[CCode (cname="PM_LOG_ERROR")]
+	const ushort	LOG_ERROR;
+	[CCode (cname="PM_LOG_WARNING")]
+	const ushort	LOG_WARNING;
+	[CCode (cname="PM_LOG_FLOW1")]
+	const ushort	LOG_FLOW1;
+	[CCode (cname="PM_LOG_FLOW2")]
+	const ushort	LOG_FLOW2;
+	[CCode (cname="PM_LOG_FUNCTION")]
+	const ushort	LOG_FUNCTION;
 	
-	const ushort	TRANS_FLAG_NODEPS		= 0x01;
-	const ushort	TRANS_FLAG_FORCE		= 0x02;
-	const ushort	TRANS_FLAG_NOSAVE		= 0x04;
-	const ushort	TRANS_FLAG_FRESHEN		= 0x08;
-	const ushort	TRANS_FLAG_CASCADE		= 0x10;
-	const ushort	TRANS_FLAG_RECURSE		= 0x20;
-	const ushort	TRANS_FLAG_DBONLY		= 0x40;
-	const ushort	TRANS_FLAG_DEPENDSONLY		= 0x80;
-	const ushort	TRANS_FLAG_ALLDEPS		= 0x100;
-	const ushort	TRANS_FLAG_DOWNLOADONLY		= 0x200;
-	const ushort	TRANS_FLAG_NOSCRIPTLET		= 0x400;
-	const ushort	TRANS_FLAG_NOCONFLICTS		= 0x800;
-	const ushort	TRANS_FLAG_PRINTURIS		= 0x1000;
-	const ushort	TRANS_FLAG_NOINTEGRITY		= 0x2000;
-	const ushort	TRANS_FLAG_NOARCH		= 0x4000;
+	[CCode (cname="PM_TRANS_FLAG_NODEPS")]
+	const ushort	TRANS_FLAG_NODEPS;
+	[CCode (cname="PM_TRANS_FLAG_FORCE")]
+	const ushort	TRANS_FLAG_FORCE	;
+	[CCode (cname="PM_TRANS_FLAG_NOSAVE")]
+	const ushort	TRANS_FLAG_NOSAVE;
+	[CCode (cname="PM_TRANS_FLAG_FRESHEN")]
+	const ushort	TRANS_FLAG_FRESHEN;
+	[CCode (cname="PM_TRANS_FLAG_CASCADE")]
+	const ushort	TRANS_FLAG_CASCADE;
+	[CCode (cname="PM_TRANS_FLAG_RECURSE")]
+	const ushort	TRANS_FLAG_RECURSE;
+	[CCode (cname="PM_TRANS_FLAG_DBONLY")]
+	const ushort	TRANS_FLAG_DBONLY;
+	[CCode (cname="PM_TRANS_FLAG_DEPENDSONLY")]
+	const ushort	TRANS_FLAG_DEPENDSONLY;
+	[CCode (cname="PM_TRANS_FLAG_ALLDEPS")]
+	const ushort	TRANS_FLAG_ALLDEPS;
+	[CCode (cname="PM_DBPATH")]
+	const ushort	TRANS_FLAG_DOWNLOADONLY;
+	[CCode (cname="PM_TRANS_FLAG_NOSCRIPTLET")]
+	const ushort	TRANS_FLAG_NOSCRIPTLET;
+	[CCode (cname="PM_TRANS_FLAG_NOCONFLICTS")]
+	const ushort	TRANS_FLAG_NOCONFLICTS;
+	[CCode (cname="PM_TRANS_FLAG_PRINTURIS")]
+	const ushort	TRANS_FLAG_PRINTURIS;
+	[CCode (cname="PM_RANS_FLAG_NOINTEGRITY")]
+	const ushort	TRANS_FLAG_NOINTEGRITY;
+	[CCode (cname="PM_TRANS_FLAG_NOARCH")]
+	const ushort	TRANS_FLAG_NOARCH;
 	
-	const uint	DLFNM_LEN		= 1024;
+	[CCode (cname="PM_DLFNM_LEN")]
+	const uint	DLFNM_LEN;
 	
-	const uint	PKG_REASON_EXPLICIT	= 0;
-	const uint	PKG_REASON_DEPEND	= 1;
-	const uint	PKG_WITHOUT_ARCH	= 0;
-	const uint	PKG_WITH_ARCH		= 1;
- 
+	[CCode (cname="PM_PKG_REASON_EXPLICIT")]
+	const uint	PKG_REASON_EXPLICIT;
+	[CCode (cname="PM_PKG_REASON_DEPEND")]
+	const uint	PKG_REASON_DEPEND;
+	[CCode (cname="PM_PKG_WITHOUT_ARCH")]
+	const uint	PKG_WITHOUT_ARCH;
+	[CCode (cname="PM_PKG_WITH_ARCH")]
+	const uint	PKG_WITH_ARCH;
+	
 	public static int initialize (string root);
 	public static int release ();
 	
@@ -140,7 +173,7 @@ namespace Pacman
 
 		public static Database		register (string treename);
 		public int			unregister ();
-		public weak void		getinfo (Database.Info di);
+		public unowned void		getinfo (Database.Info di);
 		public Group			readgrp (string name);
 		public Package			readpkg (string name);
 		public int			setserver (string url);
@@ -189,7 +222,7 @@ namespace Pacman
 			STICK
 		}
 		
-		public weak void* getinfo (Package.Info param);
+		public unowned void* getinfo (Package.Info param);
 		
 		public int checkmd5sum ();
 		public int checksha1sum ();
@@ -212,7 +245,7 @@ namespace Pacman
 			PKGNAMES
 		}
 		
-		public weak void* getinfo (Group.Info param);
+		public unowned void* getinfo (Group.Info param);
 	}
 	
 	[Compact]
