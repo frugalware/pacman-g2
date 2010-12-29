@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.8.0         - changed error message to a warning when /etc/mtab is missing
+              - provides() now really means any version, as it would be
+                intuitive
+              - vala bindings got a facelift for vala-0.10
+              - makepkg cleanup + warning fixes
 3.7.9         - updatesync/gensync now compresses using xz by default
               - fix warning when makepkg did not handle stat -c
                 returning a float
