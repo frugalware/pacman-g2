@@ -336,7 +336,7 @@ namespace Pacman {
 	/* Sciplet */
 	SCRIPLET,
 	/* Misc */
-	PM_PKG_DATA,
+	DATA,
 	FORCE,
 	STICK
 	}
