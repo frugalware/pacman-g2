@@ -287,4 +287,12 @@ namespace Pacman {
 		TYPE_UPGRADE,
 		TYPE_SYNC
 	}
+	/* Info parameters */
+	[CCode (cprefix = "PM_TRANS_")]
+	enum OptionPM {
+	TYPE = 1,
+	FLAGS,
+	TARGETS,
+	PACKAGES
+	}
 }
