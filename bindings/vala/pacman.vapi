@@ -218,7 +218,7 @@ namespace Pacman {
 	[CCode (cheader_filename = "pacman.h")]
 	public static int pacman_release ();
 	[CCode (cheader_filename = "pacman.h")]
-	public static int pacman_set_option (uint parm, uint data);
+	public static int pacman_set_option (uint parm, long data);
 	[CCode (cheader_filename = "pacman.h")]
 	public static unowned string pacman_strerror (int err);
 	[CCode (cheader_filename = "pacman.h")]
