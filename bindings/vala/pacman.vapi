@@ -2,6 +2,7 @@
  * pacman.vapi
  * Vala bindings for the pacman-g2 library
  *
+ * Copyright (C) 2010 Gaetan Gourdin
  * Copyright (C) 2009 Priyank Gosalia
  *
  * This library is free software; you can redistribute it and/or
@@ -26,101 +27,220 @@
  *
  */
 
-[CCode (cprefix = "pacman_", lower_case_cprefix = "pacman_", cheader_filename = "pacman.h")]
-namespace Pacman
-{
-	[CCode (cname="PM_ROOT")]
-	public const string ROOT;
-	[CCode (cname="PM_DBPATH")]
-	const string	DBPATH;
-	[CCode (cname="PM_CACHEDIR")]
-	const string	CACHEDIR;
-	[CCode (cname="PM_LOCK")]
-	const string	LOCK;
-	[CCode (cname="PM_HOOKSDIR")]
-	const string	HOOKSDIR;
-	[CCode (cname="PM_EXT_PKG")]
-	const string	EXT_PKG;
-	[CCode (cname="PM_EXT_DB")]
-	const string	EXT_DB;
-	
-	[CCode (cname="PM_LOG_DEBUG")]
-	const ushort	LOG_DEBUG;
-	[CCode (cname="PM_LOG_ERROR")]
-	const ushort	LOG_ERROR;
-	[CCode (cname="PM_LOG_WARNING")]
-	const ushort	LOG_WARNING;
-	[CCode (cname="PM_LOG_FLOW1")]
-	const ushort	LOG_FLOW1;
-	[CCode (cname="PM_LOG_FLOW2")]
-	const ushort	LOG_FLOW2;
-	[CCode (cname="PM_LOG_FUNCTION")]
-	const ushort	LOG_FUNCTION;
-	
-	[CCode (cname="PM_TRANS_FLAG_NODEPS")]
-	const ushort	TRANS_FLAG_NODEPS;
-	[CCode (cname="PM_TRANS_FLAG_FORCE")]
-	const ushort	TRANS_FLAG_FORCE	;
-	[CCode (cname="PM_TRANS_FLAG_NOSAVE")]
-	const ushort	TRANS_FLAG_NOSAVE;
-	[CCode (cname="PM_TRANS_FLAG_FRESHEN")]
-	const ushort	TRANS_FLAG_FRESHEN;
-	[CCode (cname="PM_TRANS_FLAG_CASCADE")]
-	const ushort	TRANS_FLAG_CASCADE;
-	[CCode (cname="PM_TRANS_FLAG_RECURSE")]
-	const ushort	TRANS_FLAG_RECURSE;
-	[CCode (cname="PM_TRANS_FLAG_DBONLY")]
-	const ushort	TRANS_FLAG_DBONLY;
-	[CCode (cname="PM_TRANS_FLAG_DEPENDSONLY")]
-	const ushort	TRANS_FLAG_DEPENDSONLY;
-	[CCode (cname="PM_TRANS_FLAG_ALLDEPS")]
-	const ushort	TRANS_FLAG_ALLDEPS;
-	[CCode (cname="PM_DBPATH")]
-	const ushort	TRANS_FLAG_DOWNLOADONLY;
-	[CCode (cname="PM_TRANS_FLAG_NOSCRIPTLET")]
-	const ushort	TRANS_FLAG_NOSCRIPTLET;
-	[CCode (cname="PM_TRANS_FLAG_NOCONFLICTS")]
-	const ushort	TRANS_FLAG_NOCONFLICTS;
-	[CCode (cname="PM_TRANS_FLAG_PRINTURIS")]
-	const ushort	TRANS_FLAG_PRINTURIS;
-	[CCode (cname="PM_RANS_FLAG_NOINTEGRITY")]
-	const ushort	TRANS_FLAG_NOINTEGRITY;
-	[CCode (cname="PM_TRANS_FLAG_NOARCH")]
-	const ushort	TRANS_FLAG_NOARCH;
-	
-	[CCode (cname="PM_DLFNM_LEN")]
-	const uint	DLFNM_LEN;
-	
-	[CCode (cname="PM_PKG_REASON_EXPLICIT")]
-	const uint	PKG_REASON_EXPLICIT;
-	[CCode (cname="PM_PKG_REASON_DEPEND")]
-	const uint	PKG_REASON_DEPEND;
-	[CCode (cname="PM_PKG_WITHOUT_ARCH")]
-	const uint	PKG_WITHOUT_ARCH;
-	[CCode (cname="PM_PKG_WITH_ARCH")]
-	const uint	PKG_WITH_ARCH;
-	
-	public static int initialize (string root);
-	public static int release ();
-	
-	public static int logaction (string fmt, ...);
-	
-	public static string	get_md5sum (string name);
-	public static string	get_sha1sum (string mame);
-	
-	public static int	get_option (uchar param, ulong *data);
-	public static int	set_option (uchar param, long data);
+[CCode (cprefix = "", lower_case_cprefix = "", cheader_filename = "pacman.h")]
+namespace Pacman {
+	[Compact]
+	[CCode (cheader_filename = "pacman.h")]
+	public class PM_CONFLICT {
+	}
+	[Compact]
+	[CCode (cheader_filename = "pacman.h")]
+	public class PM_DB {
+	}
+	[Compact]
+	[CCode (cheader_filename = "pacman.h")]
+	public class PM_DEPMISS {
+	}
+	[Compact]
+	[CCode (cheader_filename = "pacman.h")]
+	public class PM_GRP {
+	}
+	[Compact]
+	[CCode (cheader_filename = "pacman.h")]
+	public class PM_LIST {
+	}
+	[Compact]
+	[CCode (cheader_filename = "pacman.h")]
+	public class PM_NETBUF {
+	}
+	[Compact]
+	[CCode (cheader_filename = "pacman.h")]
+	public class PM_PKG {
+	}
+	[Compact]
+	[CCode (cheader_filename = "pacman.h")]
+	public class PM_SYNCPKG {
+	}
+	[Compact]
+	[CCode (cheader_filename = "pacman.h")]
+	public class PM_TRANS {
+	}
+	[CCode (cheader_filename = "pacman.h", has_target = false)]
+	public delegate void pacman_cb_db_register (string p1, Pacman.PM_DB p2);
+	[CCode (cheader_filename = "pacman.h", has_target = false)]
+	public delegate void pacman_cb_log (uint p1, string p2);
+	[CCode (cheader_filename = "pacman.h", has_target = false)]
+	public delegate void pacman_trans_cb_conv (uint p1, void* p2, void* p3, void* p4, int p5);
+	[CCode (cheader_filename = "pacman.h", has_target = false)]
+	public delegate int pacman_trans_cb_download (Pacman.PM_NETBUF ctl, int xfered, void* arg);
+	[CCode (cheader_filename = "pacman.h", has_target = false)]
+	public delegate void pacman_trans_cb_event (uint p1, void* p2, void* p3);
+	[CCode (cheader_filename = "pacman.h", has_target = false)]
+	public delegate void pacman_trans_cb_progress (uint p1, string p2, int p3, int p4, int p5);
+	[CCode (cheader_filename = "pacman.h")]
+	public const string PM_CACHEDIR;
+	[CCode (cheader_filename = "pacman.h")]
+	public const string PM_DBPATH;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_DLFNM_LEN;
+	[CCode (cheader_filename = "pacman.h")]
+	public const string PM_EXT_DB;
+	[CCode (cheader_filename = "pacman.h")]
+	public const string PM_EXT_PKG;
+	[CCode (cheader_filename = "pacman.h")]
+	public const string PM_HOOKSDIR;
+	[CCode (cheader_filename = "pacman.h")]
+	public const string PM_LOCK;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_LOG_DEBUG;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_LOG_ERROR;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_LOG_FLOW1;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_LOG_FLOW2;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_LOG_FUNCTION;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_LOG_WARNING;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_PKG_REASON_DEPEND;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_PKG_REASON_EXPLICIT;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_PKG_WITHOUT_ARCH;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_PKG_WITH_ARCH;
+	[CCode (cheader_filename = "pacman.h")]
+	public const string PM_ROOT;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_ALLDEPS;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_CASCADE;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_DBONLY;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_DEPENDSONLY;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_DOWNLOADONLY;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_FORCE;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_FRESHEN;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_NOARCH;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_NOCONFLICTS;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_NODEPS;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_NOINTEGRITY;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_NOSAVE;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_NOSCRIPTLET;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_PRINTURIS;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_PRINTURIS_CACHED;
+	[CCode (cheader_filename = "pacman.h")]
+	public const int PM_TRANS_FLAG_RECURSE;
+	[CCode (cheader_filename = "pacman.h")]
+	public static void* conflict_getinfo (Pacman.PM_CONFLICT conflict, uint parm);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned Pacman.PM_LIST db_getgrpcache (Pacman.PM_DB db);
+	[CCode (cheader_filename = "pacman.h")]
+	public static void* pacman_db_getinfo (Pacman.PM_DB db, uint parm);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned Pacman.PM_LIST pacman_db_getpkgcache (Pacman.PM_DB db);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned Pacman.PM_GRP pacman_db_readgrp (Pacman.PM_DB db, string name);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned Pacman.PM_PKG pacman_db_readpkg (Pacman.PM_DB db, string name);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned Pacman.PM_DB pacman_db_register (string treename);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned Pacman.PM_LIST pacman_db_search (Pacman.PM_DB db);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_db_setserver (Pacman.PM_DB db, string url);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned Pacman.PM_LIST pacman_db_test (Pacman.PM_DB db);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_db_unregister (Pacman.PM_DB db);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_db_update (int level, Pacman.PM_DB db);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned Pacman.PM_LIST pacman_db_whatprovides (Pacman.PM_DB db, string name);
+	[CCode (cheader_filename = "pacman.h")]
+	public static void* pacman_dep_getinfo (Pacman.PM_DEPMISS miss, uint parm);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned string pacman_fetch_pkgurl (string url);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned string pacman_get_md5sum (string name);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_get_option (uint parm, long data);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned string pacman_get_sha1sum (string name);
+	[CCode (cheader_filename = "pacman.h")]
+	public static void* pacman_grp_getinfo (Pacman.PM_GRP grp, uint parm);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_initialize (string root);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_list_count (Pacman.PM_LIST list);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned Pacman.PM_LIST pacman_list_first (Pacman.PM_LIST list);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_list_free (Pacman.PM_LIST entry);
+	[CCode (cheader_filename = "pacman.h")]
+	public static void* pacman_list_getdata (Pacman.PM_LIST entry);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned Pacman.PM_LIST pacman_list_next (Pacman.PM_LIST entry);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_logaction (string fmt);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_parse_config (string file, Pacman.pacman_cb_db_register callback, string this_section);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_pkg_checkmd5sum (Pacman.PM_PKG pkg);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_pkg_checksha1sum (Pacman.PM_PKG pkg);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_pkg_free (Pacman.PM_PKG pkg);
+	[CCode (cheader_filename = "pacman.h")]
+	public static void* pacman_pkg_getinfo (Pacman.PM_PKG pkg, uint parm);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned Pacman.PM_LIST pacman_pkg_getowners (string filename);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_pkg_load (string filename, out unowned Pacman.PM_PKG pkg);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_pkg_vercmp (string ver1, string ver2);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_reg_match (string str, string pattern);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_release ();
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_set_option (uint parm, uint data);
+	[CCode (cheader_filename = "pacman.h")]
+	public static unowned string pacman_strerror (int err);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_sync_cleancache (int full);
+	[CCode (cheader_filename = "pacman.h")]
+	public static void* pacman_sync_getinfo (Pacman.PM_SYNCPKG sync, uint parm);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_trans_addtarget (string target);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_trans_commit (out unowned Pacman.PM_LIST data);
+	[CCode (cheader_filename = "pacman.h")]
+	public static void* pacman_trans_getinfo (uint parm);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_trans_init (uint type, uint flags, Pacman.pacman_trans_cb_event cb_event, Pacman.pacman_trans_cb_conv conv, Pacman.pacman_trans_cb_progress cb_progress);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_trans_prepare (out unowned Pacman.PM_LIST data);
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_trans_release ();
+	[CCode (cheader_filename = "pacman.h")]
+	public static int pacman_trans_sysupgrade ();
 
-	public static string	strerror (int err);
-
-	public static int parse_config (string file, cb_db_register? callback=null, string? section="");
-
-	/* library callbacks */
-	[CCode (has_target = false)]
-	public delegate void* cb_db_register (string db, Database d);
-	public delegate void* log (ushort s, string str);
-	
-	[CCode (cprefix = "PM_OPT")]
+	[CCode (cprefix = "PM_OPT_")]
 	public enum Option
 	{
 		LOGCB = 1,
@@ -158,365 +278,5 @@ namespace Pacman
 		DLREMAIN,
 		DLHOWMANY,
 		HOOKSDIR
-	}
-
-	[Compact]
-	[CCode (cname = "PM_DB", cprefix = "pacman_db_", free_function = "", cheader_filename = "pacman.h")]
-	public class Database
-	{
-		[CCode (cprefix = "PM_DB_")]
-		public enum Info
-		{
-			TREENAME = 1,
-			FIRSTSERVER
-		}
-
-		public static Database		register (string treename);
-		public int			unregister ();
-		public unowned void		getinfo (Database.Info di);
-		public Group			readgrp (string name);
-		public Package			readpkg (string name);
-		public int			setserver (string url);
-		public List			getgrpcache ();
-		public List			getpkgcache ();
-		public List			search ();
-		public List			test ();
-		public List			whatprovides (string name);
-		
-	}
-
-	[Compact]
-	[CCode (cname = "PM_PKG", cprefix = "pacman_pkg_", free_function = "")]
-	public class Package
-	{
-		[CCode (cprefix = "PM_PKG_")]
-		public enum Info
-		{
-			NAME = 1,
-			VERSION,
-			DESC,
-			GROUPS,
-			URL,
-			LICENSE,
-			ARCH,
-			BUILDDATE,
-			BUILDTYPE,
-			INSTALLDATE,
-			PACKAGER,
-			SIZE,
-			USIZE,
-			REASON,
-			MD5SUM,
-			SHA1SUM,
-			DEPENDS,
-			REMOVES,
-			REQUIREDBY,
-			CONFLICTS,
-			PROVIDES,
-			REPLACES,
-			FILES,
-			BACKUP,
-			SCRIPLET,
-			DATA,
-			FORCE,
-			STICK
-		}
-		
-		public unowned void* getinfo (Package.Info param);
-		
-		public int checkmd5sum ();
-		public int checksha1sum ();
-		public void free ();
-		
-		public static List	getowners (string filename);
-		public static string	fetch_pkgurl (string url);
-		public static int	vercmp (string ver1, string ver2);
-		public static int	reg_match (string str, string pattern);
-	}
-	
-	[Compact]
-	[CCode (cname = "PM_GRP", cprefix = "pacman_grp_", free_function = "")]
-	public class Group
-	{
-		[CCode (cprefix = "PM_GRP_")]
-		public enum Info
-		{
-			NAME = 1,
-			PKGNAMES
-		}
-		
-		public unowned void* getinfo (Group.Info param);
-	}
-	
-	[Compact]
-	[CCode (cname = "PM_LIST", cprefix = "pacman_list_", free_function = "")]
-	public class List
-	{
-		public List first ();
-		public List next ();
-		public int free ();
-		public int count ();
-		public void* getdata ();	
-	}
-	
-	[Compact]
-	[CCode (cname = "PM_SYNCPKG", cprefix = "pacman_sync_", free_function = "")]
-	public class Sync
-	{
-		[CCode (cprefix = "PM_SYNC_TYPE_")]
-		public enum Type
-		{
-			REPLACE = 1,
-			UPGRADE,
-			DEPEND
-		}
-		
-		[CCode (cprefix = "PM_SYNC_")]
-		public enum Info
-		{
-			TYPE = 1,
-			PKG,
-			DATA
-		}
-
-		public void* getinfo (Sync.Info param);
-		
-		public static int cleancache (int full);
-	}
-	
-	[Compact]
-	[CCode (cname="PM_NETBUF")]
-	public class NetBuf
-	{
-	}
-	
-	[Compact]
-	[CCode (cprefix = "pacman_trans_", free_function = "")]
-	public class Transaction
-	{
-		
-		[CCode (cprefix = "PM_TRANS_TYPE_")]
-		public enum Type
-		{
-			ADD = 1,
-			REMOVE,
-			UPGRADE,
-			SYNC
-		}
-		
-		[CCode (cprefix = "PM_TRANS_CONV_")]
-		public enum Conversation
-		{
-			INSTALL_IGNOREPKG = 0x01,
-			REPLACE_PKG = 0x02,
-			CONFLICT_PKG = 0x04,
-			CORRUPTED_PKG = 0x08,
-			LOCAL_NEWER = 0x10,
-			LOCAL_UPTODATE = 0x20,
-			REMOVE_HOLDPKG = 0x40
-		}
-		
-		[CCode (cprefix = "PM_TRANS_EVT_")]
-		public enum Event
-		{
-			CHECKDEPS_START = 1,
-			CHECKDEPS_DONE,
-			FILECONFLICTS_START,
-			FILECONFLICTS_DONE,
-			CLEANUP_START,
-			CLEANUP_DONE,
-			RESOLVEDEPS_START,
-			RESOLVEDEPS_DONE,
-			INTERCONFLICTS_START,
-			INTERCONFLICTS_DONE,
-			ADD_START,
-			ADD_DONE,
-			REMOVE_START,
-			REMOVE_DONE,
-			UPGRADE_START,
-			UPGRADE_DONE,
-			EXTRACT_DONE,
-			INTEGRITY_START,
-			INTEGRITY_DONE,
-			SCRIPTLET_INFO,
-			SCRIPTLET_START,
-			SCRIPTLET_DONE,
-			PRINTURI
-		}
-
-		[CCode (cprefix = "PM_TRANS_PROGRESS_")]
-		public enum Progress
-		{
-			ADD_START,
-			UPGRADE_START,
-			REMOVE_START,
-			CONFLICTS_START,
-			INTERCONFLICTS_START
-		}
-		
-		[CCode (cprefix = "PM_TRANS_")]
-		public enum Info
-		{
-			TYPE = 1,
-			FLAGS,
-			TARGETS,
-			PACKAGES
-		}
-		
-		public void* getinfo (Transaction.Info param);
-
-		public static int init (uchar type, uint flags, void* event, void* conv, void* progress);
-		public static int sysupgrade ();
-		public static int addtarget (string target);
-		public static int prepare (out List list);
-		public static int commit (out List list);
-		public static int release ();
-
-		/* callbacks */
-		[CCode (cprefix = "pacman_trans_cb_")]
-		public delegate void* event (uchar event, void* data1, void* data2);
-		public delegate void* conv (uchar event, void* data1, void* data2, void* data3, int* response);
-		public delegate void* progress (uchar event, string pkgname, int percent, int count, int remaining);
-		public delegate void* download (NetBuf nb, int xferred, void* arg);
-	}
-	
-	[Compact]
-	[CCode (cprefix = "PM_CONFLICT")]
-	public class Conflict
-	{
-		[CCode (cprefix = "PM_CONFLICT_TYPE_")]
-		public enum Type
-		{
-			TARGET = 1,
-			FILE
-		}
-
-		[CCode (cprefix = "PM_CONFLICT_")]
-		public enum Info
-		{
-			TARGET = 1,
-			TYPE,
-			FILE,
-			CTARGET
-		}
-
-		[CCode (cprefix = "pacman_conflict_", free_function = "")]
-		public void* get_info (Conflict.Info param);
-	}
-	
-	[Compact]
-	[CCode (cprefix = "PM_DEPMISS")]
-	public class Dependency
-	{
-		[CCode (cprefix = "PM_DEP_TYPE_")]
-		public enum Type
-		{
-			DEPEND = 1,
-			REQUIRED,
-			CONFLICT
-		}
-		
-		[CCode (cprefix = "PM_DEP_MOD_")]
-		public enum Mod
-		{
-			ANY = 1,
-			EQ,
-			GE,
-			LE,
-			GT,
-			LT
-		}
-		
-		[CCode (cprefix = "PM_DEP_")]
-		public enum Info
-		{
-			TARGET = 1,
-			TYPE,
-			MOD,
-			NAME,
-			VERSION,
-		}
-
-		[CCode (cprefix = "pacman_dep_", free_function = "")]
-		public void* get_info (Dependency.Info param);
-	}
-
-	[CCode (cname="pm_errno")]
-	public static enum errno
-	{
-		MEMORY = 1,
-		SYSTEM,
-		BADPERMS,
-		NOT_A_FILE,
-		WRONG_ARGS,
-		/* Interface */
-		HANDLE_NULL,
-		HANDLE_NOT_NULL,
-		HANDLE_LOCK,
-		/* Databases */
-		DB_OPEN,
-		DB_CREATE,
-		DB_NULL,
-		DB_NOT_NULL,
-		DB_NOT_FOUND,
-		DB_WRITE,
-		DB_REMOVE,
-		/* Servers */
-		SERVER_BAD_LOCATION,
-		SERVER_PROTOCOL_UNSUPPORTED,
-		/* Configuration */
-		OPT_LOGFILE,
-		OPT_DBPATH,
-		OPT_LOCALDB,
-		OPT_SYNCDB,
-		OPT_USESYSLOG,
-		/* Transactions */
-		TRANS_NOT_NULL,
-		TRANS_NULL,
-		TRANS_DUP_TARGET,
-		TRANS_NOT_INITIALIZED,
-		TRANS_NOT_PREPARED,
-		TRANS_ABORT,
-		TRANS_TYPE,
-		TRANS_COMMITING,
-		/* Packages */
-		PKG_NOT_FOUND,
-		PKG_INVALID,
-		PKG_OPEN,
-		PKG_LOAD,
-		PKG_INSTALLED,
-		PKG_CANT_FRESH,
-		PKG_INVALID_NAME,
-		PKG_CORRUPTED,
-		/* Groups */
-		GRP_NOT_FOUND,
-		/* Dependencies */
-		UNSATISFIED_DEPS,
-		CONFLICTING_DEPS,
-		FILE_CONFLICTS,
-		/* Misc */
-		USER_ABORT,
-		INTERNAL_ERROR,
-		LIBARCHIVE_ERROR,
-		DISK_FULL,
-		DB_SYNC,
-		RETRIEVE,
-		PKG_HOLD,
-		/* Configuration file */
-		CONF_BAD_SECTION,
-		CONF_LOCAL,
-		CONF_BAD_SYNTAX,
-		CONF_DIRECTIVE_OUTSIDE_SECTION,
-		INVALID_REGEX,
-		TRANS_DOWNLOADING,
-		/* Downloading */
-		CONNECT_FAILED,
-		FORK_FAILED,
-		NO_OWNER,
-		/* Cache */
-		NO_CACHE_ACCESS,
-		CANT_REMOVE_CACHE,
-		CANT_CREATE_CACHE,
-		WRONG_ARCH
 	}
 }
