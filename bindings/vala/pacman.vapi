@@ -295,4 +295,49 @@ namespace Pacman {
 	TARGETS,
 	PACKAGES
 	}
+	
+	/* Info parameters */
+	[CCode (cprefix = "PM_SYNC_")]
+	enum OptionPMSYNC {
+	TYPE = 1,
+	PKG,
+	DATA
+	}
+	
+	[CCode (cprefix = "PM_PKG_")]
+	enum OptionPMPKG{
+	/* Desc entry */
+	NAME = 1,
+	VERSION,
+	DESC,
+	GROUPS,
+	URL,
+	LICENSE,
+	ARCH,
+	BUILDDATE,
+	BUILDTYPE,
+	INSTALLDATE,
+	PACKAGER,
+	SIZE,
+	USIZE,
+	REASON,
+	MD5SUM, /* Sync DB only */
+	SHA1SUM, /* Sync DB only */
+	/* Depends entry */
+	DEPENDS,
+	REMOVES,
+	REQUIREDBY,
+	CONFLICTS,
+	PROVIDES,
+	REPLACES, /* Sync DB only */
+	/* Files entry */
+	FILES,
+	BACKUP,
+	/* Sciplet */
+	SCRIPLET,
+	/* Misc */
+	PM_PKG_DATA,
+	FORCE,
+	STICK
+	}
 }
