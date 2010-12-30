@@ -232,7 +232,7 @@ namespace Pacman {
 	[CCode (cheader_filename = "pacman.h")]
 	public static void* pacman_trans_getinfo (uint parm);
 	[CCode (cheader_filename = "pacman.h")]
-	public static int pacman_trans_init (uint type, uint flags, Pacman.pacman_trans_cb_event cb_event, Pacman.pacman_trans_cb_conv conv, Pacman.pacman_trans_cb_progress cb_progress);
+	public static int pacman_trans_init (uint type, uint flags, Pacman.pacman_trans_cb_event? cb_event = null, Pacman.pacman_trans_cb_conv? conv=null, Pacman.pacman_trans_cb_progress? cb_progress=null);
 	[CCode (cheader_filename = "pacman.h")]
 	public static int pacman_trans_prepare (out unowned Pacman.PM_LIST data);
 	[CCode (cheader_filename = "pacman.h")]
@@ -278,5 +278,13 @@ namespace Pacman {
 		DLREMAIN,
 		DLHOWMANY,
 		HOOKSDIR
+	}
+	[CCode (cprefix = "PM_TRANS_")]
+	public enum OptionTrans
+	{
+		TYPE_ADD = 1,
+		TYPE_REMOVE,
+		TYPE_UPGRADE,
+		TYPE_SYNC
 	}
 }
