@@ -121,11 +121,12 @@ pacman-g2 packages are in a bzipped tar format.
 
 --regex::
 	Treat the target names as regular expressions if no target found.
-
-	Example:
-	----
-	# pacman-g2 -S --regex perl-.*
-	----
++
+Example:
++
+----
+# pacman-g2 -S --regex 'perl-.*'
+----
 
 == SYNC OPTIONS
 
