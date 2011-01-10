@@ -154,9 +154,9 @@ namespace Pacman {
 	[CCode (cheader_filename = "pacman.h")]
 	public static unowned Pacman.PM_LIST pacman_db_getpkgcache (Pacman.PM_DB db);
 	[CCode (cheader_filename = "pacman.h")]
-	public static unowned Pacman.PM_GRP pacman_db_readgrp (Pacman.PM_DB db, string name);
+	public static unowned Pacman.PM_GRP pacman_db_readgrp (Pacman.PM_DB db, PM_SYNCPKG *spkg);
 	[CCode (cheader_filename = "pacman.h")]
-	public static unowned Pacman.PM_PKG pacman_db_readpkg (Pacman.PM_DB db, string name);
+	public static unowned Pacman.PM_PKG pacman_db_readpkg (Pacman.PM_DB db, PM_SYNCPKG *spkg);
 	[CCode (cheader_filename = "pacman.h")]
 	public static unowned Pacman.PM_DB pacman_db_register (string treename);
 	[CCode (cheader_filename = "pacman.h")]
@@ -170,7 +170,7 @@ namespace Pacman {
 	[CCode (cheader_filename = "pacman.h")]
 	public static int pacman_db_update (int level, Pacman.PM_DB db);
 	[CCode (cheader_filename = "pacman.h")]
-	public static unowned Pacman.PM_LIST pacman_db_whatprovides (Pacman.PM_DB db, string name);
+	public static unowned Pacman.PM_LIST pacman_db_whatprovides (Pacman.PM_DB db, PM_SYNCPKG *spkg);
 	[CCode (cheader_filename = "pacman.h")]
 	public static void* pacman_dep_getinfo (Pacman.PM_DEPMISS miss, uint parm);
 	[CCode (cheader_filename = "pacman.h")]
