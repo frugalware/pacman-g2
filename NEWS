@@ -1,5 +1,7 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.8.1         - improve vala bindings
+              - fix pacman-g2 manpage wrt zsh
 3.8.0         - changed error message to a warning when /etc/mtab is missing
               - provides() now really means any version, as it would be
                 intuitive
