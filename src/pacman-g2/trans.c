@@ -339,8 +339,9 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int coun
 
 	// if the package name is too long, then slice the ending
 	maxpkglen=46-strlen(ptr)-(3+2*(int)log10(count));
-	if(strlen(pkgname)>maxpkglen)
-		pkgname[maxpkglen-1]='\0';
+	char *pkgname_short = strdup(pkgname);
+	if(strlen(pkgname_short)>maxpkglen)
+		pkgname_short[maxpkglen-1]='\0';
 
 	switch (event) {
 	case PM_TRANS_PROGRESS_ADD_START:
@@ -349,9 +350,9 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int coun
 		putchar('(');
 		for(i=0;i<(int)log10(count)-(int)log10(remaining);i++)
 			putchar(' ');
-		printf("%d/%d) %s %s ", remaining, count, ptr, pkgname);
-		if (strlen(pkgname)<maxpkglen)
-			for (i=maxpkglen-strlen(pkgname)-1; i>0; i--)
+		printf("%d/%d) %s %s ", remaining, count, ptr, pkgname_short);
+		if (strlen(pkgname_short)<maxpkglen)
+			for (i=maxpkglen-strlen(pkgname_short)-1; i>0; i--)
 				putchar(' ');
 		break;
 
@@ -382,6 +383,7 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int coun
 
 cleanup:
 
+	FREE(pkgname_short);
 	FREE(addstr);
 	FREE(upgstr);
 	FREE(removestr);
