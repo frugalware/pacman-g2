@@ -297,12 +297,13 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int coun
 {
 	int i, hash;
 	unsigned int maxpkglen, progresslen = maxcols - 57;
-	char *addstr, *upgstr, *removestr, *conflictstr, *interconflictstr, *ptr;
+	char *addstr, *upgstr, *removestr, *conflictstr, *interconflictstr, *ptr, *pkgname_short;
 	addstr = strdup(_("installing"));
 	upgstr = strdup(_("upgrading"));
 	removestr = strdup(_("removing"));
 	conflictstr = strdup(_("checking for file conflicts"));
 	interconflictstr = strdup(_("looking for inter-conflicts"));
+	pkgname_short = NULL;
 
 	if(config->noprogressbar) {
 		goto cleanup;
@@ -339,7 +340,7 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int coun
 
 	// if the package name is too long, then slice the ending
 	maxpkglen=46-strlen(ptr)-(3+2*(int)log10(count));
-	char *pkgname_short = strdup(pkgname);
+	pkgname_short = strdup(pkgname);
 	if(strlen(pkgname_short)>maxpkglen)
 		pkgname_short[maxpkglen-1]='\0';
 
