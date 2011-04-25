@@ -69,6 +69,9 @@ pacman-g2 packages are in a bzipped tar format.
 	will cause all those files to be overwritten. This option should be used with
 	care, ideally not at all.
 
+-k, --dbonly::
+	Removes the database entry only. Leaves all files in place.
+
 --noarch::
 	Bypass the architecture check, so that you can for example install an `i686`
 	package on `x86_64` if you know what you're doing.
@@ -193,9 +196,6 @@ Example:
 	Remove all target packages, as well as all packages that depend on one or more
 	target packages. This operation is recursive.
 
--k, --keep::
-	Removes the database entry only. Leaves all files in place.
-
 -n, --nosave::
 	Instructs pacman-g2 to ignore file backup designations. Normally, when a file
 	is about to be removed from the system the database is first checked to see if
@@ -226,10 +226,11 @@ Example:
 	provided, all groups and members will be listed.
 
 -i, --info::
-	Display information on a given package. If it is used with the -p option then
+	Display information on a given package, use it twice to display also the list of
+	backup files and their modification states. If it is used with the -p option then
 	the .PKGINFO file will be printed.
 
--l, --list::
+-l, --lidbonly
 	List all files owned by <package>. Multiple packages can be specified on the
 	command line.
 
