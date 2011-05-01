@@ -32,7 +32,10 @@
 #include "log.h"
 #include "util.h"
 #include "list.h"
+#include "conf.h"
 #include "package.h"
+
+extern config_t *config;
 
 /* Display the content of an installed package
  */
@@ -173,7 +176,7 @@ void dump_pkg_files(PM_PKG *pkg)
 	pkgfiles = pacman_pkg_getinfo(pkg, PM_PKG_FILES);
 
 	for(i = pkgfiles; i; i = pacman_list_next(i)) {
-		fprintf(stdout, "%s /%s\n", (char *)pkgname, (char *)pacman_list_getdata(i));
+		fprintf(stdout, "%s %s%s\n", (char *)pkgname, config->root, (char *)pacman_list_getdata(i));
 	}
 
 	fflush(stdout);
@@ -216,7 +219,7 @@ void pkg_fsck(PM_PKG *pkg){
 	struct stat buf;
 
 	for(i = pkgfiles; i; i = pacman_list_next(i)) {
-		snprintf(path, PATH_MAX, "/%s", (char *)pacman_list_getdata(i));
+		snprintf(path, PATH_MAX, "%s%s", config->root, (char *)pacman_list_getdata(i));
 		if(lstat(path, &buf) == -1) {
 			fprintf(stdout, "%s %s\t%s.\n", pkgname, path, strerror(errno));
 		}
