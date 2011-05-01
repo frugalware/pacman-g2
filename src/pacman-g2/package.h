@@ -26,6 +26,7 @@ void dump_pkg_sync(PM_PKG *pkg, char *treename);
 
 void dump_pkg_files(PM_PKG *pkg);
 void dump_pkg_changelog(char *clfile, char *pkgname);
+void pkg_fsck(PM_PKG *pkg);
 
 #define FREEPKG(p) { pacman_pkg_free(p); p = NULL; }
 

@@ -25,6 +25,7 @@
 #include <limits.h>
 #include <sys/stat.h>
 #include <libintl.h>
+#include <errno.h>
 
 #include <pacman.h>
 /* pacman-g2 */
@@ -202,4 +203,26 @@ void dump_pkg_changelog(char *clfile, char *pkgname)
 		return;
 	}
 }
+
+/* check if the package's files are still were they should be */
+void pkg_fsck(PM_PKG *pkg){
+	char *pkgname, path[PATH_MAX];
+	PM_LIST *i, *pkgfiles;
+
+	pkgname = pacman_pkg_getinfo(pkg, PM_PKG_NAME);
+	pkgfiles = pacman_pkg_getinfo(pkg, PM_PKG_FILES);
+
+	/* maybe this can be used also to get more information about files */
+	struct stat buf;
+
+	for(i = pkgfiles; i; i = pacman_list_next(i)) {
+		snprintf(path, PATH_MAX, "/%s", (char *)pacman_list_getdata(i));
+		if(lstat(path, &buf) == -1) {
+			fprintf(stdout, "%s %s\t%s.\n", pkgname, path, strerror(errno));
+		}
+	}
+
+	fflush(stdout);
+}
+
 /* vim: set ts=2 sw=2 noet: */

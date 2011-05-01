@@ -148,6 +148,7 @@ static void usage(int op, char *myname)
 			printf(_("                      as a dependency\n"));
 			printf(_("  -e, --orphans       list all packages that were installed as a dependency\n"));
 			printf(_("                      and are not required by any other packages\n"));
+			printf(_("  -f, --fsck          check the integrity of packages' files\n"));
 			printf(_("  -g, --groups        view all members of a package group\n"));
 			printf(_("  -i, --info          view package information\n"));
 			printf(_("  -l, --list          list the contents of the queried package\n"));
@@ -272,6 +273,7 @@ static int parseargs(int argc, char *argv[])
 		{"dependsonly",no_argument,       0, 'e'},
 		{"orphans",    no_argument,       0, 'e'},
 		{"force",      no_argument,       0, 'f'},
+		{"fsck",       no_argument,       0, 'f'},
 		{"groups",     no_argument,       0, 'g'},
 		{"help",       no_argument,       0, 'h'},
 		{"info",       no_argument,       0, 'i'},
@@ -362,7 +364,7 @@ static int parseargs(int argc, char *argv[])
 			break;
 			case 'd': config->flags |= PM_TRANS_FLAG_NODEPS; config->op_q_orphans_deps = 1; break;
 			case 'e': config->op_q_orphans = 1; config->flags |= PM_TRANS_FLAG_DEPENDSONLY; break;
-			case 'f': config->flags |= PM_TRANS_FLAG_FORCE; break;
+			case 'f': config->flags |= PM_TRANS_FLAG_FORCE; config->op_q_fsck = 1; break;
 			case 'g': config->group++; break;
 			case 'h': config->help = 1; break;
 			case 'i':

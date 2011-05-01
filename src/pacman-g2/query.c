@@ -195,7 +195,7 @@ int querypkg(list_t *targets)
 
 				pkgname = pacman_pkg_getinfo(tmpp, PM_PKG_NAME);
 				pkgver = pacman_pkg_getinfo(tmpp, PM_PKG_VERSION);
-				if(config->op_q_orphans || config->op_q_foreign) {
+				if(config->op_q_orphans || config->op_q_foreign || config->op_q_fsck) {
 					info = pacman_db_readpkg(db_local, pkgname);
 					if(info == NULL) {
 						/* something weird happened */
@@ -236,6 +236,9 @@ int querypkg(list_t *targets)
 							MSG(NL, "%s %s\n", pkgname, pkgver);
 						}
 					}
+					if(config->op_q_fsck) {
+						pkg_fsck(tmpp);
+					}
 				} else {
 					MSG(NL, "%s %s\n", pkgname, pkgver);
 				}
@@ -254,7 +257,7 @@ int querypkg(list_t *targets)
 			}
 
 			/* find a target */
-			if(config->op_q_changelog || config->op_q_info || config->op_q_list) {
+			if(config->op_q_changelog || config->op_q_info || config->op_q_list || config->op_q_fsck) {
 				if(config->op_q_changelog) {
 					char *dbpath, changelog[PATH_MAX];
 					pacman_get_option(PM_OPT_DBPATH, (long *)&dbpath);
@@ -270,6 +273,9 @@ int querypkg(list_t *targets)
 				}
 				if(config->op_q_list) {
 					dump_pkg_files(info);
+				}
+				if(config->op_q_fsck) {
+					pkg_fsck(info);
 				}
 			} else {
                                char *pkgname = pacman_pkg_getinfo(info, PM_PKG_NAME);
