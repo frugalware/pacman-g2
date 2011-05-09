@@ -56,6 +56,7 @@
 #include "query.h"
 #include "sync.h"
 #include "deptest.h"
+#include "ps.h"
 
 #define PACCONF "/etc/pacman-g2.conf"
 
@@ -71,7 +72,8 @@ enum {
 	PM_OP_UPGRADE,
 	PM_OP_QUERY,
 	PM_OP_SYNC,
-	PM_OP_DEPTEST
+	PM_OP_DEPTEST,
+	PM_OP_PS
 };
 
 /* Long operations */
@@ -115,6 +117,7 @@ static void usage(int op, char *myname)
 		printf(_("        %s {-F --freshen} [options] <file>\n"), myname);
 		printf(_("        %s {-Q --query}   [options] [package]\n"), myname);
 		printf(_("        %s {-S --sync}    [options] [package]\n"), myname);
+		printf(_("        %s {-P --ps}      [options] [package]\n"), myname);
 		printf(_("\nuse '%s --help' with other options for more syntax\n"), myname);
 	} else {
 		if(op == PM_OP_ADD) {
@@ -261,6 +264,7 @@ static int parseargs(int argc, char *argv[])
 		{"query",      no_argument,       0, 'Q'},
 		{"remove",     no_argument,       0, 'R'},
 		{"sync",       no_argument,       0, 'S'},
+		{"ps",         no_argument,       0, 'P'},
 		{"deptest",    no_argument,       0, 'T'}, /* used by makepkg */
 		{"upgrade",    no_argument,       0, 'U'},
 		{"version",    no_argument,       0, 'V'},
@@ -306,7 +310,7 @@ static int parseargs(int argc, char *argv[])
 	};
 	char root[PATH_MAX];
 
-	while((opt = getopt_long(argc, argv, "ARUFQSTDYr:b:vkhscVfmnoldepituwyg", opts, &option_index))) {
+	while((opt = getopt_long(argc, argv, "ARUFQSPTDYr:b:vkhscVfmnoldepituwyg", opts, &option_index))) {
 		if(opt < 0) {
 			break;
 		}
@@ -344,6 +348,7 @@ static int parseargs(int argc, char *argv[])
 			case 'Q': config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_QUERY); break;
 			case 'R': config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_REMOVE); break;
 			case 'S': config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_SYNC); break;
+			case 'P': config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_PS); break;
 			case 'T': config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_DEPTEST); break;
 			case 'U': config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_UPGRADE); break;
 			case 'V': config->version = 1; break;
@@ -503,7 +508,7 @@ int main(int argc, char *argv[])
 
 	/* check if we have sufficient permission for the requested operation */
 	if(myuid > 0) {
-		if(config->op != PM_OP_MAIN && config->op != PM_OP_QUERY && config->op != PM_OP_DEPTEST) {
+		if(config->op != PM_OP_MAIN && config->op != PM_OP_QUERY && config->op != PM_OP_DEPTEST && config->op != PM_OP_PS) {
 			if((config->op == PM_OP_SYNC && !config->op_s_sync && (config->op_s_search
 				 || config->group || config->op_q_list || config->op_q_info
 				 || (config->flags & PM_TRANS_FLAG_PRINTURIS)))
@@ -637,7 +642,7 @@ int main(int argc, char *argv[])
 
 	if(list_count(pm_targets) == 0 && !(config->op == PM_OP_QUERY || (config->op == PM_OP_SYNC
 	   && (config->op_s_sync || config->op_s_upgrade || config->op_s_clean || config->group 
-	   || config->op_q_list)))) {
+	   || config->op_q_list)) || config->op == PM_OP_PS)) {
 		ERR(NL, _("no targets specified (use -h for help)\n"));
 		cleanup(1);
 	}
@@ -649,6 +654,7 @@ int main(int argc, char *argv[])
 		case PM_OP_UPGRADE: ret = upgradepkg(pm_targets); break;
 		case PM_OP_QUERY:   ret = querypkg(pm_targets);   break;
 		case PM_OP_SYNC:    ret = syncpkg(pm_targets);    break;
+		case PM_OP_PS:      ret = pspkg(pm_targets);      break;
 		case PM_OP_DEPTEST: ret = deptestpkg(pm_targets); break;
 		default:
 			ERR(NL, _("no operation specified (use -h for help)\n"));

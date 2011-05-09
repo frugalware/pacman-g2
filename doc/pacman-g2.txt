@@ -49,6 +49,9 @@ pacman-g2 packages are in a bzipped tar format.
 	HANDLING CONFIG FILES for an explanation on how pacman-g2 takes care of config
 	files.
 
+-P, --ps::
+	Display processes using deleted files.
+
 -V, --version::
 	Display version and exit.
 

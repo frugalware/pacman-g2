@@ -1,0 +1,170 @@
+/*
+ *  ps.c
+ *
+ *  Copyright (c) 2011 by Miklos Vajna <vmiklos@frugalware.org>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+ *  USA.
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <limits.h>
+#include <libintl.h>
+#include <sys/wait.h>
+
+/* pacman-g2 */
+#include "util.h"
+#include "log.h"
+#include "ps.h"
+
+static int start_lsof(FILE** childout, int* childpid)
+{
+	char *args[] = { "lsof", "-n", "-FLpcnf0", NULL };
+	int pout[2];
+	pid_t pid;
+
+	if (pipe(pout) == -1) {
+		perror("pipe");
+		return -1;
+	}
+	pid = fork();
+	if (pid == -1) {
+		perror("fork");
+		return -1;
+	}
+	if (pid == 0) {
+		/* we are "in" the child */
+		dup2(pout[1], STDOUT_FILENO);
+		close(pout[1]);
+		close(pout[0]);
+		execvp(args[0], args);
+		/* on sucess, execv never returns */
+		ERR(NL, _("failed to execute \"lsof\".\n"));
+		return -1;
+	}
+	close(pout[1]);
+	*childout = fdopen(pout[0], "r");
+	*childpid = pid;
+	return 0;
+}
+
+static int end_lsof(FILE* out, int pid)
+{
+	int status;
+
+	fclose(out);
+	waitpid(pid, &status, 0);
+	return status == 0 ? 0 : -1;
+}
+
+static ps_t* ps_new()
+{
+	ps_t *ps;
+
+	MALLOC(ps, sizeof(ps_t));
+
+	memset(ps, 0, sizeof(ps_t));
+
+	return ps;
+}
+
+static int ps_free(ps_t *ps)
+{
+	if (ps == NULL)
+		return -1;
+
+	FREE(ps->cmd);
+	FREE(ps->user);
+	FREELIST(ps->files);
+	return 0;
+}
+
+static list_t* add_or_free(list_t* l, ps_t* ps)
+{
+	if (ps) {
+		if (list_count(ps->files) > 0) {
+			l = list_add(l, ps);
+		} else
+			ps_free(ps);
+	}
+	return l;
+}
+
+list_t* ps_parse(FILE *fp)
+{
+	char buf[PATH_MAX+1], *ptr;
+	ps_t* ps = NULL;
+	list_t* ret = list_new();
+
+	while(!feof(fp)) {
+		if(fgets(buf, PATH_MAX, fp) == NULL)
+			break;
+
+		if (buf[0] == 'p') {
+			ret = add_or_free(ret, ps);
+			ps = ps_new();
+
+			ps->pid = atoi(buf+1);
+			ptr = buf+strlen(buf)+1;
+			ps->cmd = strdup(ptr+1);
+			ptr = ptr + strlen(ptr)+1;
+			ps->user = strdup(ptr+1);
+		} else if (buf[0] == 'f') {
+			ptr = buf+1;
+			if (!strcmp(ptr, "DEL")) {
+				ptr = buf+strlen(buf)+1;
+				if (ptr[0] == 'n')
+					ps->files = list_add(ps->files, strdup(ptr+1));
+			}
+		}
+	}
+
+	ret = add_or_free(ret, ps);
+	return ret;
+}
+
+int pspkg()
+{
+	FILE *fpout = NULL;
+	pid_t pid;
+	list_t* i;
+
+	if (start_lsof(&fpout, &pid) < 0)
+		return -1;
+
+	list_t* ret = ps_parse(fpout);
+
+	for (i = ret; i; i = i->next) {
+		ps_t *ps = i->data;
+		if (!ps)
+			continue;
+		printf(      _("User    : %s\n"), ps->user);
+		printf(      _("PID     : %d\n"), ps->pid);
+		printf(      _("Command : %s\n"), ps->cmd);
+		list_display(_("Files   :"), ps->files);
+		ps_free(ps);
+		printf("\n");
+	}
+	FREELISTPTR(ret);
+
+	end_lsof(fpout, pid);
+
+	return 0;
+}
+
+/* vim: set ts=2 sw=2 noet: */
