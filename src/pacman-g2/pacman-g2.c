@@ -654,7 +654,7 @@ int main(int argc, char *argv[])
 		case PM_OP_UPGRADE: ret = upgradepkg(pm_targets); break;
 		case PM_OP_QUERY:   ret = querypkg(pm_targets);   break;
 		case PM_OP_SYNC:    ret = syncpkg(pm_targets);    break;
-		case PM_OP_PS:      ret = pspkg(pm_targets);      break;
+		case PM_OP_PS:      ret = pspkg();      break;
 		case PM_OP_DEPTEST: ret = deptestpkg(pm_targets); break;
 		default:
 			ERR(NL, _("no operation specified (use -h for help)\n"));

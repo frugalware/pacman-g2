@@ -22,7 +22,7 @@
 #define _PM_PS_H
 
 typedef struct __ps_t {
-	int pid;
+	pid_t pid;
 	char *cmd;
 	char *user;
 	list_t *files;

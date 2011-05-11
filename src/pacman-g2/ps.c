@@ -35,7 +35,7 @@
 
 extern config_t *config;
 
-static int start_lsof(FILE** childout, int* childpid)
+static int start_lsof(FILE** childout, pid_t* childpid)
 {
 	char *args[] = { "lsof", "-n", "-FLpcnf0", NULL };
 	int pout[2];
@@ -58,15 +58,19 @@ static int start_lsof(FILE** childout, int* childpid)
 		execvp(args[0], args);
 		/* on sucess, execv never returns */
 		ERR(NL, _("failed to execute \"lsof\".\n"));
-		return -1;
+		exit(1);
 	}
 	close(pout[1]);
 	*childout = fdopen(pout[0], "r");
+	if (!*childout) {
+		ERR(NL, _("failed to open \"lsof\" output.\n"));
+		return -1;
+	}
 	*childpid = pid;
 	return 0;
 }
 
-static int end_lsof(FILE* out, int pid)
+static int end_lsof(FILE* out, pid_t pid)
 {
 	int status;
 
@@ -108,7 +112,7 @@ static list_t* add_or_free(list_t* l, ps_t* ps)
 	return l;
 }
 
-list_t* ps_parse(FILE *fp)
+static list_t* ps_parse(FILE *fp)
 {
 	char buf[PATH_MAX+1], *ptr;
 	ps_t* ps = NULL;
