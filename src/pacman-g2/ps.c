@@ -30,7 +30,10 @@
 /* pacman-g2 */
 #include "util.h"
 #include "log.h"
+#include "conf.h"
 #include "ps.h"
+
+extern config_t *config;
 
 static int start_lsof(FILE** childout, int* childpid)
 {
@@ -143,6 +146,11 @@ int pspkg()
 	FILE *fpout = NULL;
 	pid_t pid;
 	list_t* i;
+
+	if (strcmp(config->root, "/") != 0) {
+		ERR(NL, _("changing root directory is not supported when listing open files.\n"));
+		return -1;
+	}
 
 	if (start_lsof(&fpout, &pid) < 0)
 		return -1;
