@@ -44,6 +44,8 @@
 
 #define _(str) gettext(str)
 
+#define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
+
 void indentprint(char *str, int indent);
 char *buildstring(list_t *strlist);
 char *strtoupper(char *str);

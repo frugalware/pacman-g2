@@ -135,8 +135,26 @@ static list_t* ps_parse(FILE *fp)
 			ptr = buf+1;
 			if (!strcmp(ptr, "DEL")) {
 				ptr = buf+strlen(buf)+1;
-				if (ptr[0] == 'n')
-					ps->files = list_add(ps->files, strdup(ptr+1));
+				if (ptr[0] == 'n') {
+					/* skip some wellknown nonlibrary memorymapped files */
+					int skip = 0;
+					if(config->verbose <= 0) {
+						static const char * black[] = {
+							"/SYSV",
+							"/var/run/",
+							"/dev/"
+						};
+						int i;
+						for (i = 0; i < ARRAY_SIZE(black); i++) {
+							if (!strncmp(black[i], ptr+1, strlen(black[i]))) {
+								skip = 1;
+								break;
+							}
+						}
+					}
+					if (!skip)
+						ps->files = list_add(ps->files, strdup(ptr+1));
+				}
 			}
 		}
 	}
