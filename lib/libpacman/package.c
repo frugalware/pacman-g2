@@ -351,7 +351,7 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 				}
 
 				uname (&name);
-				if(strcmp(name.machine, info->arch)) {
+				if(strncmp(name.machine, info->arch, strlen(info->arch))) {
 					_pacman_log(PM_LOG_ERROR, _("wrong package architecture in %s"), pkgfile);
 					pm_errno = PM_ERR_WRONG_ARCH;
 					unlink(descfile);
