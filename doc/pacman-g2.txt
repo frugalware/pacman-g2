@@ -50,7 +50,10 @@ pacman-g2 packages are in a bzipped tar format.
 	files.
 
 -P, --ps::
-	Display processes using deleted files.
+	Display processes using deleted files. To empty that list without a restart,
+	you can restart the service (if there is any) of the CGroup. For example if the
+	CGroup is "name=systemd:/system/sshd.service", you can run "systemcl restart
+	sshd.service".
 
 -V, --version::
 	Display version and exit.
