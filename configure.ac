@@ -355,7 +355,7 @@ else
 	CSHARPSTATUS="no, disabled by configure"
 fi
 
-dnl Check for python support
+dnl Check for vala support
 AC_MSG_CHECKING(if Vala bindings should be generated)
 if test x$wantvala = xyes ; then
 	AC_CHECK_PROGS([VALAC], [valac])
@@ -384,10 +384,10 @@ else
 	AC_MSG_ERROR("bzip2 library and its include files are needed to build pacman-g2!");
 fi
 
-dnl Check for lzmadec
-AC_CHECK_LIB([lzmadec], [lzmadec_init], [AC_CHECK_HEADER([lzmadec.h], [LIBLZMADEC='-llzmadec'])])
-if test -n "$LIBLZMADEC"; then
-	LDFLAGS="$LDFLAGS $LIBLZMADEC"
+dnl Check for xz
+AC_CHECK_LIB([lzma], [lzma_stream_decoder], [AC_CHECK_HEADER([lzma.h], [LIBLZMA='-llzma'])])
+if test -n "$LIBLZMA"; then
+	LDFLAGS="$LDFLAGS $LIBLZMA"
 else
 	AC_MSG_ERROR("lzma library and its include files are needed to build pacman-g2!");
 fi

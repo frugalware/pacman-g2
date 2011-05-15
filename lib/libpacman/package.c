@@ -291,7 +291,6 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 		RET_ERR(PM_ERR_LIBARCHIVE_ERROR, NULL);
 
 	archive_read_support_compression_all (archive);
-	archive_read_support_compression_lzma (archive);
 	archive_read_support_format_all (archive);
 
 	if ((ret = archive_read_open_file (archive, pkgfile, ARCHIVE_DEFAULT_BYTES_PER_BLOCK)) != ARCHIVE_OK)
