@@ -1,5 +1,11 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.8.2         - new pacman-g2 -Qf command for checking missing installed files
+              - fixed removing packages when package name is longer than
+                30 characters
+              - new pacman-g2 -P command to see what to restart after
+                upgrade
+              - no longer depend on unused lzmadec library
 3.8.1         - improve vala bindings
               - fix pacman-g2 manpage wrt zsh
 3.8.0         - changed error message to a warning when /etc/mtab is missing
