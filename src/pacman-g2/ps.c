@@ -190,11 +190,12 @@ static list_t* ps_parse(FILE *fp)
 	return ret;
 }
 
-int pspkg()
+int pspkg(int countonly)
 {
 	FILE *fpout = NULL;
 	pid_t pid;
 	list_t* i;
+	int count = 0;
 
 	if (strcmp(config->root, "/") != 0) {
 		ERR(NL, _("changing root directory is not supported when listing open files.\n"));
@@ -210,19 +211,22 @@ int pspkg()
 		ps_t *ps = i->data;
 		if (!ps)
 			continue;
-		printf(      _("User    : %s\n"), ps->user);
-		printf(      _("PID     : %d\n"), ps->pid);
-		printf(      _("Command : %s\n"), ps->cmd);
-		list_display(_("Files   :"), ps->files);
-		list_display(_("CGroups :"), ps->cgroups);
-		ps_free(ps);
-		printf("\n");
+		if (!countonly) {
+			printf(      _("User    : %s\n"), ps->user);
+			printf(      _("PID     : %d\n"), ps->pid);
+			printf(      _("Command : %s\n"), ps->cmd);
+			list_display(_("Files   :"), ps->files);
+			list_display(_("CGroups :"), ps->cgroups);
+			ps_free(ps);
+			printf("\n");
+		}
+		count++;
 	}
 	FREELISTPTR(ret);
 
 	end_lsof(fpout, pid);
 
-	return 0;
+	return count;
 }
 
 /* vim: set ts=2 sw=2 noet: */

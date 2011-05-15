@@ -29,7 +29,7 @@ typedef struct __ps_t {
 	list_t *cgroups;
 } ps_t;
 
-int pspkg();
+int pspkg(int countonly);
 
 #endif /* _PM_PS_H */
 

@@ -45,6 +45,7 @@
 #include "list.h"
 #include "package.h"
 #include "trans.h"
+#include "ps.h"
 #include "sync.h"
 #include "conf.h"
 
@@ -638,6 +639,10 @@ int syncpkg(list_t *targets)
 		MSG(NL, _("\nerrors occurred, no packages were upgraded.\n"));
 		retval = 1;
 		goto cleanup;
+	}
+	if (pspkg(1) > 0) {
+		MSG(NL, _(":: There are running processes that use files deleted by pacman-g2.\n"));
+		MSG(NL, _(":: You may wish to restart some of them. Run '%s' to list them.\n"), "pacman-g2 -P");
 	}
 
 	/* Step 4: release transaction resources
