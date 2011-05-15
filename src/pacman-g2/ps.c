@@ -26,6 +26,7 @@
 #include <limits.h>
 #include <libintl.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
 /* pacman-g2 */
 #include "util.h"
@@ -98,6 +99,7 @@ static int ps_free(ps_t *ps)
 	FREE(ps->cmd);
 	FREE(ps->user);
 	FREELIST(ps->files);
+	FREELIST(ps->cgroups);
 	return 0;
 }
 
@@ -110,6 +112,30 @@ static list_t* add_or_free(list_t* l, ps_t* ps)
 			ps_free(ps);
 	}
 	return l;
+}
+
+static list_t *ps_cgroup(pid_t pid) {
+	struct stat buf;
+	char *ptr, path[PATH_MAX+1], line[PATH_MAX+1];
+	list_t *ret = NULL;
+
+	snprintf(path, PATH_MAX, "/proc/%d/cgroup", pid);
+	if(!stat(path, &buf)) {
+		FILE *fp = fopen(path, "r");
+		if (!fp)
+			return ret;
+		while(!feof(fp)) {
+			if(fgets(line, PATH_MAX, fp) == NULL)
+				break;
+			if (line[strlen(line)-2] == '/')
+				continue;
+			// drop newline
+			line[strlen(line)-1] = 0;
+			if ((ptr = strchr(line, ':')))
+				ret = list_add(ret, strdup(ptr+1));
+		}
+	}
+	return ret;
 }
 
 static list_t* ps_parse(FILE *fp)
@@ -127,6 +153,7 @@ static list_t* ps_parse(FILE *fp)
 			ps = ps_new();
 
 			ps->pid = atoi(buf+1);
+			ps->cgroups = ps_cgroup(ps->pid);
 			ptr = buf+strlen(buf)+1;
 			ps->cmd = strdup(ptr+1);
 			ptr = ptr + strlen(ptr)+1;
@@ -187,6 +214,7 @@ int pspkg()
 		printf(      _("PID     : %d\n"), ps->pid);
 		printf(      _("Command : %s\n"), ps->cmd);
 		list_display(_("Files   :"), ps->files);
+		list_display(_("CGroups :"), ps->cgroups);
 		ps_free(ps);
 		printf("\n");
 	}

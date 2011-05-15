@@ -26,6 +26,7 @@ typedef struct __ps_t {
 	char *cmd;
 	char *user;
 	list_t *files;
+	list_t *cgroups;
 } ps_t;
 
 int pspkg();
