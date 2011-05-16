@@ -640,7 +640,7 @@ int syncpkg(list_t *targets)
 		retval = 1;
 		goto cleanup;
 	}
-	if (pspkg(1) > 0) {
+	if (!(config->flags & PM_TRANS_FLAG_DOWNLOADONLY) && pspkg(1) > 0) {
 		MSG(NL, _(":: There are running processes that use files deleted by pacman-g2.\n"));
 		MSG(NL, _(":: You may wish to restart some of them. Run '%s' to list them.\n"), "pacman-g2 -P");
 	}
