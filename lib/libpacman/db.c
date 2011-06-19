@@ -200,7 +200,7 @@ pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback
 
 	/* make sure the database directory exists */
 	snprintf(path, PATH_MAX, "%s%s/%s", handle->root, handle->dbpath, treename);
-	if(stat(path, &buf) != 0 || !S_ISDIR(buf.st_mode)) {
+	if(!strcmp(treename, "local") && (stat(path, &buf) != 0 || !S_ISDIR(buf.st_mode))) {
 		_pacman_log(PM_LOG_FLOW1, _("database directory '%s' does not exist -- try creating it"), path);
 		if(_pacman_makepath(path) != 0) {
 			RET_ERR(PM_ERR_SYSTEM, NULL);

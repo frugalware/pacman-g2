@@ -316,7 +316,7 @@ int pacman_db_setserver(pmdb_t *db, char *url)
 int pacman_db_update(int force, PM_DB *db)
 {
 	pmlist_t *lp;
-	char path[PATH_MAX], lckpath[PATH_MAX];
+	char path[PATH_MAX], dirpath[PATH_MAX], lckpath[PATH_MAX];
 	pmlist_t *files = NULL;
 	char newmtime[16] = "";
 	char lastupdate[16] = "";
@@ -367,10 +367,10 @@ int pacman_db_update(int force, PM_DB *db)
 			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %s\n"), db->treename, newmtime);
 			updated = 1;
 		}
+		snprintf(dirpath, PATH_MAX, "%s%s/%s", handle->root, handle->dbpath, db->treename);
 		snprintf(path, PATH_MAX, "%s%s/%s" PM_EXT_DB, handle->root, handle->dbpath, db->treename);
 
 		/* remove the old dir */
-		if (force) {
 		_pacman_log(PM_LOG_FLOW2, _("flushing database %s/%s"), handle->dbpath, db->treename);
 		for(lp = _pacman_db_get_pkgcache(db); lp; lp = lp->next) {
 			if(_pacman_db_remove(db, lp->data) == -1) {
@@ -381,16 +381,11 @@ int pacman_db_update(int force, PM_DB *db)
 				RET_ERR(PM_ERR_DB_REMOVE, -1);
 			}
 		}
-		}
+		rmdir(dirpath);
 
 		/* Cache needs to be rebuild */
 		_pacman_db_free_pkgcache(db);
 
-		/* uncompress the sync database */
-		if(_pacman_db_install(db, path) == -1) {
-			status = -1;
-			goto rmlck;
-		}
 		if(updated) {
 			_pacman_db_setlastupdate(db, newmtime);
 		}
