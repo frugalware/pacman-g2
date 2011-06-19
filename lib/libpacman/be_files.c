@@ -212,32 +212,14 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	return(pkg);
 }
 
-int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
+static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 {
 	FILE *fp = NULL;
-	struct stat buf;
 	char path[PATH_MAX];
 	char line[512];
 	int sline = sizeof(line)-1;
 	pmlist_t *i;
-	char *ptr;
 
-	if(db == NULL) {
-		RET_ERR(PM_ERR_DB_NULL, -1);
-	}
-
-	if(info == NULL || info->name[0] == 0 || info->version[0] == 0) {
-		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_db_read"));
-		return(-1);
-	}
-
-	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name, info->version);
-	if(stat(path, &buf)) {
-		/* directory doesn't exist or can't be opened */
-		return(-1);
-	}
-
-	/* DESC */
 	if(inforeq & INFRQ_DESC) {
 		snprintf(path, PATH_MAX, "%s/%s-%s/desc", db->path, info->name, info->version);
 		fp = fopen(path, "r");
@@ -364,35 +346,22 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 		fp = NULL;
 	}
 
-	/* FILES */
-	if(inforeq & INFRQ_FILES) {
-		snprintf(path, PATH_MAX, "%s/%s-%s/files", db->path, info->name, info->version);
-		fp = fopen(path, "r");
-		if(fp == NULL) {
-			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
-			goto error;
-		}
-		while(fgets(line, 256, fp)) {
-			_pacman_strtrim(line);
-			if(!strcmp(line, "%FILES%")) {
-				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
-					if((ptr = strchr(line, '|'))) {
-						/* just ignore the content after the pipe for now */
-						*ptr = '\0';
-					}
-					info->files = _pacman_list_add(info->files, strdup(line));
-				}
-			} else if(!strcmp(line, "%BACKUP%")) {
-				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
-					info->backup = _pacman_list_add(info->backup, strdup(line));
-				}
-			}
-		}
-		fclose(fp);
-		fp = NULL;
-	}
+	return(0);
 
-	/* DEPENDS */
+error:
+	if(fp) {
+		fclose(fp);
+	}
+	return(-1);
+}
+
+static int _pacman_db_read_depends(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
+{
+	FILE *fp = NULL;
+	char path[PATH_MAX];
+	char line[512];
+	int sline = sizeof(line)-1;
+
 	if(inforeq & INFRQ_DEPENDS) {
 		snprintf(path, PATH_MAX, "%s/%s-%s/depends", db->path, info->name, info->version);
 		fp = fopen(path, "r");
@@ -433,6 +402,73 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				/* STICK tag only appears in sync repositories,
 				 * not the local one. */
 				info->stick = 1;
+			}
+		}
+		fclose(fp);
+		fp = NULL;
+	}
+
+	return(0);
+
+error:
+	if(fp) {
+		fclose(fp);
+	}
+	return(-1);
+}
+
+int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
+{
+	FILE *fp = NULL;
+	struct stat buf;
+	char path[PATH_MAX];
+	char line[512];
+	int sline = sizeof(line)-1;
+	char *ptr;
+
+	if(db == NULL) {
+		RET_ERR(PM_ERR_DB_NULL, -1);
+	}
+
+	if(info == NULL || info->name[0] == 0 || info->version[0] == 0) {
+		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_db_read"));
+		return(-1);
+	}
+
+	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name, info->version);
+	if(stat(path, &buf)) {
+		/* directory doesn't exist or can't be opened */
+		return(-1);
+	}
+
+	if (_pacman_db_read_desc(db, inforeq, info) == -1)
+		return -1;
+
+	if (_pacman_db_read_depends(db, inforeq, info) == -1)
+		return -1;
+
+	/* FILES */
+	if(inforeq & INFRQ_FILES) {
+		snprintf(path, PATH_MAX, "%s/%s-%s/files", db->path, info->name, info->version);
+		fp = fopen(path, "r");
+		if(fp == NULL) {
+			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
+			goto error;
+		}
+		while(fgets(line, 256, fp)) {
+			_pacman_strtrim(line);
+			if(!strcmp(line, "%FILES%")) {
+				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
+					if((ptr = strchr(line, '|'))) {
+						/* just ignore the content after the pipe for now */
+						*ptr = '\0';
+					}
+					info->files = _pacman_list_add(info->files, strdup(line));
+				}
+			} else if(!strcmp(line, "%BACKUP%")) {
+				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
+					info->backup = _pacman_list_add(info->backup, strdup(line));
+				}
 			}
 		}
 		fclose(fp);
