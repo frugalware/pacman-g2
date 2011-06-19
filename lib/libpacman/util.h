@@ -76,6 +76,7 @@ int _pacman_reg_match(char *string, char *pattern);
 char* strsep(char** str, const char* delims);
 char* mkdtemp(char *template);
 #endif
+char *_pacman_archive_fgets(char *line, size_t size, struct archive *a);
 
 #endif /* _PACMAN_UTIL_H */
 
