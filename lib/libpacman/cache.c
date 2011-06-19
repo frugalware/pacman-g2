@@ -54,11 +54,14 @@ int _pacman_db_load_pkgcache(pmdb_t *db)
 
 	_pacman_db_free_pkgcache(db);
 
+	unsigned int inforeq = 0;
+	if (strcmp(db->treename, "local") != 0)
+		inforeq = INFRQ_DESC | INFRQ_DEPENDS;
 	_pacman_log(PM_LOG_DEBUG, _("loading package cache (infolevel=%#x) for repository '%s'"),
-	                        0, db->treename);
+	                        inforeq, db->treename);
 
 	_pacman_db_rewind(db);
-	while((info = _pacman_db_scan(db, NULL, 0)) != NULL) {
+	while((info = _pacman_db_scan(db, NULL, inforeq)) != NULL) {
 		info->origin = PKG_FROM_CACHE;
 		info->data = db;
 		/* add to the collective */

@@ -44,6 +44,10 @@
 #include "error.h"
 #include "handle.h"
 
+static inline int islocal(pmdb_t *db)
+{
+	return strcmp(db->treename, "local") == 0;
+}
 
 /* This function is used to convert the downloaded db file to the proper backend
  * format
@@ -103,9 +107,29 @@ int _pacman_db_open(pmdb_t *db)
 		RET_ERR(PM_ERR_DB_NULL, -1);
 	}
 
-	db->handle = opendir(db->path);
-	if(db->handle == NULL) {
-		RET_ERR(PM_ERR_DB_OPEN, -1);
+	if (islocal(db)) {
+		db->handle = opendir(db->path);
+		if(db->handle == NULL) {
+			RET_ERR(PM_ERR_DB_OPEN, -1);
+		}
+	} else {
+		char dbpath[PATH_MAX];
+		snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
+		struct stat buf;
+		if(stat(dbpath, &buf) != 0) {
+			// db is not there, we'll open it later
+			db->handle = NULL;
+			return 0;
+		}
+		if((db->handle = archive_read_new()) == NULL) {
+			RET_ERR(PM_ERR_DB_OPEN, -1);
+		}
+		archive_read_support_compression_all(db->handle);
+		archive_read_support_format_all(db->handle);
+		if(archive_read_open_filename(db->handle, dbpath, ARCHIVE_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
+			archive_read_finish(db->handle);
+			RET_ERR(PM_ERR_DB_OPEN, -1);
+		}
 	}
 	if(_pacman_db_getlastupdate(db, db->lastupdate) == -1) {
 		db->lastupdate[0] = '\0';
@@ -132,7 +156,17 @@ void _pacman_db_rewind(pmdb_t *db)
 		return;
 	}
 
-	rewinddir(db->handle);
+	if (islocal(db)) {
+		rewinddir(db->handle);
+	} else {
+		char dbpath[PATH_MAX];
+		snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
+		archive_read_finish(db->handle);
+		db->handle = archive_read_new();
+		archive_read_support_compression_all(db->handle);
+		archive_read_support_format_all(db->handle);
+		archive_read_open_filename(db->handle, dbpath, ARCHIVE_DEFAULT_BYTES_PER_BLOCK);
+	}
 }
 
 pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
@@ -145,33 +179,66 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	int found = 0;
 	pmpkg_t *pkg;
 
+	char dbpath[PATH_MAX];
+	snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
+	struct archive_entry *entry = NULL;
+
 	if(db == NULL) {
 		RET_ERR(PM_ERR_DB_NULL, NULL);
 	}
 
 	if(target != NULL) {
 		/* search for a specific package (by name only) */
-		rewinddir(db->handle);
-		while(!found && (ent = readdir(db->handle)) != NULL) {
-			if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
-				continue;
+		if (islocal(db)) {
+			rewinddir(db->handle);
+			while(!found && (ent = readdir(db->handle)) != NULL) {
+				if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
+					continue;
+				}
+				/* stat the entry, make sure it's a directory */
+				snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
+				if(stat(path, &sbuf) || !S_ISDIR(sbuf.st_mode)) {
+					continue;
+				}
+				STRNCPY(name, ent->d_name, PKG_FULLNAME_LEN);
+				/* truncate the string at the second-to-last hyphen, */
+				/* which will give us the package name */
+				if((ptr = rindex(name, '-'))) {
+					*ptr = '\0';
+				}
+				if((ptr = rindex(name, '-'))) {
+					*ptr = '\0';
+				}
+				if(!strcmp(name, target)) {
+					found = 1;
+				}
 			}
-			/* stat the entry, make sure it's a directory */
-			snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
-			if(stat(path, &sbuf) || !S_ISDIR(sbuf.st_mode)) {
-				continue;
-			}
-			STRNCPY(name, ent->d_name, PKG_FULLNAME_LEN);
-			/* truncate the string at the second-to-last hyphen, */
-			/* which will give us the package name */
-			if((ptr = rindex(name, '-'))) {
-				*ptr = '\0';
-			}
-			if((ptr = rindex(name, '-'))) {
-				*ptr = '\0';
-			}
-			if(!strcmp(name, target)) {
-				found = 1;
+		} else {
+			// seek to start
+			if (db->handle)
+				archive_read_finish(db->handle);
+			db->handle = archive_read_new();
+			archive_read_support_compression_all(db->handle);
+			archive_read_support_format_all(db->handle);
+			archive_read_open_filename(db->handle, dbpath, ARCHIVE_DEFAULT_BYTES_PER_BLOCK);
+
+			while (!found && archive_read_next_header(db->handle, &entry) == ARCHIVE_OK) {
+				// make sure it's a directory
+				const char *pathname = archive_entry_pathname(entry);
+				if (pathname[strlen(pathname)-1] != '/')
+					continue;
+				STRNCPY(name, pathname, PKG_FULLNAME_LEN);
+				// truncate the string at the second-to-last hyphen,
+				// which will give us the package name
+				if((ptr = rindex(name, '-'))) {
+					*ptr = '\0';
+				}
+				if((ptr = rindex(name, '-'))) {
+					*ptr = '\0';
+				}
+				if(!strcmp(name, target)) {
+					found = 1;
+				}
 			}
 		}
 		if(!found) {
@@ -181,18 +248,34 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 		/* normal iteration */
 		int isdir = 0;
 		while(!isdir) {
-			ent = readdir(db->handle);
-			if(ent == NULL) {
-				return(NULL);
-			}
-			if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
-				isdir = 0;
-				continue;
-			}
-			/* stat the entry, make sure it's a directory */
-			snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
-			if(!stat(path, &sbuf) && S_ISDIR(sbuf.st_mode)) {
-				isdir = 1;
+			if (islocal(db)) {
+				ent = readdir(db->handle);
+				if(ent == NULL) {
+					return(NULL);
+				}
+				if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
+					isdir = 0;
+					continue;
+				}
+				/* stat the entry, make sure it's a directory */
+				snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
+				if(!stat(path, &sbuf) && S_ISDIR(sbuf.st_mode)) {
+					isdir = 1;
+				}
+			} else {
+				if (!db->handle) {
+					db->handle = archive_read_new();
+					archive_read_support_compression_all(db->handle);
+					archive_read_support_format_all(db->handle);
+					archive_read_open_filename(db->handle, dbpath, ARCHIVE_DEFAULT_BYTES_PER_BLOCK);
+				}
+				if (archive_read_next_header(db->handle, &entry) != ARCHIVE_OK) {
+					return NULL;
+				}
+				// make sure it's a directory
+				const char *pathname = archive_entry_pathname(entry);
+				if (pathname[strlen(pathname)-1] == '/')
+					isdir = 1;
 			}
 		}
 	}
@@ -201,8 +284,15 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	if(pkg == NULL) {
 		return(NULL);
 	}
-	if(_pacman_pkg_splitname(ent->d_name, pkg->name, pkg->version, 0) == -1) {
-		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), ent->d_name);
+	char *dname;
+	if (islocal(db)) {
+		dname = ent->d_name;
+	} else {
+		dname = strdup(archive_entry_pathname(entry));
+		dname[strlen(dname)-1] = '\0'; // drop trailing slash
+	}
+	if(_pacman_pkg_splitname(dname, pkg->name, pkg->version, 0) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
 		return(NULL);
 	}
 	if(_pacman_db_read(db, inforeq, pkg) == -1) {
@@ -210,6 +300,14 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	}
 
 	return(pkg);
+}
+
+static char *_pacman_db_read_fgets(pmdb_t *db, char *line, size_t size, FILE *fp)
+{
+	if (islocal(db))
+		return fgets(line, size, fp);
+	else
+		return _pacman_archive_fgets(line, size, db->handle);
 }
 
 static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
@@ -221,19 +319,21 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 	pmlist_t *i;
 
 	if(inforeq & INFRQ_DESC) {
-		snprintf(path, PATH_MAX, "%s/%s-%s/desc", db->path, info->name, info->version);
-		fp = fopen(path, "r");
-		if(fp == NULL) {
-			_pacman_log(PM_LOG_DEBUG, "%s (%s)", path, strerror(errno));
-			goto error;
+		if (islocal(db)) {
+			snprintf(path, PATH_MAX, "%s/%s-%s/desc", db->path, info->name, info->version);
+			fp = fopen(path, "r");
+			if(fp == NULL) {
+				_pacman_log(PM_LOG_DEBUG, "%s (%s)", path, strerror(errno));
+				goto error;
+			}
 		}
-		while(!feof(fp)) {
-			if(fgets(line, 256, fp) == NULL) {
+		while(!islocal(db) || !feof(fp)) {
+			if(_pacman_db_read_fgets(db, line, 256, fp) == NULL) {
 				break;
 			}
 			_pacman_strtrim(line);
 			if(!strcmp(line, "%DESC%")) {
-				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
+				while(_pacman_db_read_fgets(db, line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->desc_localized = _pacman_list_add(info->desc_localized, strdup(line));
 				}
 				STRNCPY(info->desc, (char*)info->desc_localized->data, sizeof(info->desc));
@@ -245,46 +345,46 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				}
 				_pacman_strtrim(info->desc);
 			} else if(!strcmp(line, "%GROUPS%")) {
-				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
+				while(_pacman_db_read_fgets(db, line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->groups = _pacman_list_add(info->groups, strdup(line));
 				}
 			} else if(!strcmp(line, "%URL%")) {
-				if(fgets(info->url, sizeof(info->url), fp) == NULL) {
+				if(_pacman_db_read_fgets(db, info->url, sizeof(info->url), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(info->url);
 			} else if(!strcmp(line, "%LICENSE%")) {
-				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
+				while(_pacman_db_read_fgets(db, line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->license = _pacman_list_add(info->license, strdup(line));
 				}
 			} else if(!strcmp(line, "%ARCH%")) {
-				if(fgets(info->arch, sizeof(info->arch), fp) == NULL) {
+				if(_pacman_db_read_fgets(db, info->arch, sizeof(info->arch), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(info->arch);
 			} else if(!strcmp(line, "%BUILDDATE%")) {
-				if(fgets(info->builddate, sizeof(info->builddate), fp) == NULL) {
+				if(_pacman_db_read_fgets(db, info->builddate, sizeof(info->builddate), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(info->builddate);
 			} else if(!strcmp(line, "%BUILDTYPE%")) {
-				if(fgets(info->buildtype, sizeof(info->buildtype), fp) == NULL) {
+				if(_pacman_db_read_fgets(db, info->buildtype, sizeof(info->buildtype), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(info->buildtype);
 			} else if(!strcmp(line, "%INSTALLDATE%")) {
-				if(fgets(info->installdate, sizeof(info->installdate), fp) == NULL) {
+				if(_pacman_db_read_fgets(db, info->installdate, sizeof(info->installdate), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(info->installdate);
 			} else if(!strcmp(line, "%PACKAGER%")) {
-				if(fgets(info->packager, sizeof(info->packager), fp) == NULL) {
+				if(_pacman_db_read_fgets(db, info->packager, sizeof(info->packager), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(info->packager);
 			} else if(!strcmp(line, "%REASON%")) {
 				char tmp[32];
-				if(fgets(tmp, sizeof(tmp), fp) == NULL) {
+				if(_pacman_db_read_fgets(db, tmp, sizeof(tmp), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(tmp);
@@ -296,7 +396,7 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				 *       only used in local databases.
 				 */
 				char tmp[32];
-				if(fgets(tmp, sizeof(tmp), fp) == NULL) {
+				if(_pacman_db_read_fgets(db, tmp, sizeof(tmp), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(tmp);
@@ -305,7 +405,7 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				/* USIZE (uncompressed size) tag only appears in sync repositories,
 				 * not the local one. */
 				char tmp[32];
-				if(fgets(tmp, sizeof(tmp), fp) == NULL) {
+				if(_pacman_db_read_fgets(db, tmp, sizeof(tmp), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(tmp);
@@ -313,13 +413,13 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 			} else if(!strcmp(line, "%SHA1SUM%")) {
 				/* SHA1SUM tag only appears in sync repositories,
 				 * not the local one. */
-				if(fgets(info->sha1sum, sizeof(info->sha1sum), fp) == NULL) {
+				if(_pacman_db_read_fgets(db, info->sha1sum, sizeof(info->sha1sum), fp) == NULL) {
 					goto error;
 				}
 			} else if(!strcmp(line, "%MD5SUM%")) {
 				/* MD5SUM tag only appears in sync repositories,
 				 * not the local one. */
-				if(fgets(info->md5sum, sizeof(info->md5sum), fp) == NULL) {
+				if(_pacman_db_read_fgets(db, info->md5sum, sizeof(info->md5sum), fp) == NULL) {
 					goto error;
 				}
 			/* XXX: these are only here as backwards-compatibility for pacman
@@ -329,7 +429,7 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 			} else if(!strcmp(line, "%REPLACES%")) {
 				/* the REPLACES tag is special -- it only appears in sync repositories,
 				 * not the local one. */
-				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
+				while(_pacman_db_read_fgets(db, line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->replaces = _pacman_list_add(info->replaces, strdup(line));
 				}
 			} else if(!strcmp(line, "%FORCE%")) {
@@ -342,7 +442,8 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				info->stick = 1;
 			}
 		}
-		fclose(fp);
+		if (fp)
+			fclose(fp);
 		fp = NULL;
 	}
 
@@ -363,35 +464,39 @@ static int _pacman_db_read_depends(pmdb_t *db, unsigned int inforeq, pmpkg_t *in
 	int sline = sizeof(line)-1;
 
 	if(inforeq & INFRQ_DEPENDS) {
-		snprintf(path, PATH_MAX, "%s/%s-%s/depends", db->path, info->name, info->version);
-		fp = fopen(path, "r");
-		if(fp == NULL) {
-			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
-			goto error;
+		if (islocal(db)) {
+			snprintf(path, PATH_MAX, "%s/%s-%s/depends", db->path, info->name, info->version);
+			fp = fopen(path, "r");
+			if(fp == NULL) {
+				_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
+				goto error;
+			}
 		}
-		while(!feof(fp)) {
-			fgets(line, 255, fp);
+		while(!islocal(db) || !feof(fp)) {
+			if(_pacman_db_read_fgets(db, line, 256, fp) == NULL) {
+				break;
+			}
 			_pacman_strtrim(line);
 			if(!strcmp(line, "%DEPENDS%")) {
-				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
+				while(_pacman_db_read_fgets(db, line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->depends = _pacman_list_add(info->depends, strdup(line));
 				}
 			} else if(!strcmp(line, "%REQUIREDBY%")) {
-				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
+				while(_pacman_db_read_fgets(db, line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->requiredby = _pacman_list_add(info->requiredby, strdup(line));
 				}
 			} else if(!strcmp(line, "%CONFLICTS%")) {
-				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
+				while(_pacman_db_read_fgets(db, line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->conflicts = _pacman_list_add(info->conflicts, strdup(line));
 				}
 			} else if(!strcmp(line, "%PROVIDES%")) {
-				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
+				while(_pacman_db_read_fgets(db, line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->provides = _pacman_list_add(info->provides, strdup(line));
 				}
 			} else if(!strcmp(line, "%REPLACES%")) {
 				/* the REPLACES tag is special -- it only appears in sync repositories,
 				 * not the local one. */
-				while(fgets(line, sline, fp) && strlen(_pacman_strtrim(line))) {
+				while(_pacman_db_read_fgets(db, line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->replaces = _pacman_list_add(info->replaces, strdup(line));
 				}
 			} else if(!strcmp(line, "%FORCE%")) {
@@ -404,7 +509,8 @@ static int _pacman_db_read_depends(pmdb_t *db, unsigned int inforeq, pmpkg_t *in
 				info->stick = 1;
 			}
 		}
-		fclose(fp);
+		if (fp)
+			fclose(fp);
 		fp = NULL;
 	}
 
@@ -415,6 +521,15 @@ error:
 		fclose(fp);
 	}
 	return(-1);
+}
+
+static int suffixcmp(const char *str, const char *suffix)
+{
+	int len = strlen(str), suflen = strlen(suffix);
+	if (len < suflen)
+		return -1;
+	else
+		return strcmp(str + len - suflen, suffix);
 }
 
 int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
@@ -436,16 +551,36 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 	}
 
 	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name, info->version);
-	if(stat(path, &buf)) {
+	if(islocal(db) && stat(path, &buf)) {
 		/* directory doesn't exist or can't be opened */
 		return(-1);
 	}
 
-	if (_pacman_db_read_desc(db, inforeq, info) == -1)
-		return -1;
+	if (islocal(db)) {
+		if (_pacman_db_read_desc(db, inforeq, info) == -1)
+			return -1;
 
-	if (_pacman_db_read_depends(db, inforeq, info) == -1)
-		return -1;
+		if (_pacman_db_read_depends(db, inforeq, info) == -1)
+			return -1;
+	} else {
+		int descdone = 0, depsdone = 0;
+		while (!descdone || !depsdone) {
+			struct archive_entry *entry = NULL;
+			if (archive_read_next_header(db->handle, &entry) != ARCHIVE_OK)
+				return -1;
+			const char *pathname = archive_entry_pathname(entry);
+			if (!suffixcmp(pathname, "/desc")) {
+				if (_pacman_db_read_desc(db, inforeq, info) == -1)
+					return -1;
+				descdone = 1;
+			}
+			if (!suffixcmp(pathname, "/depends")) {
+				if (_pacman_db_read_depends(db, inforeq, info) == -1)
+					return -1;
+				depsdone = 1;
+			}
+		}
+	}
 
 	/* FILES */
 	if(inforeq & INFRQ_FILES) {
@@ -514,7 +649,7 @@ int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 	/* make sure we have a sane umask */
 	umask(0022);
 
-	if(strcmp(db->treename, "local") == 0) {
+	if(islocal(db)) {
 		local = 1;
 	}
 
