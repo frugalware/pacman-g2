@@ -82,10 +82,12 @@ class pmdb:
 	"""Database object
 	"""
 
-	def __init__(self, treename, dbdir):
+	def __init__(self, treename, root):
 		self.treename = treename
-		self.dbdir = dbdir
 		self.pkgs = []
+		self.dbdir = os.path.join(root, PM_DBPATH, treename)
+		if self.treename != "local":
+			self.dbfile = os.path.join(root, PM_DBPATH, treename + ".fdb")
 
 	def __str__(self):
 		return "%s" % self.treename
@@ -101,7 +103,7 @@ class pmdb:
 		"""
 		"""
 
-		path = os.path.join(self.dbdir, self.treename)
+		path = self.dbdir
 		if not os.path.isdir(path):
 			return None
 
@@ -223,7 +225,7 @@ class pmdb:
 		"""
 		"""
 
-		path = os.path.join(self.dbdir, self.treename, pkg.dbname())
+		path = os.path.join(self.dbdir, pkg.dbname())
 		if not os.path.isdir(path):
 			os.makedirs(path);
 
@@ -322,24 +324,19 @@ class pmdb:
 				pkg.checksum["install"] = getsha1sum(filename)
 				pkg.mtime["install"] = getmtime(filename)
 
-	def gensync(self, path):
+	def gensync(self):
 		"""
 		"""
 
+		if not self.dbfile:
+			return
 		curdir = os.getcwd()
-		tmpdir = tempfile.mkdtemp()
-		os.chdir(tmpdir)
-
-		for pkg in self.pkgs:
-			mkdescfile(pkg.fullname(), pkg)
+		os.chdir(self.dbdir)
 
 		# Generate database archive
-		os.makedirs(path, 0755)
-		archive = os.path.join(path, "%s%s" % (self.treename, PM_EXT_DB))
-		os.system("tar zcf %s *" % archive)
+		os.system("tar zcf %s *" % self.dbfile)
 
 		os.chdir(curdir)
-		shutil.rmtree(tmpdir)
 
 	def ispkgmodified(self, pkg):
 		"""
