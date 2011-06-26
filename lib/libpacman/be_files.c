@@ -52,29 +52,16 @@ static inline int islocal(pmdb_t *db)
 		return strcmp(db->treename, "local") == 0;
 }
 
-/* This function is used to convert the downloaded db file to the proper backend
- * format
- */
-int _pacman_db_install(pmdb_t *db, const char *dbfile)
-{
-	/* TODO
-		 we should not simply unpack the archive, but better parse it and
-		 db_write each entry (see sync_load_dbarchive to get archive content) */
-	_pacman_log(PM_LOG_FLOW2, _("unpacking database '%s'"), dbfile);
-
-	if(_pacman_unpack(dbfile, db->path, NULL)) {
-		RET_ERR(PM_ERR_SYSTEM, -1);
-	}
-
-	return unlink(dbfile);
-}
-
 pmlist_t *_pacman_db_test(pmdb_t *db)
 {
 	struct dirent *ent;
 	char path[PATH_MAX];
 	struct stat buf;
 	pmlist_t *ret = NULL;
+
+	/* testing sync dbs is not supported */
+	if (!islocal(db))
+		return ret;
 
 	while ((ent = readdir(db->handle)) != NULL) {
 		snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
@@ -148,7 +135,10 @@ void _pacman_db_close(pmdb_t *db)
 	}
 
 	if(db->handle) {
-		closedir(db->handle);
+		if (islocal(db))
+			closedir(db->handle);
+		else
+			archive_read_finish(db->handle);
 		db->handle = NULL;
 	}
 }
@@ -859,7 +849,10 @@ int _pacman_db_getlastupdate(pmdb_t *db, char *ts)
 		return(-1);
 	}
 
-	snprintf(file, PATH_MAX, "%s%s/%s/.lastupdate", handle->root, handle->dbpath, db->treename);
+	if (islocal(db))
+		snprintf(file, PATH_MAX, "%s%s/%s/.lastupdate", handle->root, handle->dbpath, db->treename);
+	else
+		snprintf(file, PATH_MAX, "%s%s/%s.lastupdate", handle->root, handle->dbpath, db->treename);
 
 	/* get the last update time, if it's there */
 	if((fp = fopen(file, "r")) == NULL) {
@@ -889,7 +882,11 @@ int _pacman_db_setlastupdate(pmdb_t *db, char *ts)
 		return(-1);
 	}
 
-	snprintf(file, PATH_MAX, "%s%s/%s/.lastupdate", handle->root, handle->dbpath, db->treename);
+	if (islocal(db))
+		snprintf(file, PATH_MAX, "%s%s/%s/.lastupdate", handle->root, handle->dbpath, db->treename);
+	else {
+		snprintf(file, PATH_MAX, "%s%s/%s.lastupdate", handle->root, handle->dbpath, db->treename);
+	}
 
 	if((fp = fopen(file, "w")) == NULL) {
 		return(-1);
