@@ -46,7 +46,10 @@
 
 static inline int islocal(pmdb_t *db)
 {
-	return strcmp(db->treename, "local") == 0;
+	if (handle->db_local)
+		return db == handle->db_local;
+	else
+		return strcmp(db->treename, "local") == 0;
 }
 
 /* This function is used to convert the downloaded db file to the proper backend

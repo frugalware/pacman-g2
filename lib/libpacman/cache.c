@@ -55,7 +55,7 @@ int _pacman_db_load_pkgcache(pmdb_t *db)
 	_pacman_db_free_pkgcache(db);
 
 	unsigned int inforeq = 0;
-	if (strcmp(db->treename, "local") != 0)
+	if (db != handle->db_local)
 		inforeq = INFRQ_DESC | INFRQ_DEPENDS;
 	_pacman_log(PM_LOG_DEBUG, _("loading package cache (infolevel=%#x) for repository '%s'"),
 	                        inforeq, db->treename);
