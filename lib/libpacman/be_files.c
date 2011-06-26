@@ -218,12 +218,7 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 			}
 		} else {
 			// seek to start
-			if (db->handle)
-				archive_read_finish(db->handle);
-			db->handle = archive_read_new();
-			archive_read_support_compression_all(db->handle);
-			archive_read_support_format_all(db->handle);
-			archive_read_open_filename(db->handle, dbpath, ARCHIVE_DEFAULT_BYTES_PER_BLOCK);
+			_pacman_db_rewind(db->handle);
 
 			while (!found && archive_read_next_header(db->handle, &entry) == ARCHIVE_OK) {
 				// make sure it's a directory
@@ -266,12 +261,8 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 					isdir = 1;
 				}
 			} else {
-				if (!db->handle) {
-					db->handle = archive_read_new();
-					archive_read_support_compression_all(db->handle);
-					archive_read_support_format_all(db->handle);
-					archive_read_open_filename(db->handle, dbpath, ARCHIVE_DEFAULT_BYTES_PER_BLOCK);
-				}
+				if (!db->handle)
+					_pacman_db_rewind(db);
 				if (archive_read_next_header(db->handle, &entry) != ARCHIVE_OK) {
 					return NULL;
 				}
