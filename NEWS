@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.8.3         - documentation fixes
+              - the remote databases are no longer uncompressed,
+                pacman-g2 reads them directly, speeding up the system upgrade
+              - pactest: fix remote database generation
+              - pacman-g2 -P: silence when downloading only
 3.8.2         - new pacman-g2 -Qf command for checking missing installed files
               - fixed removing packages when package name is longer than
                 30 characters
