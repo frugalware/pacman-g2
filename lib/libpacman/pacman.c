@@ -315,7 +315,6 @@ int pacman_db_setserver(pmdb_t *db, char *url)
  */
 int pacman_db_update(int force, PM_DB *db)
 {
-	pmlist_t *lp;
 	char path[PATH_MAX], dirpath[PATH_MAX], lckpath[PATH_MAX];
 	pmlist_t *files = NULL;
 	char newmtime[16] = "";
@@ -371,17 +370,7 @@ int pacman_db_update(int force, PM_DB *db)
 		snprintf(path, PATH_MAX, "%s%s/%s" PM_EXT_DB, handle->root, handle->dbpath, db->treename);
 
 		/* remove the old dir */
-		_pacman_log(PM_LOG_FLOW2, _("flushing database %s/%s"), handle->dbpath, db->treename);
-		for(lp = _pacman_db_get_pkgcache(db); lp; lp = lp->next) {
-			if(_pacman_db_remove(db, lp->data) == -1) {
-				if(lp->data) {
-					_pacman_log(PM_LOG_ERROR, _("could not remove database entry %s/%s"), db->treename,
-					                        ((pmpkg_t *)lp->data)->name);
-				}
-				RET_ERR(PM_ERR_DB_REMOVE, -1);
-			}
-		}
-		rmdir(dirpath);
+		_pacman_rmrf(dirpath);
 
 		/* Cache needs to be rebuild */
 		_pacman_db_free_pkgcache(db);
