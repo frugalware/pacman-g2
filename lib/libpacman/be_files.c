@@ -145,7 +145,7 @@ void _pacman_db_close(pmdb_t *db)
 
 void _pacman_db_rewind(pmdb_t *db)
 {
-	if(db == NULL || db->handle == NULL) {
+	if(db == NULL || (islocal(db) && db->handle == NULL)) {
 		return;
 	}
 
@@ -154,7 +154,8 @@ void _pacman_db_rewind(pmdb_t *db)
 	} else {
 		char dbpath[PATH_MAX];
 		snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
-		archive_read_finish(db->handle);
+		if (db->handle)
+			archive_read_finish(db->handle);
 		db->handle = archive_read_new();
 		archive_read_support_compression_all(db->handle);
 		archive_read_support_format_all(db->handle);
