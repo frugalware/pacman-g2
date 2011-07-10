@@ -1225,18 +1225,6 @@ msg "Making package: $pkgname $pkgver-$pkgrel (`date`)"
 
 unset deplist makedeplist
 if [ `type -p $PACMAN` -a "$NODEPS" = "0" ]; then
-	msg "Checking Runtime Dependencies..."
-	deplist=`checkdeps ${depends[@]}`
-	handledeps $deplist
-	if [ $? -gt 0 ]; then
-		exit 1
-	fi
-	# check deps again to make sure they were resolved
-	deplist=`checkdeps ${depends[@]}`
-	if [ ! -z "$deplist" ]; then
-		error "Failed to install missing dependencies."
-		exit 1
-	fi
 	msg "Checking Buildtime Dependencies..."
 	makedeplist=`checkdeps ${makedepends[@]}`
 	handledeps $makedeplist
@@ -1247,6 +1235,18 @@ if [ `type -p $PACMAN` -a "$NODEPS" = "0" ]; then
 	deplist=`checkdeps ${makedepends[@]}`
 	if [ ! -z "$deplist" ]; then
 		error "Failed to install missing buildtime dependencies."
+		exit 1
+	fi
+	msg "Checking Runtime Dependencies..."
+	deplist=`checkdeps ${depends[@]}`
+	handledeps $deplist
+	if [ $? -gt 0 ]; then
+		exit 1
+	fi
+	# check deps again to make sure they were resolved
+	deplist=`checkdeps ${depends[@]}`
+	if [ ! -z "$deplist" ]; then
+		error "Failed to install missing dependencies."
 		exit 1
 	fi
 elif [ "$NODEPS" = "1" ]; then
