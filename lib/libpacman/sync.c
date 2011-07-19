@@ -1028,7 +1028,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 		/* using _pacman_list_last() is ok because addtarget() adds the new target at the
 		 * end of the tr->packages list */
 		spkg = _pacman_list_last(tr->packages)->data;
-		if(ps->type == PM_SYNC_TYPE_DEPEND) {
+		if(ps->type == PM_SYNC_TYPE_DEPEND || trans->flags & PM_TRANS_FLAG_ALLDEPS) {
 			spkg->reason = PM_PKG_REASON_DEPEND;
 		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !handle->sysupgrade) {
 			spkg->reason = PM_PKG_REASON_EXPLICIT;
