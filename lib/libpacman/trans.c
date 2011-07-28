@@ -101,7 +101,7 @@ void _pacman_trans_free(pmtrans_t *trans)
 	free(trans);
 }
 
-int _pacman_trans_init(pmtrans_t *trans, unsigned char type, unsigned int flags, pacman_trans_cb_event event, pacman_trans_cb_conv conv, pacman_trans_cb_progress progress)
+int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pacman_trans_cb_event event, pacman_trans_cb_conv conv, pacman_trans_cb_progress progress)
 {
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));

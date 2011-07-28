@@ -257,12 +257,12 @@ int pacman_sync_cleancache(int full);
  */
 
 /* Types */
-enum {
+typedef enum _pmtranstype_t {
 	PM_TRANS_TYPE_ADD = 1,
 	PM_TRANS_TYPE_REMOVE,
 	PM_TRANS_TYPE_UPGRADE,
 	PM_TRANS_TYPE_SYNC
-};
+} pmtranstype_t;
 
 /* Flags */
 #define PM_TRANS_FLAG_NODEPS  0x01
