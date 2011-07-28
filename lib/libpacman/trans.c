@@ -79,10 +79,8 @@ pmtrans_t *_pacman_trans_new()
 	return(trans);
 }
 
-void _pacman_trans_free(void *data)
+void _pacman_trans_free(pmtrans_t *trans)
 {
-	pmtrans_t *trans = data;
-
 	if(trans == NULL) {
 		return;
 	}
