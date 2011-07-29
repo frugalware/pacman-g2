@@ -45,15 +45,12 @@
 
 pmhandle_t *_pacman_handle_new()
 {
-	pmhandle_t *ph;
+	pmhandle_t *ph = _pacman_zalloc(sizeof(pmhandle_t));
 
-	ph = (pmhandle_t *)malloc(sizeof(pmhandle_t));
 	if(ph == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmhandle_t));
-		RET_ERR(PM_ERR_MEMORY, NULL);
+		return(NULL);
 	}
 
-	memset(ph, 0, sizeof(pmhandle_t));
 	ph->lckfd = -1;
 	ph->maxtries = 1;
 
