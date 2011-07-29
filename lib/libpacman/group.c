@@ -33,13 +33,10 @@
 
 pmgrp_t *_pacman_grp_new()
 {
-	pmgrp_t* grp;
+	pmgrp_t* grp = _pacman_malloc(sizeof(pmgrp_t));
 
-	grp = (pmgrp_t *)malloc(sizeof(pmgrp_t));
 	if(grp == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"),
-		                        sizeof(pmgrp_t));
-		RET_ERR(PM_ERR_MEMORY, NULL);
+		return(NULL);
 	}
 
 	grp->name[0] = '\0';
