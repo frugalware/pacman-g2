@@ -26,6 +26,8 @@
 #define _PACMAN_UTIL_H
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #if defined(__OpenBSD__)
 #include "/usr/local/include/archive.h"
 #include "/usr/local/include/archive_entry.h"
@@ -33,6 +35,8 @@
 #include <archive.h>
 #include <archive_entry.h>
 #endif
+
+#include "error.h"
 
 #define FREE(p) do { if (p) { free(p); p = NULL; } } while(0)
 
@@ -77,6 +81,24 @@ char* strsep(char** str, const char* delims);
 char* mkdtemp(char *template);
 #endif
 char *_pacman_archive_fgets(char *line, size_t size, struct archive *a);
+
+static inline void *_pacman_malloc(size_t size)
+{
+	void *ptr = malloc(size);
+	if(ptr == NULL) {
+		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), size);
+		RET_ERR(PM_ERR_MEMORY, NULL);
+	}
+	return ptr;
+}
+
+static inline void *_pacman_zalloc(size_t size)
+{
+	void *ptr = _pacman_malloc(size);
+	if(ptr != NULL)
+		memset(ptr, 0, size);
+	return ptr;
+}
 
 #endif /* _PACMAN_UTIL_H */
 
