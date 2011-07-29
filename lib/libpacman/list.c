@@ -26,12 +26,12 @@
 #include <assert.h>
 /* pacman-g2 */
 #include "list.h"
+#include "util.h"
 
 pmlist_t *_pacman_list_new()
 {
-	pmlist_t *list = NULL;
+	pmlist_t *list = _pacman_malloc(sizeof(pmlist_t));
 
-	list = (pmlist_t *)malloc(sizeof(pmlist_t));
 	if(list == NULL) {
 		return(NULL);
 	}
