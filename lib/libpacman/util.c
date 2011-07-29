@@ -310,9 +310,9 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 			if(stat(expath, &buf) || !S_ISDIR(buf.st_mode)) {
 				continue;
 			}
-			c = (cache_t *)malloc(sizeof(cache_t));
+			c = _pacman_malloc(sizeof(cache_t));
 			if (!c)
-				RET_ERR(PM_ERR_MEMORY, -1);
+				return(-1);
 			memset(c, 0, sizeof(cache_t));
 			c->str = strdup(ent->d_name);
 			cache = _pacman_list_add(cache, c);
@@ -767,17 +767,13 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 	if(pkgsize > freespace) {
 		if(data) {
 			long long *ptr;
-			if((ptr = (long long*)malloc(sizeof(long long)))==NULL) {
-				_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(long long));
-				pm_errno = PM_ERR_MEMORY;
+			if((ptr = _pacman_malloc(sizeof(long long)))==NULL) {
 				return(-1);
 			}
 			*ptr = pkgsize;
 			*data = _pacman_list_add(*data, ptr);
 			if((ptr = (long long*)malloc(sizeof(long long)))==NULL) {
-				_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(long long));
 				FREELIST(*data);
-				pm_errno = PM_ERR_MEMORY;
 				return(-1);
 			}
 			*ptr = freespace;
