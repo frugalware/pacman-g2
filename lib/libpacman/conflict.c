@@ -279,10 +279,8 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 			if(strcmp(p1->name, p2->name)) {
 				pmlist_t *ret = chk_fileconflicts(p1->files, p2->files);
 				for(k = ret; k; k = k->next) {
-						pmconflict_t *conflict = malloc(sizeof(pmconflict_t));
+						pmconflict_t *conflict = _pacman_malloc(sizeof(pmconflict_t));
 						if(conflict == NULL) {
-							_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"),
-							                        sizeof(pmconflict_t));
 							continue;
 						}
 						conflict->type = PM_CONFLICT_TYPE_TARGET;
@@ -364,10 +362,8 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 					}
 				}
 				if(!ok) {
-					pmconflict_t *conflict = malloc(sizeof(pmconflict_t));
+					pmconflict_t *conflict = _pacman_malloc(sizeof(pmconflict_t));
 					if(conflict == NULL) {
-						_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"),
-						                        sizeof(pmconflict_t));
 						continue;
 					}
 					conflict->type = PM_CONFLICT_TYPE_FILE;
