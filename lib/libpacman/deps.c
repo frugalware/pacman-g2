@@ -44,10 +44,8 @@
 
 static pmgraph_t *_pacman_graph_new(void)
 {
-	pmgraph_t *graph = NULL;
+	pmgraph_t *graph = _pacman_zalloc(sizeof(pmgraph_t));
 
-	graph = (pmgraph_t *)malloc(sizeof(pmgraph_t));
-	memset(graph, 0, sizeof(pmgraph_t));
 	return(graph);
 }
 
@@ -61,12 +59,10 @@ static void _pacman_graph_free(void *data)
 pmdepmissing_t *_pacman_depmiss_new(const char *target, unsigned char type, unsigned char depmod,
                                   const char *depname, const char *depversion)
 {
-	pmdepmissing_t *miss;
+	pmdepmissing_t *miss = _pacman_malloc(sizeof(pmdepmissing_t));
 
-	miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t));
 	if(miss == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
-		RET_ERR(PM_ERR_MEMORY, NULL);
+		return(NULL);
 	}
 
 	STRNCPY(miss->target, target, PKG_NAME_LEN);
@@ -621,10 +617,8 @@ int _pacman_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pml
 			_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"),
 			          miss->target, miss->depend.name);
 			if(data) {
-				if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
-					_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
+				if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
 					FREELIST(*data);
-					pm_errno = PM_ERR_MEMORY;
 					goto error;
 				}
 				*miss = *(pmdepmissing_t *)i->data;
@@ -661,10 +655,8 @@ int _pacman_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pml
 			} else {
 				_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\""), miss->target);
 				if(data) {
-					if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
-						_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
+					if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
 						FREELIST(*data);
-						pm_errno = PM_ERR_MEMORY;
 						goto error;
 					}
 					*miss = *(pmdepmissing_t *)i->data;
