@@ -96,12 +96,10 @@ pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 
 pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 {
-	pmpkg_t* newpkg = NULL;
+	pmpkg_t* newpkg = _pacman_malloc(sizeof(pmpkg_t));
 
-	newpkg = (pmpkg_t *)malloc(sizeof(pmpkg_t));
 	if(newpkg == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmpkg_t));
-		RET_ERR(PM_ERR_MEMORY, NULL);
+		return(NULL);
 	}
 
 	STRNCPY(newpkg->name, pkg->name, PKG_NAME_LEN);
