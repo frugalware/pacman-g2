@@ -21,8 +21,10 @@
 #ifndef _PACMAN_ERROR_H
 #define _PACMAN_ERROR_H
 
+#include "log.h"
+
 #define RET_ERR(err, ret) do { pm_errno = (err); \
-	_pacman_log(PM_LOG_ERROR, _("returning error %d: %s\n"), err, pacman_strerror(err)); \
+	_pacman_log(PM_LOG_ERROR, _("returning error %d: %s\n"), pm_errno, pacman_strerror(pm_errno)); \
 	return(ret); } while(0)
 
 #endif /* _PACMAN_ERROR_H */
