@@ -52,21 +52,16 @@
 
 pmdb_t *_pacman_db_new(char *root, char* dbpath, const char *treename)
 {
-	pmdb_t *db;
+	pmdb_t *db = _pacman_malloc(sizeof(pmdb_t));
 
-	db = (pmdb_t *)malloc(sizeof(pmdb_t));
 	if(db == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("malloc failed: could not allocate %d bytes"),
-				  sizeof(pmdb_t));
-		RET_ERR(PM_ERR_MEMORY, NULL);
+		return(NULL);
 	}
 
-	db->path = (char *)malloc(strlen(root)+strlen(dbpath)+strlen(treename)+2);
+	db->path = _pacman_malloc(strlen(root)+strlen(dbpath)+strlen(treename)+2);
 	if(db->path == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("malloc failed: could not allocate %d bytes"),
-				  strlen(root)+strlen(dbpath)+strlen(treename)+2);
 		FREE(db);
-		RET_ERR(PM_ERR_MEMORY, NULL);
+		return(NULL);
 	}
 	sprintf(db->path, "%s%s/%s", root, dbpath, treename);
 
