@@ -444,6 +444,7 @@ int _pacman_ldconfig(char *root)
 	char line[PATH_MAX];
 	struct stat buf;
 
+	_pacman_log(PM_LOG_FLOW1, _("running \"ldconfig -r %s\""), root);
 	snprintf(line, PATH_MAX, "%setc/ld.so.conf", root);
 	if(!stat(line, &buf)) {
 		snprintf(line, PATH_MAX, "%ssbin/ldconfig", root);

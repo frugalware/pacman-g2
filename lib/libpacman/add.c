@@ -828,7 +828,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 
 	/* run ldconfig if it exists */
 	if(handle->trans->state != STATE_INTERRUPTED) {
-		_pacman_log(PM_LOG_FLOW1, _("running \"ldconfig -r %s\""), handle->root);
 		_pacman_ldconfig(handle->root);
 	}
 
