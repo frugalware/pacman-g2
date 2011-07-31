@@ -807,7 +807,13 @@ int pacman_trans_init(unsigned char type, unsigned int flags, pacman_trans_cb_ev
 		RET_ERR(PM_ERR_MEMORY, -1);
 	}
 
-	return(_pacman_trans_init(handle->trans, type, flags, event, conv, progress));
+	pmtrans_cbs_t cbs = {
+		.event = event,
+		.conv = conv,
+		.progress = progress
+	};
+
+	return(_pacman_trans_init(handle->trans, type, flags, cbs));
 }
 
 /** Search for packages to upgrade and add them to the transaction.

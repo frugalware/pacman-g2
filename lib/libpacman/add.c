@@ -372,7 +372,8 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 					if(tr == NULL) {
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
-					if(_pacman_trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags, NULL, NULL, NULL) == -1) {
+					pmtrans_cbs_t null_cbs = { NULL };
+					if(_pacman_trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags, null_cbs) == -1) {
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}

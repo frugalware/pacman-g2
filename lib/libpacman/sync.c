@@ -969,7 +969,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		goto error;
 	}
 
-	if(_pacman_trans_init(tr, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, trans->cb_event, trans->cb_conv, trans->cb_progress) == -1) {
+	if(_pacman_trans_init(tr, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, trans->cbs) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("could not initialize the removal transaction"));
 		goto error;
 	}
@@ -995,7 +995,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 			goto error;
 		}
 		/* we want the frontend to be aware of commit details */
-		tr->cb_event = trans->cb_event;
+		tr->cbs.event = trans->cbs.event;
 		if(_pacman_trans_commit(tr, NULL) == -1) {
 			_pacman_log(PM_LOG_ERROR, _("could not commit removal transaction"));
 			goto error;
@@ -1011,7 +1011,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		pm_errno = PM_ERR_MEMORY;
 		goto error;
 	}
-	if(_pacman_trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, trans->cb_event, trans->cb_conv, trans->cb_progress) == -1) {
+	if(_pacman_trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, trans->cbs) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("could not initialize transaction"));
 		goto error;
 	}

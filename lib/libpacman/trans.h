@@ -44,6 +44,12 @@ typedef struct __pmtrans_ops_t {
 	int (*commit)(pmtrans_t *trans, pmlist_t **data);
 } pmtrans_ops_t;
 
+typedef struct __pmtrans_cbs_t {
+	pacman_trans_cb_event event;
+	pacman_trans_cb_conv conv;
+	pacman_trans_cb_progress progress;
+} pmtrans_cbs_t;
+
 struct __pmtrans_t {
 	pmhandle_t *handle;
 	pmtranstype_t type;
@@ -53,9 +59,7 @@ struct __pmtrans_t {
 	pmlist_t *targets;     /* pmlist_t of (char *) */
 	pmlist_t *packages;    /* pmlist_t of (pmpkg_t *) or (pmsyncpkg_t *) */
 	pmlist_t *skiplist;    /* pmlist_t of (char *) */
-	pacman_trans_cb_event cb_event;
-	pacman_trans_cb_conv cb_conv;
-	pacman_trans_cb_progress cb_progress;
+	pmtrans_cbs_t cbs;
 };
 
 #define FREETRANS(p) \
@@ -65,28 +69,31 @@ do { \
 		p = NULL; \
 	} \
 } while (0)
-#define EVENT(t, e, d1, d2) \
+#define EVENT(_t, e, d1, d2) \
 do { \
-	if((t) && (t)->cb_event) { \
-		(t)->cb_event(e, d1, d2); \
+	pmtrans_t *t = (_t); \
+	if(t && t->cbs.event) { \
+		t->cbs.event((e), (d1), (d2)); \
 	} \
 } while(0)
-#define QUESTION(t, q, d1, d2, d3, r) \
+#define QUESTION(_t, q, d1, d2, d3, r) \
 do { \
-	if((t) && (t)->cb_conv) { \
-		(t)->cb_conv(q, d1, d2, d3, r); \
+	pmtrans_t *t = (_t); \
+	if(t && t->cbs.conv) { \
+		t->cbs.conv((q), (d1), (d2), (d3), (r)); \
 	} \
 } while(0)
-#define PROGRESS(t, e, p, per, h, r) \
+#define PROGRESS(_t, e, p, per, h, r) \
 do { \
-	if((t) && (t)->cb_progress) { \
-		(t)->cb_progress(e, p, per, h, r); \
+	pmtrans_t *t = (_t); \
+	if(t && t->cbs.progress) { \
+		t->cbs.progress((e), (p), (per), (h), (r)); \
 	} \
 } while(0)
 
 pmtrans_t *_pacman_trans_new(void);
 void _pacman_trans_free(pmtrans_t *trans);
-int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pacman_trans_cb_event event, pacman_trans_cb_conv conv, pacman_trans_cb_progress progress);
+int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
 int _pacman_trans_sysupgrade(pmtrans_t *trans);
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target);
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data);
