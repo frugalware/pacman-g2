@@ -57,10 +57,9 @@
 
 pmsyncpkg_t *_pacman_sync_new(int type, pmpkg_t *spkg, void *data)
 {
-	pmsyncpkg_t *ps;
+	pmsyncpkg_t *ps = _pacman_malloc(sizeof(pmsyncpkg_t));
 
-	if((ps = (pmsyncpkg_t *)malloc(sizeof(pmsyncpkg_t))) == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmsyncpkg_t));
+	if(ps == NULL) {
 		return(NULL);
 	}
 
@@ -627,10 +626,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync,
 							_pacman_log(PM_LOG_ERROR, _("unresolvable package conflicts detected"));
 							errorout = 1;
 							if(data) {
-								if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
-									_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
+								if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
 									FREELIST(*data);
-									pm_errno = PM_ERR_MEMORY;
 									ret = -1;
 									goto cleanup;
 								}
@@ -643,10 +640,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync,
 					_pacman_log(PM_LOG_ERROR, _("unresolvable package conflicts detected"));
 					errorout = 1;
 					if(data) {
-						if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
-							_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
+						if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
 							FREELIST(*data);
-							pm_errno = PM_ERR_MEMORY;
 							ret = -1;
 							goto cleanup;
 						}
@@ -738,10 +733,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync,
 								errorout = 1;
 							}
 							if(data) {
-								if((miss = (pmdepmissing_t *)malloc(sizeof(pmdepmissing_t))) == NULL) {
-									_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmdepmissing_t));
+								if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
 									FREELIST(*data);
-									pm_errno = PM_ERR_MEMORY;
 									ret = -1;
 									goto cleanup;
 								}
