@@ -50,16 +50,12 @@ unsigned char *pm_dleta_h=NULL, *pm_dleta_m=NULL, *pm_dleta_s=NULL;
 
 pmserver_t *_pacman_server_new(char *url)
 {
-	pmserver_t *server;
+	pmserver_t *server = _pacman_zalloc(sizeof(pmserver_t));
 	char *ptr;
 
-	server = (pmserver_t *)malloc(sizeof(pmserver_t));
 	if(server == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmserver_t));
-		RET_ERR(PM_ERR_MEMORY, NULL);
+		return(NULL);
 	}
-
-	memset(server, 0, sizeof(pmserver_t));
 
 	/* parse our special url */
 	ptr = strstr(url, "://");
@@ -84,9 +80,8 @@ pmserver_t *_pacman_server_new(char *url)
 			if(slash[strlen(slash)-1] == '/') {
 				server->path = strdup(slash);
 			} else {
-				if((server->path = (char *)malloc(strlen(slash)+2)) == NULL) {
-					_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(strlen(slash+2)));
-					RET_ERR(PM_ERR_MEMORY, NULL);
+				if((server->path = _pacman_malloc(strlen(slash)+2)) == NULL) {
+					return(NULL);
 				}
 				sprintf(server->path, "%s/", slash);
 			}
@@ -98,10 +93,9 @@ pmserver_t *_pacman_server_new(char *url)
 		if(ptr[strlen(ptr)-1] == '/') {
 			server->path = strdup(ptr);
 		} else {
-			server->path = (char *)malloc(strlen(ptr)+2);
+			server->path = _pacman_malloc(strlen(ptr)+2);
 			if(server->path == NULL) {
-				_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(strlen(ptr+2)));
-				RET_ERR(PM_ERR_MEMORY, NULL);
+				return(NULL);
 			}
 			sprintf(server->path, "%s/", ptr);
 		}
@@ -610,8 +604,7 @@ char *_pacman_fetch_pkgurl(char *target)
 		pmlist_t *servers = NULL;
 		pmlist_t *files;
 
-		if((server = (pmserver_t *)malloc(sizeof(pmserver_t))) == NULL) {
-			_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmserver_t));
+		if((server = _pacman_malloc(sizeof(pmserver_t))) == NULL) {
 			return(NULL);
 		}
 		server->protocol = url;
