@@ -259,7 +259,7 @@ error:
 	return(-1);
 }
 
-int _pacman_sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, const char *name)
+int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 {
 	char targline[PKG_FULLNAME_LEN];
 	char *targ;
@@ -268,6 +268,8 @@ int _pacman_sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_syn
 	pmpkg_t *spkg = NULL;
 	pmsyncpkg_t *ps;
 	int cmp;
+	pmdb_t *db_local = trans->handle->db_local;
+	pmlist_t *dbs_sync = trans->handle->dbs_sync;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -400,7 +402,7 @@ static int check_olddelay(void)
 	return(0);
 }
 
-int _pacman_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, pmlist_t **data)
+int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *deps = NULL;
 	pmlist_t *list = NULL; /* list allowing checkdeps usage with data from trans->packages */
@@ -408,6 +410,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync,
 	pmlist_t *asked = NULL;
 	pmlist_t *i, *j, *k, *l;
 	int ret = 0;
+	pmdb_t *db_local = trans->handle->db_local;
+	pmlist_t *dbs_sync = trans->handle->dbs_sync;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -777,7 +781,7 @@ cleanup:
 	return(ret);
 }
 
-int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
+int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *i, *j, *files = NULL;
 	pmtrans_t *tr = NULL;
@@ -785,6 +789,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data)
 	char ldir[PATH_MAX];
 	int varcache = 1;
 	int tries = 0, doremove;
+	pmdb_t *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -1102,5 +1107,11 @@ error:
 	trans->state = STATE_PREPARED;
 	return(-1);
 }
+
+const pmtrans_ops_t _pacman_sync_pmtrans_opts = {
+	.addtarget = _pacman_sync_addtarget,
+	.prepare = _pacman_sync_prepare,
+	.commit = _pacman_sync_commit
+};
 
 /* vim: set ts=2 sw=2 noet: */

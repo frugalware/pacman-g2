@@ -21,13 +21,9 @@
 #ifndef _PACMAN_ADD_H
 #define _PACMAN_ADD_H
 
-#include "list.h"
-#include "db.h"
 #include "trans.h"
 
-int _pacman_add_loadtarget(pmtrans_t *trans, pmdb_t *db, const char *name);
-int _pacman_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data);
-int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db);
+const pmtrans_ops_t _pacman_add_pmtrans_opts;
 
 #endif /* _PACMAN_ADD_H */
 

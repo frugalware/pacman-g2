@@ -95,6 +95,26 @@ int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags,
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
+	switch(type) {
+		case PM_TRANS_TYPE_ADD:
+		case PM_TRANS_TYPE_UPGRADE:
+			trans->ops = &_pacman_add_pmtrans_opts;
+		break;
+		case PM_TRANS_TYPE_REMOVE:
+			trans->ops = &_pacman_remove_pmtrans_opts;
+		break;
+		case PM_TRANS_TYPE_SYNC:
+			trans->ops = &_pacman_sync_pmtrans_opts;
+		break;
+		default:
+			trans->ops = NULL;
+			// Be more verbose about the trans type
+			_pacman_log(PM_LOG_ERROR,
+					_("could not initialize transaction: Unknown Transaction Type %d"), type);
+			return(-1);
+	}
+
+	trans->handle = handle;
 	trans->type = type;
 	trans->flags = flags;
 	trans->cb_event = event;
@@ -119,32 +139,17 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 {
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(trans->ops != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(trans->ops->addtarget != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(target != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	if(_pacman_list_is_strin(target, trans->targets)) {
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
 
-	switch(trans->type) {
-		case PM_TRANS_TYPE_ADD:
-		case PM_TRANS_TYPE_UPGRADE:
-			if(_pacman_add_loadtarget(trans, handle->db_local, target) == -1) {
-				/* pm_errno is set by _pacman_add_loadtarget() */
-				return(-1);
-			}
-		break;
-		case PM_TRANS_TYPE_REMOVE:
-			if(_pacman_remove_loadtarget(trans, handle->db_local, target) == -1) {
-				/* pm_errno is set by remove_loadtarget() */
-				return(-1);
-			}
-		break;
-		case PM_TRANS_TYPE_SYNC:
-			if(_pacman_sync_addtarget(trans, handle->db_local, handle->dbs_sync, target) == -1) {
-				/* pm_errno is set by sync_loadtarget() */
-				return(-1);
-			}
-		break;
+	if(trans->ops->addtarget(trans, target) == -1) {
+		/* pm_errno is set by trans->ops->addtarget() */
+		return(-1);
 	}
 
 	trans->targets = _pacman_list_add(trans->targets, strdup(target));
@@ -154,36 +159,22 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 {
-	*data = NULL;
-
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(trans->ops != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(trans->ops->prepare != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(data != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	*data = NULL;
 
 	/* If there's nothing to do, return without complaining */
 	if(trans->packages == NULL) {
 		return(0);
 	}
 
-	switch(trans->type) {
-		case PM_TRANS_TYPE_ADD:
-		case PM_TRANS_TYPE_UPGRADE:
-			if(_pacman_add_prepare(trans, handle->db_local, data) == -1) {
-				/* pm_errno is set by _pacman_add_prepare() */
-				return(-1);
-			}
-		break;
-		case PM_TRANS_TYPE_REMOVE:
-			if(_pacman_remove_prepare(trans, handle->db_local, data) == -1) {
-				/* pm_errno is set by _pacman_remove_prepare() */
-				return(-1);
-			}
-		break;
-		case PM_TRANS_TYPE_SYNC:
-			if(_pacman_sync_prepare(trans, handle->db_local, handle->dbs_sync, data) == -1) {
-				/* pm_errno is set by _pacman_sync_prepare() */
-				return(-1);
-			}
-		break;
+	if(trans->ops->prepare(trans, data) == -1) {
+		/* pm_errno is set by trans->ops->prepare() */
+		return(-1);
 	}
 
 	trans->state = STATE_PREPARED;
@@ -193,11 +184,13 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 
 int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 {
-	if(data!=NULL)
-		*data = NULL;
-
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(trans->ops != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(trans->ops->prepare != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+
+	if(data!=NULL)
+		*data = NULL;
 
 	/* If there's nothing to do, return without complaining */
 	if(trans->packages == NULL) {
@@ -206,26 +199,9 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 
 	trans->state = STATE_COMMITING;
 
-	switch(trans->type) {
-		case PM_TRANS_TYPE_ADD:
-		case PM_TRANS_TYPE_UPGRADE:
-			if(_pacman_add_commit(trans, handle->db_local) == -1) {
-				/* pm_errno is set by _pacman_add_prepare() */
-				return(-1);
-			}
-		break;
-		case PM_TRANS_TYPE_REMOVE:
-			if(_pacman_remove_commit(trans, handle->db_local) == -1) {
-				/* pm_errno is set by _pacman_remove_prepare() */
-				return(-1);
-			}
-		break;
-		case PM_TRANS_TYPE_SYNC:
-			if(_pacman_sync_commit(trans, handle->db_local, data) == -1) {
-				/* pm_errno is set by _pacman_sync_commit() */
-				return(-1);
-			}
-		break;
+	if(trans->ops->commit(trans, data) == -1) {
+		/* pm_errno is set by trans->ops->commit() */
+		return(-1);
 	}
 
 	trans->state = STATE_COMMITED;

@@ -39,9 +39,8 @@ pmsyncpkg_t *_pacman_sync_new(int type, pmpkg_t *spkg, void *data);
 void _pacman_sync_free(void *data);
 
 int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync);
-int _pacman_sync_addtarget(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, const char *name);
-int _pacman_sync_prepare(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync, pmlist_t **data);
-int _pacman_sync_commit(pmtrans_t *trans, pmdb_t *db_local, pmlist_t **data);
+
+const pmtrans_ops_t _pacman_sync_pmtrans_opts;
 
 #endif /* _PACMAN_SYNC_H */
 

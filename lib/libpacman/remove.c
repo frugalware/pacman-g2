@@ -58,9 +58,10 @@
 #include "handle.h"
 #include "pacman.h"
 
-int _pacman_remove_loadtarget(pmtrans_t *trans, pmdb_t *db, const char *name)
+int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 {
 	pmpkg_t *info;
+	pmdb_t *db = trans->handle->db_local;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -90,9 +91,10 @@ int _pacman_remove_loadtarget(pmtrans_t *trans, pmdb_t *db, const char *name)
 	return(0);
 }
 
-int _pacman_remove_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
+int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *lp;
+	pmdb_t *db = trans->handle->db_local;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -155,13 +157,14 @@ static int str_cmp(const void *s1, const void *s2)
 	return(strcmp(s1, s2));
 }
 
-int _pacman_remove_commit(pmtrans_t *trans, pmdb_t *db)
+int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 {
 	pmpkg_t *info;
 	struct stat buf;
 	pmlist_t *targ, *lp;
 	char line[PATH_MAX+1];
 	int howmany, remain;
+	pmdb_t *db = trans->handle->db_local;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -350,5 +353,11 @@ int _pacman_remove_commit(pmtrans_t *trans, pmdb_t *db)
 
 	return(0);
 }
+
+const pmtrans_ops_t _pacman_remove_pmtrans_opts = {
+	.addtarget = _pacman_remove_addtarget,
+	.prepare = _pacman_remove_prepare,
+	.commit = _pacman_remove_commit
+};
 
 /* vim: set ts=2 sw=2 noet: */

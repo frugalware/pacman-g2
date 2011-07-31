@@ -21,13 +21,13 @@
 #ifndef _PACMAN_REMOVE_H
 #define _PACMAN_REMOVE_H
 
-#include "list.h"
-#include "db.h"
 #include "trans.h"
 
-int _pacman_remove_loadtarget(pmtrans_t *trans, pmdb_t *db, const char *name);
-int _pacman_remove_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data);
-int _pacman_remove_commit(pmtrans_t *trans, pmdb_t *db);
+int _pacman_remove_addtarget(pmtrans_t *trans, const char *name);
+int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data);
+
+const pmtrans_ops_t _pacman_remove_pmtrans_opts;
+
 
 #endif /* _PACMAN_REMOVE_H */
 

@@ -105,13 +105,14 @@ static int add_faketarget(pmtrans_t *trans, const char *name)
 	return(0);
 }
 
-int _pacman_add_loadtarget(pmtrans_t *trans, pmdb_t *db, const char *name)
+int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 {
 	pmpkg_t *info = NULL;
 	pmpkg_t *dummy;
 	pmlist_t *i;
 	pmpkg_t *local;
 	struct stat buf;
+	pmdb_t *db = trans->handle->db_local;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -201,12 +202,13 @@ error:
 	return(-1);
 }
 
-int _pacman_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
+int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *lp;
 	pmlist_t *rmlist = NULL;
 	char rm_fname[PATH_MAX];
 	pmpkg_t *info = NULL;
+	pmdb_t *db = trans->handle->db_local;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -298,7 +300,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmdb_t *db, pmlist_t **data)
 	return(0);
 }
 
-int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
+int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 {
 	int i, ret = 0, errors = 0, needdisp = 0;
 	int remain, howmany, archive_ret;
@@ -309,6 +311,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 	unsigned char cb_state;
 	time_t t;
 	pmlist_t *targ, *lp;
+	pmdb_t *db = trans->handle->db_local;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -373,13 +376,13 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
-					if(_pacman_remove_loadtarget(tr, db, info->name) == -1) {
+					if(_pacman_remove_addtarget(tr, info->name) == -1) {
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
 					/* copy the skiplist over */
 					tr->skiplist = _pacman_list_strdup(trans->skiplist);
-					if(_pacman_remove_commit(tr, db) == -1) {
+					if(_pacman_remove_commit(tr, NULL) == -1) {
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
@@ -833,5 +836,11 @@ int _pacman_add_commit(pmtrans_t *trans, pmdb_t *db)
 
 	return(0);
 }
+
+const pmtrans_ops_t _pacman_add_pmtrans_opts = {
+	.addtarget = _pacman_add_addtarget,
+	.prepare = _pacman_add_prepare,
+	.commit = _pacman_add_commit
+};
 
 /* vim: set ts=2 sw=2 noet: */
