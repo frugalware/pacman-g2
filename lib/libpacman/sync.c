@@ -92,20 +92,16 @@ void _pacman_sync_free(void *data)
 static pmsyncpkg_t *find_pkginsync(char *needle, pmlist_t *haystack)
 {
 	pmlist_t *i;
-	pmsyncpkg_t *ps = NULL;
-	int found = 0;
+	pmsyncpkg_t *ps;
 
-	for(i = haystack; i && !found; i = i->next) {
+	for(i = haystack; i != NULL ; i = i->next) {
 		ps = i->data;
 		if(ps && !strcmp(ps->pkg->name, needle)) {
-			found = 1;
+			return(ps);
 		}
 	}
-	if(!found) {
-		ps = NULL;
-	}
 
-	return(ps);
+	return(NULL);
 }
 
 static int istoonew(pmpkg_t *pkg)
