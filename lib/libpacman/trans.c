@@ -59,22 +59,11 @@ static int check_oldcache(void)
 
 pmtrans_t *_pacman_trans_new()
 {
-	pmtrans_t *trans;
+	pmtrans_t *trans = _pacman_zalloc(sizeof(pmtrans_t));
 
-	if((trans = (pmtrans_t *)malloc(sizeof(pmtrans_t))) == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), sizeof(pmtrans_t));
-		return(NULL);
+	if(trans) {
+		trans->state = STATE_IDLE;
 	}
-
-	trans->targets = NULL;
-	trans->packages = NULL;
-	trans->skiplist = NULL;
-	trans->type = 0;
-	trans->flags = 0;
-	trans->cb_event = NULL;
-	trans->cb_conv = NULL;
-	trans->cb_progress = NULL;
-	trans->state = STATE_IDLE;
 
 	return(trans);
 }
