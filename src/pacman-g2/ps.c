@@ -56,6 +56,8 @@ static int start_lsof(FILE** childout, pid_t* childpid, int silent)
 		dup2(pout[1], STDOUT_FILENO);
 		close(pout[1]);
 		close(pout[0]);
+		/* silence stderr */
+		close(STDERR_FILENO);
 		execvp(args[0], args);
 		/* on sucess, execv never returns */
 		if (!silent)
