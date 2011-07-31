@@ -21,17 +21,22 @@
 #ifndef _PACMAN_HANDLE_H
 #define _PACMAN_HANDLE_H
 
+#include <stdio.h>
+
+#include "pacman.h"
+
+typedef struct __pmhandle_t pmhandle_t;
+
 #include "list.h"
 #include "db.h"
 #include "trans.h"
-#include "pacman.h"
 
 typedef enum __pmaccess_t {
 	PM_ACCESS_RO,
 	PM_ACCESS_RW
 } pmaccess_t;
 
-typedef struct __pmhandle_t {
+struct __pmhandle_t {
 	pmaccess_t access;
 	uid_t uid;
 	pmdb_t *db_local;
@@ -64,7 +69,7 @@ typedef struct __pmhandle_t {
 	int *dlremain;
 	int *dlhowmany;
 	int sysupgrade;
-} pmhandle_t;
+};
 
 extern pmhandle_t *handle;
 

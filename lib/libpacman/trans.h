@@ -24,6 +24,10 @@
 #ifndef _PACMAN_TRANS_H
 #define _PACMAN_TRANS_H
 
+typedef struct __pmtrans_t pmtrans_t;
+
+#include "handle.h"
+
 enum {
 	STATE_IDLE = 0,
 	STATE_INITIALIZED,
@@ -34,10 +38,16 @@ enum {
 	STATE_INTERRUPTED
 };
 
-#include "pacman.h"
+typedef struct __pmtrans_ops_t {
+	int (*addtarget)(pmtrans_t *trans, const char *name);
+	int (*prepare)(pmtrans_t *trans, pmlist_t **data);
+	int (*commit)(pmtrans_t *trans, pmlist_t **data);
+} pmtrans_ops_t;
 
-typedef struct __pmtrans_t {
+struct __pmtrans_t {
+	pmhandle_t *handle;
 	pmtranstype_t type;
+	const pmtrans_ops_t *ops;
 	unsigned int flags;
 	unsigned char state;
 	pmlist_t *targets;     /* pmlist_t of (char *) */
@@ -46,7 +56,7 @@ typedef struct __pmtrans_t {
 	pacman_trans_cb_event cb_event;
 	pacman_trans_cb_conv cb_conv;
 	pacman_trans_cb_progress cb_progress;
-} pmtrans_t;
+};
 
 #define FREETRANS(p) \
 do { \
