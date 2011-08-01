@@ -40,6 +40,8 @@
 #include "cache.h"
 #include "pacman.h"
 
+#include "trans_sysupgrade.h"
+
 static int check_oldcache(void)
 {
 	pmdb_t *db = handle->db_local;

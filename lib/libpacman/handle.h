@@ -22,6 +22,8 @@
 #define _PACMAN_HANDLE_H
 
 #include <stdio.h>
+#include <time.h>
+#include <unistd.h>
 
 #include "pacman.h"
 
