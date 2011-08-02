@@ -637,15 +637,166 @@ cleanup:
 
 int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 {
-	pmlist_t *i, *j, *files = NULL;
+	pmlist_t *i, *j;
 	pmtrans_t *tr = NULL;
-	int replaces = 0, retval;
-	char ldir[PATH_MAX];
-	int varcache = 1;
-	int tries = 0, doremove;
+	int replaces = 0;
 	pmdb_t *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+
+	if(handle->sysupgrade) {
+		_pacman_runhook(handle->root, handle->hooksdir, "pre_sysupgrade", trans);
+	}
+	/* remove conflicting and to-be-replaced packages */
+	trans->state = STATE_COMMITING;
+	tr = _pacman_trans_new();
+	if(tr == NULL) {
+		_pacman_log(PM_LOG_ERROR, _("could not create removal transaction"));
+		pm_errno = PM_ERR_MEMORY;
+		goto error;
+	}
+
+	if(_pacman_trans_init(tr, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, trans->cbs) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("could not initialize the removal transaction"));
+		goto error;
+	}
+
+	for(i = trans->packages; i; i = i->next) {
+		pmsyncpkg_t *ps = i->data;
+		if(ps->type == PM_SYNC_TYPE_REPLACE) {
+			for(j = ps->data; j; j = j->next) {
+				pmpkg_t *pkg = j->data;
+				if(!_pacman_pkg_isin(pkg->name, tr->packages)) {
+					if(_pacman_trans_addtarget(tr, pkg->name) == -1) {
+						goto error;
+					}
+					replaces++;
+				}
+			}
+		}
+	}
+	if(replaces) {
+		_pacman_log(PM_LOG_FLOW1, _("removing conflicting and to-be-replaced packages"));
+		if(_pacman_trans_prepare(tr, data) == -1) {
+			_pacman_log(PM_LOG_ERROR, _("could not prepare removal transaction"));
+			goto error;
+		}
+		/* we want the frontend to be aware of commit details */
+		tr->cbs.event = trans->cbs.event;
+		if(_pacman_trans_commit(tr, NULL) == -1) {
+			_pacman_log(PM_LOG_ERROR, _("could not commit removal transaction"));
+			goto error;
+		}
+	}
+	FREETRANS(tr);
+
+	/* install targets */
+	_pacman_log(PM_LOG_FLOW1, _("installing packages"));
+	tr = _pacman_trans_new();
+	if(tr == NULL) {
+		_pacman_log(PM_LOG_ERROR, _("could not create transaction"));
+		pm_errno = PM_ERR_MEMORY;
+		goto error;
+	}
+	if(_pacman_trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, trans->cbs) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("could not initialize transaction"));
+		goto error;
+	}
+	for(i = trans->packages; i; i = i->next) {
+		pmsyncpkg_t *ps = i->data;
+		pmpkg_t *spkg = ps->pkg;
+		char str[PATH_MAX];
+		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name, spkg->version, spkg->arch);
+		if(_pacman_trans_addtarget(tr, str) == -1) {
+			goto error;
+		}
+		/* using _pacman_list_last() is ok because addtarget() adds the new target at the
+		 * end of the tr->packages list */
+		spkg = _pacman_list_last(tr->packages)->data;
+		if(ps->type == PM_SYNC_TYPE_DEPEND || trans->flags & PM_TRANS_FLAG_ALLDEPS) {
+			spkg->reason = PM_PKG_REASON_DEPEND;
+		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !handle->sysupgrade) {
+			spkg->reason = PM_PKG_REASON_EXPLICIT;
+		}
+	}
+	if(_pacman_trans_prepare(tr, data) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("could not prepare transaction"));
+		/* pm_errno is set by trans_prepare */
+		goto error;
+	}
+	if(_pacman_trans_commit(tr, NULL) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("could not commit transaction"));
+		goto error;
+	}
+	FREETRANS(tr);
+
+	/* propagate replaced packages' requiredby fields to their new owners */
+	if(replaces) {
+		_pacman_log(PM_LOG_FLOW1, _("updating database for replaced packages' dependencies"));
+		for(i = trans->packages; i; i = i->next) {
+			pmsyncpkg_t *ps = i->data;
+			if(ps->type == PM_SYNC_TYPE_REPLACE) {
+				pmpkg_t *new = _pacman_db_get_pkgfromcache(db_local, ps->pkg->name);
+				for(j = ps->data; j; j = j->next) {
+					pmlist_t *k;
+					pmpkg_t *old = j->data;
+					/* merge lists */
+					for(k = old->requiredby; k; k = k->next) {
+						if(!_pacman_list_is_strin(k->data, new->requiredby)) {
+							/* replace old's name with new's name in the requiredby's dependency list */
+							pmlist_t *m;
+							pmpkg_t *depender = _pacman_db_get_pkgfromcache(db_local, k->data);
+							if(depender == NULL) {
+								/* If the depending package no longer exists in the local db,
+								 * then it must have ALSO conflicted with ps->pkg.  If
+								 * that's the case, then we don't have anything to propagate
+								 * here. */
+								continue;
+							}
+							for(m = depender->depends; m; m = m->next) {
+								if(!strcmp(m->data, old->name)) {
+									FREE(m->data);
+									m->data = strdup(new->name);
+								}
+							}
+							if(_pacman_db_write(db_local, depender, INFRQ_DEPENDS) == -1) {
+								_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
+								          new->name, new->version);
+							}
+							/* add the new requiredby */
+							new->requiredby = _pacman_list_add(new->requiredby, strdup(k->data));
+						}
+					}
+				}
+				if(_pacman_db_write(db_local, new, INFRQ_DEPENDS) == -1) {
+					_pacman_log(PM_LOG_ERROR, _("could not update new database entry %s-%s"),
+					          new->name, new->version);
+				}
+			}
+		}
+	}
+
+	if(handle->sysupgrade) {
+		_pacman_runhook(handle->root, handle->hooksdir, "post_sysupgrade", trans);
+	}
+	return(0);
+
+error:
+	FREETRANS(tr);
+	/* commiting failed, so this is still just a prepared transaction */
+	trans->state = STATE_PREPARED;
+	return(-1);
+}
+
+int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
+{
+	pmlist_t *i, *j, *files = NULL;
+	char ldir[PATH_MAX];
+	int doremove, retval, tries = 0;
+	int varcache = 1;
+
+//	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	trans->state = STATE_DOWNLOADING;
@@ -800,6 +951,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 			}
 		}
 	}
+	
 	if(retval) {
 		pm_errno = PM_ERR_PKG_CORRUPTED;
 		goto error;
@@ -810,136 +962,10 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 	if(trans->flags & PM_TRANS_FLAG_DOWNLOADONLY) {
 		return(0);
 	}
-
-	if(handle->sysupgrade) {
-		_pacman_runhook(handle->root, handle->hooksdir, "pre_sysupgrade", trans);
-	}
-	/* remove conflicting and to-be-replaced packages */
-	trans->state = STATE_COMMITING;
-	tr = _pacman_trans_new();
-	if(tr == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("could not create removal transaction"));
-		pm_errno = PM_ERR_MEMORY;
-		goto error;
-	}
-
-	if(_pacman_trans_init(tr, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, trans->cbs) == -1) {
-		_pacman_log(PM_LOG_ERROR, _("could not initialize the removal transaction"));
-		goto error;
-	}
-
-	for(i = trans->packages; i; i = i->next) {
-		pmsyncpkg_t *ps = i->data;
-		if(ps->type == PM_SYNC_TYPE_REPLACE) {
-			for(j = ps->data; j; j = j->next) {
-				pmpkg_t *pkg = j->data;
-				if(!_pacman_pkg_isin(pkg->name, tr->packages)) {
-					if(_pacman_trans_addtarget(tr, pkg->name) == -1) {
-						goto error;
-					}
-					replaces++;
-				}
-			}
-		}
-	}
-	if(replaces) {
-		_pacman_log(PM_LOG_FLOW1, _("removing conflicting and to-be-replaced packages"));
-		if(_pacman_trans_prepare(tr, data) == -1) {
-			_pacman_log(PM_LOG_ERROR, _("could not prepare removal transaction"));
+	if(!retval) {
+		retval = _pacman_sync_commit(trans, data);
+		if(retval) {
 			goto error;
-		}
-		/* we want the frontend to be aware of commit details */
-		tr->cbs.event = trans->cbs.event;
-		if(_pacman_trans_commit(tr, NULL) == -1) {
-			_pacman_log(PM_LOG_ERROR, _("could not commit removal transaction"));
-			goto error;
-		}
-	}
-	FREETRANS(tr);
-
-	/* install targets */
-	_pacman_log(PM_LOG_FLOW1, _("installing packages"));
-	tr = _pacman_trans_new();
-	if(tr == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("could not create transaction"));
-		pm_errno = PM_ERR_MEMORY;
-		goto error;
-	}
-	if(_pacman_trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, trans->cbs) == -1) {
-		_pacman_log(PM_LOG_ERROR, _("could not initialize transaction"));
-		goto error;
-	}
-	for(i = trans->packages; i; i = i->next) {
-		pmsyncpkg_t *ps = i->data;
-		pmpkg_t *spkg = ps->pkg;
-		char str[PATH_MAX];
-		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name, spkg->version, spkg->arch);
-		if(_pacman_trans_addtarget(tr, str) == -1) {
-			goto error;
-		}
-		/* using _pacman_list_last() is ok because addtarget() adds the new target at the
-		 * end of the tr->packages list */
-		spkg = _pacman_list_last(tr->packages)->data;
-		if(ps->type == PM_SYNC_TYPE_DEPEND || trans->flags & PM_TRANS_FLAG_ALLDEPS) {
-			spkg->reason = PM_PKG_REASON_DEPEND;
-		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !handle->sysupgrade) {
-			spkg->reason = PM_PKG_REASON_EXPLICIT;
-		}
-	}
-	if(_pacman_trans_prepare(tr, data) == -1) {
-		_pacman_log(PM_LOG_ERROR, _("could not prepare transaction"));
-		/* pm_errno is set by trans_prepare */
-		goto error;
-	}
-	if(_pacman_trans_commit(tr, NULL) == -1) {
-		_pacman_log(PM_LOG_ERROR, _("could not commit transaction"));
-		goto error;
-	}
-	FREETRANS(tr);
-
-	/* propagate replaced packages' requiredby fields to their new owners */
-	if(replaces) {
-		_pacman_log(PM_LOG_FLOW1, _("updating database for replaced packages' dependencies"));
-		for(i = trans->packages; i; i = i->next) {
-			pmsyncpkg_t *ps = i->data;
-			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				pmpkg_t *new = _pacman_db_get_pkgfromcache(db_local, ps->pkg->name);
-				for(j = ps->data; j; j = j->next) {
-					pmlist_t *k;
-					pmpkg_t *old = j->data;
-					/* merge lists */
-					for(k = old->requiredby; k; k = k->next) {
-						if(!_pacman_list_is_strin(k->data, new->requiredby)) {
-							/* replace old's name with new's name in the requiredby's dependency list */
-							pmlist_t *m;
-							pmpkg_t *depender = _pacman_db_get_pkgfromcache(db_local, k->data);
-							if(depender == NULL) {
-								/* If the depending package no longer exists in the local db,
-								 * then it must have ALSO conflicted with ps->pkg.  If
-								 * that's the case, then we don't have anything to propagate
-								 * here. */
-								continue;
-							}
-							for(m = depender->depends; m; m = m->next) {
-								if(!strcmp(m->data, old->name)) {
-									FREE(m->data);
-									m->data = strdup(new->name);
-								}
-							}
-							if(_pacman_db_write(db_local, depender, INFRQ_DEPENDS) == -1) {
-								_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
-								          new->name, new->version);
-							}
-							/* add the new requiredby */
-							new->requiredby = _pacman_list_add(new->requiredby, strdup(k->data));
-						}
-					}
-				}
-				if(_pacman_db_write(db_local, new, INFRQ_DEPENDS) == -1) {
-					_pacman_log(PM_LOG_ERROR, _("could not update new database entry %s-%s"),
-					          new->name, new->version);
-				}
-			}
 		}
 	}
 
@@ -949,23 +975,26 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 			unlink(i->data);
 		}
 	}
-
-	if(handle->sysupgrade) {
-		_pacman_runhook(handle->root, handle->hooksdir, "post_sysupgrade", trans);
-	}
-	return(0);
+	return(retval);
 
 error:
-	FREETRANS(tr);
 	/* commiting failed, so this is still just a prepared transaction */
 	trans->state = STATE_PREPARED;
 	return(-1);
 }
 
+#if 0
 const pmtrans_ops_t _pacman_sync_pmtrans_opts = {
 	.addtarget = _pacman_sync_addtarget,
 	.prepare = _pacman_sync_prepare,
 	.commit = _pacman_sync_commit
+};
+#endif
+
+const pmtrans_ops_t _pacman_sync_pmtrans_opts = {
+	.addtarget = _pacman_sync_addtarget,
+	.prepare = _pacman_sync_prepare,
+	.commit = _pacman_trans_download_commit
 };
 
 /* vim: set ts=2 sw=2 noet: */
