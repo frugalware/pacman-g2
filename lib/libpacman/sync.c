@@ -104,15 +104,6 @@ pmsyncpkg_t *find_pkginsync(char *needle, pmlist_t *haystack)
 	return(NULL);
 }
 
-static int istoonew(pmpkg_t *pkg)
-{
-	time_t t;
-	if (!handle->upgradedelay)
-		return 0;
-	time(&t);
-	return((pkg->date + handle->upgradedelay) > t);
-}
-
 int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 {
 	char targline[PKG_FULLNAME_LEN];
