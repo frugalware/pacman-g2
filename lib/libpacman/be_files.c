@@ -850,10 +850,7 @@ int _pacman_db_getlastupdate(pmdb_t *db, char *ts)
 		return(-1);
 	}
 
-	if (islocal(db))
-		snprintf(file, PATH_MAX, "%s%s/%s/.lastupdate", handle->root, handle->dbpath, db->treename);
-	else
-		snprintf(file, PATH_MAX, "%s%s/%s.lastupdate", handle->root, handle->dbpath, db->treename);
+	snprintf(file, PATH_MAX, "%s%s/%s.lastupdate", handle->root, handle->dbpath, db->treename);
 
 	/* get the last update time, if it's there */
 	if((fp = fopen(file, "r")) == NULL) {
@@ -883,11 +880,7 @@ int _pacman_db_setlastupdate(pmdb_t *db, char *ts)
 		return(-1);
 	}
 
-	if (islocal(db))
-		snprintf(file, PATH_MAX, "%s%s/%s/.lastupdate", handle->root, handle->dbpath, db->treename);
-	else {
-		snprintf(file, PATH_MAX, "%s%s/%s.lastupdate", handle->root, handle->dbpath, db->treename);
-	}
+	snprintf(file, PATH_MAX, "%s%s/%s.lastupdate", handle->root, handle->dbpath, db->treename);
 
 	if((fp = fopen(file, "w")) == NULL) {
 		return(-1);
