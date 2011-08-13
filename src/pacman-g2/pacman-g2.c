@@ -134,6 +134,7 @@ static void usage(int op, char *myname)
 			printf(_("  -k, --dbonly        only remove database entry, do not remove files\n"));
 			printf(_("  -n, --nosave        remove configuration files as well\n"));
 			printf(_("  -s, --recursive     remove dependencies also (that won't break packages)\n"));
+			printf(_("      --regex         treat targets as regexs if no package found\n"));
 		} else if(op == PM_OP_UPGRADE) {
 			if(config->flags & PM_TRANS_FLAG_FRESHEN) {
 				printf(_("usage:  %s {-F --freshen} [options] <file>\n"), myname);

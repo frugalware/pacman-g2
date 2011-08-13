@@ -89,9 +89,30 @@ int removepkg(list_t *targets)
 	/* and add targets to it */
 	for(i = finaltargs; i; i = i->next) {
 		if(pacman_trans_addtarget(i->data) == -1) {
-			ERR(NL, _("failed to add target '%s' (%s)\n"), (char *)i->data, pacman_strerror(pm_errno));
-			retval = 1;
-			goto cleanup;
+			int found=0;
+			/* check for regex */
+			if(config->regex) {
+				PM_LIST *k;
+				for(k = pacman_db_getpkgcache(db_local); k; k = pacman_list_next(k)) {
+					PM_PKG *p = pacman_list_getdata(k);
+					char *pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
+					int match = pacman_reg_match(pkgname, i->data);
+					if(match == -1) {
+						ERR(NL, _("failed to add target '%s' (%s)\n"), (char *)i->data, pacman_strerror(pm_errno));
+						retval = 1;
+						goto cleanup;
+					}
+					else if(match) {
+						pacman_trans_addtarget(pkgname);
+						found++;
+					}
+				}
+			}
+			if(!found) {
+				ERR(NL, _("failed to add target '%s' (%s)\n"), (char *)i->data, pacman_strerror(pm_errno));
+				retval = 1;
+				goto cleanup;
+			}
 		}
 	}
 
