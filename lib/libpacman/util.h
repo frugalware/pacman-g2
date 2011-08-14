@@ -35,6 +35,7 @@
 #include <archive.h>
 #include <archive_entry.h>
 #endif
+#include <libintl.h>
 
 #include "error.h"
 
