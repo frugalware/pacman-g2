@@ -134,7 +134,6 @@ static void usage(int op, char *myname)
 			printf(_("  -k, --dbonly        only remove database entry, do not remove files\n"));
 			printf(_("  -n, --nosave        remove configuration files as well\n"));
 			printf(_("  -s, --recursive     remove dependencies also (that won't break packages)\n"));
-			printf(_("      --regex         treat targets as regexs if no package found\n"));
 		} else if(op == PM_OP_UPGRADE) {
 			if(config->flags & PM_TRANS_FLAG_FRESHEN) {
 				printf(_("usage:  %s {-F --freshen} [options] <file>\n"), myname);
@@ -177,13 +176,13 @@ static void usage(int op, char *myname)
 			printf(_("  -y, --refresh       download fresh package databases from the server\n"));
 			printf(_("      --ignore <pkg>  ignore a package upgrade (can be used more than once)\n"));
 			printf(_("      --nointegrity   don't check the integrity of the packages using sha1\n"));
-			printf(_("      --regex         treat targets as regexs if no package found\n"));
 		}
 		printf(_("      --config <path> set an alternate configuration file\n"));
 		printf(_("      --noconfirm     do not ask for anything confirmation\n"));
 		printf(_("      --ask  <number> pre-specify answers for questions (see manpage)\n"));
 		printf(_("      --noprogressbar do not show a progress bar when downloading files\n"));
 		printf(_("      --noscriptlet   do not execute the install scriptlet if there is any\n"));
+		printf(_("      --regex         treat targets as regexs if no package found\n"));
 		printf(_("  -v, --verbose       be verbose\n"));
 		printf(_("  -r, --root <path>   set an alternate installation root\n"));
 		printf(_("  -b, --dbpath <path> set an alternate database location\n"));
