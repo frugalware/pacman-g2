@@ -1072,7 +1072,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		# copy these before any update since without them we can't even reach the servers
 		cp -pf /etc/{resolv.conf,services} $CHROOTDIR/etc
 		# run pacman-g2 -Su twice in case pacman-g2 updated
-		yes "" | /usr/sbin/chroot "$CHROOTDIR" $PACMAN -Syy pacman-g2 --ask 94 && \
+		yes "" | /usr/sbin/chroot "$CHROOTDIR" $PACMAN -Sy pacman-g2 --ask 94 && \
 			/usr/sbin/chroot "$CHROOTDIR" $PACMAN -Su --noconfirm
 		if [ "$?" != "0" ]; then
 			error "Failed to update chroot environment."
