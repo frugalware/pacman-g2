@@ -747,6 +747,13 @@ while [ "$#" -ne "0" ]; do
 	shift
 done
 
+# see if we need to append bases to $TREE
+if ! echo $TREE |grep -q ,; then
+	# only parse _bases if they were no provided on the commandline
+	bases=$(eval "echo \$${TREE}_bases")
+	[ -n "$bases" ] && TREE="$TREE,$bases"
+fi
+
 # check for COMPRESS_PROGRAM program to be in the path
 if [ -z "`which $COMPRESS_PROGRAM 2>/dev/null`" ]; then
 	error "Cannot find compress program ($COMPRESS_PROGRAM) in PATH"
@@ -1068,7 +1075,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		fi
 		mv -f $_F_makepkg_pacconf $CHROOTDIR/etc/pacman-g2.conf
 	else
-		msg "Updating the chroot environment"
+		msg "Updating the '-$TREE' chroot environment"
 		# copy these before any update since without them we can't even reach the servers
 		cp -pf /etc/{resolv.conf,services} $CHROOTDIR/etc
 		# run pacman-g2 -Su twice in case pacman-g2 updated
