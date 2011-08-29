@@ -155,4 +155,9 @@ char *pacman_strerror(int err)
 	}
 }
 
+enum __pmerrno_t pacman_geterror()
+{
+	return pm_errno;
+}
+
 /* vim: set ts=2 sw=2 noet: */
