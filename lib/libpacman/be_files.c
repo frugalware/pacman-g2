@@ -159,7 +159,10 @@ void _pacman_db_rewind(pmdb_t *db)
 		db->handle = archive_read_new();
 		archive_read_support_compression_all(db->handle);
 		archive_read_support_format_all(db->handle);
-		archive_read_open_filename(db->handle, dbpath, ARCHIVE_DEFAULT_BYTES_PER_BLOCK);
+		if (archive_read_open_filename(db->handle, dbpath, ARCHIVE_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
+			archive_read_finish(db->handle);
+			db->handle = NULL;
+		}
 	}
 }
 
@@ -254,7 +257,7 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 			} else {
 				if (!db->handle)
 					_pacman_db_rewind(db);
-				if (archive_read_next_header(db->handle, &entry) != ARCHIVE_OK) {
+				if (!db->handle || archive_read_next_header(db->handle, &entry) != ARCHIVE_OK) {
 					return NULL;
 				}
 				// make sure it's a directory
