@@ -514,6 +514,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				} else if(!strcmp(server->protocol, "file")) {
 					char src[PATH_MAX];
 					snprintf(src, PATH_MAX, "%s%s", server->path, fn);
+					_pacman_makepath((char*)localpath);
 					_pacman_log(PM_LOG_DEBUG, _("copying %s to %s/%s\n"), src, localpath, fn);
 					/* local repository, just copy the file */
 					if(_pacman_copyfile(src, output)) {
