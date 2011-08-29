@@ -2,7 +2,7 @@ ENV_CFLAGS=$CFLAGS
 
 AC_PREREQ(2.59)
 dnl Update it right before the release since $pkgver_foo are all _post_ release snapshots
-AC_INIT([pacman-g2 package manager], 3.8.3, [frugalware-devel@frugalware.org], pacman-g2)
+AC_INIT([pacman-g2 package manager], 3.8.4, [frugalware-devel@frugalware.org], pacman-g2)
 AC_CONFIG_MACRO_DIR([m4])
 AC_LANG(C)
 AM_CONFIG_HEADER(config.h)
@@ -21,7 +21,7 @@ dnl Define here the libpacman version number
 PM_MAJOR_VERSION=0
 PM_MINOR_VERSION=3
 PM_MICRO_VERSION=8
-PM_MICRO_VERSION_SUFFIX=.3
+PM_MICRO_VERSION_SUFFIX=.4
 PM_VERSION=$PM_MAJOR_VERSION.$PM_MINOR_VERSION.$PM_MICRO_VERSION$PM_MICRO_VERSION_SUFFIX
 dnl Needed for libtool to create proper shared lib version
 PM_VERSION_INFO=`expr $PM_MAJOR_VERSION + $PM_MINOR_VERSION`:$PM_MICRO_VERSION:$PM_MINOR_VERSION

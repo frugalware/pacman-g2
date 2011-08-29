@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.8.4         - -R now supports --regex
+              - makepkg: makedepends are now installed first
+              - fix a bogus pacman -P warning
+              - -Sy with mistyped repo urls followed by a -Su no longer
+                results in a fatal error
 3.8.3         - documentation fixes
               - the remote databases are no longer uncompressed,
                 pacman-g2 reads them directly, speeding up the system upgrade
