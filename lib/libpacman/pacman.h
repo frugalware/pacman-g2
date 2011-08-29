@@ -502,7 +502,7 @@ extern enum __pmerrno_t {
 } pm_errno;
 
 char *pacman_strerror(int err);
-enum __pmerrno_t pacman_geterror();
+enum __pmerrno_t pacman_geterror(void);
 
 #ifdef __cplusplus
 }
