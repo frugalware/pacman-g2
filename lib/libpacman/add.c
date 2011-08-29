@@ -835,7 +835,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 		_pacman_ldconfig(handle->root);
 	}
 
-	return(0);
+	return(ret);
 }
 
 const pmtrans_ops_t _pacman_add_pmtrans_opts = {

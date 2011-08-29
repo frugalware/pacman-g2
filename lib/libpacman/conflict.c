@@ -297,12 +297,10 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 		p = (pmpkg_t*)i->data;
 		dbpkg = NULL;
 		for(j = p->files; j; j = j->next) {
-			int isdir = 0;
 			filestr = (char*)j->data;
 			snprintf(path, PATH_MAX, "%s%s", root, filestr);
 			/* is this target a file or directory? */
 			if(path[strlen(path)-1] == '/') {
-				isdir = 1;
 				path[strlen(path)-1] = '\0';
 			}
 			if(!lstat(path, &buf)) {
