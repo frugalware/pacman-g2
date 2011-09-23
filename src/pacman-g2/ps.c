@@ -201,6 +201,8 @@ int pspkg(int countonly)
 	int count = 0;
 
 	if (strcmp(config->root, "/") != 0) {
+		if (countonly)
+			return 0;
 		ERR(NL, _("changing root directory is not supported when listing open files.\n"));
 		return -1;
 	}
