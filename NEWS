@@ -1,5 +1,11 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.8.5         - libpacman now has a pacman_geterror(), for bindings
+              - libpacman now creates a destination directory before
+                downloading file:/// urls
+              - makepkg now supports loading the bases of a partial repo
+                from configuration file
+              - pacman -P: silence error when upgrading chroots
 3.8.4         - -R now supports --regex
               - makepkg: makedepends are now installed first
               - fix a bogus pacman -P warning
