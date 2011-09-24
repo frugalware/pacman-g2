@@ -172,7 +172,8 @@ static list_t* ps_parse(FILE *fp)
 						static const char * black[] = {
 							"/SYSV",
 							"/var/run/",
-							"/dev/"
+							"/dev/",
+							"/drm"
 						};
 						int i;
 						for (i = 0; i < ARRAY_SIZE(black); i++) {
