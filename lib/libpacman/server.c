@@ -496,6 +496,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						} else {
 							_pacman_log(PM_LOG_WARNING, _("\nfailed downloading %s from %s: %s\n"),
 								src, server->server, FtpLastResponse(control));
+							pm_errno = PM_ERR_RETRIEVE;
 							/* we leave the partially downloaded file in place so it can be resumed later */
 						}
 					} else {
