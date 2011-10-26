@@ -384,7 +384,7 @@ chroot_mount() {
     mount -t sysfs none $CHROOTDIR/sys >/dev/null
     mount -o bind /dev $CHROOTDIR/dev >/dev/null
     mount -o bind /var/cache/pacman-g2 $CHROOTDIR/var/cache/pacman-g2 >/dev/null
-    mount -o bind /var/cache/ccache/$pkgname \
+    mount -o bind $CCACHE_BASEDIR/$pkgname \
     $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
     if [ "$?" != "0" ]; then
 	error "An error occurred while attempting to mount chroot directories."
@@ -775,8 +775,12 @@ fi
 PKGDEST=`pwd`
 cd $OLDPWD
 
+if [ -z $CCACHE_BASEDIR ]; then
+	export CCACHE_BASEDIR=/var/cache/ccache
+fi
+
 if [ ! -z "$CLEANCCACHE" ]; then
-	export CCACHE_DIR=/var/cache/ccache/$CLEANCCACHE
+	export CCACHE_DIR=$CCACHE_BASEDIR/$CLEANCCACHE
 	ccache -C
 	exit 0
 fi
@@ -788,7 +792,7 @@ fi
 if [ $CLEANCACHE -ge 1 ]; then
 	if [ $CLEANCACHE -ge 2 ]; then
 		msg "Cleaning up the compiler cache."
-		export CCACHE_DIR=/var/cache/ccache
+		export CCACHE_DIR=$CCACHE_BASEDIR
 		ccache -C
 	fi
 	if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
@@ -1051,7 +1055,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 
 	chroot_lock
 
-	install -d -m 2775 {,$CHROOTDIR}/var/cache/ccache/$pkgname
+	install -d -m 2775 {$CCACHE_BASEDIR,$CHROOTDIR/var/cache/ccache}/$pkgname
 
 	chroot_mount
 
@@ -1547,11 +1551,11 @@ fi
 
 # use ccache if it's available
 if [ "$NOCCACHE" = "0" -a -d /usr/lib/ccache/bin ]; then
-	if [ -w /var/cache/ccache/ ]; then
+	if [ -w $CCACHE_BASEDIR ]; then
 		export PATH=/usr/lib/ccache/bin:$PATH
 		FCC="ccache $FCC"
-		install -d -m 2775 /var/cache/ccache/$pkgname
-		export CCACHE_DIR=/var/cache/ccache/$pkgname
+		install -d -m 2775 $CCACHE_BASEDIR/$pkgname
+		export CCACHE_DIR=$CCACHE_BASEDIR/$pkgname
 		export CCACHE_NOLINK=1
 		export CCACHE_UMASK=002
 	else

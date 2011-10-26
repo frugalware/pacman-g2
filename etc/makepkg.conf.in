@@ -39,6 +39,9 @@ export DB_EXT="fdb"
 # Enable fakeroot for building packages as a non-root user
 export USE_FAKEROOT="y"
 
+# Specify a directory for ccache
+#export CCACHE_BASEDIR=/var/cache/ccache
+
 # Specify a directory for the chroot environment.
 export CHROOTDIR="/var/chroot"
 # Core package list to be installed in the chroot.
