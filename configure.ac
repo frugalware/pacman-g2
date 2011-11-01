@@ -168,8 +168,8 @@ AC_ARG_ENABLE(debug,
 
 dnl Help line for fakeroot
 AC_ARG_ENABLE(fakeroot,
-	AC_HELP_STRING([--disable-fakeroot], [Disable fakeroot proof support]),
-	[fakeroot=$enableval], [fakeroot=yes])
+	AC_HELP_STRING([--enable-fakeroot], [Enable fakeroot proof support]),
+	[fakeroot=$enableval], [fakeroot=no])
 
 dnl Check for pkg-config binary
 AC_PATH_PROG(PKG_CONFIG, pkg-config)
