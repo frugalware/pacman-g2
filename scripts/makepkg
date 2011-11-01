@@ -1149,7 +1149,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			fi
 			/usr/sbin/chroot $CHROOTDIR /usr/sbin/pwconv
 			/usr/sbin/chroot $CHROOTDIR \
-				/bin/su - fst -c "$0 --inchroot -S $ARGLIST"
+				/bin/su - fst -c "fakeroot -- $0 -F --inchroot -S $ARGLIST"
 		else
 			$ECHO "cd /var/tmp/fst/; $0 --inchroot -s $ARGLIST" | \
 				/usr/sbin/chroot $CHROOTDIR /bin/su - -c /bin/sh
