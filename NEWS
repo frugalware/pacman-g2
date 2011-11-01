@@ -1,5 +1,9 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.8.6         - pacman -P now ignores /drm paths
+              - better error reporting on http download failures
+              - makepkg learned to support a custom ccache directory
+              - fakeroot is no longer checked by default
 3.8.5         - libpacman now has a pacman_geterror(), for bindings
               - libpacman now creates a destination directory before
                 downloading file:/// urls
