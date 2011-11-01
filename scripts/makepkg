@@ -1551,11 +1551,16 @@ fi
 
 # use ccache if it's available
 if [ "$NOCCACHE" = "0" -a -d /usr/lib/ccache/bin ]; then
-	if [ -w $CCACHE_BASEDIR ]; then
+	if [ "$CHROOT" = "1" ]; then
+		CCACHE_REALDIR=/var/cache/ccache
+	else
+		CCACHE_REALDIR=$CCACHE_BASEDIR
+	fi
+	if [ -w $CCACHE_REALDIR ]; then
 		export PATH=/usr/lib/ccache/bin:$PATH
 		FCC="ccache $FCC"
-		install -d -m 2775 $CCACHE_BASEDIR/$pkgname
-		export CCACHE_DIR=$CCACHE_BASEDIR/$pkgname
+		install -d -m 2775 $CCACHE_REALDIR/$pkgname
+		export CCACHE_DIR=$CCACHE_REALDIR/$pkgname
 		export CCACHE_NOLINK=1
 		export CCACHE_UMASK=002
 	else
