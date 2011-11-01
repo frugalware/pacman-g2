@@ -185,7 +185,10 @@ class pmtest:
 		print "==> Running test"
 		vprint("\tpacman-g2 %s" % self.args)
 
-		cmd = ["fakeroot"]
+		if "FAKEROOTKEY" in os.environ:
+			cmd = []
+		else:
+			cmd = ["fakeroot"]
 		if pacman["gdb"]:
 			cmd.append("libtool gdb --args")
 		if pacman["valgrind"]:
