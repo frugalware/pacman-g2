@@ -373,7 +373,7 @@ void cb_trans_progress(unsigned char event, char *pkgname, int percent, int coun
 		if (i >= (int)(progresslen - hash))
 			printf("#");
 		else
-			printf("-");
+			printf(" ");
 	}
 	MSG(CL, "] %3d%%\r", percent);
 	/* avoid adding a new line for the last package */
