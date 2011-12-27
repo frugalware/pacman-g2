@@ -180,7 +180,8 @@ Example:
 	will upgrade. pacman-g2 will present a report of all packages it wants to
 	upgrade and will not proceed without user confirmation. Dependencies are
 	automatically resolved at this level and will be installed/upgraded if
-	necessary.
+	necessary. Use this twice to downgrade packages that are newer than the ones
+	in the repo.
 
 -w, --downloadonly::
 	Retrieve all packages from the server, but do not install/upgrade anything.

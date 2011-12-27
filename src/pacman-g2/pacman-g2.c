@@ -403,7 +403,12 @@ static int parseargs(int argc, char *argv[])
 				config->op_q_search = 1;
 				config->flags |= PM_TRANS_FLAG_RECURSE;
 			break;
-			case 'u': config->op_s_upgrade = 1; break;
+			case 'u':
+				config->op_s_upgrade++;
+				if(config->op_s_upgrade == 2){
+					config->flags |= PM_TRANS_FLAG_DOWNGRADE;
+				}
+			break;
 			case 't': config->op_q_test = 1; break;
 			case 'v': config->verbose++; break;
 			case 'w':

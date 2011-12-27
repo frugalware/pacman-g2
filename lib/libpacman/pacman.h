@@ -281,6 +281,7 @@ typedef enum _pmtranstype_t {
 #define PM_TRANS_FLAG_NOINTEGRITY 0x2000
 #define PM_TRANS_FLAG_NOARCH 0x4000
 #define PM_TRANS_FLAG_PRINTURIS_CACHED 0x8000 /* print uris for pkgs that are already cached */
+#define PM_TRANS_FLAG_DOWNGRADE 0x10000
 
 /* Transaction Events */
 enum {
