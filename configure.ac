@@ -106,9 +106,6 @@ case "$host" in
 	x86_64-*) CARCH="x86_64"
 		CARCHFLAGS="-march=x86-64 -mtune=generic"
 		;;
-	ia64-*) CARCH="ia64"
-		CARCHFLAGS="-march=ia64 -mtune=generic"
-		;;
 	sparc-*) CARCH="sparc"
 		CARCHFLAGS="-mcpu=v9"
 		;;
