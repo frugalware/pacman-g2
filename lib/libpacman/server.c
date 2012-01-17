@@ -29,6 +29,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <ftplib.h>
+#include <errno.h>
 
 /* pacman-g2 */
 #include "config.h"
@@ -228,6 +229,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				FtpOptions(FTPLIB_IDLETIME, (long)1000, control);
 				FtpOptions(FTPLIB_CALLBACKARG, (long)&fsz, control);
 				FtpOptions(FTPLIB_CALLBACKBYTES, (10*1024), control);
+				FtpOptions(FTPLIB_LOSTTIME, (long)5, control);
 			}
 		}
 
@@ -412,6 +414,11 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 							_pacman_log(PM_LOG_WARNING, _("\nfailed downloading %s from %s: %s\n"),
 								fn, server->server, FtpLastResponse(control));
 							/* we leave the partially downloaded file in place so it can be resumed later */
+							if(!strncmp(FtpLastResponse(control), strerror(ETIMEDOUT), 254)) {
+								pm_errno = PM_ERR_RETRIEVE;
+								goto error;
+							}
+								
 						} else {
 							_pacman_log(PM_LOG_DEBUG, _("downloaded %s from %s\n"),
 								fn, server->server);
@@ -451,6 +458,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 							FtpOptions(FTPLIB_IDLETIME, (long)1000, control);
 							FtpOptions(FTPLIB_CALLBACKARG, (long)&fsz, control);
 							FtpOptions(FTPLIB_CALLBACKBYTES, (10*1024), control);
+							FtpOptions(FTPLIB_LOSTTIME, (long)5, control);
 						}
 					}
 
@@ -498,6 +506,8 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 								src, server->server, FtpLastResponse(control));
 							pm_errno = PM_ERR_RETRIEVE;
 							/* we leave the partially downloaded file in place so it can be resumed later */
+							if(!strncmp(FtpLastResponse(control), strerror(ETIMEDOUT), 254))
+								goto error;
 						}
 					} else {
 						if(mtime2) {
