@@ -352,7 +352,7 @@ int pacman_db_update(int force, PM_DB *db)
 
 	snprintf(path, PATH_MAX, "%s%s", handle->root, handle->dbpath);
 
-	ret = _pacman_downloadfiles_forreal(db->servers, path, files, lastupdate, newmtime);
+	ret = _pacman_downloadfiles_forreal(db->servers, path, files, lastupdate, newmtime, 0);
 	FREELIST(files);
 	if(ret != 0) {
 		if(ret == -1) {

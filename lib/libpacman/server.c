@@ -128,9 +128,9 @@ void _pacman_server_free(void *data)
  *
  * RETURN:  0 for successful download, -1 on error
  */
-int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *files)
+int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *files, int skip)
 {
-	if(_pacman_downloadfiles_forreal(servers, localpath, files, NULL, NULL) != 0) {
+	if(_pacman_downloadfiles_forreal(servers, localpath, files, NULL, NULL, skip) != 0) {
 		return(-1);
 	} else {
 		return(0);
@@ -151,7 +151,7 @@ int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *fi
  *         -1 on error
  */
 int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
-	pmlist_t *files, const char *mtime1, char *mtime2)
+	pmlist_t *files, const char *mtime1, char *mtime2, int skip)
 {
 	int fsz;
 	netbuf *control = NULL;
@@ -175,7 +175,10 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
-	for(i = servers; i && !done; i = i->next) {
+	int count;
+	for(i = servers, count = 0; i && !done; i = i->next, count++) {
+		if (count < skip)
+			continue; /* the caller requested skip of this server */
 		_pacman_log(PM_LOG_DEBUG, _("server check, done? %d\n"),done);
 		server = (pmserver_t*)i->data;
 		if(!handle->xfercommand && strcmp(server->protocol, "file")) {
@@ -414,6 +417,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 								fn, server->server, FtpLastResponse(control));
 							/* we leave the partially downloaded file in place so it can be resumed later */
 							if(!strncmp(FtpLastResponse(control), strerror(ETIMEDOUT), 254)) {
+								unlink(output);
 								pm_errno = PM_ERR_RETRIEVE;
 								goto error;
 							}
@@ -505,8 +509,10 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 								src, server->server, FtpLastResponse(control));
 							pm_errno = PM_ERR_RETRIEVE;
 							/* we leave the partially downloaded file in place so it can be resumed later */
-							if(!strncmp(FtpLastResponse(control), strerror(ETIMEDOUT), 254))
+							if(!strncmp(FtpLastResponse(control), strerror(ETIMEDOUT), 254)) {
+								unlink(output);
 								goto error;
+							}
 						}
 					} else {
 						if(mtime2) {
@@ -624,7 +630,7 @@ char *_pacman_fetch_pkgurl(char *target)
 		servers = _pacman_list_add(servers, server);
 
 		files = _pacman_list_add(NULL, fn);
-		if(_pacman_downloadfiles(servers, lcache, files)) {
+		if(_pacman_downloadfiles(servers, lcache, files, 0)) {
 			_pacman_log(PM_LOG_WARNING, _("failed to download %s\n"), target);
 			return(NULL);
 		}

@@ -797,6 +797,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 	for(tries = 0; tries < handle->maxtries; tries++) {
 		retval = 0;
 		FREELIST(*data);
+		int done = 1;
 		for(i = handle->dbs_sync; i; i = i->next) {
 			pmdb_t *current = i->data;
 
@@ -860,14 +861,15 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 						varcache = 0;
 					}
 				}
-				if(_pacman_downloadfiles(current->servers, ldir, files) == -1) {
+				if(_pacman_downloadfiles(current->servers, ldir, files, tries) == -1) {
 					_pacman_log(PM_LOG_WARNING, _("failed to retrieve some files from %s\n"), current->treename);
-					trans->state = STATE_INTERRUPTED;
-					RET_ERR(PM_ERR_RETRIEVE, -1);
+					done = 0;
 				}
 				FREELIST(files);
 			}
 		}
+		if (!done)
+			continue;
 		if(trans->flags & PM_TRANS_FLAG_PRINTURIS) {
 			return(0);
 		}

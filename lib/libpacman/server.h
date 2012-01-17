@@ -44,9 +44,9 @@ typedef struct __pmserver_t {
 
 pmserver_t *_pacman_server_new(char *url);
 void _pacman_server_free(void *data);
-int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *files);
+int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *files, int skip);
 int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
-	pmlist_t *files, const char *mtime1, char *mtime2);
+	pmlist_t *files, const char *mtime1, char *mtime2, int skip);
 
 char *_pacman_fetch_pkgurl(char *target);
 
