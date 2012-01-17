@@ -284,7 +284,6 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						char numstr[PATH_MAX];
 						ptr2[0] = '\0';
 						strcat(parsedCmd, ptr1);
-						printf("debug, remain is %d\n", *remain);
 						snprintf(numstr, PATH_MAX, "%d", *remain);
 						strcat(parsedCmd, numstr);
 						ptr1 = ptr2 + 2;
