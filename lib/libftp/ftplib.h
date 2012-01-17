@@ -58,6 +58,7 @@
 #define FTPLIB_IDLETIME 3
 #define FTPLIB_CALLBACKARG 4
 #define FTPLIB_CALLBACKBYTES 5
+#define FTPLIB_LOSTTIME 6
 
 #ifdef __cplusplus
 extern "C" {

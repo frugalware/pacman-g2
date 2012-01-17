@@ -78,9 +78,11 @@ struct NetBuf {
 	char *buf;
 	int dir;
 	netbuf *ctrl;
-	netbuf *data;    
+	netbuf *data;
 	int cmode;
+	int errcode;
 	struct timeval idletime;
+	int losttime;
 	FtpCallback idlecb;
 	void *idlearg;
 	int xfered;
@@ -135,6 +137,8 @@ static int socket_wait(netbuf *ctl)
 	fd_set fd,*rfd = NULL,*wfd = NULL;
 	struct timeval tv;
 	int rv = 0;
+	int cpt = 0;
+
 	if ((ctl->dir == FTPLIB_CONTROL) || (ctl->idlecb == NULL))
 		return 1;
 	if (ctl->dir == FTPLIB_WRITE)
@@ -150,14 +154,35 @@ static int socket_wait(netbuf *ctl)
 		if (rv == -1)
 		{
 			rv = 0;
-			strncpy(ctl->ctrl->response, strerror(errno),
-					sizeof(ctl->ctrl->response));
+			ctl->errcode = errno;
+			if(ctl->ctrl)
+				strncpy(ctl->ctrl->response, strerror(errno),
+						sizeof(ctl->ctrl->response));
+			else
+				strncpy(ctl->response, strerror(errno),
+						sizeof(ctl->response));
 			break;
 		}
 		else if (rv > 0)
 		{
 			rv = 1;
 			break;
+		}
+		else if (rv == 0)
+		{
+			cpt++;
+			if((ctl->losttime > 0) && (cpt >= ctl->losttime))
+			{
+				rv = 0;
+				ctl->errcode = ETIMEDOUT;
+				if(ctl->ctrl)
+					strncpy(ctl->ctrl->response, strerror(ETIMEDOUT),
+						sizeof(ctl->ctrl->response));
+				else
+					strncpy(ctl->response, strerror(ETIMEDOUT),
+						sizeof(ctl->response));
+				break;
+			}
 		}
 	}
 	while ((rv = ctl->idlecb(ctl, ctl->xfered, ctl->idlearg)));
@@ -463,6 +488,8 @@ GLOBALDEF int FtpConnect(const char *host, netbuf **nControl)
 	ctrl->idlecb = NULL;
 	ctrl->idletime.tv_sec = ctrl->idletime.tv_usec = 0;
 	ctrl->idlearg = NULL;
+	ctrl->losttime = 0;
+	ctrl->errcode = 0;
 	ctrl->xfered = 0;
 	ctrl->xfered1 = 0;
 	ctrl->cbbytes = 0;
@@ -504,6 +531,11 @@ GLOBALDEF int FtpOptions(int opt, long val, netbuf *nControl)
 			rv = 1;
 			nControl->idletime.tv_sec = v / 1000;
 			nControl->idletime.tv_usec = (v % 1000) * 1000;
+			break;
+		case FTPLIB_LOSTTIME:
+			v = (int) val;
+			rv = 1;
+			nControl->losttime = v;
 			break;
 		case FTPLIB_CALLBACKARG:
 			rv = 1;
@@ -699,6 +731,7 @@ static int FtpOpenPort(netbuf *nControl, netbuf **nData, int mode, int dir)
 	ctrl->dir = dir;
 	ctrl->idletime = nControl->idletime;
 	ctrl->idlearg = nControl->idlearg;
+	ctrl->losttime = nControl->losttime;
 	ctrl->xfered = 0;
 	ctrl->xfered1 = 0;
 	ctrl->cbbytes = nControl->cbbytes;
@@ -936,7 +969,7 @@ GLOBALDEF int FtpClose(netbuf *nData)
 			net_close(nData->handle);
 			ctrl = nData->ctrl;
 			free(nData);
-			if (ctrl)
+			if (ctrl && (nData->errcode != ETIMEDOUT))
 			{
 				ctrl->data = NULL;
 				return(readresp('2', ctrl));
@@ -1134,6 +1167,10 @@ static int FtpXfer(const char *localfile, const char *path,
 				break;
 			}
 	}
+
+	if (nData->errcode)
+		rv = 0;
+
 	free(dbuf);
 	fflush(local);
 	if (localfile != NULL)
@@ -1385,6 +1422,8 @@ GLOBALREF int HttpConnect(const char *host, unsigned short port, netbuf **nContr
 	ctrl->idlecb = NULL;
 	ctrl->idletime.tv_sec = ctrl->idletime.tv_usec = 0;
 	ctrl->idlearg = NULL;
+	ctrl->losttime = 0;
+	ctrl->errcode = 0;
 	ctrl->xfered = 0;
 	ctrl->xfered1 = 0;
 	ctrl->cbbytes = 0;
@@ -1488,6 +1527,11 @@ static int HttpXfer(const char *localfile, const char *path, int *size,
 			}
 		}
 	}
+
+	if(nControl->errcode)
+		rv = 0;
+	nControl->dir = FTPLIB_CONTROL;
+
 	free(dbuf);
 	fflush(local);
 	if (localfile != NULL)
