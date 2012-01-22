@@ -1,5 +1,9 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.8.7         - makepkg: ccache fixes
+              - unify download and install progressbars
+              - pacman -Suu can now downgrade packages
+              - libpacman now handles timeout on servers
 3.8.6         - pacman -P now ignores /drm paths
               - better error reporting on http download failures
               - makepkg learned to support a custom ccache directory
