@@ -1077,7 +1077,8 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			chroot_unlock
 			exit 1
 		fi
-		mv -f $_F_makepkg_pacconf $CHROOTDIR/etc/pacman-g2.conf
+		cat $_F_makepkg_pacconf > $CHROOTDIR/etc/pacman-g2.conf
+		rm -f $_F_makepkg_pacconf
 	else
 		msg "Updating the '-$TREE' chroot environment"
 		# copy these before any update since without them we can't even reach the servers
