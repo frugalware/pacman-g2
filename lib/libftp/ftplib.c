@@ -460,6 +460,23 @@ GLOBALDEF int FtpConnect(const char *host, netbuf **nControl)
 		net_close(sControl);
 		return 0;
 	}
+	struct timeval timeout;
+	timeout.tv_sec = 1;
+	timeout.tv_usec = 0;
+	if (setsockopt (sControl, SOL_SOCKET, SO_RCVTIMEO,
+			SETSOCKOPT_OPTVAL_TYPE &timeout, sizeof(timeout)) == -1)
+	{
+		perror("setsockopt");
+		net_close(sControl);
+		return -1;
+	}
+	if (setsockopt (sControl, SOL_SOCKET, SO_SNDTIMEO,
+			SETSOCKOPT_OPTVAL_TYPE &timeout, sizeof(timeout)) == -1)
+	{
+		perror("setsockopt");
+		net_close(sControl);
+		return -1;
+	}
 	if (connect(sControl, (struct sockaddr *)&sin, sizeof(sin)) == -1)
 	{
 		perror("connect");
@@ -674,6 +691,24 @@ static int FtpOpenPort(netbuf *nControl, netbuf **nData, int mode, int dir)
 		net_close(sData);
 		return -1;
 	}
+	struct timeval timeout;
+	timeout.tv_sec = 1;
+	timeout.tv_usec = 0;
+	if (setsockopt (sData, SOL_SOCKET, SO_RCVTIMEO,
+			SETSOCKOPT_OPTVAL_TYPE &timeout, sizeof(timeout)) == -1)
+	{
+		perror("setsockopt");
+		net_close(sData);
+		return -1;
+	}
+	if (setsockopt (sData, SOL_SOCKET, SO_SNDTIMEO,
+			SETSOCKOPT_OPTVAL_TYPE &timeout, sizeof(timeout)) == -1)
+	{
+		perror("setsockopt");
+		net_close(sData);
+		return -1;
+	}
+
 	if (nControl->cmode == FTPLIB_PASSIVE)
 	{
 		if (connect(sData, &sin.sa, sizeof(sin.sa)) == -1)
@@ -901,11 +936,11 @@ GLOBALDEF int FtpRead(void *buf, int max, netbuf *nData)
 	{
 		i = socket_wait(nData);
 		if (i != 1)
-			return 0;
+			return -1;
 		i = net_read(nData->handle, buf, max);
 	}
 	if (i == -1)
-		return 0;
+		return -1;
 	nData->xfered += i;
 	if (nData->idlecb && nData->cbbytes)
 	{
@@ -969,7 +1004,7 @@ GLOBALDEF int FtpClose(netbuf *nData)
 			net_close(nData->handle);
 			ctrl = nData->ctrl;
 			free(nData);
-			if (ctrl && (nData->errcode != ETIMEDOUT))
+			if (ctrl)
 			{
 				ctrl->data = NULL;
 				return(readresp('2', ctrl));
@@ -1166,6 +1201,13 @@ static int FtpXfer(const char *localfile, const char *path,
 				rv = 0;
 				break;
 			}
+	}
+
+	if((l == -1) && (errno == EWOULDBLOCK))
+	{
+		nControl->errcode = ETIMEDOUT;
+		strncpy(nControl->response, strerror(ETIMEDOUT),
+				sizeof(nControl->response));
 	}
 
 	if (nData->errcode)
@@ -1401,6 +1443,23 @@ GLOBALREF int HttpConnect(const char *host, unsigned short port, netbuf **nContr
 		perror("socket");
 		return 0;
 	}
+	struct timeval timeout;
+	timeout.tv_sec = 1;
+	timeout.tv_usec = 0;
+	if (setsockopt (sControl, SOL_SOCKET, SO_RCVTIMEO,
+			SETSOCKOPT_OPTVAL_TYPE &timeout, sizeof(timeout)) == -1)
+	{
+		perror("setsockopt");
+		net_close(sControl);
+		return -1;
+	}
+	if (setsockopt (sControl, SOL_SOCKET, SO_SNDTIMEO,
+			SETSOCKOPT_OPTVAL_TYPE &timeout, sizeof(timeout)) == -1)
+	{
+		perror("setsockopt");
+		net_close(sControl);
+		return -1;
+	}
 	if (connect(sControl, (struct sockaddr *)&sin, sizeof(sin)) == -1)
 	{
 		perror("connect");
@@ -1526,6 +1585,13 @@ static int HttpXfer(const char *localfile, const char *path, int *size,
 				break;
 			}
 		}
+	}
+
+	if((l == -1) && (errno == EWOULDBLOCK))
+	{
+		nControl->errcode = ETIMEDOUT;
+		strncpy(nControl->response, strerror(ETIMEDOUT),
+				sizeof(nControl->response));
 	}
 
 	if(nControl->errcode)
