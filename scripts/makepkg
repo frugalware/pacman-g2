@@ -1069,7 +1069,11 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			[ -z "$repo" ] && repo="$i"
 			$ECHO "Include = /etc/pacman-g2/repos/$repo" >>$_F_makepkg_pacconf
 		done
-		mkdir -p $CHROOTDIR/{tmp,var/log}
+		mkdir -p $CHROOTDIR/{tmp,var/log,etc/pacman-g2/repos}
+		cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
+		if [ -d ~/.pacman-g2/repos ]; then
+			cp -pf ~/.pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
+		fi
 		$PACMAN -r "$CHROOTDIR" -Syf $COREPKGS --noconfirm --config $_F_makepkg_pacconf
 		if [ "$?" != "0" ]; then
 			error "Failed to build chroot environment."
