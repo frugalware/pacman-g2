@@ -401,7 +401,7 @@ else
 fi
 
 dnl Check for libarchive
-AC_CHECK_LIB([archive], [archive_read_data], [AC_CHECK_HEADER([archive.h], [LIBARCHIVE='-larchive'])])
+AC_CHECK_LIB([archive], [archive_read_data], [AC_CHECK_HEADER([archive.h], [LIBARCHIVE='-larchive -ldl'])])
 if test -n "$LIBARCHIVE"; then
 	CFLAGS="$CFLAGS"
 	LDFLAGS="$LDFLAGS $LIBARCHIVE"
