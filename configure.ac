@@ -32,6 +32,9 @@ AC_SUBST(PM_MICRO_VERSION)
 AC_SUBST(PM_VERSION)
 AC_SUBST(PM_VERSION_INFO)
 
+dnl Define the default bytes per block.
+AC_DEFINE_UNQUOTED([PM_DEFAULT_BYTES_PER_BLOCK], [10240], [default bytes per block])
+
 dnl Define the default config file path for pacman-g2.conf
 PACCONF=/etc/pacman-g2.conf
 AC_DEFINE_UNQUOTED([PACCONF], ["$PACCONF"], [pacman-g2.conf location])

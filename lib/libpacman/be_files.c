@@ -116,7 +116,7 @@ int _pacman_db_open(pmdb_t *db)
 		}
 		archive_read_support_compression_all(db->handle);
 		archive_read_support_format_all(db->handle);
-		if(archive_read_open_filename(db->handle, dbpath, ARCHIVE_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
+		if(archive_read_open_filename(db->handle, dbpath, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
 			archive_read_finish(db->handle);
 			RET_ERR(PM_ERR_DB_OPEN, -1);
 		}
@@ -159,7 +159,7 @@ void _pacman_db_rewind(pmdb_t *db)
 		db->handle = archive_read_new();
 		archive_read_support_compression_all(db->handle);
 		archive_read_support_format_all(db->handle);
-		if (archive_read_open_filename(db->handle, dbpath, ARCHIVE_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
+		if (archive_read_open_filename(db->handle, dbpath, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
 			archive_read_finish(db->handle);
 			db->handle = NULL;
 		}
