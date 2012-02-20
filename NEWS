@@ -1,5 +1,10 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.8.8         - makepkg: more stacked repo work (to allow a wip repo
+		based on an other wip repo)
+              - support for newer libarchive
+              - support static libarchive
+              - libftp: yet another timeout fix
 3.8.7         - makepkg: ccache fixes
               - unify download and install progressbars
               - pacman -Suu can now downgrade packages
