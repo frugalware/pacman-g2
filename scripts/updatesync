@@ -1,24 +1,24 @@
 #!/bin/bash
-# 
+#
 #   updatesync
-#  
+#
 #   Copyright (c) 2004 by Jason Chu <jchu@xentac.net>
 #   Copyright (c) 2007, 2008, 2010 by Miklos Vajna <vmiklos@frugalware.org>
 #   Derived from gensync (c) 2002-2006 Judd Vinet <jvinet@zeroflux.org>
-#  
+#
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
 #   the Free Software Foundation; either version 2 of the License, or
 #   (at your option) any later version.
-# 
+#
 #   This program is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU General Public License for more details.
-#  
+#
 #   You should have received a copy of the GNU General Public License
 #   along with this program; if not, write to the Free Software
-#   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
+#   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 #   USA.
 #
 
@@ -340,6 +340,15 @@ xz -c $udb >$bdb || die "error writing to $bdb"
 mv $bdb $pkgdb || die "error moving $bdb to $pkgdb"
 
 cd $curdir
+
+if [ -z "$DB_KEY" ]; then
+	echo "WARNING: skipping database signing. no key was specified."
+else
+	gpg --comment "See http://ftp.frugalware.org/pub/README.GPG for info" \
+		--detach-sign --armor --local-user "$DB_KEY" "$pkgdb"
+	[ $? -ne 0 ] && echo "WARNING: signing the database failed. please investigate."
+fi
+
 rm -rf $ustmpdir
 
 exit 0
