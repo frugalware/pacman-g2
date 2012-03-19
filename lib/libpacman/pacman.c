@@ -349,7 +349,7 @@ int pacman_db_update(int force, PM_DB *db)
 	/* build a two-element list */
 	snprintf(path, PATH_MAX, "%s" PM_EXT_DB, db->treename);
 	files = _pacman_list_add(files, strdup(path));
-	snprintf(path, PATH_MAX, "%s" PM_EXT_DB ".asc", db->treename);
+	snprintf(path, PATH_MAX, "%s" PM_EXT_DB PM_EXT_SIG, db->treename);
 	files = _pacman_list_add(files, strdup(path));
 
 	snprintf(path, PATH_MAX, "%s%s", handle->root, handle->dbpath);
