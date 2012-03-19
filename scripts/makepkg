@@ -1,27 +1,27 @@
 #!/bin/bash
-# 
+#
 #   makepkg
-#  
+#
 #   Copyright (c) 2005 by Aurelien Foret <orelien@chez.com>
 #   Copyright (c) 2005 by Judd Vinet <jvinet@zeroflux.org>
 #   Copyright (c) 2005 by Christian Hamar <krics@linuxforum.hu>
 #   Copyright (c) 2006 by Alex Smith <alex@alex-smith.me.uk>
 #   Copyright (c) 2006 by Andras Voroskoi <voroskoi@frugalware.org>
 #   Copyright (c) 2005, 2006, 2007, 2008, 2009, 2010 by Miklos Vajna <vmiklos@frugalware.org>
-#  
+#
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
 #   the Free Software Foundation; either version 2 of the License, or
 #   (at your option) any later version.
-# 
+#
 #   This program is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU General Public License for more details.
-#  
+#
 #   You should have received a copy of the GNU General Public License
 #   along with this program; if not, write to the Free Software
-#   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
+#   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 #   USA.
 #
 
@@ -829,13 +829,13 @@ umask 0022
 # download buildscript if necessary
 if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
 	msg "Retrieving $DOWNLOAD's buildscript..."
-	
+
 	# find the package
 	if ! $PACMAN -Si $DOWNLOAD >/dev/null 2>&1; then
 		error "Package \"$DOWNLOAD\" was not found."
 		exit 1
 	fi
-	
+
 	# check for a download utility
 	if [ -z "$FTPAGENT" ]; then
 		error "FTPAGENT is not configured. Check the /etc/makepkg.conf file."
@@ -848,16 +848,16 @@ if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
 		msg "Aborting..."
 		exit 1
 	fi
-	
+
 	confs=`cat /etc/pacman-g2.conf |grep ^Include|sed 's/.* = \(.*\)/\1/'`
-	
+
 	# searching for a mirror
 	repo=`$PACMAN -Si $DOWNLOAD |grep ^Repo |sed -n 's/.* \([^ ]*\)/\1/;1 p'`
 	dir=`grep ^Server /etc/pacman-g2/repos/$repo |sed -n 's/.* = \(.*\)/\1/;1 p'`
 	arch=`grep ^Server /etc/pacman-g2/repos/$repo |sed -n 's/.*-\(.*\)/\1/;1 p'`
 	cat=`$PACMAN -Si $DOWNLOAD |grep ^G |sed 's/.* : \([^ ]*\) .*/\1/;'`
 	dlpath="$dir/../"
-	
+
 	# download the script
 	mkdir $DOWNLOAD
 	cd $DOWNLOAD
@@ -1099,7 +1099,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	fi
 	# why is this necessary?
 	chmod 1777 $CHROOTDIR/{var,}/tmp
-	
+
 	msg "Copying config files to chroot"
 	cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
 	if [ -d ~/.pacman-g2/repos ]; then
@@ -1136,7 +1136,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	msg "Copying $pkgname's buildscript to chroot"
 	cp -a * $CHROOTDIR/var/tmp/fst/
 	chown -R fst:users $CHROOTDIR/var/tmp/fst
-	
+
 	if [ ! -x  /usr/sbin/chroot ]; then
 		error "chroot was not found."
 	else
@@ -1229,7 +1229,7 @@ if [ "`id -u`" != "0" ]; then
 			sleep 1
 		fi
 	else
-		warning "Running makepkg as an unprivileged user will result in non-root"		
+		warning "Running makepkg as an unprivileged user will result in non-root"
 		plain "ownership of the packaged files.  Try using the fakeroot"
 		plain "environment.  (USE_FAKEROOT=y in makepkg.conf)"
 		plain ""
@@ -1435,7 +1435,17 @@ if [ "$GENSHA1" = "0" ]; then
 					sig=`strip_url "${signatures[$idx]}"`
 					$ECHO -n "    $file ... " >&2
 					if [ ! -z "$sig" ]; then
-						gpg --batch --verify $sig $file >/dev/null 2>&1
+						echo "$sig" | grep -q "^$file" >/dev/null 2>&1
+						if [ $? -ne 0 ]; then
+							case $file in
+								*.gz)  cmd='zcat'  ;;
+								*.bz2) cmd='bzcat' ;;
+								*.xz)  cmd='xzcat' ;;
+							esac
+						else
+							cmd='cat'
+						fi
+						$cmd $file | gpg --batch --verify $sig - >/dev/null 2>&1
 						if [ $? -ne 0 ]; then
 							$ECHO "FAILED" >&2
 							errors=1
