@@ -349,8 +349,10 @@ int pacman_db_update(int force, PM_DB *db)
 	/* build a two-element list */
 	snprintf(path, PATH_MAX, "%s" PM_EXT_DB, db->treename);
 	files = _pacman_list_add(files, strdup(path));
-	snprintf(path, PATH_MAX, "%s" PM_EXT_DB PM_EXT_SIG, db->treename);
-	files = _pacman_list_add(files, strdup(path));
+	if(db->issigned) {
+		snprintf(path, PATH_MAX, "%s" PM_EXT_DB PM_EXT_SIG, db->treename);
+		files = _pacman_list_add(files, strdup(path));
+	}
 
 	snprintf(path, PATH_MAX, "%s%s", handle->root, handle->dbpath);
 
@@ -364,7 +366,7 @@ int pacman_db_update(int force, PM_DB *db)
 		status = 1;
 		goto rmlck;
 	} else {
-		if(!_pacman_db_verify(db)) {
+		if(db->issigned && !_pacman_db_verify(db)) {
 			_pacman_log(PM_LOG_DEBUG, "%s: %s\n",  pacman_strerror(PM_ERR_DB_CORRUPTED), db->treename);
 			pm_errno = PM_ERR_DB_CORRUPTED;
 			status = 1;
