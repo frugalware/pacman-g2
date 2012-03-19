@@ -45,6 +45,7 @@ typedef struct __pmdb_t {
 	pmlist_t *pkgcache;
 	pmlist_t *grpcache;
 	pmlist_t *servers;
+	int issigned;
 	char lastupdate[16];
 } pmdb_t;
 

@@ -1400,6 +1400,9 @@ int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *
 							/* pm_errno is set by pacman_set_option */
 							return(-1);
 						}
+					else if (!strcmp(key,"ISSIGNED")) {
+						db->issigned = 1;
+					}
 					} else {
 						RET_ERR(PM_ERR_CONF_BAD_SYNTAX, -1);
 					}

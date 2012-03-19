@@ -88,6 +88,7 @@ pmdb_t *_pacman_db_new(char *root, char* dbpath, const char *treename)
 	db->pkgcache = NULL;
 	db->grpcache = NULL;
 	db->servers = NULL;
+	db->issigned = 0;
 
 	return(db);
 }
