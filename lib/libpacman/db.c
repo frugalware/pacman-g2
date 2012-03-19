@@ -50,6 +50,24 @@
 #include "cache.h"
 #include "pacman.h"
 
+int _pacman_db_verify(pmdb_t *db)
+{
+	char home[PATH_MAX], pmdb[PATH_MAX], sign[PATH_MAX], cmd[_POSIX_ARG_MAX];
+
+	if(!db)
+		return 0;
+
+	snprintf(home,PATH_MAX,"%s" PM_KEYSDIR,handle->root);
+
+	snprintf(pmdb,PATH_MAX,"%s%s/%s" PM_EXT_DB,handle->root,handle->dbpath,db->treename);
+
+	snprintf(sign,PATH_MAX,"%s%s/%s" PM_EXT_DB PM_EXT_SIG,handle->root,handle->dbpath,db->treename);
+
+	snprintf(cmd,_POSIX_ARG_MAX,"gpgv --quiet --homedir '%s' '%s' '%s'",home,sign,pmdb);
+
+	return system(cmd) ? 0 : 1;
+}
+
 pmdb_t *_pacman_db_new(char *root, char* dbpath, const char *treename)
 {
 	pmdb_t *db = _pacman_malloc(sizeof(pmdb_t));

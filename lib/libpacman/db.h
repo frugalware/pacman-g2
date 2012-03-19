@@ -48,6 +48,7 @@ typedef struct __pmdb_t {
 	char lastupdate[16];
 } pmdb_t;
 
+int _pacman_db_verify(pmdb_t *db);
 pmdb_t *_pacman_db_new(char *root, char *dbpath, const char *treename);
 void _pacman_db_free(void *data);
 int _pacman_db_cmp(const void *db1, const void *db2);
