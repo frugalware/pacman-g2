@@ -1,7 +1,8 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.8.9         - makepkg: supports kernel.org gpg signatures now
 3.8.8         - makepkg: more stacked repo work (to allow a wip repo
-		based on an other wip repo)
+              based on an other wip repo)
               - support for newer libarchive
               - support static libarchive
               - libftp: yet another timeout fix
@@ -300,7 +301,7 @@ VERSION         DESCRIPTION
                 by alpm_db_setserver()
               - added python bindings
 3.3.5         - fixed a stale lockfile problem (when packages were corrupted)
-              - fixed problem when sometimes ^C was ignored 
+              - fixed problem when sometimes ^C was ignored
               - new pacman option: --ask
               - libalpm: prefixed all internal functions with _alpm
               - makepkg: bugfix for suboptions=('nostrip')
@@ -527,7 +528,7 @@ VERSION         DESCRIPTION
               - Makefile fix for nonstandard lib search paths (Kevin Piche)
               - fixed the leftover directories in /tmp
               - speed improvement patches from Tommi Rantala
-2.9.2         - bugfix for 2.9.1 
+2.9.2         - bugfix for 2.9.1
 2.9.1         - --refresh now only downloads fresh packages lists if they've
                 been updated (currently only works with FTP)
 2.9           - Improved -Rs functionality -- pacman now tracks why a package
