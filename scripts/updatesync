@@ -344,8 +344,7 @@ cd $curdir
 if [ -z "$DB_KEY" ]; then
 	echo "WARNING: skipping database signing. no key was specified."
 else
-	gpg --comment "See http://ftp.frugalware.org/pub/README.GPG for info" \
-		--detach-sign --armor --local-user "$DB_KEY" "$pkgdb"
+	gpg --detach-sign --armor --local-user "$DB_KEY" "$pkgdb"
 	[ $? -ne 0 ] && echo "WARNING: signing the database failed. please investigate."
 fi
 
