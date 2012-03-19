@@ -26,3 +26,10 @@ EXTRA_DIST =		\
 
 check:
 	python $(top_srcdir)/pactest/pactest.py --test=$(top_srcdir)/pactest/tests/*.py -p $(top_builddir)/src/pacman-g2/pacman-g2 --debug=-1
+
+gpg:
+	mkdir -p $(DESTDIR)/etc/pacman-g2/keys
+	chmod 0700 $(DESTDIR)/etc/pacman-g2/keys
+	gpg --homedir $(DESTDIR)/etc/pacman-g2/keys --list-keys
+	gpg --homedir $(DESTDIR)/etc/pacman-g2/keys --import $(top_srcdir)/src/pacman-g2.key
+	rm -f $(DESTDIR)/etc/pacman-g2/keys/*~
