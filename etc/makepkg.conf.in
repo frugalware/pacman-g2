@@ -10,15 +10,28 @@ export FTPAGENT="/usr/bin/wget -U makepkg --continue --passive-ftp --tries=3 --w
 # The rsync utility that makepkg should use to access the Frugalware mirrors
 export RSYNCAGENT="rsync -e 'ssh -q -o GlobalKnownHostsFile=$HOME/.ssh/known_hosts -i $HOME/.ssh/id_dsa' -vP"
 
-export CARCH="@CARCH@"
-export CHOST="@CHOST@"
+case $(uname -m) in
+	i686)
+		CARCH="i686"
+		CHOST="i686-frugalware-linux"
+		CFLAGS="-march=i686 -mtune=generic -O2 -pipe"
+		CXXFLAGS="-march=i686 -mtune=generic -O2 -pipe"
+		;;
+	x86_64)
+		CARCH="x86_64"
+		CHOST="x86_64-frugalware-linux"
+		CFLAGS="-march=x86_64 -mtune=generic -O2 -pipe"
+		CXXFLAGS="-march=x86_64 -mtune=generic -O2 -pipe"
+		;;
+	arm*)
+		CARCH="arm"
+		CHOST="arm-frugalware-linux"
+		CFLAGS="-march=armv5te -O2 -pipe"
+		CXXFLAGS="-march=armv5te -O2 -pipe"
+		;;
+esac
 
-# Pentium Pro/Pentium II/Pentium III+/Pentium 4/Athlon exclusive (binaries
-# will use the P6 instruction set and only run on P6+ systems)
-# As of GCC 4.2 -mtune=generic can be used to generate code running well on
-# common x86 chips.
-export CFLAGS="@CARCHFLAGS@ -O2 -pipe"
-export CXXFLAGS="@CARCHFLAGS@ -O2 -pipe"
+export CARCH CHOST CFLAGS CXXFLAGS
 
 # SMP Systems
 #export MAKEFLAGS="-j2"
