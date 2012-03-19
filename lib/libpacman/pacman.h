@@ -37,7 +37,7 @@ extern "C" {
 #define PM_CACHEDIR "var/cache/pacman-g2/pkg"
 #define PM_LOCK     "/tmp/pacman-g2.lck"
 #define PM_HOOKSDIR "etc/pacman-g2/hooks"
-
+#define PM_KEYSDIR  "etc/pacman-g2/keys"
 
 #define PM_EXT_PKG ".fpm"
 #define PM_EXT_DB  ".fdb"
