@@ -10,6 +10,7 @@ export FTPAGENT="/usr/bin/wget -U makepkg --continue --passive-ftp --tries=3 --w
 # The rsync utility that makepkg should use to access the Frugalware mirrors
 export RSYNCAGENT="rsync -e 'ssh -q -o GlobalKnownHostsFile=$HOME/.ssh/known_hosts -i $HOME/.ssh/id_dsa' -vP"
 
+# CARCH/CHOST/CFLAGS/CXXFLAGS as determined by uname
 case $(uname -m) in
 	i686)
 		CARCH="i686"
@@ -48,6 +49,9 @@ export PKG_COMP="@PKG_COMP@"
 
 # Database extension
 export DB_EXT="fdb"
+
+# Key ID to sign databases with
+export DB_KEY=""
 
 # Enable fakeroot for building packages as a non-root user
 export USE_FAKEROOT="y"
