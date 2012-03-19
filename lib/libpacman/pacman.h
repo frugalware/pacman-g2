@@ -41,6 +41,7 @@ extern "C" {
 
 #define PM_EXT_PKG ".fpm"
 #define PM_EXT_DB  ".fdb"
+#define PM_EXT_SIG ".asc"
 
 /*
  * Structures (opaque)
