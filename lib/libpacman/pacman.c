@@ -364,6 +364,13 @@ int pacman_db_update(int force, PM_DB *db)
 		status = 1;
 		goto rmlck;
 	} else {
+		if(!_pacman_db_verify(db)) {
+			_pacman_log(PM_LOG_DEBUG, "%s: %s\n",  pacman_strerror(PM_ERR_DB_CORRUPTED), db->treename);
+			pm_errno = PM_ERR_DB_CORRUPTED;
+			status = 1;
+			goto rmlck;
+		}
+
 		if(strlen(newmtime)) {
 			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %s\n"), db->treename, newmtime);
 			updated = 1;
