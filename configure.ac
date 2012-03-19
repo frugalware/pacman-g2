@@ -392,6 +392,12 @@ else
 	AC_MSG_ERROR("lzma library and its include files are needed to build pacman-g2!");
 fi
 
+dnl Check for gpg
+AC_CHECK_PROGS([GPG], [gpg])
+if test -z "$GPG"; then
+	AC_MSG_ERROR("gpg program not found!");
+fi
+
 dnl Check for math
 AC_CHECK_LIB([m], [log10], [AC_CHECK_HEADER([math.h], [LIBM='-lm'])])
 if test -n "$LIBM"; then
