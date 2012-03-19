@@ -484,6 +484,7 @@ bindings/python/Makefile
 bindings/java/Makefile
 bindings/csharp/Makefile
 bindings/vala/Makefile
+gpg/Makefile
 Makefile
 ])
 
