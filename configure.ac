@@ -409,6 +409,14 @@ else
 	AC_MSG_ERROR("libarchive is needed to compile pacman-g2!");
 fi
 
+AC_CHECK_LIB([gpgme],[gpgme_new],[AC_CHECK_HEADER([gpgme.h],[GPGME='-lgpgme'])])
+if test -n "$GPGME"; then
+	CFLAGS="$CFLAGS"
+	LDFLAGS="$LDFLAGS $GPGME"
+else
+	AC_MSG_ERROR("gpgme is needed to compile pacman-g2!");
+fi
+
 dnl Enable or disable debug code
 AC_MSG_CHECKING(for debug mode request)
 if test x$debug = xyes ; then
