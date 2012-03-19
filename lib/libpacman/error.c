@@ -63,6 +63,8 @@ char *pacman_strerror(int err)
 			return _("could not update database");
 		case PM_ERR_DB_REMOVE:
 			return _("could not remove database entry");
+		case PM_ERR_DB_CORRUPTED:
+			return _("database is corrupted");
 		/* Configuration */
 		case PM_ERR_OPT_LOGFILE:
 		case PM_ERR_OPT_DBPATH:
