@@ -1565,7 +1565,7 @@ if [ "$DISTCC" = "y" -a -d /usr/lib/distcc/bin ]; then
 fi
 
 # use ccache if it's available
-if [ "$NOCCACHE" = "0" -a -d /usr/lib/ccache/bin ]; then
+if [ "$NOCCACHE" = "0" -a -d /usr/lib/ccache/bin -a ! "`check_option NOCCACHE`" ]; then
 	if [ "$CHROOT" = "1" ]; then
 		CCACHE_REALDIR=/var/cache/ccache
 	else

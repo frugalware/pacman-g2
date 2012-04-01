@@ -317,6 +317,8 @@ options (array)::
 
 	nostrip: Don't strip binaries/libraries.
 
+	noccache: Disable ccache usage during build.
+
 	force: This is used to force the package to be upgraded by --sysupgrade, even
 	if its an older version.
 
