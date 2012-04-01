@@ -2,6 +2,7 @@ VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
 3.8.9         - makepkg: supports kernel.org gpg signatures now
               - makepkg: support for fw32 compilation
+              - makepkg: allow disabling of ccache on a per package basis
 3.8.8         - makepkg: more stacked repo work (to allow a wip repo
               based on an other wip repo)
               - support for newer libarchive
