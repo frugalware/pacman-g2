@@ -26,3 +26,5 @@ POTFILES
 libtool
 ltmain.sh
 m4
+*~
+
