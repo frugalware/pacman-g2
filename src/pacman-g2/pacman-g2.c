@@ -30,16 +30,7 @@
 #include <unistd.h>
 #include <libintl.h>
 #include <locale.h>
-#if defined(__APPLE__)
-#include <malloc/malloc.h>
-#elif defined(__OpenBSD__) || defined(__APPLE__)
-#include <sys/malloc.h>
-#include <sys/types.h>
-#elif defined(CYGWIN)
-#include <libgen.h> /* basename */
-#else
 #include <mcheck.h> /* debug */
-#endif
 #include <time.h>
 
 #include <pacman.h>
@@ -59,10 +50,6 @@
 #include "ps.h"
 
 #define PACCONF "/etc/pacman-g2.conf"
-
-#if defined(__OpenBSD__) || defined(__APPLE__)
-#define BSD
-#endif
 
 /* Operations */
 enum {
