@@ -35,8 +35,6 @@ Server = ftp://ftp8.frugalware.org/distro/frugalware/frugalware-current/frugalwa
 # -----------
 # - HUNGARY -
 # -----------
-# Schmidt Computer Ltd. (100 MBit)
-Server = ftp://ftp3.frugalware.org/mirrors/frugalware/pub/frugalware/frugalware-current/frugalware-@CARCH@
 # Free Software Network (100 MBit)
 Server = ftp://ftp4.frugalware.org/pub/linux/distributions/frugalware/frugalware-current/frugalware-@CARCH@
 # -----------
