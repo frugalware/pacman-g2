@@ -637,6 +637,13 @@ install_pkg()
 	exit 0
 }
 
+if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
+	if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
+		USE_COLOR="n"
+		warning "Disabling color as the terminal does not support it."
+	fi 
+fi
+
 if [ -z "$PKG_EXT" ]; then
 	error "The PKG_EXT environment variable is not defined, check your /etc/makepkg.conf!"
 	exit 1
