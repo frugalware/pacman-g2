@@ -1159,7 +1159,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			$ECHO "cd /var/tmp/fst/; $0 --inchroot -s $ARGLIST" | \
 				/usr/sbin/chroot $CHROOTDIR /bin/su - -c /bin/sh
 		fi 2>&1 | tee $BUILDLOG
-		if [ "$USE_COLOR" != "n" ]; then
+		if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
 			# remove colors
 			sed -i "s|.[1;[0-9]\+m||g" $BUILDLOG
 		fi
