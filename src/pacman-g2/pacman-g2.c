@@ -192,18 +192,6 @@ static void version(void)
 
 static void cleanup(int signum)
 {
-
-	if(signum==SIGSEGV)
-	{
-		fprintf(stderr, "Internal pacman-g2 error: Segmentation fault\n"
-			"Please submit a full bug report, with the given package if appropriate.\n");
-		exit(signum);
-	} else if((signum == SIGINT) && (pacman_trans_release() == -1) &&
-			((pm_errno == PM_ERR_TRANS_COMMITING) || (pm_errno == PM_ERR_TRANS_DOWNLOADING))) {
-		if(pm_errno == PM_ERR_TRANS_DOWNLOADING)
-			config->dl_interrupted = 1;
-		return;
-	}
 	if(signum != 0 && config->op_d_vertest == 0) {
 		fprintf(stderr, "\n");
 	}
@@ -232,6 +220,24 @@ static void cleanup(int signum)
 
 	exit(signum);
 }
+
+static void signal_callback(int signum)
+{
+	if(signum==SIGSEGV)
+	{
+		fprintf(stderr, "Internal pacman-g2 error: Segmentation fault\n"
+			"Please submit a full bug report, with the given package if appropriate.\n");
+		exit(signum);
+	} else if((signum == SIGINT) && (pacman_trans_release() == -1) &&
+			((pm_errno == PM_ERR_TRANS_COMMITING) || (pm_errno == PM_ERR_TRANS_DOWNLOADING))) {
+		if(pm_errno == PM_ERR_TRANS_DOWNLOADING)
+			config->dl_interrupted = 1;
+		return;
+	}
+
+	cleanup(signum);
+}
+
 
 /* Parse command-line arguments for each operation
  *     argc: argc
@@ -454,9 +460,9 @@ int main(int argc, char *argv[])
 	}
 
 	/* set signal handlers */
-	signal(SIGINT, cleanup);
-	signal(SIGTERM, cleanup);
-	signal(SIGSEGV, cleanup);
+	signal(SIGINT, signal_callback);
+	signal(SIGTERM, signal_callback);
+	signal(SIGSEGV, signal_callback);
 
 	/* i18n init */
 	lang=getenv("LC_ALL");
