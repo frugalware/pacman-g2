@@ -190,9 +190,9 @@ static void version(void)
 	printf("\n");
 }
 
-static void cleanup(int signum)
+static void cleanup(int exitcode)
 {
-	if(signum != 0 && config->op_d_vertest == 0) {
+	if(exitcode != 0 && config->op_d_vertest == 0) {
 		fprintf(stderr, "\n");
 	}
 
@@ -218,7 +218,7 @@ static void cleanup(int signum)
 	}
 	fflush(stdout);
 
-	exit(signum);
+	exit(exitcode);
 }
 
 static void signal_callback(int signum)
