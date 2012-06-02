@@ -92,3 +92,6 @@ export PACKAGER="Frugalware Linux (http://frugalware.org)"
 # Build the "binutils" package, and then write here the result you got,
 # so that makepkg will could the right SBU value for you.
 SBU="1"
+
+# Uncomment the following line if you want build time to be more "human readable."
+#HRBT="1"
