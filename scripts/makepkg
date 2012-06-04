@@ -1127,6 +1127,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	chmod 644 $CHROOTDIR/etc/sudoers
 	$ECHO "fst ALL=(ALL)       NOPASSWD: ALL" >$CHROOTDIR/etc/sudoers
 	chmod 440 $CHROOTDIR/etc/sudoers
+	chmod 644 $CHROOTDIR/etc/pacman-g2.conf
 	cp -Ppf /etc/localtime $CHROOTDIR/etc >/dev/null
 	cp -pf /etc/services $CHROOTDIR/etc > /dev/null
 	if [ "$?" != "0" ]; then
