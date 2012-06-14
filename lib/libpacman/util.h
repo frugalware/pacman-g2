@@ -71,6 +71,7 @@ int _pacman_logaction(unsigned char usesyslog, FILE *f, char *fmt, ...);
 int _pacman_ldconfig(char *root);
 int _pacman_glib_compile_schemas(char *root);
 int _pacman_update_desktop_database(char *root);
+int _pacman_update_icon_cache(char *root);
 #ifdef _PACMAN_TRANS_H
 int _pacman_runscriptlet(char *util, char *installfn, const char *script, char *ver, char *oldver, pmtrans_t *trans);
 int _pacman_runhook(char *root, char *hookdir, const char *hookname, pmtrans_t *trans);

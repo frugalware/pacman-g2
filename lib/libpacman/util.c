@@ -500,6 +500,59 @@ int _pacman_update_desktop_database(char *root)
 	return 0;
 }
 
+int _pacman_update_icon_cache(char *root)
+{
+	int gtk2 = 0, gtk3 = 0;
+	char buf[PATH_MAX];
+	struct stat st;
+	DIR *dp;
+	struct dirent *de;
+	
+	snprintf(buf, PATH_MAX, "%susr/bin/gtk-update-icon-cache", root);
+	
+	if(!stat(buf, &st) && (st.st_mode & S_IFREG) && (st.st_mode & S_IXUSR))
+		gtk2 = 1;
+
+	snprintf(buf, PATH_MAX, "%susr/bin/gtk-update-icon-cache-3.0", root);
+	
+	if(!stat(buf, &st) && (st.st_mode & S_IFREG) && (st.st_mode & S_IXUSR))
+		gtk3 = 1;
+
+	snprintf(buf, PATH_MAX, "%susr/share/icons", root);
+
+	if(!stat(buf, &st) && (st.st_mode & S_IFDIR) && (gtk2 || gtk3))
+	{
+		dp = opendir(buf);
+		if(dp)
+		{
+			while((de = readdir(dp)))
+			{
+				if(!strcmp(de->d_name,".") || !strcmp(de->d_name,".."))
+					continue;
+				snprintf(buf, PATH_MAX, "%susr/share/icons/%s", root, de->d_name);
+				if(!stat(buf, &st) && (st.st_mode & S_IFDIR))
+				{
+					if(gtk2)
+					{
+						_pacman_log(PM_LOG_FLOW1, _("running \"gtk-update-icon-cache -f -t /usr/share/icons/%s\""), de->d_name);
+						snprintf(buf, PATH_MAX, "/usr/sbin/chroot %s /usr/bin/gtk-update-icon-cache -f -t /usr/share/icons/%s", root, de->d_name);
+						system(buf);
+					}
+					if(gtk3)
+					{
+						_pacman_log(PM_LOG_FLOW1, _("running \"gtk-update-icon-cache-3.0 -f -t /usr/share/icons/%s\""), de->d_name);
+						snprintf(buf, PATH_MAX, "/usr/sbin/chroot %s /usr/bin/gtk-update-icon-cache-3.0 -f -t /usr/share/icons/%s", root, de->d_name);
+						system(buf);
+					}
+				}
+			}
+			closedir(dp);
+		}
+	}
+
+	return 0;
+}
+
 /* A cheap grep for text files, returns 1 if a substring
  * was found in the text file fn, 0 if it wasn't
  */
