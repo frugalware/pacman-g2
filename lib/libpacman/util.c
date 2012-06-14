@@ -458,6 +458,27 @@ int _pacman_ldconfig(char *root)
 	return(0);
 }
 
+int _pacman_glib_compile_schemas(char *root)
+{
+	char buf[PATH_MAX];
+	struct stat st;
+	
+	snprintf(buf, PATH_MAX, "%susr/share/glib-2.0/schemas", root);
+	
+	if(!stat(buf, &st) && (st.st_mode & S_IFDIR))
+	{
+		snprintf(buf, PATH_MAX, "%susr/bin/glib-compile-schemas", root);
+		if(!stat(buf, &st) && (st.st_mode & S_IXUSR))
+		{
+			_pacman_log(PM_LOG_FLOW1, _("running \"glib-compile-schemas /usr/share/glib-2.0/schemas\""));
+			snprintf(buf, PATH_MAX, "/usr/sbin/chroot %s /usr/bin/glib-compile-schemas /usr/share/glib-2.0/schemas", root);
+			system(buf);
+		}
+	}
+	
+	return 0;
+}
+
 /* A cheap grep for text files, returns 1 if a substring
  * was found in the text file fn, 0 if it wasn't
  */
