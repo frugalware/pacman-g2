@@ -171,6 +171,10 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 
 	howmany = _pacman_list_count(trans->packages);
 
+	if(!handle->sysupgrade) {
+		_pacman_runhook(handle->root, handle->hooksdir, "pre_pkgremove", trans);
+	}
+
 	for(targ = trans->packages; targ; targ = targ->next) {
 		int position = 0;
 		char pm_install[PATH_MAX];
@@ -349,6 +353,10 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 	/* run ldconfig if it exists */
 	if((trans->type != PM_TRANS_TYPE_UPGRADE) && (handle->trans->state != STATE_INTERRUPTED)) {
 		_pacman_ldconfig(handle->root);
+	}
+
+	if(!handle->sysupgrade) {
+		_pacman_runhook(handle->root, handle->hooksdir, "post_pkgremove", trans);
 	}
 
 	return(0);
