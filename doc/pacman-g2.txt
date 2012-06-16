@@ -450,6 +450,14 @@ pre_sysupgrade::
 	`pacman-g2 -S --sysupgrade`.
 post_sysupgrade::
 	Executed after a successful `pacman-g2 -S --sysupgrade`.
+pre_pkgremove::
+	Executed before a set of packages are removed.
+post_pkgremove::
+	Executed after a set of packages are removed.
+pre_pkginstall::
+	Executed before a set of packages are installed or upgraded.
+post_pkginstall::
+	Executed after a set of packages are installed or upgraded.
 
 == SEE ALSO
 
