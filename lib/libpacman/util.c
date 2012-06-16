@@ -479,27 +479,6 @@ int _pacman_glib_compile_schemas(char *root)
 	return 0;
 }
 
-int _pacman_update_desktop_database(char *root)
-{
-	char buf[PATH_MAX];
-	struct stat st;
-	
-	snprintf(buf, PATH_MAX, "%susr/share/mime", root);
-	
-	if(!stat(buf, &st) && (st.st_mode & S_IFDIR))
-	{
-		snprintf(buf, PATH_MAX, "%susr/bin/update-desktop-database", root);
-		if(!stat(buf, &st) && (st.st_mode & S_IXUSR))
-		{
-			_pacman_log(PM_LOG_FLOW1, _("running \"update-desktop-database /usr/share/mime\""));
-			snprintf(buf, PATH_MAX, "/usr/sbin/chroot %s /usr/bin/update-desktop-database /usr/share/mime", root);
-			system(buf);
-		}
-	}
-	
-	return 0;
-}
-
 /* A cheap grep for text files, returns 1 if a substring
  * was found in the text file fn, 0 if it wasn't
  */
