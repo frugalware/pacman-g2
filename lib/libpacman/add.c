@@ -320,6 +320,10 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 		return(0);
 	}
 
+	if(!handle->sysupgrade) {
+		_pacman_runhook(handle->root, handle->hooksdir, "pre_pkginstall", trans);
+	}
+
 	for(targ = trans->packages; targ; targ = targ->next) {
 		unsigned short pmo_upgrade;
 		char pm_install[PATH_MAX];
@@ -833,6 +837,10 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 	/* run ldconfig if it exists */
 	if(handle->trans->state != STATE_INTERRUPTED) {
 		_pacman_ldconfig(handle->root);
+	}
+
+	if(!handle->sysupgrade) {
+		_pacman_runhook(handle->root, handle->hooksdir, "post_pkginstall", trans);
 	}
 
 	return(ret);
