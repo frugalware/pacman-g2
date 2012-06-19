@@ -3,18 +3,6 @@
 #
 
 [frugalware-current]
-# -------
-# - USA -
-# -------
-# TDS Telecom (1 GBit)
-Server = ftp://ftp10.frugalware.org/pub/linux/frugalware/frugalware-current/frugalware-@CARCH@
-# SourceMirrors (100 MBit)
-Server = ftp://ftp6.frugalware.org/pub/linux/frugalware/frugalware-current/frugalware-@CARCH@
-# -------------
-# - AUSTRALIA -
-# -------------
-# PlanetMirror (Unknown bandwidth)
-Server = ftp://ftp13.frugalware.org/pub/frugalware/frugalware-current/frugalware-@CARCH@
 # -----------
 # - BELGIUM -
 # -----------
@@ -30,11 +18,16 @@ Server = ftp://ftp7.frugalware.org/pub/frugalware/frugalware-current/frugalware-
 # -----------
 # Host Europe (1 GBit)
 Server = ftp://ftp2.frugalware.org/mirror/ftp.frugalware.org/pub/frugalware//frugalware-current/frugalware-@CARCH@
-# linux-de.org (100 MBit)
-Server = ftp://ftp8.frugalware.org/distro/frugalware/frugalware-current/frugalware-@CARCH@
+# ----------
+# - GREECE -
+# ----------
+# University of Crete / Computer Center (1 GBit)
+Server = ftp://ftp6.frugalware.org/mirrors/linux/frugalware/frugalware-current/frugalware-@CARCH@
 # -----------
 # - HUNGARY -
 # -----------
+# Schmidt Computer Ltd. (100 MBit)
+Server = ftp://ftp3.frugalware.org/mirrors/frugalware/pub/frugalware/frugalware-current/frugalware-@CARCH@
 # Free Software Network (100 MBit)
 Server = ftp://ftp4.frugalware.org/pub/linux/distributions/frugalware/frugalware-current/frugalware-@CARCH@
 # -----------
@@ -47,3 +40,8 @@ Server = ftp://ftp12.frugalware.org/mirrors/ftp.frugalware.org/pub/frugalware/fr
 # ----------
 # National Taiwan University (Unknown bandwidth)
 Server = ftp://ftp9.frugalware.org/pub/frugalware/frugalware-current/frugalware-@CARCH@
+# -------
+# - USA -
+# -------
+# TDS Telecom (1 GBit)
+Server = ftp://ftp10.frugalware.org/pub/linux/frugalware/frugalware-current/frugalware-@CARCH@
