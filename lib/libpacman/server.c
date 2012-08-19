@@ -421,7 +421,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 								pm_errno = PM_ERR_RETRIEVE;
 								goto error;
 							}
-								
+
 						} else {
 							_pacman_log(PM_LOG_DEBUG, _("downloaded %s from %s\n"),
 								fn, server->server);
@@ -557,6 +557,10 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					FREELISTPTR(complete);
 					return(1);
 				}
+			}
+			if(!strcmp(server->protocol, "http") && !handle->proxyhost) {
+				HttpQuit(control);
+				control = 0;
 			}
 			if(remain) {
 				(*remain)++;
