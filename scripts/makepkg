@@ -382,7 +382,7 @@ chroot_mount() {
     msg "Attempting to mount chroot directories..."
     mount -t proc none $CHROOTDIR/proc >/dev/null
     mount -t sysfs none $CHROOTDIR/sys >/dev/null
-    mount -o bind /dev $CHROOTDIR/dev >/dev/null
+    mount -t devtmpfs none $CHROOTDIR/dev >/dev/null
     mount -o bind /var/cache/pacman-g2 $CHROOTDIR/var/cache/pacman-g2 >/dev/null
     mount -o bind $CCACHE_BASEDIR/$pkgname \
     $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
