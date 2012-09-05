@@ -540,10 +540,10 @@ int _pacman_runscriptlet(char *root, char *installfn, const char *script, char *
 	_pacman_log(PM_LOG_FLOW2, _("executing %s script..."), script);
 
 	if(oldver) {
-		snprintf(cmdline, PATH_MAX, "source %s %s %s %s",
+		snprintf(cmdline, PATH_MAX, "source %s %s %s %s 2>&1",
 				scriptpath, script, ver, oldver);
 	} else {
-		snprintf(cmdline, PATH_MAX, "source %s %s %s",
+		snprintf(cmdline, PATH_MAX, "source %s %s %s 2>&1",
 				scriptpath, script, ver);
 	}
 	_pacman_log(PM_LOG_DEBUG, "%s", cmdline);
