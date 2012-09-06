@@ -255,7 +255,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 	pmlist_t *list = NULL; /* list allowing checkdeps usage with data from trans->packages */
 	pmlist_t *trail = NULL; /* breadcrum list to avoid running into circles */
 	pmlist_t *asked = NULL;
-	pmlist_t *i, *j, *k, *l;
+	pmlist_t *i, *j, *k, *l, *m;
 	int ret = 0;
 	pmdb_t *db_local = trans->handle->db_local;
 	pmlist_t *dbs_sync = trans->handle->dbs_sync;
@@ -314,8 +314,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 			pmsyncpkg_t *s = (pmsyncpkg_t*)i->data;
 			k = _pacman_list_add(k, s->pkg);
 		}
-		k = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
-		for(i=k; i; i=i->next) {
+		m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
+		for(i=m; i; i=i->next) {
 			for(j=trans->packages; j; j=j->next) {
 				pmsyncpkg_t *s = (pmsyncpkg_t*)j->data;
 				if(s->pkg==i->data) {
@@ -323,6 +323,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				}
 			}
 		}
+		FREELISTPTR(k);
+		FREELISTPTR(m);
 		FREELISTPTR(trans->packages);
 		trans->packages = l;
 
