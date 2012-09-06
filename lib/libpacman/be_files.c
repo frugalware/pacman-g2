@@ -274,15 +274,17 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	}
 	char *dname;
 	if (islocal(db)) {
-		dname = ent->d_name;
+		dname = strdup(ent->d_name);
 	} else {
 		dname = strdup(archive_entry_pathname(entry));
 		dname[strlen(dname)-1] = '\0'; // drop trailing slash
 	}
 	if(_pacman_pkg_splitname(dname, pkg->name, pkg->version, 0) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
+		FREE(dname);
 		return(NULL);
 	}
+	FREE(dname);
 	if(_pacman_db_read(db, inforeq, pkg) == -1) {
 		FREEPKG(pkg);
 	}
