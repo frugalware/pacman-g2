@@ -226,7 +226,7 @@ static int check_olddelay(void)
 {
 	pmlist_t *i;
 	char lastupdate[16] = "";
-	struct tm tm;
+	struct tm tm = {0};
 
 	if(!handle->olddelay) {
 		return(0);
