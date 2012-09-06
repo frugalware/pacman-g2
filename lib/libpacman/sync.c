@@ -226,11 +226,13 @@ static int check_olddelay(void)
 {
 	pmlist_t *i;
 	char lastupdate[16] = "";
-	struct tm tm = {0};
+	struct tm tm;
 
 	if(!handle->olddelay) {
 		return(0);
 	}
+
+	memset(&tm,0,sizeof(struct tm));
 
 	for(i = handle->dbs_sync; i; i= i->next) {
 		pmdb_t *db = i->data;
