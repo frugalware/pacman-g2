@@ -314,8 +314,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 			pmsyncpkg_t *s = (pmsyncpkg_t*)i->data;
 			k = _pacman_list_add(k, s->pkg);
 		}
-		k = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
-		for(i=k; i; i=i->next) {
+		for(i=_pacman_sortbydeps(k, PM_TRANS_TYPE_ADD); i; i=i->next) {
 			for(j=trans->packages; j; j=j->next) {
 				pmsyncpkg_t *s = (pmsyncpkg_t*)j->data;
 				if(s->pkg==i->data) {
@@ -323,6 +322,9 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				}
 			}
 		}
+		i = pacman_list_first(i);
+		FREELISTPTR(i);
+		FREELISTPTR(k);
 		FREELISTPTR(trans->packages);
 		trans->packages = l;
 
