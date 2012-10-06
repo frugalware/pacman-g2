@@ -26,5 +26,6 @@ POTFILES
 libtool
 ltmain.sh
 m4
+build
 *~
 
