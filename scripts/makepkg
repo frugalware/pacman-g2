@@ -650,11 +650,8 @@ if [ -z "$PKG_EXT" ]; then
 fi
 
 if [ -z "$PKG_COMP" ]; then
-#	Enable the following after frugalware-1.1
-#	error "The PKG_COMP environment variable is not defined, check your /etc/makepkg.conf!"
-#	exit 1
-	warning "The PKG_COMP environment variable is not defined, check your /etc/makepkg.conf! Using default compression xz"
-	PKG_COMP="xz"
+	error "The PKG_COMP environment variable is not defined, check your /etc/makepkg.conf!"
+	exit 1
 fi
 
 if [ "$USE_AUTO_MAKEFLAGS" != "n" ]; then
