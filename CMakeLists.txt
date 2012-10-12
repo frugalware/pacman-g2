@@ -9,6 +9,7 @@ include (CheckFunctionExists)
 
 string(TOLOWER ${CMAKE_PROJECT_NAME} CMAKE_PROJECT_NAME_LOWER)
 set (PACMAN_G2_VERSION 3.8.9)
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -D_GNU_SOURCE")
 
 SET(ENABLE_NLS TRUE CACHE BOOL "Translation program messages to the user's native language ?")
 
