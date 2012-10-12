@@ -8,7 +8,6 @@ include (CheckIncludeFiles)
 include (CheckFunctionExists)
 
 string(TOLOWER ${CMAKE_PROJECT_NAME} CMAKE_PROJECT_NAME_LOWER)
-
 set (PACMAN_G2_VERSION 3.8.9)
 
 SET(ENABLE_NLS TRUE CACHE BOOL "Translation program messages to the user's native language ?")
@@ -105,7 +104,7 @@ CHECK_FUNCTION_EXISTS(iconv HAVE_ICONV)
 CHECK_FUNCTION_EXISTS(strverscmp HAVE_STRVERSCMP)
 
 CONFIGURE_FILE (
-  "${PROJECT_SOURCE_DIR}/config.h.cmake"
+  "${PROJECT_SOURCE_DIR}/cmake_config.h"
   "${PROJECT_SOURCE_DIR}/config.h"
   )
 
