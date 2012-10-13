@@ -46,7 +46,7 @@ message("searched for Mono")
 IF(MONO_FOUND AND SWIG_FOUND)
   message("found Mono")
   SET(HAS_CSHARP TRUE CACHE BOOL "C# bindings")
-  #ADD_SUBDIRECTORY(bindings/csharp)
+  ADD_SUBDIRECTORY(bindings/csharp)
 ENDIF(MONO_FOUND AND SWIG_FOUND)
 
 FIND_PACKAGE(Java QUIET)
