@@ -72,7 +72,7 @@ message("searched for Vala")
 IF(VALA_FOUND AND SWIG_FOUND)
   message("found Vala")
   SET(HAS_VALA TRUE CACHE BOOL "Vala bindings")
-  #ADD_SUBDIRECTORY(bindings/vala)
+  ADD_SUBDIRECTORY(bindings/vala)
 ENDIF(VALA_FOUND AND SWIG_FOUND)
 
 FIND_PACKAGE(PythonInterp QUIET)
