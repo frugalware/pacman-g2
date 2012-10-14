@@ -39,3 +39,4 @@ add_library(pacman SHARED ${LIBPACMAN_SOURCES})
 target_link_libraries(pacman ftp archive)
 
 install(TARGETS pacman DESTINATION lib)
+install (FILES pacman.h DESTINATION include)
