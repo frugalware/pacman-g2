@@ -5,6 +5,7 @@
 #endif
 %include "cpointer.i"
 
+%{#include "pacman.h"%}
 /* Create casting functions */
 
 %pointer_cast(void *, long, void_to_long);

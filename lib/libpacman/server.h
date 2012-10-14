@@ -58,7 +58,7 @@ extern int *pm_dloffset;
 extern struct timeval *pm_dlt0, *pm_dlt;
 extern float *pm_dlrate;
 extern int *pm_dlxfered1;
-extern unsigned char *pm_dleta_h, *pm_dleta_m, *pm_dleta_s;
+extern unsigned int *pm_dleta_h, *pm_dleta_m, *pm_dleta_s;
 
 #endif /* _PACMAN_SERVER_H */
 

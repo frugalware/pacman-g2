@@ -47,7 +47,7 @@ int *pm_dloffset=NULL;
 struct timeval *pm_dlt0=NULL, *pm_dlt=NULL;
 float *pm_dlrate=NULL;
 int *pm_dlxfered1=NULL;
-unsigned char *pm_dleta_h=NULL, *pm_dleta_m=NULL, *pm_dleta_s=NULL;
+unsigned int *pm_dleta_h=NULL, *pm_dleta_m=NULL, *pm_dleta_s=NULL;
 
 pmserver_t *_pacman_server_new(char *url)
 {

@@ -268,13 +268,13 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 			pm_dlxfered1 = (int *)data;
 		break;
 		case PM_OPT_DLETA_H:
-			pm_dleta_h = (unsigned char *)data;
+			pm_dleta_h = (unsigned int *)data;
 		break;
 		case PM_OPT_DLETA_M:
-			pm_dleta_m = (unsigned char *)data;
+			pm_dleta_m = (unsigned int *)data;
 		break;
 		case PM_OPT_DLETA_S:
-			pm_dleta_s = (unsigned char *)data;
+			pm_dleta_s = (unsigned int *)data;
 		break;
 		case PM_OPT_DLREMAIN:
 			ph->dlremain = (int *)data;
