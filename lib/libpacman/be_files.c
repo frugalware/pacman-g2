@@ -326,6 +326,9 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				while(_pacman_db_read_fgets(db, line, sline, fp) && strlen(_pacman_strtrim(line))) {
 					info->desc_localized = _pacman_list_add(info->desc_localized, strdup(line));
 				}
+				if(info->desc_localized == NULL) { // Avoid a crash in case of blank description
+					goto error;
+				}
 				STRNCPY(info->desc, (char*)info->desc_localized->data, sizeof(info->desc));
 				for (i = info->desc_localized; i; i = i->next) {
 					if (!strncmp(i->data, handle->language, strlen(handle->language)) &&
