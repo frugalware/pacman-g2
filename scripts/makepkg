@@ -441,6 +441,24 @@ chroot_clean()
 	fi
 }
 
+mkdir_subpkgs()
+{
+	mkdir -p $startdir/pkg
+	for subpkg in "${subpkgs[@]}"
+	do
+		mkdir -p "$startdir/pkg.$subpkg"
+	done
+}
+
+rmdir_subpkgs()
+{
+	# check for existing pkg directory
+	if [ -d $startdir/pkg ]; then
+		msg "Removing existing pkg and pkg.* directories..."
+		rm -rf $startdir/{pkg,pkg.*}
+	fi
+}
+
 create_pkg()
 {
 	msg "Generating files for $1:"
@@ -1559,16 +1577,8 @@ if [ "`id -u`" = "0" ]; then
 	chown -R root.root $startdir/src
 fi
 
-# check for existing pkg directory
-if [ -d $startdir/pkg ]; then
-	msg "Removing existing pkg and pkg.* directories..."
-	rm -rf $startdir/{pkg,pkg.*}
-fi
-mkdir -p $startdir/pkg
-for subpkg in "${subpkgs[@]}"
-do
-	mkdir -p $startdir/pkg.$subpkg
-done
+rmdir_subpkgs
+mkdir_subpkgs
 
 if [ "$NOBUILD" = "1" ]; then
 	msg "Sources are ready."
@@ -1850,7 +1860,8 @@ if [ "$CLEANUP" = "1" ]; then
 		msg "Chroot size before cleaning: $(sudo du -sh $exclude / |sed "s/\t.*//")"
 	fi
 	msg "Cleaning up..."
-	rm -rf src pkg pkg.* Changelog
+	rmdir_subpkgs
+	rm -rf src Changelog
 fi
 
 if [ "$RMDEPS" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" -a \( ! -z "$deplist" -o ! -z "$makedeplist" \) ]; then
