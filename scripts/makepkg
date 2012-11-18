@@ -618,27 +618,18 @@ in_array()
 
 install_pkg()
 {
+	local subpkg targs
+
+	for subpkg in "${pkgname}" "${subpkgs[@]}"
+	do
+		targs+=" $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
+	done
+
 	if [ "$INSTALL" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
 		msg "Installing package(s) with $PACMAN -U..."
-		targs="$PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
-		if [ ! -z "$subpkgs" ]; then
-			i=0
-			for subpkg in "${subpkgs[@]}"
-			do
-				targs="$targs $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
-			done
-		fi
 		$PACMAN $PACMAN_OPTS -U $targs || exit $?
 	elif [ "$INSTALL" = "1" -a "$DEP_SUDO" = "1" ]; then
 		msg "Installing package(s) with sudo $PACMAN -U..."
-		targs="$PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
-		if [ ! -z "$subpkgs" ]; then
-			i=0
-			for subpkg in "${subpkgs[@]}"
-			do
-				targs="$targs $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
-			done
-		fi
 		if [ "$INFAKEROOT" = "1" ]; then
 			FAKEROOTKEY2=$FAKEROOTKEY
 			unset FAKEROOTKEY
