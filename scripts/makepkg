@@ -479,7 +479,7 @@ create_pkg()
 	date >>.PKGINFO
 	$ECHO "pkgname = $1" >>.PKGINFO
 	$ECHO "pkgver = $pkgver-$pkgrel" >>.PKGINFO
-	$ECHO "pkgdesc = $pkgdesc" >>.PKGINFO
+	$ECHO "pkgdesc = ${_P_package_descriptions[$1]}" >>.PKGINFO
 	if [ -n "$pkgdesc_localized" ]; then
 		for it in "${pkgdesc_localized[@]}"; do
 			$ECHO "pkgdesc = $it" >>.PKGINFO
@@ -494,7 +494,7 @@ create_pkg()
 		$ECHO "arch = $CARCH" >>.PKGINFO
 	fi
 
-	for it in ${license[@]}; do
+	for it in ${_P_package_licenses[$1]}; do
 		$ECHO "license = $it" >>.PKGINFO
 	done
 	for it in ${replaces[@]}; do
@@ -940,10 +940,6 @@ if [ "`type -p fblint`" ]; then
 	fi
 fi
 
-if [ "${#_P_package_names[@]}" -gt 0 ]; then
-	_P_package_names=("$pkgname" "${subpkgs[@]}")
-fi
-
 eval "serverlist=${TREE}_servers"
 if [ "$F_makepkg_scm" = "git" -a ! "`check_option NOVERSRC`" ]; then
 	_serverlist=`GIT_DIR=$fst_root/${TREE}/.git git config --get remote.origin.url 2>/dev/null`
@@ -1014,6 +1010,22 @@ if [ ! -z "$subpkgs" ]; then
 		makedepends="$makedepends ${subdepends[$i]}"
 	done
 	makedepends=( $makedepends )
+fi
+
+if [ "${#_P_package_names[@]}" -gt 0 ]; then
+	_P_package_names=("${pkgname}" "${subpkgs[@]}")
+
+	_P_package_descriptions["${pkgname}"]="${pkgdesc}"
+	for subpkg in "${subpkgs[@]}"; do
+		_P_package_descriptions["${subpkg}"]="${subdescs[0]}"
+		unset subdescs[0]
+	done
+
+	_P_package_licenses["${pkgname}"]="${license[*]}"
+	for subpkg in "${subpkgs[@]}"; do
+		_P_package_licenses["${subpkg}"]="${sublicense[0]}"
+		unset sublicense[0]
+	done
 fi
 
 if [ ! -e "$install" -a ! -e "$startdir/$install" -a ! "`check_option GENSCRIPTLET`" ]; then
@@ -1860,9 +1872,7 @@ if [ ! -z "$subpkgs" ]; then
 	do
 		unset pkgdesc license replaces groups depends rodepends removes conflicts provides backup install
 		unset options pkgdesc_localized archs
-		pkgdesc="${subdescs[$i]}"
 		pkgdesc_localized="${subdescs_localized[$i]}"
-		license="${sublicense[$i]}"
 		replaces="${subreplaces[$i]}"
 		groups="${subgroups[$i]}"
 		depends="${subdepends[$i]}"
