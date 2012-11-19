@@ -443,17 +443,21 @@ chroot_clean()
 
 mkdir_subpkgs()
 {
-	mkdir -p $startdir/pkg
-	for subpkg in "${subpkgs[@]}"
+	local package_name 
+
+	for package_name in "${_P_package_names[@]}"
 	do
-		mkdir -p "$startdir/pkg.$subpkg"
+		mkdir -p "$startdir/pkg.$package_name"
 	done
+
+	# Compatibility
+	ln -s "$startdir/pkg" "pkg.${_P_package_names[0]}"
 }
 
 rmdir_subpkgs()
 {
-	# check for existing pkg directory
-	if [ -d $startdir/pkg ]; then
+	# check for existing pkg.* directories
+	if [ "$(ls $startdir/{pkg,pkg.*} 2> /dev/null | wc -l)" -gt 0 ]; then
 		msg "Removing existing pkg and pkg.* directories..."
 		rm -rf $startdir/{pkg,pkg.*}
 	fi
@@ -934,6 +938,10 @@ if [ "`type -p fblint`" ]; then
 		warning "fblint says some needed variables are missing or incomplete."
 		plain "Abort the build unless you know what you are doing."
 	fi
+fi
+
+if [ "${#_P_package_names[@]}" -gt 0 ]; then
+	_P_package_names=("$pkgname" "${subpkgs[@]}")
 fi
 
 eval "serverlist=${TREE}_servers"
