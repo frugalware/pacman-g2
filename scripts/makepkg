@@ -1739,21 +1739,21 @@ _subpkgs_removeemptydirfix()
 		usr/info/
 		usr/man/
 		usr/share/doc/$pkgname-$pkgver/ \
-		usr/share/man/
+		usr/share/man/ \
 		2>/dev/null
 }
 
 do_subpkgsfixes()
 {
-	local subpkgdir hook
+	local hook package_name 
 
-	for subpkgdir in ${startdir}/{pkg,pkg.*}
+	for package_name in "${_P_package_names[@]}"
 	do
-		[ ! -d "${subpkgdir}" ] && continue
+		[ ! -d "${startdir}/pkg.${package_name}" ] && continue
 		for hook in "${_P_subpkgsfixes[@]}"
 		do
-			cd "${subpkgdir}"
-			"${hook}" "${subpkgdir}"
+			cd "${startdir}/pkg.${package_name}"
+			"${hook}" "${package_name}"
 		done
 	done
 }
