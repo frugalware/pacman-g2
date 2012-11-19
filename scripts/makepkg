@@ -1720,6 +1720,36 @@ if [ ! "`check_option NODOCS`" -a "$NODOCS" = "0" ]; then
 		-or -name GPLLicense \
 		\) -exec install -pm 644 '{}' pkg/usr/share/doc/$pkgname-$pkgver/ \;
 fi
+
+_subpkgs_removeemptydirfix()
+{
+	# FIXME: Make it more general (detect all dirs and try to remove them)
+	# 	 and add an option (NOREMOVEEMPTYDIR) to skip this hook
+	msg "Removing empty dirs..."
+	rmdir -p --ignore-fail-on-non-empty \
+		usr/doc/ \
+		usr/info/
+		usr/man/
+		usr/share/doc/$pkgname-$pkgver/ \
+		usr/share/man/
+		2>/dev/null
+}
+
+do_subpkgsfixes()
+{
+	local subpkgdir hook
+
+	for subpkgdir in ${startdir}/{pkg,pkg.*}
+	do
+		[ ! -d "${subpkgdir}" ] && continue
+		for hook in "${_P_subpkgsfixes[@]}"
+		do
+			cd "${subpkgdir}"
+			"${hook}" "${subpkgdir}"
+		done
+	done
+}
+
 for d in $startdir/{pkg,pkg.*}
 do
 	[ ! -d $d ] && continue
@@ -1731,24 +1761,16 @@ do
 		rm -rf $d/usr/doc
 	fi
 
-	# remove /usr/share/doc/$pkgname-$pkgver directory if empty
-	if [ -d $d/usr/share/doc/$pkgname-$pkgver ]; then
-		rmdir -p --ignore-fail-on-non-empty $d/usr/share/doc/$pkgname-$pkgver 2> /dev/null
-		mkdir -p pkg
-	fi
-
 	# move /usr/info files to /usr/share/info
 	if [ -d $d/usr/info ]; then
 		mkdir -p $d/usr/share/info
-		cp -a $d/usr/info/* $d/usr/share/info/
-		rm -rf $d/usr/info
+		mv $d/usr/info/* $d/usr/share/info/
 	fi
 
 	# move /usr/man files to /usr/share/man
 	if [ -d $d/usr/man ]; then
 		mkdir -p $d/usr/share/man
-		cp -a $d/usr/man/* $d/usr/share/man/
-		rm -rf $d/usr/man
+		mv $d/usr/man/* $d/usr/share/man/
 	fi
 
 	if [ -d "$d/usr/share/icons/hicolor" ]; then
@@ -1757,6 +1779,14 @@ do
 		fi
 	fi
 done
+
+# NOTE: These should be the latest registered hooks
+
+#if ! check_option NOREMOVEEMPTYDIR; then
+_P_subpkgsfixes+=(_subpkgs_removeemptydirfix)
+#fi
+
+do_subpkgsfixes
 
 # compress info and manual pages
 msg "Compressing info and manual pages..."
