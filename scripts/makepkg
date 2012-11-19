@@ -479,7 +479,7 @@ create_pkg()
 	date >>.PKGINFO
 	$ECHO "pkgname = $1" >>.PKGINFO
 	$ECHO "pkgver = $pkgver-$pkgrel" >>.PKGINFO
-	$ECHO "pkgdesc = ${_P_package_descriptions[$1]}" >>.PKGINFO
+	$ECHO "pkgdesc = ${_P_package_descriptions["$1"]}" >>.PKGINFO
 	if [ -n "$pkgdesc_localized" ]; then
 		for it in "${pkgdesc_localized[@]}"; do
 			$ECHO "pkgdesc = $it" >>.PKGINFO
@@ -494,13 +494,13 @@ create_pkg()
 		$ECHO "arch = $CARCH" >>.PKGINFO
 	fi
 
-	for it in ${_P_package_licenses[$1]}; do
+	for it in ${_P_package_licenses["$1"]}; do
 		$ECHO "license = $it" >>.PKGINFO
 	done
-	for it in ${replaces[@]}; do
+	for it in ${_P_package_replaces["$1"]}; do
 		$ECHO "replaces = $it" >>.PKGINFO
 	done
-	for it in ${groups[@]}; do
+	for it in ${_P_package_groups["$1"]}; do
 		$ECHO "group = $it" >>.PKGINFO
 	done
 	for it in ${depends[@]}; do
@@ -1016,15 +1016,17 @@ if [ "${#_P_package_names[@]}" -gt 0 ]; then
 	_P_package_names=("${pkgname}" "${subpkgs[@]}")
 
 	_P_package_descriptions["${pkgname}"]="${pkgdesc}"
-	for subpkg in "${subpkgs[@]}"; do
-		_P_package_descriptions["${subpkg}"]="${subdescs[0]}"
-		unset subdescs[0]
-	done
-
 	_P_package_licenses["${pkgname}"]="${license[*]}"
+	_P_package_replaces["${pkgname}"]="${replaces[*]}"
+	_P_package_groups["${pkgname}"]="${groups[*]}"
+
+	i=0
 	for subpkg in "${subpkgs[@]}"; do
-		_P_package_licenses["${subpkg}"]="${sublicense[0]}"
-		unset sublicense[0]
+		_P_package_descriptions["${subpkg}"]="${subdescs[$i]}"
+		_P_package_licenses["${subpkg}"]="${sublicense[$i]}"
+		_P_package_replaces["${subpkg}"]="${subreplaces[$i]}"
+		_P_package_groups["${subpkg}"]="${subgroups[$i]}"
+		i=$(($i+1))
 	done
 fi
 
@@ -1873,8 +1875,6 @@ if [ ! -z "$subpkgs" ]; then
 		unset pkgdesc license replaces groups depends rodepends removes conflicts provides backup install
 		unset options pkgdesc_localized archs
 		pkgdesc_localized="${subdescs_localized[$i]}"
-		replaces="${subreplaces[$i]}"
-		groups="${subgroups[$i]}"
 		depends="${subdepends[$i]}"
 		rodepends="${subrodepends[$i]}"
 		removes="${subremoves[$i]}"
