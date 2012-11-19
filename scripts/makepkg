@@ -465,6 +465,8 @@ rmdir_subpkgs()
 
 create_pkg()
 {
+	local install it
+
 	msg "Generating files for $1:"
 	# write the .PKGINFO file
 	msg2 ".PKGINFO file... " >&2
@@ -523,6 +525,7 @@ create_pkg()
 	done
 
 	# check for an install script
+	install="${_P_package_install["$1"]}"
 	if [ "$install" == "" ]; then
 		[ -e $startdir/$1.install ] && install=$1.install
 	fi
@@ -1025,6 +1028,9 @@ if [ "${#_P_package_names[@]}" -gt 0 ]; then
 	_P_package_conflicts["${pkgname}"]="${conflicts[*]}"
 	_P_package_provides["${pkgname}"]="${provides[*]}"
 	_P_package_backup["${pkgname}"]="${backup[*]}"
+	_P_package_install["${pkgname}"]="${install}"
+	_P_package_options["${pkgname}"]="${options[*]}"
+	_P_package_archs["${pkgname}"]="${archs[*]}"
 
 	i=0
 	for subpkg in "${subpkgs[@]}"; do
@@ -1038,6 +1044,9 @@ if [ "${#_P_package_names[@]}" -gt 0 ]; then
 		_P_package_conflicts["${subpkg}"]="${subconflicts[$i]}"
 		_P_package_provides["${subpkg}"]="${subprovides[$i]}"
 		_P_package_backup["${subpkg}"]="${subbackup[$i]}"
+		_P_package_install["${subpkg}"]="${subinstall[$i]}"
+		_P_package_options["${subpkg}"]="${suboptions[$i]}"
+		_P_package_archs["${subpkg}"]="${subarchs[$i]}"
 		i=$(($i+1))
 	done
 fi
@@ -1887,10 +1896,7 @@ if [ ! -z "$subpkgs" ]; then
 		unset pkgdesc license replaces groups depends rodepends removes conflicts provides backup install
 		unset options pkgdesc_localized archs
 		pkgdesc_localized="${subdescs_localized[$i]}"
-		install="${subinstall[$i]}"
-		options="${suboptions[$i]}"
-		archs="${subarchs[$i]}"
-		if in_array $CARCH ${archs[@]}; then
+		if in_array $CARCH ${_P_package_archs["$subpkg"]}; then
 			create_pkg $subpkg
 		fi
 		i=$(($i+1))
