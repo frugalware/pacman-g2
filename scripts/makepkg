@@ -503,10 +503,10 @@ create_pkg()
 	for it in ${_P_package_groups["$1"]}; do
 		$ECHO "group = $it" >>.PKGINFO
 	done
-	for it in ${depends[@]}; do
+	for it in ${_P_package_depends["$1"]}; do
 		$ECHO "depend = $it" >>.PKGINFO
 	done
-	for it in ${rodepends[@]}; do
+	for it in ${_P_package_rodepends["$1"]}; do
 		$ECHO "depend = $it" >>.PKGINFO
 	done
 	for it in ${removes[@]}; do
@@ -1019,6 +1019,8 @@ if [ "${#_P_package_names[@]}" -gt 0 ]; then
 	_P_package_licenses["${pkgname}"]="${license[*]}"
 	_P_package_replaces["${pkgname}"]="${replaces[*]}"
 	_P_package_groups["${pkgname}"]="${groups[*]}"
+	_P_package_depends["${pkgname}"]="${depends[*]}"
+	_P_package_rodepends["${pkgname}"]="${rodepends[*]}"
 
 	i=0
 	for subpkg in "${subpkgs[@]}"; do
@@ -1026,6 +1028,8 @@ if [ "${#_P_package_names[@]}" -gt 0 ]; then
 		_P_package_licenses["${subpkg}"]="${sublicense[$i]}"
 		_P_package_replaces["${subpkg}"]="${subreplaces[$i]}"
 		_P_package_groups["${subpkg}"]="${subgroups[$i]}"
+		_P_package_depends["${pkgname}"]="${subdepends[$i]}"
+		_P_package_rodepends["${pkgname}"]="${subrodepends[$i]}"
 		i=$(($i+1))
 	done
 fi
@@ -1875,8 +1879,6 @@ if [ ! -z "$subpkgs" ]; then
 		unset pkgdesc license replaces groups depends rodepends removes conflicts provides backup install
 		unset options pkgdesc_localized archs
 		pkgdesc_localized="${subdescs_localized[$i]}"
-		depends="${subdepends[$i]}"
-		rodepends="${subrodepends[$i]}"
 		removes="${subremoves[$i]}"
 		conflicts="${subconflicts[$i]}"
 		provides="${subprovides[$i]}"
