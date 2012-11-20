@@ -1747,6 +1747,28 @@ fi
 
 # NOTE: _P_subpkgsfixes hook registration order is important.
 
+_pkg_documentation_hook()
+{
+	mkdir -p usr/share/doc/$pkgname-$pkgver
+
+	if [ -d usr/doc ]; then
+		mv usr/doc/* usr/share/doc/$pkgname-$pkgver
+	fi
+}
+
+_pkg_nodocumentation_hook()
+{
+	rm -rf \
+		usr/doc \
+		usr/share/doc/"$1-$pkgver" \
+
+}
+if [ ! "`check_option NODOCS`" -a "$NODOCS" = "0" ]; then
+	_P_subpkgsfixes+=(_pkg_documentation_hook)
+else
+	_P_subpkgsfixes+=(_pkg_nodocumentation_hook)
+fi
+
 _subpkgs_removeemptydirfix()
 {
 	# FIXME: Make it more general (detect all dirs and try to remove them)
@@ -1797,13 +1819,6 @@ do_subpkgsfixes()
 for d in $startdir/{pkg,pkg.*}
 do
 	[ ! -d $d ] && continue
-	if [ -d $d/usr/doc ]; then
-		if [ ! "`check_option NODOCS`" -a "$NODOCS" = "0" ]; then
-			mkdir -p $d/usr/share/doc/$pkgname-$pkgver
-			cp -a $d/usr/doc/* $d/usr/share/doc/$pkgname-$pkgver
-		fi
-		rm -rf $d/usr/doc
-	fi
 
 	# move /usr/info files to /usr/share/info
 	if [ -d $d/usr/info ]; then
