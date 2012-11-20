@@ -588,27 +588,6 @@ create_pkg()
 	fi
 }
 
-strip_pkg()
-{
-	local dir="" subpkg=""
-	if [ "$1" = "$pkgname" ]; then
-		dir="$startdir/pkg"
-	else
-		dir="$startdir/pkg.$1"
-		subpkg="subpackage "
-	fi
-	if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
-		msg "Stripping debugging symbols from libraries from $subpkg$1..."
-		find $dir/{,usr,usr/local,opt/*}/lib -type f -not -name "*.dll" -not -name "*.exe" \
-			-exec /usr/bin/strip --strip-debug '{}' \; 2>&1 \
-			| grep -v "No such file" | grep -v "format not recognized"
-		msg "Stripping symbols from binaries from $subpkg$1..."
-		find $dir/{,usr,usr/local,opt/*}/{bin,sbin} -type f -not -name "*.dll" -not -name "*.exe" \
-			-exec /usr/bin/strip '{}' \; 2>&1 \
-			| grep -v "No such file" | grep -v "format not recognized"
-	fi
-}
-
 in_array()
 {
 	local i
@@ -1779,6 +1758,21 @@ _subpkgs_removeemptydirfix()
 		usr/share/man/ \
 		2>/dev/null
 }
+
+_pkg_strip_hook()
+{
+	msg "Stripping debugging symbols from libraries from $subpkg$1..."
+	find {,usr,usr/local,opt/*}/lib -type f -not -name "*.dll" -not -name "*.exe" \
+		-exec /usr/bin/strip --strip-debug '{}' \; 2>&1 \
+		| grep -v "No such file" | grep -v "format not recognized"
+	msg "Stripping symbols from binaries from $subpkg$1..."
+	find {,usr,usr/local,opt/*}/{bin,sbin} -type f -not -name "*.dll" -not -name "*.exe" \
+		-exec /usr/bin/strip '{}' \; 2>&1 \
+		| grep -v "No such file" | grep -v "format not recognized"
+}
+if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
+	_P_subpkgsfixes+=(_pkg_strip_hook)
+fi
 
 do_subpkgsfixes()
 {
