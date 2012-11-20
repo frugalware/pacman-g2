@@ -1760,14 +1760,35 @@ _pkg_nodocumentation_hook()
 {
 	rm -rf \
 		usr/doc \
-		usr/share/doc/"$1-$pkgver" \
-
+		usr/share/doc/"$1-$pkgver"
 }
 if [ ! "`check_option NODOCS`" -a "$NODOCS" = "0" ]; then
 	_P_subpkgsfixes+=(_pkg_documentation_hook)
 else
 	_P_subpkgsfixes+=(_pkg_nodocumentation_hook)
 fi
+
+_pkg_move_info_hook()
+{
+	# move /usr/info files to /usr/share/info
+	if [ -d usr/info ]; then
+		mkdir -p usr/share/info
+		mv usr/info/* usr/share/info/
+		rmdir usr/info
+	fi
+}
+_P_subpkgsfixes+=(_pkg_move_info_hook)
+
+_pkg_move_man_hook()
+{
+	# move /usr/man files to /usr/share/man
+	if [ -d usr/man ]; then
+		mkdir -p usr/share/man
+		mv usr/man/* usr/share/man/
+		rmdir usr/man
+	fi
+}
+_P_subpkgsfixes+=(_pkg_move_man_hook)
 
 _subpkgs_removeemptydirfix()
 {
@@ -1819,18 +1840,6 @@ do_subpkgsfixes()
 for d in $startdir/{pkg,pkg.*}
 do
 	[ ! -d $d ] && continue
-
-	# move /usr/info files to /usr/share/info
-	if [ -d $d/usr/info ]; then
-		mkdir -p $d/usr/share/info
-		mv $d/usr/info/* $d/usr/share/info/
-	fi
-
-	# move /usr/man files to /usr/share/man
-	if [ -d $d/usr/man ]; then
-		mkdir -p $d/usr/share/man
-		mv $d/usr/man/* $d/usr/share/man/
-	fi
 
 	if [ -d "$d/usr/share/icons/hicolor" ]; then
 		if [ -z "$_F_gnome_iconcache" ]; then
