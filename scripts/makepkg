@@ -451,12 +451,11 @@ mkdir_subpkgs()
 	done
 
 	# Compatibility
-	ln -s "$startdir/pkg" "pkg.${_P_package_names[0]}"
+	ln -s "pkg.${_P_package_names[0]}" "$startdir/pkg"
 }
 
 rmdir_subpkgs()
 {
-	# check for existing pkg.* directories
 	if [ "$(ls $startdir/{pkg,pkg.*} 2> /dev/null | wc -l)" -gt 0 ]; then
 		msg "Removing existing pkg and pkg.* directories..."
 		rm -rf $startdir/{pkg,pkg.*}
@@ -995,7 +994,7 @@ if [ ! -z "$subpkgs" ]; then
 fi
 
 # Compatibility adaptation
-if [ "${#_P_package_names[@]}" -gt 0 ]; then
+if [ "${#_P_package_names[@]}" -eq 0 ]; then
 	_P_options="${options[*]}"
 
 	_P_package_names=("${pkgname}" "${subpkgs[@]}")
