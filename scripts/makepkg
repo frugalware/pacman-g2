@@ -304,8 +304,7 @@ handledeps() {
 		missingdeps=1
 	fi
 	# rerun any additional sh scripts found in /etc/profile.d/
-	for i in /etc/profile.d/*.sh
-	do
+	for i in /etc/profile.d/*.sh; do
 		if [ -x $i ]; then
 			. $i &>/dev/null
 		fi
@@ -1847,41 +1846,39 @@ _pkg_check_links()
 	local d="$(pwd)" l
 
 	msg "$1: Checking symbolic links..."
-	for l in `find $d -type l 2> /dev/null` ; do
+	for l in `find $d -type l 2> /dev/null`; do
 		if [ ! -e "$l" -a ! -e "$d/`ls -l $l | awk '{print $NF}'`" ]; then
-			msg2 "Maybe broken link ${l#$d} in pkg $1 found."
+			msg2 "$1: Maybe broken link ${l#$d} found."
 		elif ls -l "$l" | awk '{print $NF}' | grep -q "$startdir" ; then
-			msg2 "Broken link ${l#$d} in pkg $1 found."
+			msg2 "$1: Broken link ${l#$d} found."
 		fi
 	done
 }
 _P_subpkgsfixes+=(_pkg_check_links)
 
+# FIXME: This should definitevely go to util.sh
+_pkg_check_hicolor()
+{
+	if [ -d "usr/share/icons/hicolor" ]; then
+		if [ -z "$_F_gnome_iconcache" ]; then
+			warning "$1: Package contains hicolor icons but _F_gnome_iconcache is not set"
+		fi
+	fi
+}
+_P_subpkgsfixes+=(_pkg_check_hicolor)
+
 do_subpkgsfixes()
 {
 	local hook package_name 
 
-	for package_name in "${_P_package_names[@]}"
-	do
+	for package_name in "${_P_package_names[@]}"; do
 		[ ! -d "${startdir}/pkg.${package_name}" ] && continue
-		for hook in "${_P_subpkgsfixes[@]}"
-		do
+		for hook in "${_P_subpkgsfixes[@]}"; do
 			cd "${startdir}/pkg.${package_name}"
 			"${hook}" "${package_name}"
 		done
 	done
 }
-
-for d in $startdir/{pkg,pkg.*}
-do
-	[ ! -d $d ] && continue
-
-	if [ -d "$d/usr/share/icons/hicolor" ]; then
-		if [ -z "$_F_gnome_iconcache" ]; then
-			warning "Package $pkgname contains hicolor icons but _F_gnome_iconcache is not set"
-		fi
-	fi
-done
 
 do_subpkgsfixes
 
