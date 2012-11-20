@@ -1863,19 +1863,6 @@ for d in $startdir/{pkg,pkg.*} ; do
 	done
 done
 
-# strip binaries
-strip_pkg $pkgname
-if [ -n "$subpkgs" ]; then
-	i=0
-	for subpkg in "${subpkgs[@]}"
-	do
-		unset options
-		options="${suboptions[$i]}"
-		strip_pkg $subpkg
-		i=$(($i+1))
-	done
-fi
-
 # get some package meta info
 builddate=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
 if [ "$INCHROOT" != "1" ]; then
