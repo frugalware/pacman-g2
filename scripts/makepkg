@@ -1745,6 +1745,8 @@ if [ ! "`check_option NODOCS`" -a "$NODOCS" = "0" ]; then
 		\) -exec install -pm 644 '{}' pkg/usr/share/doc/$pkgname-$pkgver/ \;
 fi
 
+# NOTE: _P_subpkgsfixes hook registration order is important.
+
 _subpkgs_removeemptydirfix()
 {
 	# FIXME: Make it more general (detect all dirs and try to remove them)
@@ -1758,6 +1760,9 @@ _subpkgs_removeemptydirfix()
 		usr/share/man/ \
 		2>/dev/null
 }
+#if ! check_option NOREMOVEEMPTYDIR; then
+	_P_subpkgsfixes+=(_subpkgs_removeemptydirfix)
+#fi
 
 _pkg_strip_hook()
 {
@@ -1818,12 +1823,6 @@ do
 		fi
 	fi
 done
-
-# NOTE: These should be the latest registered hooks
-
-#if ! check_option NOREMOVEEMPTYDIR; then
-_P_subpkgsfixes+=(_subpkgs_removeemptydirfix)
-#fi
 
 do_subpkgsfixes
 
