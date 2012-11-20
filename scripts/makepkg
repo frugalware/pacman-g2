@@ -1830,11 +1830,11 @@ _subpkgs_removeemptydirfix()
 _pkg_strip_hook()
 {
 	msg "$1: Stripping debugging symbols from libraries..."
-	find {,usr,usr/local,opt/*}/lib -type f -not -name "*.dll" -not -name "*.exe" \
+	find ./{,usr,usr/local,opt/*}/lib -type f -not -name "*.dll" -not -name "*.exe" \
 		-exec /usr/bin/strip --strip-debug '{}' \; 2>&1 \
 		| grep -v "No such file" | grep -v "format not recognized"
 	msg "$1: Stripping symbols from binaries..."
-	find {,usr,usr/local,opt/*}/{bin,sbin} -type f -not -name "*.dll" -not -name "*.exe" \
+	find ./{,usr,usr/local,opt/*}/{bin,sbin} -type f -not -name "*.dll" -not -name "*.exe" \
 		-exec /usr/bin/strip '{}' \; 2>&1 \
 		| grep -v "No such file" | grep -v "format not recognized"
 }
