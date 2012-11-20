@@ -1015,9 +1015,11 @@ if [ ! -z "$subpkgs" ]; then
 	makedepends=( $makedepends )
 fi
 
+# Compatibility adaptation
 if [ "${#_P_package_names[@]}" -gt 0 ]; then
-	_P_package_names=("${pkgname}" "${subpkgs[@]}")
+	_P_options="${options[*]}"
 
+	_P_package_names=("${pkgname}" "${subpkgs[@]}")
 	_P_package_descriptions["${pkgname}"]="${pkgdesc}"
 	_P_package_licenses["${pkgname}"]="${license[*]}"
 	_P_package_replaces["${pkgname}"]="${replaces[*]}"
