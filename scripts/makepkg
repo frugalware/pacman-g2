@@ -1842,6 +1842,21 @@ if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
 	_P_subpkgsfixes+=(_pkg_strip_hook)
 fi
 
+_pkg_check_links()
+{
+	local d="$(pwd)" l
+
+	msg "$1: Checking symbolic links..."
+	for l in `find $d -type l 2> /dev/null` ; do
+		if [ ! -e "$l" -a ! -e "$d/`ls -l $l | awk '{print $NF}'`" ]; then
+			msg2 "Maybe broken link ${l#$d} in pkg $1 found."
+		elif ls -l "$l" | awk '{print $NF}' | grep -q "$startdir" ; then
+			msg2 "Broken link ${l#$d} in pkg $1 found."
+		fi
+	done
+}
+_P_subpkgsfixes+=(_pkg_check_links)
+
 do_subpkgsfixes()
 {
 	local hook package_name 
@@ -1869,26 +1884,6 @@ do
 done
 
 do_subpkgsfixes
-
-# check symbolic links
-msg "Checking symbolic links..."
-for d in $startdir/{pkg,pkg.*} ; do
-	for l in `find $d -type l 2> /dev/null` ; do
-		if [ ! -e "$l" -a ! -e "$d/`ls -l $l | awk '{print $NF}'`" ]; then
-			if [ "$d" = "$startdir/pkg" ]; then
-				msg2 "Maybe broken link ${l#$d} in pkg $pkgname found."
-			else
-				msg2 "Maybe broken link ${l#$d} in pkg ${d##*/pkg.} found."
-			fi
-		elif ls -l "$l" | awk '{print $NF}' | grep -q "$startdir" ; then
-			if [ "$d" = "$startdir/pkg" ]; then
-				msg2 "Broken link ${l#$d} in pkg $pkgname found."
-			else
-				msg2 "Broken link ${l#$d} in pkg ${d##*/pkg.} found."
-			fi
-		fi
-	done
-done
 
 # get some package meta info
 builddate=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
