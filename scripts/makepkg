@@ -1789,15 +1789,36 @@ _pkg_move_man_hook()
 }
 _P_subpkgsfixes+=(_pkg_move_man_hook)
 
+_pkg_compress_manuals_hook()
+{
+	local ext fn i ln
+
+	msg "$1: Compressing info and manual pages..."
+	find {usr{,/local,/share},opt/*}/{info,man} -type f 2>/dev/null | while read i ; do
+		ext="${i##*.}"
+		fn="${i##*/}"
+		if [ "$ext" != "gz" -a "$ext" != "bz2" ]; then
+			# update symlinks to this manpage
+			find {usr{,/local,/share},opt/*}/man -lname "$fn" 2> /dev/null | while read ln ; do
+				rm -f "$ln"
+				ln -sf "${fn}.gz" "${ln}.gz"
+			done
+			# compress the original
+			gzip -9 "$i"
+		fi
+	done
+}
+_P_subpkgsfixes+=(_pkg_compress_manuals_hook)
+
 _subpkgs_removeemptydirfix()
 {
 	# FIXME: Make it more general (detect all dirs and try to remove them)
 	# 	 and add an option (NOREMOVEEMPTYDIR) to skip this hook
-	msg "Removing empty dirs..."
+	msg "$1: Removing empty dirs..."
 	rmdir -p --ignore-fail-on-non-empty \
 		usr/doc/ \
-		usr/info/
-		usr/man/
+		usr/info/ \
+		usr/man/ \
 		usr/share/doc/$pkgname-$pkgver/ \
 		usr/share/man/ \
 		2>/dev/null
@@ -1808,11 +1829,11 @@ _subpkgs_removeemptydirfix()
 
 _pkg_strip_hook()
 {
-	msg "Stripping debugging symbols from libraries from $subpkg$1..."
+	msg "$1: Stripping debugging symbols from libraries..."
 	find {,usr,usr/local,opt/*}/lib -type f -not -name "*.dll" -not -name "*.exe" \
 		-exec /usr/bin/strip --strip-debug '{}' \; 2>&1 \
 		| grep -v "No such file" | grep -v "format not recognized"
-	msg "Stripping symbols from binaries from $subpkg$1..."
+	msg "$1: Stripping symbols from binaries..."
 	find {,usr,usr/local,opt/*}/{bin,sbin} -type f -not -name "*.dll" -not -name "*.exe" \
 		-exec /usr/bin/strip '{}' \; 2>&1 \
 		| grep -v "No such file" | grep -v "format not recognized"
@@ -1848,22 +1869,6 @@ do
 done
 
 do_subpkgsfixes
-
-# compress info and manual pages
-msg "Compressing info and manual pages..."
-find $startdir/{pkg,pkg.*}/{usr{,/local,/share},opt/*}/{info,man} -type f 2>/dev/null | while read i ; do
-	ext="${i##*.}"
-	fn="${i##*/}"
-	if [ "$ext" != "gz" -a "$ext" != "bz2" ]; then
-		# update symlinks to this manpage
-		find $startdir/{pkg,pkg.*}/{usr{,/local,/share},opt/*}/man -lname "$fn" 2> /dev/null | while read ln ; do
-			rm -f "$ln"
-			ln -sf "${fn}.gz" "${ln}.gz"
-		done
-		# compress the original
-		gzip -9 "$i"
-	fi
-done
 
 # check symbolic links
 msg "Checking symbolic links..."
