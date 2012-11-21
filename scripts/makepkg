@@ -615,21 +615,21 @@ install_pkg()
 {
 	local subpkg targs
 
-	for subpkg in "${pkgname}" "${subpkgs[@]}"
+	for subpkg in "${_P_package_names[@]}"
 	do
-		targs+=" $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
+		targs+=("$PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT")
 	done
 
 	if [ "$INSTALL" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
 		msg "Installing package(s) with $PACMAN -U..."
-		$PACMAN $PACMAN_OPTS -U $targs || exit $?
+		$PACMAN $PACMAN_OPTS -U "${targs[@]}" || exit $?
 	elif [ "$INSTALL" = "1" -a "$DEP_SUDO" = "1" ]; then
 		msg "Installing package(s) with sudo $PACMAN -U..."
 		if [ "$INFAKEROOT" = "1" ]; then
 			FAKEROOTKEY2=$FAKEROOTKEY
 			unset FAKEROOTKEY
 		fi
-		sudo $PACMAN $PACMAN_OPTS -U $targs || exit $?
+		sudo $PACMAN $PACMAN_OPTS -U "${targs[@]}" || exit $?
 		if [ "$INFAKEROOT" = "1" ]; then
 			export FAKEROOTKEY=$FAKEROOTKEY2
 			unset FAKEROOTKEY2
@@ -1348,7 +1348,7 @@ if [ "$NOUP2DATE" = "0" ]; then
 	else
 		if [ "$pkgver" != "$up2date" ]; then
 			$ECHO "   FAILED" >&2
-                       error "Upstream version differs! ($pkgver != $up2date)"
+			error "Upstream version differs! ($pkgver != $up2date)"
 			exit 1
 		else
 		$ECHO "   Passed" >&2
