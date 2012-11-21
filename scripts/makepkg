@@ -750,6 +750,44 @@ buildscript_create_changelog() {
 	fi
 }
 
+buildenv_distcc() {
+	if [ -d /usr/lib/distcc/bin ]; then
+		export PATH=/usr/lib/distcc/bin:$PATH
+		FCC="distcc $FCC"
+		if [ "$INCHROOT" = "1" ]; then
+			[ -d /var/tmp/fst/.distcc ] || mkdir /var/tmp/fst/.distcc
+			export DISTCC_DIR=/var/tmp/fst/.distcc
+		fi
+	fi
+}
+
+buildenv_ccache() {
+	if [ -d /usr/lib/ccache/bin ]; then
+		if [ "$CHROOT" = "1" ]; then
+			CCACHE_REALDIR=/var/cache/ccache
+		else
+			CCACHE_REALDIR=$CCACHE_BASEDIR
+		fi
+		if [ -w $CCACHE_REALDIR ]; then
+			export PATH=/usr/lib/ccache/bin:$PATH
+			FCC="ccache $FCC"
+			install -d -m 2775 $CCACHE_REALDIR/$pkgname
+			export CCACHE_DIR=$CCACHE_REALDIR/$pkgname
+			export CCACHE_NOLINK=1
+			export CCACHE_UMASK=002
+		else
+			if [ "$INCHROOT" != "1" ]; then
+				error "You installed ccache but you are not in the ccache group."
+				plain "Either add yourserlf to the ccache group or"
+				plain "use the -B option to disable ccache support."
+				exit 1
+			else
+				warning "The fst user is not in the ccache group, ccache will be disabled."
+			fi
+		fi
+	fi
+}
+
 pkg_mkdirs()
 {
 	local package_name 
@@ -1636,39 +1674,13 @@ if [ "$NOBUILD" = "1" ]; then
 fi
 
 # use distcc if requested
-if [ "$DISTCC" = "y" -a -d /usr/lib/distcc/bin ]; then
-	export PATH=/usr/lib/distcc/bin:$PATH
-	FCC="distcc $FCC"
-	if [ "$INCHROOT" = "1" ]; then
-		[ -d /var/tmp/fst/.distcc ] || mkdir /var/tmp/fst/.distcc
-		export DISTCC_DIR=/var/tmp/fst/.distcc
-	fi
+if [ "$DISTCC" = "y" ]; then
+	buildenv_distcc
 fi
 
 # use ccache if it's available
-if [ "$NOCCACHE" = "0" -a -d /usr/lib/ccache/bin -a ! "`check_option NOCCACHE`" ]; then
-	if [ "$CHROOT" = "1" ]; then
-		CCACHE_REALDIR=/var/cache/ccache
-	else
-		CCACHE_REALDIR=$CCACHE_BASEDIR
-	fi
-	if [ -w $CCACHE_REALDIR ]; then
-		export PATH=/usr/lib/ccache/bin:$PATH
-		FCC="ccache $FCC"
-		install -d -m 2775 $CCACHE_REALDIR/$pkgname
-		export CCACHE_DIR=$CCACHE_REALDIR/$pkgname
-		export CCACHE_NOLINK=1
-		export CCACHE_UMASK=002
-	else
-		if [ "$INCHROOT" != "1" ]; then
-			error "You installed ccache but you are not in the ccache group."
-			plain "Either add yourserlf to the ccache group or"
-			plain "use the -B option to disable ccache support."
-			exit 1
-		else
-			warning "The fst user is not in the ccache group, ccache will be disabled."
-		fi
-	fi
+if [ "$NOCCACHE" = "0" -a ! "`check_option NOCCACHE`" ]; then
+	buildenv_ccache
 fi
 
 # build
