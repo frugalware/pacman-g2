@@ -439,6 +439,86 @@ chroot_clean()
 	fi
 }
 
+buildscript_validate() {
+	if [ "`type -p fblint`" ]; then
+		if ! fblint -p $BUILDSCRIPT &>/dev/null; then
+			warning "fblint says some needed variables are missing or incomplete."
+			plain "Abort the build unless you know what you are doing."
+		fi
+	fi
+
+	if [ -z "$pkgver" ]; then
+		error "pkgver is not allowed to be empty."
+		exit 1
+	fi
+	if [ -z "$pkgrel" ]; then
+		error "pkgrel is not allowed to be empty."
+		exit 1
+	fi
+	if [ `$ECHO $pkgver | grep '-'` ]; then
+		error "pkgver is not allowed to contain hyphens."
+		exit 1
+	fi
+	if [ `$ECHO $pkgrel | grep '-'` ]; then
+		error "pkgrel is not allowed to contain hyphens."
+		exit 1
+	fi
+	if ! in_array $CARCH ${archs[@]}; then
+		error "$pkgname is not available on $CARCH."
+		exit 1
+	fi
+
+	if [ ! -z "$subpkgs" ]; then
+		goodsubpkgs=1
+		if [ "${#subdescs[@]}" != 0 ] && [ "${#subdescs[@]}" != "${#subpkgs[@]}" ]; then
+			goodsubpkgs=0
+		fi
+		if [ "${#subdescs_localized[@]}" != 0 ] && [ "${#subdescs_localized[@]}" != "${#subpkgs[@]}" ]; then
+			goodsubpkgs=0
+		fi
+		if [ "${#sublicense[@]}" != 0 ] && [ "${#sublicense[@]}" != "${#subpkgs[@]}" ]; then
+			goodsubpkgs=0
+		fi
+		if [ "${#subreplaces[@]}" != 0 ] && [ "${#subreplaces[@]}" != "${#subpkgs[@]}" ]; then
+			goodsubpkgs=0
+		fi
+		if [ "${#subgroups[@]}" != 0 ] && [ "${#subgroups[@]}" != "${#subpkgs[@]}" ]; then
+			goodsubpkgs=0
+		fi
+		if [ "${#subdepends[@]}" != 0 ] && [ "${#subdepends[@]}" != "${#subpkgs[@]}" ]; then
+			goodsubpkgs=0
+		fi
+		if [ "${#subrodepends[@]}" != 0 ] && [ "${#subrodepends[@]}" != "${#subpkgs[@]}" ]; then
+			goodsubpkgs=0
+		fi
+		if [ "${#subremoves[@]}" != 0 ] && [ "${#subremoves[@]}" != "${#subpkgs[@]}" ]; then
+			goodsubpkgs=0
+		fi
+		if [ "${#subconflicts[@]}" != 0 ] && [ "${#subconflicts[@]}" != "${#subpkgs[@]}" ]; then
+			goodsubpkgs=0
+		fi
+		if [ "${#subprovides[@]}" != 0 ] && [ "${#subprovides[@]}" != "${#subpkgs[@]}" ]; then
+			goodsubpkgs=0
+		fi
+		if [ "${#subbackup[@]}" != 0 ] && [ "${#subbackup[@]}" != "${#subpkgs[@]}" ]; then
+			goodsubpkgs=0
+		fi
+		if [ "${#subinstall[@]}" != 0 ] && [ "${#subinstall[@]}" != "${#subpkgs[@]}" ]; then
+			goodsubpkgs=0
+		fi
+		if [ "${#suboptions[@]}" != 0 ] && [ "${#suboptions[@]}" != "${#subpkgs[@]}" ]; then
+			goodsubpkgs=0
+		fi
+		if [ "${#subarchs[@]}" != 0 ] && [ "${#subarchs[@]}" != "${#subpkgs[@]}" ]; then
+			goodsubpkgs=0
+		fi
+		if [ $goodsubpkgs -ne 1 ]; then
+			error "Subpackage infos are incomplete. Cannot create subpackages."
+			exit 1
+		fi
+	fi
+}
+
 pkg_mkdirs()
 {
 	local package_name 
@@ -899,41 +979,14 @@ if [ -z "$PKG_EXT" ]; then
 	error "Please make sure that you edit /etc/makepkg.conf and set the PKG_EXT= variable"
 	exit 1
 fi
-if [ ! -f $BUILDSCRIPT ]; then
+if [ ! -f "$BUILDSCRIPT" ]; then
 	error "$BUILDSCRIPT does not exist."
 	exit 1
 fi
 
 source ./$BUILDSCRIPT
 
-# check for no-no's
-if [ -z "$pkgver" ]; then
-	error "pkgver is not allowed to be empty."
-	exit 1
-fi
-if [ -z "$pkgrel" ]; then
-	error "pkgrel is not allowed to be empty."
-	exit 1
-fi
-if [ `$ECHO $pkgver | grep '-'` ]; then
-	error "pkgver is not allowed to contain hyphens."
-	exit 1
-fi
-if [ `$ECHO $pkgrel | grep '-'` ]; then
-	error "pkgrel is not allowed to contain hyphens."
-	exit 1
-fi
-if ! in_array $CARCH ${archs[@]}; then
-	error "$pkgname is not available on $CARCH."
-	exit 1
-fi
-
-if [ "`type -p fblint`" ]; then
-	if ! fblint -p $BUILDSCRIPT &>/dev/null; then
-		warning "fblint says some needed variables are missing or incomplete."
-		plain "Abort the build unless you know what you are doing."
-	fi
-fi
+buildscript_validate
 
 eval "serverlist=${TREE}_servers"
 if [ "$F_makepkg_scm" = "git" -a ! "`check_option NOVERSRC`" ]; then
@@ -951,54 +1004,6 @@ if [ -z "$CACHEURL" ]; then
 fi
 
 if [ ! -z "$subpkgs" ]; then
-	goodsubpkgs=1
-	if [ "${#subdescs[@]}" != 0 ] && [ "${#subdescs[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ "${#subdescs_localized[@]}" != 0 ] && [ "${#subdescs_localized[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ "${#sublicense[@]}" != 0 ] && [ "${#sublicense[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ "${#subreplaces[@]}" != 0 ] && [ "${#subreplaces[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ "${#subgroups[@]}" != 0 ] && [ "${#subgroups[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ "${#subdepends[@]}" != 0 ] && [ "${#subdepends[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ "${#subrodepends[@]}" != 0 ] && [ "${#subrodepends[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ "${#subremoves[@]}" != 0 ] && [ "${#subremoves[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ "${#subconflicts[@]}" != 0 ] && [ "${#subconflicts[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ "${#subprovides[@]}" != 0 ] && [ "${#subprovides[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ "${#subbackup[@]}" != 0 ] && [ "${#subbackup[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ "${#subinstall[@]}" != 0 ] && [ "${#subinstall[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ "${#suboptions[@]}" != 0 ] && [ "${#suboptions[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ "${#subarchs[@]}" != 0 ] && [ "${#subarchs[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ $goodsubpkgs -ne 1 ]; then
-		error "Subpackage infos are incomplete. Cannot create subpackages."
-		exit 1
-	fi
-
 	makedepends=${makedepends[@]}
 	for i in $(seq 0 $((${#subpkgs[@]} - 1)))
 	do
