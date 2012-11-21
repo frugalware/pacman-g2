@@ -515,8 +515,26 @@ pkg_print_pkginfo()
 }
 
 pkg_create_pkginfo() {
-	msg2 "$1: PKGINFO file... " >&2
+	msg2 "$1: .PKGINFO file..." >&2
 	pkg_print_pkginfo "$1" > .PKGINFO
+}
+
+pkg_create_install() {
+	local install
+
+	# check for an install script
+	install="${_P_package_install["$1"]}"
+	if [ "$install" = "" ]; then
+		[ -e "$startdir/$1.install" ] && install="$1.install"
+	fi
+	if [ "$install" != "" ]; then
+		msg2 "$1: .INSTALL file..." >&2
+		if [ "`$ECHO $install |sed 's/^\(.\).*/\1/'`" = "/" ]; then
+			cp "$install" '.INSTALL'
+		else
+			cp "$startdir/$install" '.INSTALL'
+		fi
+	fi
 }
 
 pkg_create_archive() {
@@ -545,25 +563,10 @@ pkg_create_archive() {
 
 create_pkg()
 {
-	local install
-
 	msg "Generating files for $1:"
 	cd "$startdir/pkg.$1"
 	pkg_create_pkginfo "$1"
-
-	# check for an install script
-	install="${_P_package_install["$1"]}"
-	if [ "$install" == "" ]; then
-		[ -e $startdir/$1.install ] && install=$1.install
-	fi
-	if [ "$install" != "" ]; then
-		msg2 ".INSTALL file... " >&2
-		if [ "`$ECHO $install |sed 's/^\(.\).*/\1/'`" = "/" ]; then
-			cp $install .INSTALL
-		else
-			cp $startdir/$install .INSTALL
-		fi
-	fi
+	pkg_create_install "$1"
 
 	if [ -f $startdir/Changelog ]; then
 		msg2 ".CHANGELOG file... " >&2
