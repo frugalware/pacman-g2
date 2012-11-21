@@ -439,6 +439,180 @@ chroot_clean()
 	fi
 }
 
+chroot_enter() {
+	if [ "`id -u`" != 0 ]; then
+		error "Building in a chroot as an unprivileged user is not possible."
+		exit 1
+	fi
+	if [ "$CHROOTDIR" = "" ]; then
+		error "The CHROOTDIR environment variable is not defined."
+		exit 1
+	fi
+	CHROOTDIR="$CHROOTDIR/$TREE"
+
+	mkdir -p $CHROOTDIR/{dev,etc,proc,sys,var/cache/pacman-g2,var/tmp/fst}
+
+	chroot_lock
+
+	install -d -m 2775 {$CCACHE_BASEDIR,$CHROOTDIR/var/cache/ccache}/$pkgname
+
+	chroot_mount
+
+	if [ ! -d "$CHROOTDIR/usr" -o ! -e "$CHROOTDIR/etc/pacman-g2.conf" ]; then
+		msg "Building a '-$TREE' chroot environment"
+		_F_makepkg_pacconf=`mktemp`
+		cat /etc/pacman-g2.conf |grep -v Include >$_F_makepkg_pacconf
+		for i in `$ECHO $TREE|sed 's/,/ /g'`
+		do
+			repo=$(eval "$ECHO \${${i}_$DB_EXT/.$DB_EXT}")
+			[ -z "$repo" ] && repo="$i"
+			# the config parser doesn't know about -r, so we
+			# need $CHROOTDIR here for this first run
+			$ECHO "Include = $CHROOTDIR/etc/pacman-g2/repos/$repo" >>$_F_makepkg_pacconf
+		done
+		mkdir -p $CHROOTDIR/{tmp,var/log,etc/pacman-g2/repos}
+		cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
+		if [ -d ~/.pacman-g2/repos ]; then
+			cp -pf ~/.pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
+		fi
+		$PACMAN -r "$CHROOTDIR" -Syf $COREPKGS --noconfirm --config $_F_makepkg_pacconf
+		if [ "$?" != "0" ]; then
+			error "Failed to build chroot environment."
+			chroot_umount
+			chroot_unlock
+			exit 1
+		fi
+		cat $_F_makepkg_pacconf > $CHROOTDIR/etc/pacman-g2.conf
+		# later runs use 'chroot pacman-g2' instead of
+		# 'pacman-g2 -r', so get rid of $CHROOTDIR
+		sed -i "s|$CHROOTDIR||" $CHROOTDIR/etc/pacman-g2.conf
+		rm -f $_F_makepkg_pacconf
+	else
+		msg "Updating the '-$TREE' chroot environment"
+		# copy these before any update since without them we can't even reach the servers
+		cp -pf /etc/{resolv.conf,services} $CHROOTDIR/etc
+		# run pacman-g2 -Su twice in case pacman-g2 updated
+		yes "" | /usr/sbin/chroot "$CHROOTDIR" $PACMAN -Sy pacman-g2 --ask 94 && \
+			/usr/sbin/chroot "$CHROOTDIR" $PACMAN -Su --noconfirm
+		if [ "$?" != "0" ]; then
+			error "Failed to update chroot environment."
+			chroot_umount
+			chroot_unlock
+			exit 1
+		fi
+	fi
+	# why is this necessary?
+	chmod 1777 $CHROOTDIR/{var,}/tmp
+
+	msg "Copying config files to chroot"
+	cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
+	if [ -d ~/.pacman-g2/repos ]; then
+		cp -pf ~/.pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
+	fi
+	# mtab can be removed once Frugalware-1.4 is out
+	for i in makepkg.conf resolv.conf passwd shadow group fstab mtab
+	do
+		if [ -h $CHROOTDIR/etc/$i ]; then
+			# it's a symlink, don't touch it
+			continue
+		fi
+		cp -pf /etc/$i $CHROOTDIR/etc >/dev/null
+		if [ -e $HOME/.$i ]; then
+			cp $HOME/.$i $CHROOTDIR/etc/$i >/dev/null
+		fi
+	done
+	chmod 644 $CHROOTDIR/etc/sudoers
+	$ECHO "fst ALL=(ALL)       NOPASSWD: ALL" >$CHROOTDIR/etc/sudoers
+	chmod 440 $CHROOTDIR/etc/sudoers
+	chmod 644 $CHROOTDIR/etc/pacman-g2.conf
+	cp -Ppf /etc/localtime $CHROOTDIR/etc >/dev/null
+	cp -pf /etc/services $CHROOTDIR/etc > /dev/null
+	if [ "$?" != "0" ]; then
+		error "An error occurred while attempting to copy config files to chroot."
+		chroot_umount
+		exit 1
+	fi
+	# to make Finclude work
+	[ -d $CHROOTDIR/var/tmp/fst/include/ ] || mkdir -p $CHROOTDIR/var/tmp/fst/include/
+	if [ -d $Fincdir ]; then
+		cp $Fincdir/* $CHROOTDIR/var/tmp/fst/include/
+	fi
+
+	msg "Copying $pkgname's buildscript to chroot"
+	cp -a * $CHROOTDIR/var/tmp/fst/
+	chown -R fst:users $CHROOTDIR/var/tmp/fst
+
+	if [ ! -x  /usr/sbin/chroot ]; then
+		error "chroot was not found."
+	else
+		msg "Entering chroot environment"
+		BUILDLOG=${startdir}/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
+		if [ ! "`check_option NOFAKEROOT`" ]; then
+			# add the fst user in case the host system is not a Frugalware one
+			if ! getent passwd fst >/dev/null; then
+				echo "fst:x:19:2::/var/tmp/fst:" >> $CHROOTDIR/etc/passwd
+			fi
+			# add fst to the ccache group if necessary
+			if ! getent group ccache|grep -q fst; then
+				/usr/sbin/chroot $CHROOTDIR \
+					/usr/sbin/usermod -a -G ccache fst
+			fi
+			/usr/sbin/chroot $CHROOTDIR /usr/sbin/pwconv
+			/usr/sbin/chroot $CHROOTDIR \
+				/bin/su - fst -c "fakeroot -- $0 -F --inchroot -S $ARGLIST"
+		else
+			$ECHO "cd /var/tmp/fst/; $0 --inchroot -s $ARGLIST" | \
+				/usr/sbin/chroot $CHROOTDIR /bin/su - -c /bin/sh
+		fi 2>&1 | tee $BUILDLOG
+		if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
+			# remove colors
+			sed -i "s|.[1;[0-9]\+m||g" $BUILDLOG
+		fi
+	fi
+
+	if [ "`id -u`" = "0" ]; then
+		chown `stat -c %u:%g $BUILDSCRIPT` \
+			${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
+	fi
+
+	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT ]; then
+		mv $CHROOTDIR/var/tmp/fst/*-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT $PKGDEST
+		if [ "`id -u`" = "0" ]; then
+			chown `stat -c %u:%g $BUILDSCRIPT` \
+				*-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT
+		fi
+		# copy back the buildscript, maybe modified
+		cp $CHROOTDIR/var/tmp/fst/$BUILDSCRIPT ./
+		if [ "$CLEANUP" != "1" ]; then
+			mv $CHROOTDIR/var/tmp/fst/{pkg,src,pkg.*} ./ 2> /dev/null
+			chown -R `stat -c %u:%g $BUILDSCRIPT` pkg src pkg.* 2> /dev/null
+		fi
+		rm -rf $CHROOTDIR/var/tmp/fst/*
+		chroot_clean
+		# check optimization and write it to $BUILDSCRIPT
+		msg "Checking for optimization..."
+		if grep -q -- "\($CFLAGS\|$CXXFLAGS\)" "${BUILDLOG}" ; then
+			if ! grep -q "# optimization" "${BUILDSCRIPT}" ; then
+				$ECHO -e "\n# optimization OK" >> "${BUILDSCRIPT}"
+			fi
+		else
+			warning "This package isn't ${CARCH}-optimized!"
+		fi
+		# copy build log to LOGDIR if set
+		if [ -d "$LOGDIR" ]; then
+			msg "Creating permanent copy of build log"
+			cp "${BUILDLOG}" "${LOGDIR}/${LOGDIR_APPEND}-${pkgname}-${pkgver}-${pkgrel}.log"
+		fi
+		ret=0
+	else
+		ret=1
+	fi
+
+	chroot_umount
+	chroot_unlock
+	exit $ret
+}
+
 buildscript_validate() {
 	if [ "`type -p fblint`" ]; then
 		if ! fblint -p $BUILDSCRIPT &>/dev/null; then
@@ -1133,177 +1307,7 @@ fi
 unset LC_ALL LANG
 # Build chroot environment if necessary.
 if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
-	if [ "`id -u`" != 0 ]; then
-		error "Building in a chroot as an unprivileged user is not possible."
-		exit 1
-	fi
-	if [ "$CHROOTDIR" = "" ]; then
-		error "The CHROOTDIR environment variable is not defined."
-		exit 1
-	fi
-	CHROOTDIR="$CHROOTDIR/$TREE"
-
-	mkdir -p $CHROOTDIR/{dev,etc,proc,sys,var/cache/pacman-g2,var/tmp/fst}
-
-	chroot_lock
-
-	install -d -m 2775 {$CCACHE_BASEDIR,$CHROOTDIR/var/cache/ccache}/$pkgname
-
-	chroot_mount
-
-	if [ ! -d "$CHROOTDIR/usr" -o ! -e "$CHROOTDIR/etc/pacman-g2.conf" ]; then
-		msg "Building a '-$TREE' chroot environment"
-		_F_makepkg_pacconf=`mktemp`
-		cat /etc/pacman-g2.conf |grep -v Include >$_F_makepkg_pacconf
-		for i in `$ECHO $TREE|sed 's/,/ /g'`
-		do
-			repo=$(eval "$ECHO \${${i}_$DB_EXT/.$DB_EXT}")
-			[ -z "$repo" ] && repo="$i"
-			# the config parser doesn't know about -r, so we
-			# need $CHROOTDIR here for this first run
-			$ECHO "Include = $CHROOTDIR/etc/pacman-g2/repos/$repo" >>$_F_makepkg_pacconf
-		done
-		mkdir -p $CHROOTDIR/{tmp,var/log,etc/pacman-g2/repos}
-		cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
-		if [ -d ~/.pacman-g2/repos ]; then
-			cp -pf ~/.pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
-		fi
-		$PACMAN -r "$CHROOTDIR" -Syf $COREPKGS --noconfirm --config $_F_makepkg_pacconf
-		if [ "$?" != "0" ]; then
-			error "Failed to build chroot environment."
-			chroot_umount
-			chroot_unlock
-			exit 1
-		fi
-		cat $_F_makepkg_pacconf > $CHROOTDIR/etc/pacman-g2.conf
-		# later runs use 'chroot pacman-g2' instead of
-		# 'pacman-g2 -r', so get rid of $CHROOTDIR
-		sed -i "s|$CHROOTDIR||" $CHROOTDIR/etc/pacman-g2.conf
-		rm -f $_F_makepkg_pacconf
-	else
-		msg "Updating the '-$TREE' chroot environment"
-		# copy these before any update since without them we can't even reach the servers
-		cp -pf /etc/{resolv.conf,services} $CHROOTDIR/etc
-		# run pacman-g2 -Su twice in case pacman-g2 updated
-		yes "" | /usr/sbin/chroot "$CHROOTDIR" $PACMAN -Sy pacman-g2 --ask 94 && \
-			/usr/sbin/chroot "$CHROOTDIR" $PACMAN -Su --noconfirm
-		if [ "$?" != "0" ]; then
-			error "Failed to update chroot environment."
-			chroot_umount
-			chroot_unlock
-			exit 1
-		fi
-	fi
-	# why is this necessary?
-	chmod 1777 $CHROOTDIR/{var,}/tmp
-
-	msg "Copying config files to chroot"
-	cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
-	if [ -d ~/.pacman-g2/repos ]; then
-		cp -pf ~/.pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
-	fi
-	# mtab can be removed once Frugalware-1.4 is out
-	for i in makepkg.conf resolv.conf passwd shadow group fstab mtab
-	do
-		if [ -h $CHROOTDIR/etc/$i ]; then
-			# it's a symlink, don't touch it
-			continue
-		fi
-		cp -pf /etc/$i $CHROOTDIR/etc >/dev/null
-		if [ -e $HOME/.$i ]; then
-			cp $HOME/.$i $CHROOTDIR/etc/$i >/dev/null
-		fi
-	done
-	chmod 644 $CHROOTDIR/etc/sudoers
-	$ECHO "fst ALL=(ALL)       NOPASSWD: ALL" >$CHROOTDIR/etc/sudoers
-	chmod 440 $CHROOTDIR/etc/sudoers
-	chmod 644 $CHROOTDIR/etc/pacman-g2.conf
-	cp -Ppf /etc/localtime $CHROOTDIR/etc >/dev/null
-	cp -pf /etc/services $CHROOTDIR/etc > /dev/null
-	if [ "$?" != "0" ]; then
-		error "An error occurred while attempting to copy config files to chroot."
-		chroot_umount
-		exit 1
-	fi
-	# to make Finclude work
-	[ -d $CHROOTDIR/var/tmp/fst/include/ ] || mkdir -p $CHROOTDIR/var/tmp/fst/include/
-	if [ -d $Fincdir ]; then
-		cp $Fincdir/* $CHROOTDIR/var/tmp/fst/include/
-	fi
-
-	msg "Copying $pkgname's buildscript to chroot"
-	cp -a * $CHROOTDIR/var/tmp/fst/
-	chown -R fst:users $CHROOTDIR/var/tmp/fst
-
-	if [ ! -x  /usr/sbin/chroot ]; then
-		error "chroot was not found."
-	else
-		msg "Entering chroot environment"
-		BUILDLOG=${startdir}/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
-		if [ ! "`check_option NOFAKEROOT`" ]; then
-			# add the fst user in case the host system is not a Frugalware one
-			if ! getent passwd fst >/dev/null; then
-				echo "fst:x:19:2::/var/tmp/fst:" >> $CHROOTDIR/etc/passwd
-			fi
-			# add fst to the ccache group if necessary
-			if ! getent group ccache|grep -q fst; then
-				/usr/sbin/chroot $CHROOTDIR \
-					/usr/sbin/usermod -a -G ccache fst
-			fi
-			/usr/sbin/chroot $CHROOTDIR /usr/sbin/pwconv
-			/usr/sbin/chroot $CHROOTDIR \
-				/bin/su - fst -c "fakeroot -- $0 -F --inchroot -S $ARGLIST"
-		else
-			$ECHO "cd /var/tmp/fst/; $0 --inchroot -s $ARGLIST" | \
-				/usr/sbin/chroot $CHROOTDIR /bin/su - -c /bin/sh
-		fi 2>&1 | tee $BUILDLOG
-		if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
-			# remove colors
-			sed -i "s|.[1;[0-9]\+m||g" $BUILDLOG
-		fi
-	fi
-
-	if [ "`id -u`" = "0" ]; then
-		chown `stat -c %u:%g $BUILDSCRIPT` \
-			${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
-	fi
-
-	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT ]; then
-		mv $CHROOTDIR/var/tmp/fst/*-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT $PKGDEST
-		if [ "`id -u`" = "0" ]; then
-			chown `stat -c %u:%g $BUILDSCRIPT` \
-				*-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT
-		fi
-		# copy back the buildscript, maybe modified
-		cp $CHROOTDIR/var/tmp/fst/$BUILDSCRIPT ./
-		if [ "$CLEANUP" != "1" ]; then
-			mv $CHROOTDIR/var/tmp/fst/{pkg,src,pkg.*} ./ 2> /dev/null
-			chown -R `stat -c %u:%g $BUILDSCRIPT` pkg src pkg.* 2> /dev/null
-		fi
-		rm -rf $CHROOTDIR/var/tmp/fst/*
-		chroot_clean
-		# check optimization and write it to $BUILDSCRIPT
-		msg "Checking for optimization..."
-		if grep -q -- "\($CFLAGS\|$CXXFLAGS\)" "${BUILDLOG}" ; then
-			if ! grep -q "# optimization" "${BUILDSCRIPT}" ; then
-				$ECHO -e "\n# optimization OK" >> "${BUILDSCRIPT}"
-			fi
-		else
-			warning "This package isn't ${CARCH}-optimized!"
-		fi
-		# copy build log to LOGDIR if set
-		if [ -d "$LOGDIR" ]; then
-			msg "Creating permanent copy of build log"
-			cp "${BUILDLOG}" "${LOGDIR}/${LOGDIR_APPEND}-${pkgname}-${pkgver}-${pkgrel}.log"
-		fi
-		ret=0
-	else
-		ret=1
-	fi
-
-	chroot_umount
-	chroot_unlock
-	exit $ret
+	chroot_enter
 fi
 
 # Enter the fakeroot environment if necessary.  This will call the makepkg script again
