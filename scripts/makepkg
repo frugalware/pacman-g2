@@ -471,12 +471,11 @@ pkg_pkginfo()
 	$ECHO "# $(date)"
 	$ECHO "pkgname = $1"
 	$ECHO "pkgver = $pkgver-$pkgrel"
-	$ECHO "pkgdesc = ${_P_package_descriptions["$1"]}"
-	if [ -n "$pkgdesc_localized" ]; then
-		for it in "${pkgdesc_localized[@]}"; do
-			$ECHO "pkgdesc = $it"
-		done
-	fi
+	while IFS= read -r it; do
+		if [ -n "${it}" ]; then
+			$ECHO "pkgdesc = ${it}"
+		fi
+	done <<< "${_P_package_descriptions["$1"]}"
 	$ECHO "url = $url"
 	$ECHO "builddate = $builddate"
 	$ECHO "buildtype = $buildtype"
@@ -1000,6 +999,9 @@ if [ "${#_P_package_names[@]}" -eq 0 ]; then
 
 	_P_package_names=("${pkgname}" "${subpkgs[@]}")
 	_P_package_descriptions["${pkgname}"]="${pkgdesc}"
+	for i in "${pkgdesc_localized[@]}"; do
+		_P_package_descriptions["${pkgname}"]+="$($ECHO -en "\n$i")"
+	done
 	_P_package_licenses["${pkgname}"]="${license[*]}"
 	_P_package_replaces["${pkgname}"]="${replaces[*]}"
 	_P_package_groups["${pkgname}"]="${groups[*]}"
@@ -1015,7 +1017,7 @@ if [ "${#_P_package_names[@]}" -eq 0 ]; then
 
 	i=0
 	for subpkg in "${subpkgs[@]}"; do
-		_P_package_descriptions["${subpkg}"]="${subdescs[$i]}"
+		_P_package_descriptions["${subpkg}"]="$($ECHO -en "${subdescs[$i]}\n${subdescs_localized[$i]}")"
 		_P_package_licenses["${subpkg}"]="${sublicense[$i]}"
 		_P_package_replaces["${subpkg}"]="${subreplaces[$i]}"
 		_P_package_groups["${subpkg}"]="${subgroups[$i]}"
