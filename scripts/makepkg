@@ -439,7 +439,7 @@ chroot_clean()
 	fi
 }
 
-mkdir_subpkgs()
+pkg_mkdirs()
 {
 	local package_name 
 
@@ -452,7 +452,7 @@ mkdir_subpkgs()
 	ln -s "pkg.${_P_package_names[0]}" "$startdir/pkg"
 }
 
-rmdir_subpkgs()
+pkg_rmdirs()
 {
 	if [ "$(ls $startdir/{pkg,pkg.*} 2> /dev/null | wc -l)" -gt 0 ]; then
 		msg "Removing existing pkg and pkg.* directories..."
@@ -1608,8 +1608,8 @@ if [ "`id -u`" = "0" ]; then
 	chown -R root.root $startdir/src
 fi
 
-rmdir_subpkgs
-mkdir_subpkgs
+pkg_rmdirs
+pkg_mkdirs
 
 if [ "$NOBUILD" = "1" ]; then
 	msg "Sources are ready."
@@ -1928,7 +1928,7 @@ if [ "$CLEANUP" = "1" ]; then
 		msg "Chroot size before cleaning: $(sudo du -sh $exclude / |sed "s/\t.*//")"
 	fi
 	msg "Cleaning up..."
-	rmdir_subpkgs
+	pkg_rmdirs
 	rm -rf src Changelog
 fi
 
