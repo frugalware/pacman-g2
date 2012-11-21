@@ -182,12 +182,11 @@ strip_url() {
 }
 
 checkdeps() {
-	local missdep=""
-	local deplist=""
+	local deplist="" missdep="" ret
 
 	[ $# -gt 0 ] || return
 
-	missdep=`$PACMAN $PACMAN_OPTS -T $*`
+	missdep="$($PACMAN $PACMAN_OPTS -T "$@")"
 	ret=$?
 	if [ "$ret" != "0" ]; then
 		if [ "$ret" = "127" ]; then
@@ -1297,25 +1296,25 @@ msg "Making package: $pkgname $pkgver-$pkgrel (`date`)"
 unset deplist makedeplist
 if [ `type -p $PACMAN` -a "$NODEPS" = "0" ]; then
 	msg "Checking Buildtime Dependencies..."
-	makedeplist=`checkdeps ${makedepends[@]}`
+	makedeplist="$(checkdeps "${makedepends[@]}")"
 	handledeps $makedeplist
 	if [ $? -gt 0 ]; then
 		exit 1
 	fi
 	# check deps again to make sure they were resolved
-	deplist=`checkdeps ${makedepends[@]}`
+	deplist="$(checkdeps "${makedepends[@]}")"
 	if [ ! -z "$deplist" ]; then
 		error "Failed to install missing buildtime dependencies."
 		exit 1
 	fi
 	msg "Checking Runtime Dependencies..."
-	deplist=`checkdeps ${depends[@]}`
+	deplist="$(checkdeps "${depends[@]}")"
 	handledeps $deplist
 	if [ $? -gt 0 ]; then
 		exit 1
 	fi
 	# check deps again to make sure they were resolved
-	deplist=`checkdeps ${depends[@]}`
+	deplist="$(checkdeps "${depends[@]}")"
 	if [ ! -z "$deplist" ]; then
 		error "Failed to install missing dependencies."
 		exit 1
