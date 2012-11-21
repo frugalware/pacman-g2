@@ -461,7 +461,7 @@ rmdir_subpkgs()
 	fi
 }
 
-pkg_pkginfo()
+pkg_print_pkginfo()
 {
 	local it
 
@@ -514,6 +514,11 @@ pkg_pkginfo()
 	done
 }
 
+pkg_create_pkginfo() {
+	msg2 "$1: PKGINFO file... " >&2
+	pkg_print_pkginfo "$1" > .PKGINFO
+}
+
 pkg_create_archive() {
 	local i tarargs tarball
 
@@ -544,8 +549,7 @@ create_pkg()
 
 	msg "Generating files for $1:"
 	cd "$startdir/pkg.$1"
-	msg2 ".PKGINFO file... " >&2
-	pkg_pkginfo "$1" > .PKGINFO
+	pkg_create_pkginfo "$1"
 
 	# check for an install script
 	install="${_P_package_install["$1"]}"
