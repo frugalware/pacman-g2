@@ -514,6 +514,30 @@ pkg_pkginfo()
 	done
 }
 
+pkg_create_archive() {
+	local i tarargs tarball
+
+	tarball="$1-$pkgver-$pkgrel-$CARCH.$PKG_EXT"
+	msg2 "Compressing $tarball " >&2
+
+	if [ -n "$COMPRESS_PROGRAM" ]; then
+		tarargs+=("--use-compress-program=$COMPRESS_PROGRAM")
+	fi
+	tarargs+=("-cf")
+	if [ "$INCHROOT" != "1" ]; then
+		tarargs+=("$PKGDEST/$tarball")
+	else
+		tarargs+=("../$tarball")
+	fi
+	tarargs+=('.PKGINFO' '.FILELIST')
+	for i in '.INSTALL' '.CHANGELOG'; do
+		if [ -f "$i" ]; then
+			tarargs+=("$i")
+		fi
+	done
+	tar "${tarargs[@]}" *
+}
+
 create_pkg()
 {
 	local install
@@ -546,28 +570,7 @@ create_pkg()
 	msg2 ".FILELIST file... " >&2
 	tar cvf /dev/null * | sort >.FILELIST
 
-	# tar it up
-	msg2 "Compressing $1-$pkgver-$pkgrel-$CARCH.$PKG_EXT " >&2
-	unset extra
-	if [ -f .INSTALL ]; then
-		extra=".INSTALL"
-	fi
-	if [ -f .CHANGELOG ]; then
-		extra="$extra .CHANGELOG"
-	fi
-
-	case "$COMPRESS_PROGRAM" in
-	none)	tarargs="-cf" ;;
-	*)	tarargs="--use-compress-program=$COMPRESS_PROGRAM -cf" ;;
-	esac
-
-	if [ "$INCHROOT" != "1" ]; then
-		tar $tarargs $PKGDEST/$1-$pkgver-$pkgrel-$CARCH.$PKG_EXT .PKGINFO .FILELIST \
-		$extra *
-	else
-		tar $tarargs ../$1-$pkgver-$pkgrel-$CARCH.$PKG_EXT .PKGINFO .FILELIST \
-			$extra *
-	fi
+	pkg_create_archive "$1"
 
 	if [ "$SEARCHDEPS" == "1" ]; then
 		if [ -x /usr/bin/chkdep ]; then
