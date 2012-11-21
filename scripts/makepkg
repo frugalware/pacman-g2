@@ -519,6 +519,33 @@ buildscript_validate() {
 	fi
 }
 
+buildscript_up2date() {
+	msg "Checking for newer version..."
+	if $ECHO "$up2date"|grep -q " "; then
+		cmd=`$ECHO "$up2date"|sed 's/^\([^ ]*\) .*/\1/'`
+		if type -p $cmd &>/dev/null; then
+			up2date=`eval "$up2date"`
+		else
+			warning "The $cmd program is missing.  Cannot check for newer version!"
+			up2date=""
+			sleep 1
+		fi
+	fi
+	if [ -z "$up2date" ]; then
+			$ECHO "   FAILED" >&2
+			error "There was no output!"
+			exit 1
+	else
+		if [ "$pkgver" != "$up2date" ]; then
+			$ECHO "   FAILED" >&2
+			error "Upstream version differs! ($pkgver != $up2date)"
+			exit 1
+		else
+		$ECHO "   Passed" >&2
+		fi
+	fi
+}
+
 buildscript_create_changelog() {
 	local indir=n
 
@@ -1344,32 +1371,8 @@ fi
 
 cd $startdir
 
-# version checking
 if [ "$NOUP2DATE" = "0" ]; then
-	msg "Checking for newer version..."
-	if $ECHO "$up2date"|grep -q " "; then
-		cmd=`$ECHO "$up2date"|sed 's/^\([^ ]*\) .*/\1/'`
-		if type -p $cmd &>/dev/null; then
-			up2date=`eval "$up2date"`
-		else
-			warning "The $cmd program is missing.  Cannot check for newer version!"
-			up2date=""
-			sleep 1
-		fi
-	fi
-	if [ -z "$up2date" ]; then
-			$ECHO "   FAILED" >&2
-			error "There was no output!"
-			exit 1
-	else
-		if [ "$pkgver" != "$up2date" ]; then
-			$ECHO "   FAILED" >&2
-			error "Upstream version differs! ($pkgver != $up2date)"
-			exit 1
-		else
-		$ECHO "   Passed" >&2
-		fi
-	fi
+	buildscript_up2date
 fi
 
 # estimate build time
