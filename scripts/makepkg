@@ -536,6 +536,19 @@ pkg_create_install() {
 	fi
 }
 
+pkg_create_changelog() {
+	if [ -f "${startdir}/Changelog" ]; then
+		msg2 "$1: .CHANGELOG file... " >&2
+		cp "${startdir}/Changelog" '.CHANGELOG'
+	fi
+}
+
+pkg_create_filelist() {
+	# build a filelist
+	msg2 "$1: .FILELIST file... " >&2
+	tar cvf /dev/null * | sort >.FILELIST
+}
+
 pkg_create_archive() {
 	local i tarargs tarball
 
@@ -566,16 +579,8 @@ create_pkg()
 	cd "$startdir/pkg.$1"
 	pkg_create_pkginfo "$1"
 	pkg_create_install "$1"
-
-	if [ -f $startdir/Changelog ]; then
-		msg2 ".CHANGELOG file... " >&2
-		cp $startdir/Changelog .CHANGELOG
-	fi
-
-	# build a filelist
-	msg2 ".FILELIST file... " >&2
-	tar cvf /dev/null * | sort >.FILELIST
-
+	pkg_create_changelog "$1"
+	pkg_create_filelist "$1"
 	pkg_create_archive "$1"
 
 	if [ "$SEARCHDEPS" == "1" ]; then
