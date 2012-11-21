@@ -362,18 +362,19 @@ usage() {
 	$ECHO "  --gzip           Use gzip compression for a package"
 }
 
-chroot_umount() {
-    msg "Attempting to umount chroot directories..."
-    umount $CHROOTDIR/proc >/dev/null
-    umount $CHROOTDIR/sys >/dev/null
-    umount $CHROOTDIR/dev >/dev/null
-    umount $CHROOTDIR/var/cache/pacman-g2 >/dev/null
-    umount $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
-    if [ "$?" != "0" ]; then
-	error "An error occurred while attempting to umount chroot directories."
-	exit 1
-    fi
-    msg "Successfully umounted chroot directories."
+chroot_lock() {
+	if [ -e $CHROOTDIR/var/tmp/fst/lock -a -d /proc/$(cat $CHROOTDIR/var/tmp/fst/lock 2>/dev/null) ]; then
+		error "Process $(cat $CHROOTDIR/var/tmp/fst/lock) is already building in this chroot."
+		plain "If you know what you are doing, you"
+		plain "can remove $CHROOTDIR/var/tmp/fst/lock."
+		exit 1
+	else
+		echo $$ >$CHROOTDIR/var/tmp/fst/lock
+	fi
+}
+
+chroot_unlock() {
+	rm -f $CHROOTDIR/var/tmp/fst/lock $_F_makepkg_pacconf
 }
 
 chroot_mount() {
@@ -391,19 +392,18 @@ chroot_mount() {
     msg "Successfully mounted chroot directories."
 }
 
-chroot_lock() {
-	if [ -e $CHROOTDIR/var/tmp/fst/lock -a -d /proc/$(cat $CHROOTDIR/var/tmp/fst/lock 2>/dev/null) ]; then
-		error "Process $(cat $CHROOTDIR/var/tmp/fst/lock) is already building in this chroot."
-		plain "If you know what you are doing, you"
-		plain "can remove $CHROOTDIR/var/tmp/fst/lock."
-		exit 1
-	else
-		echo $$ >$CHROOTDIR/var/tmp/fst/lock
-	fi
-}
-
-chroot_unlock() {
-	rm -f $CHROOTDIR/var/tmp/fst/lock $_F_makepkg_pacconf
+chroot_umount() {
+    msg "Attempting to umount chroot directories..."
+    umount $CHROOTDIR/proc >/dev/null
+    umount $CHROOTDIR/sys >/dev/null
+    umount $CHROOTDIR/dev >/dev/null
+    umount $CHROOTDIR/var/cache/pacman-g2 >/dev/null
+    umount $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
+    if [ "$?" != "0" ]; then
+	error "An error occurred while attempting to umount chroot directories."
+	exit 1
+    fi
+    msg "Successfully umounted chroot directories."
 }
 
 chroot_clean()
