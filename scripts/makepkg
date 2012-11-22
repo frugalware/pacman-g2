@@ -976,6 +976,37 @@ buildenv_ccache() {
 	fi
 }
 
+buildenv_depends_validate() {
+	if [ `type -p $PACMAN` ]; then
+		msg "Checking Buildtime Dependencies..."
+		makedeplist="$(checkdeps "${makedepends[@]}")"
+		handledeps $makedeplist
+		if [ $? -gt 0 ]; then
+			exit 1
+		fi
+		# check deps again to make sure they were resolved
+		deplist="$(checkdeps "${makedepends[@]}")"
+		if [ ! -z "$deplist" ]; then
+			error "Failed to install missing buildtime dependencies."
+			exit 1
+		fi
+		msg "Checking Runtime Dependencies..."
+		deplist="$(checkdeps "${depends[@]}")"
+		handledeps $deplist
+		if [ $? -gt 0 ]; then
+			exit 1
+		fi
+		# check deps again to make sure they were resolved
+		deplist="$(checkdeps "${depends[@]}")"
+		if [ ! -z "$deplist" ]; then
+			error "Failed to install missing dependencies."
+			exit 1
+		fi
+	else
+		warning "$PACMAN was not found in PATH. skipping dependency checks."
+	fi
+}
+
 pkg_mkdirs()
 {
 	local package_name 
@@ -1568,35 +1599,10 @@ fi
 msg "Making package: $pkgname $pkgver-$pkgrel (`date`)"
 
 unset deplist makedeplist
-if [ `type -p $PACMAN` -a "$NODEPS" = "0" ]; then
-	msg "Checking Buildtime Dependencies..."
-	makedeplist="$(checkdeps "${makedepends[@]}")"
-	handledeps $makedeplist
-	if [ $? -gt 0 ]; then
-		exit 1
-	fi
-	# check deps again to make sure they were resolved
-	deplist="$(checkdeps "${makedepends[@]}")"
-	if [ ! -z "$deplist" ]; then
-		error "Failed to install missing buildtime dependencies."
-		exit 1
-	fi
-	msg "Checking Runtime Dependencies..."
-	deplist="$(checkdeps "${depends[@]}")"
-	handledeps $deplist
-	if [ $? -gt 0 ]; then
-		exit 1
-	fi
-	# check deps again to make sure they were resolved
-	deplist="$(checkdeps "${depends[@]}")"
-	if [ ! -z "$deplist" ]; then
-		error "Failed to install missing dependencies."
-		exit 1
-	fi
-elif [ "$NODEPS" = "1" ]; then
-	warning "skipping dependency checks."
+if [ "$NODEPS" = "0" ]; then
+	buildenv_depends_validate
 else
-	warning "$PACMAN was not found in PATH. skipping dependency checks."
+	warning "Skipping dependency checks."
 fi
 
 cd $startdir
