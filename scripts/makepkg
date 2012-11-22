@@ -1642,17 +1642,6 @@ if grep -i -q "^# Compiling Time: [~0-9\.]\+ SBU$" $BUILDSCRIPT && \
 	fi
 fi
 
-if [ "`check_option NOASNEEDED`" ]; then
-	msg "Using --no-as-needed in LDFLAGS"
-	LDFLAGS+=" -Wl,--no-as-needed"
-else
-	if [ "`check_option ASNEEDED`" ]; then
-		msg "Using --as-needed in LDFLAGS"
-		LDFLAGS+=" -Wl,--as-needed"
-	fi
-fi
-export LDFLAGS
-
 sources_download
 
 if [ "$GENSHA1" = "0" ]; then
@@ -1701,6 +1690,17 @@ fi
 if [ "$NOCCACHE" = "0" -a ! "`check_option NOCCACHE`" ]; then
 	buildenv_ccache
 fi
+
+if [ "`check_option NOASNEEDED`" ]; then
+	msg "Using --no-as-needed in LDFLAGS"
+	LDFLAGS+=" -Wl,--no-as-needed"
+else
+	if [ "`check_option ASNEEDED`" ]; then
+		msg "Using --as-needed in LDFLAGS"
+		LDFLAGS+=" -Wl,--as-needed"
+	fi
+fi
+export LDFLAGS
 
 # build
 msg "Starting build()..."
