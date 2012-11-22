@@ -1758,26 +1758,6 @@ fi
 
 cd $startdir
 
-# unwanted files
-msg "Removing unwanted files..."
-extra=
-ls pkg.* &>/dev/null && extra=pkg.*/usr/lib/perl?
-for f in `find pkg/usr/lib/perl? $extra -type f 2> /dev/null` ; do
-	case "$f" in
-		*/.packlist|*/perllocal.pod)
-			rm -f "$f"
-			rmdir -p --ignore-fail-on-non-empty `dirname $f` 2> /dev/null
-		;;
-	esac
-done
-extra=
-ls pkg.* &>/dev/null && extra=pkg.*
-rm -f {pkg,pkg.*}/{usr{,/local,/share},opt/*}/info/dir 2> /dev/null
-for f in `find pkg $extra -type f -name encodings.dir -o -type f -name fonts.dir -o -type f -name fonts.scale` ; do
-	msg2 "`$ECHO $f | sed 's|pkg[^/]\+||'`"
-	rm -f "$f"
-done
-
 # documentation
 msg "Preparing package documentation..."
 if [ ! "`check_option NODOCS`" -a "$NODOCS" = "0" ]; then
@@ -1821,6 +1801,37 @@ if [ ! "`check_option NODOCS`" -a "$NODOCS" = "0" ]; then
 fi
 
 # NOTE: _P_subpkgsfixes hook registration order is important.
+
+_pkg_perl_cleanup_hook() {
+	msg "$1: Removing unwanted perl files..."
+
+	for f in `find usr/lib/perl? -type f 2> /dev/null` ; do
+		case "$f" in
+			*/.packlist|*/perllocal.pod)
+				rm -f "$f"
+				rmdir -p --ignore-fail-on-non-empty `dirname $f` 2> /dev/null
+			;;
+		esac
+	done
+}
+_P_subpkgsfixes+=(_pkg_perl_cleanup_hook)
+
+_pkg_info_cleanup_hook() {
+	msg "$1: Removing unwanted info files..."
+
+	rm -f {usr{,/local,/share},opt/*}/info/dir 2> /dev/null
+}
+_P_subpkgsfixes+=(_pkg_info_cleanup_hook)
+
+_pkg_mkfontdir_cleanup_hook() {
+	msg "$1: Removing unwanted mkfontdir files..."
+
+	for f in `find -type f -name encodings.dir -o -type f -name fonts.dir -o -type f -name fonts.scale` ; do
+		msg2 "`$ECHO $f | sed 's|^./||'`"
+		rm -f "$f"
+	done
+}
+_P_subpkgsfixes+=(_pkg_mkfontdir_cleanup_hook)
 
 _pkg_documentation_hook()
 {
