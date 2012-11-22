@@ -1320,6 +1320,98 @@ install_pkg()
 	exit 0
 }
 
+makepkg_parseargs() {
+	while [ "$#" -ne "0" ]; do
+		case "$1" in
+# pacman-g2
+		--noconfirm)      PACMAN_OPTS="$PACMAN_OPTS --noconfirm" ;;
+		--noprogressbar)  PACMAN_OPTS="$PACMAN_OPTS --noprogressbar" ;;
+# makepkg
+		--searchdeps) SEARCHDEPS=1 ;;
+		--clean)      CLEANUP=1 ;;
+		--cleancache) CLEANCACHE=$(($CLEANCACHE+1)) ;;
+		--syncdeps)   DEP_BIN=1 ;;
+		--sudosync)   DEP_SUDO=1 ;;
+		--builddeps)  DEP_SRC=1 ;;
+		--noccache)   NOCCACHE=1 ;;
+		--nodeps)     NODEPS=1 ;;
+		--noextract)  NOEXTRACT=1 ;;
+		--install)    INSTALL=1 ;;
+		--force)      FORCE=1 ;;
+		--nostrip)    NOSTRIP=1 ;;
+		--nobuild)    NOBUILD=1 ;;
+		--nocolor)    USE_COLOR="n" ;;
+		--gensha1)    GENSHA1=1; CHROOT=0 ;;
+		--wrtsha1)    GENSHA1=1; WRITESHA1=1; CHROOT=0; NODEPS=1 ;;
+		--rmdeps)     RMDEPS=1 ;;
+		--chroot)     CHROOT=1 ;;
+		--host)       CHROOT=0 ;;
+		--noup2date)  NOUP2DATE=1 ;;
+		--gzip)       COMPRESS_PROGRAM="gzip" ;;
+		--help)
+			usage
+			exit 0
+			;;
+		--*)
+			usage
+			exit 1
+			;;
+		-*)
+			while getopts "aA:bBcCdD:efgGhij:kl:Lmnop:urRHsSt:w:z:-" opt; do
+				case $opt in
+				a) SEARCHDEPS=1 ;;
+				A) CACHEURL=$OPTARG ;;
+				b) DEP_SRC=1 ;;
+				B) NOCCACHE=1 ;;
+				c) CLEANUP=1 ;;
+				C) CLEANCACHE=$(($CLEANCACHE+1)) ;;
+				d) NODEPS=1 ;;
+				D) CLEANCCACHE=$OPTARG ;;
+				e) NOEXTRACT=1 ;;
+				f) FORCE=1 ;;
+				g) GENSHA1=1; CHROOT=0 ;;
+				G) GENSHA1=1; WRITESHA1=1; CHROOT=0; NODEPS=1 ;;
+				h)
+					usage
+					exit 0
+					;;
+				i) INSTALL=1 ;;
+				j) export MAKEFLAGS="-j$OPTARG" ;;
+				l) DOWNLOAD="$OPTARG" ;;
+				m) USE_COLOR="n" ;;
+				n) NOSTRIP=1 ;;
+				o) NOBUILD=1; CHROOT=0 ;;
+				p) BUILDSCRIPT=$OPTARG ;;
+				r) RMDEPS=1 ;;
+				R) CHROOT=1 ;;
+				H) CHROOT=0 ;;
+				s) DEP_BIN=1 ;;
+				S) DEP_SUDO=1 ;;
+				t) TREE="$OPTARG" ;;
+				u) NOUP2DATE=1 ;;
+				w) PKGDEST=$OPTARG ;;
+				z) COMPRESS_PROGRAM=$OPTARG ;;
+				-)
+					OPTIND=0
+					break
+					;;
+				*)
+					usage
+					exit 1
+					;;
+				esac
+			done
+			;;
+		*=*)	eval $(IFS= ; printf 'export %q=%q' "${1%%=*}" "${1#*=}")
+			;;
+		*)
+			true
+			;;
+		esac
+		shift
+	done
+}
+
 makepkg_build() {
 	# use distcc if requested
 	if [ "$DISTCC" = "y" ]; then
@@ -1521,95 +1613,7 @@ fi
 ARGLIST=$@
 COMPRESS_PROGRAM="$PKG_COMP"
 
-while [ "$#" -ne "0" ]; do
-	case $1 in
-# pacman-g2
-		--noconfirm)      PACMAN_OPTS="$PACMAN_OPTS --noconfirm" ;;
-		--noprogressbar)  PACMAN_OPTS="$PACMAN_OPTS --noprogressbar" ;;
-# makepkg
-		--searchdeps) SEARCHDEPS=1 ;;
-		--clean)      CLEANUP=1 ;;
-		--cleancache) CLEANCACHE=$(($CLEANCACHE+1)) ;;
-		--syncdeps)   DEP_BIN=1 ;;
-		--sudosync)   DEP_SUDO=1 ;;
-		--builddeps)  DEP_SRC=1 ;;
-		--noccache)   NOCCACHE=1 ;;
-		--nodeps)     NODEPS=1 ;;
-		--noextract)  NOEXTRACT=1 ;;
-		--install)    INSTALL=1 ;;
-		--force)      FORCE=1 ;;
-		--nostrip)    NOSTRIP=1 ;;
-		--nobuild)    NOBUILD=1 ;;
-		--nocolor)    USE_COLOR="n" ;;
-		--gensha1)    GENSHA1=1; CHROOT=0 ;;
-		--wrtsha1)    GENSHA1=1; WRITESHA1=1; CHROOT=0; NODEPS=1 ;;
-		--rmdeps)     RMDEPS=1 ;;
-		--chroot)     CHROOT=1 ;;
-		--host)       CHROOT=0 ;;
-		--noup2date)  NOUP2DATE=1 ;;
-		--gzip)       COMPRESS_PROGRAM="gzip" ;;
-		--help)
-			usage
-			exit 0
-			;;
-		--*)
-			usage
-			exit 1
-			;;
-		-*)
-			while getopts "aA:bBcCdD:efgGhij:kl:Lmnop:urRHsSt:w:z:-" opt; do
-				case $opt in
-					a) SEARCHDEPS=1 ;;
-					A) CACHEURL=$OPTARG ;;
-					b) DEP_SRC=1 ;;
-					B) NOCCACHE=1 ;;
-					c) CLEANUP=1 ;;
-					C) CLEANCACHE=$(($CLEANCACHE+1)) ;;
-					d) NODEPS=1 ;;
-					D) CLEANCCACHE=$OPTARG ;;
-					e) NOEXTRACT=1 ;;
-					f) FORCE=1 ;;
-					g) GENSHA1=1; CHROOT=0 ;;
-					G) GENSHA1=1; WRITESHA1=1; CHROOT=0; NODEPS=1 ;;
-					h)
-						usage
-						exit 0
-						;;
-					i) INSTALL=1 ;;
-					j) export MAKEFLAGS="-j$OPTARG" ;;
-					l) DOWNLOAD="$OPTARG" ;;
-					m) USE_COLOR="n" ;;
-					n) NOSTRIP=1 ;;
-					o) NOBUILD=1; CHROOT=0 ;;
-					p) BUILDSCRIPT=$OPTARG ;;
-					r) RMDEPS=1 ;;
-					R) CHROOT=1 ;;
-					H) CHROOT=0 ;;
-					s) DEP_BIN=1 ;;
-					S) DEP_SUDO=1 ;;
-					t) TREE="$OPTARG" ;;
-					u) NOUP2DATE=1 ;;
-					w) PKGDEST=$OPTARG ;;
-					z) COMPRESS_PROGRAM=$OPTARG ;;
-					-)
-						OPTIND=0
-						break
-						;;
-					*)
-						usage
-						exit 1
-						;;
-				esac
-			done
-			;;
-		*=*)	eval $(IFS= ; printf 'export %q=%q' "${1%%=*}" "${1#*=}")
-			;;
-		*)
-			true
-			;;
-	esac
-	shift
-done
+makepkg_parseargs "$@"
 
 # see if we need to append bases to $TREE
 if ! echo $TREE |grep -q ,; then
