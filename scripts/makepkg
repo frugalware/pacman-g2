@@ -2011,17 +2011,7 @@ else
 	buildtype="chroot"
 fi
 
-create_pkg $pkgname
-if [ ! -z "$subpkgs" ]; then
-	for subpkg in "${subpkgs[@]}"
-	do
-		unset pkgdesc license replaces groups depends rodepends removes conflicts provides backup install
-		unset options pkgdesc_localized archs
-		if in_array $CARCH ${_P_package_archs["$subpkg"]}; then
-			create_pkg $subpkg
-		fi
-	done
-fi
+pkg_foreach create_pkg
 
 cd $startdir
 if [ "$CLEANUP" = "1" ]; then
