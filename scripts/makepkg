@@ -1286,6 +1286,55 @@ makepkg_build() {
 	buildenv_build
 }
 
+# FIXME: This code rely on "$startdir/pkg/" path
+makepkg_document() {
+
+	if [ "`check_option NODOCS`" -o "$NODOCS" = "1" ]; then
+		return 0
+	fi
+
+	msg "Preparing package documentation..."
+
+	cd $startdir
+	mkdir -p pkg/usr/share/doc/$pkgname-$pkgver
+	find src -maxdepth 2 -size +0b \( \
+		    -name ANNOUNCE \
+		-or -name AUTHORS \
+	  	-or -name '*BUGS*' \
+		-or -name CHANGES \
+		-or -name CONFIGURATION \
+		-or -name '*COPYING*' \
+		-or -name '*COPYRIGHT*' \
+		-or -name CREDITS \
+		-or -name ChangeLog \
+		-or -name Changelog \
+		-or -name CHANGELOG \
+		-or -name CONTRIBUTORS \
+		-or -name '*FAQ*' \
+		-or -name FEATURES \
+		-or -name FILES \
+		-or -name HACKING \
+		-or -name History \
+		-or -name HISTORY \
+		-or -name 'INSTALL*' \
+		-or -name LICENSE \
+		-or -name LSM \
+		-or -name MANIFEST \
+		-or -name NEWS \
+		-or -name '*README*' \
+		-or -name '*Readme*' \
+		-or -name SITES \
+		-or -name '*RELEASE*' \
+		-or -name RELNOTES \
+		-or -name THANKS \
+		-or -name TIPS \
+		-or -name TODO \
+		-or -name VERSION \
+		-or -name 'CONFIGURATION*' \
+		-or -name GPLLicense \
+		\) -exec install -pm 644 '{}' pkg/usr/share/doc/$pkgname-$pkgver/ \;
+}
+
 if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
 	if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
 		USE_COLOR="n"
@@ -1754,50 +1803,7 @@ if [ "$NOBUILD" = "1" ]; then
 	exit 0
 else
 	makepkg_build
-fi
-
-cd $startdir
-
-# documentation
-msg "Preparing package documentation..."
-if [ ! "`check_option NODOCS`" -a "$NODOCS" = "0" ]; then
-	mkdir -p pkg/usr/share/doc/$pkgname-$pkgver
-	find src -maxdepth 2 -size +0b \( \
-		    -name ANNOUNCE \
-		-or -name AUTHORS \
-	  	-or -name '*BUGS*' \
-		-or -name CHANGES \
-		-or -name CONFIGURATION \
-		-or -name '*COPYING*' \
-		-or -name '*COPYRIGHT*' \
-		-or -name CREDITS \
-		-or -name ChangeLog \
-		-or -name Changelog \
-		-or -name CHANGELOG \
-		-or -name CONTRIBUTORS \
-		-or -name '*FAQ*' \
-		-or -name FEATURES \
-		-or -name FILES \
-		-or -name HACKING \
-		-or -name History \
-		-or -name HISTORY \
-		-or -name 'INSTALL*' \
-		-or -name LICENSE \
-		-or -name LSM \
-		-or -name MANIFEST \
-		-or -name NEWS \
-		-or -name '*README*' \
-		-or -name '*Readme*' \
-		-or -name SITES \
-		-or -name '*RELEASE*' \
-		-or -name RELNOTES \
-		-or -name THANKS \
-		-or -name TIPS \
-		-or -name TODO \
-		-or -name VERSION \
-		-or -name 'CONFIGURATION*' \
-		-or -name GPLLicense \
-		\) -exec install -pm 644 '{}' pkg/usr/share/doc/$pkgname-$pkgver/ \;
+	makepkg_document
 fi
 
 # NOTE: _P_subpkgsfixes hook registration order is important.
