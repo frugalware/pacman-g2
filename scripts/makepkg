@@ -181,6 +181,26 @@ strip_url() {
 	$ECHO "$1" | sed 's|^.*://.*/||g'
 }
 
+# FIXME: allow to output long format ? "1 hour 55 minutes 1 second"
+seconds_to_human_duration() {
+	local hours minutes seconds time
+
+	hours="$(( "$1" / 3600 ))"
+	minutes="$(( "$1" % 3600 / 60 ))"
+	seconds="$(( "$1" % 3600 % 60 ))"
+
+	if [ "$hours" -gt 0 ]; then
+		time+=" ${hours}h"
+	fi
+	if [ "$minutes" -gt 0 ]; then
+		time+=" ${minutes}m"
+	fi
+	if [ "$seconds" -gt 0 ]; then
+		time+=" ${seconds}s"
+	fi
+	echo "$time"
+}
+
 checkdeps() {
 	local deplist="" missdep="" ret
 
@@ -1034,20 +1054,7 @@ buildenv_build() {
 		if [ -z "$HRBT" ]; then 
 			msg "Elapsed Time: $totaltime seconds"
 		else
-			hours="$(( $totaltime / 3600 ))"
-			minutes="$(( $totaltime % 3600 / 60 ))"
-			seconds="$(( $totaltime % 3600 % 60 ))"
-			totaltime=""
-			if [ "$hours" -gt 0 ]; then
-				totaltime="$totaltime ${hours}h"
-			fi
-			if [ "$minutes" -gt 0 ]; then
-				totaltime="$totaltime ${minutes}m"
-			fi
-			if [ "$seconds" -gt 0 ]; then
-				totaltime="$totaltime ${seconds}s"
-			fi
-			msg "Elapsed Time:$totaltime"
+			msg "Elapsed Time:$(seconds_to_human_duration "$totaltime")"
 		fi
 	elif [ ! -z "$SBU" ]; then
 		if [ `type -p bc` ]; then
@@ -1910,25 +1917,7 @@ if grep -i -q "^# Compiling Time: [~0-9\.]\+ SBU$" $BUILDSCRIPT && \
 	else
 		secs=`$ECHO "$pkgsbu*$SBU"|bc /dev/stdin|sed 's/\.[0-9]*$//'`
 		[ -z "$secs" ] && secs=0
-		if [ $secs -ge 3600 ]; then
-			hrs=`$ECHO $(($secs/3600))`
-			secs=`$ECHO $(($secs%3600))`
-			mins=`$ECHO $(($secs/60))`
-			secs=`$ECHO $(($secs%60))`
-		elif [ $secs -ge 60 ]; then
-			mins=`$ECHO $(($secs/60))`
-			secs=`$ECHO $(($secs%60))`
-		fi
-		if [ ! -z "$hrs" ]; then
-			[ $hrs -gt 1 ] && hrs="$hrs hours " || hrs="$hrs hour "
-		fi
-		if [ ! -z "$mins" ]; then
-			[ $mins -gt 1 ] && mins="$mins minutes " || mins="$mins minute "
-		fi
-		if [ ! -z "$secs" ]; then
-			[ $secs -gt 1 ] && secs="$secs seconds " || secs="$secs second "
-		fi
-		msg "Estimated build time: $hrs$mins$secs"
+		msg "Estimated build time:$(seconds_to_human_duration "$secs")"
 	fi
 fi
 
