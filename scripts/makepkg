@@ -694,6 +694,10 @@ buildscript_validate() {
 }
 
 buildscript_up2date() {
+	if [ "$NOUP2DATE" = "1" ]; then
+		return 0
+	fi
+
 	msg "Checking for newer version..."
 	if $ECHO "$up2date"|grep -q " "; then
 		cmd=`$ECHO "$up2date"|sed 's/^\([^ ]*\) .*/\1/'`
@@ -1895,9 +1899,7 @@ fi
 
 cd $startdir
 
-if [ "$NOUP2DATE" = "0" ]; then
-	buildscript_up2date
-fi
+buildscript_up2date
 
 # estimate build time
 if grep -i -q "^# Compiling Time: [~0-9\.]\+ SBU$" $BUILDSCRIPT && \
