@@ -750,6 +750,58 @@ buildscript_create_changelog() {
 	fi
 }
 
+sources_download() {
+	msg "Retrieving Sources..."
+	mkdir -p src
+	cd $startdir/src
+	for netfile in "${source[@]}" "${signatures[@]}"; do
+		[ -z "$netfile" ] && continue
+		file=`strip_url "$netfile"`
+		if [ -f "../$file" ]; then
+			msg2 "Found $file in build dir"
+			cp "../$file" .
+		elif [ -f "/var/cache/pacman-g2/src/$file" ]; then
+			msg2 "Using local copy of $file"
+			cp "/var/cache/pacman-g2/src/$file" .
+		else
+			proto=`$ECHO "$netfile" | sed 's|://.*||'`
+			if [ "$proto" != "ftp" -a "$proto" != "http" -a "$proto" != "https" ]; then
+				error "$netfile was not found in the build directory and is not a proper URL."
+				msg "Aborting..."
+				exit 1
+			fi
+			# try to download the file from the cache server
+			if [ -n "$RSYNCAGENT" -a -n "$CACHEURL" ]; then
+				# check if the file is there
+				eval $RSYNCAGENT $CACHEURL/${file//;/\\\;} &>/dev/null
+				if [ "$?" = "0" ]; then
+					eval $RSYNCAGENT $CACHEURL/${file//;/\\\;} ./
+					if [ ! -f "$file" ]; then
+						error "Failed to download $file from cache while it is there"
+						msg "Aborting..."
+						exit 1
+					fi
+				fi
+			fi
+			# if failed to retreive from cache download it from the master server
+			if [ ! -f "$file" ]; then
+				msg2 "Downloading $file"
+				$FTPAGENT "$netfile" 2>&1
+				if [ ! -f "$file" ]; then
+					error "Failed to download $file"
+					msg "Aborting..."
+					exit 1
+				fi
+			fi
+			if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
+				mkdir -p /var/cache/pacman-g2/src && cp "$file" /var/cache/pacman-g2/src
+			else
+				cp "$file" ..
+			fi
+		fi
+	done
+}
+
 sources_sha1sum_validate() {
 	if [ ${#sha1sums[@]} -eq ${#source[@]} ]; then
 		if [ `type -p sha1sum` ]; then
@@ -1595,56 +1647,7 @@ else
 fi
 export LDFLAGS
 
-# retrieve sources
-msg "Retrieving Sources..."
-mkdir -p src
-cd $startdir/src
-for netfile in "${source[@]}" "${signatures[@]}"; do
-	[ -z "$netfile" ] && continue
-	file=`strip_url "$netfile"`
-	if [ -f "../$file" ]; then
-		msg2 "Found $file in build dir"
-		cp "../$file" .
-	elif [ -f "/var/cache/pacman-g2/src/$file" ]; then
-		msg2 "Using local copy of $file"
-		cp "/var/cache/pacman-g2/src/$file" .
-	else
-		proto=`$ECHO "$netfile" | sed 's|://.*||'`
-		if [ "$proto" != "ftp" -a "$proto" != "http" -a "$proto" != "https" ]; then
-			error "$netfile was not found in the build directory and is not a proper URL."
-			msg "Aborting..."
-			exit 1
-		fi
-		# try to download the file from the cache server
-		if [ -n "$RSYNCAGENT" -a -n "$CACHEURL" ]; then
-			# check if the file is there
-			eval $RSYNCAGENT $CACHEURL/${file//;/\\\;} &>/dev/null
-			if [ "$?" = "0" ]; then
-				eval $RSYNCAGENT $CACHEURL/${file//;/\\\;} ./
-				if [ ! -f "$file" ]; then
-					error "Failed to download $file from cache while it is there"
-					msg "Aborting..."
-					exit 1
-				fi
-			fi
-		fi
-		# if failed to retreive from cache download it from the master server
-		if [ ! -f "$file" ]; then
-			msg2 "Downloading $file"
-			$FTPAGENT "$netfile" 2>&1
-			if [ ! -f "$file" ]; then
-				error "Failed to download $file"
-				msg "Aborting..."
-				exit 1
-			fi
-		fi
-		if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
-			mkdir -p /var/cache/pacman-g2/src && cp "$file" /var/cache/pacman-g2/src
-		else
-			cp "$file" ..
-		fi
-	fi
-done
+sources_download
 
 if [ "$GENSHA1" = "0" ]; then
 	if [ "$NOEXTRACT" = "1" ]; then
