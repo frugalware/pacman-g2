@@ -1201,6 +1201,53 @@ pkg_create_archive() {
 	tar "${tarargs[@]}" *
 }
 
+_pkg_remove_documentation_hook()
+{
+	rm -rf \
+		usr/doc \
+		usr/share/doc/"$1-$pkgver"
+}
+
+_pkg_removeemptydirs_hook()
+{
+	# FIXME: Make it more general (detect all dirs and try to remove them)
+	# 	 and add an option (NOREMOVEEMPTYDIR) to skip this hook
+	msg "$1: Removing empty dirs..."
+	rmdir -p --ignore-fail-on-non-empty \
+		usr/doc/ \
+		usr/info/ \
+		usr/man/ \
+		usr/share/doc/$pkgname-$pkgver/ \
+		usr/share/man/ \
+		2>/dev/null
+}
+
+_pkg_strip_hook()
+{
+	msg "$1: Stripping debugging symbols from libraries..."
+	find ./{,usr,usr/local,opt/*}/lib -type f -not -name "*.dll" -not -name "*.exe" \
+		-exec /usr/bin/strip --strip-debug '{}' \; 2>&1 \
+		| grep -v "No such file" | grep -v "format not recognized"
+	msg "$1: Stripping symbols from binaries..."
+	find ./{,usr,usr/local,opt/*}/{bin,sbin} -type f -not -name "*.dll" -not -name "*.exe" \
+		-exec /usr/bin/strip '{}' \; 2>&1 \
+		| grep -v "No such file" | grep -v "format not recognized"
+}
+
+_pkg_check_links()
+{
+	local d="$(pwd)" l
+
+	msg "$1: Checking symbolic links..."
+	for l in `find $d -type l 2> /dev/null`; do
+		if [ ! -e "$l" -a ! -e "$d/`ls -l $l | awk '{print $NF}'`" ]; then
+			msg2 "$1: Maybe broken link ${l#$d} found."
+		elif ls -l "$l" | awk '{print $NF}' | grep -q "$startdir" ; then
+			msg2 "$1: Broken link ${l#$d} found."
+		fi
+	done
+}
+
 create_pkg()
 {
 	msg "Generating files for $1:"
@@ -1302,6 +1349,7 @@ makepkg_build() {
 makepkg_document() {
 
 	if [ "`check_option NODOCS`" -o "$NODOCS" = "1" ]; then
+		_P_subpkgsfixes+=(_pkg_remove_documentation_hook)
 		return 0
 	fi
 
@@ -1346,6 +1394,108 @@ makepkg_document() {
 		-or -name GPLLicense \
 		\) -exec install -pm 644 '{}' pkg/usr/share/doc/$pkgname-$pkgver/ \;
 }
+
+#
+# Package fixes that may go to a library (user helpers)
+#
+
+_pkg_perl_cleanup_hook() {
+	msg "$1: Removing unwanted perl files..."
+
+	for f in `find usr/lib/perl? -type f 2> /dev/null` ; do
+		case "$f" in
+			*/.packlist|*/perllocal.pod)
+				rm -f "$f"
+				rmdir -p --ignore-fail-on-non-empty `dirname $f` 2> /dev/null
+			;;
+		esac
+	done
+}
+_P_subpkgsfixes+=(_pkg_perl_cleanup_hook)
+
+_pkg_info_cleanup_hook() {
+	msg "$1: Removing unwanted info files..."
+
+	rm -f {usr{,/local,/share},opt/*}/info/dir 2> /dev/null
+}
+_P_subpkgsfixes+=(_pkg_info_cleanup_hook)
+
+_pkg_mkfontdir_cleanup_hook() {
+	msg "$1: Removing unwanted mkfontdir files..."
+
+	for f in `find -type f -name encodings.dir -o -type f -name fonts.dir -o -type f -name fonts.scale` ; do
+		msg2 "`$ECHO $f | sed 's|^./||'`"
+		rm -f "$f"
+	done
+}
+_P_subpkgsfixes+=(_pkg_mkfontdir_cleanup_hook)
+
+_pkg_move_doc_hook()
+{
+	if [ -d usr/doc ]; then
+		mkdir -p "usr/share/doc/$pkgname-$pkgver"
+		mv usr/doc/* "usr/share/doc/$pkgname-$pkgver"
+		rmdir usr/doc
+	fi
+}
+_P_subpkgsfixes+=(_pkg_move_doc_hook)
+
+_pkg_move_info_hook()
+{
+	# move /usr/info files to /usr/share/info
+	if [ -d usr/info ]; then
+		mkdir -p usr/share/info
+		mv usr/info/* usr/share/info/
+		rmdir usr/info
+	fi
+}
+_P_subpkgsfixes+=(_pkg_move_info_hook)
+
+_pkg_move_man_hook()
+{
+	# move /usr/man files to /usr/share/man
+	if [ -d usr/man ]; then
+		mkdir -p usr/share/man
+		mv usr/man/* usr/share/man/
+		rmdir usr/man
+	fi
+}
+_P_subpkgsfixes+=(_pkg_move_man_hook)
+
+_pkg_compress_manuals_hook()
+{
+	local ext fn i ln
+
+	msg "$1: Compressing info and manual pages..."
+	find {usr{,/local,/share},opt/*}/{info,man} -type f 2>/dev/null | while read i ; do
+		ext="${i##*.}"
+		fn="${i##*/}"
+		if [ "$ext" != "gz" -a "$ext" != "bz2" ]; then
+			# update symlinks to this manpage
+			find {usr{,/local,/share},opt/*}/man -lname "$fn" 2> /dev/null | while read ln ; do
+				rm -f "$ln"
+				ln -sf "${fn}.gz" "${ln}.gz"
+			done
+			# compress the original
+			gzip -9 "$i"
+		fi
+	done
+}
+_P_subpkgsfixes+=(_pkg_compress_manuals_hook)
+
+_pkg_check_hicolor()
+{
+	if [ -d "usr/share/icons/hicolor" ]; then
+		if [ -z "$_F_gnome_iconcache" ]; then
+			warning "$1: Package contains hicolor icons but _F_gnome_iconcache is not set"
+		fi
+	fi
+}
+_P_subpkgsfixes+=(_pkg_check_hicolor)
+
+#
+# Main Code Start here
+#
 
 if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
 	if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
@@ -1816,164 +1966,20 @@ if [ "$NOBUILD" = "1" ]; then
 else
 	makepkg_build
 	makepkg_document
+
+	# NOTE: _P_subpkgsfixes hook registration order is important.
+	#if ! check_option NOREMOVEEMPTYDIR; then
+		_P_subpkgsfixes+=(_pkg_removeemptydirs_fix)
+	#fi
+
+	if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
+		_P_subpkgsfixes+=(_pkg_strip_hook)
+	fi
+
+	_P_subpkgsfixes+=(_pkg_check_links)
+
+	pkg_foreach "${_P_subpkgsfixes[@]}"
 fi
-
-# NOTE: _P_subpkgsfixes hook registration order is important.
-
-_pkg_perl_cleanup_hook() {
-	msg "$1: Removing unwanted perl files..."
-
-	for f in `find usr/lib/perl? -type f 2> /dev/null` ; do
-		case "$f" in
-			*/.packlist|*/perllocal.pod)
-				rm -f "$f"
-				rmdir -p --ignore-fail-on-non-empty `dirname $f` 2> /dev/null
-			;;
-		esac
-	done
-}
-_P_subpkgsfixes+=(_pkg_perl_cleanup_hook)
-
-_pkg_info_cleanup_hook() {
-	msg "$1: Removing unwanted info files..."
-
-	rm -f {usr{,/local,/share},opt/*}/info/dir 2> /dev/null
-}
-_P_subpkgsfixes+=(_pkg_info_cleanup_hook)
-
-_pkg_mkfontdir_cleanup_hook() {
-	msg "$1: Removing unwanted mkfontdir files..."
-
-	for f in `find -type f -name encodings.dir -o -type f -name fonts.dir -o -type f -name fonts.scale` ; do
-		msg2 "`$ECHO $f | sed 's|^./||'`"
-		rm -f "$f"
-	done
-}
-_P_subpkgsfixes+=(_pkg_mkfontdir_cleanup_hook)
-
-_pkg_documentation_hook()
-{
-	mkdir -p usr/share/doc/$pkgname-$pkgver
-
-	if [ -d usr/doc ]; then
-		mv usr/doc/* usr/share/doc/$pkgname-$pkgver
-	fi
-}
-
-_pkg_nodocumentation_hook()
-{
-	rm -rf \
-		usr/doc \
-		usr/share/doc/"$1-$pkgver"
-}
-if [ ! "`check_option NODOCS`" -a "$NODOCS" = "0" ]; then
-	_P_subpkgsfixes+=(_pkg_documentation_hook)
-else
-	_P_subpkgsfixes+=(_pkg_nodocumentation_hook)
-fi
-
-_pkg_move_info_hook()
-{
-	# move /usr/info files to /usr/share/info
-	if [ -d usr/info ]; then
-		mkdir -p usr/share/info
-		mv usr/info/* usr/share/info/
-		rmdir usr/info
-	fi
-}
-_P_subpkgsfixes+=(_pkg_move_info_hook)
-
-_pkg_move_man_hook()
-{
-	# move /usr/man files to /usr/share/man
-	if [ -d usr/man ]; then
-		mkdir -p usr/share/man
-		mv usr/man/* usr/share/man/
-		rmdir usr/man
-	fi
-}
-_P_subpkgsfixes+=(_pkg_move_man_hook)
-
-_pkg_compress_manuals_hook()
-{
-	local ext fn i ln
-
-	msg "$1: Compressing info and manual pages..."
-	find {usr{,/local,/share},opt/*}/{info,man} -type f 2>/dev/null | while read i ; do
-		ext="${i##*.}"
-		fn="${i##*/}"
-		if [ "$ext" != "gz" -a "$ext" != "bz2" ]; then
-			# update symlinks to this manpage
-			find {usr{,/local,/share},opt/*}/man -lname "$fn" 2> /dev/null | while read ln ; do
-				rm -f "$ln"
-				ln -sf "${fn}.gz" "${ln}.gz"
-			done
-			# compress the original
-			gzip -9 "$i"
-		fi
-	done
-}
-_P_subpkgsfixes+=(_pkg_compress_manuals_hook)
-
-_subpkgs_removeemptydirfix()
-{
-	# FIXME: Make it more general (detect all dirs and try to remove them)
-	# 	 and add an option (NOREMOVEEMPTYDIR) to skip this hook
-	msg "$1: Removing empty dirs..."
-	rmdir -p --ignore-fail-on-non-empty \
-		usr/doc/ \
-		usr/info/ \
-		usr/man/ \
-		usr/share/doc/$pkgname-$pkgver/ \
-		usr/share/man/ \
-		2>/dev/null
-}
-#if ! check_option NOREMOVEEMPTYDIR; then
-	_P_subpkgsfixes+=(_subpkgs_removeemptydirfix)
-#fi
-
-_pkg_strip_hook()
-{
-	msg "$1: Stripping debugging symbols from libraries..."
-	find ./{,usr,usr/local,opt/*}/lib -type f -not -name "*.dll" -not -name "*.exe" \
-		-exec /usr/bin/strip --strip-debug '{}' \; 2>&1 \
-		| grep -v "No such file" | grep -v "format not recognized"
-	msg "$1: Stripping symbols from binaries..."
-	find ./{,usr,usr/local,opt/*}/{bin,sbin} -type f -not -name "*.dll" -not -name "*.exe" \
-		-exec /usr/bin/strip '{}' \; 2>&1 \
-		| grep -v "No such file" | grep -v "format not recognized"
-}
-if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
-	_P_subpkgsfixes+=(_pkg_strip_hook)
-fi
-
-_pkg_check_links()
-{
-	local d="$(pwd)" l
-
-	msg "$1: Checking symbolic links..."
-	for l in `find $d -type l 2> /dev/null`; do
-		if [ ! -e "$l" -a ! -e "$d/`ls -l $l | awk '{print $NF}'`" ]; then
-			msg2 "$1: Maybe broken link ${l#$d} found."
-		elif ls -l "$l" | awk '{print $NF}' | grep -q "$startdir" ; then
-			msg2 "$1: Broken link ${l#$d} found."
-		fi
-	done
-}
-_P_subpkgsfixes+=(_pkg_check_links)
-
-# FIXME: This should definitevely go to util.sh
-_pkg_check_hicolor()
-{
-	if [ -d "usr/share/icons/hicolor" ]; then
-		if [ -z "$_F_gnome_iconcache" ]; then
-			warning "$1: Package contains hicolor icons but _F_gnome_iconcache is not set"
-		fi
-	fi
-}
-_P_subpkgsfixes+=(_pkg_check_hicolor)
-
-pkg_foreach "${_P_subpkgsfixes[@]}"
 
 # get some package meta info
 builddate=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
