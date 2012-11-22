@@ -1055,6 +1055,18 @@ buildenv_build() {
 	fi
 }
 
+pkg_foreach() {
+	local hook package_name 
+
+	for package_name in "${_P_package_names[@]}"; do
+		[ ! -d "${startdir}/pkg.${package_name}" ] && continue
+		for hook in "$@"; do
+			cd "${startdir}/pkg.${package_name}"
+			"${hook}" "${package_name}"
+		done
+	done
+}
+
 pkg_mkdirs()
 {
 	local package_name 
@@ -1961,20 +1973,7 @@ _pkg_check_hicolor()
 }
 _P_subpkgsfixes+=(_pkg_check_hicolor)
 
-do_subpkgsfixes()
-{
-	local hook package_name 
-
-	for package_name in "${_P_package_names[@]}"; do
-		[ ! -d "${startdir}/pkg.${package_name}" ] && continue
-		for hook in "${_P_subpkgsfixes[@]}"; do
-			cd "${startdir}/pkg.${package_name}"
-			"${hook}" "${package_name}"
-		done
-	done
-}
-
-do_subpkgsfixes
+pkg_foreach "${_P_subpkgsfixes[@]}"
 
 # get some package meta info
 builddate=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
