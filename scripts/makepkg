@@ -426,6 +426,13 @@ chroot_umount() {
     msg "Successfully umounted chroot directories."
 }
 
+chroot_size() {
+	exclude="--exclude=/proc --exclude=/sys --exclude=/dev"
+	exclude="$exclude --exclude=/var/cache/pacman-g2 --exclude=/var/cache/ccache/$pkgname"
+	sudo du -sh $exclude / |sed "s/\t.*//"
+}
+
+
 chroot_clean()
 {
 	if [ "$CHROOT" = "1" ]; then
@@ -2003,18 +2010,14 @@ else
 	fi
 
 	_P_subpkgsfixes+=(_pkg_check_links)
-
+	_P_subpkgsfixes+=(create_pkg)
 	pkg_foreach "${_P_subpkgsfixes[@]}"
 fi
-
-pkg_foreach create_pkg
 
 cd $startdir
 if [ "$CLEANUP" = "1" ]; then
 	if [ "$INCHROOT" == "1" ]; then
-		exclude="--exclude=/proc --exclude=/sys --exclude=/dev"
-		exclude="$exclude --exclude=/var/cache/pacman-g2 --exclude=/var/cache/ccache/$pkgname"
-		msg "Chroot size before cleaning: $(sudo du -sh $exclude / |sed "s/\t.*//")"
+		msg "Chroot size before cleaning: $(chroot_size)"
 	fi
 	msg "Cleaning up..."
 	pkg_rmdirs
