@@ -1261,6 +1261,31 @@ install_pkg()
 	exit 0
 }
 
+makepkg_build() {
+	# use distcc if requested
+	if [ "$DISTCC" = "y" ]; then
+		buildenv_distcc
+	fi
+
+	# use ccache if it's available
+	if [ "$NOCCACHE" = "0" -a ! "`check_option NOCCACHE`" ]; then
+		buildenv_ccache
+	fi
+
+	if [ "`check_option NOASNEEDED`" ]; then
+		msg "Using --no-as-needed in LDFLAGS"
+		LDFLAGS+=" -Wl,--no-as-needed"
+	else
+		if [ "`check_option ASNEEDED`" ]; then
+			msg "Using --as-needed in LDFLAGS"
+			LDFLAGS+=" -Wl,--as-needed"
+		fi
+	fi
+	export LDFLAGS
+
+	buildenv_build
+}
+
 if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
 	if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
 		USE_COLOR="n"
@@ -1727,30 +1752,9 @@ pkg_mkdirs
 if [ "$NOBUILD" = "1" ]; then
 	msg "Sources are ready."
 	exit 0
-fi
-
-# use distcc if requested
-if [ "$DISTCC" = "y" ]; then
-	buildenv_distcc
-fi
-
-# use ccache if it's available
-if [ "$NOCCACHE" = "0" -a ! "`check_option NOCCACHE`" ]; then
-	buildenv_ccache
-fi
-
-if [ "`check_option NOASNEEDED`" ]; then
-	msg "Using --no-as-needed in LDFLAGS"
-	LDFLAGS+=" -Wl,--no-as-needed"
 else
-	if [ "`check_option ASNEEDED`" ]; then
-		msg "Using --as-needed in LDFLAGS"
-		LDFLAGS+=" -Wl,--as-needed"
-	fi
+	makepkg_build
 fi
-export LDFLAGS
-
-buildenv_build
 
 cd $startdir
 
