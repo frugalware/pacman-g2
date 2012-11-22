@@ -1799,6 +1799,22 @@ if [ ! -z "$subpkgs" ]; then
 	makedepends=( $makedepends )
 fi
 
+# You have to declare associative array before using them :/
+declare -A \
+	_P_package_descriptions \
+	_P_package_licenses \
+	_P_package_replaces \
+	_P_package_groups \
+	_P_package_depends \
+	_P_package_rodepends \
+	_P_package_removes \
+	_P_package_conflicts \
+	_P_package_provides \
+	_P_package_backup \
+	_P_package_install \
+	_P_package_options \
+	_P_package_archs
+
 # Compatibility adaptation
 if [ "${#_P_package_names[@]}" -eq 0 ]; then
 	_P_options="${options[*]}"
@@ -1839,6 +1855,17 @@ if [ "${#_P_package_names[@]}" -eq 0 ]; then
 		i=$(($i+1))
 	done
 fi
+
+# Check _P_package_names on your arch
+i=0
+while [ $i -lt ${#_P_package_names[@]} ]; do
+	if in_array $CARCH ${_P_package_archs["${_P_package_names["$i"]}"]}; then
+		i=$(($i+1))
+	else
+		warning "Package ${_P_package_names["$i"]} is not available on your ARCH, dropping it!"
+		unset _P_package_names["$i"]
+	fi
+done
 
 if [ ! -e "$install" -a ! -e "$startdir/$install" -a ! "`check_option GENSCRIPTLET`" ]; then
 	error "Missing install scriptlet. If this is intentional, add 'genscriptlet' to options()."
