@@ -185,9 +185,9 @@ strip_url() {
 seconds_to_human_duration() {
 	local hours minutes seconds time
 
-	hours="$(( "$1" / 3600 ))"
-	minutes="$(( "$1" % 3600 / 60 ))"
-	seconds="$(( "$1" % 3600 % 60 ))"
+	hours="$(( $1 / 3600 ))"
+	minutes="$(( $1 % 3600 / 60 ))"
+	seconds="$(( $1 % 3600 % 60 ))"
 
 	if [ "$hours" -gt 0 ]; then
 		time+=" ${hours}h"
