@@ -1969,7 +1969,7 @@ else
 
 	# NOTE: _P_subpkgsfixes hook registration order is important.
 	#if ! check_option NOREMOVEEMPTYDIR; then
-		_P_subpkgsfixes+=(_pkg_removeemptydirs_fix)
+		_P_subpkgsfixes+=(_pkg_removeemptydirs_hook)
 	#fi
 
 	if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
