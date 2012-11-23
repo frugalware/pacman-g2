@@ -29,34 +29,6 @@
 ECHO="/bin/echo"
 startdir=`pwd`
 PKGDEST=$startdir
-USE_COLOR="n"
-
-# Options
-BUILDSCRIPT="./FrugalBuild"
-CLEANUP=0
-CLEANCACHE=0
-CLEANCCACHE=""
-DEP_BIN=0
-DEP_SRC=0
-DEP_SUDO=0
-FORCE=0
-GENSHA1=0
-INSTALL=0
-DOWNLOAD=""
-NOBUILD=0
-NOCCACHE=0
-NODEPS=0
-NOEXTRACT=0
-NOSTRIP=0
-RMDEPS=0
-CHROOT=1
-NOUP2DATE=0
-NODOCS=0
-TREE=""
-CACHEURL=""
-
-PACMAN="pacman-g2.static"
-PACMAN_OPTS=
 
 # compat functions. these are useful if one would like to use makepkg outside
 # FST. if you want to modify these, please submit a patch again FST first
@@ -700,7 +672,7 @@ buildscript_validate() {
 }
 
 buildscript_up2date() {
-	if [ "$NOUP2DATE" = "1" ]; then
+	if [ "$NOUP2DATE" -eq 1 ]; then
 		return 0
 	fi
 
@@ -1403,6 +1375,10 @@ makepkg_loadconfig() {
 	if [ -z "$CCACHE_BASEDIR" ]; then
 		export CCACHE_BASEDIR=/var/cache/ccache
 	fi
+
+	if [ "$USE_AUTO_MAKEFLAGS" != "n" ]; then
+		export MAKEFLAGS="-j`grep -c ^processor /proc/cpuinfo`"
+	fi
 }
 
 makepkg_usage() {
@@ -1470,16 +1446,15 @@ makepkg_parseargs() {
 		-D)			CLEANCCACHE="$2"; consumed=2 ;;
 		-e|--noextract)		NOEXTRACT=1 ;;
 		-f|--force)		FORCE=1 ;;
-		-g|--gensha1)		GENSHA1=1; CHROOT=0 ;;
-		-G|--wrtsha1)		GENSHA1=1; WRITESHA1=1; CHROOT=0; NODEPS=1 ;;
+		-g|--gensha1)		GENSHA1=1 ;;
+		-G|--wrtsha1)		WRITESHA1=1 ;;
 		-h|--help)		makepkg_usage; exit 0 ;;
 		-i|--install)		INSTALL=1 ;;
 		-j)			export MAKEFLAGS="-j$2"; consumed=2 ;;
 		-l)			DOWNLOAD="$2"; consumed=2 ;;
 		-m|--nocolor)		USE_COLOR="n" ;;
 		-n|--nostrip)		NOSTRIP=1 ;;
-		-o)			NOBUILD=1; CHROOT=0 ;; # FIXME: different dehaviour in original code ???
-		--nobuild)		NOBUILD=1 ;;
+		-o|--nobuild)		NOBUILD=1 ;;
 		-p)			BUILDSCRIPT="$2" ;;
 		-r|--rmdeps)		RMDEPS=1 ;;
 		-R|--chroot)		CHROOT=1 ;;
@@ -1521,6 +1496,55 @@ makepkg_parseargs() {
 		fi
 	done
 
+	WRITESHA1="${WRITESHA1:-0}"
+	if [ "$WRITESHA1" -eq 1 ]; then
+		# Show the sha1sums in case substitution fails
+		GENSHA1="${GENSHA1:-1}"
+	fi
+
+	GENSHA1="${GENSHA1:-0}"
+	if [ "$GENSHA1" -eq 1 ]; then
+		NOBUILD="${NOBUILD:-1}"
+		NOVALIDATE="${NOVALIDATE:-1}"
+	fi
+
+	NOBUILD="${NOBUILD:-0}"
+	if [ "$NOBUILD" -eq 1 ]; then
+		CHROOT="${CHROOT:-0}"
+		NODEPS="${NODEPS:-1}"
+	fi
+
+	BUILDSCRIPT="${BUILDSCRIPT:-./FrugalBuild}"
+	CACHEURL="${CACHEURL:-}"
+	CHROOT="${CHROOT:-1}"
+	CLEANUP="${CLEANUP:-0}"
+	CLEANCACHE="${CLEANCACHE:-0}"
+	CLEANCCACHE="${CLEANCCACHE:-}"
+	DEP_BIN="${DEP_BIN:-0}"
+	DEP_SRC="${DEP_SRC:-0}"
+	DEP_SUDO="${DEP_SUDO:-0}"
+	DOWNLOAD="${DOWNLOAD:-}"
+	FORCE="${FORCE:-0}"
+	INSTALL="${INSTALL:-0}"
+	NOCCACHE="${NOCCACHE:-0}"
+	NODEPS="${NODEPS:-0}"
+	NODOCS="${NODOCS:-0}"
+	NOEXTRACT="${NOEXTRACT:-0}"
+	NOSTRIP="${NOSTRIP:-0}"
+	NOUP2DATE="${NOUP2DATE:-0}"
+	PACMAN="${PACMAN:-pacman-g2.static}"
+	PACMAN_OPTS="${PACMAN_OPTS:-}"
+	RMDEPS="${RMDEPS:-0}"
+	TREE="${TREE:-}"
+	USE_COLOR="${USE_COLOR:-n}"
+
+	if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
+		if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
+			USE_COLOR="n"
+			warning "Disabling color as the terminal does not support it."
+		fi 
+	fi
+
 	if ! find_executable "$COMPRESS_PROGRAM"; then
 		exit 1
 	fi
@@ -1555,6 +1579,9 @@ makepkg_build() {
 		fi
 	fi
 	export LDFLAGS
+
+	pkg_rmdirs
+	pkg_mkdirs
 
 	buildenv_build
 
@@ -1727,17 +1754,6 @@ _P_subpkgsfixes+=(_pkg_check_hicolor)
 #
 
 makepkg_loadconfig
-
-if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
-	if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
-		USE_COLOR="n"
-		warning "Disabling color as the terminal does not support it."
-	fi 
-fi
-
-if [ "$USE_AUTO_MAKEFLAGS" != "n" ]; then
-	export MAKEFLAGS="-j`grep -c ^processor /proc/cpuinfo`"
-fi
 
 ARGLIST=$@
 COMPRESS_PROGRAM="$PKG_COMP"
@@ -1971,25 +1987,20 @@ fi
 
 sources_download
 
-if [ "$GENSHA1" = "0" ]; then
-	if [ "$NOEXTRACT" = "1" ]; then
-		warning "Skipping source integrity checks -- using existing src/ tree"
-	else
-		sources_sha1sum_validate
-		sources_gpg_validate
-	fi
-	sources_extract
+if [ "$NOVALIDATE" -eq 1 ]; then
+	warning "Skipping source integrity checks -- using existing src/ tree"
 else
-	sources_sha1sum_generate
+	sources_sha1sum_validate
+	sources_gpg_validate
 fi
+
+sources_sha1sum_generate
+sources_extract
 
 if [ "`id -u`" = "0" ]; then
 	# chown all source files to root.root
 	chown -R root.root $startdir/src
 fi
-
-pkg_rmdirs
-pkg_mkdirs
 
 if [ "$NOBUILD" = "1" ]; then
 	msg "Sources are ready."
