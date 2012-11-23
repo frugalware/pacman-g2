@@ -122,9 +122,6 @@ Fextract() {
 [ -f /etc/repoman.conf ] && source /etc/repoman.conf
 [ -n "$repos" ] && TREE="$repos"
 
-# makepkg configuration
-[ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
-
 ### SUBROUTINES ###
 
 plain() {
@@ -1336,6 +1333,34 @@ install_pkg()
 	exit 0
 }
 
+makepkg_loadconfig() {
+	# makepkg configuration
+	[ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
+
+	if [ -z "$PACKAGER" ]; then
+		error "Please make sure that you edit /etc/makepkg.conf and set the PACKAGER= variable"
+		exit 1
+	fi
+
+	if [ -z "$PKG_EXT" ]; then
+		error "The PKG_EXT environment variable is not defined, check your /etc/makepkg.conf!"
+#		error "Please make sure that you edit /etc/makepkg.conf and set the PKG_EXT= variable"
+		exit 1
+	fi
+
+	if [ -z "$PKG_COMP" ]; then
+		error "The PKG_COMP environment variable is not defined, check your /etc/makepkg.conf!"
+		exit 1
+	fi
+
+	# check for a download utility
+	if [ -z "$FTPAGENT" ]; then
+		error "FTPAGENT is not configured. Check the /etc/makepkg.conf file."
+		msg "Aborting..."
+		exit 1
+	fi
+}
+
 makepkg_usage() {
 	$ECHO "makepkg"
 	$ECHO
@@ -1649,21 +1674,13 @@ _P_subpkgsfixes+=(_pkg_check_hicolor)
 # Main Code Start here
 #
 
+makepkg_loadconfig
+
 if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
 	if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
 		USE_COLOR="n"
 		warning "Disabling color as the terminal does not support it."
 	fi 
-fi
-
-if [ -z "$PKG_EXT" ]; then
-	error "The PKG_EXT environment variable is not defined, check your /etc/makepkg.conf!"
-	exit 1
-fi
-
-if [ -z "$PKG_COMP" ]; then
-	error "The PKG_COMP environment variable is not defined, check your /etc/makepkg.conf!"
-	exit 1
 fi
 
 if [ "$USE_AUTO_MAKEFLAGS" != "n" ]; then
@@ -1764,12 +1781,6 @@ if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
 		exit 1
 	fi
 
-	# check for a download utility
-	if [ -z "$FTPAGENT" ]; then
-		error "FTPAGENT is not configured. Check the /etc/makepkg.conf file."
-		msg "Aborting..."
-		exit 1
-	fi
 	ftpclient=`$ECHO $FTPAGENT | awk {'print $1'}`
 	if [ ! -x $ftpclient ]; then
 		error "ftpclient `basename $ftpclient` is not installed."
@@ -1805,14 +1816,6 @@ if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
 	done
 fi
 
-if [ -z "$PACKAGER" ]; then
-	error "Please make sure that you edit /etc/makepkg.conf and set the PACKAGER= variable"
-	exit 1
-fi
-if [ -z "$PKG_EXT" ]; then
-	error "Please make sure that you edit /etc/makepkg.conf and set the PKG_EXT= variable"
-	exit 1
-fi
 if [ ! -f "$BUILDSCRIPT" ]; then
 	error "$BUILDSCRIPT does not exist."
 	exit 1
