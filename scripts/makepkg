@@ -895,10 +895,14 @@ sources_sha1sum_validate() {
 }
 
 sources_sha1sum_generate() {
+	if [ "$GENSHA1" -ne 1 ]; then
+		return 0
+	fi
 	if [ ! `type -p sha1sum` ]; then
 		error "Cannot find the sha1sum program."
 		exit 1
 	fi
+
 	msg "Generating SHA1sums for source files"
 	plain ""
 	ct=0
@@ -999,6 +1003,20 @@ sources_gpg_validate() {
 			sleep 1
 		fi
 	fi
+}
+
+sources_extract() {
+	if [ "$NOEXTRACT" -eq 1 ]; then
+		warning "Skipping source extraction -- using existing src/ tree"
+		return 0
+	fi
+
+	msg "Extracting Sources..."
+	for netfile in "${source[@]}"; do
+		unziphack=0
+		file=$(strip_url $netfile)
+		Fextract "${file}"
+	done
 }
 
 buildenv_distcc() {
@@ -1494,6 +1512,21 @@ makepkg_build() {
 	export LDFLAGS
 
 	buildenv_build
+
+	makepkg_document
+
+	# NOTE: _P_subpkgsfixes hook registration order is important.
+	#if ! check_option NOREMOVEEMPTYDIR; then
+		_P_subpkgsfixes+=(_pkg_removeemptydirs_hook)
+	#fi
+
+	if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
+		_P_subpkgsfixes+=(_pkg_strip_hook)
+	fi
+
+	_P_subpkgsfixes+=(_pkg_check_links)
+	_P_subpkgsfixes+=(create_pkg)
+	pkg_foreach "${_P_subpkgsfixes[@]}"
 }
 
 # FIXME: This code rely on "$startdir/pkg/" path
@@ -1968,26 +2001,14 @@ sources_download
 
 if [ "$GENSHA1" = "0" ]; then
 	if [ "$NOEXTRACT" = "1" ]; then
-		warning "Skipping source extraction       -- using existing src/ tree"
 		warning "Skipping source integrity checks -- using existing src/ tree"
 	else
 		sources_sha1sum_validate
 		sources_gpg_validate
-
-		# extract sources
-		msg "Extracting Sources..."
-		for netfile in "${source[@]}"; do
-			unziphack=0
-			file=$(strip_url $netfile)
-			Fextract "${file}"
-		done
 	fi
+	sources_extract
 else
-	# this condition is always true, but leave it here in case in the
-	# future we want to add support for other hash algorithms
-	if [ "$GENSHA1" = "1" ]; then
-		sources_sha1sum_generate
-	fi
+	sources_sha1sum_generate
 fi
 
 if [ "`id -u`" = "0" ]; then
@@ -2003,20 +2024,6 @@ if [ "$NOBUILD" = "1" ]; then
 	exit 0
 else
 	makepkg_build
-	makepkg_document
-
-	# NOTE: _P_subpkgsfixes hook registration order is important.
-	#if ! check_option NOREMOVEEMPTYDIR; then
-		_P_subpkgsfixes+=(_pkg_removeemptydirs_hook)
-	#fi
-
-	if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
-		_P_subpkgsfixes+=(_pkg_strip_hook)
-	fi
-
-	_P_subpkgsfixes+=(_pkg_check_links)
-	_P_subpkgsfixes+=(create_pkg)
-	pkg_foreach "${_P_subpkgsfixes[@]}"
 fi
 
 cd $startdir
