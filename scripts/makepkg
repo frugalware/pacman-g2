@@ -125,18 +125,6 @@ Fextract() {
 # makepkg configuration
 [ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
 
-INFAKEROOT=
-if [ "$1" = "-F" ]; then
-	INFAKEROOT=1
-	shift
-fi
-
-INCHROOT=
-if [ "$1" = "--inchroot" ]; then
-	INCHROOT=1
-	shift
-fi
-
 ### SUBROUTINES ###
 
 plain() {
@@ -1397,98 +1385,79 @@ install_pkg()
 }
 
 makepkg_parseargs() {
-	while [ "$#" -ne "0" ]; do
+	local consumed
+
+	while [ $# -gt 0 ]; do
+		consumed=1
 		case "$1" in
-# pacman-g2
-		--noconfirm)      PACMAN_OPTS="$PACMAN_OPTS --noconfirm" ;;
-		--noprogressbar)  PACMAN_OPTS="$PACMAN_OPTS --noprogressbar" ;;
 # makepkg
-		--searchdeps) SEARCHDEPS=1 ;;
-		--clean)      CLEANUP=1 ;;
-		--cleancache) CLEANCACHE=$(($CLEANCACHE+1)) ;;
-		--syncdeps)   DEP_BIN=1 ;;
-		--sudosync)   DEP_SUDO=1 ;;
-		--builddeps)  DEP_SRC=1 ;;
-		--noccache)   NOCCACHE=1 ;;
-		--nodeps)     NODEPS=1 ;;
-		--noextract)  NOEXTRACT=1 ;;
-		--install)    INSTALL=1 ;;
-		--force)      FORCE=1 ;;
-		--nostrip)    NOSTRIP=1 ;;
-		--nobuild)    NOBUILD=1 ;;
-		--nocolor)    USE_COLOR="n" ;;
-		--gensha1)    GENSHA1=1; CHROOT=0 ;;
-		--wrtsha1)    GENSHA1=1; WRITESHA1=1; CHROOT=0; NODEPS=1 ;;
-		--rmdeps)     RMDEPS=1 ;;
-		--chroot)     CHROOT=1 ;;
-		--host)       CHROOT=0 ;;
-		--noup2date)  NOUP2DATE=1 ;;
-		--gzip)       COMPRESS_PROGRAM="gzip" ;;
-		--help)
-			usage
-			exit 0
-			;;
-		--*)
-			usage
-			exit 1
-			;;
-		-*)
-			while getopts "aA:bBcCdD:efgGhij:kl:Lmnop:urRHsSt:w:z:-" opt; do
-				case $opt in
-				a) SEARCHDEPS=1 ;;
-				A) CACHEURL=$OPTARG ;;
-				b) DEP_SRC=1 ;;
-				B) NOCCACHE=1 ;;
-				c) CLEANUP=1 ;;
-				C) CLEANCACHE=$(($CLEANCACHE+1)) ;;
-				d) NODEPS=1 ;;
-				D) CLEANCCACHE=$OPTARG ;;
-				e) NOEXTRACT=1 ;;
-				f) FORCE=1 ;;
-				g) GENSHA1=1; CHROOT=0 ;;
-				G) GENSHA1=1; WRITESHA1=1; CHROOT=0; NODEPS=1 ;;
-				h)
-					usage
-					exit 0
-					;;
-				i) INSTALL=1 ;;
-				j) export MAKEFLAGS="-j$OPTARG" ;;
-				l) DOWNLOAD="$OPTARG" ;;
-				m) USE_COLOR="n" ;;
-				n) NOSTRIP=1 ;;
-				o) NOBUILD=1; CHROOT=0 ;;
-				p) BUILDSCRIPT=$OPTARG ;;
-				r) RMDEPS=1 ;;
-				R) CHROOT=1 ;;
-				H) CHROOT=0 ;;
-				s) DEP_BIN=1 ;;
-				S) DEP_SUDO=1 ;;
-				t) TREE="$OPTARG" ;;
-				u) NOUP2DATE=1 ;;
-				w) PKGDEST=$OPTARG ;;
-				z) COMPRESS_PROGRAM=$OPTARG ;;
-				-)
-					OPTIND=0
-					break
-					;;
-				*)
-					usage
-					exit 1
-					;;
-				esac
-			done
-			;;
-		*=*)	eval $(IFS= ; printf 'export %q=%q' "${1%%=*}" "${1#*=}")
-			;;
-		*)
-			true
-			;;
+		-a|--searchdeps)	SEARCHDEPS=1;;
+		-A)			CACHEURL="$2"; consumed=2 ;;
+		-b|--builddeps)		DEP_SRC=1 ;;
+		-B|--noccache)		NOCCACHE=1 ;;
+		-c|--clean)		CLEANUP=1 ;;
+		-C|--cleancache)	CLEANCACHE=$(($CLEANCACHE+1)) ;;
+		-d|--nodeps)		NODEPS=1 ;;
+		-D)			CLEANCCACHE="$2"; consumed=2 ;;
+		-e|--noextract)		NOEXTRACT=1 ;;
+		-f|--force)		FORCE=1 ;;
+		-g|--gensha1)		GENSHA1=1; CHROOT=0 ;;
+		-G|--wrtsha1)		GENSHA1=1; WRITESHA1=1; CHROOT=0; NODEPS=1 ;;
+		-h|--help)		usage; exit 0 ;;
+		-i|--install)		INSTALL=1 ;;
+		-j)			export MAKEFLAGS="-j$2"; consumed=2 ;;
+		-l)			DOWNLOAD="$2"; consumed=2 ;;
+		-m|--nocolor)		USE_COLOR="n" ;;
+		-n|--nostrip)		NOSTRIP=1 ;;
+		-o)			NOBUILD=1; CHROOT=0 ;; # FIXME: different dehaviour in original code ???
+		--nobuild)		NOBUILD=1 ;;
+		-p)			BUILDSCRIPT="$2" ;;
+		-r|--rmdeps)		RMDEPS=1 ;;
+		-R|--chroot)		CHROOT=1 ;;
+		-H|--host)		CHROOT=0 ;;
+		-s|--syncdeps)		DEP_BIN=1 ;;
+		-S|--sudosync)		DEP_SUDO=1 ;;
+		-t)			TREE="$2" ;;
+		-u|--noup2date)		NOUP2DATE=1 ;;
+		-w)			PKGDEST="$2"; consumed=2 ;;
+		-z)			COMPRESS_PROGRAM="$2"; consumed=2 ;;
+# compatibility
+		--gzip)			COMPRESS_PROGRAM="gzip" ;;
+# internal
+		-F|--infakeroot)	INFAKEROOT=1 ;;
+		--inchroot)		INCHROOT=1 ;;
+# pacman-g2
+		--noconfirm)		PACMAN_OPTS="$PACMAN_OPTS --noconfirm" ;;
+		--noprogressbar)	PACMAN_OPTS="$PACMAN_OPTS --noprogressbar" ;;
+# special options
+#		--)			shift; break;;
+#		-*=*)			# IMPLEMENT ME: Assigned option support
+		--*|-?)			usage; exit 1 ;;
+		-*)			# Combined short options
+					split="$1"
+					shift
+					set -- \
+						"$(echo "$split}" | cut -c -2)" \
+						"-$(echo "${split}" | cut -c 3-)" \
+						"$@"
+					continue ;;
+		*=*)			eval $(IFS= ; printf 'export %q=%q' "${1%%=*}" "${1#*=}") ;;
+		*)			error "Optional parameter \"$1\" has unsupported format"
+					exit 1 ;;
 		esac
-		shift
+		if ! shift "$consumed"; then
+			consumed=$(($consumed - 1))
+			error "Option $1 expects $consumed argument(s)"
+			exit 1
+		fi
 	done
 }
 
 makepkg_build() {
+	if [ "$NOBUILD" -eq 1 ]; then
+		return 0
+	fi
+
 	# use distcc if requested
 	if [ "$DISTCC" = "y" ]; then
 		buildenv_distcc
