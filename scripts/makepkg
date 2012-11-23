@@ -1493,8 +1493,6 @@ makepkg_build() {
 	fi
 	export LDFLAGS
 
-	_P_build_date=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
-
 	buildenv_build
 }
 
@@ -1943,7 +1941,8 @@ fi
 
 fakeroot_enter
 
-msg "Making package: $pkgname $pkgver-$pkgrel (`date`)"
+_P_build_date=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
+msg "Making package: $pkgname $pkgver-$pkgrel (${_P_build_date})"
 
 unset deplist makedeplist
 buildenv_depends_validate
