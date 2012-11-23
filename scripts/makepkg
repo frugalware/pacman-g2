@@ -181,6 +181,17 @@ strip_url() {
 	$ECHO "$1" | sed 's|^.*://.*/||g'
 }
 
+find_executable() {
+	local executable="$1"
+	shift
+
+	if ! type -p "$executable" &>/dev/null; then
+		warning "$executable was not found in PATH. $@"
+		return 1
+	fi
+	return 0
+}
+
 # FIXME: allow to output long format ? "1 hour 55 minutes 1 second"
 seconds_to_human_duration() {
 	local hours minutes seconds time
@@ -647,7 +658,7 @@ fakeroot_enter() {
 	fi
 
 	if [ "$USE_FAKEROOT" = "y" -o "$USE_FAKEROOT" = "Y" ]; then
-		if [ `type -p fakeroot` ]; then
+		if find_executable fakeroot; then
 			msg "Entering fakeroot environment"
 			if [ "$INCHROOT" != "1" ]; then
 				fakeroot -- $0 -F $ARGLIST
@@ -656,11 +667,10 @@ fakeroot_enter() {
 			fi
 			exit $?
 		else
-			warning "Fakeroot is not installed.  Building as an unprivileged user"
-			plain "will result in non-root ownership of the packaged files."
-			plain "Install the fakeroot package to correctly build as a non-root"
-			plain "user."
-			plain ""
+			plain 'Building as an unprivileged user will result in non-root'
+			plain 'ownership of the packaged files. Install the fakeroot package'
+			plain 'to correctly build as a non-root user.'
+			plain ''
 			sleep 1
 		fi
 	else
@@ -760,10 +770,9 @@ buildscript_up2date() {
 	msg "Checking for newer version..."
 	if $ECHO "$up2date"|grep -q " "; then
 		cmd=`$ECHO "$up2date"|sed 's/^\([^ ]*\) .*/\1/'`
-		if type -p $cmd &>/dev/null; then
+		if find_executable "$cmd" 'Cannot check for newer version!'; then
 			up2date=`eval "$up2date"`
 		else
-			warning "The $cmd program is missing.  Cannot check for newer version!"
 			up2date=""
 			sleep 1
 		fi
@@ -867,7 +876,7 @@ sources_download() {
 
 sources_sha1sum_validate() {
 	if [ ${#sha1sums[@]} -eq ${#source[@]} ]; then
-		if [ `type -p sha1sum` ]; then
+		if find_executable sha1sum 'Cannot verify source files!'; then
 			msg "Validating source files with SHA1sums"
 			errors=0
 			idx=0
@@ -887,9 +896,6 @@ sources_sha1sum_validate() {
 				error "One or more files did not pass the validity check!"
 				exit 1
 			fi
-		else
-			warning "The sha1sum program is missing.  Cannot verify source files!"
-			sleep 1
 		fi
 	fi
 }
@@ -954,7 +960,7 @@ sources_sha1sum_generate() {
 
 sources_gpg_validate() {
 	if [ ${#signatures[@]} -eq ${#source[@]} ]; then
-		if [ `type -p gpg` ]; then
+		if find_executable gpg 'Cannot verify source files!'; then
 			if [ ! -d ~/.gnupg ]; then
 				msg "Configuring gpg..."
 				gpg --list-keys
@@ -998,9 +1004,6 @@ sources_gpg_validate() {
 				error "One or more files did not pass the validity check!"
 				exit 1
 			fi
-		else
-			warning "The gpg program is missing.  Cannot verify source files!"
-			sleep 1
 		fi
 	fi
 }
@@ -1062,8 +1065,7 @@ buildenv_depends_validate() {
 		warning "Skipping dependency checks."
 		return 0
 	fi
-	if ! type -p "$PACMAN"; then
-		warning "$PACMAN was not found in PATH. skipping dependency checks."
+	if find_executable "$PACMAN" 'Skipping dependency checks!'; then
 		return 0
 	fi
 
@@ -1119,11 +1121,9 @@ buildenv_build() {
 			msg "Elapsed Time:$(seconds_to_human_duration "$totaltime")"
 		fi
 	elif [ ! -z "$SBU" ]; then
-		if [ `type -p bc` ]; then
+		if find_executable bc 'Cannot count SBU!'; then
 			pkgsbu=`$ECHO -e "scale=2\n$(($(date +%s)-$stime))/$SBU"|bc /dev/stdin|sed 's/^\./0./'`
 			msg "Elapsed Time: $pkgsbu SBU"
-		else
-			warning "The bc program is missing.  Cannot count SBU!"
 		fi
 	fi
 }
@@ -1336,7 +1336,7 @@ create_pkg()
 	pkg_create_archive "$1"
 
 	if [ "$SEARCHDEPS" == "1" ]; then
-		if [ -x /usr/bin/chkdep ]; then
+		if find_executable chkdep 'Cannot search depends!'; then
 			msg "Searching for depends..."
 			warning "Do not use this information without thinking!"
 			if [ -n "$_F_makepkg_chkdep" ]; then
@@ -1345,7 +1345,6 @@ create_pkg()
 				chkdep -d ./ -n $1 -i
 			fi
 		else
-			warning "Chkdep is not installed and is required to search depends."
 			plain "Install the pacman-tools package, which contains chkdep."
 			plain ""
 			sleep 1
@@ -1988,9 +1987,7 @@ buildscript_up2date
 if grep -i -q "^# Compiling Time: [~0-9\.]\+ SBU$" $BUILDSCRIPT && \
 	[ ! -z "$SBU" ] && [ "$SBU" != "1" ]; then
 	pkgsbu=`grep -i "^# Compiling time: [~0-9\.]\+ SBU$" $BUILDSCRIPT|sed 's/^# Compiling [Tt]ime: ~*\([0-9\.]\+\) SBU$/\1/'`
-	if [ ! "`type -p bc`" ]; then
-		warning "Cannot find the bc binary! Is bc installed? Skipping calculating the estimated build time."
-	else
+	if find_executable bc 'Cannot calculate the estimated build time!'; then
 		secs=`$ECHO "$pkgsbu*$SBU"|bc /dev/stdin|sed 's/\.[0-9]*$//'`
 		[ -z "$secs" ] && secs=0
 		msg "Estimated build time:$(seconds_to_human_duration "$secs")"
