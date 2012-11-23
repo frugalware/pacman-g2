@@ -997,6 +997,45 @@ buildenv_ccache() {
 	fi
 }
 
+ccache_clean() {
+	if [ ! -z "$CLEANCCACHE" ]; then
+		export CCACHE_DIR=$CCACHE_BASEDIR/$CLEANCCACHE
+		ccache -C
+		exit 0
+	fi
+
+	if [ $CLEANCACHE -ge 1 ]; then
+		if [ $CLEANCACHE -ge 2 ]; then
+			msg "Cleaning up the compiler cache."
+			export CCACHE_DIR=$CCACHE_BASEDIR
+			ccache -C
+		fi
+		if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
+			if [ $CLEANCACHE -ge 2 ]; then
+				msg "Cleaning up source files from the cache."
+				rm -rf /var/cache/pacman-g2/src/*
+			fi
+			chroot_clean
+			for i in `grep $CHROOTDIR /proc/mounts|sed 's/^[^ ]* \([^ ]*\) .*/\1/'`
+			do
+				umount $i
+			done
+			if [ "$CLEANUP" = "1" ]; then
+				if [ -z "`grep $CHROOTDIR /proc/mounts`" ]; then
+					msg "Removing the chroot."
+					rm -rf $CHROOTDIR
+				else
+					error "Failed to umount some bind mounts, can't remove the chroot."
+				fi
+			fi
+			exit 0
+		else
+			error "You must be root to clean the cache."
+			exit 1
+		fi
+	fi
+}
+
 buildenv_depends_validate() {
 	if [ "$NODEPS" -eq 1 ]; then
 		warning "Skipping dependency checks."
@@ -1360,6 +1399,10 @@ makepkg_loadconfig() {
 		msg "Aborting..."
 		exit 1
 	fi
+
+	if [ -z "$CCACHE_BASEDIR" ]; then
+		export CCACHE_BASEDIR=/var/cache/ccache
+	fi
 }
 
 makepkg_usage() {
@@ -1717,50 +1760,11 @@ fi
 PKGDEST=`pwd`
 cd $OLDPWD
 
-if [ -z $CCACHE_BASEDIR ]; then
-	export CCACHE_BASEDIR=/var/cache/ccache
-fi
-
-if [ ! -z "$CLEANCCACHE" ]; then
-	export CCACHE_DIR=$CCACHE_BASEDIR/$CLEANCCACHE
-	ccache -C
-	exit 0
-fi
-
 if [ "$INCHROOT" = "1" ]; then
 	$ECHO $$ >lock
 fi
 
-if [ $CLEANCACHE -ge 1 ]; then
-	if [ $CLEANCACHE -ge 2 ]; then
-		msg "Cleaning up the compiler cache."
-		export CCACHE_DIR=$CCACHE_BASEDIR
-		ccache -C
-	fi
-	if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
-		if [ $CLEANCACHE -ge 2 ]; then
-			msg "Cleaning up source files from the cache."
-			rm -rf /var/cache/pacman-g2/src/*
-		fi
-		chroot_clean
-		for i in `grep $CHROOTDIR /proc/mounts|sed 's/^[^ ]* \([^ ]*\) .*/\1/'`
-		do
-			umount $i
-		done
-		if [ "$CLEANUP" = "1" ]; then
-			if [ -z "`grep $CHROOTDIR /proc/mounts`" ]; then
-				msg "Removing the chroot."
-				rm -rf $CHROOTDIR
-			else
-				error "Failed to umount some bind mounts, can't remove the chroot."
-			fi
-		fi
-		exit 0
-	else
-		error "You must be root to clean the cache."
-		exit 1
-	fi
-fi
+ccache_clean
 
 unset pkgname pkgver pkgrel pkgdesc url license groups provides force
 unset replaces depends removes conflicts backup source install makedepends
