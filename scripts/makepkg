@@ -488,9 +488,7 @@ chroot_enter() {
 	cp -a * $CHROOTDIR/var/tmp/fst/
 	chown -R fst:users $CHROOTDIR/var/tmp/fst
 
-	if [ ! -x  /usr/sbin/chroot ]; then
-		error "chroot was not found."
-	else
+	if find_executable /usr/sbin/chroot ; then
 		msg "Entering chroot environment"
 		BUILDLOG=${startdir}/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
 		if [ ! "`check_option NOFAKEROOT`" ]; then
@@ -1468,8 +1466,8 @@ makepkg_parseargs() {
 # compatibility
 		--gzip)			COMPRESS_PROGRAM="gzip" ;;
 # internal
-		-F|--infakeroot)	INFAKEROOT=1 ;;
 		--inchroot)		INCHROOT=1 ;;
+		-F|--infakeroot)	INFAKEROOT=1 ;;
 # pacman-g2
 		--noconfirm)		PACMAN_OPTS="$PACMAN_OPTS --noconfirm" ;;
 		--noprogressbar)	PACMAN_OPTS="$PACMAN_OPTS --noprogressbar" ;;
@@ -1495,6 +1493,19 @@ makepkg_parseargs() {
 			exit 1
 		fi
 	done
+
+	INCHROOT="${INCHROOT:-0}"
+
+	INFAKEROOT="${INFAKEROOT:-0}"
+	if [ "$INFAKEROOT" -eq 1 ]; then
+		NODEPS=1
+		RMDEPS=0
+	fi
+
+	if [ "$INCHROOT" -eq 1 -o "$INFAKEROOT" -eq 1 ]; then
+		GENSHA1=0
+		WRITESHA1=0
+	fi
 
 	WRITESHA1="${WRITESHA1:-0}"
 	if [ "$WRITESHA1" -eq 1 ]; then
