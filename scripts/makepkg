@@ -432,7 +432,6 @@ chroot_size() {
 	sudo du -sh $exclude / |sed "s/\t.*//"
 }
 
-
 chroot_clean()
 {
 	if [ "$CHROOT" = "1" ]; then
@@ -638,6 +637,39 @@ chroot_enter() {
 	chroot_umount
 	chroot_unlock
 	exit $ret
+}
+
+# Enter the fakeroot environment if necessary.  This will call the makepkg script again
+# as the fake root user.  We detect this by passing a sentinel option (-F) to makepkg
+fakeroot_enter() {
+	if [ "`id -u`" -eq 0 ]; then
+		return 0
+	fi
+
+	if [ "$USE_FAKEROOT" = "y" -o "$USE_FAKEROOT" = "Y" ]; then
+		if [ `type -p fakeroot` ]; then
+			msg "Entering fakeroot environment"
+			if [ "$INCHROOT" != "1" ]; then
+				fakeroot -- $0 -F $ARGLIST
+			else
+				fakeroot -- $0 -F --inchroot $ARGLIST
+			fi
+			exit $?
+		else
+			warning "Fakeroot is not installed.  Building as an unprivileged user"
+			plain "will result in non-root ownership of the packaged files."
+			plain "Install the fakeroot package to correctly build as a non-root"
+			plain "user."
+			plain ""
+			sleep 1
+		fi
+	else
+		warning "Running makepkg as an unprivileged user will result in non-root"
+		plain "ownership of the packaged files.  Try using the fakeroot"
+		plain "environment.  (USE_FAKEROOT=y in makepkg.conf)"
+		plain ""
+		sleep 1
+	fi
 }
 
 buildscript_validate() {
@@ -1008,33 +1040,38 @@ buildenv_ccache() {
 }
 
 buildenv_depends_validate() {
-	if [ `type -p $PACMAN` ]; then
-		msg "Checking Buildtime Dependencies..."
-		makedeplist="$(checkdeps "${makedepends[@]}")"
-		handledeps $makedeplist
-		if [ $? -gt 0 ]; then
-			exit 1
-		fi
-		# check deps again to make sure they were resolved
-		deplist="$(checkdeps "${makedepends[@]}")"
-		if [ ! -z "$deplist" ]; then
-			error "Failed to install missing buildtime dependencies."
-			exit 1
-		fi
-		msg "Checking Runtime Dependencies..."
-		deplist="$(checkdeps "${depends[@]}")"
-		handledeps $deplist
-		if [ $? -gt 0 ]; then
-			exit 1
-		fi
-		# check deps again to make sure they were resolved
-		deplist="$(checkdeps "${depends[@]}")"
-		if [ ! -z "$deplist" ]; then
-			error "Failed to install missing dependencies."
-			exit 1
-		fi
-	else
+	if [ "$NODEPS" -eq 1 ]; then
+		warning "Skipping dependency checks."
+		return 0
+	fi
+	if ! type -p "$PACMAN"; then
 		warning "$PACMAN was not found in PATH. skipping dependency checks."
+		return 0
+	fi
+
+	msg "Checking Buildtime Dependencies..."
+	makedeplist="$(checkdeps "${makedepends[@]}")"
+	handledeps $makedeplist
+	if [ $? -gt 0 ]; then
+		exit 1
+	fi
+	# check deps again to make sure they were resolved
+	deplist="$(checkdeps "${makedepends[@]}")"
+	if [ ! -z "$deplist" ]; then
+		error "Failed to install missing buildtime dependencies."
+		exit 1
+	fi
+	msg "Checking Runtime Dependencies..."
+	deplist="$(checkdeps "${depends[@]}")"
+	handledeps $deplist
+	if [ $? -gt 0 ]; then
+		exit 1
+	fi
+	# check deps again to make sure they were resolved
+	deplist="$(checkdeps "${depends[@]}")"
+	if [ ! -z "$deplist" ]; then
+		error "Failed to install missing dependencies."
+		exit 1
 	fi
 }
 
@@ -1904,43 +1941,12 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	chroot_enter
 fi
 
-# Enter the fakeroot environment if necessary.  This will call the makepkg script again
-# as the fake root user.  We detect this by passing a sentinel option (-F) to makepkg
-if [ "`id -u`" != "0" ]; then
-	if [ "$USE_FAKEROOT" = "y" -o "$USE_FAKEROOT" = "Y" ]; then
-		if [ `type -p fakeroot` ]; then
-			msg "Entering fakeroot environment"
-			if [ "$INCHROOT" != "1" ]; then
-				fakeroot -- $0 -F $ARGLIST
-			else
-				fakeroot -- $0 -F --inchroot $ARGLIST
-			fi
-			exit $?
-		else
-			warning "Fakeroot is not installed.  Building as an unprivileged user"
-			plain "will result in non-root ownership of the packaged files."
-			plain "Install the fakeroot package to correctly build as a non-root"
-			plain "user."
-			plain ""
-			sleep 1
-		fi
-	else
-		warning "Running makepkg as an unprivileged user will result in non-root"
-		plain "ownership of the packaged files.  Try using the fakeroot"
-		plain "environment.  (USE_FAKEROOT=y in makepkg.conf)"
-		plain ""
-		sleep 1
-	fi
-fi
+fakeroot_enter
 
 msg "Making package: $pkgname $pkgver-$pkgrel (`date`)"
 
 unset deplist makedeplist
-if [ "$NODEPS" = "0" ]; then
-	buildenv_depends_validate
-else
-	warning "Skipping dependency checks."
-fi
+buildenv_depends_validate
 
 cd $startdir
 
