@@ -171,7 +171,7 @@ find_executable() {
 	shift
 
 	if ! type -p "$executable" &>/dev/null; then
-		warning "$executable was not found in PATH. $@"
+		warning "\"$executable\" was not found in PATH. $@"
 		return 1
 	fi
 	return 0
@@ -549,7 +549,7 @@ chroot_enter() {
 			${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
 	fi
 
-	if [ -f $CHROOTDIR/var/tmp/fst/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT ]; then
+	if [ -f "$CHROOTDIR/var/tmp/fst/${_P_package_archives["${pkgname}"]}" ]; then
 		mv $CHROOTDIR/var/tmp/fst/*-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT $PKGDEST
 		if [ "`id -u`" = "0" ]; then
 			chown `stat -c %u:%g $BUILDSCRIPT` \
@@ -1150,7 +1150,7 @@ pkg_print_pkginfo()
 	for it in ${_P_package_provides["$1"]}; do
 		$ECHO "provides = $it"
 	done
-	for it in ${_P_package_backup["$1"]}; do
+	for it in ${_P_package_backups["$1"]}; do
 		$ECHO "backup = $it"
 	done
 }
@@ -1164,7 +1164,7 @@ pkg_create_install() {
 	local install
 
 	# check for an install script
-	install="${_P_package_install["$1"]}"
+	install="${_P_package_installs["$1"]}"
 	if [ "$install" = "" ]; then
 		[ -e "$startdir/$1.install" ] && install="$1.install"
 	fi
@@ -1189,12 +1189,13 @@ pkg_create_filelist() {
 	# build a filelist
 	msg2 "$1: .FILELIST file... " >&2
 	tar cvf /dev/null * | sort >.FILELIST
+	# find -mindepth 1 -type d -printf "%P/\n" -o -printf "%P\n" | sort >.FILELIST
 }
 
 pkg_create_archive() {
 	local i tarargs tarball
 
-	tarball="$1-$pkgver-$pkgrel-$CARCH.$PKG_EXT"
+	tarball="${_P_package_archives["$1"]}"
 	msg2 "Compressing $tarball " >&2
 
 	if [ -n "$COMPRESS_PROGRAM" ]; then
@@ -1309,7 +1310,7 @@ install_pkg()
 
 	for subpkg in "${_P_package_names[@]}"
 	do
-		targs+=("$PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT")
+		targs+=("$PKGDEST/${_P_package_archives["${subpkg}"]}")
 	done
 
 	if [ "$INSTALL" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
@@ -1476,6 +1477,14 @@ makepkg_parseargs() {
 			exit 1
 		fi
 	done
+
+	if ! find_executable "$COMPRESS_PROGRAM"; then
+		exit 1
+	fi
+
+	if [ "$DEP_SUDO" = "1" ] && ! find_executable sudo; then
+		exit 1
+	fi
 }
 
 makepkg_build() {
@@ -1699,18 +1708,6 @@ if ! echo $TREE |grep -q ,; then
 	[ -n "$bases" ] && TREE="$TREE,$bases"
 fi
 
-# check for COMPRESS_PROGRAM program to be in the path
-if [ -z "`which $COMPRESS_PROGRAM 2>/dev/null`" ]; then
-	error "Cannot find compress program ($COMPRESS_PROGRAM) in PATH"
-	exit 1
-fi
-
-# check for sudo
-if [ "$DEP_SUDO" = "1" -a ! "`type -p sudo`" ]; then
-	error "Cannot find the sudo binary! Is sudo installed?"
-	exit 1
-fi
-
 # convert a (possibly) relative path to absolute
 cd $PKGDEST 2>/dev/null
 if [ $? -ne 0 ]; then
@@ -1860,10 +1857,11 @@ declare -A \
 	_P_package_removes \
 	_P_package_conflicts \
 	_P_package_provides \
-	_P_package_backup \
-	_P_package_install \
+	_P_package_backups \
+	_P_package_installs \
 	_P_package_options \
-	_P_package_archs
+	_P_package_archs \
+	_P_package_archives
 
 # Compatibility adaptation
 if [ "${#_P_package_names[@]}" -eq 0 ]; then
@@ -1882,8 +1880,8 @@ if [ "${#_P_package_names[@]}" -eq 0 ]; then
 	_P_package_removes["${pkgname}"]="${removes[*]}"
 	_P_package_conflicts["${pkgname}"]="${conflicts[*]}"
 	_P_package_provides["${pkgname}"]="${provides[*]}"
-	_P_package_backup["${pkgname}"]="${backup[*]}"
-	_P_package_install["${pkgname}"]="${install}"
+	_P_package_backups["${pkgname}"]="${backup[*]}"
+	_P_package_installs["${pkgname}"]="${install}"
 	_P_package_options["${pkgname}"]="${options[*]}"
 	_P_package_archs["${pkgname}"]="${archs[*]}"
 
@@ -1898,8 +1896,8 @@ if [ "${#_P_package_names[@]}" -eq 0 ]; then
 		_P_package_removes["${subpkg}"]="${subremoves[$i]}"
 		_P_package_conflicts["${subpkg}"]="${subconflicts[$i]}"
 		_P_package_provides["${subpkg}"]="${subprovides[$i]}"
-		_P_package_backup["${subpkg}"]="${subbackup[$i]}"
-		_P_package_install["${subpkg}"]="${subinstall[$i]}"
+		_P_package_backups["${subpkg}"]="${subbackup[$i]}"
+		_P_package_installs["${subpkg}"]="${subinstall[$i]}"
 		_P_package_options["${subpkg}"]="${suboptions[$i]}"
 		_P_package_archs["${subpkg}"]="${subarchs[$i]}"
 		i=$(($i+1))
@@ -1910,6 +1908,7 @@ fi
 i=0
 while [ $i -lt ${#_P_package_names[@]} ]; do
 	if in_array $CARCH ${_P_package_archs["${_P_package_names["$i"]}"]}; then
+		_P_package_archives["${_P_package_names["$i"]}"]="${pkgname}-${pkgver}-${pkgrel}-${CARCH}.${PKG_EXT}"
 		i=$(($i+1))
 	else
 		warning "Package ${_P_package_names["$i"]} is not available on your ARCH, dropping it!"
@@ -1922,7 +1921,7 @@ if [ ! -e "$install" -a ! -e "$startdir/$install" -a ! "`check_option GENSCRIPTL
 	exit 1
 fi
 
-if [ -f $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT -a "$FORCE" = "0" -a "$GENSHA1" = "0" ]; then
+if [ -f "$PKGDEST/${_P_package_archives["${pkgname}"]}" -a "$FORCE" = "0" -a "$GENSHA1" = "0" ]; then
 	if [ "$INSTALL" = "1" ]; then
 		warning "a package has already been built, installing existing package."
 		install_pkg
