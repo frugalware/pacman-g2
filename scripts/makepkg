@@ -576,7 +576,7 @@ buildscript_load() {
 	local i
 
 	# You have to declare associative array before using them :/
-	declare -A \
+	declare -Ag \
 		_P_package_descriptions \
 		_P_package_licenses \
 		_P_package_replaces \
@@ -1286,7 +1286,7 @@ pkg_create_archive() {
 	local i tarargs tarball
 
 	tarball="${_P_package_archives["$1"]}"
-	msg2 "Compressing $tarball " >&2
+	msg2 "Compressing $tarball" >&2
 
 	if [ -n "$COMPRESS_PROGRAM" ]; then
 		tarargs+=("--use-compress-program=$COMPRESS_PROGRAM")
