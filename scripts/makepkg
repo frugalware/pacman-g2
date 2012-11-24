@@ -993,6 +993,14 @@ buildenv_depends_validate() {
 		return 0
 	fi
 
+	local pkgname
+
+	for pkgname in "${_P_package_names[@]}"
+	do
+		# _P_package_depends is not quoted on purpose
+		makedepends+=(${_P_package_depends["$pkgname"]})
+	done
+
 	msg "Checking Buildtime Dependencies..."
 	makedeplist="$(checkdeps "${makedepends[@]}")"
 	handledeps $makedeplist
@@ -1881,15 +1889,6 @@ fi
 fi
 if [ -z "$CACHEURL" ]; then
 	CACHEURL="${serverlist}/source/$groups/$pkgname"
-fi
-
-if [ ! -z "$subpkgs" ]; then
-	makedepends=${makedepends[@]}
-	for i in $(seq 0 $((${#subpkgs[@]} - 1)))
-	do
-		makedepends="$makedepends ${subdepends[$i]}"
-	done
-	makedepends=( $makedepends )
 fi
 
 # You have to declare associative array before using them :/
