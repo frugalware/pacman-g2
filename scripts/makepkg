@@ -1408,9 +1408,8 @@ install_pkg()
 	done
 
 	msg "Installing package(s) ..."
-	$SUDO $PACMAN $PACMAN_OPTS -U "${targs[@]}" || exit $?
-
-	exit 0
+	$SUDO $PACMAN $PACMAN_OPTS -U "${targs[@]}"
+	exit $?
 }
 
 makepkg_loadconfig() {
