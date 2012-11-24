@@ -1288,8 +1288,8 @@ pkg_create_archive() {
 	tarball="${_P_package_archives["$1"]}"
 	msg2 "Compressing $tarball" >&2
 
-	if [ -n "$COMPRESS_PROGRAM" ]; then
-		tarargs+=("--use-compress-program=$COMPRESS_PROGRAM")
+	if [ -n "$PKG_COMP" ]; then
+		tarargs+=("--use-compress-program=$PKG_COMP")
 	fi
 	tarargs+=("-cf")
 	if [ "$INCHROOT" != "1" ]; then
@@ -1439,6 +1439,8 @@ makepkg_loadconfig() {
 		exit 1
 	fi
 
+	declare -gr PKG_COMP_DEFAULT="$PKG_COMP"
+
 	if [ -z "$CCACHE_BASEDIR" ]; then
 		export CCACHE_BASEDIR=/var/cache/ccache
 	fi
@@ -1482,7 +1484,7 @@ makepkg_usage() {
 	$ECHO "  -u, --noup2date  Do not check for newer version"
 	$ECHO "  -t <tree>        Use the given tree's chroot to build in"
 	$ECHO "  -w <destdir>     Write package to <destdir> instead of the working dir"
-	$ECHO "  -z <compression> Use compression program for a package (instead of $PKG_COMP)"
+	$ECHO "  -z <compression> Use compression program for a package (instead of $PKG_COMP_DEFAULT)"
 	$ECHO
 	$ECHO "These options can be passed to pacman-g2:"
 	$ECHO
@@ -1531,9 +1533,9 @@ makepkg_parseargs() {
 		-t)			TREE="$2" ;;
 		-u|--noup2date)		NOUP2DATE=1 ;;
 		-w)			PKGDEST="$2"; consumed=2 ;;
-		-z)			COMPRESS_PROGRAM="$2"; consumed=2 ;;
+		-z)			PKG_COMP="$2"; consumed=2 ;;
 # compatibility
-		--gzip)			COMPRESS_PROGRAM="gzip" ;;
+		--gzip)			PKG_COMP="gzip" ;;
 # internal
 		--inchroot)		INCHROOT=1 ;;
 		-F|--infakeroot)	INFAKEROOT=1 ;;
@@ -1629,7 +1631,7 @@ makepkg_parseargs() {
 		fi 
 	fi
 
-	if ! find_executable "$COMPRESS_PROGRAM"; then
+	if ! find_executable "$PKG_COMP"; then
 		exit 1
 	fi
 
@@ -1883,7 +1885,6 @@ _P_subpkgsfixes+=(_pkg_check_hicolor)
 makepkg_loadconfig
 
 ARGLIST=$@
-COMPRESS_PROGRAM="$PKG_COMP"
 
 makepkg_parseargs "$@"
 
