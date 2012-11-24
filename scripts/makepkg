@@ -1561,6 +1561,25 @@ makepkg_parseargs() {
 	fi
 }
 
+makepkg_prepare_sources() {
+	sources_download
+
+	if [ "$NOVALIDATE" -eq 1 ]; then
+		warning "Skipping source integrity checks -- using existing src/ tree"
+	else
+		sources_sha1sum_validate
+		sources_gpg_validate
+	fi
+
+	sources_sha1sum_generate
+	sources_extract
+
+	if [ "`id -u`" = "0" ]; then
+		# chown all source files to root.root
+		chown -R root.root $startdir/src
+	fi
+fi
+
 makepkg_build() {
 	if [ "$NOBUILD" -eq 1 ]; then
 		return 0
@@ -1992,23 +2011,7 @@ if grep -i -q "^# Compiling Time: [~0-9\.]\+ SBU$" $BUILDSCRIPT && \
 	fi
 fi
 
-sources_download
-
-if [ "$NOVALIDATE" -eq 1 ]; then
-	warning "Skipping source integrity checks -- using existing src/ tree"
-else
-	sources_sha1sum_validate
-	sources_gpg_validate
-fi
-
-sources_sha1sum_generate
-sources_extract
-
-if [ "`id -u`" = "0" ]; then
-	# chown all source files to root.root
-	chown -R root.root $startdir/src
-fi
-
+makepkg_prepare_sources
 if [ "$NOBUILD" = "1" ]; then
 	msg "Sources are ready."
 	exit 0
