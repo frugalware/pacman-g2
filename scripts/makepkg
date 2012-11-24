@@ -466,7 +466,7 @@ chroot_enter() {
 	cp -a * $CHROOTDIR/var/tmp/fst/
 	chown -R fst:users $CHROOTDIR/var/tmp/fst
 
-	if find_executable /usr/sbin/chroot ; then
+	if find_executable /usr/sbin/chroot; then
 		msg "Entering chroot environment"
 		BUILDLOG=${startdir}/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
 		if [ ! "`check_option NOFAKEROOT`" ]; then
@@ -513,8 +513,8 @@ chroot_enter() {
 		chroot_clean
 		# check optimization and write it to $BUILDSCRIPT
 		msg "Checking for optimization..."
-		if grep -q -- "\($CFLAGS\|$CXXFLAGS\)" "${BUILDLOG}" ; then
-			if ! grep -q "# optimization" "${BUILDSCRIPT}" ; then
+		if grep -q -- "\($CFLAGS\|$CXXFLAGS\)" "${BUILDLOG}"; then
+			if ! grep -q "# optimization" "${BUILDSCRIPT}"; then
 				$ECHO -e "\n# optimization OK" >> "${BUILDSCRIPT}"
 			fi
 		else
@@ -565,6 +565,47 @@ fakeroot_enter() {
 		plain ""
 		sleep 1
 	fi
+}
+
+buildscript_download() {
+	if [ -z "$DOWNLOAD" ]; then
+		return 0
+	fi
+
+	msg "Retrieving $DOWNLOAD's buildscript..."
+
+	# find the package
+	if ! $PACMAN -Si "$DOWNLOAD" >/dev/null 2>&1; then
+		error "Package \"$DOWNLOAD\" was not found."
+		exit 1
+	fi
+
+	confs=`cat /etc/pacman-g2.conf |grep ^Include|sed 's/.* = \(.*\)/\1/'`
+
+	# searching for a mirror
+	repo=`$PACMAN -Si $DOWNLOAD |grep ^Repo |sed -n 's/.* \([^ ]*\)/\1/;1 p'`
+	dir=`grep ^Server /etc/pacman-g2/repos/$repo |sed -n 's/.* = \(.*\)/\1/;1 p'`
+	arch=`grep ^Server /etc/pacman-g2/repos/$repo |sed -n 's/.*-\(.*\)/\1/;1 p'`
+	cat=`$PACMAN -Si $DOWNLOAD |grep ^G |sed 's/.* : \([^ ]*\) .*/\1/;'`
+	dlpath="$dir/../"
+
+	# download the script
+	mkdir $DOWNLOAD
+	cd $DOWNLOAD
+	# FIXME: apps other than wget may not support -m and/or -l
+	$FTPAGENT -m -l 1 $dlpath/source/$cat/$DOWNLOAD/ 2>&1
+	if [ ! -f $file ]; then
+		error "Failed to download $file"
+		msg "Aborting..."
+		exit 1
+	fi
+	junk=`$ECHO $dir|sed "s|^.*://\(.*\)/frugalware-$arch|\1/$quickdl|"`/source/$cat/$DOWNLOAD/
+	mv $junk* ./
+	rm -rf `$ECHO $junk|cut -d/ -f1`
+	for i in `find * -type d`
+	do
+		( cd $i && [ -e .listing ] && rm .listing )
+	done
 }
 
 buildscript_load() {
@@ -1046,7 +1087,9 @@ ccache_clean() {
 		ccache -C
 		exit 0
 	fi
+}
 
+cache_clean() {
 	if [ $CLEANCACHE -ge 1 ]; then
 		if [ $CLEANCACHE -ge 2 ]; then
 			msg "Cleaning up the compiler cache."
@@ -1347,7 +1390,7 @@ _pkg_check_links()
 	for l in `find $d -type l 2> /dev/null`; do
 		if [ ! -e "$l" -a ! -e "$d/`ls -l $l | awk '{print $NF}'`" ]; then
 			msg2 "$1: Maybe broken link ${l#$d} found."
-		elif ls -l "$l" | awk '{print $NF}' | grep -q "$startdir" ; then
+		elif ls -l "$l" | awk '{print $NF}' | grep -q "$startdir"; then
 			msg2 "$1: Broken link ${l#$d} found."
 		fi
 	done
@@ -1435,6 +1478,9 @@ makepkg_loadconfig() {
 	# check for a download utility
 	if [ -z "$FTPAGENT" ]; then
 		error "FTPAGENT is not configured. Check the /etc/makepkg.conf file."
+		msg "Aborting..."
+		exit 1
+	elif ! find_executable "$($ECHO $FTPAGENT | awk {'print $1'})"; then
 		msg "Aborting..."
 		exit 1
 	fi
@@ -1577,6 +1623,7 @@ makepkg_parseargs() {
 	fi
 
 	if [ "$INCHROOT" -eq 1 -o "$INFAKEROOT" -eq 1 ]; then
+		DOWNLOAD=
 		GENSHA1=0
 		WRITESHA1=0
 	fi
@@ -1787,7 +1834,7 @@ makepkg_document() {
 _pkg_perl_cleanup_hook() {
 	msg "$1: Removing unwanted perl files..."
 
-	for f in `find usr/lib/perl? -type f 2> /dev/null` ; do
+	for f in `find usr/lib/perl? -type f 2> /dev/null`; do
 		case "$f" in
 			*/.packlist|*/perllocal.pod)
 				rm -f "$f"
@@ -1808,7 +1855,7 @@ _P_subpkgsfixes+=(_pkg_info_cleanup_hook)
 _pkg_mkfontdir_cleanup_hook() {
 	msg "$1: Removing unwanted mkfontdir files..."
 
-	for f in `find -type f -name encodings.dir -o -type f -name fonts.dir -o -type f -name fonts.scale` ; do
+	for f in `find -type f -name encodings.dir -o -type f -name fonts.dir -o -type f -name fonts.scale`; do
 		msg2 "`$ECHO $f | sed 's|^./||'`"
 		rm -f "$f"
 	done
@@ -1852,12 +1899,12 @@ _pkg_compress_manuals_hook()
 	local ext fn i ln
 
 	msg "$1: Compressing info and manual pages..."
-	find {usr{,/local,/share},opt/*}/{info,man} -type f 2>/dev/null | while read i ; do
+	find {usr{,/local,/share},opt/*}/{info,man} -type f 2>/dev/null | while read i; do
 		ext="${i##*.}"
 		fn="${i##*/}"
 		if [ "$ext" != "gz" -a "$ext" != "bz2" ]; then
 			# update symlinks to this manpage
-			find {usr{,/local,/share},opt/*}/man -lname "$fn" 2> /dev/null | while read ln ; do
+			find {usr{,/local,/share},opt/*}/man -lname "$fn" 2> /dev/null | while read ln; do
 				rm -f "$ln"
 				ln -sf "${fn}.gz" "${ln}.gz"
 			done
@@ -1909,6 +1956,7 @@ if [ "$INCHROOT" = "1" ]; then
 fi
 
 ccache_clean
+cache_clean
 
 unset pkgname pkgver pkgrel pkgdesc url license groups provides force
 unset replaces depends removes conflicts backup source install makedepends
@@ -1916,50 +1964,7 @@ unset rodepends options pkdesc_localized
 for i in `set|grep ^_F_|sed 's/\(=.*\| ()\)//'`; do unset $i; done
 umask 0022
 
-# download buildscript if necessary
-if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
-	msg "Retrieving $DOWNLOAD's buildscript..."
-
-	# find the package
-	if ! $PACMAN -Si $DOWNLOAD >/dev/null 2>&1; then
-		error "Package \"$DOWNLOAD\" was not found."
-		exit 1
-	fi
-
-	ftpclient=`$ECHO $FTPAGENT | awk {'print $1'}`
-	if [ ! -x $ftpclient ]; then
-		error "ftpclient `basename $ftpclient` is not installed."
-		msg "Aborting..."
-		exit 1
-	fi
-
-	confs=`cat /etc/pacman-g2.conf |grep ^Include|sed 's/.* = \(.*\)/\1/'`
-
-	# searching for a mirror
-	repo=`$PACMAN -Si $DOWNLOAD |grep ^Repo |sed -n 's/.* \([^ ]*\)/\1/;1 p'`
-	dir=`grep ^Server /etc/pacman-g2/repos/$repo |sed -n 's/.* = \(.*\)/\1/;1 p'`
-	arch=`grep ^Server /etc/pacman-g2/repos/$repo |sed -n 's/.*-\(.*\)/\1/;1 p'`
-	cat=`$PACMAN -Si $DOWNLOAD |grep ^G |sed 's/.* : \([^ ]*\) .*/\1/;'`
-	dlpath="$dir/../"
-
-	# download the script
-	mkdir $DOWNLOAD
-	cd $DOWNLOAD
-	# FIXME: apps other than wget may not support -m and/or -l
-	$FTPAGENT -m -l 1 $dlpath/source/$cat/$DOWNLOAD/ 2>&1
-	if [ ! -f $file ]; then
-		error "Failed to download $file"
-		msg "Aborting..."
-		exit 1
-	fi
-	junk=`$ECHO $dir|sed "s|^.*://\(.*\)/frugalware-$arch|\1/$quickdl|"`/source/$cat/$DOWNLOAD/
-	mv $junk* ./
-	rm -rf `$ECHO $junk|cut -d/ -f1`
-	for i in `find * -type d`
-	do
-		( cd $i && [ -e .listing ] && rm .listing )
-	done
-fi
+buildscript_download
 
 buildscript_load
 
