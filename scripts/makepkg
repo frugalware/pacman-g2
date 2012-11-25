@@ -1873,6 +1873,12 @@ makepkg_document() {
 		\) -exec install -pm 644 '{}' pkg/usr/share/doc/$pkgname-$pkgver/ \;
 }
 
+makepkg_main() {
+	declare -r ARGLIST=$@
+	makepkg_loadconfig
+	makepkg_parseargs "$@"
+}
+
 #
 # Package fixes that may go to a library (user helpers)
 #
@@ -1975,11 +1981,7 @@ _P_subpkgsfixes+=(_pkg_check_hicolor)
 # Main Code Start here
 #
 
-makepkg_loadconfig
-
-ARGLIST=$@
-
-makepkg_parseargs "$@"
+makepkg_main "$@"
 
 # see if we need to append bases to $TREE
 if ! echo $TREE |grep -q ,; then
