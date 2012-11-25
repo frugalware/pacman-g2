@@ -273,9 +273,6 @@ handledeps() {
 			. $i &>/dev/null
 		fi
 	done
-	# some applications (eg, blackbox) will not build with some languages
-	unset LC_ALL LANG
-
 	return $missingdeps
 }
 
@@ -1181,9 +1178,24 @@ buildenv_depends_validate() {
 }
 
 buildenv_build() {
-	local totaltime hours minutes seconds pkgsbu
+	local stime totaltime pkgsbu
 
 	msg "Starting build()..."
+
+	# some applications (eg, blackbox) will not build with some languages
+	unset LC_ALL LANG
+
+	if [ "`check_option NOASNEEDED`" ]; then
+		msg "Using --no-as-needed in LDFLAGS"
+		LDFLAGS+=" -Wl,--no-as-needed"
+	else
+		if [ "`check_option ASNEEDED`" ]; then
+			msg "Using --as-needed in LDFLAGS"
+			LDFLAGS+=" -Wl,--as-needed"
+		fi
+	fi
+	export LDFLAGS
+
 	stime=`date +%s`
 	build
 	if [ $? -gt 0 ]; then
@@ -1776,21 +1788,11 @@ makepkg_build() {
 		buildenv_ccache
 	fi
 
-	if [ "`check_option NOASNEEDED`" ]; then
-		msg "Using --no-as-needed in LDFLAGS"
-		LDFLAGS+=" -Wl,--no-as-needed"
-	else
-		if [ "`check_option ASNEEDED`" ]; then
-			msg "Using --as-needed in LDFLAGS"
-			LDFLAGS+=" -Wl,--as-needed"
-		fi
-	fi
-	export LDFLAGS
-
 	pkg_rmdirs
 	pkg_mkdirs
 
-	buildenv_build
+	# In a subshell so makepkg env is not altered
+	( buildenv_build )
 
 	makepkg_document
 
@@ -2015,8 +2017,6 @@ if [ -f "$PKGDEST/${_P_package_archives["${pkgname}"]}" -a "$FORCE" = "0" -a "$G
 	fi
 fi
 
-# some applications (eg, blackbox) will not build with some languages
-unset LC_ALL LANG
 # Build chroot environment if necessary.
 chroot_enter
 fakeroot_enter
