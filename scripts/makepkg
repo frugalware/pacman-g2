@@ -1515,6 +1515,9 @@ makepkg_loadconfig() {
 	# makepkg configuration
 	[ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
 
+	# FIXME: Make BUILDSCRIPT a makepkg.conf variable
+	BUILDSCRIPT="FrugalBuild"
+
 	if [ -z "$PACKAGER" ]; then
 		error "Please make sure that you edit /etc/makepkg.conf and set the PACKAGER= variable"
 		exit 1
@@ -1541,7 +1544,9 @@ makepkg_loadconfig() {
 		exit 1
 	fi
 
-	declare -gr PKG_COMP_DEFAULT="$PKG_COMP"
+	declare -gr \
+		BUILDSCRIPT_DEFAULT="$BUILDSCRIPT" \
+		PKG_COMP_DEFAULT="$PKG_COMP"
 
 	if [ -z "$CCACHE_BASEDIR" ]; then
 		export CCACHE_BASEDIR=/var/cache/ccache
@@ -1577,7 +1582,7 @@ makepkg_usage() {
 	$ECHO "  -m, --nocolor    Disable colorized output messages"
 	$ECHO "  -n, --nostrip    Do not strip binaries/libraries"
 	$ECHO "  -o, --nobuild    Download and extract files only"
-	$ECHO "  -p <buildscript> Use an alternate build script (instead of $BUILDSCRIPT)"
+	$ECHO "  -p <buildscript> Use an alternate build script (instead of $BUILDSCRIPT_DEFAULT)"
 	$ECHO "  -r, --rmdeps     Remove installed dependencies after a successful build"
 	$ECHO "  -R, --chroot     Build the package in a chroot environment (default)"
 	$ECHO "  -H, --host       Build the package on the host system"
@@ -1593,7 +1598,7 @@ makepkg_usage() {
 	$ECHO "  --noconfirm      Do not ask for confirmation when resolving dependencies"
 	$ECHO "  --noprogressbar  Do not show a progress bar when downloading files"
 	$ECHO
-	$ECHO "If -p is not specified, makepkg will look for $BUILDSCRIPT"
+	$ECHO "If -p is not specified, makepkg will look for $BUILDSCRIPT_DEFAULT"
 	$ECHO "Variable assignations are user defined shell assignations (eg. USE_FOO=BAR) used to interact with makepkg and the FrugalBuilds."
 	$ECHO
 	$ECHO "Compatibility options (these may be removed in any future release):"
@@ -1702,7 +1707,6 @@ makepkg_parseargs() {
 		NODEPS="${NODEPS:-1}"
 	fi
 
-	BUILDSCRIPT="${BUILDSCRIPT:-./FrugalBuild}"
 	CACHEURL="${CACHEURL:-}"
 	CHROOT="${CHROOT:-1}"
 	CLEANUP="${CLEANUP:-0}"
