@@ -1728,6 +1728,12 @@ makepkg_parseargs() {
 }
 
 makepkg_prepare_sources() {
+	# Generate the Changelog if necessary.
+	if [ "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
+		buildscript_create_changelog
+	fi
+
+	buildscript_up2date
 	sources_download
 
 	if [ "$NOVALIDATE" -eq 1 ]; then
@@ -2009,10 +2015,6 @@ if [ -f "$PKGDEST/${_P_package_archives["${pkgname}"]}" -a "$FORCE" = "0" -a "$G
 	fi
 fi
 
-# Generate the Changelog if necessary.
-if [ "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
-	buildscript_create_changelog
-fi
 # some applications (eg, blackbox) will not build with some languages
 unset LC_ALL LANG
 # Build chroot environment if necessary.
@@ -2026,8 +2028,6 @@ unset deplist makedeplist
 buildenv_depends_validate
 
 cd $startdir
-
-buildscript_up2date
 
 buildscript_estimation
 
