@@ -1778,12 +1778,16 @@ makepkg_prepare_sources() {
 		# chown all source files to root.root
 		chown -R root.root $startdir/src
 	fi
+	msg "Sources are ready."
 }
 
 makepkg_build() {
 	if [ "$NOBUILD" -eq 1 ]; then
 		return 0
 	fi
+
+	declare -gr _P_build_date=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
+	msg "Making package: $pkgname $pkgver-$pkgrel (${_P_build_date})"
 
 	# use distcc if requested
 	if [ "$DISTCC" = "y" ]; then
@@ -1815,6 +1819,8 @@ makepkg_build() {
 	_P_subpkgsfixes+=(_pkg_check_links)
 	_P_subpkgsfixes+=(create_pkg)
 	pkg_foreach "${_P_subpkgsfixes[@]}"
+
+	msg "Finished making: $pkgname  (`date`)"
 }
 
 # FIXME: This code rely on "$startdir/pkg/" path
@@ -2022,9 +2028,6 @@ fi
 chroot_enter
 fakeroot_enter
 
-_P_build_date=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
-msg "Making package: $pkgname $pkgver-$pkgrel (${_P_build_date})"
-
 unset deplist makedeplist
 buildenv_depends_validate
 
@@ -2034,7 +2037,6 @@ buildscript_estimation
 
 makepkg_prepare_sources
 if [ "$NOBUILD" = "1" ]; then
-	msg "Sources are ready."
 	exit 0
 else
 	makepkg_build
@@ -2055,8 +2057,5 @@ if [ "$RMDEPS" = "1" -a \( ! -z "$deplist" -o ! -z "$makedeplist" \) ]; then
 	$SUDO $PACMAN $PACMAN_OPTS -R $makedeplist $deplist
 fi
 
-msg "Finished making: $pkgname  (`date`)"
-
 install_pkg
-
-exit 0
+exit $?
