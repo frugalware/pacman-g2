@@ -28,7 +28,6 @@
 ## bash's 'echo' is buggy and does not check on write() for errors
 ECHO="/bin/echo"
 startdir=`pwd`
-PKGDEST=$startdir
 
 # compat functions. these are useful if one would like to use makepkg outside
 # FST. if you want to modify these, please submit a patch again FST first
@@ -243,9 +242,9 @@ handledeps() {
 					if [ -f $pkgdir/$BUILDSCRIPT ]; then
 						cd $pkgdir
 						if [ "$RMDEPS" -eq 1 ]; then
-							makepkg -i -c -b -r -w $PKGDEST
+							makepkg -i -c -b -r -w "$PKGDEST"
 						else
-							makepkg -i -c -b -w $PKGDEST
+							makepkg -i -c -b -w "$PKGDEST"
 						fi
 						if [ $? -eq 0 ]; then
 							success=1
@@ -501,7 +500,7 @@ chroot_enter() {
 	fi
 
 	if [ -f "$CHROOTDIR/var/tmp/fst/${_P_package_archives["${pkgname}"]}" ]; then
-		mv $CHROOTDIR/var/tmp/fst/*-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT $PKGDEST
+		mv $CHROOTDIR/var/tmp/fst/*-"${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT" "$PKGDEST"
 		if [ "`id -u`" = "0" ]; then
 			chown `stat -c %u:%g $BUILDSCRIPT` \
 				*-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT
@@ -1683,6 +1682,7 @@ makepkg_parseargs() {
 	NOVALIDATE="${NOVALIDATE:-0}"
 	PACMAN="${PACMAN:-pacman-g2.static}"
 	PACMAN_OPTS="${PACMAN_OPTS:-}"
+	PKGDEST="${PKGDEST:-"$startdir"}"
 	RMDEPS="${RMDEPS:-0}"
 	TREE="${TREE:-}"
 	USE_COLOR="${USE_COLOR:-n}"
@@ -1725,6 +1725,15 @@ makepkg_parseargs() {
 			exit 1
 		fi
 	fi
+
+	# convert a (possibly) relative path to absolute
+	cd "$PKGDEST" 2>/dev/null
+	if [ $? -ne 0 ]; then
+		error "Package destination directory does not exist or permission denied."
+		exit 1
+	fi
+	PKGDEST="$(pwd)"
+	cd "$OLDPWD"
 }
 
 makepkg_prepare_sources() {
@@ -1963,15 +1972,6 @@ if ! echo $TREE |grep -q ,; then
 	bases=$(eval "echo \$${TREE}_bases")
 	[ -n "$bases" ] && TREE="$TREE,$bases"
 fi
-
-# convert a (possibly) relative path to absolute
-cd $PKGDEST 2>/dev/null
-if [ $? -ne 0 ]; then
-	error "Package destination directory does not exist or permission denied."
-	exit 1
-fi
-PKGDEST=`pwd`
-cd $OLDPWD
 
 if [ "$INCHROOT" = "1" ]; then
 	$ECHO $$ >lock
