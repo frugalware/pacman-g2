@@ -364,6 +364,9 @@ chroot_clean()
 }
 
 chroot_enter() {
+	if [ "$CHROOT" -ne 1 -o "$INCHROOT" -eq 1 ]; then
+		return 0
+	fi
 	if [ "`id -u`" != 0 ]; then
 		error "Building in a chroot as an unprivileged user is not possible."
 		exit 1
@@ -2013,10 +2016,7 @@ fi
 # some applications (eg, blackbox) will not build with some languages
 unset LC_ALL LANG
 # Build chroot environment if necessary.
-if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
-	chroot_enter
-fi
-
+chroot_enter
 fakeroot_enter
 
 _P_build_date=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
