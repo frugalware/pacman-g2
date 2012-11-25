@@ -91,10 +91,6 @@ Fextract() {
 # Frugalware extensions to makepkg
 [ -e /usr/lib/frugalware/fwmakepkg ] && . /usr/lib/frugalware/fwmakepkg
 
-# repoman.conf for $fst_root
-[ -f /etc/repoman.conf ] && source /etc/repoman.conf
-[ -n "$repos" ] && TREE="$repos"
-
 ### SUBROUTINES ###
 
 plain() {
@@ -1489,6 +1485,32 @@ install_pkg()
 	exit $?
 }
 
+repoman_loadconfig() {
+	# repoman.conf for $fst_root
+	[ -f /etc/repoman.conf ] && source /etc/repoman.conf
+
+	local _serverlist serverlist
+
+	if [ -z "$TREE" -a ${#repos[@]} -gt 0 ]; then
+		TREE="${repos[0]}"
+	fi
+
+	if [-z "$CACHEURL" ]; then
+		eval "serverlist=${TREE}_servers"
+		if [ "$F_makepkg_scm" = "git" -a ! "`check_option NOVERSRC`" ]; then
+			_serverlist=`GIT_DIR=$fst_root/${TREE}/.git git config --get remote.origin.url 2>/dev/null`
+			if [ -n "$_serverlist" -a "${_serverlist:0:6}" != "git://" ]; then
+				serverlist=$_serverlist
+			fi
+		else
+			if [ -f "$fst_root/${TREE}/_darcs/prefs/defaultrepo" ]; then
+				serverlist="`cat $fst_root/${TREE}/_darcs/prefs/defaultrepo`"
+			fi
+		fi
+		CACHEURL="${serverlist}/source/$groups/$pkgname"
+	fi
+}
+
 makepkg_loadconfig() {
 	# makepkg configuration
 	[ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
@@ -2001,20 +2023,7 @@ buildscript_download
 
 buildscript_load
 
-eval "serverlist=${TREE}_servers"
-if [ "$F_makepkg_scm" = "git" -a ! "`check_option NOVERSRC`" ]; then
-	_serverlist=`GIT_DIR=$fst_root/${TREE}/.git git config --get remote.origin.url 2>/dev/null`
-	if [ -n "$_serverlist" -a "${_serverlist:0:6}" != "git://" ]; then
-		serverlist=$_serverlist
-	fi
-else
-if [ -f "$fst_root/${TREE}/_darcs/prefs/defaultrepo" ]; then
-	serverlist="`cat $fst_root/${TREE}/_darcs/prefs/defaultrepo`"
-fi
-fi
-if [ -z "$CACHEURL" ]; then
-	CACHEURL="${serverlist}/source/$groups/$pkgname"
-fi
+repoman_loadconfig
 
 if [ -f "$PKGDEST/${_P_package_archives["${pkgname}"]}" -a "$FORCE" = "0" -a "$GENSHA1" = "0" ]; then
 	if [ "$INSTALL" = "1" ]; then
