@@ -25,6 +25,8 @@
 #   USA.
 #
 
+umask 0022
+
 ## bash's 'echo' is buggy and does not check on write() for errors
 ECHO="/bin/echo"
 startdir=`pwd`
@@ -614,6 +616,11 @@ buildscript_load() {
 	fi
 
 	local i
+
+	unset pkgname pkgver pkgrel pkgdesc url license groups provides force
+	unset replaces depends removes conflicts backup source install makedepends
+	unset rodepends options pkdesc_localized
+	for i in `set|grep ^_F_|sed 's/\(=.*\| ()\)//'`; do unset $i; done
 
 	# You have to declare associative array before using them :/
 	declare -Ag \
@@ -1981,12 +1988,6 @@ fi
 
 ccache_clean
 cache_clean
-
-unset pkgname pkgver pkgrel pkgdesc url license groups provides force
-unset replaces depends removes conflicts backup source install makedepends
-unset rodepends options pkdesc_localized
-for i in `set|grep ^_F_|sed 's/\(=.*\| ()\)//'`; do unset $i; done
-umask 0022
 
 buildscript_download
 
