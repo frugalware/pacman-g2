@@ -1995,26 +1995,29 @@ makepkg_ccache() {
 						"$@"
 					continue ;;
 		*)			error "Optional parameter \"$1\" has unsupported format"
-					exit 1 ;;
+					return 1 ;;
 		esac
 		if ! shift "$consumed"; then
 			consumed=$(($consumed - 1))
 			error "Option $1 expects $consumed argument(s)"
-			exit 1
+			return 1
 		fi
 	done
 
-	for i in "$@"; do
-		if [ -n "$cache" -a -d "$CCACHE_BASEDIR/$i" ]; then
-			msg "$cache: Cleaning up the compiler cache."
-			CCACHE_DIR="$CCACHE_BASEDIR/$i" ccache -C
-		else
-			error "$i: No compiler cache available"
-		fi
-	done
-	msg "Cleaning up the compiler cache."
-	CCACHE_DIR="$CCACHE_BASEDIR" ccache -C
-	return 1
+	if [ $clean_all -eq 1 ]; then
+		msg "Cleaning up the compiler cache."
+		CCACHE_DIR="$CCACHE_BASEDIR" ccache -C
+	else
+		for i in "$@"; do
+			if [ -n "$cache" -a -d "$CCACHE_BASEDIR/$i" ]; then
+				msg "$cache: Cleaning up the compiler cache."
+				CCACHE_DIR="$CCACHE_BASEDIR/$i" ccache -C
+			else
+				error "$i: No compiler cache available"
+			fi
+		done
+	fi
+	return 0
 }
 
 makepkg_clean() {
