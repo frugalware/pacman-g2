@@ -1092,20 +1092,10 @@ buildenv_ccache() {
 	fi
 }
 
-ccache_clean() {
-	if [ ! -z "$CLEANCCACHE" ]; then
-		export CCACHE_DIR=$CCACHE_BASEDIR/$CLEANCCACHE
-		ccache -C
-		exit 0
-	fi
-}
-
 cache_clean() {
 	if [ $CLEANCACHE -ge 1 ]; then
 		if [ $CLEANCACHE -ge 2 ]; then
-			msg "Cleaning up the compiler cache."
-			export CCACHE_DIR=$CCACHE_BASEDIR
-			ccache -C
+ 			makepkg_ccache --clean-all
 		fi
 		if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
 			if [ $CLEANCACHE -ge 2 ]; then
@@ -1568,9 +1558,10 @@ makepkg_loadconfig() {
 makepkg_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 [options] [variable assignations]"
+	$ECHO "Usage: $0 [command] [options] [variable assignations]"
+	$ECHO "Command can be any of the following: build(default), ccache."
 	$ECHO
-	$ECHO "Options:"
+	$ECHO "Options for build command:"
 	$ECHO "  -a, --searchdeps Search for package dependencies automatically"
 	$ECHO "  -A <url>         rsync cache url to use before downloading anything"
 	$ECHO "  -b, --builddeps  Build missing dependencies from source"
@@ -1578,7 +1569,6 @@ makepkg_usage() {
 	$ECHO "  -c, --clean      Clean up work files after build"
 	$ECHO "  -C, --cleancache Clean up source files from the cache"
 	$ECHO "  -d, --nodeps     Skip all dependency checks"
-	$ECHO "  -D <pkgname>     Clean up the compiler cache for a package"
 	$ECHO "  -e, --noextract  Do not extract source files (use existing src/ dir)"
 	$ECHO "  -f, --force      Overwrite existing package"
 	$ECHO "  -g, --gensha1    Generate SHA1sums for source files"
@@ -1610,11 +1600,12 @@ makepkg_usage() {
 	$ECHO "Variable assignations are user defined shell assignations (eg. USE_FOO=BAR) used to interact with makepkg and the FrugalBuilds."
 	$ECHO
 	$ECHO "Compatibility options (these may be removed in any future release):"
-	$ECHO "  --gzip           Use gzip compression for a package"
+	$ECHO "  -D <pkgname>     Clean up the compiler cache for a package (See command: ccache --clean <pkgname>)"
+	$ECHO "  --gzip           Use gzip compression for a package (See option: build -z <compression> )"
 }
 
 makepkg_parseargs() {
-	local consumed
+	local consumed ccache_args
 
 	while [ $# -gt 0 ]; do
 		consumed=1
@@ -1627,7 +1618,7 @@ makepkg_parseargs() {
 		-c|--clean)		CLEANUP=1 ;;
 		-C|--cleancache)	CLEANCACHE=$(($CLEANCACHE+1)) ;;
 		-d|--nodeps)		NODEPS=1 ;;
-		-D)			CLEANCCACHE="$2"; consumed=2 ;;
+		-D)			ccache_args+=("--clean" "$2"); consumed=2 ;;
 		-e|--noextract)		NOEXTRACT=1 ;;
 		-f|--force)		FORCE=1 ;;
 		-g|--gensha1)		GENSHA1=1 ;;
@@ -1695,6 +1686,11 @@ makepkg_parseargs() {
 		DOWNLOAD=
 		GENSHA1=0
 		WRITESHA1=0
+	else
+		if [ ${#ccache_args[@]} -gt 0 ]; then
+			makepkg_ccache "${ccache_args[@]}"
+			exit $?
+		fi
 	fi
 
 	WRITESHA1="${WRITESHA1:-0}"
@@ -1719,7 +1715,6 @@ makepkg_parseargs() {
 	CHROOT="${CHROOT:-1}"
 	CLEANUP="${CLEANUP:-0}"
 	CLEANCACHE="${CLEANCACHE:-0}"
-	CLEANCCACHE="${CLEANCCACHE:-}"
 	DEP_BIN="${DEP_BIN:-0}"
 	DEP_SRC="${DEP_SRC:-0}"
 	DEP_SUDO="${DEP_SUDO:-0}"
@@ -1916,7 +1911,6 @@ makepkg_build_cmd() {
 		$ECHO $$ >lock
 	fi
 
-	ccache_clean
 	cache_clean
 
 	buildscript_download
@@ -1969,20 +1963,75 @@ makepkg_build_cmd() {
 	install_pkg
 }
 
-makepkg_clean_cmd() {
+makepkg_ccache_usage() {
+	$ECHO "makepkg"
+	$ECHO
+	$ECHO "Usage: $0 ccache [options]"
+	$ECHO
+	$ECHO "Options for ccache command:"
+	$ECHO "      --clean <pkgname>  Clean up the compiler cache for a package"
+	$ECHO "      --clean-all        Clean up the compiler cache for all packages"
+	$ECHO "  -h, --help             This help"
+}
+
+makepkg_ccache() {
+	local clean_list clean_all=0 i consumed
+
+	while [ $# -gt 0 ]; do
+		consumed=1
+		case "$1" in
+		--clean)		ccache_clean_list+=("$2"); consumed=2 ;;
+		--clean-all)		clean_all=1 ;;
+		-h|--help)		makepkg_ccache_usage; return 0 ;;
+# special options
+#		--)			shift; break;;
+		--*|-?)			makepkg_ccache_usage; return 1 ;;
+		-*)			# Combined short options
+					split="$1"
+					shift
+					set -- \
+						"$(echo "$split}" | cut -c -2)" \
+						"-$(echo "${split}" | cut -c 3-)" \
+						"$@"
+					continue ;;
+		*)			error "Optional parameter \"$1\" has unsupported format"
+					exit 1 ;;
+		esac
+		if ! shift "$consumed"; then
+			consumed=$(($consumed - 1))
+			error "Option $1 expects $consumed argument(s)"
+			exit 1
+		fi
+	done
+
+	for i in "$@"; do
+		if [ -n "$cache" -a -d "$CCACHE_BASEDIR/$i" ]; then
+			msg "$cache: Cleaning up the compiler cache."
+			CCACHE_DIR="$CCACHE_BASEDIR/$i" ccache -C
+		else
+			error "$i: No compiler cache available"
+		fi
+	done
+	msg "Cleaning up the compiler cache."
+	CCACHE_DIR="$CCACHE_BASEDIR" ccache -C
 	return 1
 }
 
-makepkg_install_cmd() {
+makepkg_clean() {
+	return 1
+}
+
+makepkg_install() {
 	return 1
 }
 
 makepkg_main() {
 	makepkg_loadconfig
 	case "$1" in
-	build)		shift; makepkg_build_cmd ;;
-	clean)		shift; makepkg_clean_cmd ;;
-	install)	shift; makepkg_install_cmd
+	build)		shift; makepkg_build_cmd "$@" ;;
+	ccache)		shift; makepkg_ccache "$@" ;;
+	clean)		shift; makepkg_clean "$@" ;;
+	install)	shift; makepkg_install "$@" ;;
 	*)		makepkg_build_cmd ;;
 	esac
 }
