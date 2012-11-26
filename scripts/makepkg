@@ -223,10 +223,6 @@ handledeps() {
 		elif [ "$DEP_SRC" = "1" ]; then
 			# install missing deps by building them from source.
 			# we look for each package name in $fst_root and build it.
-			if [ "$fst_root" = "" ]; then
-				error "The fst_root environment variable is not defined, check your /etc/repoman.conf!"
-				exit 1
-			fi
 			# TODO: handle version comparators (eg, glibc>=2.2.5)
 			msg "Building missing dependencies..."
 			for dep in $deplist; do
@@ -1491,8 +1487,20 @@ repoman_loadconfig() {
 
 	local _serverlist serverlist
 
+	if [ "$fst_root" = "" ]; then
+		error "The fst_root environment variable is not defined, check your /etc/repoman.conf!"
+		exit 1
+	fi
+
 	if [ -z "$TREE" -a ${#repos[@]} -gt 0 ]; then
 		TREE="${repos[0]}"
+	fi
+
+	# see if we need to append bases to $TREE
+	if ! echo "$TREE" |grep -q ,; then
+		# only parse _bases if they were no provided on the commandline
+		bases=$(eval "echo \$${TREE}_bases")
+		[ -n "$bases" ] && TREE="$TREE,$bases"
 	fi
 
 	if [-z "$CACHEURL" ]; then
@@ -1899,10 +1907,84 @@ makepkg_document() {
 		\) -exec install -pm 644 '{}' pkg/usr/share/doc/$pkgname-$pkgver/ \;
 }
 
-makepkg_main() {
+makepkg_build_cmd() {
 	declare -r ARGLIST=$@
-	makepkg_loadconfig
 	makepkg_parseargs "$@"
+	repoman_loadconfig
+
+	if [ "$INCHROOT" = "1" ]; then
+		$ECHO $$ >lock
+	fi
+
+	ccache_clean
+	cache_clean
+
+	buildscript_download
+
+	buildscript_load
+
+	if [ -f "$PKGDEST/${_P_package_archives["${pkgname}"]}" -a "$FORCE" = "0" -a "$GENSHA1" = "0" ]; then
+		if [ "$INSTALL" = "1" ]; then
+			warning "a package has already been built, installing existing package."
+			install_pkg
+		else
+			error "a package has already been built.  (use -f to overwrite)"
+			exit 1
+		fi
+	fi
+
+	# Build chroot environment if necessary.
+	chroot_enter
+	fakeroot_enter
+
+	unset deplist makedeplist
+	buildenv_depends_validate
+
+	cd $startdir
+
+	buildscript_estimation
+
+	makepkg_prepare_sources
+	if [ "$NOBUILD" = "1" ]; then
+		exit 0
+	else
+		makepkg_build
+	fi
+
+	cd $startdir
+	if [ "$CLEANUP" = "1" ]; then
+		if [ "$INCHROOT" == "1" ]; then
+			msg "Chroot size before cleaning: $(chroot_size)"
+		fi
+		msg "Cleaning up..."
+		pkg_rmdirs
+		rm -rf src Changelog
+	fi
+
+	if [ "$RMDEPS" = "1" -a \( ! -z "$deplist" -o ! -z "$makedeplist" \) ]; then
+		msg "Removing installed dependencies..."
+		$SUDO $PACMAN $PACMAN_OPTS -R $makedeplist $deplist
+	fi
+
+	install_pkg
+}
+
+makepkg_clean_cmd() {
+	return 1
+}
+
+makepkg_install_cmd() {
+	return 1
+}
+
+makepkg_main() {
+	makepkg_loadconfig
+	case "$1" in
+	build)		shift; makepkg_build_cmd ;;
+	clean)		shift; makepkg_clean_cmd ;;
+	install)	shift; makepkg_install_cmd
+	*)		makepkg_build_cmd ;;
+	esac
 }
 
 #
@@ -2008,69 +2090,3 @@ _P_subpkgsfixes+=(_pkg_check_hicolor)
 #
 
 makepkg_main "$@"
-
-# see if we need to append bases to $TREE
-if ! echo $TREE |grep -q ,; then
-	# only parse _bases if they were no provided on the commandline
-	bases=$(eval "echo \$${TREE}_bases")
-	[ -n "$bases" ] && TREE="$TREE,$bases"
-fi
-
-if [ "$INCHROOT" = "1" ]; then
-	$ECHO $$ >lock
-fi
-
-ccache_clean
-cache_clean
-
-buildscript_download
-
-buildscript_load
-
-repoman_loadconfig
-
-if [ -f "$PKGDEST/${_P_package_archives["${pkgname}"]}" -a "$FORCE" = "0" -a "$GENSHA1" = "0" ]; then
-	if [ "$INSTALL" = "1" ]; then
-		warning "a package has already been built, installing existing package."
-		install_pkg
-	else
-		error "a package has already been built.  (use -f to overwrite)"
-		exit 1
-	fi
-fi
-
-# Build chroot environment if necessary.
-chroot_enter
-fakeroot_enter
-
-unset deplist makedeplist
-buildenv_depends_validate
-
-cd $startdir
-
-buildscript_estimation
-
-makepkg_prepare_sources
-if [ "$NOBUILD" = "1" ]; then
-	exit 0
-else
-	makepkg_build
-fi
-
-cd $startdir
-if [ "$CLEANUP" = "1" ]; then
-	if [ "$INCHROOT" == "1" ]; then
-		msg "Chroot size before cleaning: $(chroot_size)"
-	fi
-	msg "Cleaning up..."
-	pkg_rmdirs
-	rm -rf src Changelog
-fi
-
-if [ "$RMDEPS" = "1" -a \( ! -z "$deplist" -o ! -z "$makedeplist" \) ]; then
-	msg "Removing installed dependencies..."
-	$SUDO $PACMAN $PACMAN_OPTS -R $makedeplist $deplist
-fi
-
-install_pkg
-exit $?
