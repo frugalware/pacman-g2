@@ -504,15 +504,6 @@ chroot_enter() {
 		fi
 		rm -rf $CHROOTDIR/var/tmp/fst/*
 		chroot_clean
-		# check optimization and write it to $BUILDSCRIPT
-		msg "Checking for optimization..."
-		if grep -q -- "\($CFLAGS\|$CXXFLAGS\)" "${BUILDLOG}"; then
-			if ! grep -q "# optimization" "${BUILDSCRIPT}"; then
-				$ECHO -e "\n# optimization OK" >> "${BUILDSCRIPT}"
-			fi
-		else
-			warning "This package isn't ${CARCH}-optimized!"
-		fi
 		# copy build log to LOGDIR if set
 		if [ -d "$LOGDIR" ]; then
 			msg "Creating permanent copy of build log"
