@@ -350,9 +350,7 @@ static int parseargs(int argc, char *argv[])
 				config->op_d_vertest = 1;
 			break;
 			case 'b':
-				if(config->dbpath) {
-					free(config->dbpath);
-				}
+				free(config->dbpath);
 				config->dbpath = strdup(optarg);
 			break;
 			case 'c':
@@ -386,9 +384,7 @@ static int parseargs(int argc, char *argv[])
 					perror(_("bad root path"));
 					return(1);
 				}
-				if(config->root) {
-					free(config->root);
-				}
+				free(config->root);
 				config->root = strdup(root);
 			break;
 			case 's':
