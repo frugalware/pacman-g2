@@ -2026,18 +2026,22 @@ makepkg_chroot_usage() {
 	$ECHO "Usage: $0 chroot [options] [command [args]...]"
 	$ECHO
 	$ECHO "Options for chroot command:"
-	$ECHO "      --chroot <name>    Enter in the chroot <name>."
-	$ECHO "      --userspec <spec>  See chroot userspec option."
-	$ECHO "      --fakeroot         Enter in fakeroot."
+	$ECHO "      --bind <path>      Bind a path between host and chroot"
+	$ECHO "      --chroot <name>    Enter in the chroot <name>"
+	$ECHO "      --userspec <spec>  See chroot userspec option"
+	$ECHO "      --fakeroot         Enter in fakeroot"
 	$ECHO "  -h, --help             This help"
 }
 
 makepkg_chroot() {
+	local bind_list=('/dev' '/proc' '/sys')
 	local cmd consumed inchroot infakeroot=0
+	local i ret
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
+		--bind)			bind_list+=("$2"); consumed=2 ;;
 		--chroot)		inchroot="$2"; consumed=2 ;;
 		--userspec)		userspec="$2"; consumed=2 ;;
 		--fakeroot)		infakeroot=1 ;;
@@ -2067,6 +2071,14 @@ makepkg_chroot() {
 			error "Cowardly refuse to chroot while in fakeroot!"
 			return 1
 		fi
+		for i in "${bind_list[@]}"; do
+			mkdir -p "$CHROOTDIR/$inchroot/$i"
+			mount -o bind "$i" "$CHROOTDIR/$inchroot/$i" >/dev/null
+			if [ "$?" != "0" ]; then
+				error "An error occurred while attempting to mount chroot directories."
+				exit 1
+			fi
+		done
 		cmd+=('INCHROOT=1' 'chroot')
 		if [ -n "$userspec" ]; then
 			cmd+=("--userspec=$userspec")
@@ -2080,8 +2092,21 @@ makepkg_chroot() {
 		fi
 		cmd+=('fakeroot')
 	fi
-	"${cmd[@]}" "$@"
-	return $?
+
+	env -- "${cmd[@]}" "$@"
+	ret=$?
+
+	if [ -n "$inchroot" ]; then
+		for i in "${bind_list[@]}"; do
+			umount "$CHROOTDIR/$inchroot/$i" >/dev/null
+			if [ "$?" != "0" ]; then
+				error "An error occurred while attempting to mount chroot directories."
+				exit 1
+			fi
+		done
+	fi
+
+	return $ret
 }
 
 makepkg_clean() {
