@@ -872,33 +872,6 @@ buildenv_distcc() {
 	fi
 }
 
-buildenv_ccache() {
-	if [ -d /usr/lib/ccache/bin ]; then
-		if [ "$CHROOT" = "1" ]; then
-			CCACHE_REALDIR=/var/cache/ccache
-		else
-			CCACHE_REALDIR=$CCACHE_BASEDIR
-		fi
-		if [ -w $CCACHE_REALDIR ]; then
-			export PATH=/usr/lib/ccache/bin:$PATH
-			FCC="ccache $FCC"
-			install -d -m 2775 $CCACHE_REALDIR/$pkgname
-			export CCACHE_DIR=$CCACHE_REALDIR/$pkgname
-			export CCACHE_NOLINK=1
-			export CCACHE_UMASK=002
-		else
-			if [ "$INCHROOT" != "1" ]; then
-				error "You installed ccache but you are not in the ccache group."
-				plain "Either add yourserlf to the ccache group or"
-				plain "use the -B option to disable ccache support."
-				exit 1
-			else
-				warning "The fst user is not in the ccache group, ccache will be disabled."
-			fi
-		fi
-	fi
-}
-
 cache_clean() {
 	if [ $CLEANCACHE -ge 1 ]; then
 		if [ $CLEANCACHE -ge 2 ]; then
@@ -1637,11 +1610,6 @@ makepkg_build() {
 		buildenv_distcc
 	fi
 
-	# use ccache if it's available
-	if [ "$NOCCACHE" = "0" -a ! "`check_option NOCCACHE`" ]; then
-		buildenv_ccache
-	fi
-
 	pkg_rmdirs
 	pkg_mkdirs
 
@@ -1756,7 +1724,13 @@ makepkg_build_cmd() {
 	if [ "$NOBUILD" = "1" ]; then
 		exit 0
 	else
-		makepkg_build
+		local cmd
+		# use ccache if it's available
+		if [ "$NOCCACHE" = "0" -a ! "`check_option NOCCACHE`" ]; then
+			cmd+=(makepkg_ccache)
+		fi
+
+		"${cmd[@]}" makepkg_build
 	fi
 
 	cd "$startdir"
