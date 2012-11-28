@@ -361,10 +361,6 @@ chroot_enter() {
 		error "Building in a chroot as an unprivileged user is not possible."
 		exit 1
 	fi
-	if [ "$CHROOTDIR" = "" ]; then
-		error "The CHROOTDIR environment variable is not defined."
-		exit 1
-	fi
 	CHROOTDIR="$CHROOTDIR/$TREE"
 
 	mkdir -p $CHROOTDIR/{dev,etc,proc,sys,var/cache/pacman-g2,var/tmp/fst}
@@ -1506,6 +1502,11 @@ makepkg_loadconfig() {
 
 	# FIXME: Make BUILDSCRIPT a makepkg.conf variable
 	BUILDSCRIPT="FrugalBuild"
+
+	if [ -z "$CHROOTDIR" ]; then
+		error "The CHROOTDIR environment variable is not defined."
+		exit 1
+	fi
 
 	if [ -z "$PACKAGER" ]; then
 		error "Please make sure that you edit /etc/makepkg.conf and set the PACKAGER= variable"
