@@ -2222,4 +2222,6 @@ _P_subpkgsfixes+=(_pkg_check_hicolor)
 # Main Code Start here
 #
 
-makepkg_main "$@"
+if [ -v PS1 ]; then
+	makepkg_main "$@"
+fi
