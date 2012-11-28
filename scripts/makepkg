@@ -2019,6 +2019,7 @@ makepkg_chroot_usage() {
 	$ECHO
 	$ECHO "Options for chroot command:"
 	$ECHO "      --bind <path>      Bind a path between host and chroot"
+	$ECHO "  -f, --force            Skip the sanity checks"
 	$ECHO "      --userspec <spec>  See chroot userspec option"
 	$ECHO "  -h, --help             This help"
 }
@@ -2103,7 +2104,7 @@ makepkg_fakeroot_usage() {
 	$ECHO "Usage: $0 fakeroot [options] [--] [fakeroot_options]"
 	$ECHO
 	$ECHO "Options for fakeroot command:"
-	$ECHO "  -f, --force            Skip the fakeroot sanity check"
+	$ECHO "  -f, --force            Skip the sanity checks"
 	$ECHO "  -h, --help             This help"
 	$ECHO
 	$ECHO "Run 'fakeroot --help' to see fakeroot_options."
