@@ -861,17 +861,6 @@ sources_extract() {
 	done
 }
 
-buildenv_distcc() {
-	if [ -d /usr/lib/distcc/bin ]; then
-		export PATH=/usr/lib/distcc/bin:$PATH
-		FCC="distcc $FCC"
-		if [ "$INCHROOT" = "1" ]; then
-			[ -d /var/tmp/fst/.distcc ] || mkdir /var/tmp/fst/.distcc
-			export DISTCC_DIR=/var/tmp/fst/.distcc
-		fi
-	fi
-}
-
 cache_clean() {
 	if [ $CLEANCACHE -ge 1 ]; then
 		if [ $CLEANCACHE -ge 2 ]; then
@@ -1605,11 +1594,6 @@ makepkg_build() {
 	declare -gr _P_build_date=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
 	msg "Making package: $pkgname $pkgver-$pkgrel (${_P_build_date})"
 
-	# use distcc if requested
-	if [ "$DISTCC" = "y" ]; then
-		buildenv_distcc
-	fi
-
 	pkg_rmdirs
 	pkg_mkdirs
 
@@ -1725,6 +1709,12 @@ makepkg_build_cmd() {
 		exit 0
 	else
 		local cmd
+
+		# use distcc if requested
+		if [ "$DISTCC" = "y" ]; then
+			cmd+=(makepkg_distcc)
+		fi
+
 		# use ccache if it's available
 		if [ "$NOCCACHE" = "0" -a ! "`check_option NOCCACHE`" ]; then
 			cmd+=(makepkg_ccache)
@@ -2037,7 +2027,7 @@ makepkg_ccache() {
 		fi
 	fi
 
-	(	# Limit the exports to the subshell
+	( # Limit the exports to the subshell
 	export CCACHE_DIR="$CCACHE_BASEDIR"
 	export CCACHE_NOLINK=1
 	export CCACHE_UMASK=002
@@ -2151,6 +2141,22 @@ makepkg_chroot() {
 	return $ret
 }
 
+# FIXME: Make a proper command
+makepkg_distcc() {
+	( # Limit the exports to the subshell
+	if [ -d /usr/lib/distcc/bin ]; then
+		export PATH=/usr/lib/distcc/bin:$PATH
+		export FCC="distcc $FCC" # Frugalware CC wrapper
+
+		if [ "$INCHROOT" = "1" ]; then
+			[ -d /var/tmp/fst/.distcc ] || mkdir /var/tmp/fst/.distcc
+			export DISTCC_DIR=/var/tmp/fst/.distcc
+		fi
+	fi
+	"$@"
+	)
+}
+
 makepkg_fakeroot_usage() {
 	$ECHO "makepkg"
 	$ECHO
@@ -2170,7 +2176,7 @@ makepkg_fakeroot() {
 		consumed=1
 		case "$1" in
 		-f|--force)		force=1 ;;
-		-h|--help)		makepkg_chroot_usage; return 0 ;;
+		-h|--help)		makepkg_fakeroot_usage; return 0 ;;
 # special options
 		--)			shift; break;; # End of options
 		--*|-?)			makepkg_chroot_usage; return 1 ;;
