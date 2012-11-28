@@ -2020,13 +2020,12 @@ makepkg_chroot_usage() {
 	$ECHO "      --bind <path>      Bind a path between host and chroot"
 	$ECHO "      --chroot <name>    Enter in the chroot <name>"
 	$ECHO "      --userspec <spec>  See chroot userspec option"
-	$ECHO "      --fakeroot         Enter in fakeroot"
 	$ECHO "  -h, --help             This help"
 }
 
 makepkg_chroot() {
 	local bind_list=('/dev' '/proc' '/sys')
-	local cmd consumed inchroot infakeroot=0
+	local cmd consumed inchroot
 	local i ret
 
 	while [ $# -gt 0 ]; do
@@ -2035,11 +2034,10 @@ makepkg_chroot() {
 		--bind)			bind_list+=("$2"); consumed=2 ;;
 		--chroot)		inchroot="$2"; consumed=2 ;;
 		--userspec)		userspec="$2"; consumed=2 ;;
-		--fakeroot)		infakeroot=1 ;;
-		-h|--help)		makepkg_do_usage; return 0 ;;
+		-h|--help)		makepkg_chroot_usage; return 0 ;;
 # special options
 		--)			shift; break;; # End of options
-		--*|-?)			makepkg_ccache_usage; return 1 ;;
+		--*|-?)			makepkg_chroot_usage; return 1 ;;
 		-*)			# Combined short options
 					split="$1"
 					shift
@@ -2070,18 +2068,12 @@ makepkg_chroot() {
 				exit 1
 			fi
 		done
-		cmd+=('INCHROOT=1' 'chroot')
+#		cmd+=('INCHROOT=1')
+		cmd+=('chroot')
 		if [ -n "$userspec" ]; then
 			cmd+=("--userspec=$userspec")
 		fi
 		cmd+=("$CHROOTDIR/$inchroot")
-	fi
-	if [ $infakeroot -eq 1 ]; then
-		if [ -n "$FAKEROOTKEY" ]; then
-			error "Cowardly refuse to fakeroot while in fakeroot!"
-			return 1
-		fi
-		cmd+=('fakeroot')
 	fi
 
 	env -- "${cmd[@]}" "$@"
@@ -2100,12 +2092,52 @@ makepkg_chroot() {
 	return $ret
 }
 
-makepkg_clean() {
-	return 1
+makepkg_chroot_usage() {
+	$ECHO "makepkg"
+	$ECHO
+	$ECHO "Usage: $0 fakeroot [options] [--] [fakeroot_options]"
+	$ECHO
+	$ECHO "Options for fakeroot command:"
+	$ECHO "  -h, --help             This help"
+	$ECHO
+	$ECHO "Run 'fakeroot --help' to see fakeroot_options."
 }
 
-makepkg_install() {
-	return 1
+makepkg_fakeroot() {
+	local consumed
+	local i ret
+
+	while [ $# -gt 0 ]; do
+		consumed=1
+		case "$1" in
+		-h|--help)		makepkg_chroot_usage; return 0 ;;
+# special options
+		--)			shift; break;; # End of options
+		--*|-?)			makepkg_chroot_usage; return 1 ;;
+		-*)			# Combined short options
+					split="$1"
+					shift
+					set -- \
+						"$(echo "$split}" | cut -c -2)" \
+						"-$(echo "${split}" | cut -c 3-)" \
+						"$@"
+					continue ;;
+		*)			break ;; # End of options
+		esac
+		if ! shift "$consumed"; then
+			consumed=$(($consumed - 1))
+			error "Option $1 expects $consumed argument(s)"
+			return 1
+		fi
+	done
+
+	if [ -n "$FAKEROOTKEY" ]; then
+		error "Cowardly refuse to fakeroot while in fakeroot!"
+		return 1
+	fi
+
+	fakeroot "$@"
+	return $?
 }
 
 makepkg_main() {
