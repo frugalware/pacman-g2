@@ -1937,7 +1937,7 @@ makepkg_build_cmd() {
 		makepkg_build
 	fi
 
-	cd $startdir
+	cd "$startdir"
 	if [ "$CLEANUP" = "1" ]; then
 		if [ "$INCHROOT" == "1" ]; then
 			msg "Chroot size before cleaning: $(chroot_size)"
@@ -2093,24 +2093,25 @@ makepkg_chroot() {
 	return $ret
 }
 
-makepkg_chroot_usage() {
+makepkg_fakeroot_usage() {
 	$ECHO "makepkg"
 	$ECHO
 	$ECHO "Usage: $0 fakeroot [options] [--] [fakeroot_options]"
 	$ECHO
 	$ECHO "Options for fakeroot command:"
+	$ECHO "  -f, --force            Skip the fakeroot sanity check"
 	$ECHO "  -h, --help             This help"
 	$ECHO
 	$ECHO "Run 'fakeroot --help' to see fakeroot_options."
 }
 
 makepkg_fakeroot() {
-	local consumed
-	local i ret
+	local consumed force=0
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
+		-f|--force)		force=1 ;;
 		-h|--help)		makepkg_chroot_usage; return 0 ;;
 # special options
 		--)			shift; break;; # End of options
@@ -2132,23 +2133,24 @@ makepkg_fakeroot() {
 		fi
 	done
 
-	if [ -n "$FAKEROOTKEY" ]; then
+	if [ $force -eq 0 -a -n "$FAKEROOTKEY" ]; then
 		error "Cowardly refuse to fakeroot while in fakeroot!"
 		return 1
 	fi
 
+	msg "Entering fakeroot environment"
 	fakeroot "$@"
 	return $?
 }
 
 makepkg_main() {
 	makepkg_loadconfig
+
 	case "$1" in
 	build)		shift; makepkg_build_cmd "$@" ;;
 	ccache)		shift; makepkg_ccache "$@" ;;
 	chroot)		shift; makepkg_chroot "$@" ;;
-	clean)		shift; makepkg_clean "$@" ;;
-	install)	shift; makepkg_install "$@" ;;
+	fakeroot)	shift; makepkg_fakeroot "$@" ;;
 	*)		makepkg_build_cmd ;;
 	esac
 }
@@ -2255,6 +2257,6 @@ _P_subpkgsfixes+=(_pkg_check_hicolor)
 # Main Code Start here
 #
 
-if [ -v PS1 ]; then
+if [ ! -v PS1 ]; then
 	makepkg_main "$@"
 fi
