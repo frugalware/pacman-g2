@@ -902,7 +902,7 @@ buildenv_ccache() {
 cache_clean() {
 	if [ $CLEANCACHE -ge 1 ]; then
 		if [ $CLEANCACHE -ge 2 ]; then
- 			makepkg_ccache --clean-all
+ 			makepkg_ccache --cleanup
 		fi
 		if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
 			if [ $CLEANCACHE -ge 2 ]; then
@@ -1412,12 +1412,13 @@ makepkg_usage() {
 	$ECHO "Variable assignations are user defined shell assignations (eg. USE_FOO=BAR) used to interact with makepkg and the FrugalBuilds."
 	$ECHO
 	$ECHO "Compatibility options (these may be removed in any future release):"
-	$ECHO "  -D <pkgname>     Clean up the compiler cache for a package (See command: ccache --clean <pkgname>)"
+	$ECHO "  -D <pkgname>     Clean up the compiler cache for a package (See command: makepkg ccache --cleanup)"
 	$ECHO "  --gzip           Use gzip compression for a package (See option: build -z <compression> )"
 }
 
 makepkg_parseargs() {
-	local consumed ccache_args
+	local ccache_clean=0
+	local consumed
 
 	while [ $# -gt 0 ]; do
 		consumed=1
@@ -1430,7 +1431,7 @@ makepkg_parseargs() {
 		-c|--clean)		CLEANUP=1 ;;
 		-C|--cleancache)	CLEANCACHE=$(($CLEANCACHE+1)) ;;
 		-d|--nodeps)		NODEPS=1 ;;
-		-D)			ccache_args+=("--clean" "$2"); consumed=2 ;;
+		-D)			ccache_clean=1; consumed=2 ;;
 		-e|--noextract)		NOEXTRACT=1 ;;
 		-f|--force)		FORCE=1 ;;
 		-g|--gensha1)		GENSHA1=1 ;;
@@ -1483,6 +1484,11 @@ makepkg_parseargs() {
 		fi
 	done
 
+	if [ "$ccache_clean" -gt 0 ]; then
+		makepkg_ccache --cleanup
+		exit $?
+	fi
+
 	INCHROOT="${INCHROOT:-0}"
 	if [ "$INCHROOT" -eq 1 ]; then
 		CHROOT=1
@@ -1498,11 +1504,6 @@ makepkg_parseargs() {
 		DOWNLOAD=
 		GENSHA1=0
 		WRITESHA1=0
-	else
-		if [ ${#ccache_args[@]} -gt 0 ]; then
-			makepkg_ccache "${ccache_args[@]}"
-			exit $?
-		fi
 	fi
 
 	WRITESHA1="${WRITESHA1:-0}"
@@ -2012,26 +2013,29 @@ makepkg_buildscript() {
 makepkg_ccache_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 ccache [options]"
+	$ECHO "Usage: $0 ccache [OPTIONS] [--] [CCACHE_OPTIONS]"
+	$ECHO "Usage: $0 ccache [OPTIONS] [--] [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for ccache command:"
-	$ECHO "      --clean <pkgname>  Clean up the compiler cache for a package"
-	$ECHO "      --clean-all        Clean up the compiler cache for all packages"
+	$ECHO "  -f, --force            Skip the sanity checks"
 	$ECHO "  -h, --help             This help"
+	$ECHO
+	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
 }
 
+# FIXME: Add ccache lock support
 makepkg_ccache() {
-	local clean_list clean_all=0 i consumed
+	local force=0
+	local consumed
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
-		--clean)		clean_list+=("$2"); consumed=2 ;;
-		--clean-all)		clean_all=1 ;;
+		-f|--force)		force=1 ;;
 		-h|--help)		makepkg_ccache_usage; return 0 ;;
 # special options
-#		--)			shift; break;;
-		--*|-?)			makepkg_ccache_usage; return 1 ;;
+		--)			shift; break;;
+		--*|-?)			break ;; # Maybe a ccache option
 		-*)			# Combined short options
 					split="$1"
 					shift
@@ -2040,8 +2044,7 @@ makepkg_ccache() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*)			error "Optional parameter \"$1\" has unsupported format"
-					return 1 ;;
+		*)			break ;; # A command
 		esac
 		if ! shift "$consumed"; then
 			consumed=$(($consumed - 1))
@@ -2050,45 +2053,67 @@ makepkg_ccache() {
 		fi
 	done
 
-	if [ $clean_all -eq 1 ]; then
-		msg "Cleaning up the compiler cache."
-		CCACHE_DIR="$CCACHE_BASEDIR" ccache -C
-	else
-		for i in "${clean_list[@]}"; do
-			if [ -n "$cache" -a -d "$CCACHE_BASEDIR/$i" ]; then
-				msg "$cache: Cleaning up the compiler cache."
-				CCACHE_DIR="$CCACHE_BASEDIR/$i" ccache -C
-			else
-				error "$i: No compiler cache available"
-			fi
-		done
+	if [ $force -eq 0 ]; then
+		if ! find_executable ccache 'ccache package is missing!'; then
+			return 1
+		fi
+		if [ -w "$CCACHE_BASEDIR" ]; then
+			error "ccache is installed but the user is not in the ccache group."
+			return 1
+		fi
 	fi
-	return 0
+
+	(	# Limit the exports to the subshell
+	export CCACHE_DIR="$CCACHE_BASEDIR"
+	export CCACHE_NOLINK=1
+	export CCACHE_UMASK=002
+	export PATH="/usr/lib/ccache/bin:$PATH"
+
+	export FCC="ccache $FCC" # Frugalware CC wrapper
+
+	if [ $# -eq 0 ]; then
+		error "IMPLEMENT ME: Spawn an interactive shell"
+		return 1
+	else
+		case "$1" in
+		-*)	# ccache option
+			ccache "$@" 
+			return $? ;;
+		*)	# avoid ccache command line style
+			"$@"
+			return $?
+		esac
+	fi
+	)
+	return $?
 }
 
 makepkg_chroot_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 chroot [options] chroot_name [command [args]...]"
+	$ECHO "Usage: $0 chroot [OPTIONS] [--] CHROOT_NAME [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for chroot command:"
 	$ECHO "      --bind <path>      Bind a path between host and chroot"
 	$ECHO "  -f, --force            Skip the sanity checks"
 	$ECHO "      --userspec <spec>  See chroot userspec option"
 	$ECHO "  -h, --help             This help"
+	$ECHO
+	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
 }
 
 # FIXME: Add chroot lock support
 makepkg_chroot() {
 	local bind_list=('/dev' '/proc' '/sys')
-	local chroot_args chroot_name consumed
-	local i ret
+	local chroot_args chroot_name
+	local force
+	local consumed i ret
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
 		--bind)			bind_list+=("$2"); consumed=2 ;;
-		-f|--force)		force=1;;
+		-f|--force)		force=1 ;;
 		--userspec)		userspec="$2"; consumed=2 ;;
 		-h|--help)		makepkg_chroot_usage; return 0 ;;
 # special options
