@@ -2015,25 +2015,25 @@ makepkg_ccache() {
 makepkg_chroot_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 chroot [options] [command [args]...]"
+	$ECHO "Usage: $0 chroot [options] chroot_name [command [args]...]"
 	$ECHO
 	$ECHO "Options for chroot command:"
 	$ECHO "      --bind <path>      Bind a path between host and chroot"
-	$ECHO "      --chroot <name>    Enter in the chroot <name>"
 	$ECHO "      --userspec <spec>  See chroot userspec option"
 	$ECHO "  -h, --help             This help"
 }
 
+# FIXME: Add chroot lock support
 makepkg_chroot() {
 	local bind_list=('/dev' '/proc' '/sys')
-	local cmd consumed inchroot
+	local chroot_args chroot_name consumed
 	local i ret
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
 		--bind)			bind_list+=("$2"); consumed=2 ;;
-		--chroot)		inchroot="$2"; consumed=2 ;;
+		-f|--force)		force=1;;
 		--userspec)		userspec="$2"; consumed=2 ;;
 		-h|--help)		makepkg_chroot_usage; return 0 ;;
 # special options
@@ -2056,39 +2056,43 @@ makepkg_chroot() {
 		fi
 	done
 
-	if [ -n "$inchroot" ]; then
+	if [ $# -eq 0 ]; then
+		error "Argument chroot_name is missing"
+		return 1
+	fi
+	chroot_name="$1"
+	shift
+
+	if [ $force -eq 0 ]; then
 		if [ -n "$FAKEROOTKEY" ]; then
 			error "Cowardly refuse to chroot while in fakeroot!"
 			return 1
 		fi
-		for i in "${bind_list[@]}"; do
-			mkdir -p "$CHROOTDIR/$inchroot/$i"
-			mount -o bind "$i" "$CHROOTDIR/$inchroot/$i" >/dev/null
-			if [ "$?" != "0" ]; then
-				error "An error occurred while attempting to mount chroot directories."
-				exit 1
-			fi
-		done
-#		cmd+=('INCHROOT=1')
-		cmd+=('chroot')
-		if [ -n "$userspec" ]; then
-			cmd+=("--userspec=$userspec")
-		fi
-		cmd+=("$CHROOTDIR/$inchroot")
 	fi
 
-	env -- "${cmd[@]}" "$@"
+	for i in "${bind_list[@]}"; do
+		mkdir -p "$CHROOTDIR/$chroot_name/$i"
+		mount -o bind "$i" "$CHROOTDIR/$chroot_name/$i" >/dev/null
+		if [ "$?" != "0" ]; then
+			error "An error occurred while attempting to mount chroot directories."
+			exit 1
+		fi
+	done
+
+	if [ -n "$userspec" ]; then
+		chroot_args+=("--userspec=$userspec")
+	fi
+	# 'INCHROOT=1' \
+	chroot "${chroot_args[@]}" "$CHROOTDIR/$chroot_name" "$@"
 	ret=$?
 
-	if [ -n "$inchroot" ]; then
-		for i in "${bind_list[@]}"; do
-			umount "$CHROOTDIR/$inchroot/$i" >/dev/null
-			if [ "$?" != "0" ]; then
-				error "An error occurred while attempting to mount chroot directories."
-				exit 1
-			fi
-		done
-	fi
+	for i in "${bind_list[@]}"; do
+		umount "$CHROOTDIR/$chroot_name/$i" >/dev/null
+		if [ "$?" != "0" ]; then
+			error "An error occurred while attempting to mount chroot directories."
+			exit 1
+		fi
+	done
 
 	return $ret
 }
