@@ -1278,61 +1278,10 @@ repoman_loadconfig() {
 	fi
 }
 
-makepkg_loadconfig() {
-	# makepkg configuration
-	[ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
-
-	# FIXME: Make BUILDSCRIPT a makepkg.conf variable
-	BUILDSCRIPT="FrugalBuild"
-
-	if [ -z "$CHROOTDIR" ]; then
-		error "The CHROOTDIR environment variable is not defined."
-		exit 1
-	fi
-
-	if [ -z "$PACKAGER" ]; then
-		error "Please make sure that you edit /etc/makepkg.conf and set the PACKAGER= variable"
-		exit 1
-	fi
-
-	if [ -z "$PKG_EXT" ]; then
-		error "The PKG_EXT environment variable is not defined, check your /etc/makepkg.conf!"
-#		error "Please make sure that you edit /etc/makepkg.conf and set the PKG_EXT= variable"
-		exit 1
-	fi
-
-	if [ -z "$PKG_COMP" ]; then
-		error "The PKG_COMP environment variable is not defined, check your /etc/makepkg.conf!"
-		exit 1
-	fi
-
-	# check for a download utility
-	if [ -z "$FTPAGENT" ]; then
-		error "FTPAGENT is not configured. Check the /etc/makepkg.conf file."
-		msg "Aborting..."
-		exit 1
-	elif ! find_executable "$($ECHO $FTPAGENT | awk {'print $1'})"; then
-		msg "Aborting..."
-		exit 1
-	fi
-
-	declare -gr \
-		BUILDSCRIPT_DEFAULT="$BUILDSCRIPT" \
-		PKG_COMP_DEFAULT="$PKG_COMP"
-
-	if [ -z "$CCACHE_BASEDIR" ]; then
-		export CCACHE_BASEDIR=/var/cache/ccache
-	fi
-
-	if [ "$USE_AUTO_MAKEFLAGS" != "n" ]; then
-		export MAKEFLAGS="-j`grep -c ^processor /proc/cpuinfo`"
-	fi
-}
-
 makepkg_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 [command] [options] [variable assignations]"
+	$ECHO "Usage: $0 [COMMAND] [OPTIONS] [VARIABLE_ASSIGNATIONS]"
 	$ECHO "Command can be any of the following: build(default), ccache."
 	$ECHO
 	$ECHO "Options for build command:"
@@ -2249,14 +2198,51 @@ makepkg_shell() {
 	return $?
 }
 
+_makepkg_loadconfig() {
+	local variable
+
+	# makepkg configuration
+	[ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
+
+	# FIXME: Make BUILDSCRIPT a makepkg.conf variable
+	BUILDSCRIPT="FrugalBuild"
+
+	for variable in CHROOTDIR FTPAGENT PACKAGER PKG_COMP PKG_EXT; do
+		if [ ! -v "$variable" ]; then
+			error "The $variable variable is not defined, check your /etc/makepkg.conf!"
+			exit 1
+		fi
+	done
+
+	# check for a download utility
+	if ! find_executable "$($ECHO $FTPAGENT | awk {'print $1'})"; then
+		msg "Aborting..."
+		exit 1
+	fi
+
+	declare -gr \
+		BUILDSCRIPT_DEFAULT="$BUILDSCRIPT" \
+		PKG_COMP_DEFAULT="$PKG_COMP"
+
+	if [ -z "$CCACHE_BASEDIR" ]; then
+		export CCACHE_BASEDIR=/var/cache/ccache
+	fi
+
+	if [ "$USE_AUTO_MAKEFLAGS" != "n" ]; then
+		export MAKEFLAGS="-j`grep -c ^processor /proc/cpuinfo`"
+	fi
+}
+
 makepkg_main() {
-	makepkg_loadconfig
+	_makepkg_loadconfig
 
 	case "$1" in
 	build)		shift; makepkg_build_cmd "$@" ;;
 	ccache)		shift; makepkg_ccache "$@" ;;
 	chroot)		shift; makepkg_chroot "$@" ;;
+	depends)	shift; makepkg_depends "$@" ;;
 	fakeroot)	shift; makepkg_fakeroot "$@" ;;
+	shell)		shift; makepkg_shell "$@" ;;
 	*)		makepkg_build_cmd "$@" ;;
 	esac
 	return $?
