@@ -2035,19 +2035,14 @@ makepkg_ccache() {
 
 	export FCC="ccache $FCC" # Frugalware CC wrapper
 
-	if [ $# -eq 0 ]; then
-		error "IMPLEMENT ME: Spawn an interactive shell"
-		return 1
-	else
-		case "$1" in
-		-*)	# ccache option
-			ccache "$@" 
-			return $? ;;
-		*)	# avoid ccache command line style
-			"$@"
-			return $?
-		esac
-	fi
+	case "$1" in
+	-*)	# ccache option
+		ccache "$@" 
+		return $? ;;
+	*)	# avoid ccache command line style
+		makepkg_shell "$@"
+		return $?
+	esac
 	)
 	return $?
 }
@@ -2204,6 +2199,53 @@ makepkg_fakeroot() {
 
 	msg "Entering fakeroot environment"
 	fakeroot "$@"
+	return $?
+}
+
+makepkg_shell_usage() {
+	$ECHO "makepkg"
+	$ECHO
+	$ECHO "Usage: $0 shell [OPTIONS] [--] [COMMAND [ARG]...]"
+	$ECHO
+	$ECHO "Options for chroot command:"
+	$ECHO "  -h, --help             This help"
+	$ECHO
+	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
+}
+
+makepkg_shell() {
+	local consumed i ret
+
+	while [ $# -gt 0 ]; do
+		consumed=1
+		case "$1" in
+		-h|--help)		makepkg_shell_usage; return 0 ;;
+# special options
+		--)			shift; break;; # End of options
+		--*|-?)			makepkg_shell_usage; return 1 ;;
+		-*)			# Combined short options
+					split="$1"
+					shift
+					set -- \
+						"$(echo "$split}" | cut -c -2)" \
+						"-$(echo "${split}" | cut -c 3-)" \
+						"$@"
+					continue ;;
+		*)			break ;; # End of options
+		esac
+		if ! shift "$consumed"; then
+			consumed=$(($consumed - 1))
+			error "Option $1 expects $consumed argument(s)"
+			return 1
+		fi
+	done
+
+	if [ $# -eq 0 ]; then
+		error "IMPLEMENT ME: Spawn an interactive shell"
+		return 1
+	else
+		"$@"
+	fi
 	return $?
 }
 
