@@ -2010,17 +2010,20 @@ makepkg_chroot_usage() {
 	$ECHO "  -b, --bind <path>      Bind a path between host and chroot"
 	$ECHO "  -f, --force            Skip the sanity checks"
 	$ECHO "  -h, --help             This help"
+	$ECHO "  -u, --unlocked         Do not lock CHROOT_NAME, result may be inacurate"
 	$ECHO "      --userspec <spec>  See chroot userspec option"
 	$ECHO
 	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
 }
 
-# FIXME: Add chroot lock support
 makepkg_chroot() {
 	local bind_list=('/dev' '/proc' '/sys') unbind_list
 	local chroot_args
 	local force
+	local locked=1
 	local consumed i ret
+
+	local args=("$@")
 
 	while [ $# -gt 0 ]; do
 		consumed=1
@@ -2028,6 +2031,7 @@ makepkg_chroot() {
 		-b|--bind)		bind_list+=("$2"); consumed=2 ;;
 		-f|--force)		force=1 ;;
 		-h|--help)		makepkg_chroot_usage; return 0 ;;
+		-u|--unlocked)		locked=0 ;;
 		--userspec)		userspec="$2"; consumed=2 ;;
 # special options
 		--)			shift; break;; # End of options
@@ -2060,6 +2064,10 @@ makepkg_chroot() {
 		if [ -v FAKEROOTKEY ]; then
 			error "Cowardly refuse to chroot while in fakeroot!"
 			return 1
+		fi
+		if [ $locked -eq 1 ]; then
+			makepkg_chroot_lock -- "$CHROOT_NAME" makepkg_chroot --unlocked "${args[@]}"
+			return $?
 		fi
 	fi
 
@@ -2112,6 +2120,8 @@ makepkg_chroot_clean() {
 	local locked=1
 	local consumed
 
+	local args=("$@")
+
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
@@ -2149,9 +2159,10 @@ makepkg_chroot_clean() {
 
 	if [ $destroy -eq 0 ]; then
 		if [ $locked -eq 1 ]; then
-			makepkg_file_lock --parent "$CHROOTDIR/.lock" "$CHROOTDIR/$CHROOT_NAME/.lock" "$@"
+			makepkg_chroot_lock -- "$CHROOT_NAME" makepkg_chroot_clean --unlocked "${args[@]}"
 			return $?
 		fi
+		# FIXME: Add mountpoint cleanning
 		msg "Removing unnecessary packages."
 		for i in "$COREPKGS"
 		do
@@ -2177,10 +2188,16 @@ makepkg_chroot_clean() {
 		return 0
 
 		if [ $locked -eq 1 ]; then
-			makepkg_file_lock --parent "$CHROOTDIR/$CHROOT_NAME/.lock" "$CHROOTDIR/.lock" "$@"
+			# NOTE: arguments are reverse compared to makepkg_chroot_lock on purpose
+			makepkg_file_lock --parent "$CHROOTDIR/$CHROOT_NAME/.lock" "$CHROOTDIR/.lock" makepkg_chroot_clean --unlocked "${args[@]}"
 			return $?
 		fi
-		# rm -rf "$CHROOTDIR/$CHROOT_NAME"
+		# Try to clean before destroy
+		makepkg_chroot_clean --unlocked "$CHROOT_NAME"
+		if [ $? -eq 0 ]; then
+			true
+			# rm -rf "$CHROOTDIR/$CHROOT_NAME"
+		fi
 	fi
 }
 
@@ -2277,7 +2294,7 @@ makepkg_chroot_list() {
 	done
 
 	if [ $locked -eq 1 ]; then
-		makepkg_file_lock "$CHROOTDIR/.lock" makepkg_chroot_list -u "${args[@]}"
+		makepkg_file_lock "$CHROOTDIR/.lock" makepkg_chroot_list --unlocked "${args[@]}"
 		return $?
 	fi
 
@@ -2304,7 +2321,7 @@ makepkg_chroot_lock() {
 		case "$1" in
 		-h|--help)		makepkg_lock_usage; return 0 ;;
 # special options
-		--)			shift; break;;
+		--)			shift; break;; # End of options
 		--*|-?)			makepkg_lock_usage; return 1 ;;
 		-*)			# Combined short options
 					split="$1"
@@ -2364,8 +2381,7 @@ makepkg_chroot_unlock() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*)			error "Optional parameter \"$1\" has unsupported format"
-					exit 1 ;;
+		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
 			consumed=$(($consumed - 1))
@@ -2522,6 +2538,7 @@ _makepkg_file_lock() {
 		if (set -o noclobber; echo "$$" > "$i") 2> /dev/null; then
 			unlock_list+=("$i")
 		else
+			error "Unable to aquire lock file: $i"
 			_makepkg_file_unlock "${unlock_list[@]}"
 			return 1
 		fi
