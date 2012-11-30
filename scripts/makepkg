@@ -2012,7 +2012,7 @@ makepkg_chroot_usage() {
 
 # FIXME: Add chroot lock support
 makepkg_chroot() {
-	local bind_list=('/dev' '/proc' '/sys')
+	local bind_list=('/dev' '/proc' '/sys') unbind_list
 	local chroot_args chroot_name
 	local force
 	local consumed i ret
@@ -2045,43 +2045,371 @@ makepkg_chroot() {
 	done
 
 	if [ $# -eq 0 ]; then
-		error "Argument chroot_name is missing"
+		error "Argument CHROOT_NAME is missing"
 		return 1
 	fi
 	chroot_name="$1"
 	shift
 
 	if [ $force -eq 0 ]; then
-		if [ -n "$FAKEROOTKEY" ]; then
+		if [ -v FAKEROOTKEY ]; then
 			error "Cowardly refuse to chroot while in fakeroot!"
 			return 1
 		fi
 	fi
 
+	ret=0
 	for i in "${bind_list[@]}"; do
-		mkdir -p "$CHROOTDIR/$chroot_name/$i"
+		mkdir -p "$CHROOTDIR/$chroot_name/$i" >/dev/null
 		mount -o bind "$i" "$CHROOTDIR/$chroot_name/$i" >/dev/null
-		if [ "$?" != "0" ]; then
-			error "An error occurred while attempting to mount chroot directories."
+		if [ "$?" -eq 0 ]; then
+			unbind_list+=("$i")
+		else
+			error "An error occurred while attempting to mount '$i' chroot directory."
+			ret=1
+			break
+		fi
+	done
+	if [ "$ret" -eq 0 ]; then
+		if [ -n "$userspec" ]; then
+			chroot_args+=("--userspec=$userspec")
+		fi
+		# 'INCHROOT=1' \
+		chroot "${chroot_args[@]}" "$CHROOTDIR/$chroot_name" "$@"
+		ret=$?
+	fi
+	for i in "${unbind_list[@]}"; do
+		umount "$CHROOTDIR/$chroot_name/$i" >/dev/null
+		if [ "$?" -ne 0 ]; then
+			error "An error occurred while attempting to umount '$i' chroot directory."
+			ret=1
+		fi
+	done
+
+	return $ret
+}
+
+makepkg_chroot_clean_usage() {
+	$ECHO "makepkg"
+	$ECHO
+	$ECHO "Usage: $0 chroot_clean [OPTIONS] [--] CHROOT_NAME"
+	$ECHO
+	$ECHO "Options for chroot_clean command:"
+	$ECHO "  -d, --destroy          Destroy the chroot"
+	$ECHO "  -f, --force            Skip the sanity checks"
+	$ECHO "  -h, --help             This help"
+}
+
+makepkg_chroot_clean() {
+	local force=0
+	local consumed
+
+	while [ $# -gt 0 ]; do
+		consumed=1
+		case "$1" in
+		-f|--force)		force=1 ;;
+		-h|--help)		makepkg_lock_usage; return 0 ;;
+# special options
+#		--)			shift; break;;
+		--*|-?)			makepkg_lock_usage; return 1 ;;
+		-*)			# Combined short options
+					split="$1"
+					shift
+					set -- \
+						"$(echo "$split}" | cut -c -2)" \
+						"-$(echo "${split}" | cut -c 3-)" \
+						"$@"
+					continue ;;
+		*)			error "Optional parameter \"$1\" has unsupported format"
+					exit 1 ;;
+		esac
+		if ! shift "$consumed"; then
+			consumed=$(($consumed - 1))
+			error "Option $1 expects $consumed argument(s)"
 			exit 1
 		fi
 	done
 
-	if [ -n "$userspec" ]; then
-		chroot_args+=("--userspec=$userspec")
+
+	if [ ! -d "$CHROOTDIR/$i" ]; then
+		error "$i does not exist, can't clean a non-existing chroot."
+		continue
 	fi
-	# 'INCHROOT=1' \
-	chroot "${chroot_args[@]}" "$CHROOTDIR/$chroot_name" "$@"
+
+	chroot_lock
+		msg "Removing unnecessary packages."
+		for i in "$COREPKGS"
+		do
+			corelist="$corelist `/usr/sbin/chroot $CHROOTDIR $PACMAN -Sg $i |grep -v '^\w'`"
+		done
+		for i in `/usr/sbin/chroot $CHROOTDIR $PACMAN -Q|sed 's/\([^ ]*\) .*/\1/'`
+		do
+			if ! $ECHO $corelist |grep -qw $i; then
+				removelist="$removelist $i"
+			fi
+		done
+		if [ ! -z "$removelist" ]; then
+			/usr/sbin/chroot $CHROOTDIR $PACMAN -Rcn $removelist --noconfirm
+			if [ "$?" != "0" ]; then
+				error "Failed to remove packages."
+				exit 1
+			fi
+		fi
+		msg "Cleaning chroot."
+		rm -rf $CHROOTDIR/var/tmp/fst/*
+	chroot_unlock
+}
+
+makepkg_chroot_create_usage() {
+	$ECHO "makepkg"
+	$ECHO
+	$ECHO "Usage: $0 chroot_create [OPTIONS] [--] CHROOT_NAME"
+	$ECHO
+	$ECHO "Options for chroot_create command:"
+	$ECHO "  -f, --force            Skip the sanity checks"
+	$ECHO "  -h, --help             This help"
+	$ECHO "  -u, --update           Update the chroot"
+}
+
+makepkg_chroot_create() {
+	local force=0
+	local consumed
+
+	while [ $# -gt 0 ]; do
+		consumed=1
+		case "$1" in
+		-f|--force)		force=1 ;;
+		-h|--help)		makepkg_lock_usage; return 0 ;;
+# special options
+#		--)			shift; break;;
+		--*|-?)			makepkg_lock_usage; return 1 ;;
+		-*)			# Combined short options
+					split="$1"
+					shift
+					set -- \
+						"$(echo "$split}" | cut -c -2)" \
+						"-$(echo "${split}" | cut -c 3-)" \
+						"$@"
+					continue ;;
+		*)			error "Optional parameter \"$1\" has unsupported format"
+					exit 1 ;;
+		esac
+		if ! shift "$consumed"; then
+			consumed=$(($consumed - 1))
+			error "Option $1 expects $consumed argument(s)"
+			exit 1
+		fi
+	done
+}
+
+makepkg_chroot_list_usage() {
+	$ECHO "makepkg"
+	$ECHO
+	$ECHO "Usage: $0 chroot_list [OPTIONS]"
+	$ECHO
+	$ECHO "Options for chroot_list command:"
+	$ECHO "  -h, --help             This help"
+}
+
+makepkg_chroot_list() {
+	local consumed
+
+	while [ $# -gt 0 ]; do
+		consumed=1
+		case "$1" in
+		-h|--help)		makepkg_list_usage; return 0 ;;
+# special options
+#		--)			shift; break;;
+		--*|-?)			makepkg_list_usage; return 1 ;;
+		-*)			# Combined short options
+					split="$1"
+					shift
+					set -- \
+						"$(echo "$split}" | cut -c -2)" \
+						"-$(echo "${split}" | cut -c 3-)" \
+						"$@"
+					continue ;;
+		*)			error "Optional parameter \"$1\" has unsupported format"
+					exit 1 ;;
+		esac
+		if ! shift "$consumed"; then
+			consumed=$(($consumed - 1))
+			error "Option $1 expects $consumed argument(s)"
+			exit 1
+		fi
+	done
+}
+
+makepkg_chroot_lock_usage() {
+	$ECHO "makepkg"
+	$ECHO
+	$ECHO "Usage: $0 chroot_lock [OPTIONS] [--] CHROOT_NAME"
+	$ECHO
+	$ECHO "Options for chroot_lock command:"
+	$ECHO "  -f, --force            Skip the sanity checks"
+	$ECHO "  -h, --help             This help"
+	$ECHO "      --pid              Use pid to lock (Usefull when sourced)"
+	$ECHO "      --ppid             Use current pid (default)"
+}
+
+makepkg_chroot_lock() {
+	local force=0
+	local consumed
+
+	while [ $# -gt 0 ]; do
+		consumed=1
+		case "$1" in
+		-f|--force)		force=1 ;;
+		-h|--help)		makepkg_lock_usage; return 0 ;;
+# special options
+		--)			shift; break;;
+		--*|-?)			makepkg_lock_usage; return 1 ;;
+		-*)			# Combined short options
+					split="$1"
+					shift
+					set -- \
+						"$(echo "$split}" | cut -c -2)" \
+						"-$(echo "${split}" | cut -c 3-)" \
+						"$@"
+					continue ;;
+		*)			error "Optional parameter \"$1\" has unsupported format"
+					exit 1 ;;
+		esac
+		if ! shift "$consumed"; then
+			consumed=$(($consumed - 1))
+			error "Option $1 expects $consumed argument(s)"
+			exit 1
+		fi
+	done
+}
+
+makepkg_chroot_unlock_usage() {
+	$ECHO "makepkg"
+	$ECHO
+	$ECHO "Usage: $0 chroot_unlock [OPTIONS] [--] CHROOT_NAME"
+	$ECHO
+	$ECHO "Options for chroot_unlock command:"
+	$ECHO "  -f, --force            Skip the sanity checks"
+	$ECHO "  -h, --help             This help"
+}
+
+makepkg_chroot_unlock() {
+}
+
+makepkg_depends_usage() {
+	$ECHO "makepkg"
+	$ECHO
+	$ECHO "Usage: $0 depends [OPTIONS] [--] [COMMAND [ARG]...]"
+	$ECHO
+	$ECHO "Options for depends command:"
+	$ECHO "  -f, --force            Skip the sanity checks"
+	$ECHO "  -i, --install <pkg>    Install a package"
+	$ECHO "  -h, --help             This help"
+	$ECHO "  -r, --remove           Remove installed package when living"
+	$ECHO "      --noscriptlet	Disable scriplet while using pacman-g2"
+	$ECHO
+	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
+}
+
+makepkg_depends() {
+	local dependency_list
+	local force=0
+	local install_list
+	local noscriptlet=0
+	local remove=0
+	local sudo=0
+	local consumed ret
+
+	while [ $# -gt 0 ]; do
+		consumed=1
+		case "$1" in
+		-f|--force)		force=1 ;;
+		-i|--install)		install_list+=("$2"); consumed=2 ;;
+		-h|--help)		makepkg_depends_usage; return 0 ;;
+		-r|--remove)		remove=1 ;;
+		--noscriptlet)		noscriptlet=1 ;;
+		--sudo)			sudo=1 ;;
+# special options
+		--)			shift; break;; # End of options
+		--*|-?)			makepkg_depends_usage; return 1 ;;
+		-*)			# Combined short options
+					split="$1"
+					shift
+					set -- \
+						"$(echo "$split}" | cut -c -2)" \
+						"-$(echo "${split}" | cut -c 3-)" \
+						"$@"
+					continue ;;
+		*)			break ;; # End of options
+		esac
+		if ! shift "$consumed"; then
+			consumed=$(($consumed - 1))
+			error "Option $1 expects $consumed argument(s)"
+			return 1
+		fi
+	done
+
+	if [ "$force" -eq 0 ]; then
+		if [ -v FAKEROOTKEY ]; then
+			error "Cowardly refuse to install depends while in fakeroot!"
+			return 1
+		fi
+
+		if [ "$(id -u)" -ne 0 -a "$sudo" -eq 0 ]; then
+			error "Must be root or use --sudo option"
+			return 1
+		fi
+	fi
+
+	if [ "${install_list[@]}" -gt 0 ]; then
+		missdep="$($PACMAN $PACMAN_OPTS -T "${install_list[@]}")"
+		ret=$?
+		if [ "$ret" != "0" ]; then
+			if [ "$ret" = "127" ]; then
+				msg "Missing Dependencies:"
+				msg ""
+				nl=0
+				for dep in $missdep; do
+					$ECHO -ne "$dep " >&2
+					if [ "$nl" = "1" ]; then
+						nl=0
+						$ECHO -ne "\n" >&2
+						# add this dep to the list
+						depname=`$ECHO $dep | sed 's|=.*$||' | sed 's|>.*$||' | sed 's|<.*$||'`
+						dependency_list+=("$depname")
+						continue
+					fi
+					nl=1
+				done
+				msg ""
+			else
+				error "$PACMAN returned a fatal error."
+				exit 1
+			fi
+		fi
+
+		# install missing deps from binary packages (using pacman-g2 -S)
+		msg "Installing missing dependencies..."
+		if [ "$noscriptlet" -eq 0 ]; then
+			$SUDO $PACMAN $PACMAN_OPTS -D $deplist
+		else
+			$SUDO $PACMAN $PACMAN_OPTS --noscriptlet -D $deplist
+		fi
+		if [ "$?" = "127" ]; then
+			error "Failed to install missing dependencies."
+			return 1
+		fi
+
+		# FIXME: query pacman dependecies again to se if they were all resolved
+	fi
+
+	makepkg_shell "$@"
 	ret=$?
 
-	for i in "${bind_list[@]}"; do
-		umount "$CHROOTDIR/$chroot_name/$i" >/dev/null
-		if [ "$?" != "0" ]; then
-			error "An error occurred while attempting to mount chroot directories."
-			exit 1
-		fi
-	done
-
+	if [ "$remove" -eq 1 -a ${#dependency_list[@]} -gt 0 ]; then
+		msg "Removing installed dependencies..."
+		$SUDO $PACMAN $PACMAN_OPTS -R $makedeplist $deplist
+	fi
 	return $ret
 }
 
@@ -2114,7 +2442,8 @@ makepkg_fakeroot_usage() {
 }
 
 makepkg_fakeroot() {
-	local consumed force=0
+	local force=0
+	local consumed
 
 	while [ $# -gt 0 ]; do
 		consumed=1
@@ -2123,7 +2452,7 @@ makepkg_fakeroot() {
 		-h|--help)		makepkg_fakeroot_usage; return 0 ;;
 # special options
 		--)			shift; break;; # End of options
-		--*|-?)			makepkg_chroot_usage; return 1 ;;
+		--*|-?)			makepkg_fakeroot_usage; return 1 ;;
 		-*)			# Combined short options
 					split="$1"
 					shift
