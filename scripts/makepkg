@@ -1373,7 +1373,7 @@ makepkg_parseargs() {
 		--noconfirm)		PACMAN_OPTS="$PACMAN_OPTS --noconfirm" ;;
 		--noprogressbar)	PACMAN_OPTS="$PACMAN_OPTS --noprogressbar" ;;
 # special options
-#		--)			shift; break;;
+		--)			shift; break ;; # End of options
 #		-*=*)			# IMPLEMENT ME: Assigned option support
 		--*|-?)			makepkg_usage; exit 1 ;;
 		-*)			# Combined short options
@@ -1888,7 +1888,7 @@ makepkg_buildscript() {
 		case "$1" in
 		-h|--help)		makepkg_buildscript_usage; return 0 ;;
 # special options
-		--)			shift; break;; # End of options
+		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_buildscript_usage; return 1 ;;
 		-*)			# Combined short options
 					split="$1"
@@ -1952,7 +1952,7 @@ makepkg_ccache() {
 		-f|--force)		force=1 ;;
 		-h|--help)		makepkg_ccache_usage; return 0 ;;
 # special options
-		--)			shift; break;;
+		--)			shift; break ;; # End of options
 		--*|-?)			break ;; # Maybe a ccache option
 		-*)			# Combined short options
 					split="$1"
@@ -2034,7 +2034,7 @@ makepkg_chroot() {
 		-u|--unlocked)		locked=0 ;;
 		--userspec)		userspec="$2"; consumed=2 ;;
 # special options
-		--)			shift; break;; # End of options
+		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_chroot_usage; return 1 ;;
 		-*)			# Combined short options
 					split="$1"
@@ -2130,7 +2130,7 @@ makepkg_chroot_clean() {
 		-h|--help)		makepkg_chroot_clean_usage; return 0 ;;
 		-u|--unlocked)		locked=0 ;;
 # special options
-#		--)			shift; break;;
+		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_chroot_clean_usage; return 1 ;;
 		-*)			# Combined short options
 					split="$1"
@@ -2140,8 +2140,7 @@ makepkg_chroot_clean() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*)			error "Optional parameter \"$1\" has unsupported format"
-					exit 1 ;;
+		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
 			consumed=$(($consumed - 1))
@@ -2222,7 +2221,7 @@ makepkg_chroot_create() {
 		-f|--force)		force=1 ;;
 		-h|--help)		makepkg_lock_usage; return 0 ;;
 # special options
-#		--)			shift; break;;
+		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_lock_usage; return 1 ;;
 		-*)			# Combined short options
 					split="$1"
@@ -2273,7 +2272,7 @@ makepkg_chroot_list() {
 		-h|--help)		makepkg_list_usage; return 0 ;;
 		-u|--unlocked)		locked=0 ;;
 # special options
-#		--)			shift; break;;
+		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_list_usage; return 1 ;;
 		-*)			# Combined short options
 					split="$1"
@@ -2283,8 +2282,7 @@ makepkg_chroot_list() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*)			error "Optional parameter \"$1\" has unsupported format"
-					exit 1 ;;
+		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
 			consumed=$(($consumed - 1))
@@ -2321,7 +2319,7 @@ makepkg_chroot_lock() {
 		case "$1" in
 		-h|--help)		makepkg_lock_usage; return 0 ;;
 # special options
-		--)			shift; break;; # End of options
+		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_lock_usage; return 1 ;;
 		-*)			# Combined short options
 					split="$1"
@@ -2331,8 +2329,7 @@ makepkg_chroot_lock() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*)			error "Optional parameter \"$1\" has unsupported format"
-					exit 1 ;;
+		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
 			consumed=$(($consumed - 1))
@@ -2371,7 +2368,7 @@ makepkg_chroot_unlock() {
 		case "$1" in
 		-h|--help)		makepkg_unlock_usage; return 0 ;;
 # special options
-		--)			shift; break;;
+		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_unlock_usage; return 1 ;;
 		-*)			# Combined short options
 					split="$1"
@@ -2396,6 +2393,12 @@ makepkg_chroot_unlock() {
 	fi
 	CHROOT_NAME="$1"
 	shift
+
+	if [ $? -gt 0 ]; then
+		error "Unexpected trailling arguments"
+		return 1
+	fi
+
 }
 
 makepkg_depends_usage() {
@@ -2432,7 +2435,7 @@ makepkg_depends() {
 		--noscriptlet)		noscriptlet=1 ;;
 		--sudo)			sudo=1 ;;
 # special options
-		--)			shift; break;; # End of options
+		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_depends_usage; return 1 ;;
 		-*)			# Combined short options
 					split="$1"
@@ -2442,7 +2445,8 @@ makepkg_depends() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*)			break ;; # End of options
+		*)			error "Optional parameter \"$1\" has unsupported format"
+					exit 1 ;;
 		esac
 		if ! shift "$consumed"; then
 			consumed=$(($consumed - 1))
@@ -2585,7 +2589,7 @@ makepkg_file_lock() {
 		-h|--help)		makepkg_file_lock_usage; return 0 ;;
 		-p|--parent)		parent_lock_list+=("$2"); consumed=2 ;;
 # special options
-		--)			shift; break;; # End of options
+		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_file_lock_usage; return 1 ;;
 		-*)			# Combined short options
 					split="$1"
@@ -2652,7 +2656,7 @@ makepkg_fakeroot() {
 		-f|--force)		force=1 ;;
 		-h|--help)		makepkg_fakeroot_usage; return 0 ;;
 # special options
-		--)			shift; break;; # End of options
+		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_fakeroot_usage; return 1 ;;
 		-*)			# Combined short options
 					split="$1"
@@ -2700,7 +2704,7 @@ makepkg_shell() {
 		case "$1" in
 		-h|--help)		makepkg_shell_usage; return 0 ;;
 # special options
-		--)			shift; break;; # End of options
+		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_shell_usage; return 1 ;;
 		-*)			# Combined short options
 					split="$1"
