@@ -2011,14 +2011,16 @@ makepkg_chroot_usage() {
 	$ECHO "  -f, --force            Skip the sanity checks"
 	$ECHO "  -h, --help             This help"
 	$ECHO "  -u, --unlocked         Do not lock CHROOT_NAME, result may be inacurate"
-	$ECHO "      --userspec <spec>  See chroot userspec option"
+	$ECHO "      --nochroot         Do not chroot but perform the other tasks"
+	$ECHO "      --userspec <USERSPEC>"
+	$ECHO "                         See chroot userspec option"
 	$ECHO
 	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
 }
 
 makepkg_chroot() {
-	local bind_list=('/dev' '/proc' '/sys') unbind_list
-	local chroot_args
+	local bind_list unbind_list
+	local chroot=1 chroot_args
 	local force
 	local locked=1
 	local consumed i ret
@@ -2032,6 +2034,7 @@ makepkg_chroot() {
 		-f|--force)		force=1 ;;
 		-h|--help)		makepkg_chroot_usage; return 0 ;;
 		-u|--unlocked)		locked=0 ;;
+		--nochroot)		chroot=0 ;;
 		--userspec)		userspec="$2"; consumed=2 ;;
 # special options
 		--)			shift; break ;; # End of options
@@ -2084,12 +2087,17 @@ makepkg_chroot() {
 		fi
 	done
 	if [ "$ret" -eq 0 ]; then
-		if [ -n "$userspec" ]; then
-			chroot_args+=("--userspec=$userspec")
+		if [ $chroot -eq 1 ]; then
+			if [ -n "$userspec" ]; then
+				chroot_args+=("--userspec=$userspec")
+			fi
+			# 'INCHROOT=1' \
+			chroot "${chroot_args[@]}" "$CHROOTDIR/$CHROOT_NAME" "$@"
+			ret=$?
+		else
+			# FIXME: handle user spec via su
+			makepkg_shell -- "$@"
 		fi
-		# 'INCHROOT=1' \
-		chroot "${chroot_args[@]}" "$CHROOTDIR/$CHROOT_NAME" "$@"
-		ret=$?
 	fi
 	for i in "${unbind_list[@]}"; do
 		umount "$CHROOTDIR/$CHROOT_NAME/$i" >/dev/null
