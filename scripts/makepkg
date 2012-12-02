@@ -2407,6 +2407,13 @@ makepkg_chroot_unlock() {
 		return 1
 	fi
 
+	if rm "$CHROOTDIR/$CHROOT_NAME/.chroot"; then
+		msg "Successfully unlocked chroot '$CHROOT_NAME'."
+		return 0
+	else
+		msg "Error trying to unlock chroot '$CHROOT_NAME'."
+		return 1
+	fi
 }
 
 makepkg_depends_usage() {
@@ -2607,7 +2614,8 @@ makepkg_file_lock() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*)			break ;; # End of options
+		*)			error "Optional parameter \"$1\" has unsupported format"
+					exit 1 ;;
 		esac
 		if ! shift "$consumed"; then
 			consumed=$(($consumed - 1))
