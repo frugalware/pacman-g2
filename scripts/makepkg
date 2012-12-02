@@ -1453,7 +1453,6 @@ makepkg_parseargs() {
 	NOSTRIP="${NOSTRIP:-0}"
 	NOUP2DATE="${NOUP2DATE:-0}"
 	NOVALIDATE="${NOVALIDATE:-0}"
-	PACMAN="${PACMAN:-pacman-g2.static}"
 	PACMAN_OPTS="${PACMAN_OPTS:-}"
 	PKGDEST="${PKGDEST:-"$startdir"}"
 	RMDEPS="${RMDEPS:-0}"
@@ -1975,14 +1974,14 @@ makepkg_ccache() {
 		if ! find_executable ccache 'ccache package is missing!'; then
 			return 1
 		fi
-		if [ -w "$CCACHE_BASEDIR" ]; then
+		if [ -w "$CCACHE_DIR" ]; then
 			error "ccache is installed but the user is not in the ccache group."
 			return 1
 		fi
 	fi
 
 	( # Limit the exports to the subshell
-	export CCACHE_DIR="$CCACHE_BASEDIR"
+	export CCACHE_DIR="$CCACHE_DIR"
 	export CCACHE_NOLINK=1
 	export CCACHE_UMASK=002
 	export PATH="/usr/lib/ccache/bin:$PATH"
@@ -2021,7 +2020,7 @@ makepkg_chroot_usage() {
 makepkg_chroot() {
 	local bind_list unbind_list
 	local chroot=1 chroot_args
-	local force
+	local force=0
 	local locked=1
 	local consumed i ret
 
@@ -2068,6 +2067,8 @@ makepkg_chroot() {
 	local CHROOT_NAME="$1"
 	shift
 
+	local CHROOT_DIR="$CHROOT_BASEDIR/$CHROOT_NAME"
+
 	if [ $force -eq 0 ]; then
 		if [ -v FAKEROOTKEY ]; then
 			error "Cowardly refuse to chroot while in fakeroot!"
@@ -2081,8 +2082,8 @@ makepkg_chroot() {
 
 	ret=0
 	for i in "${bind_list[@]}"; do
-		mkdir -p "$CHROOTDIR/$CHROOT_NAME/$i" >/dev/null
-		mount -o bind "$i" "$CHROOTDIR/$CHROOT_NAME/$i" >/dev/null
+		mkdir -p "$CHROOT_DIR/$i" >/dev/null
+		mount -o bind "$i" "$CHROOT_DIR/$i" >/dev/null
 		if [ "$?" -eq 0 ]; then
 			unbind_list+=("$i")
 		else
@@ -2105,7 +2106,7 @@ makepkg_chroot() {
 		fi
 	fi
 	for i in "${unbind_list[@]}"; do
-		umount "$CHROOTDIR/$CHROOT_NAME/$i" >/dev/null
+		umount "$CHROOT_DIR/$i" >/dev/null
 		if [ "$?" -ne 0 ]; then
 			error "An error occurred while attempting to umount '$i' chroot directory."
 			ret=1
@@ -2814,8 +2815,10 @@ _makepkg_loadconfig() {
 			unset CCACHE_BASEDIR
 		fi
 
-		CHROOT_BASEDIR="$CHROOTDIR"
-		unset 
+		CHROOT_BASEDIR="${CHROOT_BASEDIR:-"$CHROOTDIR"}"
+		unset CHROOTDIR
+
+		PACMAN="${PACMAN:-pacman-g2.static}"
 	fi
 
 	declare -gr \
@@ -2829,7 +2832,7 @@ _makepkg_loadconfig() {
 	CHROOT_BASEDIR="${CHROOT_BASEDIR:-"$CHROOT_BASEDIR_DEFAULT"}"
 	PKG_COMP="${PKG_COMP:-"$PKG_COMP_DEFAULT"}"
 
-	for variable in BUILDSCRIPT CCACHE_DIR CHROOT_BASEDIR FTPAGENT PACKAGER PKG_COMP PKG_EXT; do
+	for variable in BUILDSCRIPT CCACHE_DIR CHROOT_BASEDIR FTPAGENT PACMAN PACKAGER PKG_COMP PKG_EXT; do
 		if [ ! -v "$variable" ]; then
 			error "The $variable variable is not defined, check your /etc/makepkg.conf!"
 			exit 1
