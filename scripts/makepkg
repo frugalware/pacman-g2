@@ -2034,6 +2034,7 @@ makepkg_chroot() {
 		-f|--force)		force=1 ;;
 		-h|--help)		makepkg_chroot_usage; return 0 ;;
 		-u|--unlocked)		locked=0 ;;
+		--chroot_basedir)	CHROOT_BASEDIR="$2"; consumed=2 ;;
 		--nochroot)		chroot=0 ;;
 		--userspec)		userspec="$2"; consumed=2 ;;
 # special options
@@ -2055,6 +2056,11 @@ makepkg_chroot() {
 			return 1
 		fi
 	done
+
+	if [ ! -v CHROOT_BASEDIR ]; then
+		error "CHROOT_BASEDIR is not defined"
+		return 1
+	fi
 
 	if [ $# -eq 0 ]; then
 		error "Argument CHROOT_NAME is missing"
@@ -2137,6 +2143,7 @@ makepkg_chroot_clean() {
 		-f|--force)		force=1 ;;
 		-h|--help)		makepkg_chroot_clean_usage; return 0 ;;
 		-u|--unlocked)		locked=0 ;;
+		--chroot_basedir)	CHROOT_BASEDIR="$2"; consumed=2 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_chroot_clean_usage; return 1 ;;
@@ -2157,12 +2164,19 @@ makepkg_chroot_clean() {
 		fi
 	done
 
+	if [ ! -v CHROOT_BASEDIR ]; then
+		error "CHROOT_BASEDIR is not defined"
+		return 1
+	fi
+
 	if [ $# -eq 0 ]; then
 		error "Argument CHROOT_NAME is missing"
 		return 1
 	fi
 	local CHROOT_NAME="$1"
 	shift
+
+	local CHROOT_DIR="$CHROOT_BASEDIR/$CHROOT_NAME"
 
 	if [ $destroy -eq 0 ]; then
 		if [ $locked -eq 1 ]; then
@@ -2173,37 +2187,37 @@ makepkg_chroot_clean() {
 		msg "Removing unnecessary packages."
 		for i in "$COREPKGS"
 		do
-			corelist="$corelist `/usr/sbin/chroot $CHROOTDIR $PACMAN -Sg $i |grep -v '^\w'`"
+			corelist="$corelist `/usr/sbin/chroot "$CHROOT_DIR" $PACMAN -Sg $i |grep -v '^\w'`"
 		done
-		for i in `/usr/sbin/chroot $CHROOTDIR $PACMAN -Q|sed 's/\([^ ]*\) .*/\1/'`
+		for i in `/usr/sbin/chroot "$CHROOT_DIR" $PACMAN -Q|sed 's/\([^ ]*\) .*/\1/'`
 		do
 			if ! $ECHO $corelist |grep -qw $i; then
 				removelist="$removelist $i"
 			fi
 		done
 		if [ ! -z "$removelist" ]; then
-			/usr/sbin/chroot $CHROOTDIR $PACMAN -Rcn $removelist --noconfirm
+			/usr/sbin/chroot "$CHROOT_DIR" $PACMAN -Rcn $removelist --noconfirm
 			if [ "$?" != "0" ]; then
 				error "Failed to remove packages."
 				return 1
 			fi
 		fi
 		msg "Cleaning chroot."
-		rm -rf $CHROOTDIR/var/tmp/fst/*
+		rm -rf "$CHROOT_DIR"/var/tmp/fst/*
 	else
 		error "IMPLEMENT ME"
 		return 0
 
 		if [ $locked -eq 1 ]; then
 			# NOTE: arguments are reverse compared to makepkg_chroot_lock on purpose
-			makepkg_file_lock --parent "$CHROOTDIR/$CHROOT_NAME/.lock" -- "$CHROOTDIR/.lock" makepkg_chroot_clean --unlocked "${args[@]}"
+			makepkg_file_lock --parent "$CHROOT_DIR/$CHROOT_NAME/.lock" -- "$CHROOT_DIR/.lock" makepkg_chroot_clean --unlocked "${args[@]}"
 			return $?
 		fi
 		# Try to clean before destroy
 		makepkg_chroot_clean --unlocked "$CHROOT_NAME"
 		if [ $? -eq 0 ]; then
 			true
-			# rm -rf "$CHROOTDIR/$CHROOT_NAME"
+			# rm -rf "$CHROOT_DIR"
 		fi
 	fi
 }
@@ -2214,20 +2228,29 @@ makepkg_chroot_create_usage() {
 	$ECHO "Usage: $0 chroot_create [OPTIONS] [--] CHROOT_NAME"
 	$ECHO
 	$ECHO "Options for chroot_create command:"
-	$ECHO "  -f, --force            Skip the sanity checks"
+#	$ECHO "  -f, --force            Skip the sanity checks"
 	$ECHO "  -h, --help             This help"
-	$ECHO "  -u, --update           Update the chroot"
+	$ECHO "  -r, --repository <REPO_NAME>"
+	$ECHO "                         Add a repos to the include list"
+	$ECHO "  -u, --unlocked         Do not lock CHROOT_BASEDIR, result may be inacurate"
 }
 
 makepkg_chroot_create() {
-	local force=0
-	local consumed
+#	local force=0
+	local locked=1
+	local repo_list
+	local consumed i
+
+	local args=("$@")
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
-		-f|--force)		force=1 ;;
+#		-f|--force)		force=1 ;;
 		-h|--help)		makepkg_lock_usage; return 0 ;;
+		-r|--repository)	repo_list+=("$2") ; consumed=2 ;;
+		-u|--unlocked)		locked=0 ;;
+		--chroot_basedir)	CHROOT_BASEDIR="$2"; consumed=2 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_lock_usage; return 1 ;;
@@ -2248,6 +2271,11 @@ makepkg_chroot_create() {
 		fi
 	done
 
+	if [ ! -v CHROOT_BASEDIR ]; then
+		error "CHROOT_BASEDIR is not defined"
+		return 1
+	fi
+
 	if [ $# -eq 0 ]; then
 		error "Argument CHROOT_NAME is missing"
 		return 1
@@ -2264,7 +2292,7 @@ makepkg_chroot_list_usage() {
 	$ECHO
 	$ECHO "Options for chroot_list command:"
 	$ECHO "  -h, --help             This help"
-	$ECHO "  -u, --unlocked         Do not lock CHROOTDIR, result may be inacurate"
+	$ECHO "  -u, --unlocked         Do not lock CHROOT_BASEDIR, result may be inacurate"
 }
 
 makepkg_chroot_list() {
@@ -2278,6 +2306,7 @@ makepkg_chroot_list() {
 		case "$1" in
 		-h|--help)		makepkg_list_usage; return 0 ;;
 		-u|--unlocked)		locked=0 ;;
+		--chroot_basedir)	CHROOT_BASEDIR="$2"; consumed=2 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_list_usage; return 1 ;;
@@ -2299,13 +2328,18 @@ makepkg_chroot_list() {
 		fi
 	done
 
+	if [ ! -v CHROOT_BASEDIR ]; then
+		error "CHROOT_BASEDIR is not defined"
+		return 1
+	fi
+
 	if [ $? -gt 0 ]; then
 		error "Unexpected trailling arguments"
 		return 1
 	fi
 
 	if [ $locked -eq 1 ]; then
-		makepkg_file_lock -- "$CHROOTDIR/.lock" makepkg_chroot_list --unlocked "${args[@]}"
+		makepkg_file_lock -- "$CHROOT_BASEDIR/.lock" makepkg_chroot_list --unlocked "${args[@]}"
 		return $?
 	fi
 
@@ -2342,8 +2376,7 @@ makepkg_chroot_lock() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*)			error "Optional parameter \"$1\" has unsupported format"
-					return 1 ;;
+		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
 			consumed=$(($consumed - 1))
@@ -2352,6 +2385,11 @@ makepkg_chroot_lock() {
 		fi
 	done
 
+	if [ ! -v CHROOT_BASEDIR ]; then
+		error "CHROOT_BASEDIR is not defined"
+		return 1
+	fi
+
 	if [ $# -eq 0 ]; then
 		error "Argument CHROOT_NAME is missing"
 		return 1
@@ -2359,7 +2397,9 @@ makepkg_chroot_lock() {
 	local CHROOT_NAME="$1"
 	shift
 
-	makepkg_file_lock --parent "$CHROOTDIR/.lock" -- "$CHROOTDIR/$CHROOT_NAME/.lock" "$@"
+	CHROOT_DIR="$CHROOT_BASEDIR/$CHROOT_NAME"
+
+	makepkg_file_lock --parent "$CHROOT_BASEDIR/.lock" -- "$CHROOT_DIR/.lock" "$@"
 	return $?
 }
 
@@ -2401,6 +2441,11 @@ makepkg_chroot_unlock() {
 		fi
 	done
 
+	if [ ! -v CHROOT_BASEDIR ]; then
+		error "CHROOT_BASEDIR is not defined"
+		return 1
+	fi
+
 	if [ $# -eq 0 ]; then
 		error "Argument CHROOT_NAME is missing"
 		return 1
@@ -2408,12 +2453,14 @@ makepkg_chroot_unlock() {
 	CHROOT_NAME="$1"
 	shift
 
+	CHROOT_DIR="$CHROOT_BASEDIR/$CHROOT_NAME"
+
 	if [ $? -gt 0 ]; then
 		error "Unexpected trailling arguments"
 		return 1
 	fi
 
-	if rm "$CHROOTDIR/$CHROOT_NAME/.chroot"; then
+	if rm "$CHROOT_DIR/.lock"; then
 		msg "Successfully unlocked chroot '$CHROOT_NAME'."
 		return 0
 	else
@@ -2466,7 +2513,8 @@ makepkg_depends() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*)			break ;; # End of options
+		*)			error "Optional parameter \"$1\" has unsupported format"
+					return 1 ;;
 		esac
 		if ! shift "$consumed"; then
 			consumed=$(($consumed - 1))
@@ -2774,17 +2822,25 @@ _makepkg_loadconfig() {
 		exit 1
 	fi
 
-	declare -gr \
-		BUILDSCRIPT_DEFAULT="$BUILDSCRIPT" \
-		PKG_COMP_DEFAULT="$PKG_COMP"
-
 	if [ -z "$CCACHE_BASEDIR" ]; then
 		export CCACHE_BASEDIR=/var/cache/ccache
 	fi
 
+	CHROOT_BASEDIR="$CHROOTDIR"
+
 	if [ "$USE_AUTO_MAKEFLAGS" != "n" ]; then
 		export MAKEFLAGS="-j`grep -c ^processor /proc/cpuinfo`"
 	fi
+
+	declare -gr \
+		BUILDSCRIPT_DEFAULT="$BUILDSCRIPT" \
+ 		CHROOT_BASEDIR_DEFAULT="$CHROOT_BASEDIR" \
+		PKG_COMP_DEFAULT="$PKG_COMP"
+
+	BUILDSCRIPT="$BUILDSCRIPT_DEFAULT"
+	CHROOT_BASEDIR="$CHROOT_BASEDIR_DEFAULT"
+	PKG_COMP="$PKG_COMP_DEFAULT"
+
 	return 0
 }
 
