@@ -2034,7 +2034,6 @@ makepkg_chroot() {
 		-f|--force)		force=1 ;;
 		-h|--help)		makepkg_chroot_usage; return 0 ;;
 		-u|--unlocked)		locked=0 ;;
-		--chroot_basedir)	CHROOT_BASEDIR="$2"; consumed=2 ;;
 		--nochroot)		chroot=0 ;;
 		--userspec)		userspec="$2"; consumed=2 ;;
 # special options
@@ -2143,7 +2142,6 @@ makepkg_chroot_clean() {
 		-f|--force)		force=1 ;;
 		-h|--help)		makepkg_chroot_clean_usage; return 0 ;;
 		-u|--unlocked)		locked=0 ;;
-		--chroot_basedir)	CHROOT_BASEDIR="$2"; consumed=2 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_chroot_clean_usage; return 1 ;;
@@ -2250,7 +2248,6 @@ makepkg_chroot_create() {
 		-h|--help)		makepkg_lock_usage; return 0 ;;
 		-r|--repository)	repo_list+=("$2") ; consumed=2 ;;
 		-u|--unlocked)		locked=0 ;;
-		--chroot_basedir)	CHROOT_BASEDIR="$2"; consumed=2 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_lock_usage; return 1 ;;
@@ -2306,7 +2303,6 @@ makepkg_chroot_list() {
 		case "$1" in
 		-h|--help)		makepkg_list_usage; return 0 ;;
 		-u|--unlocked)		locked=0 ;;
-		--chroot_basedir)	CHROOT_BASEDIR="$2"; consumed=2 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_list_usage; return 1 ;;
@@ -2365,6 +2361,7 @@ makepkg_chroot_lock() {
 		consumed=1
 		case "$1" in
 		-h|--help)		makepkg_lock_usage; return 0 ;;
+		--chroot_basedir)	CHROOT_BASEDIR="$2"; consumed=2 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_lock_usage; return 1 ;;
@@ -2409,8 +2406,9 @@ makepkg_chroot_unlock_usage() {
 	$ECHO "Usage: $0 chroot_unlock [OPTIONS] [--] CHROOT_NAME"
 	$ECHO
 	$ECHO "Options for chroot_unlock command:"
-	$ECHO "  -f, --force            Skip the sanity checks"
+#	$ECHO "  -f, --force            Skip the sanity checks"
 	$ECHO "  -h, --help             This help"
+#	$ECHO "  -u, --unlocked         Do not lock CHROOT_BASEDIR, result may be inacurate"
 }
 
 makepkg_chroot_unlock() {
@@ -2421,6 +2419,7 @@ makepkg_chroot_unlock() {
 		consumed=1
 		case "$1" in
 		-h|--help)		makepkg_unlock_usage; return 0 ;;
+		--chroot_basedir)	CHROOT_BASEDIR="$2"; consumed=2 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_unlock_usage; return 1 ;;
