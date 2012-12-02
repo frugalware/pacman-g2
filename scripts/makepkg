@@ -2361,7 +2361,6 @@ makepkg_chroot_lock() {
 		consumed=1
 		case "$1" in
 		-h|--help)		makepkg_lock_usage; return 0 ;;
-		--chroot_basedir)	CHROOT_BASEDIR="$2"; consumed=2 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_lock_usage; return 1 ;;
@@ -2419,7 +2418,6 @@ makepkg_chroot_unlock() {
 		consumed=1
 		case "$1" in
 		-h|--help)		makepkg_unlock_usage; return 0 ;;
-		--chroot_basedir)	CHROOT_BASEDIR="$2"; consumed=2 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_unlock_usage; return 1 ;;
@@ -2803,12 +2801,35 @@ _makepkg_loadconfig() {
 	local variable
 
 	# makepkg configuration
-	[ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
+	if [ -f /etc/makepkg.conf ] && source /etc/makepkg.conf; then
+		# FIXME: makepkg.conf should only define defaults values.
+		# FIXME: Make BUILDSCRIPT a makepkg.conf variable
+		BUILDSCRIPT="FrugalBuild"
 
-	# FIXME: Make BUILDSCRIPT a makepkg.conf variable
-	BUILDSCRIPT="FrugalBuild"
+		# CCACHE_BASEDIR is abused in makepkg.config
+		#   ccache use it as a source path resolve reference
+		#   to increase cache hit if build root is moved
+		if [ ! -v CCACHE_DIR ]; then
+			export CCACHE_DIR="${CCACHE_BASEDIR:-/var/cache/ccache}"
+			unset CCACHE_BASEDIR
+		fi
 
-	for variable in CHROOTDIR FTPAGENT PACKAGER PKG_COMP PKG_EXT; do
+		CHROOT_BASEDIR="$CHROOTDIR"
+		unset 
+	fi
+
+	declare -gr \
+		BUILDSCRIPT_DEFAULT="$BUILDSCRIPT" \
+		CCACHE_DIR_DEFAULT="$CCACHE_DIR" \
+ 		CHROOT_BASEDIR_DEFAULT="$CHROOT_BASEDIR" \
+		PKG_COMP_DEFAULT="$PKG_COMP"
+
+	BUILDSCRIPT="${BUILDSCRIPT:-"$BUILDSCRIPT_DEFAULT"}"
+	CCACHE_DIR="${CCACHE_DIR:-"$CCACHE_DIR_DEFAULT"}"
+	CHROOT_BASEDIR="${CHROOT_BASEDIR:-"$CHROOT_BASEDIR_DEFAULT"}"
+	PKG_COMP="${PKG_COMP:-"$PKG_COMP_DEFAULT"}"
+
+	for variable in BUILDSCRIPT CCACHE_DIR CHROOT_BASEDIR FTPAGENT PACKAGER PKG_COMP PKG_EXT; do
 		if [ ! -v "$variable" ]; then
 			error "The $variable variable is not defined, check your /etc/makepkg.conf!"
 			exit 1
@@ -2821,24 +2842,9 @@ _makepkg_loadconfig() {
 		exit 1
 	fi
 
-	if [ -z "$CCACHE_BASEDIR" ]; then
-		export CCACHE_BASEDIR=/var/cache/ccache
-	fi
-
-	CHROOT_BASEDIR="$CHROOTDIR"
-
 	if [ "$USE_AUTO_MAKEFLAGS" != "n" ]; then
 		export MAKEFLAGS="-j`grep -c ^processor /proc/cpuinfo`"
 	fi
-
-	declare -gr \
-		BUILDSCRIPT_DEFAULT="$BUILDSCRIPT" \
- 		CHROOT_BASEDIR_DEFAULT="$CHROOT_BASEDIR" \
-		PKG_COMP_DEFAULT="$PKG_COMP"
-
-	BUILDSCRIPT="$BUILDSCRIPT_DEFAULT"
-	CHROOT_BASEDIR="$CHROOT_BASEDIR_DEFAULT"
-	PKG_COMP="$PKG_COMP_DEFAULT"
 
 	return 0
 }
