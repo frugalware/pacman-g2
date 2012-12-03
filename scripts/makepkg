@@ -1923,7 +1923,7 @@ makepkg_buildscript() {
 		return 1
 	fi
 
-	makepkg_shell "$@"
+	makepkg shell "$@"
 	return $?
 }
 
@@ -2006,8 +2006,9 @@ makepkg_chroot_usage() {
 	$ECHO "Usage: $0 chroot [OPTIONS] [--] CHROOT_NAME [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for chroot command:"
-	$ECHO "  -b, --bind <path>      Bind a path between host and chroot"
+	$ECHO "  -b, --bind <PATH>      Bind a path between host and chroot"
 	$ECHO "  -f, --force            Skip the sanity checks"
+	$ECHO "  -i, --import <PATH>    Import a file to chroot"
 	$ECHO "  -h, --help             This help"
 	$ECHO "  -u, --unlocked         Do not lock CHROOT_NAME, result may be inacurate"
 	$ECHO "      --nochroot         Do not chroot but perform the other tasks"
@@ -2021,6 +2022,7 @@ makepkg_chroot() {
 	local bind_list unbind_list
 	local chroot=1 chroot_args
 	local force=0
+	local import_list
 	local locked=1
 	local consumed i ret
 
@@ -2032,6 +2034,7 @@ makepkg_chroot() {
 		-b|--bind)		bind_list+=("$2"); consumed=2 ;;
 		-f|--force)		force=1 ;;
 		-h|--help)		makepkg_chroot_usage; return 0 ;;
+		-i|--import)		import_list+=("$2"); consumed=2 ;;
 		-u|--unlocked)		locked=0 ;;
 		--nochroot)		chroot=0 ;;
 		--userspec)		userspec="$2"; consumed=2 ;;
@@ -2093,16 +2096,30 @@ makepkg_chroot() {
 		fi
 	done
 	if [ "$ret" -eq 0 ]; then
+		for i in "${import_list[@]}"; do
+			if [ -h "$CHROOT_DIR/$i" ]; then
+				warning "Skipping symbolic link '$i'."
+				continue
+			fi
+			cp -af "$i" "$CHROOT_DIR/$i" >/dev/null
+			if [ "$?" -ne 0 ]; then
+				error "Failed to copy file '$i'"
+				ret=1
+				break
+			fi
+		done
+	fi
+	if [ "$ret" -eq 0 ]; then
 		if [ $chroot -eq 1 ]; then
 			if [ -n "$userspec" ]; then
 				chroot_args+=("--userspec=$userspec")
 			fi
 			# 'INCHROOT=1' \
-			chroot "${chroot_args[@]}" "$CHROOTDIR/$CHROOT_NAME" "$@"
+			chroot "${chroot_args[@]}" "$CHROOT_DIR" "$@"
 			ret=$?
 		else
 			# FIXME: handle user spec via su
-			makepkg_shell -- "$@"
+			makepkg shell -- "$@"
 		fi
 	fi
 	for i in "${unbind_list[@]}"; do
