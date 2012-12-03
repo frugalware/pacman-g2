@@ -1993,7 +1993,7 @@ makepkg_ccache() {
 		ccache "$@" 
 		return $? ;;
 	*)	# avoid ccache command line style
-		makepkg_shell "$@"
+		makepkg shell "$@"
 		return $?
 	esac
 	)
@@ -2541,7 +2541,7 @@ makepkg_depends() {
 		fi
 	fi
 
-	if [ "${install_list[@]}" -gt 0 ]; then
+	if [ "${#install_list[@]}" -gt 0 ]; then
 		missdep="$($PACMAN $PACMAN_OPTS -T "${install_list[@]}")"
 		ret=$?
 		if [ "$ret" != "0" ]; then
@@ -2583,9 +2583,7 @@ makepkg_depends() {
 		# FIXME: query pacman dependecies again to se if they were all resolved
 	fi
 
-	( # In a subshell so makepkg env is not altered
-	makepkg_shell "$@"
-	)
+	makepkg shell "$@"
 	ret=$?
 
 	if [ "$remove" -eq 1 -a ${#dependency_list[@]} -gt 0 ]; then
@@ -2695,9 +2693,7 @@ makepkg_file_lock() {
 	if _makepkg_file_lock "${parent_lock_list[@]}"; then
 		if _makepkg_file_lock "${lock_list[@]}"; then
 			if _makepkg_file_unlock "${parent_lock_list[@]}"; then
-				( # In a subshell so makepkg env is not altered
-				makepkg_shell "$@"
-				)
+				makepkg shell "$@"
 				ret=$?
 			fi
 			if ! _makepkg_file_unlock "${lock_list[@]}"; then
@@ -2873,15 +2869,14 @@ _makepkg_loadconfig() {
 	return 0
 }
 
-makepkg_main() {
-	_makepkg_loadconfig
-
+_makepkg() {
 	case "$1" in
 	build)		shift; makepkg_build_cmd "$@" ;;
 	ccache)		shift; makepkg_ccache "$@" ;;
 	chroot)		shift; makepkg_chroot "$@" ;;
 	chroot_clean)	shift; makepkg_chroot_clean "$@" ;;
 	chroot_create)	shift; makepkg_chroot_create "$@" ;;
+	chroot_enter)	shift; makepkg_chroot_enter "$@" ;;
 	chroot_list)	shift; makepkg_chroot_list "$@" ;;
 	chroot_lock)	shift; makepkg_chroot_lock "$@" ;;
 	chroot_unlock)	shift; makepkg_chroot_unlock "$@" ;;
@@ -2891,6 +2886,13 @@ makepkg_main() {
 	shell)		shift; makepkg_shell "$@" ;;
 	*)		makepkg_build_cmd "$@" ;;
 	esac
+	return $?
+}
+
+makepkg() {
+	( # In a subshell so makepkg env is not altered
+	_makepkg "$@"
+	)
 	return $?
 }
 
@@ -2997,5 +2999,6 @@ _P_subpkgsfixes+=(_pkg_check_hicolor)
 #
 
 if [ ! -v PS1 ]; then
-	makepkg_main "$@"
+	_makepkg_loadconfig
+	_makepkg "$@"
 fi
