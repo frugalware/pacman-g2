@@ -2474,9 +2474,11 @@ makepkg_depends_usage() {
 	$ECHO
 	$ECHO "Options for depends command:"
 	$ECHO "  -f, --force            Skip the sanity checks"
-	$ECHO "  -i, --install <pkg>    Install a package"
+	$ECHO "  -i, --install <PACKAGE_NAME>"
+	$ECHO "                         Install a package"
 	$ECHO "  -h, --help             This help"
 	$ECHO "  -r, --remove           Remove installed package when living"
+	$ECHO "  -u, --update           Update the installation"
 	$ECHO "      --noscriptlet	Disable scriplet while using pacman-g2"
 	$ECHO
 	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
@@ -2488,7 +2490,7 @@ makepkg_depends() {
 	local install_list
 	local noscriptlet=0
 	local remove=0
-	local sudo=0
+	local update=0
 	local consumed ret
 
 	while [ $# -gt 0 ]; do
@@ -2498,8 +2500,8 @@ makepkg_depends() {
 		-i|--install)		install_list+=("$2"); consumed=2 ;;
 		-h|--help)		makepkg_depends_usage; return 0 ;;
 		-r|--remove)		remove=1 ;;
+		-u|--update)		update=1 ;;
 		--noscriptlet)		noscriptlet=1 ;;
-		--sudo)			sudo=1 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_depends_usage; return 1 ;;
@@ -2526,9 +2528,15 @@ makepkg_depends() {
 			error "Cowardly refuse to install depends while in fakeroot!"
 			return 1
 		fi
+	fi
 
-		if [ "$(id -u)" -ne 0 -a "$sudo" -eq 0 ]; then
-			error "Must be root or use --sudo option"
+	if [ "$update" -eq 1 ]; then
+		msg "Updating the environment"
+		# run pacman-g2 -Su twice in case pacman-g2 updated
+		yes "" | makepkg_shell --sudo -- $PACMAN -Sy pacman-g2 --ask 94 && \
+			makepkg_shell --sudo -- $PACMAN -Su --noconfirm
+		if [ $? -eq 0 ]; then
+			error "Failed to update environment."
 			return 1
 		fi
 	fi
@@ -2563,9 +2571,9 @@ makepkg_depends() {
 		# install missing deps from binary packages (using pacman-g2 -S)
 		msg "Installing missing dependencies..."
 		if [ "$noscriptlet" -eq 0 ]; then
-			$SUDO $PACMAN $PACMAN_OPTS -D $deplist
+			makepkg_shell --sudo -- $PACMAN $PACMAN_OPTS -D $deplist
 		else
-			$SUDO $PACMAN $PACMAN_OPTS --noscriptlet -D $deplist
+			makepkg_shell --sudo -- $PACMAN $PACMAN_OPTS --noscriptlet -D $deplist
 		fi
 		if [ "$?" = "127" ]; then
 			error "Failed to install missing dependencies."
@@ -2575,12 +2583,14 @@ makepkg_depends() {
 		# FIXME: query pacman dependecies again to se if they were all resolved
 	fi
 
+	( # In a subshell so makepkg env is not altered
 	makepkg_shell "$@"
+	)
 	ret=$?
 
 	if [ "$remove" -eq 1 -a ${#dependency_list[@]} -gt 0 ]; then
 		msg "Removing installed dependencies..."
-		$SUDO $PACMAN $PACMAN_OPTS -R $makedeplist $deplist
+		makepkg_shell --sudo -- $PACMAN $PACMAN_OPTS -R $makedeplist $deplist
 	fi
 	return $ret
 }
