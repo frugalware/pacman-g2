@@ -2758,17 +2758,20 @@ makepkg_shell_usage() {
 	$ECHO
 	$ECHO "Options for chroot command:"
 	$ECHO "  -h, --help             This help"
+	$ECHO "  -s, --sudo             Command requires super user rigths"
 	$ECHO
 	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
 }
 
 makepkg_shell() {
+	local sudo=0
 	local consumed i ret
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
 		-h|--help)		makepkg_shell_usage; return 0 ;;
+		-s|--sudo)		sudo=1 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_shell_usage; return 1 ;;
@@ -2790,11 +2793,19 @@ makepkg_shell() {
 	done
 
 	if [ $# -eq 0 ]; then
-		error "IMPLEMENT ME: Spawn an interactive shell"
-		return 1
-	else
-		"$@"
+		if [ -v SHELL ]; then
+			set -- "$SHELL"
+		else
+			set -- /bin/sh
+		fi
+		set -- "$@" -i
 	fi
+
+	if [ "$sudo" -eq 1 -a "$(id -u)" -ne 0 ]; then
+		set -- sudo "$@"
+	fi
+
+	"$@"
 	return $?
 }
 
