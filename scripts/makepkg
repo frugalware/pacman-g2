@@ -2026,6 +2026,9 @@ makepkg_chroot() {
 	local locked=1
 	local consumed i ret
 
+	IFS=':' read -a bind_list <<< "$CHROOT_BIND_PATH" # Use -r ?
+	IFS=':' read -a import_list <<< "$CHROOT_IMPORT_PATH" # Use -r ?
+
 	local args=("$@")
 
 	while [ $# -gt 0 ]; do
@@ -2085,6 +2088,13 @@ makepkg_chroot() {
 
 	ret=0
 	for i in "${bind_list[@]}"; do
+		if [ ! -d "$i" ]; then
+			continue
+		fi
+		if mountpoint -q "$CHROOT_DIR/$i"; then
+			warning "Skipping allready mounted '$i' chroot directory."
+			continue
+		fi
 		mkdir -p "$CHROOT_DIR/$i" >/dev/null
 		mount -o bind "$i" "$CHROOT_DIR/$i" >/dev/null
 		if [ "$?" -eq 0 ]; then
@@ -2853,17 +2863,35 @@ _makepkg_loadconfig() {
 		unset CHROOTDIR
 
 		PACMAN="${PACMAN:-pacman-g2.static}"
+
+		CHROOT_BIND_PATH_DEFAULT+=':/dev'
+		CHROOT_BIND_PATH_DEFAULT+=':/proc'
+		CHROOT_BIND_PATH_DEFAULT+=':/sys'
+		CHROOT_BIND_PATH_DEFAULT+=':/tmp'
+		CHROOT_BIND_PATH_DEFAULT+=':/var/cache/pacman-g2'
+		CHROOT_IMPORT_PATH_DEFAULT+='/etc/fstab'
+		CHROOT_IMPORT_PATH_DEFAULT+=':/etc/group'
+		CHROOT_IMPORT_PATH_DEFAULT+=':/etc/localtime'
+		CHROOT_IMPORT_PATH_DEFAULT+=':/etc/makepkg.conf'
+		CHROOT_IMPORT_PATH_DEFAULT+=':/etc/passwd'
+		CHROOT_IMPORT_PATH_DEFAULT+=':/etc/resolv.conf' # Without this we can't reach the servers
+		CHROOT_IMPORT_PATH_DEFAULT+=':/etc/services'
+		CHROOT_IMPORT_PATH_DEFAULT+=':/etc/shadow'
 	fi
 
 	declare -gr \
 		BUILDSCRIPT_DEFAULT="$BUILDSCRIPT" \
 		CCACHE_DIR_DEFAULT="$CCACHE_DIR" \
  		CHROOT_BASEDIR_DEFAULT="$CHROOT_BASEDIR" \
+		CHROOT_BIND_PATH_DEFAULT \
+		CHROOT_IMPORT_PATH_DEFAULT \
 		PKG_COMP_DEFAULT="$PKG_COMP"
 
 	BUILDSCRIPT="${BUILDSCRIPT:-"$BUILDSCRIPT_DEFAULT"}"
 	CCACHE_DIR="${CCACHE_DIR:-"$CCACHE_DIR_DEFAULT"}"
 	CHROOT_BASEDIR="${CHROOT_BASEDIR:-"$CHROOT_BASEDIR_DEFAULT"}"
+	CHROOT_BIND_PATH="${CHROOT_BIND_PATH:-"$CHROOT_BIND_PATH_DEFAULT"}"
+#	CHROOT_IMPORT_PATH="${CHROOT_IMPORT_PATH:-"$CHROOT_IMPORT_PATH_DEFAULT"}"
 	PKG_COMP="${PKG_COMP:-"$PKG_COMP_DEFAULT"}"
 
 	for variable in BUILDSCRIPT CCACHE_DIR CHROOT_BASEDIR FTPAGENT PACMAN PACKAGER PKG_COMP PKG_EXT; do
