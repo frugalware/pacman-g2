@@ -1880,7 +1880,7 @@ makepkg_buildscript_usage() {
 }
 
 makepkg_buildscript() {
-	local depends_option=1
+	local _option_depends=1
 	local cmd consumed i
 
 	local -r buildscript_vars=(
@@ -1908,7 +1908,7 @@ makepkg_buildscript() {
 		consumed=1
 		case "$1" in
 		-h|--help)		makepkg_buildscript_usage; return 0 ;;
-		--nodepends)		depends_option=0 ;;
+		--nodepends)		_option_depends=0 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_buildscript_usage; return 1 ;;
@@ -1954,7 +1954,7 @@ makepkg_buildscript() {
 		return 1
 	fi
 
-	if [ $depends_option -eq 1 ]; then
+	if [ "$_option_depends" -eq 1 ]; then
 		# Handle make depends
 		cmd+=(makepkg depends)
 		for i in "${makedepends[@]}"; do
@@ -1991,13 +1991,13 @@ makepkg_ccache_usage() {
 }
 
 makepkg_ccache() {
-	local force=0
+	local _option_force=0
 	local consumed
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
-		-f|--force)		force=1 ;;
+		-f|--force)		_option_force=1 ;;
 		-h|--help)		makepkg_ccache_usage; return 0 ;;
 # special options
 		--)			shift; break ;; # End of options
@@ -2020,7 +2020,7 @@ makepkg_ccache() {
 		fi
 	done
 
-	if [ $force -eq 0 ]; then
+	if [ "$_option_force" -eq 0 ]; then
 		if ! find_executable ccache 'ccache package is missing!'; then
 			return 1
 		fi
@@ -2069,28 +2069,29 @@ makepkg_chroot_usage() {
 }
 
 makepkg_chroot() {
-	local bind_list unbind_list
-	local chroot=1 chroot_args
-	local force=0
-	local import_list
-	local locked=1
+	local _option_binds _unbinds
+	local _option_chroot=1 chroot_args
+	local _option_force=0
+	local _option_imports
+	local _option_locked=1
+	local _option_userspec
 	local consumed i ret
 
-	IFS=':' read -a bind_list <<< "$CHROOT_BIND_PATH" # Use -r ?
-	IFS=':' read -a import_list <<< "$CHROOT_IMPORT_PATH" # Use -r ?
+	IFS=':' read -a _option_binds <<< "$CHROOT_BIND_PATH" # Use -r ?
+	IFS=':' read -a _option_imports <<< "$CHROOT_IMPORT_PATH" # Use -r ?
 
 	local args=("$@")
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
-		-b|--bind)		bind_list+=("$2"); consumed=2 ;;
-		-f|--force)		force=1 ;;
+		-b|--bind)		_option_binds+=("$2"); consumed=2 ;;
+		-f|--force)		_option_force=1 ;;
 		-h|--help)		makepkg_chroot_usage; return 0 ;;
-		-i|--import)		import_list+=("$2"); consumed=2 ;;
-		-u|--unlocked)		locked=0 ;;
-		--nochroot)		chroot=0 ;;
-		--userspec)		userspec="$2"; consumed=2 ;;
+		-i|--import)		_option_imports+=("$2"); consumed=2 ;;
+		-u|--unlocked)		_option_locked=0 ;;
+		--nochroot)		_option_chroot=0 ;;
+		--userspec)		_option_userspec="$2"; consumed=2 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_chroot_usage; return 1 ;;
@@ -2126,19 +2127,19 @@ makepkg_chroot() {
 
 	local CHROOT_DIR="$CHROOT_BASEDIR/$CHROOT_NAME"
 
-	if [ $force -eq 0 ]; then
+	if [ "$_option_force" -eq 0 ]; then
 		if [ -v FAKEROOTKEY ]; then
 			error "Cowardly refuse to chroot while in fakeroot!"
 			return 1
 		fi
-		if [ $locked -eq 1 ]; then
+		if [ "$_option_locked" -eq 1 ]; then
 			makepkg_chroot_lock -- "$CHROOT_NAME" makepkg_chroot --unlocked "${args[@]}"
 			return $?
 		fi
 	fi
 
 	ret=0
-	for i in "${bind_list[@]}"; do
+	for i in "${_option_binds[@]}"; do
 		if [ ! -d "$i" ]; then
 			continue
 		fi
@@ -2149,7 +2150,7 @@ makepkg_chroot() {
 		mkdir -p "$CHROOT_DIR/$i" >/dev/null
 		mount -o bind "$i" "$CHROOT_DIR/$i" >/dev/null
 		if [ "$?" -eq 0 ]; then
-			unbind_list+=("$i")
+			_unbinds+=("$i")
 		else
 			error "An error occurred while attempting to mount '$i' chroot directory."
 			ret=1
@@ -2157,7 +2158,7 @@ makepkg_chroot() {
 		fi
 	done
 	if [ "$ret" -eq 0 ]; then
-		for i in "${import_list[@]}"; do
+		for i in "${_option_imports[@]}"; do
 			if [ -h "$CHROOT_DIR/$i" ]; then
 				warning "Skipping symbolic link '$i'."
 				continue
@@ -2171,9 +2172,9 @@ makepkg_chroot() {
 		done
 	fi
 	if [ "$ret" -eq 0 ]; then
-		if [ $chroot -eq 1 ]; then
-			if [ -n "$userspec" ]; then
-				chroot_args+=("--userspec=$userspec")
+		if [ "$_option_chroot" -eq 1 ]; then
+			if [ -n "$_option_userspec" ]; then
+				chroot_args+=("--userspec=$_option_userspec")
 			fi
 			# 'INCHROOT=1' \
 			chroot "${chroot_args[@]}" "$CHROOT_DIR" "$@"
@@ -2181,9 +2182,10 @@ makepkg_chroot() {
 		else
 			# FIXME: handle user spec via su
 			makepkg shell -- "$@"
+			ret=$?
 		fi
 	fi
-	for i in "${unbind_list[@]}"; do
+	for i in "${_unbinds[@]}"; do
 		umount "$CHROOT_DIR/$i" >/dev/null
 		if [ "$?" -ne 0 ]; then
 			error "An error occurred while attempting to umount '$i' chroot directory."
@@ -2208,8 +2210,8 @@ makepkg_chroot_clean_usage() {
 
 makepkg_chroot_clean() {
 	local destroy=0
-	local force=0
-	local locked=1
+	local _option_force=0
+	local _option_locked=1
 	local consumed
 
 	local args=("$@")
@@ -2218,9 +2220,9 @@ makepkg_chroot_clean() {
 		consumed=1
 		case "$1" in
 		-d|--destroy)		destroy=1 ;;
-		-f|--force)		force=1 ;;
+		-f|--force)		_option_force=1 ;;
 		-h|--help)		makepkg_chroot_clean_usage; return 0 ;;
-		-u|--unlocked)		locked=0 ;;
+		-u|--unlocked)		_option_locked=0 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_chroot_clean_usage; return 1 ;;
@@ -2256,7 +2258,7 @@ makepkg_chroot_clean() {
 	local CHROOT_DIR="$CHROOT_BASEDIR/$CHROOT_NAME"
 
 	if [ $destroy -eq 0 ]; then
-		if [ $locked -eq 1 ]; then
+		if [ "$_option_locked" -eq 1 ]; then
 			makepkg_chroot_lock -- "$CHROOT_NAME" makepkg_chroot_clean --unlocked "${args[@]}"
 			return $?
 		fi
@@ -2285,7 +2287,7 @@ makepkg_chroot_clean() {
 		error "IMPLEMENT ME"
 		return 0
 
-		if [ $locked -eq 1 ]; then
+		if [ "$_option_locked" -eq 1 ]; then
 			# NOTE: arguments are reverse compared to makepkg_chroot_lock on purpose
 			makepkg_file_lock --parent "$CHROOT_DIR/$CHROOT_NAME/.lock" -- "$CHROOT_DIR/.lock" makepkg_chroot_clean --unlocked "${args[@]}"
 			return $?
@@ -2313,20 +2315,20 @@ makepkg_chroot_create_usage() {
 }
 
 makepkg_chroot_create() {
-#	local force=0
-	local locked=1
+	local _option_force=0
+	local _option_locked=1
 	local repo_list
-	local consumed i
+	local consumed i ret=0
 
 	local args=("$@")
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
-#		-f|--force)		force=1 ;;
+		-f|--force)		_option_force=1 ;;
 		-h|--help)		makepkg_lock_usage; return 0 ;;
 		-r|--repository)	repo_list+=("$2") ; consumed=2 ;;
-		-u|--unlocked)		locked=0 ;;
+		-u|--unlocked)		_option_locked=0 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_lock_usage; return 1 ;;
@@ -2372,7 +2374,7 @@ makepkg_chroot_list_usage() {
 }
 
 makepkg_chroot_list() {
-	local locked=1
+	local _option_locked=1
 	local consumed
 
 	local args=("$@")
@@ -2381,7 +2383,7 @@ makepkg_chroot_list() {
 		consumed=1
 		case "$1" in
 		-h|--help)		makepkg_list_usage; return 0 ;;
-		-u|--unlocked)		locked=0 ;;
+		-u|--unlocked)		_option_locked=0 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_list_usage; return 1 ;;
@@ -2413,7 +2415,7 @@ makepkg_chroot_list() {
 		return 1
 	fi
 
-	if [ $locked -eq 1 ]; then
+	if [ "$_option_locked" -eq 1 ]; then
 		makepkg_file_lock -- "$CHROOT_BASEDIR/.lock" makepkg_chroot_list --unlocked "${args[@]}"
 		return $?
 	fi
@@ -2433,7 +2435,6 @@ makepkg_chroot_lock_usage() {
 }
 
 makepkg_chroot_lock() {
-	local force=0
 	local consumed
 
 	while [ $# -gt 0 ]; do
@@ -2451,6 +2452,7 @@ makepkg_chroot_lock() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
+		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
@@ -2490,7 +2492,6 @@ makepkg_chroot_unlock_usage() {
 }
 
 makepkg_chroot_unlock() {
-	local force=0
 	local consumed
 
 	while [ $# -gt 0 ]; do
@@ -2564,23 +2565,23 @@ makepkg_depends_usage() {
 }
 
 makepkg_depends() {
-	local dependency_list
-	local force=0
-	local install_list
-	local noscriptlet=0
-	local remove=0
-	local update=0
+	local _option_dependecies
+	local _option_force=0
+	local _option_installs
+	local _option_scriptlet=1
+	local _option_remove=0
+	local _option_update=0
 	local consumed ret
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
-		-f|--force)		force=1 ;;
-		-i|--install)		install_list+=("$2"); consumed=2 ;;
+		-f|--force)		_option_force=1 ;;
+		-i|--install)		_option_installs+=("$2"); consumed=2 ;;
 		-h|--help)		makepkg_depends_usage; return 0 ;;
-		-r|--remove)		remove=1 ;;
-		-u|--update)		update=1 ;;
-		--noscriptlet)		noscriptlet=1 ;;
+		-r|--remove)		_option_remove=1 ;;
+		-u|--update)		_option_update=1 ;;
+		--noscriptlet)		_option_scriptlet=0 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_depends_usage; return 1 ;;
@@ -2602,14 +2603,14 @@ makepkg_depends() {
 		fi
 	done
 
-	if [ "$force" -eq 0 ]; then
+	if [ "$_option_force" -eq 0 ]; then
 		if [ -v FAKEROOTKEY ]; then
 			error "Cowardly refuse to install depends while in fakeroot!"
 			return 1
 		fi
 	fi
 
-	if [ "$update" -eq 1 ]; then
+	if [ "$_option_update" -eq 1 ]; then
 		msg "Updating the environment"
 		# run pacman-g2 -Su twice in case pacman-g2 updated
 		yes "" | makepkg_shell --sudo -- $PACMAN -Sy pacman-g2 --ask 94 && \
@@ -2620,8 +2621,8 @@ makepkg_depends() {
 		fi
 	fi
 
-	if [ "${#install_list[@]}" -gt 0 ]; then
-		missdep="$($PACMAN $PACMAN_OPTS -T "${install_list[@]}")"
+	if [ "${#_option_installs[@]}" -gt 0 ]; then
+		missdep="$($PACMAN $PACMAN_OPTS -T "${_option_installs[@]}")"
 		ret=$?
 		if [ "$ret" != "0" ]; then
 			if [ "$ret" = "127" ]; then
@@ -2635,7 +2636,7 @@ makepkg_depends() {
 						$ECHO -ne "\n" >&2
 						# add this dep to the list
 						depname=`$ECHO $dep | sed 's|=.*$||' | sed 's|>.*$||' | sed 's|<.*$||'`
-						dependency_list+=("$depname")
+						_option_dependecies+=("$depname")
 						continue
 					fi
 					nl=1
@@ -2649,7 +2650,7 @@ makepkg_depends() {
 
 		# install missing deps from binary packages (using pacman-g2 -S)
 		msg "Installing missing dependencies..."
-		if [ "$noscriptlet" -eq 0 ]; then
+		if [ "$_option_scriptlet" -eq 1 ]; then
 			makepkg_shell --sudo -- $PACMAN $PACMAN_OPTS -D $deplist
 		else
 			makepkg_shell --sudo -- $PACMAN $PACMAN_OPTS --noscriptlet -D $deplist
@@ -2665,7 +2666,7 @@ makepkg_depends() {
 	makepkg shell "$@"
 	ret=$?
 
-	if [ "$remove" -eq 1 -a ${#dependency_list[@]} -gt 0 ]; then
+	if [ "$_option_remove" -eq 1 -a ${#_option_dependecies[@]} -gt 0 ]; then
 		msg "Removing installed dependencies..."
 		makepkg_shell --sudo -- $PACMAN $PACMAN_OPTS -R $makedeplist $deplist
 	fi
@@ -2730,17 +2731,23 @@ makepkg_file_lock_usage() {
 }
 
 # FIXME: Reimplement in C with O_EXCL
+# FIXME: If moved to a separated script use trap construct like the following:
+#        if ( set -o noclobber; echo "$$" > "$lockfile") 2> /dev/null; then
+#          trap 'rm -f "$lockfile"; exit $?' INT TERM EXIT
+#          rm -f "$lockfile"
+#          trap - INT TERM EXIT
+#        fi
 makepkg_file_lock() {
-	local lock_list unlock_list
-	local parent_lock_list parent_unlock_list
+	local _option_locks
+	local _option_parent_locks
 	local consumed i ret
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
-		-a|--alias)		lock_list+=("$2"); consumed=2 ;;
+		-a|--alias)		_option_locks+=("$2"); consumed=2 ;;
 		-h|--help)		makepkg_file_lock_usage; return 0 ;;
-		-p|--parent)		parent_lock_list+=("$2"); consumed=2 ;;
+		-p|--parent)		_option_parent_locks+=("$2"); consumed=2 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_file_lock_usage; return 1 ;;
@@ -2752,7 +2759,6 @@ makepkg_file_lock() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
@@ -2766,21 +2772,21 @@ makepkg_file_lock() {
 		error "Argument LOCK_FILE is missing"
 		return 1
 	fi
-	lock_list+=("$1")
+	_option_locks+=("$1")
 	shift
 
 	ret=1
-	if _makepkg_file_lock "${parent_lock_list[@]}"; then
-		if _makepkg_file_lock "${lock_list[@]}"; then
-			if _makepkg_file_unlock "${parent_lock_list[@]}"; then
+	if _makepkg_file_lock "${_option_parent_locks[@]}"; then
+		if _makepkg_file_lock "${_option_locks[@]}"; then
+			if _makepkg_file_unlock "${_option_parent_locks[@]}"; then
 				makepkg shell "$@"
 				ret=$?
 			fi
-			if ! _makepkg_file_unlock "${lock_list[@]}"; then
+			if ! _makepkg_file_unlock "${_option_locks[@]}"; then
 				ret=1
 			fi
 		else
-			_makepkg_file_unlock "${parent_lock_list[@]}"
+			_makepkg_file_unlock "${_option_parent_locks[@]}"
 		fi
 	fi
 	return $ret
@@ -2799,13 +2805,13 @@ makepkg_fakeroot_usage() {
 }
 
 makepkg_fakeroot() {
-	local force=0
+	local _option_force=0
 	local consumed
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
-		-f|--force)		force=1 ;;
+		-f|--force)		_option_force=1 ;;
 		-h|--help)		makepkg_fakeroot_usage; return 0 ;;
 # special options
 		--)			shift; break ;; # End of options
@@ -2828,7 +2834,7 @@ makepkg_fakeroot() {
 		fi
 	done
 
-	if [ $force -eq 0 -a -n "$FAKEROOTKEY" ]; then
+	if [ "$_option_force" -eq 0 -a -v FAKEROOTKEY ]; then
 		error "Cowardly refuse to fakeroot while in fakeroot!"
 		return 1
 	fi
@@ -2851,14 +2857,14 @@ makepkg_shell_usage() {
 }
 
 makepkg_shell() {
-	local sudo=0
+	local _option_sudo=0
 	local consumed i ret
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
 		-h|--help)		makepkg_shell_usage; return 0 ;;
-		-s|--sudo)		sudo=1 ;;
+		-s|--sudo)		_option_sudo=1 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_shell_usage; return 1 ;;
@@ -2889,7 +2895,7 @@ makepkg_shell() {
 		set -- "$@" -i
 	fi
 
-	if [ "$sudo" -eq 1 -a "$(id -u)" -ne 0 ]; then
+	if [ "$_option_sudo" -eq 1 -a "$(id -u)" -ne 0 ]; then
 		set -- sudo "$@"
 	fi
 
