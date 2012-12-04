@@ -2836,7 +2836,7 @@ makepkg_fakeroot() {
 makepkg_shell_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 shell [OPTIONS] [--] [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 shell [OPTIONS] [VARIABLE=VALUE]... [--] [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for chroot command:"
 	$ECHO "  -h, --help             This help"
@@ -2865,6 +2865,7 @@ makepkg_shell() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
+		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
