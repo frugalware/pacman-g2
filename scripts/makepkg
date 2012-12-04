@@ -1281,7 +1281,7 @@ repoman_loadconfig() {
 makepkg_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 [COMMAND] [OPTIONS] [VARIABLE_ASSIGNATIONS]"
+	$ECHO "Usage: $0 [COMMAND] [OPTIONS] [VARIABLE=VALUE]..."
 	$ECHO "Command can be any of the following: build(default), ccache."
 	$ECHO
 	$ECHO "Options for build command:"
@@ -1384,7 +1384,7 @@ makepkg_parseargs() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*=*)			eval $(IFS= ; printf 'export %q=%q' "${1%%=*}" "${1#*=}") ;;
+		*=*)			export "$1" ;;
 		*)			error "Optional parameter \"$1\" has unsupported format"
 					exit 1 ;;
 		esac
@@ -1870,7 +1870,7 @@ _makepkg_buildscript_load() {
 makepkg_buildscript_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 buildscript [OPTIONS] [--] BUILDSCRIPT [COMMAND [ARGS]...]"
+	$ECHO "Usage: $0 buildscript [OPTIONS] [VARIABLE=VALUE]... [--] BUILDSCRIPT [COMMAND [ARGS]...]"
 	$ECHO
 	$ECHO "Options for sources command:"
 	$ECHO "  -h, --help             This help"
@@ -1920,6 +1920,7 @@ makepkg_buildscript() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
+		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
@@ -1970,7 +1971,7 @@ makepkg_buildscript() {
 		#cmd+=(--remove)
 	fi
 	if [ ${#cmd[@]} -eq 0 ]; then
-		cmd+=(makepkg shell)
+		cmd+=(makepkg shell --)
 	fi
 	"${cmd[@]}" "$@"
 	return $?
@@ -1979,8 +1980,8 @@ makepkg_buildscript() {
 makepkg_ccache_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 ccache [OPTIONS] [--] [CCACHE_OPTIONS]"
-	$ECHO "Usage: $0 ccache [OPTIONS] [--] [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 ccache [OPTIONS] [VARIABLE=VALUE]... [--] [CCACHE_OPTIONS]"
+	$ECHO "Usage: $0 ccache [OPTIONS] [VARIABLE=VALUE]... [--] [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for ccache command:"
 	$ECHO "  -f, --force            Skip the sanity checks"
@@ -1989,7 +1990,6 @@ makepkg_ccache_usage() {
 	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
 }
 
-# FIXME: Add ccache lock support
 makepkg_ccache() {
 	local force=0
 	local consumed
@@ -2010,6 +2010,7 @@ makepkg_ccache() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
+		*=*)			export "$1" ;;
 		*)			break ;; # A command
 		esac
 		if ! shift "$consumed"; then
@@ -2042,7 +2043,7 @@ makepkg_ccache() {
 		ccache "$@" 
 		return $? ;;
 	*)	# avoid ccache command line style
-		makepkg shell "$@"
+		makepkg shell -- "$@"
 		return $?
 	esac
 	)
@@ -2052,7 +2053,7 @@ makepkg_ccache() {
 makepkg_chroot_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 chroot [OPTIONS] [--] CHROOT_NAME [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 chroot [OPTIONS] [VARIABLE=VALUE]... [--] CHROOT_NAME [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for chroot command:"
 	$ECHO "  -b, --bind <PATH>      Bind a path between host and chroot"
@@ -2101,6 +2102,7 @@ makepkg_chroot() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
+		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
@@ -2422,7 +2424,7 @@ makepkg_chroot_list() {
 makepkg_chroot_lock_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 chroot_lock [OPTIONS] [--] CHROOT_NAME [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 chroot_lock [OPTIONS] [VARIABLE=VALUE]... [--] CHROOT_NAME [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for chroot_lock command:"
 	$ECHO "  -h, --help             This help"
@@ -2506,6 +2508,7 @@ makepkg_chroot_unlock() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
+		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
@@ -2546,7 +2549,7 @@ makepkg_chroot_unlock() {
 makepkg_depends_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 depends [OPTIONS] [--] [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 depends [OPTIONS] [VARIABLE=VALUE]... [--] [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for depends command:"
 	$ECHO "  -f, --force            Skip the sanity checks"
@@ -2716,7 +2719,7 @@ _makepkg_file_unlock() {
 makepkg_file_lock_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 file_lock [OPTIONS] [--] LOCK_FILE [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 file_lock [OPTIONS] [VARIABLE=VALUE]... [--] LOCK_FILE [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for chroot command:"
 	$ECHO "  -a, --alias            Lock to held while LOCK_FILE is held"
@@ -2749,6 +2752,7 @@ makepkg_file_lock() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
+		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
@@ -2785,7 +2789,7 @@ makepkg_file_lock() {
 makepkg_fakeroot_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 fakeroot [options] [--] [fakeroot_options]"
+	$ECHO "Usage: $0 fakeroot [OPTIONS] [VARIABLE=VALUE]... [--] [FAKEROOT_OPTIONS]"
 	$ECHO
 	$ECHO "Options for fakeroot command:"
 	$ECHO "  -f, --force            Skip the sanity checks"
@@ -2814,6 +2818,7 @@ makepkg_fakeroot() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
+		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
