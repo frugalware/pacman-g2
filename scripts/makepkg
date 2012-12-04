@@ -893,6 +893,8 @@ cache_clean() {
 }
 
 buildenv_depends_validate() {
+	local i
+
 	if [ "$NODEPS" -eq 1 ]; then
 		warning "Skipping dependency checks."
 		return 0
@@ -901,12 +903,10 @@ buildenv_depends_validate() {
 		return 0
 	fi
 
-	local pkgname
-
-	for pkgname in "${_P_package_names[@]}"
+	for i in "${_P_package_names[@]}"
 	do
 		# _P_package_depends is not quoted on purpose
-		makedepends+=(${_P_package_depends["$pkgname"]})
+		makedepends+=(${_P_package_depends["${i}"]})
 	done
 
 	msg "Checking Buildtime Dependencies..."
@@ -1698,7 +1698,7 @@ _makepkg_buildscript_load() {
 	for i in `set|grep ^_F_|sed 's/\(=.*\| ()\)//'`; do unset $i; done
 
 	# You have to declare associative array before using them :/
-	declare -Ag \
+	declare -A \
 		_P_package_descriptions \
 		_P_package_licenses \
 		_P_package_replaces \
@@ -1851,18 +1851,17 @@ _makepkg_buildscript_load() {
 		fi
 	done
 
-	local pkgname
-	for pkgname in "${_P_package_names[@]}"; do
-		if [ -n "$_P_package_installs["$pkgname"]" ]; then
+	for i in "${_P_package_names[@]}"; do
+		if [ -n "$_P_package_installs["$i"]" ]; then
 			# FIXME we should allways be in startdir here
 			if [ ! -e "$install" -a ! -e "$startdir/$install" ] && ! check_option GENSCRIPTLET; then
 				error "Missing install scriptlet. If this is intentional, add 'genscriptlet' to options()."
 				exit 1
 			fi
 		else
-			if [ -e "${pkgname}.install" ]; then
-				warning "Automagically found install script for $pkgname"
-				_P_package_installs["$pkgname"]="${pkgname}.install"
+			if [ -e "${i}.install" ]; then
+				warning "Automagically found install script for ${i}"
+				_P_package_installs["${i}"]="${i}.install"
 			fi
 		fi
 	done
@@ -1875,17 +1874,41 @@ makepkg_buildscript_usage() {
 	$ECHO
 	$ECHO "Options for sources command:"
 	$ECHO "  -h, --help             This help"
+	$ECHO "      --nodepends        Do not resolve depends"
 	$ECHO
 	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
 }
 
 makepkg_buildscript() {
-	local consumed
+	local depends_option=1
+	local cmd consumed i
+
+	local -r buildscript_vars=(
+		_P_options \
+		_P_package_names \
+		_P_package_descriptions \
+		_P_package_descriptions \
+		_P_package_licenses \
+		_P_package_replaces \
+		_P_package_groups \
+		_P_package_depends \
+		_P_package_rodepends \
+		_P_package_removes \
+		_P_package_conflicts \
+		_P_package_provides \
+		_P_package_backups \
+		_P_package_installs \
+		_P_package_options \
+		_P_package_archs \
+		pkgname \
+		pkgver
+	)
 
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
 		-h|--help)		makepkg_buildscript_usage; return 0 ;;
+		--nodepends)		depends_option=0 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_buildscript_usage; return 1 ;;
@@ -1910,7 +1933,7 @@ makepkg_buildscript() {
 		error "Argument BUILDSCRIPT is missing"
 		return 1
 	fi
-	local BUILDSCRIPT="$1"
+	local -r BUILDSCRIPT="$1"
 	shift
 
 	if [ ! -f "$BUILDSCRIPT" ]; then
@@ -1918,12 +1941,38 @@ makepkg_buildscript() {
 		return 1
 	fi
 
-	if ! _makepkg_buildscript_load "$BUILDSCRIPT"; then
-#		error "$buildfile while errors loading file."
+	for i in "${buildscript_vars[@]}"; do
+		local "${i}"
+	done
+	if _makepkg_buildscript_load "$BUILDSCRIPT"; then
+		for i in "${buildscript_vars[@]}"; do
+			local -r "${i}"
+		done
+	else
+		error "Errors while loading buildscript '$BUILDSCRIPT'"
 		return 1
 	fi
 
-	makepkg shell "$@"
+	if [ $depends_option -eq 1 ]; then
+		# Handle make depends
+		cmd+=(makepkg depends)
+		for i in "${makedepends[@]}"; do
+			cmd+=(--install "$i")
+		done
+		#cmd+=(--remove)
+		#cmd+=(--update)
+
+		# Handle depends
+		cmd+=(makepkg depends)
+		for i in "${depends[@]}"; do
+			cmd+=(--install "$i")
+		done
+		#cmd+=(--remove)
+	fi
+	if [ ${#cmd[@]} -eq 0 ]; then
+		cmd+=(makepkg shell)
+	fi
+	"${cmd[@]}" "$@"
 	return $?
 }
 
