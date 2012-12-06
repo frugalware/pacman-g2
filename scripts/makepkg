@@ -316,7 +316,7 @@ chroot_umount() {
 
 chroot_size() {
 	exclude="--exclude=/proc --exclude=/sys --exclude=/dev"
-	exclude="$exclude --exclude=/var/cache/pacman-g2 --exclude=/var/cache/ccache/$pkgname"
+	exclude="$exclude --exclude=$PACMAN_CACHEDIR --exclude=/var/cache/ccache/$pkgname"
 	sudo du -sh $exclude / |sed "s/\t.*//"
 }
 
@@ -588,36 +588,6 @@ buildscript_download() {
 	done
 }
 
-buildscript_up2date() {
-	if [ "$NOUP2DATE" -eq 1 ]; then
-		return 0
-	fi
-
-	msg "Checking for newer version..."
-	if $ECHO "$up2date"|grep -q " "; then
-		cmd=`$ECHO "$up2date"|sed 's/^\([^ ]*\) .*/\1/'`
-		if find_executable "$cmd" 'Cannot check for newer version!'; then
-			up2date=`eval "$up2date"`
-		else
-			up2date=""
-			sleep 1
-		fi
-	fi
-	if [ -z "$up2date" ]; then
-			$ECHO "   FAILED" >&2
-			error "There was no output!"
-			exit 1
-	else
-		if [ "$pkgver" != "$up2date" ]; then
-			$ECHO "   FAILED" >&2
-			error "Upstream version differs! ($pkgver != $up2date)"
-			exit 1
-		else
-		$ECHO "   Passed" >&2
-		fi
-	fi
-}
-
 buildscript_estimation () {
 	# estimate build time
 	if grep -i -q "^# Compiling Time: [~0-9\.]\+ SBU$" $BUILDSCRIPT && \
@@ -659,58 +629,6 @@ buildscript_create_changelog() {
 			fi
 		fi
 	fi
-}
-
-sources_download() {
-	msg "Retrieving Sources..."
-	mkdir -p src
-	cd $startdir/src
-	for netfile in "${source[@]}" "${signatures[@]}"; do
-		[ -z "$netfile" ] && continue
-		file=`strip_url "$netfile"`
-		if [ -f "../$file" ]; then
-			msg2 "Found $file in build dir"
-			cp "../$file" .
-		elif [ -f "/var/cache/pacman-g2/src/$file" ]; then
-			msg2 "Using local copy of $file"
-			cp "/var/cache/pacman-g2/src/$file" .
-		else
-			proto=`$ECHO "$netfile" | sed 's|://.*||'`
-			if [ "$proto" != "ftp" -a "$proto" != "http" -a "$proto" != "https" ]; then
-				error "$netfile was not found in the build directory and is not a proper URL."
-				msg "Aborting..."
-				exit 1
-			fi
-			# try to download the file from the cache server
-			if [ -n "$RSYNCAGENT" -a -n "$CACHEURL" ]; then
-				# check if the file is there
-				eval $RSYNCAGENT $CACHEURL/${file//;/\\\;} &>/dev/null
-				if [ "$?" = "0" ]; then
-					eval $RSYNCAGENT $CACHEURL/${file//;/\\\;} ./
-					if [ ! -f "$file" ]; then
-						error "Failed to download $file from cache while it is there"
-						msg "Aborting..."
-						exit 1
-					fi
-				fi
-			fi
-			# if failed to retreive from cache download it from the master server
-			if [ ! -f "$file" ]; then
-				msg2 "Downloading $file"
-				$FTPAGENT "$netfile" 2>&1
-				if [ ! -f "$file" ]; then
-					error "Failed to download $file"
-					msg "Aborting..."
-					exit 1
-				fi
-			fi
-			if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
-				mkdir -p /var/cache/pacman-g2/src && cp "$file" /var/cache/pacman-g2/src
-			else
-				cp "$file" ..
-			fi
-		fi
-	done
 }
 
 sources_sha1sum_validate() {
@@ -869,7 +787,7 @@ cache_clean() {
 		if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
 			if [ $CLEANCACHE -ge 2 ]; then
 				msg "Cleaning up source files from the cache."
-				rm -rf /var/cache/pacman-g2/src/*
+				rm -rf "$PACMAN_CACHEDIR"/src/*
 			fi
 			chroot_clean
 			for i in `grep $CHROOTDIR /proc/mounts|sed 's/^[^ ]* \([^ ]*\) .*/\1/'`
@@ -986,18 +904,21 @@ buildenv_build() {
 pkg_foreach() {
 	local hook package_name 
 
-	for package_name in "${_P_package_names[@]}"; do
-		[ ! -d "${startdir}/pkg.${package_name}" ] && continue
-		for hook in "$@"; do
-			cd "${startdir}/pkg.${package_name}"
-			"${hook}" "${package_name}"
+	for hook in "$@"; do
+		for package_name in "${_P_package_names[@]}"; do
+			if [ -d "${startdir}/pkg.${package_name}" ]; then
+				( # In a subshell so makepkg env is not altered
+				cd "${startdir}/pkg.${package_name}"
+				"${hook}" "${package_name}"
+				)
+			fi
 		done
 	done
 }
 
 pkg_mkdirs()
 {
-	local package_name 
+	local package_name
 
 	for package_name in "${_P_package_names[@]}"
 	do
@@ -1514,7 +1435,9 @@ makepkg_prepare_sources() {
 		buildscript_create_changelog
 	fi
 
-	buildscript_up2date
+	if [ "$NOUP2DATE" -eq 0 ]; then
+		_makepkg_buildscript_up2date
+	fi
 	sources_download
 
 	if [ "$NOVALIDATE" -eq 1 ]; then
@@ -1687,6 +1610,84 @@ makepkg_build_cmd() {
 	fi
 
 	install_pkg
+}
+
+_makepkg_buildscript_up2date() {
+	msg "Checking for newer version..."
+	if $ECHO "$up2date"|grep -q " "; then
+		cmd=`$ECHO "$up2date"|sed 's/^\([^ ]*\) .*/\1/'`
+		if find_executable "$cmd" 'Cannot check for newer version!'; then
+			up2date=`eval "$up2date"`
+		else
+			up2date=""
+		fi
+	fi
+	if [ -z "$up2date" ]; then
+			$ECHO "   FAILED" >&2
+			error "There was no output!"
+			return 1
+	else
+		if [ "$pkgver" != "$up2date" ]; then
+			$ECHO "   FAILED" >&2
+			error "Upstream version differs! ($pkgver != $up2date)"
+			return 1
+		else
+		$ECHO "   Passed" >&2
+		fi
+	fi
+	return 0
+}
+
+_makepkg_buildscript_sources_download() {
+	msg "Retrieving Sources..."
+	mkdir -p src
+	cd $startdir/src
+	for netfile in "${source[@]}" "${signatures[@]}"; do
+		[ -z "$netfile" ] && continue
+		file=`strip_url "$netfile"`
+		if [ -f "../$file" ]; then
+			msg2 "Found $file in build dir"
+			cp "../$file" .
+		elif [ -f "$PACMAN_CACHEDIR/src/$file" ]; then
+			msg2 "Using local copy of $file"
+			cp "$PACMAN_CACHEDIR/src/$file" .
+		else
+			proto=`$ECHO "$netfile" | sed 's|://.*||'`
+			if [ "$proto" != "ftp" -a "$proto" != "http" -a "$proto" != "https" ]; then
+				error "$netfile was not found in the build directory and is not a proper URL."
+				msg "Aborting..."
+				exit 1
+			fi
+			# try to download the file from the cache server
+			if [ -n "$RSYNCAGENT" -a -n "$CACHEURL" ]; then
+				# check if the file is there
+				eval $RSYNCAGENT $CACHEURL/${file//;/\\\;} &>/dev/null
+				if [ "$?" = "0" ]; then
+					eval $RSYNCAGENT $CACHEURL/${file//;/\\\;} ./
+					if [ ! -f "$file" ]; then
+						error "Failed to download $file from cache while it is there"
+						msg "Aborting..."
+						exit 1
+					fi
+				fi
+			fi
+			# if failed to retreive from cache download it from the master server
+			if [ ! -f "$file" ]; then
+				msg2 "Downloading $file"
+				$FTPAGENT "$netfile" 2>&1
+				if [ ! -f "$file" ]; then
+					error "Failed to download $file"
+					msg "Aborting..."
+					exit 1
+				fi
+			fi
+			if [ "`id -u`" = "0" -a "$INFAKEROOT" != "1" ]; then
+				mkdir -p "$PACMAN_CACHEDIR/src" && cp "$file" "$PACMAN_CACHEDIR/src"
+			else
+				cp "$file" ..
+			fi
+		fi
+	done
 }
 
 _makepkg_buildscript_load() {
@@ -1873,14 +1874,21 @@ makepkg_buildscript_usage() {
 	$ECHO "Usage: $0 buildscript [OPTIONS] [VARIABLE=VALUE]... [--] BUILDSCRIPT [COMMAND [ARGS]...]"
 	$ECHO
 	$ECHO "Options for sources command:"
+	$ECHO "  -f, --force            Skip the sanity checks"
 	$ECHO "  -h, --help             This help"
+	$ECHO "      --chroot <CHROOT_NAME>"
+	$ECHO "                         Perform the requested operations in a chroot"
 	$ECHO "      --nodepends        Do not resolve depends"
+	$ECHO "      --up2date          Check if source are up2date before executing the command"
 	$ECHO
 	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
 }
 
 makepkg_buildscript() {
+	local _option_chroot
+	local _option_force=0
 	local _option_depends=1
+	local _option_up2date=0
 	local cmd consumed i
 
 	local -r buildscript_vars=(
@@ -1907,8 +1915,11 @@ makepkg_buildscript() {
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
+		-f|--force)		_option_force=1 ;;
 		-h|--help)		makepkg_buildscript_usage; return 0 ;;
+		--chroot)		_option_chroot="$2"; consumed=2 ;;
 		--nodepends)		_option_depends=0 ;;
+		--up2date)		_option_up2date=1 ;;
 # special options
 		--)			shift; break ;; # End of options
 		--*|-?)			makepkg_buildscript_usage; return 1 ;;
@@ -1954,6 +1965,20 @@ makepkg_buildscript() {
 		return 1
 	fi
 
+	if [ "$_option_force" -eq 0 ]; then
+		if [ "$_option_up2date" -eq 1 ]; then
+			_makepkg_buildscript_up2date
+			ret=$?
+			if [ "$ret" -ne 0 ]; then
+				return "$ret"
+			fi
+		fi
+	fi
+	_makepkg_buildscript_sources_download
+
+	if [ -n "$_option_chroot" ]; then
+		cmd+=(makepkg chroot -- "$_option_chroot")
+	fi
 	if [ "$_option_depends" -eq 1 ]; then
 		# Handle make depends
 		cmd+=(makepkg depends)
@@ -2509,8 +2534,8 @@ makepkg_chroot_unlock() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*=*)			export "$1" ;;
-		*)			break ;; # End of options
+		*)			error "Optional parameter \"$1\" has unsupported format"
+					return 1 ;;
 		esac
 		if ! shift "$consumed"; then
 			consumed=$(($consumed - 1))
@@ -2593,8 +2618,7 @@ makepkg_depends() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*)			error "Optional parameter \"$1\" has unsupported format"
-					return 1 ;;
+		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
 			consumed=$(($consumed - 1))
@@ -2759,6 +2783,7 @@ makepkg_file_lock() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
+		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
@@ -2924,12 +2949,13 @@ _makepkg_loadconfig() {
 		unset CHROOTDIR
 
 		PACMAN="${PACMAN:-pacman-g2.static}"
+		PACMAN_CACHEDIR='/var/cache/pacman-g2/'
 
 		CHROOT_BIND_PATH_DEFAULT+=':/dev'
 		CHROOT_BIND_PATH_DEFAULT+=':/proc'
 		CHROOT_BIND_PATH_DEFAULT+=':/sys'
 		CHROOT_BIND_PATH_DEFAULT+=':/tmp'
-		CHROOT_BIND_PATH_DEFAULT+=':/var/cache/pacman-g2'
+		CHROOT_BIND_PATH_DEFAULT+="$PACMAN_CACHEDIR"
 		CHROOT_IMPORT_PATH_DEFAULT+='/etc/fstab'
 		CHROOT_IMPORT_PATH_DEFAULT+=':/etc/group'
 		CHROOT_IMPORT_PATH_DEFAULT+=':/etc/localtime'
@@ -2978,11 +3004,11 @@ _makepkg_loadconfig() {
 _makepkg() {
 	case "$1" in
 	build)		shift; makepkg_build_cmd "$@" ;;
+	buildscript)	shift; makepkg_buildscript "$@" ;;
 	ccache)		shift; makepkg_ccache "$@" ;;
 	chroot)		shift; makepkg_chroot "$@" ;;
 	chroot_clean)	shift; makepkg_chroot_clean "$@" ;;
 	chroot_create)	shift; makepkg_chroot_create "$@" ;;
-	chroot_enter)	shift; makepkg_chroot_enter "$@" ;;
 	chroot_list)	shift; makepkg_chroot_list "$@" ;;
 	chroot_lock)	shift; makepkg_chroot_lock "$@" ;;
 	chroot_unlock)	shift; makepkg_chroot_unlock "$@" ;;
