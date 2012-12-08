@@ -1198,11 +1198,10 @@ repoman_loadconfig() {
 	fi
 }
 
-makepkg_usage() {
+makepkg_build_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 [COMMAND] [OPTIONS] [VARIABLE=VALUE]..."
-	$ECHO "Command can be any of the following: build(default), ccache."
+	$ECHO "Usage: $0 [build] [OPTIONS] [VARIABLE=VALUE]..."
 	$ECHO
 	$ECHO "Options for build command:"
 	$ECHO "  -a, --searchdeps Search for package dependencies automatically"
@@ -1267,7 +1266,7 @@ makepkg_parseargs() {
 		-f|--force)		FORCE=1 ;;
 		-g|--gensha1)		GENSHA1=1 ;;
 		-G|--wrtsha1)		WRITESHA1=1 ;;
-		-h|--help)		makepkg_usage; exit 0 ;;
+		-h|--help)		makepkg_build_usage; exit 0 ;;
 		-i|--install)		INSTALL=1 ;;
 		-j)			export MAKEFLAGS="-j$2"; consumed=2 ;;
 		-l)			DOWNLOAD="$2"; consumed=2 ;;
@@ -1295,7 +1294,7 @@ makepkg_parseargs() {
 # special options
 		--)			shift; break ;; # End of options
 #		-*=*)			# IMPLEMENT ME: Assigned option support
-		--*|-?)			makepkg_usage; exit 1 ;;
+		--*|-?)			makepkg_build_usage; exit 1 ;;
 		-*)			# Combined short options
 					split="$1"
 					shift
@@ -1456,7 +1455,7 @@ makepkg_prepare_sources() {
 	msg "Sources are ready."
 }
 
-makepkg_build() {
+_makepkg_build() {
 	if [ "$NOBUILD" -eq 1 ]; then
 		return 0
 	fi
@@ -1538,8 +1537,8 @@ makepkg_document() {
 		\) -exec install -pm 644 '{}' pkg/usr/share/doc/$pkgname-$pkgver/ \;
 }
 
-makepkg_build_cmd() {
-	declare -r ARGLIST=$@
+makepkg_build() {
+	declare -r ARGLIST=$@ startdir="$(pwd)"
 	makepkg_parseargs "$@"
 	repoman_loadconfig
 
@@ -1590,7 +1589,7 @@ makepkg_build_cmd() {
 			cmd+=(makepkg_ccache)
 		fi
 
-		"${cmd[@]}" makepkg_build
+		"${cmd[@]}" _makepkg_build
 	fi
 
 	cd "$startdir"
@@ -2927,6 +2926,26 @@ makepkg_shell() {
 	return $?
 }
 
+_makepkg_init() {
+	local i
+
+	declare -agr _makepkg_commands=(
+		build
+		buildscript
+		ccache
+		chroot
+		chroot_clean
+		chroot_create
+		chroot_list
+		chroot_lock
+		chroot_unlock
+		depends
+		fakeroot
+		file_lock
+		shell
+	)
+}
+
 _makepkg_loadconfig() {
 	local variable
 
@@ -3000,23 +3019,58 @@ _makepkg_loadconfig() {
 	return 0
 }
 
+makepkg_usage() {
+	local i
+
+	$ECHO "makepkg"
+	$ECHO
+	$ECHO "Usage: $0 [COMMAND] [COMMAND_OPTION]..."
+	$ECHO "Command can be any of the following:"
+	for i in "${_makepkg_commands[@]}"; do
+	$ECHO " - $i"
+	done
+	$ECHO
+	$ECHO "Perform the makepkg command, 'build' if none is provided."
+	$ECHO "To see COMMAND syntax and options, do: $0 COMMAND --help"
+}
+
 _makepkg() {
-	case "$1" in
-	build)		shift; makepkg_build_cmd "$@" ;;
-	buildscript)	shift; makepkg_buildscript "$@" ;;
-	ccache)		shift; makepkg_ccache "$@" ;;
-	chroot)		shift; makepkg_chroot "$@" ;;
-	chroot_clean)	shift; makepkg_chroot_clean "$@" ;;
-	chroot_create)	shift; makepkg_chroot_create "$@" ;;
-	chroot_list)	shift; makepkg_chroot_list "$@" ;;
-	chroot_lock)	shift; makepkg_chroot_lock "$@" ;;
-	chroot_unlock)	shift; makepkg_chroot_unlock "$@" ;;
-	depends)	shift; makepkg_depends "$@" ;;
-	fakeroot)	shift; makepkg_fakeroot "$@" ;;
-	file_lock)	shift; makepkg_file_lock "$@" ;;
-	shell)		shift; makepkg_shell "$@" ;;
-	*)		makepkg_build_cmd "$@" ;;
-	esac
+	local _command
+	local consumed
+
+	while [ $# -gt 0 ]; do
+		consumed=1
+		case "$1" in
+		-h|--help)		makepkg_usage; return 0 ;;
+# special options
+		--)			shift; break ;; # End of options
+		--*|-?)			makepkg_usage; return 1 ;;
+		-*)			# Combined short options
+					split="$1"
+					shift
+					set -- \
+						"$(echo "$split}" | cut -c -2)" \
+						"-$(echo "${split}" | cut -c 3-)" \
+						"$@"
+					continue ;;
+		*=*)			export "$1" ;;
+		*)			break ;; # End of options
+		esac
+		if ! shift "$consumed"; then
+			consumed=$(($consumed - 1))
+			error "Option $1 expects $consumed argument(s)"
+			return 1
+		fi
+	done
+
+	if [ $# -gt 0 ]; then
+		if in_array "$1" "${_makepkg_commands[@]}"; then
+			_command="$1"
+			shift
+		fi
+	fi
+
+	"makepkg_${_command:-"build"}" "$@" # Defauld command is build
 	return $?
 }
 
@@ -3130,6 +3184,7 @@ _P_subpkgsfixes+=(_pkg_check_hicolor)
 #
 
 if [ ! -v PS1 ]; then
+	_makepkg_init
 	_makepkg_loadconfig
 	_makepkg "$@"
 fi
