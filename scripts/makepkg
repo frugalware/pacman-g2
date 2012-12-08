@@ -3044,7 +3044,7 @@ _makepkg() {
 		-h|--help)		makepkg_usage; return 0 ;;
 # special options
 		--)			shift; break ;; # End of options
-		--*|-?)			makepkg_usage; return 1 ;;
+		--*|-?)			break ;; # Option of the default command
 		-*)			# Combined short options
 					split="$1"
 					shift
@@ -3053,7 +3053,6 @@ _makepkg() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
@@ -3070,7 +3069,7 @@ _makepkg() {
 		fi
 	fi
 
-	"makepkg_${_command:-"build"}" "$@" # Defauld command is build
+	"makepkg_${_command:-"build"}" "$@" # Default command is build
 	return $?
 }
 
