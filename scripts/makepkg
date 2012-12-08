@@ -1131,12 +1131,11 @@ create_pkg()
 
 in_array()
 {
-	local i
-	needle=$1
+	local i needle="$1"
 	shift 1
 	# array() undefined
 	[ -z "$1" ] && return 1
-	for i in $*
+	for i in "$@"
 	do
 		[ "$i" == "$needle" ] && return 0
 	done
