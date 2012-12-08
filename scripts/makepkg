@@ -1201,7 +1201,7 @@ repoman_loadconfig() {
 makepkg_build_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 [build] [OPTIONS] [VARIABLE=VALUE]..."
+	$ECHO "Usage: $0 build [OPTION]... [VARIABLE=VALUE]..."
 	$ECHO
 	$ECHO "Options for build command:"
 	$ECHO "  -a, --searchdeps Search for package dependencies automatically"
@@ -1869,13 +1869,11 @@ _makepkg_buildscript_load() {
 makepkg_buildscript_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 buildscript [OPTIONS] [VARIABLE=VALUE]... [--] BUILDSCRIPT [COMMAND [ARGS]...]"
+	$ECHO "Usage: $0 buildscript [OPTION]... [VARIABLE=VALUE]... [--] BUILDSCRIPT [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for sources command:"
 	$ECHO "  -f, --force            Skip the sanity checks"
 	$ECHO "  -h, --help             This help"
-	$ECHO "      --chroot <CHROOT_NAME>"
-	$ECHO "                         Perform the requested operations in a chroot"
 	$ECHO "      --nodepends        Do not resolve depends"
 	$ECHO "      --up2date          Check if source are up2date before executing the command"
 	$ECHO
@@ -1883,7 +1881,6 @@ makepkg_buildscript_usage() {
 }
 
 makepkg_buildscript() {
-	local _option_chroot
 	local _option_force=0
 	local _option_depends=1
 	local _option_up2date=0
@@ -1915,7 +1912,6 @@ makepkg_buildscript() {
 		case "$1" in
 		-f|--force)		_option_force=1 ;;
 		-h|--help)		makepkg_buildscript_usage; return 0 ;;
-		--chroot)		_option_chroot="$2"; consumed=2 ;;
 		--nodepends)		_option_depends=0 ;;
 		--up2date)		_option_up2date=1 ;;
 # special options
@@ -1974,9 +1970,6 @@ makepkg_buildscript() {
 	fi
 	_makepkg_buildscript_sources_download
 
-	if [ -n "$_option_chroot" ]; then
-		cmd+=(makepkg chroot -- "$_option_chroot")
-	fi
 	if [ "$_option_depends" -eq 1 ]; then
 		# Handle make depends
 		cmd+=(makepkg depends)
@@ -2003,8 +1996,8 @@ makepkg_buildscript() {
 makepkg_ccache_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 ccache [OPTIONS] [VARIABLE=VALUE]... [--] [CCACHE_OPTIONS]"
-	$ECHO "Usage: $0 ccache [OPTIONS] [VARIABLE=VALUE]... [--] [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 ccache [OPTION]... [VARIABLE=VALUE]... [--] [CCACHE_ARG]..."
+	$ECHO "Usage: $0 ccache [OPTION]... [VARIABLE=VALUE]... [--] [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for ccache command:"
 	$ECHO "  -f, --force            Skip the sanity checks"
@@ -2076,7 +2069,7 @@ makepkg_ccache() {
 makepkg_chroot_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 chroot [OPTIONS] [VARIABLE=VALUE]... [--] CHROOT_NAME [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 chroot [OPTION]... [VARIABLE=VALUE]... [--] CHROOT_NAME [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for chroot command:"
 	$ECHO "  -b, --bind <PATH>      Bind a path between host and chroot"
@@ -2222,7 +2215,7 @@ makepkg_chroot() {
 makepkg_chroot_clean_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 chroot_clean [OPTIONS] [--] CHROOT_NAME"
+	$ECHO "Usage: $0 chroot_clean [OPTION]... [--] CHROOT_NAME"
 	$ECHO
 	$ECHO "Options for chroot_clean command:"
 	$ECHO "  -d, --destroy          Destroy the chroot"
@@ -2327,7 +2320,7 @@ makepkg_chroot_clean() {
 makepkg_chroot_create_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 chroot_create [OPTIONS] [--] CHROOT_NAME"
+	$ECHO "Usage: $0 chroot_create [OPTION]... [--] CHROOT_NAME"
 	$ECHO
 	$ECHO "Options for chroot_create command:"
 #	$ECHO "  -f, --force            Skip the sanity checks"
@@ -2449,7 +2442,7 @@ makepkg_chroot_list() {
 makepkg_chroot_lock_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 chroot_lock [OPTIONS] [VARIABLE=VALUE]... [--] CHROOT_NAME [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 chroot_lock [OPTION]... [VARIABLE=VALUE]... [--] CHROOT_NAME [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for chroot_lock command:"
 	$ECHO "  -h, --help             This help"
@@ -2506,7 +2499,7 @@ makepkg_chroot_lock() {
 makepkg_chroot_unlock_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 chroot_unlock [OPTIONS] [--] CHROOT_NAME"
+	$ECHO "Usage: $0 chroot_unlock [OPTION]... [--] CHROOT_NAME"
 	$ECHO
 	$ECHO "Options for chroot_unlock command:"
 #	$ECHO "  -f, --force            Skip the sanity checks"
@@ -2573,7 +2566,7 @@ makepkg_chroot_unlock() {
 makepkg_depends_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 depends [OPTIONS] [VARIABLE=VALUE]... [--] [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 depends [OPTION]... [VARIABLE=VALUE]... [--] [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for depends command:"
 	$ECHO "  -f, --force            Skip the sanity checks"
@@ -2616,6 +2609,7 @@ makepkg_depends() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
+		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
@@ -2742,7 +2736,7 @@ _makepkg_file_unlock() {
 makepkg_file_lock_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 file_lock [OPTIONS] [VARIABLE=VALUE]... [--] LOCK_FILE [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 file_lock [OPTION]... [VARIABLE=VALUE]... [--] LOCK_FILE [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for chroot command:"
 	$ECHO "  -a, --alias            Lock to held while LOCK_FILE is held"
@@ -2818,7 +2812,7 @@ makepkg_file_lock() {
 makepkg_fakeroot_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 fakeroot [OPTIONS] [VARIABLE=VALUE]... [--] [FAKEROOT_OPTIONS]"
+	$ECHO "Usage: $0 fakeroot [OPTION]... [VARIABLE=VALUE]... [--] [FAKEROOT_ARG]..."
 	$ECHO
 	$ECHO "Options for fakeroot command:"
 	$ECHO "  -f, --force            Skip the sanity checks"
@@ -2870,7 +2864,7 @@ makepkg_fakeroot() {
 makepkg_shell_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 shell [OPTIONS] [VARIABLE=VALUE]... [--] [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 shell [OPTION]... [VARIABLE=VALUE]... [--] [COMMAND [ARG]...]"
 	$ECHO
 	$ECHO "Options for chroot command:"
 	$ECHO "  -h, --help             This help"
@@ -3024,11 +3018,15 @@ makepkg_usage() {
 
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 [COMMAND] [COMMAND_OPTION]..."
+	$ECHO "Usage: $0 [OPTION]... [VARIABLE=VALUE]... [--] [COMMAND] [COMMAND_OPTION]..."
+	$ECHO
 	$ECHO "Command can be any of the following:"
 	for i in "${_makepkg_commands[@]}"; do
 	$ECHO " - $i"
 	done
+	$ECHO
+	$ECHO "Options:"
+	$ECHO "  -h, --help             This help"
 	$ECHO
 	$ECHO "Perform the makepkg command, 'build' if none is provided."
 	$ECHO "To see COMMAND syntax and options, do: $0 COMMAND --help"
@@ -3053,6 +3051,7 @@ _makepkg() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
+		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
