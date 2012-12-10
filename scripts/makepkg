@@ -2234,6 +2234,7 @@ makepkg_chroot() {
 				chroot_args+=("--userspec=$_option_userspec")
 			fi
 			# 'INCHROOT=1' \
+			CHROOT_BIND_PATH="$(IFS=':'; echo "${_option_binds[*]}" )" \
 			chroot "${chroot_args[@]}" "$CHROOT_DIR" "$@"
 			ret=$?
 		else
