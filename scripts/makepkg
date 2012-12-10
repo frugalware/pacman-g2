@@ -2132,7 +2132,7 @@ makepkg_chroot() {
 	local _option_imports
 	local _option_locked=1
 	local _option_userspec
-	local consumed i ret
+	local consumed i ret=0
 
 	IFS=':' read -a _option_binds <<< "$CHROOT_BIND_PATH" # Use -r ?
 	IFS=':' read -a _option_imports <<< "$CHROOT_IMPORT_PATH" # Use -r ?
@@ -2195,7 +2195,6 @@ makepkg_chroot() {
 		fi
 	fi
 
-	ret=0
 	for i in "${_option_binds[@]}"; do
 		if [ ! -d "$i" ]; then
 			continue
@@ -2267,7 +2266,7 @@ makepkg_chroot_clean_usage() {
 }
 
 makepkg_chroot_clean() {
-	local destroy=0
+	local _option_destroy=0
 	local _option_force=0
 	local _option_locked=1
 	local consumed
@@ -2277,7 +2276,7 @@ makepkg_chroot_clean() {
 	while [ $# -gt 0 ]; do
 		consumed=1
 		case "$1" in
-		-d|--destroy)		destroy=1 ;;
+		-d|--destroy)		_option_destroy=1 ;;
 		-f|--force)		_option_force=1 ;;
 		-h|--help)		makepkg_chroot_clean_usage; return 0 ;;
 		-u|--unlocked)		_option_locked=0 ;;
@@ -2315,7 +2314,7 @@ makepkg_chroot_clean() {
 
 	local CHROOT_DIR="$CHROOT_BASEDIR/$CHROOT_NAME"
 
-	if [ $destroy -eq 0 ]; then
+	if [ "$_option_destroy" -eq 0 ]; then
 		if [ "$_option_locked" -eq 1 ]; then
 			makepkg_chroot_lock -- "$CHROOT_NAME" makepkg_chroot_clean --unlocked "${args[@]}"
 			return $?
