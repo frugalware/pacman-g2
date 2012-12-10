@@ -1688,6 +1688,39 @@ _makepkg_buildscript_sources_download() {
 	done
 }
 
+_makepkg_buildscript_changelog() {
+	local indir=n
+
+	if [ -e Changelog -a Changelog -nt "$BUILDSCRIPT" ]; then
+		msg "Generating the Changelog... (Skipping, up to date)"
+		return 0
+	fi
+
+	if [ "$F_makepkg_scm" = "git" ]; then
+		git rev-parse --git-dir &>/dev/null && indir=y
+	elif [ "$F_makepkg_scm" = "darcs" ]; then
+		darcs --commands 2>&1|grep -q add && indir=y
+	elif [ "$F_makepkg_scm" = "svn" ]; then
+		svn info "$BUILDSCRIPT" &>/dev/null && indir=y
+	fi
+	if [ "$indir" = "y" ]; then
+		msg "Generating the Changelog..."
+		if [ "$F_makepkg_scm" = "git" ]; then
+			git log "$BUILDSCRIPT" >Changelog
+		elif [ "$F_makepkg_scm" = "darcs" ]; then
+			darcs changes "$BUILDSCRIPT" | \
+				sed "s|\(.*\)source/\(.*\)/$BUILDSCRIPT\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" \
+				>Changelog
+		elif [ "$F_makepkg_scm" = "svn" ]; then
+			svn log "$BUILDSCRIPT" >Changelog
+		fi
+		if [ "`id -u`" = "0" ]; then
+			chown `stat -c %u:%g "$BUILDSCRIPT"` \
+				Changelog
+		fi
+	fi
+}
+
 _makepkg_buildscript_load() {
 	local i
 
@@ -1874,7 +1907,8 @@ makepkg_buildscript_usage() {
 	$ECHO "Options for sources command:"
 	$ECHO "  -f, --force            Skip the sanity checks"
 	$ECHO "  -h, --help             This help"
-	$ECHO "      --nodepends        Do not resolve depends"
+	$ECHO "      --changelog        Generate the Changelog"
+	$ECHO "      --nodepends        Do not resolve depends before executing COMMAND"
 	$ECHO "      --up2date          Check if source are up2date before executing the command"
 	$ECHO
 	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
@@ -1883,6 +1917,7 @@ makepkg_buildscript_usage() {
 makepkg_buildscript() {
 	local _option_force=0
 	local _option_depends=1
+	local _option_changelog=0
 	local _option_up2date=0
 	local cmd consumed i
 
@@ -1912,6 +1947,7 @@ makepkg_buildscript() {
 		case "$1" in
 		-f|--force)		_option_force=1 ;;
 		-h|--help)		makepkg_buildscript_usage; return 0 ;;
+		--changelog)		_option_changelog=1 ;;
 		--nodepends)		_option_depends=0 ;;
 		--up2date)		_option_up2date=1 ;;
 # special options
@@ -1968,7 +2004,12 @@ makepkg_buildscript() {
 			fi
 		fi
 	fi
-	_makepkg_buildscript_sources_download
+
+	#_makepkg_buildscript_sources_download
+
+	if [ "$_option_changelog" -eq 1 ]; then
+		_makepkg_buildscript_changelog
+	fi
 
 	if [ "$_option_depends" -eq 1 ]; then
 		# Handle make depends
