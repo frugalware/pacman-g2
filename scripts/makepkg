@@ -1055,6 +1055,7 @@ makepkg_document() {
 		-or -name GPLLicense \
 		\) -exec install -pm 644 '{}' pkg/usr/share/doc/$pkgname-$pkgver/ \;
 }
+_P_postbuild_hooks+=(makepkg_document)
 
 makepkg_build_usage() {
 	$ECHO "makepkg"
@@ -1475,10 +1476,16 @@ _makepkg_buildscript_build() {
 	pkg_rmdirs
 	pkg_mkdirs
 
+	for hook in "${_P_prebuild_hooks[@]}"; do
+		"$hook"
+	done
+
 	# In a subshell so makepkg env is not altered
 	( buildenv_build )
 
-	makepkg_document
+	for hook in "${_P_postbuild_hooks[@]}"; do
+		"$hook"
+	done
 
 	# NOTE: _P_subpkgsfixes hook registration order is important.
 	#if ! check_option NOREMOVEEMPTYDIR; then
