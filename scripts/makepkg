@@ -633,54 +633,6 @@ buildenv_depends_validate() {
 	fi
 }
 
-buildenv_build() {
-	local stime totaltime pkgsbu
-
-	msg "Starting build()..."
-
-	# some applications (eg, blackbox) will not build with some languages
-	unset LC_ALL LANG
-
-	if [ "`check_option NOASNEEDED`" ]; then
-		msg "Using --no-as-needed in LDFLAGS"
-		LDFLAGS+=" -Wl,--no-as-needed"
-	else
-		if [ "`check_option ASNEEDED`" ]; then
-			msg "Using --as-needed in LDFLAGS"
-			LDFLAGS+=" -Wl,--as-needed"
-		fi
-	fi
-	export LDFLAGS
-
-	stime=`date +%s`
-	build
-	if [ $? -gt 0 ]; then
-		error "Build Failed.  Aborting..."
-		exit 2
-	fi
-
-	if [ -n "`find . -name "*|*"`" ]; then
-		error "Filenames in a package must not contain pipes!"
-		exit 2
-	fi
-
-	# count sbu
-	if [ "$SBU" == "1" ]; then
-		# $SBU not yet set
-		totaltime="$(( $(date +%s) - $stime ))"
-		if [ -z "$HRBT" ]; then 
-			msg "Elapsed Time: $totaltime seconds"
-		else
-			msg "Elapsed Time:$(seconds_to_human_duration "$totaltime")"
-		fi
-	elif [ ! -z "$SBU" ]; then
-		if find_executable bc 'Cannot count SBU!'; then
-			pkgsbu=`$ECHO -e "scale=2\n$(($(date +%s)-$stime))/$SBU"|bc /dev/stdin|sed 's/^\./0./'`
-			msg "Elapsed Time: $pkgsbu SBU"
-		fi
-	fi
-}
-
 pkg_foreach() {
 	local hook package_name 
 
@@ -1005,57 +957,6 @@ makepkg_prepare_sources() {
 	fi
 	msg "Sources are ready."
 }
-
-# FIXME: This code rely on "$startdir/pkg/" path
-makepkg_document() {
-
-	if [ "`check_option NODOCS`" -o "$NODOCS" = "1" ]; then
-		_P_subpkgsfixes+=(_pkg_remove_documentation_hook)
-		return 0
-	fi
-
-	msg "Preparing package documentation..."
-
-	cd $startdir
-	mkdir -p pkg/usr/share/doc/$pkgname-$pkgver
-	find src -maxdepth 2 -size +0b \( \
-		    -name ANNOUNCE \
-		-or -name AUTHORS \
-	  	-or -name '*BUGS*' \
-		-or -name CHANGES \
-		-or -name CONFIGURATION \
-		-or -name '*COPYING*' \
-		-or -name '*COPYRIGHT*' \
-		-or -name CREDITS \
-		-or -name ChangeLog \
-		-or -name Changelog \
-		-or -name CHANGELOG \
-		-or -name CONTRIBUTORS \
-		-or -name '*FAQ*' \
-		-or -name FEATURES \
-		-or -name FILES \
-		-or -name HACKING \
-		-or -name History \
-		-or -name HISTORY \
-		-or -name 'INSTALL*' \
-		-or -name LICENSE \
-		-or -name LSM \
-		-or -name MANIFEST \
-		-or -name NEWS \
-		-or -name '*README*' \
-		-or -name '*Readme*' \
-		-or -name SITES \
-		-or -name '*RELEASE*' \
-		-or -name RELNOTES \
-		-or -name THANKS \
-		-or -name TIPS \
-		-or -name TODO \
-		-or -name VERSION \
-		-or -name 'CONFIGURATION*' \
-		-or -name GPLLicense \
-		\) -exec install -pm 644 '{}' pkg/usr/share/doc/$pkgname-$pkgver/ \;
-}
-_P_postbuild_hooks+=(makepkg_document)
 
 makepkg_build_usage() {
 	$ECHO "makepkg"
@@ -1469,24 +1370,12 @@ _makepkg_buildscript_changelog() {
 	fi
 }
 
-_makepkg_buildscript_build() {
-	declare -gr _P_build_date=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
-	msg "Making package: $pkgname $pkgver-$pkgrel (${_P_build_date})"
-
+_makepkg_buildscript_packages_init() {
 	pkg_rmdirs
 	pkg_mkdirs
+}
 
-	for hook in "${_P_prebuild_hooks[@]}"; do
-		"$hook"
-	done
-
-	# In a subshell so makepkg env is not altered
-	( buildenv_build )
-
-	for hook in "${_P_postbuild_hooks[@]}"; do
-		"$hook"
-	done
-
+_makepkg_buildscript_packages_fini() {
 	# NOTE: _P_subpkgsfixes hook registration order is important.
 	#if ! check_option NOREMOVEEMPTYDIR; then
 		_P_subpkgsfixes+=(_pkg_removeemptydirs_hook)
@@ -1499,6 +1388,59 @@ _makepkg_buildscript_build() {
 	_P_subpkgsfixes+=(_pkg_check_links)
 	_P_subpkgsfixes+=(create_pkg)
 	pkg_foreach "${_P_subpkgsfixes[@]}"
+}
+
+_makepkg_buildscript_realbuild() {
+	local stime totaltime pkgsbu
+
+	msg "Starting build()..."
+
+	stime=`date +%s`
+	build
+
+	if [ $? -gt 0 ]; then
+		error "Build Failed.  Aborting..."
+		exit 2
+	fi
+
+	if [ -n "`find . -name "*|*"`" ]; then
+		error "Filenames in a package must not contain pipes!"
+		exit 2
+	fi
+
+	# count sbu
+	if [ "$SBU" == "1" ]; then
+		# $SBU not yet set
+		totaltime="$(( $(date +%s) - $stime ))"
+		if [ -z "$HRBT" ]; then 
+			msg "Elapsed Time: $totaltime seconds"
+		else
+			msg "Elapsed Time:$(seconds_to_human_duration "$totaltime")"
+		fi
+	elif [ ! -z "$SBU" ]; then
+		if find_executable bc 'Cannot count SBU!'; then
+			pkgsbu=`$ECHO -e "scale=2\n$(($(date +%s)-$stime))/$SBU"|bc /dev/stdin|sed 's/^\./0./'`
+			msg "Elapsed Time: $pkgsbu SBU"
+		fi
+	fi
+}
+
+_makepkg_buildscript_build() {
+	local _hook
+	local _hooks=( \
+		_makepkg_buildscript_packages_init \
+		"${_P_prebuild_hooks[@]}" \
+		_makepkg_buildscript_realbuild \
+		"${_P_postbuild_hooks[@]}" \
+		_makepkg_buildscript_packages_fini \
+	)
+
+	declare -gr _P_build_date=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
+	msg "Making package: $pkgname $pkgver-$pkgrel (${_P_build_date})"
+
+	for _hook in "${hooks[@]}"; do
+		"$_hook"
+	done
 
 	msg "Finished making: $pkgname (`date`)"
 }
@@ -3186,8 +3128,76 @@ makepkg() {
 }
 
 #
-# Package fixes that may go to a library (user helpers)
+# Hooks that may go to a library (user helpers)
 #
+
+_environment_setup() {
+	# some applications (eg, blackbox) will not build with some languages
+	unset LC_ALL LANG
+
+	if [ "`check_option NOASNEEDED`" ]; then
+		msg "Using --no-as-needed in LDFLAGS"
+		LDFLAGS+=" -Wl,--no-as-needed"
+	else
+		if [ "`check_option ASNEEDED`" ]; then
+			msg "Using --as-needed in LDFLAGS"
+			LDFLAGS+=" -Wl,--as-needed"
+		fi
+	fi
+	export LDFLAGS
+}
+_P_prebuild_hooks+=(_environment_setup)
+
+# FIXME: This code rely on "$startdir/pkg/" path
+makepkg_document() {
+
+	if [ "`check_option NODOCS`" -o "$NODOCS" = "1" ]; then
+		_P_subpkgsfixes+=(_pkg_remove_documentation_hook)
+		return 0
+	fi
+
+	msg "Preparing package documentation..."
+
+	cd $startdir
+	mkdir -p pkg/usr/share/doc/$pkgname-$pkgver
+	find src -maxdepth 2 -size +0b \( \
+		    -name ANNOUNCE \
+		-or -name AUTHORS \
+	  	-or -name '*BUGS*' \
+		-or -name CHANGES \
+		-or -name CONFIGURATION \
+		-or -name '*COPYING*' \
+		-or -name '*COPYRIGHT*' \
+		-or -name CREDITS \
+		-or -name ChangeLog \
+		-or -name Changelog \
+		-or -name CHANGELOG \
+		-or -name CONTRIBUTORS \
+		-or -name '*FAQ*' \
+		-or -name FEATURES \
+		-or -name FILES \
+		-or -name HACKING \
+		-or -name History \
+		-or -name HISTORY \
+		-or -name 'INSTALL*' \
+		-or -name LICENSE \
+		-or -name LSM \
+		-or -name MANIFEST \
+		-or -name NEWS \
+		-or -name '*README*' \
+		-or -name '*Readme*' \
+		-or -name SITES \
+		-or -name '*RELEASE*' \
+		-or -name RELNOTES \
+		-or -name THANKS \
+		-or -name TIPS \
+		-or -name TODO \
+		-or -name VERSION \
+		-or -name 'CONFIGURATION*' \
+		-or -name GPLLicense \
+		\) -exec install -pm 644 '{}' pkg/usr/share/doc/$pkgname-$pkgver/ \;
+}
+_P_postbuild_hooks+=(makepkg_document)
 
 _pkg_perl_cleanup_hook() {
 	msg "$1: Removing unwanted perl files..."
