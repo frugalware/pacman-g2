@@ -1090,7 +1090,6 @@ makepkg_build_usage() {
 	$ECHO "  -t <tree>        Use the given tree's chroot to build in"
 	$ECHO "  -w <destdir>     Write package to <destdir> instead of the working dir"
 	$ECHO "  -z <compression> Use compression program for a package (instead of $PKG_COMP_DEFAULT)"
-	$ECHO "  --nobuildlog     Do not generate the build log"
 	$ECHO
 	$ECHO "These options can be passed to pacman-g2:"
 	$ECHO
@@ -1106,7 +1105,6 @@ makepkg_build_usage() {
 }
 
 makepkg_build() {
-	local _option_buildlog=1
 	local ccache_clean=0
 	local consumed
 
@@ -1145,7 +1143,6 @@ makepkg_build() {
 		-u|--noup2date)		NOUP2DATE=1 ;;
 		-w)			PKGDEST="$2"; consumed=2 ;;
 		-z)			PKG_COMP="$2"; consumed=2 ;;
-		--nobuildlog)		_option_buildlog=0 ;;
 # compatibility
 		--gzip)			PKG_COMP="gzip" ;;
 # internal
@@ -1180,24 +1177,6 @@ makepkg_build() {
 	if [ "$ccache_clean" -gt 0 ]; then
 		makepkg_ccache --cleanup
 		exit $?
-	fi
-
-	if [ "$_option_buildlog" -eq 1 ]; then
-		BUILDLOG="${startdir}/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log"
-
-		makepkg build --nobuildlog "${_args[@]}" 2>&1 | tee "$BUILDLOG"
-		ret=$?
-
-		if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
-			# remove colors
-			sed -i "s|.[1;[0-9]\+m||g" "$BUILDLOG"
-		fi
-		# copy build log to LOGDIR if set
-		if [ -d "$LOGDIR" ]; then
-			msg "Creating permanent copy of build log"
-			cp "${BUILDLOG}" "${LOGDIR}/${LOGDIR_APPEND}-${pkgname}-${pkgver}-${pkgrel}.log"
-		fi
-		return ret
 	fi
 
 	INCHROOT="${INCHROOT:-0}"
@@ -1708,6 +1687,7 @@ makepkg_buildscript_usage() {
 	$ECHO "  -f, --force            Skip the sanity checks"
 	$ECHO "  -h, --help             This help"
 	$ECHO "      --changelog        Generate the Changelog"
+	$ECHO "      --nobuildlog       Do not generate the build log"
 	$ECHO "      --nodepends        Do not resolve depends before executing COMMAND"
 	$ECHO "      --up2date          Check if source are up2date before executing the command"
 	$ECHO
@@ -1715,11 +1695,12 @@ makepkg_buildscript_usage() {
 }
 
 makepkg_buildscript() {
+	local _option_changelog=0
+	local _option_buildlog=1
 	local _option_force=0
 	local _option_depends=1
-	local _option_changelog=0
 	local _option_up2date=0
-	local cmd consumed i
+	local cmd consumed i ret
 
 	local -r buildscript_vars=(
 		_P_options \
@@ -1748,6 +1729,7 @@ makepkg_buildscript() {
 		-f|--force)		_option_force=1 ;;
 		-h|--help)		makepkg_buildscript_usage; return 0 ;;
 		--changelog)		_option_changelog=1 ;;
+		--nobuildlog)		_option_buildlog=0 ;;
 		--nodepends)		_option_depends=0 ;;
 		--up2date)		_option_up2date=1 ;;
 # special options
@@ -1792,6 +1774,24 @@ makepkg_buildscript() {
 	else
 		error "Errors while loading buildscript '$BUILDSCRIPT'"
 		return 1
+	fi
+
+	if [ "$_option_buildlog" -eq 1 ]; then
+		BUILDLOG="${startdir}/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log"
+
+		makepkg build --nobuildlog "${_args[@]}" 2>&1 | tee "$BUILDLOG"
+		ret=$?
+
+		if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
+			# remove colors
+			sed -i "s|.[1;[0-9]\+m||g" "$BUILDLOG"
+		fi
+		# copy build log to LOGDIR if set
+		if [ -d "$LOGDIR" ]; then
+			msg "Creating permanent copy of build log"
+			cp "${BUILDLOG}" "${LOGDIR}/${LOGDIR_APPEND}-${pkgname}-${pkgver}-${pkgrel}.log"
+		fi
+		return ret
 	fi
 
 	if [ "$_option_force" -eq 0 ]; then
