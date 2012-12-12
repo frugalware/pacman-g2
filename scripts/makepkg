@@ -1903,7 +1903,7 @@ _makepkg_buildscript_load() {
 makepkg_buildscript_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 buildscript [OPTION]... [VARIABLE=VALUE]... [--] BUILDSCRIPT [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 buildscript [OPTION]... [--] BUILDSCRIPT [MAKEPKG_SHELL_ARG]..."
 	$ECHO
 	$ECHO "Options for sources command:"
 	$ECHO "  -f, --force            Skip the sanity checks"
@@ -1962,7 +1962,6 @@ makepkg_buildscript() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
@@ -2029,7 +2028,7 @@ makepkg_buildscript() {
 		#cmd+=(--remove)
 	fi
 	if [ ${#cmd[@]} -eq 0 ]; then
-		cmd+=(makepkg shell --)
+		cmd+=(makepkg shell)
 	fi
 	"${cmd[@]}" "$@"
 	return $?
@@ -2038,8 +2037,8 @@ makepkg_buildscript() {
 makepkg_ccache_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 ccache [OPTION]... [VARIABLE=VALUE]... [--] [CCACHE_ARG]..."
-	$ECHO "Usage: $0 ccache [OPTION]... [VARIABLE=VALUE]... [--] [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 ccache [OPTION]... [--] [CCACHE_ARG]..."
+	$ECHO "Usage: $0 ccache [OPTION]... [--] [MAKEPKG_SHELL_ARG]..."
 	$ECHO
 	$ECHO "Options for ccache command:"
 	$ECHO "  -f, --force            Skip the sanity checks"
@@ -2608,7 +2607,7 @@ makepkg_chroot_unlock() {
 makepkg_depends_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 depends [OPTION]... [VARIABLE=VALUE]... [--] [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 depends [OPTION]... [--] [MAKEPKG_SHELL_ARG]..."
 	$ECHO
 	$ECHO "Options for depends command:"
 	$ECHO "  -f, --force            Skip the sanity checks"
@@ -2618,8 +2617,6 @@ makepkg_depends_usage() {
 	$ECHO "  -r, --remove           Remove installed package when living"
 	$ECHO "  -u, --update           Update the installation"
 	$ECHO "      --noscriptlet	Disable scriplet while using pacman-g2"
-	$ECHO
-	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
 }
 
 makepkg_depends() {
@@ -2778,14 +2775,12 @@ _makepkg_file_unlock() {
 makepkg_file_lock_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 file_lock [OPTION]... [VARIABLE=VALUE]... [--] LOCK_FILE [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 file_lock [OPTION]... [--] LOCK_FILE [MAKEPKG_SHELL_ARG]..."
 	$ECHO
 	$ECHO "Options for chroot command:"
 	$ECHO "  -a, --alias            Lock to held while LOCK_FILE is held"
 	$ECHO "  -h, --help             This help"
 	$ECHO "  -p, --parent           Parent lock to be held until LOCK_FILE is held"
-	$ECHO
-	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
 }
 
 # FIXME: Reimplement in C with O_EXCL
@@ -2817,7 +2812,6 @@ makepkg_file_lock() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
@@ -2935,7 +2929,6 @@ makepkg_shell() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
@@ -3060,7 +3053,7 @@ makepkg_usage() {
 
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 [OPTION]... [VARIABLE=VALUE]... [--] [COMMAND] [COMMAND_OPTION]..."
+	$ECHO "Usage: $0 [OPTION]... [VARIABLE=VALUE]... [--] [COMMAND] [COMMAND_ARG]..."
 	$ECHO
 	$ECHO "Command can be any of the following:"
 	for i in "${_makepkg_commands[@]}"; do
