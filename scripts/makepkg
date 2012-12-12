@@ -286,35 +286,6 @@ chroot_unlock() {
 	rm -f $CHROOTDIR/var/tmp/fst/lock $_F_makepkg_pacconf
 }
 
-chroot_mount() {
-    msg "Attempting to mount chroot directories..."
-    mount -t proc none $CHROOTDIR/proc >/dev/null
-    mount -t sysfs none $CHROOTDIR/sys >/dev/null
-    mount -t devtmpfs none $CHROOTDIR/dev >/dev/null
-    mount -o bind /var/cache/pacman-g2 $CHROOTDIR/var/cache/pacman-g2 >/dev/null
-    mount -o bind $CCACHE_BASEDIR/$pkgname \
-    $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
-    if [ "$?" != "0" ]; then
-	error "An error occurred while attempting to mount chroot directories."
-	exit 1
-    fi
-    msg "Successfully mounted chroot directories."
-}
-
-chroot_umount() {
-    msg "Attempting to umount chroot directories..."
-    umount $CHROOTDIR/proc >/dev/null
-    umount $CHROOTDIR/sys >/dev/null
-    umount $CHROOTDIR/dev >/dev/null
-    umount $CHROOTDIR/var/cache/pacman-g2 >/dev/null
-    umount $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
-    if [ "$?" != "0" ]; then
-	error "An error occurred while attempting to umount chroot directories."
-	exit 1
-    fi
-    msg "Successfully umounted chroot directories."
-}
-
 chroot_size() {
 	exclude="--exclude=/proc --exclude=/sys --exclude=/dev"
 	exclude="$exclude --exclude=$PACMAN_CACHEDIR --exclude=/var/cache/ccache/$pkgname"
@@ -352,168 +323,6 @@ chroot_clean()
 			exit 1
 		fi
 	fi
-}
-
-chroot_enter() {
-	if [ "$CHROOT" -ne 1 -o "$INCHROOT" -eq 1 ]; then
-		return 0
-	fi
-	if [ "`id -u`" != 0 ]; then
-		error "Building in a chroot as an unprivileged user is not possible."
-		exit 1
-	fi
-	CHROOTDIR="$CHROOTDIR/$TREE"
-
-	mkdir -p $CHROOTDIR/{dev,etc,proc,sys,var/cache/pacman-g2,var/tmp/fst}
-
-	chroot_lock
-
-	install -d -m 2775 {$CCACHE_BASEDIR,$CHROOTDIR/var/cache/ccache}/$pkgname
-
-	chroot_mount
-
-	if [ ! -d "$CHROOTDIR/usr" -o ! -e "$CHROOTDIR/etc/pacman-g2.conf" ]; then
-		msg "Building a '-$TREE' chroot environment"
-		_F_makepkg_pacconf=`mktemp`
-		cat /etc/pacman-g2.conf |grep -v Include >$_F_makepkg_pacconf
-		for i in `$ECHO $TREE|sed 's/,/ /g'`
-		do
-			repo=$(eval "$ECHO \${${i}_$DB_EXT/.$DB_EXT}")
-			[ -z "$repo" ] && repo="$i"
-			# the config parser doesn't know about -r, so we
-			# need $CHROOTDIR here for this first run
-			$ECHO "Include = $CHROOTDIR/etc/pacman-g2/repos/$repo" >>$_F_makepkg_pacconf
-		done
-		mkdir -p $CHROOTDIR/{tmp,var/log,etc/pacman-g2/repos}
-		cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
-		if [ -d ~/.pacman-g2/repos ]; then
-			cp -pf ~/.pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
-		fi
-		$PACMAN -r "$CHROOTDIR" -Syf $COREPKGS --noconfirm --config $_F_makepkg_pacconf
-		if [ "$?" != "0" ]; then
-			error "Failed to build chroot environment."
-			chroot_umount
-			chroot_unlock
-			exit 1
-		fi
-		cat $_F_makepkg_pacconf > $CHROOTDIR/etc/pacman-g2.conf
-		# later runs use 'chroot pacman-g2' instead of
-		# 'pacman-g2 -r', so get rid of $CHROOTDIR
-		sed -i "s|$CHROOTDIR||" $CHROOTDIR/etc/pacman-g2.conf
-		rm -f $_F_makepkg_pacconf
-	else
-		msg "Updating the '-$TREE' chroot environment"
-		# copy these before any update since without them we can't even reach the servers
-		cp -pf /etc/{resolv.conf,services} $CHROOTDIR/etc
-		# run pacman-g2 -Su twice in case pacman-g2 updated
-		yes "" | /usr/sbin/chroot "$CHROOTDIR" $PACMAN -Sy pacman-g2 --ask 94 && \
-			/usr/sbin/chroot "$CHROOTDIR" $PACMAN -Su --noconfirm
-		if [ "$?" != "0" ]; then
-			error "Failed to update chroot environment."
-			chroot_umount
-			chroot_unlock
-			exit 1
-		fi
-	fi
-	# why is this necessary?
-	chmod 1777 $CHROOTDIR/{var,}/tmp
-
-	msg "Copying config files to chroot"
-	cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
-	if [ -d ~/.pacman-g2/repos ]; then
-		cp -pf ~/.pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
-	fi
-	# mtab can be removed once Frugalware-1.4 is out
-	for i in makepkg.conf resolv.conf passwd shadow group fstab mtab
-	do
-		if [ -h $CHROOTDIR/etc/$i ]; then
-			# it's a symlink, don't touch it
-			continue
-		fi
-		cp -pf /etc/$i $CHROOTDIR/etc >/dev/null
-		if [ -e $HOME/.$i ]; then
-			cp $HOME/.$i $CHROOTDIR/etc/$i >/dev/null
-		fi
-	done
-	chmod 644 $CHROOTDIR/etc/sudoers
-	$ECHO "fst ALL=(ALL)       NOPASSWD: ALL" >$CHROOTDIR/etc/sudoers
-	chmod 440 $CHROOTDIR/etc/sudoers
-	chmod 644 $CHROOTDIR/etc/pacman-g2.conf
-	cp -Ppf /etc/localtime $CHROOTDIR/etc >/dev/null
-	cp -pf /etc/services $CHROOTDIR/etc > /dev/null
-	if [ "$?" != "0" ]; then
-		error "An error occurred while attempting to copy config files to chroot."
-		chroot_umount
-		exit 1
-	fi
-	# to make Finclude work
-	[ -d $CHROOTDIR/var/tmp/fst/include/ ] || mkdir -p $CHROOTDIR/var/tmp/fst/include/
-	if [ -d $Fincdir ]; then
-		cp $Fincdir/* $CHROOTDIR/var/tmp/fst/include/
-	fi
-
-	msg "Copying $pkgname's buildscript to chroot"
-	cp -a * $CHROOTDIR/var/tmp/fst/
-	chown -R fst:users $CHROOTDIR/var/tmp/fst
-
-	if find_executable /usr/sbin/chroot; then
-		msg "Entering chroot environment"
-		BUILDLOG=${startdir}/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
-		if [ ! "`check_option NOFAKEROOT`" ]; then
-			# add the fst user in case the host system is not a Frugalware one
-			if ! getent passwd fst >/dev/null; then
-				echo "fst:x:19:2::/var/tmp/fst:" >> $CHROOTDIR/etc/passwd
-			fi
-			# add fst to the ccache group if necessary
-			if ! getent group ccache|grep -q fst; then
-				/usr/sbin/chroot $CHROOTDIR \
-					/usr/sbin/usermod -a -G ccache fst
-			fi
-			/usr/sbin/chroot $CHROOTDIR /usr/sbin/pwconv
-			/usr/sbin/chroot $CHROOTDIR \
-				/bin/su - fst -c "fakeroot -- $0 -F --inchroot -S $ARGLIST"
-		else
-			$ECHO "cd /var/tmp/fst/; $0 --inchroot -s $ARGLIST" | \
-				/usr/sbin/chroot $CHROOTDIR /bin/su - -c /bin/sh
-		fi 2>&1 | tee $BUILDLOG
-		if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
-			# remove colors
-			sed -i "s|.[1;[0-9]\+m||g" $BUILDLOG
-		fi
-	fi
-
-	if [ "`id -u`" = "0" ]; then
-		chown `stat -c %u:%g $BUILDSCRIPT` \
-			${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
-	fi
-
-	if [ -f "$CHROOTDIR/var/tmp/fst/${_P_package_archives["${pkgname}"]}" ]; then
-		mv $CHROOTDIR/var/tmp/fst/*-"${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT" "$PKGDEST"
-		if [ "`id -u`" = "0" ]; then
-			chown `stat -c %u:%g $BUILDSCRIPT` \
-				*-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT
-		fi
-		# copy back the buildscript, maybe modified
-		cp $CHROOTDIR/var/tmp/fst/$BUILDSCRIPT ./
-		if [ "$CLEANUP" != "1" ]; then
-			mv $CHROOTDIR/var/tmp/fst/{pkg,src,pkg.*} ./ 2> /dev/null
-			chown -R `stat -c %u:%g $BUILDSCRIPT` pkg src pkg.* 2> /dev/null
-		fi
-		rm -rf $CHROOTDIR/var/tmp/fst/*
-		chroot_clean
-		# copy build log to LOGDIR if set
-		if [ -d "$LOGDIR" ]; then
-			msg "Creating permanent copy of build log"
-			cp "${BUILDLOG}" "${LOGDIR}/${LOGDIR_APPEND}-${pkgname}-${pkgver}-${pkgrel}.log"
-		fi
-		ret=0
-	else
-		ret=1
-	fi
-
-	chroot_umount
-	chroot_unlock
-	exit $ret
 }
 
 # Enter the fakeroot environment if necessary.  This will call the makepkg script again
@@ -598,36 +407,6 @@ buildscript_estimation () {
 			secs=`$ECHO "$pkgsbu*$SBU"|bc /dev/stdin|sed 's/\.[0-9]*$//'`
 			[ -z "$secs" ] && secs=0
 			msg "Estimated build time:$(seconds_to_human_duration "$secs")"
-		fi
-	fi
-}
-
-buildscript_create_changelog() {
-	local indir=n
-
-	if [ "$F_makepkg_scm" = "git" ]; then
-		git rev-parse --git-dir &>/dev/null && indir=y
-	elif [ "$F_makepkg_scm" = "darcs" ]; then
-		darcs --commands 2>&1|grep -q add && indir=y
-	elif [ "$F_makepkg_scm" = "svn" ]; then
-		svn info $BUILDSCRIPT &>/dev/null && indir=y
-	fi
-	if [ "$indir" = "y" ]; then
-		if [ ! -e Changelog ] || [ `stat -c %Y Changelog|sed 's/\..*//'` -lt `stat -c %Y $BUILDSCRIPT|sed 's/\..*//'` ]; then
-			msg "Generating the Changelog..."
-			if [ "$F_makepkg_scm" = "git" ]; then
-				git log $BUILDSCRIPT >Changelog
-			elif [ "$F_makepkg_scm" = "darcs" ]; then
-				darcs changes $BUILDSCRIPT | \
-					sed "s|\(.*\)source/\(.*\)/$BUILDSCRIPT\(.*\)|\1\2\3|;/Can't find changes prior to:/,\$d" \
-					>Changelog
-			elif [ "$F_makepkg_scm" = "svn" ]; then
-				svn log $BUILDSCRIPT >Changelog
-			fi
-			if [ "`id -u`" = "0" ]; then
-				chown `stat -c %u:%g $BUILDSCRIPT` \
-					Changelog
-			fi
 		fi
 	fi
 }
@@ -1431,7 +1210,7 @@ makepkg_parseargs() {
 makepkg_prepare_sources() {
 	# Generate the Changelog if necessary.
 	if [ "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
-		buildscript_create_changelog
+		_makepkg_buildscript_changelog
 	fi
 
 	if [ "$NOUP2DATE" -eq 0 ]; then
@@ -2417,12 +2196,274 @@ makepkg_chroot_create() {
 	CHROOT_NAME="$1"
 	shift
 
+	CHROOT_DIR="$CHROOT_BASEDIR/$CHROOT_NAME"
+
+	if [ "$_option_force" -eq 0 ]; then
+		if [ -v FAKEROOTKEY ]; then
+			error "Cowardly refuse to chroot while in fakeroot!"
+			return 1
+		fi
+		if [ ${#repo_list[@]} -eq 0 ]; then
+			error "Repository list empty."
+			return 1
+		fi
+		if [ "$_option_locked" -eq 1 ]; then
+			makepkg file_lock -- "$CHROOT_BASEDIR/.lock" makepkg chroot_create --unlocked "${args[@]}"
+			return $?
+		fi
+	fi
+
+	if [ -d "$CHROOT_DIR" ]; then
+		error "$CHROOT_NAME allready exist."
+		return 1
+	fi
+
+# 	for i in `$ECHO $CHROOT_NAME|sed 's/,/ /g'`
+# 	do
+# 		repo=$(eval "$ECHO \${${i}_$DB_EXT/.$DB_EXT}")
+# 		[ -z "$repo" ] && repo="$i"
+# 		# the config parser doesn't know about -r, so we
+# 		# need $CHROOT_DIR here for this first run
+# 		$ECHO "Include = $CHROOT_DIR/etc/pacman-g2/repos/$repo" >>$_F_makepkg_pacconf
+# 	done
+
+	msg "Building a '$CHROOT_NAME' chroot environment"
+
+	mkdir -p "$CHROOT_DIR"/{etc/pacman-g2/repos,var/log}
+
+	# Copy repositories in the chroot
+	cp -pf /etc/pacman-g2/repos/* $CHROOT_DIR/etc/pacman-g2/repos >/dev/null
+	if [ -d ~/.pacman-g2/repos ]; then
+		cp -pf ~/.pacman-g2/repos/* $CHROOT_DIR/etc/pacman-g2/repos >/dev/null
+	fi
+
+	_F_makepkg_pacconf="$(mktemp)"
+	cat /etc/pacman-g2.conf |grep -v Include >$_F_makepkg_pacconf
+	for i in "${repo_list[@]}"
+	do
+		if [ -f "$CHROOT_DIR/etc/pacman-g2/repos/$i" ]; then
+			# the config parser doesn't know about -r, so we
+			# need $CHROOT_DIR here for this first run
+			$ECHO "Include = $CHROOT_DIR/etc/pacman-g2/repos/$i" >>$_F_makepkg_pacconf
+		else
+			error "$i repository not found!"
+			rm -f "$_F_makepkg_pacconf"
+			return 1
+		fi
+	done
+
+	CHROOT_BIND_PATH="$CHROOT_BIND_PATH_DEFAULT" \
+	CHROOT_IMPORT_PATH="" \
+	makepkg chroot \
+		--force --nochroot -- "$CHROOT_NAME" \
+		"$PACMAN" -r "$CHROOT_DIR" -Syf $COREPKGS --noconfirm --config $_F_makepkg_pacconf
+	ret=$?
+
+	# Move pacman-g2.conf in the chroot
+	cat "$_F_makepkg_pacconf" > "$CHROOT_DIR"/etc/pacman-g2.conf
+	# later runs use 'chroot pacman-g2' instead of
+	# 'pacman-g2 -r', so get rid of $CHROOT_DIR
+	sed -i "s|$CHROOT_DIR||" "$CHROOT_DIR"/etc/pacman-g2.conf
+	rm -f "$_F_makepkg_pacconf"
+
+	if [ $ret -ne 0 ]; then
+		error "Failed to build chroot environment."
+		return 1
+	fi
+	return $ret
+}
+
+makepkg_chroot_enter_usage() {
+	$ECHO "makepkg"
+	$ECHO
+	$ECHO "Usage: $0 chroot_enter [OPTION]... [VARIABLE=VALUE]... [--] CHROOT_NAME [COMMAND [ARG]...]"
+	$ECHO
+	$ECHO "Options for chroot_enter command:"
+	$ECHO "  -f, --force            Skip the sanity checks"
+	$ECHO "  -h, --help             This help"
+	$ECHO "  -u, --unlocked         Do not lock CHROOT_DIR, result may be inacurate"
+	$ECHO
+	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
+}
+
+makepkg_chroot_enter() {
+	local _option_force=0
+	local _option_locked=1
+	local cmd consumed i ret
+
+	local args=("$@")
+
+	while [ $# -gt 0 ]; do
+		consumed=1
+		case "$1" in
+		-f|--force)		_option_force=1 ;;
+		-h|--help)		makepkg_chroot_usage; return 0 ;;
+		-u|--unlocked)		_option_locked=0 ;;
+# special options
+		--)			shift; break ;; # End of options
+		--*|-?)			makepkg_chroot_usage; return 1 ;;
+		-*)			# Combined short options
+					split="$1"
+					shift
+					set -- \
+						"$(echo "$split}" | cut -c -2)" \
+						"-$(echo "${split}" | cut -c 3-)" \
+						"$@"
+					continue ;;
+		*=*)			export "$1" ;;
+		*)			break ;; # End of options
+		esac
+		if ! shift "$consumed"; then
+			consumed=$(($consumed - 1))
+			error "Option $1 expects $consumed argument(s)"
+			return 1
+		fi
+	done
+
+	if [ ! -v CHROOT_BASEDIR ]; then
+		error "CHROOT_BASEDIR is not defined"
+		return 1
+	fi
+
+	if [ $# -eq 0 ]; then
+		error "Argument CHROOT_NAME is missing"
+		return 1
+	fi
+	local CHROOT_NAME="$1"
+	shift
+
+	CHROOT_DIR="$CHROOT_BASEDIR/$CHROOT_NAME"
+
+	if [ "$_option_force" -eq 0 ]; then
+		if [ "$(id -u)" != 0 ]; then
+			error "Building in a chroot as an unprivileged user is not possible."
+			return 1
+		fi
+		if [ "$_option_locked" -eq 1 ]; then
+			makepkg file_lock --parent "$CHROOT_BASEDIR/.lock" -- "$CHROOT_DIR/.lock" makepkg chroot_enter --unlocked "${args[@]}"
+			return $?
+		fi
+	fi
+
+	if [ ! -d "$CHROOT_DIR" ]; then
+		makepkg chroot_create --unlocked -- "$CHROOT_NAME"
+		ret=$?
+		if [ $ret -ne 0 ]; then
+			return $?
+		fi
+	fi
+
+	msg "Copying config files to chroot"
+	cp -a /etc/pacman-g2/repos/* "$CHROOT_DIR"/etc/pacman-g2/repos >/dev/null
+	if [ -d ~/.pacman-g2/repos ]; then
+		cp -a ~/.pacman-g2/repos/* "$CHROOT_DIR"/etc/pacman-g2/repos >/dev/null
+	fi
+
+#	chmod 644 "$CHROOT_DIR"/etc/sudoers
+#	$ECHO "fst ALL=(ALL)       NOPASSWD: ALL" >"$CHROOT_DIR"/etc/sudoers
+
+#	# to make Finclude work
+#	[ -d "$CHROOT_DIR"/var/tmp/fst/include/ ] || mkdir -p "$CHROOT_DIR"/var/tmp/fst/include/
+#	if [ -d $Fincdir ]; then
+#		cp $Fincdir/* "$CHROOT_DIR"/var/tmp/fst/include/
+#	fi
+
+#	msg "Copying $pkgname's buildscript to chroot"
+#	cp -a * "$CHROOT_DIR"/var/tmp/fst/
+#	chown -R fst:users "$CHROOT_DIR"/var/tmp/fst
+
+	cmd+=(makepkg chroot)
+#	for i in "${bind_list[@]}"; do
+#		cmd+=(--bind "$i")
+#	done
+#	for i in "${_option_imports[@]}"; do
+#		cmd+=(--import "$i")
+#	done
+	cmd+=(--unlocked -- "$CHROOT_NAME")
+	#	"$PACMAN" -r "$CHROOT_DIR" -Syf $COREPKGS --noconfirm --config $_F_makepkg_pacconf
+
+	cmd+=(makepkg depends --update --)
+
+	"${cmd[@]}"
+	ret=$?
+
+	return $ret
+
+	mkdir -p "$CHROOT_DIR"/{etc,var/tmp/fst}
+
+	install -d -m 2775 {$CCACHE_DIR,$CHROOT_DIR/var/cache/ccache}
+
+
+	# why is this necessary?
+	chmod 1777 "$CHROOT_DIR"/{var,}/tmp
+
+	if [ "$?" != "0" ]; then
+		error "An error occurred while attempting to copy config files to chroot."
+		return 1
+	fi
+
+
+	if find_executable /usr/sbin/chroot; then
+		msg "Entering chroot environment"
+		BUILDLOG=${startdir}/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
+		if [ ! "`check_option NOFAKEROOT`" ]; then
+			# add the fst user in case the host system is not a Frugalware one
+			if ! getent passwd fst >/dev/null; then
+				echo "fst:x:19:2::/var/tmp/fst:" >> "$CHROOT_DIR"/etc/passwd
+			fi
+			# add fst to the ccache group if necessary
+			if ! getent group ccache|grep -q fst; then
+				/usr/sbin/chroot "$CHROOT_DIR" \
+					/usr/sbin/usermod -a -G ccache fst
+			fi
+			/usr/sbin/chroot "$CHROOT_DIR" /usr/sbin/pwconv
+			/usr/sbin/chroot "$CHROOT_DIR" \
+				/bin/su - fst -c "fakeroot -- $0 -F --inchroot -S $ARGLIST"
+		else
+			$ECHO "cd /var/tmp/fst/; $0 --inchroot -s $ARGLIST" | \
+				/usr/sbin/chroot "$CHROOT_DIR" /bin/su - -c /bin/sh
+		fi 2>&1 | tee $BUILDLOG
+		if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
+			# remove colors
+			sed -i "s|.[1;[0-9]\+m||g" $BUILDLOG
+		fi
+	fi
+
+	if [ "`id -u`" = "0" ]; then
+		chown `stat -c %u:%g $BUILDSCRIPT` \
+			${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
+	fi
+
+	if [ -f "$CHROOT_DIR/var/tmp/fst/${_P_package_archives["${pkgname}"]}" ]; then
+		mv "$CHROOT_DIR"/var/tmp/fst/*-"${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT" "$PKGDEST"
+		if [ "`id -u`" = "0" ]; then
+			chown `stat -c %u:%g $BUILDSCRIPT` \
+				*-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT
+		fi
+		# copy back the buildscript, maybe modified
+		cp "$CHROOT_DIR/var/tmp/fst/$BUILDSCRIPT" ./
+		if [ "$CLEANUP" != "1" ]; then
+			mv "$CHROOT_DIR"/var/tmp/fst/{pkg,src,pkg.*} ./ 2> /dev/null
+			chown -R `stat -c %u:%g $BUILDSCRIPT` pkg src pkg.* 2> /dev/null
+		fi
+		rm -rf "$CHROOT_DIR"/var/tmp/fst/*
+		chroot_clean
+		# copy build log to LOGDIR if set
+		if [ -d "$LOGDIR" ]; then
+			msg "Creating permanent copy of build log"
+			cp "${BUILDLOG}" "${LOGDIR}/${LOGDIR_APPEND}-${pkgname}-${pkgver}-${pkgrel}.log"
+		fi
+		ret=0
+	else
+		ret=1
+	fi
+	return $ret
 }
 
 makepkg_chroot_list_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 chroot_list [OPTIONS]"
+	$ECHO "Usage: $0 chroot_list [OPTION]..."
 	$ECHO
 	$ECHO "Options for chroot_list command:"
 	$ECHO "  -h, --help             This help"
