@@ -978,6 +978,84 @@ repoman_loadconfig() {
 	fi
 }
 
+makepkg_prepare_sources() {
+	# Generate the Changelog if necessary.
+	if [ "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
+		_makepkg_buildscript_changelog
+	fi
+
+	if [ "$NOUP2DATE" -eq 0 ]; then
+		_makepkg_buildscript_up2date
+	fi
+	sources_download
+
+	if [ "$NOVALIDATE" -eq 1 ]; then
+		warning "Skipping source integrity checks -- using existing src/ tree"
+	else
+		sources_sha1sum_validate
+		sources_gpg_validate
+	fi
+
+	sources_sha1sum_generate
+	sources_extract
+
+	if [ "`id -u`" = "0" ]; then
+		# chown all source files to root.root
+		chown -R root.root $startdir/src
+	fi
+	msg "Sources are ready."
+}
+
+# FIXME: This code rely on "$startdir/pkg/" path
+makepkg_document() {
+
+	if [ "`check_option NODOCS`" -o "$NODOCS" = "1" ]; then
+		_P_subpkgsfixes+=(_pkg_remove_documentation_hook)
+		return 0
+	fi
+
+	msg "Preparing package documentation..."
+
+	cd $startdir
+	mkdir -p pkg/usr/share/doc/$pkgname-$pkgver
+	find src -maxdepth 2 -size +0b \( \
+		    -name ANNOUNCE \
+		-or -name AUTHORS \
+	  	-or -name '*BUGS*' \
+		-or -name CHANGES \
+		-or -name CONFIGURATION \
+		-or -name '*COPYING*' \
+		-or -name '*COPYRIGHT*' \
+		-or -name CREDITS \
+		-or -name ChangeLog \
+		-or -name Changelog \
+		-or -name CHANGELOG \
+		-or -name CONTRIBUTORS \
+		-or -name '*FAQ*' \
+		-or -name FEATURES \
+		-or -name FILES \
+		-or -name HACKING \
+		-or -name History \
+		-or -name HISTORY \
+		-or -name 'INSTALL*' \
+		-or -name LICENSE \
+		-or -name LSM \
+		-or -name MANIFEST \
+		-or -name NEWS \
+		-or -name '*README*' \
+		-or -name '*Readme*' \
+		-or -name SITES \
+		-or -name '*RELEASE*' \
+		-or -name RELNOTES \
+		-or -name THANKS \
+		-or -name TIPS \
+		-or -name TODO \
+		-or -name VERSION \
+		-or -name 'CONFIGURATION*' \
+		-or -name GPLLicense \
+		\) -exec install -pm 644 '{}' pkg/usr/share/doc/$pkgname-$pkgver/ \;
+}
+
 makepkg_build_usage() {
 	$ECHO "makepkg"
 	$ECHO
@@ -1012,6 +1090,7 @@ makepkg_build_usage() {
 	$ECHO "  -t <tree>        Use the given tree's chroot to build in"
 	$ECHO "  -w <destdir>     Write package to <destdir> instead of the working dir"
 	$ECHO "  -z <compression> Use compression program for a package (instead of $PKG_COMP_DEFAULT)"
+	$ECHO "  --nobuildlog     Do not generate the build log"
 	$ECHO
 	$ECHO "These options can be passed to pacman-g2:"
 	$ECHO
@@ -1026,9 +1105,12 @@ makepkg_build_usage() {
 	$ECHO "  --gzip           Use gzip compression for a package (See option: build -z <compression> )"
 }
 
-makepkg_parseargs() {
+makepkg_build() {
+	local _option_buildlog=1
 	local ccache_clean=0
 	local consumed
+
+	local _args=("$@")
 
 	while [ $# -gt 0 ]; do
 		consumed=1
@@ -1063,6 +1145,7 @@ makepkg_parseargs() {
 		-u|--noup2date)		NOUP2DATE=1 ;;
 		-w)			PKGDEST="$2"; consumed=2 ;;
 		-z)			PKG_COMP="$2"; consumed=2 ;;
+		--nobuildlog)		_option_buildlog=0 ;;
 # compatibility
 		--gzip)			PKG_COMP="gzip" ;;
 # internal
@@ -1097,6 +1180,24 @@ makepkg_parseargs() {
 	if [ "$ccache_clean" -gt 0 ]; then
 		makepkg_ccache --cleanup
 		exit $?
+	fi
+
+	if [ "$_option_buildlog" -eq 1 ]; then
+		BUILDLOG="${startdir}/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log"
+
+		makepkg build --nobuildlog "${_args[@]}" 2>&1 | tee "$BUILDLOG"
+		ret=$?
+
+		if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
+			# remove colors
+			sed -i "s|.[1;[0-9]\+m||g" "$BUILDLOG"
+		fi
+		# copy build log to LOGDIR if set
+		if [ -d "$LOGDIR" ]; then
+			msg "Creating permanent copy of build log"
+			cp "${BUILDLOG}" "${LOGDIR}/${LOGDIR_APPEND}-${pkgname}-${pkgver}-${pkgrel}.log"
+		fi
+		return ret
 	fi
 
 	INCHROOT="${INCHROOT:-0}"
@@ -1205,121 +1306,8 @@ makepkg_parseargs() {
 	fi
 	PKGDEST="$(pwd)"
 	cd "$OLDPWD"
-}
 
-makepkg_prepare_sources() {
-	# Generate the Changelog if necessary.
-	if [ "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
-		_makepkg_buildscript_changelog
-	fi
-
-	if [ "$NOUP2DATE" -eq 0 ]; then
-		_makepkg_buildscript_up2date
-	fi
-	sources_download
-
-	if [ "$NOVALIDATE" -eq 1 ]; then
-		warning "Skipping source integrity checks -- using existing src/ tree"
-	else
-		sources_sha1sum_validate
-		sources_gpg_validate
-	fi
-
-	sources_sha1sum_generate
-	sources_extract
-
-	if [ "`id -u`" = "0" ]; then
-		# chown all source files to root.root
-		chown -R root.root $startdir/src
-	fi
-	msg "Sources are ready."
-}
-
-_makepkg_build() {
-	if [ "$NOBUILD" -eq 1 ]; then
-		return 0
-	fi
-
-	declare -gr _P_build_date=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
-	msg "Making package: $pkgname $pkgver-$pkgrel (${_P_build_date})"
-
-	pkg_rmdirs
-	pkg_mkdirs
-
-	# In a subshell so makepkg env is not altered
-	( buildenv_build )
-
-	makepkg_document
-
-	# NOTE: _P_subpkgsfixes hook registration order is important.
-	#if ! check_option NOREMOVEEMPTYDIR; then
-		_P_subpkgsfixes+=(_pkg_removeemptydirs_hook)
-	#fi
-
-	if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
-		_P_subpkgsfixes+=(_pkg_strip_hook)
-	fi
-
-	_P_subpkgsfixes+=(_pkg_check_links)
-	_P_subpkgsfixes+=(create_pkg)
-	pkg_foreach "${_P_subpkgsfixes[@]}"
-
-	msg "Finished making: $pkgname  (`date`)"
-}
-
-# FIXME: This code rely on "$startdir/pkg/" path
-makepkg_document() {
-
-	if [ "`check_option NODOCS`" -o "$NODOCS" = "1" ]; then
-		_P_subpkgsfixes+=(_pkg_remove_documentation_hook)
-		return 0
-	fi
-
-	msg "Preparing package documentation..."
-
-	cd $startdir
-	mkdir -p pkg/usr/share/doc/$pkgname-$pkgver
-	find src -maxdepth 2 -size +0b \( \
-		    -name ANNOUNCE \
-		-or -name AUTHORS \
-	  	-or -name '*BUGS*' \
-		-or -name CHANGES \
-		-or -name CONFIGURATION \
-		-or -name '*COPYING*' \
-		-or -name '*COPYRIGHT*' \
-		-or -name CREDITS \
-		-or -name ChangeLog \
-		-or -name Changelog \
-		-or -name CHANGELOG \
-		-or -name CONTRIBUTORS \
-		-or -name '*FAQ*' \
-		-or -name FEATURES \
-		-or -name FILES \
-		-or -name HACKING \
-		-or -name History \
-		-or -name HISTORY \
-		-or -name 'INSTALL*' \
-		-or -name LICENSE \
-		-or -name LSM \
-		-or -name MANIFEST \
-		-or -name NEWS \
-		-or -name '*README*' \
-		-or -name '*Readme*' \
-		-or -name SITES \
-		-or -name '*RELEASE*' \
-		-or -name RELNOTES \
-		-or -name THANKS \
-		-or -name TIPS \
-		-or -name TODO \
-		-or -name VERSION \
-		-or -name 'CONFIGURATION*' \
-		-or -name GPLLicense \
-		\) -exec install -pm 644 '{}' pkg/usr/share/doc/$pkgname-$pkgver/ \;
-}
-
-makepkg_build() {
 	declare -r ARGLIST=$@ startdir="$(pwd)"
-	makepkg_parseargs "$@"
 	repoman_loadconfig
 
 	if [ "$INCHROOT" = "1" ]; then
@@ -1388,6 +1376,38 @@ makepkg_build() {
 	fi
 
 	install_pkg
+}
+
+_makepkg_build() {
+	if [ "$NOBUILD" -eq 1 ]; then
+		return 0
+	fi
+
+	declare -gr _P_build_date=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
+	msg "Making package: $pkgname $pkgver-$pkgrel (${_P_build_date})"
+
+	pkg_rmdirs
+	pkg_mkdirs
+
+	# In a subshell so makepkg env is not altered
+	( buildenv_build )
+
+	makepkg_document
+
+	# NOTE: _P_subpkgsfixes hook registration order is important.
+	#if ! check_option NOREMOVEEMPTYDIR; then
+		_P_subpkgsfixes+=(_pkg_removeemptydirs_hook)
+	#fi
+
+	if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
+		_P_subpkgsfixes+=(_pkg_strip_hook)
+	fi
+
+	_P_subpkgsfixes+=(_pkg_check_links)
+	_P_subpkgsfixes+=(create_pkg)
+	pkg_foreach "${_P_subpkgsfixes[@]}"
+
+	msg "Finished making: $pkgname  (`date`)"
 }
 
 _makepkg_buildscript_up2date() {
@@ -1905,7 +1925,7 @@ makepkg_chroot_usage() {
 
 makepkg_chroot() {
 	local _option_binds _unbinds
-	local _option_chroot=1 chroot_args
+	local _option_chroot=1 _chroot_args
 	local _option_force=0
 	local _option_imports
 	local _option_locked=1
@@ -1915,7 +1935,7 @@ makepkg_chroot() {
 	IFS=':' read -a _option_binds <<< "$CHROOT_BIND_PATH" # Use -r ?
 	IFS=':' read -a _option_imports <<< "$CHROOT_IMPORT_PATH" # Use -r ?
 
-	local args=("$@")
+	local _args=("$@")
 
 	while [ $# -gt 0 ]; do
 		consumed=1
@@ -1968,7 +1988,7 @@ makepkg_chroot() {
 			return 1
 		fi
 		if [ "$_option_locked" -eq 1 ]; then
-			makepkg chroot_lock -- "$CHROOT_NAME" makepkg chroot --unlocked "${args[@]}"
+			makepkg chroot_lock -- "$CHROOT_NAME" makepkg chroot --unlocked "${_args[@]}"
 			return $?
 		fi
 	fi
@@ -2008,11 +2028,11 @@ makepkg_chroot() {
 	if [ "$ret" -eq 0 ]; then
 		if [ "$_option_chroot" -eq 1 ]; then
 			if [ -n "$_option_userspec" ]; then
-				chroot_args+=("--userspec=$_option_userspec")
+				_chroot_args+=("--userspec=$_option_userspec")
 			fi
 			# 'INCHROOT=1' \
 			CHROOT_BIND_PATH="$(IFS=':'; echo "${_option_binds[*]}" )" \
-			chroot "${chroot_args[@]}" "$CHROOT_DIR" "$@"
+			chroot "${_chroot_args[@]}" "$CHROOT_DIR" "$@"
 			ret=$?
 		else
 			# FIXME: handle user spec via su
@@ -2049,7 +2069,7 @@ makepkg_chroot_clean() {
 	local _option_locked=1
 	local consumed
 
-	local args=("$@")
+	local _args=("$@")
 
 	while [ $# -gt 0 ]; do
 		consumed=1
@@ -2094,7 +2114,7 @@ makepkg_chroot_clean() {
 
 	if [ "$_option_destroy" -eq 0 ]; then
 		if [ "$_option_locked" -eq 1 ]; then
-			makepkg chroot_lock -- "$CHROOT_NAME" makepkg chroot_clean --unlocked "${args[@]}"
+			makepkg chroot_lock -- "$CHROOT_NAME" makepkg chroot_clean --unlocked "${_args[@]}"
 			return $?
 		fi
 		# FIXME: Add mountpoint cleanning
@@ -2124,7 +2144,7 @@ makepkg_chroot_clean() {
 
 		if [ "$_option_locked" -eq 1 ]; then
 			# NOTE: arguments are reverse compared to makepkg_chroot_lock on purpose
-			makepkg file_lock --parent "$CHROOT_DIR/$CHROOT_NAME/.lock" -- "$CHROOT_DIR/.lock" makepkg chroot_clean --unlocked "${args[@]}"
+			makepkg file_lock --parent "$CHROOT_DIR/$CHROOT_NAME/.lock" -- "$CHROOT_DIR/.lock" makepkg chroot_clean --unlocked "${_args[@]}"
 			return $?
 		fi
 		# Try to clean before destroy
@@ -2155,7 +2175,7 @@ makepkg_chroot_create() {
 	local repo_list
 	local consumed i ret=0
 
-	local args=("$@")
+	local _args=("$@")
 
 	while [ $# -gt 0 ]; do
 		consumed=1
@@ -2208,7 +2228,7 @@ makepkg_chroot_create() {
 			return 1
 		fi
 		if [ "$_option_locked" -eq 1 ]; then
-			makepkg file_lock -- "$CHROOT_BASEDIR/.lock" makepkg chroot_create --unlocked "${args[@]}"
+			makepkg file_lock -- "$CHROOT_BASEDIR/.lock" makepkg chroot_create --unlocked "${_args[@]}"
 			return $?
 		fi
 	fi
@@ -2291,7 +2311,7 @@ makepkg_chroot_enter() {
 	local _option_locked=1
 	local cmd consumed i ret
 
-	local args=("$@")
+	local _args=("$@")
 
 	while [ $# -gt 0 ]; do
 		consumed=1
@@ -2340,7 +2360,7 @@ makepkg_chroot_enter() {
 			return 1
 		fi
 		if [ "$_option_locked" -eq 1 ]; then
-			makepkg file_lock --parent "$CHROOT_BASEDIR/.lock" -- "$CHROOT_DIR/.lock" makepkg chroot_enter --unlocked "${args[@]}"
+			makepkg file_lock --parent "$CHROOT_BASEDIR/.lock" -- "$CHROOT_DIR/.lock" makepkg chroot_enter --unlocked "${_args[@]}"
 			return $?
 		fi
 	fi
@@ -2405,7 +2425,6 @@ makepkg_chroot_enter() {
 
 	if find_executable /usr/sbin/chroot; then
 		msg "Entering chroot environment"
-		BUILDLOG=${startdir}/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.log
 		if [ ! "`check_option NOFAKEROOT`" ]; then
 			# add the fst user in case the host system is not a Frugalware one
 			if ! getent passwd fst >/dev/null; then
@@ -2422,10 +2441,6 @@ makepkg_chroot_enter() {
 		else
 			$ECHO "cd /var/tmp/fst/; $0 --inchroot -s $ARGLIST" | \
 				/usr/sbin/chroot "$CHROOT_DIR" /bin/su - -c /bin/sh
-		fi 2>&1 | tee $BUILDLOG
-		if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
-			# remove colors
-			sed -i "s|.[1;[0-9]\+m||g" $BUILDLOG
 		fi
 	fi
 
@@ -2448,11 +2463,6 @@ makepkg_chroot_enter() {
 		fi
 		rm -rf "$CHROOT_DIR"/var/tmp/fst/*
 		chroot_clean
-		# copy build log to LOGDIR if set
-		if [ -d "$LOGDIR" ]; then
-			msg "Creating permanent copy of build log"
-			cp "${BUILDLOG}" "${LOGDIR}/${LOGDIR_APPEND}-${pkgname}-${pkgver}-${pkgrel}.log"
-		fi
 		ret=0
 	else
 		ret=1
@@ -2474,7 +2484,7 @@ makepkg_chroot_list() {
 	local _option_locked=1
 	local consumed
 
-	local args=("$@")
+	local _args=("$@")
 
 	while [ $# -gt 0 ]; do
 		consumed=1
@@ -2513,7 +2523,7 @@ makepkg_chroot_list() {
 	fi
 
 	if [ "$_option_locked" -eq 1 ]; then
-		makepkg file_lock -- "$CHROOT_BASEDIR/.lock" makepkg chroot_list --unlocked "${args[@]}"
+		makepkg file_lock -- "$CHROOT_BASEDIR/.lock" makepkg chroot_list --unlocked "${_args[@]}"
 		return $?
 	fi
 
