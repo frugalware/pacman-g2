@@ -1551,7 +1551,7 @@ makepkg_build() {
 
 	buildscript_download
 
-	makepkg_buildscript "$BUILDSCRIPT"
+	makepkg buildscript "$BUILDSCRIPT"
 
 	if [ -f "$PKGDEST/${_P_package_archives["${pkgname}"]}" -a "$FORCE" = "0" -a "$GENSHA1" = "0" ]; then
 		if [ "$INSTALL" = "1" ]; then
@@ -1582,12 +1582,12 @@ makepkg_build() {
 
 		# use distcc if requested
 		if [ "$DISTCC" = "y" ]; then
-			cmd+=(makepkg_distcc)
+			cmd+=(makepkg distcc)
 		fi
 
 		# use ccache if it's available
 		if [ "$NOCCACHE" = "0" -a ! "`check_option NOCCACHE`" ]; then
-			cmd+=(makepkg_ccache)
+			cmd+=(makepkg ccache)
 		fi
 
 		"${cmd[@]}" _makepkg_build
@@ -2087,10 +2087,10 @@ makepkg_ccache() {
 		fi
 	fi
 
-	( # Limit the exports to the subshell
 	export CCACHE_DIR="$CCACHE_DIR"
 	export CCACHE_NOLINK=1
 	export CCACHE_UMASK=002
+	export CHROOT_BIND_PATH="$CHROOT_BIND_PATH:$CCACHE_DIR"
 	export PATH="/usr/lib/ccache/bin:$PATH"
 
 	export FCC="ccache $FCC" # Frugalware CC wrapper
@@ -2103,8 +2103,7 @@ makepkg_ccache() {
 		makepkg shell -- "$@"
 		return $?
 	esac
-	)
-	return $?
+	return 1
 }
 
 makepkg_chroot_usage() {
@@ -2190,7 +2189,7 @@ makepkg_chroot() {
 			return 1
 		fi
 		if [ "$_option_locked" -eq 1 ]; then
-			makepkg_chroot_lock -- "$CHROOT_NAME" makepkg_chroot --unlocked "${args[@]}"
+			makepkg chroot_lock -- "$CHROOT_NAME" makepkg chroot --unlocked "${args[@]}"
 			return $?
 		fi
 	fi
@@ -2316,7 +2315,7 @@ makepkg_chroot_clean() {
 
 	if [ "$_option_destroy" -eq 0 ]; then
 		if [ "$_option_locked" -eq 1 ]; then
-			makepkg_chroot_lock -- "$CHROOT_NAME" makepkg_chroot_clean --unlocked "${args[@]}"
+			makepkg chroot_lock -- "$CHROOT_NAME" makepkg chroot_clean --unlocked "${args[@]}"
 			return $?
 		fi
 		# FIXME: Add mountpoint cleanning
@@ -2346,11 +2345,11 @@ makepkg_chroot_clean() {
 
 		if [ "$_option_locked" -eq 1 ]; then
 			# NOTE: arguments are reverse compared to makepkg_chroot_lock on purpose
-			makepkg_file_lock --parent "$CHROOT_DIR/$CHROOT_NAME/.lock" -- "$CHROOT_DIR/.lock" makepkg_chroot_clean --unlocked "${args[@]}"
+			makepkg file_lock --parent "$CHROOT_DIR/$CHROOT_NAME/.lock" -- "$CHROOT_DIR/.lock" makepkg chroot_clean --unlocked "${args[@]}"
 			return $?
 		fi
 		# Try to clean before destroy
-		makepkg_chroot_clean --unlocked "$CHROOT_NAME"
+		makepkg chroot_clean --unlocked "$CHROOT_NAME"
 		if [ $? -eq 0 ]; then
 			true
 			# rm -rf "$CHROOT_DIR"
@@ -2473,7 +2472,7 @@ makepkg_chroot_list() {
 	fi
 
 	if [ "$_option_locked" -eq 1 ]; then
-		makepkg_file_lock -- "$CHROOT_BASEDIR/.lock" makepkg_chroot_list --unlocked "${args[@]}"
+		makepkg file_lock -- "$CHROOT_BASEDIR/.lock" makepkg chroot_list --unlocked "${args[@]}"
 		return $?
 	fi
 
@@ -2483,12 +2482,10 @@ makepkg_chroot_list() {
 makepkg_chroot_lock_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 chroot_lock [OPTION]... [VARIABLE=VALUE]... [--] CHROOT_NAME [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 chroot_lock [OPTION]... [--] CHROOT_NAME [MAKEPKG_SHELL_ARG]..."
 	$ECHO
 	$ECHO "Options for chroot_lock command:"
 	$ECHO "  -h, --help             This help"
-	$ECHO
-	$ECHO "If no command is given, run '\${SHELL} -i' (default: '/bin/sh -i')."
 }
 
 makepkg_chroot_lock() {
@@ -2533,7 +2530,7 @@ makepkg_chroot_lock() {
 
 	CHROOT_DIR="$CHROOT_BASEDIR/$CHROOT_NAME"
 
-	makepkg_file_lock --parent "$CHROOT_BASEDIR/.lock" -- "$CHROOT_DIR/.lock" "$@"
+	makepkg file_lock --parent "$CHROOT_BASEDIR/.lock" -- "$CHROOT_DIR/.lock" "$@"
 	return $?
 }
 
@@ -2648,7 +2645,6 @@ makepkg_depends() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
-		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
@@ -2668,8 +2664,8 @@ makepkg_depends() {
 	if [ "$_option_update" -eq 1 ]; then
 		msg "Updating the environment"
 		# run pacman-g2 -Su twice in case pacman-g2 updated
-		yes "" | makepkg_shell --sudo -- $PACMAN -Sy pacman-g2 --ask 94 && \
-			makepkg_shell --sudo -- $PACMAN -Su --noconfirm
+		yes "" | makepkg shell --sudo -- $PACMAN -Sy pacman-g2 --ask 94 && \
+			makepkg shell --sudo -- $PACMAN -Su --noconfirm
 		if [ $? -eq 0 ]; then
 			error "Failed to update environment."
 			return 1
@@ -2706,9 +2702,9 @@ makepkg_depends() {
 		# install missing deps from binary packages (using pacman-g2 -S)
 		msg "Installing missing dependencies..."
 		if [ "$_option_scriptlet" -eq 1 ]; then
-			makepkg_shell --sudo -- $PACMAN $PACMAN_OPTS -D $deplist
+			makepkg shell --sudo -- $PACMAN $PACMAN_OPTS -D $deplist
 		else
-			makepkg_shell --sudo -- $PACMAN $PACMAN_OPTS --noscriptlet -D $deplist
+			makepkg shell --sudo -- $PACMAN $PACMAN_OPTS --noscriptlet -D $deplist
 		fi
 		if [ "$?" = "127" ]; then
 			error "Failed to install missing dependencies."
@@ -2723,14 +2719,13 @@ makepkg_depends() {
 
 	if [ "$_option_remove" -eq 1 -a ${#_option_dependecies[@]} -gt 0 ]; then
 		msg "Removing installed dependencies..."
-		makepkg_shell --sudo -- $PACMAN $PACMAN_OPTS -R $makedeplist $deplist
+		makepkg shell --sudo -- $PACMAN $PACMAN_OPTS -R $makedeplist $deplist
 	fi
 	return $ret
 }
 
 # FIXME: Make a proper command
 makepkg_distcc() {
-	( # Limit the exports to the subshell
 	if [ -d /usr/lib/distcc/bin ]; then
 		export PATH=/usr/lib/distcc/bin:$PATH
 		export FCC="distcc $FCC" # Frugalware CC wrapper
@@ -2741,7 +2736,6 @@ makepkg_distcc() {
 		fi
 	fi
 	"$@"
-	)
 }
 
 _makepkg_file_lock() {
@@ -2929,6 +2923,7 @@ makepkg_shell() {
 						"-$(echo "${split}" | cut -c 3-)" \
 						"$@"
 					continue ;;
+		*=*)			export "$1" ;;
 		*)			break ;; # End of options
 		esac
 		if ! shift "$consumed"; then
