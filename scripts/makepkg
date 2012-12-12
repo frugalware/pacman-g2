@@ -1357,38 +1357,6 @@ makepkg_build() {
 	install_pkg
 }
 
-_makepkg_build() {
-	if [ "$NOBUILD" -eq 1 ]; then
-		return 0
-	fi
-
-	declare -gr _P_build_date=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
-	msg "Making package: $pkgname $pkgver-$pkgrel (${_P_build_date})"
-
-	pkg_rmdirs
-	pkg_mkdirs
-
-	# In a subshell so makepkg env is not altered
-	( buildenv_build )
-
-	makepkg_document
-
-	# NOTE: _P_subpkgsfixes hook registration order is important.
-	#if ! check_option NOREMOVEEMPTYDIR; then
-		_P_subpkgsfixes+=(_pkg_removeemptydirs_hook)
-	#fi
-
-	if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
-		_P_subpkgsfixes+=(_pkg_strip_hook)
-	fi
-
-	_P_subpkgsfixes+=(_pkg_check_links)
-	_P_subpkgsfixes+=(create_pkg)
-	pkg_foreach "${_P_subpkgsfixes[@]}"
-
-	msg "Finished making: $pkgname  (`date`)"
-}
-
 _makepkg_buildscript_up2date() {
 	msg "Checking for newer version..."
 	if $ECHO "$up2date"|grep -q " "; then
@@ -1498,6 +1466,34 @@ _makepkg_buildscript_changelog() {
 				Changelog
 		fi
 	fi
+}
+
+_makepkg_buildscript_build() {
+	declare -gr _P_build_date=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
+	msg "Making package: $pkgname $pkgver-$pkgrel (${_P_build_date})"
+
+	pkg_rmdirs
+	pkg_mkdirs
+
+	# In a subshell so makepkg env is not altered
+	( buildenv_build )
+
+	makepkg_document
+
+	# NOTE: _P_subpkgsfixes hook registration order is important.
+	#if ! check_option NOREMOVEEMPTYDIR; then
+		_P_subpkgsfixes+=(_pkg_removeemptydirs_hook)
+	#fi
+
+	if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
+		_P_subpkgsfixes+=(_pkg_strip_hook)
+	fi
+
+	_P_subpkgsfixes+=(_pkg_check_links)
+	_P_subpkgsfixes+=(create_pkg)
+	pkg_foreach "${_P_subpkgsfixes[@]}"
+
+	msg "Finished making: $pkgname (`date`)"
 }
 
 _makepkg_buildscript_load() {
@@ -1681,7 +1677,8 @@ _makepkg_buildscript_load() {
 makepkg_buildscript_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 buildscript [OPTION]... [--] BUILDSCRIPT [MAKEPKG_SHELL_ARG]..."
+	$ECHO "Usage: $0 buildscript [OPTION]... [--] BUILDSCRIPT build"
+	$ECHO "       $0 buildscript [OPTION]... [--] BUILDSCRIPT [--] [MAKEPKG_SHELL_ARG]..."
 	$ECHO
 	$ECHO "Options for sources command:"
 	$ECHO "  -f, --force            Skip the sanity checks"
@@ -1695,6 +1692,7 @@ makepkg_buildscript_usage() {
 }
 
 makepkg_buildscript() {
+	local _command_build=0
 	local _option_changelog=0
 	local _option_buildlog=1
 	local _option_force=0
@@ -1758,6 +1756,16 @@ makepkg_buildscript() {
 	fi
 	local -r BUILDSCRIPT="$1"
 	shift
+
+	case "$1" in
+	build)	shift
+		if [ $# -ne 0 ]; then
+			error "No argument allowed after 'build' command"
+			return 1
+		fi
+		;;
+	--)	shift ;;
+	esac
 
 	if [ ! -f "$BUILDSCRIPT" ]; then
 		error "$BUILDSCRIPT does not exist."
@@ -1826,9 +1834,19 @@ makepkg_buildscript() {
 		done
 		#cmd+=(--remove)
 	fi
-	if [ ${#cmd[@]} -eq 0 ]; then
-		cmd+=(makepkg shell)
+
+	if [ "$_command_build" -eq 1 ]; then
+		if [ ${#cmd[@]} -eq 0 ]; then
+			cmd+=(_makepkg_buildscript_build)
+		else
+			cmd+=(makepkg buildscript build)
+		fi
+	else
+		if [ ${#cmd[@]} -eq 0 ]; then
+			cmd+=(makepkg shell)
+		fi
 	fi
+
 	"${cmd[@]}" "$@"
 	return $?
 }
