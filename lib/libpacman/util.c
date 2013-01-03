@@ -655,7 +655,7 @@ int _pacman_runhook(char *root, char *hookdir, const char *hookname, pmtrans_t *
 			/* script not found in scriptlet file */
 			continue;
 		}
-		snprintf(cmdline, PATH_MAX, "source %s %s %s", scriptpath, hookname, trans->filelist);
+		snprintf(cmdline, PATH_MAX, "source %s %s %s", scriptpath, hookname, trans->filelist ? trans->filelist : "");
 		_pacman_log(PM_LOG_DEBUG, "%s", cmdline);
 		pid = fork();
 		if(pid == -1) {
