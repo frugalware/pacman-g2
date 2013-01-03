@@ -111,7 +111,6 @@ CONFIGURE_FILE (
   )
 
 ADD_SUBDIRECTORY(lib/libftp)
-ADD_SUBDIRECTORY(lib/libfetch)
 ADD_SUBDIRECTORY(lib/libpacman)
 ADD_SUBDIRECTORY(src/versort)
 ADD_SUBDIRECTORY(src/vercmp)
