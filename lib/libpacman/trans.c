@@ -59,6 +59,43 @@ static int check_oldcache(void)
 	return(0);
 }
 
+static void get_filelist(pmtrans_t *trans)
+{
+	pmlist_t *pkgs = trans->packages;
+	char *path;
+	int fd;
+
+	if(pkgs == NULL)
+		return;
+	
+	path = strdup("/tmp/pacman_XXXXXX");
+	
+	fd = mkstemp(path);
+	
+	for( ; pkgs ; pkgs = pkgs->next )
+	{
+		pmpkg_t *pkg = pkgs->data;
+		pmlist_t *files = pkg->files;
+		
+		for( ; files ; files = files->next )
+		{
+		  char *file = files->data;
+		  
+		  dprintf(fd,"%s:%s\n",pkg->name,file);
+		}
+	}
+	
+	close(fd);
+	
+	if(trans->filelist)
+	{
+		remove(trans->filelist);
+		FREE(trans->filelist);
+	}
+	
+	trans->filelist = path;
+}
+
 pmtrans_t *_pacman_trans_new()
 {
 	pmtrans_t *trans = _pacman_zalloc(sizeof(pmtrans_t));
@@ -88,6 +125,12 @@ void _pacman_trans_free(pmtrans_t *trans)
 	}
 
 	FREELIST(trans->skiplist);
+
+	if(trans->filelist)
+	{
+		remove(trans->filelist);
+		FREE(trans->filelist);
+	}
 
 	free(trans);
 }
@@ -176,6 +219,8 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 		/* pm_errno is set by trans->ops->prepare() */
 		return(-1);
 	}
+
+	get_filelist(trans);
 
 	trans->state = STATE_PREPARED;
 
