@@ -124,6 +124,19 @@ void _pacman_server_free(void *data)
 }
 
 /*
+ * Progress callback used by libcurl, we then pass our own progress function
+ */
+int curlProgress(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow) {
+    if(dltotal > 0 && dlnow > 0) {
+    int curlDlTotal = dltotal;
+    int curlDlNow = dlnow;
+//    printf("total: %d, now: %d\n",curlDlTotal, curlDlNow);
+    ((FtpCallback) clientp) (NULL, curlDlNow, &curlDlTotal);
+    }
+    return 0;
+}
+
+/*
  * Download a list of files from a list of servers
  *   - if one server fails, we try the next one in the list
  *
@@ -154,7 +167,7 @@ int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *fi
 int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	pmlist_t *files, const char *mtime1, char *mtime2, int skip)
 {
-	int fsz;
+    uint64_t fsz;
 	netbuf *control = NULL;
 	pmlist_t *lp;
 	int done = 0;
@@ -346,6 +359,26 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                             pm_errno = PM_ERR_CONNECT_FAILED;
                             goto error;
                         }
+                        else {
+                            if(mtime1) {
+                                retc = curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
+                            }
+                            retc = curl_easy_setopt(curlHandle,CURLOPT_NOPROGRESS , 0);
+                            if(retc != CURLE_OK) {
+                                _pacman_log(PM_LOG_DEBUG, _("error setting noprogress off\n"));
+                                continue;
+                            }
+                            retc = curl_easy_setopt(curlHandle,CURLOPT_PROGRESSDATA , (void *)pm_dlcb);
+                            if(retc != CURLE_OK) {
+                                _pacman_log(PM_LOG_DEBUG, _("error passing our debug function pointer to progress callback\n"));
+                                continue;
+                            }
+                            retc = curl_easy_setopt(curlHandle,CURLOPT_PROGRESSFUNCTION, curlProgress);
+                            if(retc != CURLE_OK) {
+                                _pacman_log(PM_LOG_DEBUG, _("error setting progress bar\n"));
+                                continue;
+                            }
+                        }
                     }
                     FILE * outputFile = fopen(output,"w+");
                     if(!outputFile){
@@ -355,19 +388,37 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                     }
                     //set libcurl options
                     retc = curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, outputFile);
-                    retc = curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
+                    if(retc != CURLE_OK) {
+                        _pacman_log(PM_LOG_WARNING, _("error setting output file: %s\n"), output);
+                        continue;
+                    }
                     char url[PATH_MAX];
                     /* build the full download url */
                     snprintf(url, PATH_MAX, "%s://%s%s%s", server->protocol, server->server,
                             server->path, fn);
                     retc = curl_easy_setopt(curlHandle, CURLOPT_URL, url);
+                    if(retc != CURLE_OK) {
+                        _pacman_log(PM_LOG_WARNING, _("error setting url: %s\n"), url);
+                        continue;
+                    }
                     retc = curl_easy_perform(curlHandle);
-                    time_t fileTime = 0;
-                    retc = curl_easy_getinfo(curlHandle, CURLINFO_FILETIME,  &fileTime);
-                    struct tm * timeinfo;
-                    timeinfo = localtime (&fileTime);
-                    char buffer [80];
-                    strftime (buffer,80,"File time is: %Y%m%d",timeinfo);
+                    if(retc != CURLE_OK) {
+                        _pacman_log(PM_LOG_WARNING, _("error downloading file: %s\n"), url);
+                        continue;
+                    }
+                    if(mtime1) {
+                        time_t fileTime = 0;
+                        retc = curl_easy_getinfo(curlHandle, CURLINFO_FILETIME,  &fileTime);
+                        if(fileTime > 0) {
+                            struct tm * timeinfo;
+                            timeinfo = gmtime (&fileTime);
+                            char buffer [80];
+                            strftime (buffer,80,"File time is: %Y%m%d",timeinfo);
+                        }
+                    }
+                    double fileSize = 0;
+                    retc = curl_easy_getinfo(curlHandle, CURLINFO_SIZE_DOWNLOAD,  &fileSize);
+                    fsz = fileSize;
                     filedone = 1;
                     fclose(outputFile);
                     if(filedone > 0) {
