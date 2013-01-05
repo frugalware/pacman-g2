@@ -31,7 +31,6 @@
 #include <syslog.h>
 #include <libintl.h>
 #include <time.h>
-#include <ftplib.h>
 #include <locale.h>
 /* pacman-g2 */
 #include "util.h"

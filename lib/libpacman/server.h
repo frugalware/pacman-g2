@@ -23,7 +23,6 @@
 
 #include "list.h"
 #include <time.h>
-#include <ftplib.h>
 
 #define FREESERVER(p) \
 do { \
@@ -49,6 +48,9 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	pmlist_t *files, const char *mtime1, char *mtime2, int skip);
 
 char *_pacman_fetch_pkgurl(char *target);
+
+typedef struct NetBuf netbuf;
+typedef int (*FtpCallback)(netbuf *nControl, int xfered, void *arg);
 
 extern FtpCallback pm_dlcb;
 

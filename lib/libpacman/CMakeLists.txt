@@ -28,8 +28,6 @@ set(LIBPACMAN_SOURCES
 
 include_directories (${PACMAN-G2_SOURCE_DIR})
 
-include_directories (${PACMAN-G2_SOURCE_DIR}/lib/libftp)
-
 find_package(LibArchive REQUIRED)
 
 find_package(CURL REQUIRED)
@@ -38,7 +36,7 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_LARGEFILE64_SOURCE")
 
 add_library(pacman SHARED ${LIBPACMAN_SOURCES})
 
-target_link_libraries(pacman ftp ${LibArchive_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(pacman ${LibArchive_LIBRARIES} ${CURL_LIBRARIES})
 
 install(TARGETS pacman DESTINATION lib)
 install (FILES pacman.h DESTINATION include)

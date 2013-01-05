@@ -110,7 +110,6 @@ CONFIGURE_FILE (
   "${PROJECT_SOURCE_DIR}/config.h"
   )
 
-ADD_SUBDIRECTORY(lib/libftp)
 ADD_SUBDIRECTORY(lib/libpacman)
 ADD_SUBDIRECTORY(src/versort)
 ADD_SUBDIRECTORY(src/vercmp)
