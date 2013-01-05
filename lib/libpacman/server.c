@@ -127,10 +127,9 @@ void _pacman_server_free(void *data)
  */
 int curlProgress(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow) {
     if(dltotal > 0 && dlnow > 0) {
-    int curlDlTotal = dltotal;
-    int curlDlNow = dlnow;
-//    printf("total: %d, now: %d\n",curlDlTotal, curlDlNow);
-    ((FtpCallback) clientp) (NULL, curlDlNow, &curlDlTotal);
+        int curlDlTotal = dltotal;
+        int curlDlNow = dlnow;
+        ((FtpCallback) clientp) (NULL, curlDlNow, &curlDlTotal);
     }
     return 0;
 }
