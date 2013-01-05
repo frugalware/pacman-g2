@@ -55,12 +55,11 @@ import_pootle()
 
 cd `dirname $0`
 
-ver=`grep AC_INIT configure.ac|sed 's/.*, \([0-9\.]*\), .*/\1/'`
+ver=`grep PACMAN_G2_VERSION CMakeLists.txt|sed 's/.*PACMAN_G2_VERSION\ \([0-9\.]*\).*/\1/'`
 if [ "$1" == "--dist" ]; then
 	git archive --format=tar --prefix=pacman-g2-$ver/ HEAD | tar xf -
 	git log --no-merges |git name-rev --tags --stdin > pacman-g2-$ver/ChangeLog
 	cd pacman-g2-$ver
-	./autogen.sh --git
 	cd ..
 	tar czf pacman-g2-$ver.tar.gz pacman-g2-$ver
 	rm -rf pacman-g2-$ver
@@ -124,8 +123,3 @@ fi
 # copy in the po files
 import_pootle
 
-autoreconf -fi
-
-if [ "$1" == "--git" ]; then
-	rm -rf autom4te.cache
-fi
