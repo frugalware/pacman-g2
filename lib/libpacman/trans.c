@@ -166,22 +166,6 @@ int _pacman_trans_set_state(pmtrans_t *trans, int state)
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
-	if (trans->ops != NULL && trans->ops->set_state != NULL) {
-		if (trans->ops->set_state(trans, state) == -1) {
-			/* pm_errno is set by trans->ops->set_state() */
-			return(-1);
-		}
-	}
-	trans->state = state;
-
-	return(0);
-}
-
-int _pacman_trans_set_state(pmtrans_t *trans, int state)
-{
-	/* Sanity checks */
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-
 	/* Ignore unchanged state */
 	if (trans->state == state) {
 		return(0);

@@ -57,6 +57,7 @@
 #include "remove.h"
 #include "handle.h"
 #include "pacman.h"
+#include "packages_transaction.h"
 
 int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 {
@@ -355,6 +356,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 }
 
 const pmtrans_ops_t _pacman_remove_pmtrans_opts = {
+	.state_changed = _pacman_packages_transaction_set_state,
 	.addtarget = _pacman_remove_addtarget,
 	.prepare = _pacman_remove_prepare,
 	.commit = _pacman_remove_commit

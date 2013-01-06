@@ -35,12 +35,13 @@ enum {
 	STATE_DOWNLOADING,
 	STATE_COMMITING,
 	STATE_COMMITED,
-	STATE_INTERRUPTED
+	STATE_INTERRUPTED,
+	STATE_MAX
 };
 
 typedef struct __pmtrans_ops_t {
 	void (*fini)(pmtrans_t *trans);
-	int (*set_state)(pmtrans_t *trans, int state);
+	int (*state_changed)(pmtrans_t *trans, int state);
 	int (*addtarget)(pmtrans_t *trans, const char *name);
 	int (*prepare)(pmtrans_t *trans, pmlist_t **data);
 	int (*commit)(pmtrans_t *trans, pmlist_t **data);
@@ -53,9 +54,9 @@ typedef struct __pmtrans_cbs_t {
 } pmtrans_cbs_t;
 
 struct __pmtrans_t {
+	const pmtrans_ops_t *ops;
 	pmhandle_t *handle;
 	pmtranstype_t type;
-	const pmtrans_ops_t *ops;
 	unsigned int flags;
 	unsigned char state;
 	pmlist_t *targets;     /* pmlist_t of (char *) */

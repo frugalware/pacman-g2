@@ -54,6 +54,7 @@
 #include "sha1.h"
 #include "handle.h"
 #include "server.h"
+#include "packages_transaction.h"
 
 pmsyncpkg_t *_pacman_sync_new(int type, pmpkg_t *spkg, void *data)
 {
@@ -641,7 +642,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	if(handle->sysupgrade) {
-		_pacman_runhook(handle->root, handle->hooksdir, "pre_sysupgrade", trans);
+		_pacman_runhook("pre_sysupgrade", trans);
 	}
 	/* remove conflicting and to-be-replaced packages */
 	trans->state = STATE_COMMITING;
@@ -773,7 +774,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 	}
 
 	if(handle->sysupgrade) {
-		_pacman_runhook(handle->root, handle->hooksdir, "post_sysupgrade", trans);
+		_pacman_runhook("post_sysupgrade", trans);
 	}
 	return(0);
 
@@ -989,6 +990,7 @@ const pmtrans_ops_t _pacman_sync_pmtrans_opts = {
 #endif
 
 const pmtrans_ops_t _pacman_sync_pmtrans_opts = {
+	.state_changed = _pacman_packages_transaction_set_state,
 	.addtarget = _pacman_sync_addtarget,
 	.prepare = _pacman_sync_prepare,
 	.commit = _pacman_trans_download_commit
