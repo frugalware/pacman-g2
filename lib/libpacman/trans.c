@@ -161,6 +161,44 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 	return(0);
 }
 
+int _pacman_trans_set_state(pmtrans_t *trans, int state)
+{
+	/* Sanity checks */
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+
+	if (trans->ops != NULL && trans->ops->set_state != NULL) {
+		if (trans->ops->set_state(trans, state) == -1) {
+			/* pm_errno is set by trans->ops->set_state() */
+			return(-1);
+		}
+	}
+	trans->state = state;
+
+	return(0);
+}
+
+int _pacman_trans_set_state(pmtrans_t *trans, int state)
+{
+	/* Sanity checks */
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+
+	/* Ignore unchanged state */
+	if (trans->state == state) {
+		return(0);
+	}
+
+	trans->state = state;
+
+	if (trans->ops != NULL && trans->ops->state_changed != NULL) {
+		if (trans->ops->state_changed(trans, state) == -1) {
+			/* pm_errno is set by trans->ops->state_changed() */
+			return(-1);
+		}
+	}
+
+	return(0);
+}
+
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 {
 	/* Sanity checks */
@@ -181,7 +219,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 		return(-1);
 	}
 
-	trans->state = STATE_PREPARED;
+	_pacman_trans_set_state(trans, STATE_PREPARED);
 
 	return(0);
 }
@@ -201,14 +239,14 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 		return(0);
 	}
 
-	trans->state = STATE_COMMITING;
+	_pacman_trans_set_state(trans, STATE_COMMITING);
 
 	if(trans->ops->commit(trans, data) == -1) {
 		/* pm_errno is set by trans->ops->commit() */
 		return(-1);
 	}
 
-	trans->state = STATE_COMMITED;
+	_pacman_trans_set_state(trans, STATE_COMMITED);
 
 	return(0);
 }

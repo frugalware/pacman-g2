@@ -40,6 +40,7 @@ enum {
 
 typedef struct __pmtrans_ops_t {
 	void (*fini)(pmtrans_t *trans);
+	int (*set_state)(pmtrans_t *trans, int state);
 	int (*addtarget)(pmtrans_t *trans, const char *name);
 	int (*prepare)(pmtrans_t *trans, pmlist_t **data);
 	int (*commit)(pmtrans_t *trans, pmlist_t **data);
@@ -95,10 +96,12 @@ do { \
 pmtrans_t *_pacman_trans_new(void);
 void _pacman_trans_free(pmtrans_t *trans);
 int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
-int _pacman_trans_sysupgrade(pmtrans_t *trans);
+int _pacman_trans_set_state(pmtrans_t *trans, int state);
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target);
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data);
 int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data);
+
+int _pacman_trans_sysupgrade(pmtrans_t *trans);
 
 #endif /* _PACMAN_TRANS_H */
 
