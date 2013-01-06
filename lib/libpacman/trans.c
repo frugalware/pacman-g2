@@ -89,6 +89,10 @@ void _pacman_trans_free(pmtrans_t *trans)
 
 	FREELIST(trans->skiplist);
 
+	if(trans->ops->fini != NULL) {
+		trans->ops->fini(trans);
+	}
+
 	free(trans);
 }
 
