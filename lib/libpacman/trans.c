@@ -227,6 +227,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 
 	if(trans->ops->commit(trans, data) == -1) {
 		/* pm_errno is set by trans->ops->commit() */
+		_pacman_trans_set_state(trans, STATE_PREPARED);
 		return(-1);
 	}
 

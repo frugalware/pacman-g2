@@ -645,7 +645,6 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		_pacman_runhook("pre_sysupgrade", trans);
 	}
 	/* remove conflicting and to-be-replaced packages */
-	trans->state = STATE_COMMITING;
 	tr = _pacman_trans_new();
 	if(tr == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not create removal transaction"));
@@ -781,7 +780,6 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 error:
 	FREETRANS(tr);
 	/* commiting failed, so this is still just a prepared transaction */
-	trans->state = STATE_PREPARED;
 	return(-1);
 }
 
@@ -977,7 +975,6 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 
 error:
 	/* commiting failed, so this is still just a prepared transaction */
-	trans->state = STATE_PREPARED;
 	return(-1);
 }
 
