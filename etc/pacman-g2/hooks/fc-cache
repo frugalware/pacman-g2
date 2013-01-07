@@ -1,0 +1,15 @@
+#!/bin/sh
+
+do_fc_cache()
+{
+	for i in /usr/share/fonts/X11/*; do
+		if [ -d "$i" -a -x /usr/bin/fc-cache ]; then
+			/usr/bin/fc-cache --force "$i"
+		fi
+	done
+	return 0
+}
+
+op=$1
+shift
+$op $*
