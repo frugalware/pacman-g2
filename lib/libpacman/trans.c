@@ -89,10 +89,7 @@ void _pacman_trans_free(pmtrans_t *trans)
 
 	FREELIST(trans->skiplist);
 
-	if(trans->ops->fini != NULL) {
-		trans->ops->fini(trans);
-	}
-
+	_pacman_trans_fini(trans);
 	free(trans);
 }
 
@@ -131,6 +128,13 @@ int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags,
 	return(0);
 }
 
+void _pacman_trans_fini(pmtrans_t *trans)
+{
+	if(trans !=NULL && trans->ops != NULL && trans->ops->fini != NULL) {
+		trans->ops->fini(trans);
+	}
+}
+
 int _pacman_trans_sysupgrade(pmtrans_t *trans)
 {
 	/* Sanity checks */
@@ -161,24 +165,23 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 	return(0);
 }
 
-int _pacman_trans_set_state(pmtrans_t *trans, int state)
+int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 {
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	/* Ignore unchanged state */
-	if (trans->state == state) {
+	if (trans->state == new_state) {
 		return(0);
 	}
 
-	trans->state = state;
-
-	if (trans->ops != NULL && trans->ops->state_changed != NULL) {
-		if (trans->ops->state_changed(trans, state) == -1) {
-			/* pm_errno is set by trans->ops->state_changed() */
+	if (trans->set_state != NULL) {
+		if (trans->set_state(trans, new_state) == -1) {
+			/* pm_errno is set by trans->state_changed() */
 			return(-1);
 		}
 	}
+	trans->state = new_state;
 
 	return(0);
 }

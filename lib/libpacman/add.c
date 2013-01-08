@@ -840,7 +840,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 }
 
 const pmtrans_ops_t _pacman_add_pmtrans_opts = {
-	.state_changed = _pacman_packages_transaction_set_state,
 	.addtarget = _pacman_add_addtarget,
 	.prepare = _pacman_add_prepare,
 	.commit = _pacman_add_commit

@@ -24,16 +24,24 @@
 #include <config.h>
 #include "util.h"
 
-int _pacman_packages_transaction_set_state(pmtrans_t *trans, int state)
+static int
+_pacman_packages_transaction_set_state(pmtrans_t *trans, int new_state)
 {
 	static const char *hooks[STATE_MAX] = {
 		[STATE_COMMITED] = "triggered",
 	};
 
-	if (state == STATE_COMMITED) {
-		return _pacman_runhook(hooks[state], trans);
+	if (new_state == STATE_COMMITED) {
+		return _pacman_runhook(hooks[new_state], trans);
 	}
 	return 0;
+}
+
+int _pacman_packages_transaction_init(pmtrans_t *trans)
+{
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
+
+	trans->set_state = _pacman_packages_transaction_set_state;
 }
 
 /* vim: set ts=2 sw=2 noet: */

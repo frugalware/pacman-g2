@@ -987,7 +987,6 @@ const pmtrans_ops_t _pacman_sync_pmtrans_opts = {
 #endif
 
 const pmtrans_ops_t _pacman_sync_pmtrans_opts = {
-	.state_changed = _pacman_packages_transaction_set_state,
 	.addtarget = _pacman_sync_addtarget,
 	.prepare = _pacman_sync_prepare,
 	.commit = _pacman_trans_download_commit

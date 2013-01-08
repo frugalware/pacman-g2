@@ -23,7 +23,7 @@
 
 #include "trans.h"
 
-int _pacman_packages_transaction_set_state(pmtrans_t *trans, int state);
+int _pacman_packages_transaction_init(pmtrans_t *trans);
 
 #endif /* _PACMAN_PACKAGES_TRANSACTION_H */
 
