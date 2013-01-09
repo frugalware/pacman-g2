@@ -200,10 +200,6 @@ namespace Pacman {
 	[CCode (cheader_filename = "pacman.h")]
 	public static int pacman_parse_config (string file, Pacman.pacman_cb_db_register callback, string this_section);
 	[CCode (cheader_filename = "pacman.h")]
-	public static int pacman_pkg_checkmd5sum (Pacman.PM_PKG pkg);
-	[CCode (cheader_filename = "pacman.h")]
-	public static int pacman_pkg_checksha1sum (Pacman.PM_PKG pkg);
-	[CCode (cheader_filename = "pacman.h")]
 	public static int pacman_pkg_free (Pacman.PM_PKG pkg);
 	[CCode (cheader_filename = "pacman.h")]
 	public static void* pacman_pkg_getinfo (Pacman.PM_PKG pkg, uint parm);
