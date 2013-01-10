@@ -802,6 +802,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 		FREELIST(*data);
 		int done = 1;
 		for(i = handle->dbs_sync; i; i = i->next) {
+			struct stat buf;
 			pmdb_t *current = i->data;
 
 			for(j = trans->packages; j; j = j->next) {
@@ -810,41 +811,31 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 				pmdb_t *dbs = spkg->data;
 
 				if(current == dbs) {
-					char path[PATH_MAX];
+					char filename[PATH_MAX];
+					char lcpath[PATH_MAX];
+					_pacman_pkg_filename(filename, sizeof(filename), spkg);
+					snprintf(lcpath, sizeof(lcpath), "%s/%s", ldir, filename);
 
 					if(trans->flags & PM_TRANS_FLAG_PRINTURIS) {
-						snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG,
-								(char *)_pacman_pkg_getinfo(spkg, PM_PKG_NAME),
-								(char *)_pacman_pkg_getinfo(spkg, PM_PKG_VERSION),
-								(char *)_pacman_pkg_getinfo(spkg, PM_PKG_ARCH));
-
 						if (!(trans->flags & PM_TRANS_FLAG_PRINTURIS_CACHED)) {
-							char lcpath[PATH_MAX];
-							struct stat lcbuf;
-							snprintf(lcpath, sizeof(lcpath), "%s/%s", ldir, path);
-							if (stat(lcpath, &lcbuf) == 0) {
+							if (stat(lcpath, &buf) == 0) {
 								continue;
 							}
 						}
 
-						EVENT(trans, PM_TRANS_EVT_PRINTURI, pacman_db_getinfo(current, PM_DB_FIRSTSERVER), path);
+						EVENT(trans, PM_TRANS_EVT_PRINTURI, pacman_db_getinfo(current, PM_DB_FIRSTSERVER), filename);
 					} else {
-						struct stat buf;
-						snprintf(path, PATH_MAX, "%s/%s-%s-%s" PM_EXT_PKG, ldir, spkg->name, spkg->version, spkg->arch);
-						if(stat(path, &buf)) {
+						if(stat(lcpath, &buf)) {
 							/* file is not in the cache dir, so add it to the list */
-							snprintf(path, PATH_MAX, "%s-%s-%s" PM_EXT_PKG, (char*)_pacman_pkg_getinfo(spkg, PM_PKG_NAME), (char*)_pacman_pkg_getinfo(spkg, PM_PKG_VERSION), (char*)_pacman_pkg_getinfo(spkg, PM_PKG_ARCH));
-							files = _pacman_list_add(files, strdup(path));
+							files = _pacman_list_add(files, strdup(filename));
 						} else {
-							_pacman_log(PM_LOG_DEBUG, _("%s-%s-%s%s is already in the cache\n"),
-								spkg->name, spkg->version, spkg->arch, PM_EXT_PKG);
+							_pacman_log(PM_LOG_DEBUG, _("%s is already in the cache\n"), filename);
 						}
 					}
 				}
 			}
 
 			if(files) {
-				struct stat buf;
 				EVENT(trans, PM_TRANS_EVT_RETRIEVE_START, current->treename, NULL);
 				if(stat(ldir, &buf)) {
 					/* no cache directory.... try creating it */
@@ -888,8 +879,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 				char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
 				char *ptr=NULL;
 
-				snprintf(pkgname, PATH_MAX, "%s-%s-%s" PM_EXT_PKG,
-						spkg->name, spkg->version, spkg->arch);
+				_pacman_pkg_filename(pkgname, sizeof(pkgname), spkg);
 				md5sum1 = spkg->md5sum;
 				sha1sum1 = spkg->sha1sum;
 
