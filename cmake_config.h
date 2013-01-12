@@ -103,7 +103,7 @@
 #define PM_DEFAULT_BYTES_PER_BLOCK 10240
 
 /* libpacman version number */
-#define PM_VERSION "0.@PACMAN_G2_VERSION@"
+#define PM_VERSION "0.@PACMAN_G2_LIB_VERSION@"
 
 /* Define to 1 if you have the ANSI C header files. */
 #cmakedefine STDC_HEADERS 1
