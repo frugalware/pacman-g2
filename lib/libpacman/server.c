@@ -299,7 +299,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 			} else {
 				char output[PATH_MAX];
 				unsigned int j;
-				int filedone = 0;
+                int filedone = 1;
 				char *ptr;
 				struct stat st;
 				snprintf(output, PATH_MAX, "%s/%s.part", localpath, fn);
@@ -344,8 +344,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                     /* local repository, just copy the file */
                     if(_pacman_copyfile(src, output)) {
                         _pacman_log(PM_LOG_WARNING, _("failed copying %s\n"), src);
-                    } else {
-                        filedone = 1;
+                        filedone = 0;
                     }
                 } else {
                     //download files using libcurl
@@ -358,8 +357,14 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                             goto error;
                         }
                         else {
-                            if(mtime1) {
-                                retc = curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
+                            if(mtime1 && mtime2) {
+                                curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
+                                curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
+                                curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE , strtol(mtime1, NULL, 10));
+                            }
+                            else {
+                                curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 0);
+                                curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_NONE);
                             }
                             retc = curl_easy_setopt(curlHandle,CURLOPT_NOPROGRESS , 0);
                             if(retc != CURLE_OK) {
@@ -402,28 +407,30 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                     retc = curl_easy_perform(curlHandle);
                     if(retc != CURLE_OK) {
                         _pacman_log(PM_LOG_WARNING, _("error downloading file: %s\n"), url);
-                        continue;
+                        goto error;
                     }
-                    if(mtime1) {
-                        time_t fileTime = 0;
-                        retc = curl_easy_getinfo(curlHandle, CURLINFO_FILETIME,  &fileTime);
-                        if(fileTime > 0) {
-                            struct tm * timeinfo;
-                            timeinfo = gmtime (&fileTime);
-                            char buffer [80];
-                            strftime (buffer,80,"File time is: %Y%m%d",timeinfo);
+                    if(mtime1 && mtime2) {
+                        long int rcCode = 0;
+                        curl_easy_getinfo(curlHandle, CURLINFO_RESPONSE_CODE, &rcCode);
+                        if(rcCode==213 || rcCode==304) {
+                            //return codes for when timestamp was the same (FTP and HTTP)
+                            filedone = -1;
+                        }
+                        else {
+                            time_t fileTime = 0;
+                            retc = curl_easy_getinfo(curlHandle, CURLINFO_FILETIME,  &fileTime);
+                            sprintf(mtime2,"%ld",fileTime);
                         }
                     }
-                    double fileSize = 0;
-                    retc = curl_easy_getinfo(curlHandle, CURLINFO_SIZE_DOWNLOAD,  &fileSize);
-                    fsz = fileSize;
-                    filedone = 1;
                     fclose(outputFile);
                     if(filedone > 0) {
                         char completefile[PATH_MAX];
                         if(!strcmp(server->protocol, "file")) {
                             EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
                         } else if(pm_dlcb) {
+                            double fileSize = 0;
+                            retc = curl_easy_getinfo(curlHandle, CURLINFO_SIZE_DOWNLOAD,  &fileSize);
+                            fsz = fileSize;
                             pm_dlcb(control, fsz-*pm_dloffset, &fsz);
                         }
                         complete = _pacman_list_add(complete, fn);
@@ -431,8 +438,9 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                         snprintf(completefile, PATH_MAX, "%s/%s", localpath, fn);
                         rename(output, completefile);
                     } else if(filedone < 0) {
-                        /* 1 means here that the file is up to date, not a real error, so
+                        /* -1 means here that the file is up to date, not a real error, so
                      * don't go to error: */
+                        remove(output);
                         FREELISTPTR(complete);
                         return(1);
                     }
