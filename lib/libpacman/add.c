@@ -57,6 +57,7 @@
 #include "add.h"
 #include "remove.h"
 #include "handle.h"
+#include "packages_transaction.h"
 
 static int add_faketarget(pmtrans_t *trans, const char *name)
 {

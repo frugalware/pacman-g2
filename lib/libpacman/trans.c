@@ -89,6 +89,7 @@ void _pacman_trans_free(pmtrans_t *trans)
 
 	FREELIST(trans->skiplist);
 
+	_pacman_trans_fini(trans);
 	free(trans);
 }
 
@@ -127,6 +128,13 @@ int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags,
 	return(0);
 }
 
+void _pacman_trans_fini(pmtrans_t *trans)
+{
+	if(trans !=NULL && trans->ops != NULL && trans->ops->fini != NULL) {
+		trans->ops->fini(trans);
+	}
+}
+
 int _pacman_trans_sysupgrade(pmtrans_t *trans)
 {
 	/* Sanity checks */
@@ -157,6 +165,27 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 	return(0);
 }
 
+int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
+{
+	/* Sanity checks */
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+
+	/* Ignore unchanged state */
+	if (trans->state == new_state) {
+		return(0);
+	}
+
+	if (trans->set_state != NULL) {
+		if (trans->set_state(trans, new_state) == -1) {
+			/* pm_errno is set by trans->state_changed() */
+			return(-1);
+		}
+	}
+	trans->state = new_state;
+
+	return(0);
+}
+
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 {
 	/* Sanity checks */
@@ -177,7 +206,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 		return(-1);
 	}
 
-	trans->state = STATE_PREPARED;
+	_pacman_trans_set_state(trans, STATE_PREPARED);
 
 	return(0);
 }
@@ -187,7 +216,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(trans->ops != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(trans->ops->prepare != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(trans->ops->commit != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	if(data!=NULL)
 		*data = NULL;
@@ -197,14 +226,15 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 		return(0);
 	}
 
-	trans->state = STATE_COMMITING;
+	_pacman_trans_set_state(trans, STATE_COMMITING);
 
 	if(trans->ops->commit(trans, data) == -1) {
 		/* pm_errno is set by trans->ops->commit() */
+		_pacman_trans_set_state(trans, STATE_PREPARED);
 		return(-1);
 	}
 
-	trans->state = STATE_COMMITED;
+	_pacman_trans_set_state(trans, STATE_COMMITED);
 
 	return(0);
 }

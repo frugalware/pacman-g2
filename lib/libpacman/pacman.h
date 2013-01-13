@@ -213,8 +213,6 @@ void *pacman_pkg_getinfo(PM_PKG *pkg, unsigned char parm);
 PM_LIST *pacman_pkg_getowners(char *filename);
 int pacman_pkg_load(char *filename, PM_PKG **pkg);
 int pacman_pkg_free(PM_PKG *pkg);
-int pacman_pkg_checkmd5sum(PM_PKG *pkg);
-int pacman_pkg_checksha1sum(PM_PKG *pkg);
 char *pacman_fetch_pkgurl(char *url);
 int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *this_section);
 int pacman_pkg_vercmp(const char *ver1, const char *ver2);

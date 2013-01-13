@@ -610,10 +610,10 @@ cleanup:
 	return(retval);
 }
 
-int _pacman_runhook(char *root, char *hookdir, const char *hookname, pmtrans_t *trans)
+int _pacman_runhook(const char *hookname, pmtrans_t *trans)
 {
+	char *hookdir, *root, *scriptpath; 
 	char scriptfn[PATH_MAX];
-	char *scriptpath;
 	char hookpath[PATH_MAX];
 	char cmdline[PATH_MAX];
 	char cwd[PATH_MAX] = "";
@@ -621,6 +621,9 @@ int _pacman_runhook(char *root, char *hookdir, const char *hookname, pmtrans_t *
 	int retval = 0;
 	DIR *dir;
 	struct dirent *ent;
+
+	hookdir = trans->handle->hooksdir;
+	root = trans->handle->root;
 
 	_pacman_log(PM_LOG_FLOW2, _("executing %s hooks..."), hookname);
 

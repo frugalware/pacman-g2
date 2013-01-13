@@ -57,6 +57,7 @@
 #include "remove.h"
 #include "handle.h"
 #include "pacman.h"
+#include "packages_transaction.h"
 
 int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 {

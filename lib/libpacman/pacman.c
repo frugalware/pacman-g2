@@ -536,100 +536,6 @@ int pacman_pkg_free(pmpkg_t *pkg)
 	return(0);
 }
 
-/** Check the integrity (with sha1) of a package from the sync cache.
- * @param pkg package pointer
- * @return 0 on success, -1 on error (pm_errno is set accordingly)
- */
-int pacman_pkg_checksha1sum(pmpkg_t *pkg)
-{
-	char path[PATH_MAX];
-	char *sha1sum = NULL;
-	int retval = 0;
-
-	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	/* We only inspect packages from sync repositories */
-	ASSERT(pkg->origin == PKG_FROM_CACHE, RET_ERR(PM_ERR_PKG_INVALID, -1));
-	ASSERT(pkg->data != handle->db_local, RET_ERR(PM_ERR_PKG_INVALID, -1));
-
-	snprintf(path, PATH_MAX, "%s%s/%s-%s" PM_EXT_PKG,
-	                handle->root, handle->cachedir,
-	                pkg->name, pkg->version);
-
-	sha1sum = _pacman_SHAFile(path);
-	if(sha1sum == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("could not get sha1 checksum for package %s-%s\n"),
-		          pkg->name, pkg->version);
-		pm_errno = PM_ERR_NOT_A_FILE;
-		retval = -1;
-	} else {
-		if(!(pkg->infolevel & INFRQ_DESC)) {
-			_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), pkg->name);
-			_pacman_db_read(pkg->data, INFRQ_DESC, pkg);
-		}
-
-		if(strcmp(sha1sum, pkg->sha1sum) == 0) {
-			_pacman_log(PM_LOG_FLOW1, _("checksums for package %s-%s are matching"),
-			                        pkg->name, pkg->version);
-		} else {
-			_pacman_log(PM_LOG_ERROR, _("sha1sums do not match for package %s-%s\n"),
-			                        pkg->name, pkg->version);
-			pm_errno = PM_ERR_PKG_INVALID;
-			retval = -1;
-		}
-	}
-
-	FREE(sha1sum);
-
-	return(retval);
-}
-
-/** Check the integrity (with md5) of a package from the sync cache.
- * @param pkg package pointer
- * @return 0 on success, -1 on error (pm_errno is set accordingly)
- */
-int pacman_pkg_checkmd5sum(pmpkg_t *pkg)
-{
-	char path[PATH_MAX];
-	char *md5sum = NULL;
-	int retval = 0;
-
-	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	/* We only inspect packages from sync repositories */
-	ASSERT(pkg->origin == PKG_FROM_CACHE, RET_ERR(PM_ERR_PKG_INVALID, -1));
-	ASSERT(pkg->data != handle->db_local, RET_ERR(PM_ERR_PKG_INVALID, -1));
-
-	snprintf(path, PATH_MAX, "%s%s/%s-%s" PM_EXT_PKG,
-	                handle->root, handle->cachedir,
-	                pkg->name, pkg->version);
-
-	md5sum = _pacman_MDFile(path);
-	if(md5sum == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("could not get md5 checksum for package %s-%s\n"),
-		          pkg->name, pkg->version);
-		pm_errno = PM_ERR_NOT_A_FILE;
-		retval = -1;
-	} else {
-		if(!(pkg->infolevel & INFRQ_DESC)) {
-			_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), pkg->name);
-			_pacman_db_read(pkg->data, INFRQ_DESC, pkg);
-		}
-
-		if(strcmp(md5sum, pkg->md5sum) == 0) {
-			_pacman_log(PM_LOG_FLOW1, _("checksums for package %s-%s are matching"),
-			                        pkg->name, pkg->version);
-		} else {
-			_pacman_log(PM_LOG_ERROR, _("md5sums do not match for package %s-%s\n"),
-			                        pkg->name, pkg->version);
-			pm_errno = PM_ERR_PKG_INVALID;
-			retval = -1;
-		}
-	}
-
-	FREE(md5sum);
-
-	return(retval);
-}
-
 /** Compare versions.
  * @param ver1 first version
  * @param ver2 second version
@@ -813,6 +719,7 @@ int pacman_trans_init(unsigned char type, unsigned int flags, pacman_trans_cb_ev
 		.progress = progress
 	};
 
+	_pacman_packages_transaction_init(handle->trans);
 	return(_pacman_trans_init(handle->trans, type, flags, cbs));
 }
 

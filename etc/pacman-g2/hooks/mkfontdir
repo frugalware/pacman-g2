@@ -1,0 +1,15 @@
+#!/bin/sh
+
+do_mkfontdir()
+{
+	for i in /usr/share/fonts/X11/*; do
+		if [ -d "$i" -a -x /usr/bin/mkfontdir ]; then
+			/usr/bin/mkfontdir "$i"
+		fi
+	done
+	return 0
+}
+
+op=$1
+shift
+$op $*
