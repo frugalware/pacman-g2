@@ -128,6 +128,9 @@ void _pacman_server_free(void *data)
 int curlProgress(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow) {
     if(dltotal > 0 && dlnow > 0) {
         int curlDlTotal = dltotal;
+        if(pm_dloffset && *pm_dloffset > 0) {
+            curlDlTotal += *pm_dloffset;
+        }
         int curlDlNow = dlnow;
         ((FtpCallback) clientp) (NULL, curlDlNow, &curlDlTotal);
     }
@@ -173,7 +176,6 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	pmlist_t *i;
 	pmserver_t *server;
     CURL * curlHandle = NULL;
-    CURLcode retc = CURLE_OK;
 	int *remain = handle->dlremain, *howmany = handle->dlhowmany;
 
 	if(files == NULL) {
@@ -342,6 +344,8 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                     }
                 } else {
                     //download files using libcurl
+                    FILE * outputFile = NULL;
+                    CURLcode retc = CURLE_OK;
                     if(!curlHandle) {
                         retc =  curl_global_init(CURL_GLOBAL_DEFAULT);
                         curlHandle = curl_easy_init();
@@ -359,6 +363,15 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                             else {
                                 curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 0);
                                 curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_NONE);
+                                if(!stat(output, &st) && pm_dloffset) {
+                                        *pm_dloffset = (int)st.st_size;
+                                        curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, *pm_dloffset);
+                                        outputFile = fopen(output,"ab");
+                                }
+                                else {
+                                     curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, 0);
+                                     outputFile = fopen(output,"wb");
+                                }
                             }
                             retc = curl_easy_setopt(curlHandle,CURLOPT_NOPROGRESS , 0);
                             if(retc != CURLE_OK) {
@@ -377,7 +390,6 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                             }
                         }
                     }
-                    FILE * outputFile = fopen(output,"w+");
                     if(!outputFile){
                         _pacman_log(PM_LOG_WARNING, _("error opening output file: %s\n"), output);
                         pm_errno = PM_ERR_BADPERMS;
