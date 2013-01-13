@@ -315,12 +315,6 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				if(ptr && (ptr-fn) < PM_DLFNM_LEN) {
 					pm_dlfnm[ptr-fn] = '\0';
 				}
-				if(pm_dlfnm) {
-					for(j = strlen(pm_dlfnm); j < PM_DLFNM_LEN; j++) {
-						(pm_dlfnm)[j] = ' ';
-					}
-					pm_dlfnm[PM_DLFNM_LEN] = '\0';
-				}
 				if(pm_dloffset) {
 					*pm_dloffset = 0;
 				}
