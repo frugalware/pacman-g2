@@ -14,6 +14,7 @@ set(LIBPACMAN_SOURCES
 	md5.c
 	md5driver.c
 	package.c
+	packages_transaction.c
 	pacman.c
 	provide.c
 	remove.c
@@ -41,10 +42,8 @@ endif(NOT PACCURL_FOUND)
 
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_LARGEFILE64_SOURCE")
 
-message("paccurl include: ${CURL_INCLUDE_DIRS}")
 add_library(pacman SHARED ${LIBPACMAN_SOURCES})
 set_target_properties(pacman PROPERTIES SOVERSION 0.${PACMAN_G2_LIB_VERSION})
-message("paccurl: ${CURL_LIBRARIES}")
 target_link_libraries(pacman ${LibArchive_LIBRARIES} ${CURL_LIBRARIES})
 
 install(TARGETS pacman DESTINATION lib)
