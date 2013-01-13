@@ -355,24 +355,6 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                             goto error;
                         }
                         else {
-                            if(mtime1 && mtime2) {
-                                curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
-                                curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
-                                curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE , strtol(mtime1, NULL, 10));
-                            }
-                            else {
-                                curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 0);
-                                curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_NONE);
-                                if(!stat(output, &st) && pm_dloffset) {
-                                        *pm_dloffset = (int)st.st_size;
-                                        curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, *pm_dloffset);
-                                        outputFile = fopen(output,"ab");
-                                }
-                                else {
-                                     curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, 0);
-                                     outputFile = fopen(output,"wb");
-                                }
-                            }
                             retc = curl_easy_setopt(curlHandle,CURLOPT_NOPROGRESS , 0);
                             if(retc != CURLE_OK) {
                                 _pacman_log(PM_LOG_DEBUG, _("error setting noprogress off\n"));
@@ -388,6 +370,25 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                                 _pacman_log(PM_LOG_DEBUG, _("error setting progress bar\n"));
                                 continue;
                             }
+                        }
+                    }
+                    if(mtime1 && mtime2) {
+                        curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
+                        curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
+                        curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE , strtol(mtime1, NULL, 10));
+                        outputFile = fopen(output,"wb");
+                    }
+                    else {
+                        curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 0);
+                        curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_NONE);
+                        if(!stat(output, &st) && pm_dloffset) {
+                                *pm_dloffset = (int)st.st_size;
+                                curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, *pm_dloffset);
+                                outputFile = fopen(output,"ab");
+                        }
+                        else {
+                             curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, 0);
+                             outputFile = fopen(output,"wb");
                         }
                     }
                     if(!outputFile){
