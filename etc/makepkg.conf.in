@@ -30,8 +30,9 @@ case $(uname -m) in
 		CXXFLAGS="-march=armv5te -O2 -pipe"
 		;;
 esac
-
 export CARCH CHOST CFLAGS CXXFLAGS
+
+export LDFLAGS="-Wl,--hash-style=both"
 
 # SMP Systems
 #export MAKEFLAGS="-j2"
