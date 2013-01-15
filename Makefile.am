@@ -26,3 +26,10 @@ EXTRA_DIST =		\
 
 check:
 	python $(top_srcdir)/pactest/pactest.py --test=$(top_srcdir)/pactest/tests/*.py -p $(top_builddir)/src/pacman-g2/pacman-g2 --debug=-1
+
+check-gdb:
+	python $(top_srcdir)/pactest/pactest.py --test=$(top_srcdir)/pactest/tests/*.py -p $(top_builddir)/src/pacman-g2/pacman-g2 --debug=-1 --gdb
+
+check-valgrind:
+	python $(top_srcdir)/pactest/pactest.py --test=$(top_srcdir)/pactest/tests/*.py -p $(top_builddir)/src/pacman-g2/pacman-g2 --debug=-1 --valgrind
+
