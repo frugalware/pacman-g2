@@ -173,7 +173,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sy
 				local->name, local->version);
 		} else if(cmp == 0) {
 			/* versions are identical */
-		} else if(_pacman_list_is_strin(i->data, handle->ignorepkg)) {
+		} else if(_pacman_list_is_strin(local->name, handle->ignorepkg)) {
 			/* package should be ignored (IgnorePkg) */
 			_pacman_log(PM_LOG_WARNING, _("%s-%s: ignoring package upgrade (%s)"),
 				local->name, local->version, spkg->version);
