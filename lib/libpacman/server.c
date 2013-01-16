@@ -370,6 +370,21 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                                 _pacman_log(PM_LOG_DEBUG, _("error setting progress bar\n"));
                                 continue;
                             }
+                            if(handle->proxyhost) {
+                                if(!handle->proxyport) {
+                                    _pacman_log(PM_LOG_WARNING, _("pacman proxy setting needs a port specified url:port\n"));
+                                    pm_errno = PM_ERR_CONNECT_FAILED;
+                                    goto error;
+                                }
+                                char pacmanProxy[PATH_MAX];
+                                sprintf(pacmanProxy, "%s:%d", handle->proxyhost, handle->proxyport);
+                                retc = curl_easy_setopt(curlHandle,CURLOPT_PROXY, pacmanProxy);
+                                if(retc != CURLE_OK) {
+                                    _pacman_log(PM_LOG_WARNING, _("error setting proxy\n"));
+                                    pm_errno = PM_ERR_CONNECT_FAILED;
+                                    goto error;
+                                }
+                            }
                         }
                     }
                     if(mtime1 && mtime2) {
@@ -419,8 +434,11 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                     if(mtime1 && mtime2) {
                         long int rcCode = 0;
                         curl_easy_getinfo(curlHandle, CURLINFO_RESPONSE_CODE, &rcCode);
-                        if(rcCode==213 || rcCode==304) {
+                        double downSize = 0;
+                        curl_easy_getinfo(curlHandle, CURLINFO_SIZE_DOWNLOAD, &downSize);
+                        if(rcCode==213 || rcCode==304 || downSize == 0) {
                             //return codes for when timestamp was the same (FTP and HTTP)
+                            //also check for download size as in some cases (proxy) ret codes won't work
                             filedone = -1;
                         }
                         else {
