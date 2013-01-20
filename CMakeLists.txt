@@ -97,4 +97,7 @@ ADD_SUBDIRECTORY(lib/libpacman)
 ADD_SUBDIRECTORY(src/versort)
 ADD_SUBDIRECTORY(src/vercmp)
 ADD_SUBDIRECTORY(src/pacman-g2)
-ADD_SUBDIRECTORY(src/pacman-g2-static)
+if(NOT DISABLE_STATIC_BUILD)
+  ADD_SUBDIRECTORY(src/pacman-g2-static)
+endif(NOT DISABLE_STATIC_BUILD)
+
