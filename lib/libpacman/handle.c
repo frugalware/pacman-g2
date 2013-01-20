@@ -42,7 +42,7 @@
 #include "server.h"
 #include "handle.h"
 
-pmhandle_t *_pacman_handle_new()
+pmhandle_t *_pacman_handle_new(const char * root)
 {
 	pmhandle_t *ph = _pacman_zalloc(sizeof(pmhandle_t));
 
@@ -53,22 +53,25 @@ pmhandle_t *_pacman_handle_new()
 	ph->lckfd = -1;
 	ph->maxtries = 1;
 
+    char str[PATH_MAX];
+    STRNCPY(str, (root) ? root : PM_ROOT, PATH_MAX);
+    /* add a trailing '/' if there isn't one */
+    if(str[strlen(str)-1] != '/') {
+        strcat(str, "/");
+    }
+    ph->root = strdup(str);
+
 #ifndef CYGWIN
 	/* see if we're root or not */
 	ph->uid = geteuid();
-#ifndef FAKEROOT
 	if(!ph->uid && getenv("FAKEROOTKEY")) {
 		/* fakeroot doesn't count, we're non-root */
 		ph->uid = 99;
 	}
-#endif
 
-	/* see if we're root or not (fakeroot does not count) */
-#ifndef FAKEROOT
-	if(ph->uid == 0 && !getenv("FAKEROOTKEY")) {
-#else
-	if(ph->uid == 0) {
-#endif
+    /* see if we're root or not (fakeroot does not count)
+    if we have a root other than "/" then don't require root acces */
+    if((ph->uid == 0 && !getenv("FAKEROOTKEY")) || strlen(ph->root) > 1) {
 		ph->access = PM_ACCESS_RW;
 	} else {
 		ph->access = PM_ACCESS_RO;

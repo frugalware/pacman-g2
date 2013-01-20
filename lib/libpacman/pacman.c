@@ -77,21 +77,12 @@ enum __pmerrno_t pm_errno;
  */
 int pacman_initialize(const char *root)
 {
-	char str[PATH_MAX];
+    ASSERT(handle == NULL, RET_ERR(PM_ERR_HANDLE_NOT_NULL, -1));
 
-	ASSERT(handle == NULL, RET_ERR(PM_ERR_HANDLE_NOT_NULL, -1));
-
-	handle = _pacman_handle_new();
+    handle = _pacman_handle_new(root);
 	if(handle == NULL) {
 		RET_ERR(PM_ERR_MEMORY, -1);
 	}
-
-	STRNCPY(str, (root) ? root : PM_ROOT, PATH_MAX);
-	/* add a trailing '/' if there isn't one */
-	if(str[strlen(str)-1] != '/') {
-		strcat(str, "/");
-	}
-	handle->root = strdup(str);
 
 	return(0);
 }

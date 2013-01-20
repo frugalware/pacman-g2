@@ -56,7 +56,7 @@ if __name__ == "__main__":
 		elif cmd == "-t" or cmd == "--test":
 			testcases.extend(glob.glob(param))
 		elif cmd == "-p" or cmd == "--pacman":
-			env.pacman["bin"] = os.path.abspath(param)
+			env.pacman["bin"] = param
 		elif cmd == "-h" or cmd == "--help":
 			usage(0)
 		elif cmd == "--gdb":

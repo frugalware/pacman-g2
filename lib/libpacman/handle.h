@@ -77,7 +77,7 @@ extern pmhandle_t *handle;
 
 #define FREEHANDLE(p) do { if (p) { _pacman_handle_free(p); p = NULL; } } while (0)
 
-pmhandle_t *_pacman_handle_new(void);
+pmhandle_t *_pacman_handle_new(const char * root);
 int _pacman_handle_free(pmhandle_t *handle);
 int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long data);
 int _pacman_handle_get_option(pmhandle_t *handle, unsigned char val, long *data);
