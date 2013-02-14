@@ -857,6 +857,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 				if(_pacman_downloadfiles(current->servers, ldir, files, tries) == -1) {
 					_pacman_log(PM_LOG_WARNING, _("failed to retrieve some files from %s\n"), current->treename);
+					retval=1;
 					done = 0;
 				}
 				FREELIST(files);
