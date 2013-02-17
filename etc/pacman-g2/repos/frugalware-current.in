@@ -6,8 +6,8 @@
 # -----------
 # - BELGIUM -
 # -----------
-# Belgian National Research Network (1 GBit)
-Server = ftp://ftp5.frugalware.org/packages/frugalware/pub/frugalware/frugalware-current/frugalware-@CARCH@
+# Belgian National Research Network (10 GBit)
+Server = ftp://ftp5.frugalware.org/mirror/ftp.frugalware.org/pub/frugalware/frugalware-current/frugalware-@CARCH@
 # ----------
 # - FRANCE -
 # ----------
