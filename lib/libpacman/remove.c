@@ -285,6 +285,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
 				_pacman_runscriptlet(handle->root, pm_install, "post_remove", info->version, NULL, trans);
+				_pacman_ldconfig(handle->root);
 			}
 		}
 
@@ -343,17 +344,14 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 		}
 
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
-			_pacman_ldconfig(handle->root);
 			EVENT(trans, PM_TRANS_EVT_REMOVE_DONE, info, NULL);
 		}
 	}
 
-#if 0
 	/* run ldconfig if it exists */
 	if((trans->type != PM_TRANS_TYPE_UPGRADE) && (handle->trans->state != STATE_INTERRUPTED)) {
 		_pacman_ldconfig(handle->root);
 	}
-#endif
 
 	return(0);
 }

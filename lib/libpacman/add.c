@@ -816,10 +816,9 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_EXTRACT_DONE, NULL, NULL);
 		FREE(what);
 
-		_pacman_ldconfig(handle->root);
-
 		/* run the post-install script if it exists  */
 		if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
+			_pacman_ldconfig(handle->root);
 			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", handle->root, handle->dbpath, db->treename, info->name, info->version);
 			if(pmo_upgrade) {
 				_pacman_runscriptlet(handle->root, pm_install, "post_upgrade", info->version, oldpkg ? oldpkg->version : NULL, trans);
@@ -833,12 +832,10 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 		FREEPKG(oldpkg);
 	}
 
-#if 0
 	/* run ldconfig if it exists */
 	if(handle->trans->state != STATE_INTERRUPTED) {
 		_pacman_ldconfig(handle->root);
 	}
-#endif
 
 	return(ret);
 }
