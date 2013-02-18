@@ -343,14 +343,17 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 		}
 
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
+			_pacman_ldconfig(handle->root);
 			EVENT(trans, PM_TRANS_EVT_REMOVE_DONE, info, NULL);
 		}
 	}
 
+#if 0
 	/* run ldconfig if it exists */
 	if((trans->type != PM_TRANS_TYPE_UPGRADE) && (handle->trans->state != STATE_INTERRUPTED)) {
 		_pacman_ldconfig(handle->root);
 	}
+#endif
 
 	return(0);
 }
