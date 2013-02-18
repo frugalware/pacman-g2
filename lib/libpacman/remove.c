@@ -283,10 +283,10 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			/* run the post-remove script if it exists */
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
-				_pacman_runscriptlet(handle->root, pm_install, "post_remove", info->version, NULL, trans);
 				/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
 				_pacman_ldconfig(handle->root);
+				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
+				_pacman_runscriptlet(handle->root, pm_install, "post_remove", info->version, NULL, trans);
 			}
 		}
 
