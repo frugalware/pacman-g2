@@ -818,6 +818,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 
 		/* run the post-install script if it exists  */
 		if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
+			/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
 			_pacman_ldconfig(handle->root);
 			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", handle->root, handle->dbpath, db->treename, info->name, info->version);
 			if(pmo_upgrade) {
