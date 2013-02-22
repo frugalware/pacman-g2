@@ -1614,11 +1614,13 @@ fi
 # build
 msg "Starting build()..."
 stime=`date +%s`
-build
-if [ $? -gt 0 ]; then
-	error "Build Failed.  Aborting..."
-	exit 2
-fi
+for hook in "${_P_makepkg_prebuild_hooks[@]}" build "${_P_makepkg_postbuild_hooks[@]}"; do
+	"$hook"
+	if [ $? -ne 0 ]; then
+		error "Build Failed.  Aborting..."
+		exit 2
+	fi
+done
 
 if [ -n "`find . -name "*|*"`" ]; then
 	error "Filenames in a package must not contain pipes!"
