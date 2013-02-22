@@ -1600,10 +1600,53 @@ if [ "$NOCCACHE" = "0" -a -d /usr/lib/ccache/bin -a ! "`check_option NOCCACHE`" 
 	fi
 fi
 
+makepkg_timed_build () {
+	local ret
+
+	msg "Starting build()..."
+	stime=`date +%s`
+
+	build
+	ret=$?
+	if [ $ret -ne 0 ]; then
+		return $ret
+	fi
+
+	# count sbu
+	if [ "$SBU" == "1" ]; then
+		# $SBU not yet set
+		totaltime="$(( $(date +%s) - $stime ))"
+		if [ -z "$HRBT" ]; then 
+			msg "Elapsed Time: $totaltime seconds"
+		else
+			hours="$(( $totaltime / 3600 ))"
+			minutes="$(( $totaltime % 3600 / 60 ))"
+			seconds="$(( $totaltime % 3600 % 60 ))"
+			totaltime=""
+			if [ "$hours" -gt 0 ]; then
+				totaltime="$totaltime ${hours}h"
+			fi
+			if [ "$minutes" -gt 0 ]; then
+				totaltime="$totaltime ${minutes}m"
+			fi
+			if [ "$seconds" -gt 0 ]; then
+				totaltime="$totaltime ${seconds}s"
+			fi
+			msg "Elapsed Time:$totaltime"
+		fi
+	elif [ ! -z "$SBU" ]; then
+		if [ `type -p bc` ]; then
+			pkgsbu=`$ECHO -e "scale=2\n$(($(date +%s)-$stime))/$SBU"|bc /dev/stdin|sed 's/^\./0./'`
+			msg "Elapsed Time: $pkgsbu SBU"
+		else
+			warning "The bc program is missing.  Cannot count SBU!"
+		fi
+	fi
+}
+
 # build
-msg "Starting build()..."
-stime=`date +%s`
-for hook in "${_P_makepkg_prebuild_hooks[@]}" build "${_P_makepkg_postbuild_hooks[@]}"; do
+for hook in "${_P_makepkg_prebuild_hooks[@]}" makepkg_timed_build "${_P_makepkg_postbuild_hooks[@]}"; do
+	#cd "$startdir"
 	"$hook"
 	if [ $? -ne 0 ]; then
 		error "Build Failed.  Aborting..."
@@ -1616,39 +1659,7 @@ if [ -n "`find . -name "*|*"`" ]; then
 	exit 2
 fi
 
-# count sbu
-if [ "$SBU" == "1" ]; then
-	# $SBU not yet set
-	totaltime="$(( $(date +%s) - $stime ))"
-	if [ -z "$HRBT" ]; then 
-		msg "Elapsed Time: $totaltime seconds"
-	else
-		hours="$(( $totaltime / 3600 ))"
-		minutes="$(( $totaltime % 3600 / 60 ))"
-		seconds="$(( $totaltime % 3600 % 60 ))"
-		totaltime=""
-		if [ "$hours" -gt 0 ]; then
-			totaltime="$totaltime ${hours}h"
-		fi
-		if [ "$minutes" -gt 0 ]; then
-			totaltime="$totaltime ${minutes}m"
-		fi
-		if [ "$seconds" -gt 0 ]; then
-			totaltime="$totaltime ${seconds}s"
-		fi
-		msg "Elapsed Time:$totaltime"
-	fi
-elif [ ! -z "$SBU" ]; then
-	if [ `type -p bc` ]; then
-		pkgsbu=`$ECHO -e "scale=2\n$(($(date +%s)-$stime))/$SBU"|bc /dev/stdin|sed 's/^\./0./'`
-		msg "Elapsed Time: $pkgsbu SBU"
-	else
-		warning "The bc program is missing.  Cannot count SBU!"
-	fi
-fi
-
 cd $startdir
-
 
 # strip binaries
 strip_pkg $pkgname
