@@ -748,6 +748,7 @@ int pacman_trans_sysupgrade()
 int pacman_trans_addtarget(const char *target)
 {
 	pmtrans_t *trans;
+	__pmtrans_pkg_type_t type = _PACMAN_TRANS_PKG_TYPE_NULL;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -756,8 +757,20 @@ int pacman_trans_addtarget(const char *target)
 	trans = handle->trans;
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(trans->state == STATE_INITIALIZED, RET_ERR(PM_ERR_TRANS_NOT_INITIALIZED, -1));
+	switch (trans->type) {
+	case PM_TRANS_TYPE_ADD:
+		type = _PACMAN_TRANS_PKG_TYPE_ADD;
+		break;
+	case PM_TRANS_TYPE_REMOVE:
+		type = _PACMAN_TRANS_PKG_TYPE_REMOVE;
+		break;
+	case PM_TRANS_TYPE_UPGRADE:
+		case PM_TRANS_TYPE_SYNC:
+		type = _PACMAN_TRANS_PKG_TYPE_UPGRADE;
+		break;
+	}
 
-	return(_pacman_trans_addtarget(trans, target));
+	return(_pacman_trans_addtarget(trans, target, type, 0));
 }
 
 /** Prepare a transaction.

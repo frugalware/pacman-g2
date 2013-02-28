@@ -39,6 +39,13 @@ enum {
 	STATE_MAX
 };
 
+typedef enum {
+	_PACMAN_TRANS_PKG_TYPE_NULL    = 0,
+	_PACMAN_TRANS_PKG_TYPE_REMOVE  = (1 << 0),
+	_PACMAN_TRANS_PKG_TYPE_ADD     = (1 << 1),
+	_PACMAN_TRANS_PKG_TYPE_UPGRADE = (_PACMAN_TRANS_PKG_TYPE_REMOVE | _PACMAN_TRANS_PKG_TYPE_ADD)
+} __pmtrans_pkg_type_t;
+
 typedef struct __pmtrans_ops_t {
 	void (*fini)(pmtrans_t *trans);
 	int (*addtarget)(pmtrans_t *trans, const char *name);
@@ -100,7 +107,7 @@ int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags,
 void _pacman_trans_fini(pmtrans_t *trans);
 
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state);
-int _pacman_trans_addtarget(pmtrans_t *trans, const char *target);
+int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_type_t type, unsigned int flags);
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data);
 int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data);
 
