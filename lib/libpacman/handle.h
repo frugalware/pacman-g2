@@ -31,6 +31,7 @@ typedef struct __pmhandle_t pmhandle_t;
 
 #include "list.h"
 #include "db.h"
+#include "object.h"
 #include "trans.h"
 
 typedef enum __pmaccess_t {
@@ -39,6 +40,8 @@ typedef enum __pmaccess_t {
 } pmaccess_t;
 
 struct __pmhandle_t {
+	struct pmobject base;
+
 	pmaccess_t access;
 	uid_t uid;
 	pmdb_t *db_local;

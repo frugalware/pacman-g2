@@ -43,6 +43,44 @@
 #include "server.h"
 #include "handle.h"
 
+static
+void _pacman_handle_fini(struct pmobject *obj)
+{
+	pmhandle_t *ph = (pmhandle_t *)obj;
+
+	/* close logfiles */
+	if(ph->logfd) {
+		fclose(ph->logfd);
+		ph->logfd = NULL;
+	}
+	if(ph->usesyslog) {
+		ph->usesyslog = 0;
+		closelog();
+	}
+
+	/* free memory */
+	FREETRANS(ph->trans);
+	FREE(ph->root);
+	FREE(ph->dbpath);
+	FREE(ph->cachedir);
+	FREE(ph->hooksdir);
+	FREE(ph->language);
+	FREE(ph->logfile);
+	FREE(ph->proxyhost);
+	FREE(ph->xfercommand);
+	FREELIST(ph->dbs_sync);
+	FREELIST(ph->noupgrade);
+	FREELIST(ph->noextract);
+	FREELIST(ph->ignorepkg);
+	FREELIST(ph->holdpkg);
+	FREELIST(ph->needles);
+}
+
+static const
+struct pmobject_ops _pacman_handle_ops = {
+	.fini = _pacman_handle_fini,
+};
+
 pmhandle_t *_pacman_handle_new()
 {
 	pmhandle_t *ph = _pacman_zalloc(sizeof(pmhandle_t));
@@ -50,6 +88,8 @@ pmhandle_t *_pacman_handle_new()
 	if(ph == NULL) {
 		return(NULL);
 	}
+
+	_pacman_object_init (&ph->base, &_pacman_handle_ops);
 
 	ph->lckfd = -1;
 	ph->maxtries = 1;
@@ -89,37 +129,7 @@ pmhandle_t *_pacman_handle_new()
 
 int _pacman_handle_free(pmhandle_t *ph)
 {
-	ASSERT(ph != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
-
-	/* close logfiles */
-	if(ph->logfd) {
-		fclose(ph->logfd);
-		ph->logfd = NULL;
-	}
-	if(ph->usesyslog) {
-		ph->usesyslog = 0;
-		closelog();
-	}
-
-	/* free memory */
-	FREETRANS(ph->trans);
-	FREE(ph->root);
-	FREE(ph->dbpath);
-	FREE(ph->cachedir);
-	FREE(ph->hooksdir);
-	FREE(ph->language);
-	FREE(ph->logfile);
-	FREE(ph->proxyhost);
-	FREE(ph->xfercommand);
-	FREELIST(ph->dbs_sync);
-	FREELIST(ph->noupgrade);
-	FREELIST(ph->noextract);
-	FREELIST(ph->ignorepkg);
-	FREELIST(ph->holdpkg);
-	FREELIST(ph->needles);
-	free(ph);
-
-	return(0);
+	return _pacman_object_free (&ph->base);
 }
 
 int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long data)
