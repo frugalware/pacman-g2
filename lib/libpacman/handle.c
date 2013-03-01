@@ -89,7 +89,7 @@ pmhandle_t *_pacman_handle_new()
 		return(NULL);
 	}
 
-	_pacman_object_init (&ph->base, &_pacman_handle_ops);
+	__pacman_object_init (&ph->base, &_pacman_handle_ops);
 
 	ph->lckfd = -1;
 	ph->maxtries = 1;

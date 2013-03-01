@@ -26,7 +26,7 @@
 
 #include "object.h"
 
-int _pacman_object_init(struct pmobject *object, const struct pmobject_ops *ops) {
+int __pacman_object_init(struct pmobject *object, const struct pmobject_ops *ops) {
 	if (object == NULL ||
 			ops == NULL) {
 		return EINVAL;
@@ -36,7 +36,7 @@ int _pacman_object_init(struct pmobject *object, const struct pmobject_ops *ops)
 	return 0;
 }
 
-int _pacman_object_fini(struct pmobject *object) {
+int __pacman_object_fini(struct pmobject *object) {
 	if (object == NULL ||
 			object->ops == NULL) {
 		return EINVAL;

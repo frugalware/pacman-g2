@@ -60,7 +60,7 @@ static int check_oldcache(void)
 }
 
 static
-void _pacman_trans_fini(struct pmobject *obj) {
+void __pacman_trans_fini(struct pmobject *obj) {
 	pmtrans_t *trans = (pmtrans_t *)obj;
 
 	FREELIST(trans->targets);
@@ -78,7 +78,7 @@ void _pacman_trans_fini(struct pmobject *obj) {
 
 static const
 struct pmobject_ops _pacman_trans_ops = {
-	.fini = _pacman_trans_fini,
+	.fini = __pacman_trans_fini,
 };
 
 pmtrans_t *_pacman_trans_new()
@@ -86,7 +86,7 @@ pmtrans_t *_pacman_trans_new()
 	pmtrans_t *trans = _pacman_zalloc(sizeof(pmtrans_t));
 
 	if(trans) {
-		_pacman_object_init (&trans->base, &_pacman_trans_ops);
+		__pacman_object_init (&trans->base, &_pacman_trans_ops);
 		trans->state = STATE_IDLE;
 	}
 

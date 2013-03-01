@@ -34,8 +34,8 @@ struct pmobject {
 int _pacman_object_free(struct pmobject *object);
 
 /* Implementation details */
-int _pacman_object_init(struct pmobject *object, const struct pmobject_ops *ops);
-int _pacman_object_fini(struct pmobject *object);
+int __pacman_object_init(struct pmobject *object, const struct pmobject_ops *ops);
+int __pacman_object_fini(struct pmobject *object);
 
 #endif /* _PACMAN_OBJECT_H */
 

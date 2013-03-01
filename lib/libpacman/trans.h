@@ -114,8 +114,8 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data);
 int _pacman_trans_sysupgrade(pmtrans_t *trans);
 
 /* Implementation details */
-int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
-/* void _pacman_trans_fini(pmtrans_t *trans); */
+int __pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
+/* void __pacman_trans_fini(pmtrans_t *trans); */
 
 #endif /* _PACMAN_TRANS_H */
 
