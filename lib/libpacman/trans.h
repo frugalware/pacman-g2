@@ -60,6 +60,8 @@ typedef struct __pmtrans_cbs_t {
 } pmtrans_cbs_t;
 
 struct __pmtrans_t {
+	struct pmobject base;
+
 	const pmtrans_ops_t *ops;
 	int (*set_state)(pmtrans_t *trans, int new_state);
 	pmhandle_t *handle;
@@ -103,8 +105,6 @@ do { \
 
 pmtrans_t *_pacman_trans_new(void);
 void _pacman_trans_free(pmtrans_t *trans);
-int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
-void _pacman_trans_fini(pmtrans_t *trans);
 
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state);
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_type_t type, unsigned int flags);
@@ -112,6 +112,10 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data);
 int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data);
 
 int _pacman_trans_sysupgrade(pmtrans_t *trans);
+
+/* Implementation details */
+int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
+/* void _pacman_trans_fini(pmtrans_t *trans); */
 
 #endif /* _PACMAN_TRANS_H */
 

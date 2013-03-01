@@ -59,22 +59,9 @@ static int check_oldcache(void)
 	return(0);
 }
 
-pmtrans_t *_pacman_trans_new()
-{
-	pmtrans_t *trans = _pacman_zalloc(sizeof(pmtrans_t));
-
-	if(trans) {
-		trans->state = STATE_IDLE;
-	}
-
-	return(trans);
-}
-
-void _pacman_trans_free(pmtrans_t *trans)
-{
-	if(trans == NULL) {
-		return;
-	}
+static
+void _pacman_trans_fini(struct pmobject *obj) {
+	pmtrans_t *trans = (pmtrans_t *)obj;
 
 	FREELIST(trans->targets);
 	if(trans->type == PM_TRANS_TYPE_SYNC) {
@@ -86,11 +73,28 @@ void _pacman_trans_free(pmtrans_t *trans)
 	} else {
 		FREELISTPKGS(trans->packages);
 	}
-
 	FREELIST(trans->skiplist);
+}
 
-	_pacman_trans_fini(trans);
-	free(trans);
+static const
+struct pmobject_ops _pacman_trans_ops = {
+	.fini = _pacman_trans_fini,
+};
+
+pmtrans_t *_pacman_trans_new()
+{
+	pmtrans_t *trans = _pacman_zalloc(sizeof(pmtrans_t));
+
+	if(trans) {
+		_pacman_object_init (&trans->base, &_pacman_trans_ops);
+		trans->state = STATE_IDLE;
+	}
+
+	return(trans);
+}
+
+void _pacman_trans_free(pmtrans_t *trans) {
+	_pacman_object_free (&trans->base);
 }
 
 int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs)
@@ -126,13 +130,6 @@ int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags,
 	check_oldcache();
 
 	return(0);
-}
-
-void _pacman_trans_fini(pmtrans_t *trans)
-{
-	if(trans !=NULL && trans->ops != NULL && trans->ops->fini != NULL) {
-		trans->ops->fini(trans);
-	}
 }
 
 int _pacman_trans_sysupgrade(pmtrans_t *trans)
