@@ -33,9 +33,6 @@ int _pacman_object_init(struct pmobject *object, const struct pmobject_ops *ops)
 	}
 
 	object->ops = ops;
-	if (ops->init != NULL) {
-		object->ops->init (object);
-	}
 	return 0;
 }
 
@@ -45,19 +42,21 @@ int _pacman_object_fini(struct pmobject *object) {
 		return EINVAL;
 	}
 
-	if (object->ops->fini != NULL) {
-			object->ops->fini (object);
-	}
 	return 0;
 }
 
 int _pacman_object_free(struct pmobject *object) {
-	int ret = _pacman_object_fini (object);
-
-	if (ret == 0) {
-		free (object);
+	if (object == NULL ||
+			object->ops == NULL) {
+		return EINVAL;
 	}
-	return ret;
+
+	if (object->ops->fini != NULL) {
+		object->ops->fini (object);
+	}
+
+	free (object);
+	return 0;
 }
 
 /* vim: set ts=2 sw=2 noet: */

@@ -24,7 +24,6 @@
 struct pmobject;
 
 struct pmobject_ops {
-	void (*init)(struct pmobject *object);
 	void (*fini)(struct pmobject *object);
 };
 
