@@ -56,37 +56,6 @@
 #include "server.h"
 #include "packages_transaction.h"
 
-pmsyncpkg_t *_pacman_sync_new(int type, pmpkg_t *spkg, void *data)
-{
-	pmsyncpkg_t *ps = _pacman_malloc(sizeof(pmsyncpkg_t));
-
-	if(ps == NULL) {
-		return(NULL);
-	}
-
-	ps->type = type;
-	ps->pkg = spkg;
-	ps->data = data;
-
-	return(ps);
-}
-
-void _pacman_sync_free(void *data)
-{
-	pmsyncpkg_t *ps = data;
-
-	if(ps == NULL) {
-		return;
-	}
-
-	if(ps->type == PM_SYNC_TYPE_REPLACE) {
-		FREELISTPKGS(ps->data);
-	} else {
-		FREEPKG(ps->data);
-	}
-	free(ps);
-}
-
 /* Test for existence of a package in a pmlist_t* of pmsyncpkg_t*
  * If found, return a pointer to the respective pmsyncpkg_t*
  */
@@ -199,7 +168,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 				RET_ERR(PM_ERR_MEMORY, -1);
 			}
 		}
-		ps = _pacman_sync_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
+		ps = __pacman_trans_pkg_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
 		if(ps == NULL) {
 			FREEPKG(dummy);
 			RET_ERR(PM_ERR_MEMORY, -1);
@@ -292,7 +261,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 			/* add the dependencies found by resolvedeps to the transaction set */
 			pmpkg_t *spkg = i->data;
 			if(!find_pkginsync(spkg->name, trans->packages)) {
-				pmsyncpkg_t *ps = _pacman_sync_new(PM_SYNC_TYPE_DEPEND, spkg, NULL);
+				pmsyncpkg_t *ps = __pacman_trans_pkg_new(PM_SYNC_TYPE_DEPEND, spkg, NULL);
 				if(ps == NULL) {
 					ret = -1;
 					goto cleanup;
@@ -436,7 +405,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 							pmsyncpkg_t *spkg = NULL;
 							_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
 							trans->packages = _pacman_list_remove(trans->packages, rsync, ptr_cmp, (void **)&spkg);
-							FREESYNC(spkg);
+							__pacman_trans_pkg_delete (spkg);
+							spkg = NULL;
 							continue;
 						}
 					}
@@ -473,7 +443,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 								pmsyncpkg_t *spkg = NULL;
 								_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), miss->depend.name);
 								trans->packages = _pacman_list_remove(trans->packages, rsync, ptr_cmp, (void **)&spkg);
-								FREESYNC(spkg);
+								__pacman_trans_pkg_delete (spkg);
+								spkg = NULL;
 							}
 						} else {
 							/* abort */

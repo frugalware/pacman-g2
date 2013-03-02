@@ -42,6 +42,35 @@
 
 #include "trans_sysupgrade.h"
 
+pmsyncpkg_t *__pacman_trans_pkg_new (int type, pmpkg_t *spkg, void *data)
+{
+	pmsyncpkg_t *trans_pkg = _pacman_malloc(sizeof(pmsyncpkg_t));
+
+	if (trans_pkg == NULL) {
+		return(NULL);
+	}
+
+	trans_pkg->type = type;
+	trans_pkg->pkg = spkg;
+	trans_pkg->data = data;
+
+	return(trans_pkg);
+}
+
+void __pacman_trans_pkg_delete (pmsyncpkg_t *trans_pkg)
+{
+	if(trans_pkg == NULL) {
+		return;
+	}
+
+	if(trans_pkg->type == PM_SYNC_TYPE_REPLACE) {
+		FREELISTPKGS(trans_pkg->data);
+	} else {
+		FREEPKG(trans_pkg->data);
+	}
+	free(trans_pkg);
+}
+
 static int check_oldcache(void)
 {
 	pmdb_t *db = handle->db_local;
@@ -67,7 +96,8 @@ void __pacman_trans_fini(struct pmobject *obj) {
 	if(trans->type == PM_TRANS_TYPE_SYNC) {
 		pmlist_t *i;
 		for(i = trans->packages; i; i = i->next) {
-			FREESYNC(i->data);
+			__pacman_trans_pkg_delete (i->data);
+			i->data = NULL;
 		}
 		FREELIST(trans->packages);
 	} else {

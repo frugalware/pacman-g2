@@ -117,6 +117,18 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans);
 int __pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
 /* void __pacman_trans_fini(pmtrans_t *trans); */
 
+/* FIXME: Make private when unification is done */
+/* RENAMEME: struct __pmtrans_pkg  */
+typedef struct __pmsyncpkg_t {
+	unsigned char type; /* Change type to __pmtrans_pkg_type_t */
+	pmpkg_t *pkg;
+	void *data;
+	int flags;
+} pmsyncpkg_t;
+
+pmsyncpkg_t *__pacman_trans_pkg_new (int type, pmpkg_t *spkg, void *data);
+void __pacman_trans_pkg_delete (pmsyncpkg_t *pkg);
+
 #endif /* _PACMAN_TRANS_H */
 
 /* vim: set ts=2 sw=2 noet: */
