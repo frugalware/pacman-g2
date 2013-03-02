@@ -42,13 +42,38 @@
 #include "package.h"
 #include "pacman.h"
 
+void __pacman_pkg_fini (struct pmobject *obj) {
+	pmpkg_t *pkg = (pmpkg_t *)obj;
+
+	FREELIST(pkg->license);
+	FREELIST(pkg->desc_localized);
+	FREELIST(pkg->files);
+	FREELIST(pkg->backup);
+	FREELIST(pkg->depends);
+	FREELIST(pkg->removes);
+	FREELIST(pkg->conflicts);
+	FREELIST(pkg->requiredby);
+	FREELIST(pkg->groups);
+	FREELIST(pkg->provides);
+	FREELIST(pkg->replaces);
+	if(pkg->origin == PKG_FROM_FILE) {
+		FREE(pkg->data);
+	}
+}
+
+static const
+struct pmobject_ops _pacman_pkg_ops = {
+	.fini = __pacman_pkg_fini,
+};
+
 pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 {
 	pmpkg_t* pkg = NULL;
 
 	if((pkg = (pmpkg_t *)malloc(sizeof(pmpkg_t))) == NULL) {
-		RET_ERR(PM_ERR_MEMORY, (pmpkg_t *)-1);
+		RET_ERR(PM_ERR_MEMORY, (pmpkg_t *)NULL);
 	}
+	__pacman_object_init (&pkg->base, &_pacman_pkg_ops);
 
 	if(name && name[0] != 0) {
 		STRNCPY(pkg->name, name, PKG_NAME_LEN);
@@ -101,6 +126,7 @@ pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 	if(newpkg == NULL) {
 		return(NULL);
 	}
+	__pacman_object_init (&newpkg->base, &_pacman_pkg_ops);
 
 	STRNCPY(newpkg->name, pkg->name, PKG_NAME_LEN);
 	STRNCPY(newpkg->version, pkg->version, PKG_VERSION_LEN);
@@ -141,28 +167,7 @@ pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 void _pacman_pkg_free(void *data)
 {
 	pmpkg_t *pkg = data;
-
-	if(pkg == NULL) {
-		return;
-	}
-
-	FREELIST(pkg->license);
-	FREELIST(pkg->desc_localized);
-	FREELIST(pkg->files);
-	FREELIST(pkg->backup);
-	FREELIST(pkg->depends);
-	FREELIST(pkg->removes);
-	FREELIST(pkg->conflicts);
-	FREELIST(pkg->requiredby);
-	FREELIST(pkg->groups);
-	FREELIST(pkg->provides);
-	FREELIST(pkg->replaces);
-	if(pkg->origin == PKG_FROM_FILE) {
-		FREE(pkg->data);
-	}
-	free(pkg);
-
-	return;
+	_pacman_object_free (&pkg->base);
 }
 
 /* Helper function for comparing packages

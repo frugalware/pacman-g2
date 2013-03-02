@@ -29,6 +29,7 @@
 #include <time.h>
 #endif
 #include "list.h"
+#include "object.h"
 
 enum {
 	PKG_FROM_CACHE = 1,
@@ -48,6 +49,8 @@ enum {
 #define PKG_ARCH_LEN     32
 
 typedef struct __pmpkg_t {
+	struct pmobject base;
+
 	char name[PKG_NAME_LEN];
 	char version[PKG_VERSION_LEN];
 	char desc[PKG_DESC_LEN];
