@@ -713,6 +713,10 @@ int _pacman_runhook(const char *hookname, pmtrans_t *trans)
 	}
 
 cleanup:
+	if(dir) {
+		closedir(dir);
+	}
+
 	if(strlen(cwd)) {
 		chdir(cwd);
 	}
