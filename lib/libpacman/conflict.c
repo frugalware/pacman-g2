@@ -258,7 +258,7 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 	char path[PATH_MAX+1];
 	struct stat buf;
 	pmlist_t *conflicts = NULL;
-	pmlist_t *targets = trans->packages;
+	pmlist_t *targets = trans->_packages;
 	pmpkg_t *p, *dbpkg;
 	double percent;
 	int howmany, remain;

@@ -90,19 +90,16 @@ static int check_oldcache(void)
 
 static
 void __pacman_trans_fini(struct pmobject *obj) {
+	pmlist_t *i;
 	pmtrans_t *trans = (pmtrans_t *)obj;
 
 	FREELIST(trans->targets);
-	if(trans->type == PM_TRANS_TYPE_SYNC) {
-		pmlist_t *i;
-		for(i = trans->packages; i; i = i->next) {
-			__pacman_trans_pkg_delete (i->data);
-			i->data = NULL;
-		}
-		FREELIST(trans->packages);
-	} else {
-		FREELISTPKGS(trans->packages);
+	FREELISTPKGS(trans->_packages);
+	for(i = trans->packages; i; i = i->next) {
+		__pacman_trans_pkg_delete (i->data);
+		i->data = NULL;
 	}
+	FREELIST(trans->packages);
 	FREELIST(trans->skiplist);
 }
 
@@ -224,7 +221,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 	*data = NULL;
 
 	/* If there's nothing to do, return without complaining */
-	if(trans->packages == NULL) {
+	if(trans->_packages == NULL && trans->packages == NULL) {
 		return(0);
 	}
 
@@ -249,7 +246,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 		*data = NULL;
 
 	/* If there's nothing to do, return without complaining */
-	if(trans->packages == NULL) {
+	if(trans->_packages == NULL && trans->packages == NULL) {
 		return(0);
 	}
 

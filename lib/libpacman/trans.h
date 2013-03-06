@@ -69,7 +69,8 @@ struct __pmtrans_t {
 	unsigned int flags;
 	unsigned char state;
 	pmlist_t *targets;     /* pmlist_t of (char *) */
-	pmlist_t *packages;    /* pmlist_t of (pmpkg_t *) or (pmsyncpkg_t *) */
+	pmlist_t *_packages;   /* pmlist_t of (pmpkg_t *) (TO BE REMOVED) */
+	pmlist_t *packages;    /* pmlist_t of (pmsyncpkg_t *) */
 	pmlist_t *skiplist;    /* pmlist_t of (char *) */
 	pmtrans_cbs_t cbs;
 };

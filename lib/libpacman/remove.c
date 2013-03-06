@@ -68,7 +68,7 @@ int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(name != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	if(_pacman_pkg_isin(name, trans->packages)) {
+	if(_pacman_pkg_isin(name, trans->_packages)) {
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
 
@@ -87,7 +87,7 @@ int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 	}
 
 	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), info->name);
-	trans->packages = _pacman_list_add(trans->packages, info);
+	trans->_packages = _pacman_list_add(trans->_packages, info);
 
 	return(0);
 }
@@ -104,7 +104,7 @@ int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-		lp = _pacman_checkdeps(trans, db, trans->type, trans->packages);
+		lp = _pacman_checkdeps(trans, db, trans->type, trans->_packages);
 		if(lp != NULL) {
 			if(trans->flags & PM_TRANS_FLAG_CASCADE) {
 				while(lp) {
@@ -114,14 +114,14 @@ int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
 						pmpkg_t *info = _pacman_db_scan(db, miss->depend.name, INFRQ_ALL);
 						if(info) {
 							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), info->name);
-							trans->packages = _pacman_list_add(trans->packages, info);
+							trans->_packages = _pacman_list_add(trans->_packages, info);
 						} else {
 							_pacman_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
 								miss->depend.name);
 						}
 					}
 					FREELIST(lp);
-					lp = _pacman_checkdeps(trans, db, trans->type, trans->packages);
+					lp = _pacman_checkdeps(trans, db, trans->type, trans->_packages);
 				}
 			} else {
 				if(data) {
@@ -135,15 +135,15 @@ int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
 
 		if(trans->flags & PM_TRANS_FLAG_RECURSE) {
 			_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
-			trans->packages = _pacman_removedeps(db, trans->packages);
+			trans->_packages = _pacman_removedeps(db, trans->_packages);
 		}
 
 		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _pacman_sortbydeps(trans->packages, PM_TRANS_TYPE_REMOVE);
+		lp = _pacman_sortbydeps(trans->_packages, PM_TRANS_TYPE_REMOVE);
 		/* free the old alltargs */
-		FREELISTPTR(trans->packages);
-		trans->packages = lp;
+		FREELISTPTR(trans->_packages);
+		trans->_packages = lp;
 
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
@@ -170,9 +170,9 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
-	howmany = _pacman_list_count(trans->packages);
+	howmany = _pacman_list_count(trans->_packages);
 
-	for(targ = trans->packages; targ; targ = targ->next) {
+	for(targ = trans->_packages; targ; targ = targ->next) {
 		int position = 0;
 		char pm_install[PATH_MAX];
 		info = (pmpkg_t*)targ->data;
@@ -313,7 +313,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 			 * its requiredby info: it is in the process of being removed (if not
 			 * already done!)
 			 */
-			if(_pacman_pkg_isin(depend.name, trans->packages)) {
+			if(_pacman_pkg_isin(depend.name, trans->_packages)) {
 				continue;
 			}
 			depinfo = _pacman_db_get_pkgfromcache(db, depend.name);

@@ -101,7 +101,7 @@ static int add_faketarget(pmtrans_t *trans, const char *name)
 	}
 
 	/* add the package to the transaction */
-	trans->packages = _pacman_list_add(trans->packages, dummy);
+	trans->_packages = _pacman_list_add(trans->_packages, dummy);
 
 	return(0);
 }
@@ -162,7 +162,7 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 
 	/* check if an older version of said package is already in transaction packages.
 	 * if so, replace it in the list */
-	for(i = trans->packages; i; i = i->next) {
+	for(i = trans->_packages; i; i = i->next) {
 		pmpkg_t *pkg = i->data;
 		if(strcmp(pkg->name, _pacman_pkg_getinfo(info, PM_PKG_NAME)) == 0) {
 			if(_pacman_versioncmp(pkg->version, info->version) < 0) {
@@ -194,7 +194,7 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 	}
 
 	/* add the package to the transaction */
-	trans->packages = _pacman_list_add(trans->packages, info);
+	trans->_packages = _pacman_list_add(trans->_packages, info);
 
 	return(0);
 
@@ -221,7 +221,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 
 		/* look for unsatisfied dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-		lp = _pacman_checkdeps(trans, db, trans->type, trans->packages);
+		lp = _pacman_checkdeps(trans, db, trans->type, trans->_packages);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -233,7 +233,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 
 		/* no unsatisfied deps, so look for conflicts */
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		lp = _pacman_checkconflicts(trans, db, trans->packages);
+		lp = _pacman_checkconflicts(trans, db, trans->_packages);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -245,10 +245,10 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 
 		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _pacman_sortbydeps(trans->packages, PM_TRANS_TYPE_ADD);
+		lp = _pacman_sortbydeps(trans->_packages, PM_TRANS_TYPE_ADD);
 		/* free the old alltargs */
-		FREELISTPTR(trans->packages);
-		trans->packages = lp;
+		FREELISTPTR(trans->_packages);
+		trans->_packages = lp;
 
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
@@ -257,7 +257,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 	 */
 	EVENT(trans, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
 	_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
-	for (lp=trans->packages; lp!=NULL; lp=lp->next) {
+	for (lp=trans->_packages; lp!=NULL; lp=lp->next) {
 		info=(pmpkg_t *)lp->data;
 		for (rmlist=info->removes; rmlist!=NULL; rmlist=rmlist->next) {
 			snprintf(rm_fname, PATH_MAX, "%s%s", handle->root, (char *)rmlist->data);
@@ -317,18 +317,18 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if(trans->packages == NULL) {
+	if(trans->_packages == NULL) {
 		return(0);
 	}
 
-	for(targ = trans->packages; targ; targ = targ->next) {
+	for(targ = trans->_packages; targ; targ = targ->next) {
 		unsigned short pmo_upgrade;
 		char pm_install[PATH_MAX];
 		pmpkg_t *info = (pmpkg_t *)targ->data;
 		pmpkg_t *oldpkg = NULL;
 		errors = 0;
 		remain = _pacman_list_count(targ);
-		howmany = _pacman_list_count(trans->packages);
+		howmany = _pacman_list_count(trans->_packages);
 
 		if(handle->trans->state == STATE_INTERRUPTED) {
 			break;

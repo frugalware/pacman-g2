@@ -406,7 +406,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmli
 			for(j = _pacman_pkg_getinfo(tp, PM_PKG_REQUIREDBY); j; j = j->next) {
 				if(!_pacman_list_is_strin((char *)j->data, packages)) {
 					/* check if a package in trans->packages provides this package */
-					for(k=trans->packages; !found && k; k=k->next) {
+					for(k=trans->_packages; !found && k; k=k->next) {
 						pmpkg_t *spkg = NULL;
 					if(trans->type == PM_TRANS_TYPE_SYNC) {
 						pmsyncpkg_t *ps = k->data;

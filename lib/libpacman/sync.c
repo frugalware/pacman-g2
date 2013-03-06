@@ -633,7 +633,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		if(ps->type == PM_SYNC_TYPE_REPLACE) {
 			for(j = ps->data; j; j = j->next) {
 				pmpkg_t *pkg = j->data;
-				if(!_pacman_pkg_isin(pkg->name, tr->packages)) {
+				if(!_pacman_pkg_isin(pkg->name, tr->_packages)) {
 					if(_pacman_trans_addtarget(tr, pkg->name, _PACMAN_TRANS_PKG_TYPE_REMOVE, 0) == -1) {
 						goto error;
 					}
@@ -679,7 +679,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		}
 		/* using _pacman_list_last() is ok because addtarget() adds the new target at the
 		 * end of the tr->packages list */
-		spkg = _pacman_list_last(tr->packages)->data;
+		spkg = _pacman_list_last(tr->_packages)->data;
 		if(ps->type == PM_SYNC_TYPE_DEPEND || trans->flags & PM_TRANS_FLAG_ALLDEPS) {
 			spkg->reason = PM_PKG_REASON_DEPEND;
 		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !handle->sysupgrade) {
