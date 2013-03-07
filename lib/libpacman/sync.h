@@ -27,8 +27,6 @@
 #include "package.h"
 #include "trans.h"
 
-pmsyncpkg_t *find_pkginsync(char *needle, pmlist_t *haystack);
-
 const pmtrans_ops_t _pacman_sync_pmtrans_opts;
 
 #endif /* _PACMAN_SYNC_H */

@@ -88,6 +88,23 @@ static int check_oldcache(void)
 	return(0);
 }
 
+pmsyncpkg_t *__pacman_trans_get_trans_pkg(pmtrans_t *trans, const char *package) {
+	pmlist_t *i;
+	pmsyncpkg_t *syncpkg;
+
+	/* Sanity checks */
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
+
+	for(i = trans->packages; i != NULL ; i = i->next) {
+		syncpkg = i->data;
+		if(syncpkg && !strcmp(syncpkg->pkg->name, package)) {
+			return(syncpkg);
+		}
+	}
+
+	return(NULL);
+}
+
 static
 void __pacman_trans_fini(struct pmobject *obj) {
 	pmlist_t *i;

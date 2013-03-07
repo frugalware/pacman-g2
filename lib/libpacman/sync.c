@@ -56,24 +56,6 @@
 #include "server.h"
 #include "packages_transaction.h"
 
-/* Test for existence of a package in a pmlist_t* of pmsyncpkg_t*
- * If found, return a pointer to the respective pmsyncpkg_t*
- */
-pmsyncpkg_t *find_pkginsync(char *needle, pmlist_t *haystack)
-{
-	pmlist_t *i;
-	pmsyncpkg_t *ps;
-
-	for(i = haystack; i != NULL ; i = i->next) {
-		ps = i->data;
-		if(ps && !strcmp(ps->pkg->name, needle)) {
-			return(ps);
-		}
-	}
-
-	return(NULL);
-}
-
 int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 {
 	char targline[PKG_FULLNAME_LEN];
@@ -160,7 +142,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	}
 
 	/* add the package to the transaction */
-	if(!find_pkginsync(spkg->name, trans->packages)) {
+	if(!__pacman_trans_get_trans_pkg(trans, spkg->name)) {
 		pmpkg_t *dummy = NULL;
 		if(local) {
 			dummy = _pacman_pkg_new(local->name, local->version);
@@ -260,7 +242,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 		for(i = list; i; i = i->next) {
 			/* add the dependencies found by resolvedeps to the transaction set */
 			pmpkg_t *spkg = i->data;
-			if(!find_pkginsync(spkg->name, trans->packages)) {
+			if(!__pacman_trans_get_trans_pkg(trans, spkg->name)) {
 				pmsyncpkg_t *ps = __pacman_trans_pkg_new(PM_SYNC_TYPE_DEPEND, spkg, NULL);
 				if(ps == NULL) {
 					ret = -1;
@@ -350,7 +332,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 					continue;
 				}
 
-				ps = find_pkginsync(miss->target, trans->packages);
+				ps = __pacman_trans_get_trans_pkg(trans, miss->target);
 				if(ps == NULL) {
 					_pacman_log(PM_LOG_DEBUG, _("'%s' not found in transaction set -- skipping"),
 					          miss->target);
@@ -401,7 +383,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 							rmpkg = miss->depend.name;
 						}
 						if(rmpkg) {
-							pmsyncpkg_t *rsync = find_pkginsync(rmpkg, trans->packages);
+							pmsyncpkg_t *rsync = __pacman_trans_get_trans_pkg(trans, rmpkg);
 							pmsyncpkg_t *spkg = NULL;
 							_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
 							trans->packages = _pacman_list_remove(trans->packages, rsync, ptr_cmp, (void **)&spkg);
@@ -420,7 +402,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 						QUESTION(trans, PM_TRANS_CONV_CONFLICT_PKG, miss->target, miss->depend.name, NULL, &doremove);
 						asked = _pacman_list_add(asked, strdup(miss->depend.name));
 						if(doremove) {
-							pmsyncpkg_t *rsync = find_pkginsync(miss->depend.name, trans->packages);
+							pmsyncpkg_t *rsync = __pacman_trans_get_trans_pkg(trans, miss->depend.name);
 							pmpkg_t *q = _pacman_pkg_new(miss->depend.name, NULL);
 							if(q == NULL) {
 								if(data) {
@@ -518,7 +500,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				int errorout = 0;
 				for(i = deps; i; i = i->next) {
 					pmdepmissing_t *miss = i->data;
-					if(!find_pkginsync(miss->depend.name, trans->packages)) {
+					if(!__pacman_trans_get_trans_pkg(trans, miss->depend.name)) {
 						int pfound = 0;
 						/* If miss->depend.name depends on something that miss->target and a
 						 * package in final both provide, then it's okay...  */
