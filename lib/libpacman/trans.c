@@ -71,9 +71,10 @@ void __pacman_trans_pkg_delete (pmsyncpkg_t *trans_pkg)
 	free(trans_pkg);
 }
 
-static int check_oldcache(void)
+static
+int check_oldcache(pmtrans_t *trans)
 {
-	pmdb_t *db = handle->db_local;
+	pmdb_t *db = trans->handle->db_local;
 	char lastupdate[16] = "";
 
 	if(_pacman_db_getlastupdate(db, lastupdate) == -1) {
@@ -171,7 +172,7 @@ int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags,
 	trans->cbs = cbs;
 	trans->state = STATE_INITIALIZED;
 
-	check_oldcache();
+	check_oldcache(trans);
 
 	return(0);
 }
