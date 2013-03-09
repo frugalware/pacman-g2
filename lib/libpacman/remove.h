@@ -23,7 +23,6 @@
 
 #include "trans.h"
 
-int _pacman_remove_addtarget(pmtrans_t *trans, const char *name);
 int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data);
 
 const pmtrans_ops_t _pacman_remove_pmtrans_opts;

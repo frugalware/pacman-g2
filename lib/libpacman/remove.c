@@ -59,39 +59,6 @@
 #include "pacman.h"
 #include "packages_transaction.h"
 
-int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
-{
-	pmpkg_t *info;
-	pmdb_t *db = trans->handle->db_local;
-
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(name != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	if(_pacman_pkg_isin(name, trans->_packages)) {
-		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
-	}
-
-	if((info = _pacman_db_scan(db, name, INFRQ_ALL)) == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), name);
-		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
-	}
-
-	/* ignore holdpkgs on upgrade */
-	if((trans == handle->trans) && _pacman_list_is_strin(info->name, handle->holdpkg)) {
-		int resp = 0;
-		QUESTION(trans, PM_TRANS_CONV_REMOVE_HOLDPKG, info, NULL, NULL, &resp);
-		if(!resp) {
-			RET_ERR(PM_ERR_PKG_HOLD, -1);
-		}
-	}
-
-	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), info->name);
-	trans->_packages = _pacman_list_add(trans->_packages, info);
-
-	return(0);
-}
-
 int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *lp;
@@ -358,7 +325,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 }
 
 const pmtrans_ops_t _pacman_remove_pmtrans_opts = {
-	.addtarget = _pacman_remove_addtarget,
+	.addtarget = NULL,
 	.prepare = _pacman_remove_prepare,
 	.commit = _pacman_remove_commit
 };
