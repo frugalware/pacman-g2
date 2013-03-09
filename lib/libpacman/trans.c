@@ -339,10 +339,6 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 		if(local) {
 			info->reason = (long)_pacman_pkg_getinfo(local, PM_PKG_REASON);
 		}
-
-		/* add the package to the transaction */
-		trans->_packages = _pacman_list_add(trans->_packages, info);
-		
 		goto out;
 	}
 
@@ -365,13 +361,13 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 			}
 		}
 
-		_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), info->name);
-		trans->_packages = _pacman_list_add(trans->_packages, info);
 	}
-
-	}
-
 out:
+	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), info->name);
+	trans->_packages = _pacman_list_add(trans->_packages, info);
+
+	}
+
 	trans->targets = _pacman_list_add(trans->targets, strdup(target));
 	return(0);
 
