@@ -235,7 +235,7 @@ static int add_faketarget(pmtrans_t *trans, const char *name)
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_type_t type, unsigned int flags)
 {
 	char *pkg_name;
-	pmpkg_t *info = NULL;
+	pmpkg_t *pkg_new = NULL;
 	pmpkg_t *pkg_local = NULL;
 	pmdb_t *db_local;
 
@@ -262,7 +262,6 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 
 	if (type & _PACMAN_TRANS_PKG_TYPE_ADD) {
 		pmlist_t *i;
-		pmpkg_t *local;
 		struct stat buf;
 
 		/* Check if we need to add a fake target to the transaction. */
@@ -276,20 +275,20 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 		}
 
 		_pacman_log(PM_LOG_FLOW2, _("loading target '%s'"), pkg_name);
-		info = _pacman_pkg_load(pkg_name);
-		if(info == NULL) {
+		pkg_new = _pacman_pkg_load(pkg_name);
+		if(pkg_new == NULL) {
 			/* pm_errno is already set by pkg_load() */
 			goto error;
 		}
 
 		/* no additional hyphens in version strings */
-		if(strchr(_pacman_pkg_getinfo(info, PM_PKG_VERSION), '-') !=
-				strrchr(_pacman_pkg_getinfo(info, PM_PKG_VERSION), '-')) {
+		if(strchr(_pacman_pkg_getinfo(pkg_new, PM_PKG_VERSION), '-') !=
+				strrchr(_pacman_pkg_getinfo(pkg_new, PM_PKG_VERSION), '-')) {
 			pm_errno = PM_ERR_PKG_INVALID_NAME;
 			goto error;
 		}
 
-		pkg_local = _pacman_db_get_pkgfromcache(db_local, _pacman_pkg_getinfo(info, PM_PKG_NAME));
+		pkg_local = _pacman_db_get_pkgfromcache(db_local, _pacman_pkg_getinfo(pkg_new, PM_PKG_NAME));
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			/* only install this package if it is not already installed */
 			if(pkg_local) {
@@ -299,7 +298,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 		} else {
 			if(trans->flags & PM_TRANS_FLAG_FRESHEN) {
 				/* only upgrade/install this package if it is already installed and at a lesser version */
-				if(pkg_local == NULL || _pacman_versioncmp(pkg_local->version, info->version) >= 0) {
+				if(pkg_local == NULL || _pacman_versioncmp(pkg_local->version, pkg_new->version) >= 0) {
 					pm_errno = PM_ERR_PKG_CANT_FRESH;
 					goto error;
 				}
@@ -310,11 +309,11 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 		* if so, replace it in the list */
 		for(i = trans->_packages; i; i = i->next) {
 			pmpkg_t *pkg = i->data;
-			if(strcmp(pkg->name, _pacman_pkg_getinfo(info, PM_PKG_NAME)) == 0) {
-				if(_pacman_versioncmp(pkg->version, info->version) < 0) {
+			if(strcmp(pkg->name, _pacman_pkg_getinfo(pkg_new, PM_PKG_NAME)) == 0) {
+				if(_pacman_versioncmp(pkg->version, pkg_new->version) < 0) {
 					pmpkg_t *newpkg;
 					_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
-						pkg->name, pkg->version, info->version);
+						pkg->name, pkg->version, pkg_new->version);
 					if((newpkg = _pacman_pkg_load(pkg_name)) == NULL) {
 						/* pm_errno is already set by pkg_load() */
 						goto error;
@@ -323,20 +322,19 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 					i->data = newpkg;
 				} else {
 					_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
-						pkg->name, pkg->version, info->version);
+						pkg->name, pkg->version, pkg_new->version);
 				}
 				return(0);
 			}
 		}
 
 		if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
-			info->reason = PM_PKG_REASON_DEPEND;
+			pkg_new->reason = PM_PKG_REASON_DEPEND;
 		}
 
 		/* copy over the install reason */
-		local =  _pacman_db_get_pkgfromcache(db_local, info->name);
-		if(local) {
-			info->reason = (long)_pacman_pkg_getinfo(local, PM_PKG_REASON);
+		if(pkg_local) {
+			pkg_new->reason = (long)_pacman_pkg_getinfo(pkg_local, PM_PKG_REASON);
 		}
 		goto out;
 	}
@@ -346,15 +344,15 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 			RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 		}
 
-		if((info = _pacman_db_scan(db_local, pkg_name, INFRQ_ALL)) == NULL) {
+		if((pkg_new = _pacman_db_scan(db_local, pkg_name, INFRQ_ALL)) == NULL) {
 			_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), pkg_name);
 			RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 		}
 
 		/* ignore holdpkgs on upgrade */
-		if((trans == handle->trans) && _pacman_list_is_strin(info->name, handle->holdpkg)) {
+		if((trans == handle->trans) && _pacman_list_is_strin(pkg_new->name, handle->holdpkg)) {
 			int resp = 0;
-			QUESTION(trans, PM_TRANS_CONV_REMOVE_HOLDPKG, info, NULL, NULL, &resp);
+			QUESTION(trans, PM_TRANS_CONV_REMOVE_HOLDPKG, pkg_new, NULL, NULL, &resp);
 			if(!resp) {
 				RET_ERR(PM_ERR_PKG_HOLD, -1);
 			}
@@ -362,8 +360,8 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 
 	}
 out:
-	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), info->name);
-	trans->_packages = _pacman_list_add(trans->_packages, info);
+	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), pkg_new->name);
+	trans->_packages = _pacman_list_add(trans->_packages, pkg_new);
 
 	}
 
@@ -371,7 +369,7 @@ out:
 	return(0);
 
 error:
-	FREEPKG(info);
+	FREEPKG(pkg_new);
 	return(-1);
 }
 
