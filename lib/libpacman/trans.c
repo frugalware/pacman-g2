@@ -74,17 +74,17 @@ void __pacman_trans_pkg_delete (pmsyncpkg_t *trans_pkg)
 static
 int check_oldcache(pmtrans_t *trans)
 {
-	pmdb_t *db = trans->handle->db_local;
+	pmdb_t *db_local = trans->handle->db_local;
 	char lastupdate[16] = "";
 
-	if(_pacman_db_getlastupdate(db, lastupdate) == -1) {
+	if(_pacman_db_getlastupdate(db_local, lastupdate) == -1) {
 		return(-1);
 	}
-	if(strlen(db->lastupdate) && strcmp(lastupdate, db->lastupdate) != 0) {
-		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is too old"), db->treename);
-		_pacman_db_free_pkgcache(db);
+	if(strlen(db_local->lastupdate) && strcmp(lastupdate, db_local->lastupdate) != 0) {
+		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is too old"), db_local->treename);
+		_pacman_db_free_pkgcache(db_local);
 	} else {
-		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is up to date"), db->treename);
+		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is up to date"), db_local->treename);
 	}
 	return(0);
 }
@@ -236,17 +236,17 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 {
 	char *pkg_name;
 	pmpkg_t *info = NULL;
-	pmdb_t *db;
+	pmdb_t *db_local;
 
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(trans->ops != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(target != NULL && strlen(target) != 0, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	db = trans->handle->db_local;
+	db_local = trans->handle->db_local;
 	pkg_name = target;
 
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	if(_pacman_list_is_strin(target, trans->targets)) {
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
@@ -260,12 +260,10 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 	} else {
 
 	if (type & _PACMAN_TRANS_PKG_TYPE_ADD) {
-		
 		pmpkg_t *dummy;
 		pmlist_t *i;
 		pmpkg_t *local;
 		struct stat buf;
-
 
 		/* Check if we need to add a fake target to the transaction. */
 		if(strchr(pkg_name, '|')) {
@@ -293,14 +291,14 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			/* only install this package if it is not already installed */
-			if(_pacman_db_get_pkgfromcache(db, _pacman_pkg_getinfo(info, PM_PKG_NAME))) {
+			if(_pacman_db_get_pkgfromcache(db_local, _pacman_pkg_getinfo(info, PM_PKG_NAME))) {
 				pm_errno = PM_ERR_PKG_INSTALLED;
 				goto error;
 			}
 		} else {
 			if(trans->flags & PM_TRANS_FLAG_FRESHEN) {
 				/* only upgrade/install this package if it is already installed and at a lesser version */
-				dummy = _pacman_db_get_pkgfromcache(db, _pacman_pkg_getinfo(info, PM_PKG_NAME));
+				dummy = _pacman_db_get_pkgfromcache(db_local, _pacman_pkg_getinfo(info, PM_PKG_NAME));
 				if(dummy == NULL || _pacman_versioncmp(dummy->version, info->version) >= 0) {
 					pm_errno = PM_ERR_PKG_CANT_FRESH;
 					goto error;
@@ -336,7 +334,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 		}
 
 		/* copy over the install reason */
-		local =  _pacman_db_get_pkgfromcache(db, info->name);
+		local =  _pacman_db_get_pkgfromcache(db_local, info->name);
 		if(local) {
 			info->reason = (long)_pacman_pkg_getinfo(local, PM_PKG_REASON);
 		}
@@ -348,7 +346,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 			RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 		}
 
-		if((info = _pacman_db_scan(db, pkg_name, INFRQ_ALL)) == NULL) {
+		if((info = _pacman_db_scan(db_local, pkg_name, INFRQ_ALL)) == NULL) {
 			_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), pkg_name);
 			RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 		}
