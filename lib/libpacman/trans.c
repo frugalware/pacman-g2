@@ -281,13 +281,6 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 			goto error;
 		}
 
-		/* no additional hyphens in version strings */
-		if(strchr(_pacman_pkg_getinfo(pkg_new, PM_PKG_VERSION), '-') !=
-				strrchr(_pacman_pkg_getinfo(pkg_new, PM_PKG_VERSION), '-')) {
-			pm_errno = PM_ERR_PKG_INVALID_NAME;
-			goto error;
-		}
-
 		pkg_local = _pacman_db_get_pkgfromcache(db_local, _pacman_pkg_getinfo(pkg_new, PM_PKG_NAME));
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			/* only install this package if it is not already installed */

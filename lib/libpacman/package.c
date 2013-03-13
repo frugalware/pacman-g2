@@ -42,6 +42,20 @@
 #include "package.h"
 #include "pacman.h"
 
+/* Test if a package is valid.
+ *
+ * Return 0 on success and !0 on failure.
+ */
+static
+int __pacman_pkg_isvalid (pmpkg_t *pkg) {
+	/* no additional hyphens in version strings */
+	if(strchr(_pacman_pkg_getinfo(pkg, PM_PKG_VERSION), '-') !=
+		strrchr(_pacman_pkg_getinfo(pkg, PM_PKG_VERSION), '-')) {
+		RET_ERR(PM_ERR_PKG_INVALID_NAME, -1);
+	}
+	return 0;
+}
+
 void __pacman_pkg_fini (struct pmobject *obj) {
 	pmpkg_t *pkg = (pmpkg_t *)obj;
 
@@ -428,6 +442,10 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 	info->origin = PKG_FROM_FILE;
 	info->data = strdup(pkgfile);
 	info->infolevel = 0xFF;
+
+	if (__pacman_pkg_isvalid (info) != 0) {
+		goto error;
+	}
 
 	return(info);
 
