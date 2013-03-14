@@ -118,7 +118,8 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans);
 /* RENAMEME: struct __pmtrans_pkg  */
 typedef struct __pmsyncpkg_t {
 	unsigned char type; /* Change type to __pmtrans_pkg_type_t */
-	pmpkg_t *pkg;
+	pmpkg_t *pkg_new;
+	pmpkg_t *pkg_local;
 	void *data;
 	int flags;
 } pmsyncpkg_t;

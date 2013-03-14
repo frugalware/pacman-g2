@@ -414,7 +414,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmli
 					}
 					for (k = trans->packages; !found && k; k = k->next) {
 						pmsyncpkg_t *ps = k->data;
-						pmpkg_t *spkg = ps->pkg;
+						pmpkg_t *spkg = ps->pkg_new;
 						if(spkg && _pacman_list_is_strin(tp->name, _pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES))) {
 							found=1;
 						}

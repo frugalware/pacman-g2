@@ -166,12 +166,12 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
  */
 static int ptr_cmp(const void *s1, const void *s2)
 {
-	return(strcmp(((pmsyncpkg_t *)s1)->pkg->name, ((pmsyncpkg_t *)s2)->pkg->name));
+	return(strcmp(((pmsyncpkg_t *)s1)->pkg_new->name, ((pmsyncpkg_t *)s2)->pkg_new->name));
 }
 
 static int pkg_cmp(const void *p1, const void *p2)
 {
-	return(strcmp(((pmpkg_t *)p1)->name, ((pmsyncpkg_t *)p2)->pkg->name));
+	return(strcmp(((pmpkg_t *)p1)->name, ((pmsyncpkg_t *)p2)->pkg_new->name));
 }
 
 static int check_olddelay(void)
@@ -221,7 +221,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 
 	for(i = trans->packages; i; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
-		list = _pacman_list_add(list, ps->pkg);
+		list = _pacman_list_add(list, ps->pkg_new);
 	}
 
 	if(!(trans->flags & PM_TRANS_FLAG_NODEPS)) {
@@ -231,7 +231,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 		for(i = trans->packages; i; i = i->next) {
-			pmpkg_t *spkg = ((pmsyncpkg_t *)i->data)->pkg;
+			pmpkg_t *spkg = ((pmsyncpkg_t *)i->data)->pkg_new;
 			if(_pacman_resolvedeps(db_local, dbs_sync, spkg, list, trail, trans, data) == -1) {
 				/* pm_errno is set by resolvedeps */
 				ret = -1;
@@ -264,13 +264,13 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 		k = l = NULL;
 		for(i=trans->packages; i; i=i->next) {
 			pmsyncpkg_t *s = (pmsyncpkg_t*)i->data;
-			k = _pacman_list_add(k, s->pkg);
+			k = _pacman_list_add(k, s->pkg_new);
 		}
 		m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
 		for(i=m; i; i=i->next) {
 			for(j=trans->packages; j; j=j->next) {
 				pmsyncpkg_t *s = (pmsyncpkg_t*)j->data;
-				if(s->pkg==i->data) {
+				if(s->pkg_new==i->data) {
 					l = _pacman_list_add(l, s);
 				}
 			}
@@ -341,7 +341,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				local = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
 				/* check if this package also "provides" the package it's conflicting with
 				 */
-				if(_pacman_list_is_strin(miss->depend.name, ps->pkg->provides)) {
+				if(_pacman_list_is_strin(miss->depend.name, ps->pkg_new->provides)) {
 					/* so just treat it like a "replaces" item so the REQUIREDBY
 					 * fields are inherited properly.
 					 */
@@ -523,11 +523,11 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 									pmlist_t *n, *o;
 									for(n = trans->packages; n && !pfound; n = n->next) {
 										pmsyncpkg_t *sp = n->data;
-										for(o = sp->pkg->provides; o && !pfound; o = o->next) {
+										for(o = sp->pkg_new->provides; o && !pfound; o = o->next) {
 											if(!strcmp(m->data, o->data)) {
 												/* found matching provisio -- we're good to go */
 												_pacman_log(PM_LOG_FLOW2, _("found '%s' as a provision for '%s' -- conflict aborted"),
-														sp->pkg->name, (char *)o->data);
+														sp->pkg_new->name, (char *)o->data);
 												pfound = 1;
 											}
 										}
@@ -653,7 +653,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 	}
 	for(i = trans->packages; i; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
-		pmpkg_t *spkg = ps->pkg;
+		pmpkg_t *spkg = ps->pkg_new;
 		char str[PATH_MAX];
 		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name, spkg->version, spkg->arch);
 		if(_pacman_trans_addtarget(tr, str, _PACMAN_TRANS_PKG_TYPE_UPGRADE, 0) == -1) {
@@ -685,7 +685,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		for(i = trans->packages; i; i = i->next) {
 			pmsyncpkg_t *ps = i->data;
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				pmpkg_t *new = _pacman_db_get_pkgfromcache(db_local, ps->pkg->name);
+				pmpkg_t *new = _pacman_db_get_pkgfromcache(db_local, ps->pkg_new->name);
 				for(j = ps->data; j; j = j->next) {
 					pmlist_t *k;
 					pmpkg_t *old = j->data;
@@ -760,7 +760,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 
 			for(j = trans->packages; j; j = j->next) {
 				pmsyncpkg_t *ps = j->data;
-				pmpkg_t *spkg = ps->pkg;
+				pmpkg_t *spkg = ps->pkg_new;
 				pmdb_t *dbs = spkg->data;
 
 				if(current == dbs) {
@@ -828,7 +828,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 
 			for(i = trans->packages; i; i = i->next) {
 				pmsyncpkg_t *ps = i->data;
-				pmpkg_t *spkg = ps->pkg;
+				pmpkg_t *spkg = ps->pkg_new;
 				char str[PATH_MAX], pkgname[PATH_MAX];
 				char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
 				char *ptr=NULL;
