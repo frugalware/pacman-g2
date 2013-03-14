@@ -190,7 +190,8 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	return(_pacman_sync_sysupgrade(trans, handle->db_local, handle->dbs_sync));
 }
 
-static int add_faketarget(pmtrans_t *trans, const char *name)
+static
+pmpkg_t *fakepkg_create(const char *name)
 {
 	char *ptr, *p;
 	char *str = NULL;
@@ -198,7 +199,7 @@ static int add_faketarget(pmtrans_t *trans, const char *name)
 
 	dummy = _pacman_pkg_new(NULL, NULL);
 	if(dummy == NULL) {
-		RET_ERR(PM_ERR_MEMORY, -1);
+		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
 
 	/* Format: field1=value1|field2=value2|...
@@ -228,13 +229,9 @@ static int add_faketarget(pmtrans_t *trans, const char *name)
 	FREE(str);
 	if(dummy->name[0] == 0 || dummy->version[0] == 0) {
 		FREEPKG(dummy);
-		RET_ERR(PM_ERR_PKG_INVALID_NAME, -1);
+		RET_ERR(PM_ERR_PKG_INVALID_NAME, NULL);
 	}
-
-	/* add the package to the transaction */
-	trans->_packages = _pacman_list_add(trans->_packages, dummy);
-
-	return(0);
+	return(dummy);
 }
 
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_type_t type, unsigned int flags)
@@ -270,7 +267,11 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 
 		/* Check if we need to add a fake target to the transaction. */
 		if(strchr(pkg_name, '|')) {
-			return(add_faketarget(trans, pkg_name));
+			trans_pkg->pkg_new = fakepkg_create(pkg_name);
+			if (trans_pkg->pkg_new) {
+				goto out;
+			}
+			goto error;
 		}
 
 		if(stat(pkg_name, &buf)) {
