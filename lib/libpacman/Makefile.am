@@ -23,6 +23,7 @@ TARGETS = md5driver.c \
 	provide.c \
 	versioncmp.c \
 	backup.c \
+	file.c \
 	object.c \
 	packages_transaction.c \
 	trans.c \

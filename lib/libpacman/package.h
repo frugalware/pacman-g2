@@ -28,8 +28,8 @@
 #if defined(__APPLE__) || defined(__sun__)
 #include <time.h>
 #endif
+#include "file.h"
 #include "list.h"
-#include "object.h"
 
 enum {
 	PKG_FROM_CACHE = 1,
@@ -49,7 +49,7 @@ enum {
 #define PKG_ARCH_LEN     32
 
 typedef struct __pmpkg_t {
-	struct pmobject base;
+	struct pmfile base;
 
 	char name[PKG_NAME_LEN];
 	char version[PKG_VERSION_LEN];

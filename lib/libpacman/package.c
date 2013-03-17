@@ -76,59 +76,28 @@ void __pacman_pkg_fini (struct pmobject *obj) {
 }
 
 static const
-struct pmobject_ops _pacman_pkg_ops = {
-	.fini = __pacman_pkg_fini,
+struct pmfile_ops _pacman_pkg_ops = {
+	.base = {
+		.fini = __pacman_pkg_fini,
+	},
 };
 
 pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 {
-	pmpkg_t* pkg = NULL;
+	pmpkg_t* pkg = _pacman_zalloc(sizeof(*pkg));
 
-	if((pkg = (pmpkg_t *)malloc(sizeof(pmpkg_t))) == NULL) {
-		RET_ERR(PM_ERR_MEMORY, (pmpkg_t *)NULL);
+	if(pkg == NULL) {
+		return NULL;
 	}
-	__pacman_object_init (&pkg->base, &_pacman_pkg_ops);
+	__pacman_file_init (&pkg->base, &_pacman_pkg_ops);
 
 	if(name && name[0] != 0) {
 		STRNCPY(pkg->name, name, PKG_NAME_LEN);
-	} else {
-		pkg->name[0]        = '\0';
 	}
 	if(version && version[0] != 0) {
 		STRNCPY(pkg->version, version, PKG_VERSION_LEN);
-	} else {
-		pkg->version[0]     = '\0';
 	}
-	pkg->desc[0]        = '\0';
-	pkg->url[0]         = '\0';
-	pkg->license        = NULL;
-	pkg->desc_localized = NULL;
-	pkg->builddate[0]   = '\0';
-	pkg->buildtype[0]   = '\0';
-	pkg->installdate[0] = '\0';
-	pkg->packager[0]    = '\0';
-	pkg->md5sum[0]      = '\0';
-	pkg->sha1sum[0]     = '\0';
-	pkg->arch[0]        = '\0';
-	pkg->size           = 0;
-	pkg->usize          = 0;
-	pkg->scriptlet      = 0;
-	pkg->force          = 0;
-	pkg->stick          = 0;
 	pkg->reason         = PM_PKG_REASON_EXPLICIT;
-	pkg->requiredby     = NULL;
-	pkg->conflicts      = NULL;
-	pkg->files          = NULL;
-	pkg->backup         = NULL;
-	pkg->depends        = NULL;
-	pkg->removes        = NULL;
-	pkg->groups         = NULL;
-	pkg->provides       = NULL;
-	pkg->replaces       = NULL;
-	/* internal */
-	pkg->origin         = 0;
-	pkg->data           = NULL;
-	pkg->infolevel      = 0;
 
 	return(pkg);
 }
@@ -140,7 +109,7 @@ pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 	if(newpkg == NULL) {
 		return(NULL);
 	}
-	__pacman_object_init (&newpkg->base, &_pacman_pkg_ops);
+	__pacman_file_init (&newpkg->base, &_pacman_pkg_ops);
 
 	STRNCPY(newpkg->name, pkg->name, PKG_NAME_LEN);
 	STRNCPY(newpkg->version, pkg->version, PKG_VERSION_LEN);
@@ -181,7 +150,7 @@ pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 void _pacman_pkg_free(void *data)
 {
 	pmpkg_t *pkg = data;
-	_pacman_object_free (&pkg->base);
+	_pacman_object_free (&pkg->base.base);
 }
 
 /* Helper function for comparing packages
