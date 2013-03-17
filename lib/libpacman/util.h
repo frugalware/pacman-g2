@@ -83,7 +83,8 @@ char* mkdtemp(char *template);
 #endif
 char *_pacman_archive_fgets(char *line, size_t size, struct archive *a);
 
-static inline void *_pacman_malloc(size_t size)
+static inline
+void *_pacman_malloc(size_t size)
 {
 	void *ptr = malloc(size);
 	if(ptr == NULL) {
@@ -93,12 +94,21 @@ static inline void *_pacman_malloc(size_t size)
 	return ptr;
 }
 
-static inline void *_pacman_zalloc(size_t size)
+static inline
+void *_pacman_zalloc(size_t size)
 {
 	void *ptr = _pacman_malloc(size);
 	if(ptr != NULL)
 		memset(ptr, 0, size);
 	return ptr;
+}
+
+static inline
+void *_pacman_memdup(const void *ptr, size_t size) {
+	void *dest = _pacman_malloc(size);
+	if(dest != NULL)
+		memcpy(dest, ptr, size);
+	return dest;
 }
 
 #endif /* _PACMAN_UTIL_H */
