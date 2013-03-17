@@ -244,6 +244,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(trans->ops != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(target != NULL && strlen(target) != 0, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(trans_pkg != NULL, return -1); /* pm_error is allready set by __pacman_trans_pkg_new */
 
 	db_local = trans->handle->db_local;
 	pkg_name = target;
