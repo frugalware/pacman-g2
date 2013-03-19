@@ -14,15 +14,13 @@ LDFLAGS += -L$(top_srcdir)/lib/libpacman/.libs -lpacman
 all: libpacman_java.so pacman.jar
 
 libpacman_java.so: pacman_java_wrap.o
-	$(CC) -shared $^ -o $@ $(LDFLAGS)
+	$(CC) $(LDFLAGS) -shared $^ -o $@
 
 pacman_java_wrap.o: pacman_java_wrap.c
-	$(CC) $(CFLAGS) -c -o $@ -include pacman.h $^
+	$(CC) $(CFLAGS) -c -o $@ -I$(top_srcdir)/lib/libpacman $^
 
-pacman_java_wrap.c:
-	cp $(top_srcdir)/lib/libpacman/pacman.h ./
-	cp $(top_srcdir)/bindings/pacman.i pacman_java.i
-	swig -java pacman_java.i
+pacman_java_wrap.c: $(top_srcdir)/bindings/pacman.i $(top_srcdir)/lib/libpacman/pacman.h
+	swig -o $@ -I$(top_srcdir)/lib/libpacman -java $(top_srcdir)/bindings/pacman.i
 
 pacman.class: pacman.java
 	javac *.java
