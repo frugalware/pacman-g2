@@ -187,7 +187,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
-	return(_pacman_sync_sysupgrade(trans, handle->db_local, handle->dbs_sync));
+	return(_pacman_sync_sysupgrade(trans));
 }
 
 static

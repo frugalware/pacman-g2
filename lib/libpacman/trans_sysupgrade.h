@@ -26,7 +26,7 @@
 #include "db.h"
 #include "trans.h"
 
-int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync);
+int _pacman_sync_sysupgrade(pmtrans_t *trans);
 
 #endif /* _PACMAN_TRANS_SYSUPGRADE_H */
 

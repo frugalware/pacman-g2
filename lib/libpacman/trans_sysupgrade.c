@@ -69,9 +69,11 @@ static int istoonew(pmpkg_t *pkg)
 	return((pkg->date + handle->upgradedelay) > t);
 }
 
-int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync)
+int _pacman_sync_sysupgrade(pmtrans_t *trans)
 {
 	pmlist_t *i, *j, *k;
+	pmdb_t *db_local = trans->handle->db_local;
+	pmlist_t *dbs_sync = trans->handle->dbs_sync;
 
 	/* this is a sysupgrade, so that install reasons are not touched */
 	handle->sysupgrade = 1;
