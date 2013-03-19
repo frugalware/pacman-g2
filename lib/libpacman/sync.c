@@ -601,7 +601,6 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 	tr = _pacman_trans_new();
 	if(tr == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not create removal transaction"));
-		pm_errno = PM_ERR_MEMORY;
 		goto error;
 	}
 
@@ -644,7 +643,6 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 	tr = _pacman_trans_new();
 	if(tr == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not create transaction"));
-		pm_errno = PM_ERR_MEMORY;
 		goto error;
 	}
 	if(_pacman_trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, trans->cbs) == -1) {

@@ -104,7 +104,6 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 								pmsyncpkg_t *ps;
 								pmpkg_t *dummy = _pacman_pkg_new(lpkg->name, NULL);
 								if(dummy == NULL) {
-									pm_errno = PM_ERR_MEMORY;
 									goto error;
 								}
 								dummy->requiredby = _pacman_list_strdup(lpkg->requiredby);
@@ -118,7 +117,6 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 									ps = __pacman_trans_pkg_new (PM_SYNC_TYPE_REPLACE, spkg, NULL);
 									if(ps == NULL) {
 										FREEPKG(dummy);
-										pm_errno = PM_ERR_MEMORY;
 										goto error;
 									}
 									ps->data = _pacman_list_add(NULL, dummy);

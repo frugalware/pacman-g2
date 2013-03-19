@@ -285,7 +285,7 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 	info = _pacman_pkg_new(NULL, NULL);
 	if(info == NULL) {
 		archive_read_finish (archive);
-		RET_ERR(PM_ERR_MEMORY, NULL);
+		return NULL;
 	}
 
 	for(i = 0; (ret = archive_read_next_header (archive, &entry)) == ARCHIVE_OK; i++) {

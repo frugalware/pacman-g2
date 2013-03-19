@@ -199,7 +199,7 @@ pmpkg_t *fakepkg_create(const char *name)
 
 	dummy = _pacman_pkg_new(NULL, NULL);
 	if(dummy == NULL) {
-		RET_ERR(PM_ERR_MEMORY, NULL);
+		goto error;
 	}
 
 	/* Format: field1=value1|field2=value2|...
@@ -228,10 +228,14 @@ pmpkg_t *fakepkg_create(const char *name)
 	}
 	FREE(str);
 	if(dummy->name[0] == 0 || dummy->version[0] == 0) {
-		FREEPKG(dummy);
-		RET_ERR(PM_ERR_PKG_INVALID_NAME, NULL);
+		pm_errno = PM_ERR_PKG_INVALID_NAME;
+		goto error;
 	}
 	return(dummy);
+
+error:
+	FREEPKG(dummy);
+	return NULL;
 }
 
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_type_t type, unsigned int flags)
