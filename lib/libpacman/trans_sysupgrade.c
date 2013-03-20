@@ -106,7 +106,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 								if(dummy == NULL) {
 									goto error;
 								}
-								dummy->requiredby = _pacman_list_strdup(lpkg->requiredby);
+								dummy->requiredby = _pacman_strlist_dup(lpkg->requiredby);
 								/* check if spkg->name is already in the packages list. */
 								ps = __pacman_trans_get_trans_pkg(trans, spkg->name);
 								if(ps) {

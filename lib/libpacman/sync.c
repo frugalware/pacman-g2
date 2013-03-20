@@ -422,7 +422,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 								ret = -1;
 								goto cleanup;
 							}
-							q->requiredby = _pacman_list_strdup(local->requiredby);
+							q->requiredby = _pacman_strlist_dup(local->requiredby);
 							if(ps->type != PM_SYNC_TYPE_REPLACE) {
 								/* switch this sync type to REPLACE */
 								ps->type = PM_SYNC_TYPE_REPLACE;

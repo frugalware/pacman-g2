@@ -128,17 +128,17 @@ pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 	newpkg->stick      = pkg->stick;
 	newpkg->scriptlet  = pkg->scriptlet;
 	newpkg->reason     = pkg->reason;
-	newpkg->license    = _pacman_list_strdup(pkg->license);
-	newpkg->desc_localized = _pacman_list_strdup(pkg->desc_localized);
-	newpkg->requiredby = _pacman_list_strdup(pkg->requiredby);
-	newpkg->conflicts  = _pacman_list_strdup(pkg->conflicts);
-	newpkg->files      = _pacman_list_strdup(pkg->files);
-	newpkg->backup     = _pacman_list_strdup(pkg->backup);
-	newpkg->depends    = _pacman_list_strdup(pkg->depends);
-	newpkg->removes    = _pacman_list_strdup(pkg->removes);
-	newpkg->groups     = _pacman_list_strdup(pkg->groups);
-	newpkg->provides   = _pacman_list_strdup(pkg->provides);
-	newpkg->replaces   = _pacman_list_strdup(pkg->replaces);
+	newpkg->license    = _pacman_strlist_dup(pkg->license);
+	newpkg->desc_localized = _pacman_strlist_dup(pkg->desc_localized);
+	newpkg->requiredby = _pacman_strlist_dup(pkg->requiredby);
+	newpkg->conflicts  = _pacman_strlist_dup(pkg->conflicts);
+	newpkg->files      = _pacman_strlist_dup(pkg->files);
+	newpkg->backup     = _pacman_strlist_dup(pkg->backup);
+	newpkg->depends    = _pacman_strlist_dup(pkg->depends);
+	newpkg->removes    = _pacman_strlist_dup(pkg->removes);
+	newpkg->groups     = _pacman_strlist_dup(pkg->groups);
+	newpkg->provides   = _pacman_strlist_dup(pkg->provides);
+	newpkg->replaces   = _pacman_strlist_dup(pkg->replaces);
 	/* internal */
 	newpkg->origin     = pkg->origin;
 	newpkg->data = (newpkg->origin == PKG_FROM_FILE) ? strdup(pkg->data) : pkg->data;

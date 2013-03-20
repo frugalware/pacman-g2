@@ -281,7 +281,7 @@ pmlist_t *_pacman_list_reverse(pmlist_t *list)
 	return(newlist);
 }
 
-pmlist_t *_pacman_list_strdup(pmlist_t *list)
+pmlist_t *_pacman_strlist_dup(pmlist_t *list)
 {
 	return _pacman_list_dup (list, (_pacman_fn_dup)strdup);
 }

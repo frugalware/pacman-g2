@@ -50,7 +50,8 @@ int _pacman_list_is_strin(const char *needle, pmlist_t *haystack);
 pmlist_t *_pacman_list_last(pmlist_t *list);
 pmlist_t *_pacman_list_remove_dupes(pmlist_t *list);
 pmlist_t *_pacman_list_reverse(pmlist_t *list);
-pmlist_t *_pacman_list_strdup(pmlist_t *list);
+
+pmlist_t *_pacman_strlist_dup(pmlist_t *list);
 
 #endif /* _PACMAN_LIST_H */
 
