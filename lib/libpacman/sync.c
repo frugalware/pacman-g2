@@ -56,6 +56,22 @@
 #include "server.h"
 #include "packages_transaction.h"
 
+static
+pmpkg_t *_pacman_db_search_provider(pmdb_t *db, const char *name) {
+	pmlist_t *p;
+	pmpkg_t *pkg;
+
+	_pacman_log(PM_LOG_FLOW2, _("looking for provisions of '%s' in database '%s'"), name, db->treename);
+	p = _pacman_db_whatprovides(db, name);
+	if (p == NULL) {
+		RET_ERR(PM_ERR_PKG_NOT_FOUND, NULL);
+	}
+	pkg = _pacman_pkg_dup(p->data);
+	FREELISTPTR(p);
+	_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s' in database '%S'"), pkg->name, name, db->treename);
+	return pkg;
+}
+
 int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 {
 	char targline[PKG_FULLNAME_LEN];
@@ -75,24 +91,16 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	STRNCPY(targline, name, PKG_FULLNAME_LEN);
 	targ = strchr(targline, '/');
 	if(targ) {
+		pmdb_t *dbs;
 		*targ = '\0';
 		targ++;
-		for(j = dbs_sync; j && !spkg; j = j->next) {
-			pmdb_t *dbs = j->data;
-			if(strcmp(dbs->treename, targline) == 0) {
-				spkg = _pacman_db_get_pkgfromcache(dbs, targ);
-				if(spkg == NULL) {
-					/* Search provides */
-					pmlist_t *p;
-					_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
-					p = _pacman_db_whatprovides(dbs, targ);
-					if(p == NULL) {
-						RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
-					}
-					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), p->data, targ);
-					spkg = _pacman_db_get_pkgfromcache(dbs, p->data);
-					FREELISTPTR(p);
-				}
+		dbs = _pacman_handle_get_db_sync (trans->handle, targline);
+		if (dbs != NULL) {
+			spkg = _pacman_db_get_pkgfromcache(dbs, targ);
+			if(spkg == NULL) {
+				/* Search provides */
+				_pacman_log(PM_LOG_FLOW2, _("target '%s' not found"), targ);
+				spkg = _pacman_db_search_provider (dbs, targ);
 			}
 		}
 	} else {
@@ -103,15 +111,10 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 		}
 		if(spkg == NULL) {
 			/* Search provides */
-			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
+			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found"), targ);
 			for(j = dbs_sync; j && !spkg; j = j->next) {
 				pmdb_t *dbs = j->data;
-				pmlist_t *p = _pacman_db_whatprovides(dbs, targ);
-				if(p) {
-					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), p->data, targ);
-					spkg = _pacman_db_get_pkgfromcache(dbs, p->data);
-					FREELISTPTR(p);
-				}
+				spkg = _pacman_db_search_provider (dbs, targ);
 			}
 		}
 	}
