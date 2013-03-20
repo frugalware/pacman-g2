@@ -26,7 +26,7 @@
 #include "list.h"
 #include "db.h"
 
-pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package);
+pmlist_t *_pacman_db_whatprovides(pmdb_t *db, const char *package);
 
 #endif /* _PACMAN_PROVIDE_H */
 

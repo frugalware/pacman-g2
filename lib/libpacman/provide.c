@@ -31,7 +31,7 @@
 
 /* return a pmlist_t of packages in "db" that provide "package"
  */
-pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package)
+pmlist_t *_pacman_db_whatprovides(pmdb_t *db, const char *package)
 {
 	pmlist_t *pkgs = NULL;
 	pmlist_t *lp;
