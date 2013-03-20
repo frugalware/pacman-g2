@@ -72,6 +72,25 @@ pmpkg_t *_pacman_db_search_provider(pmdb_t *db, const char *name) {
 	return pkg;
 }
 
+static
+pmpkg_t *_pacman_db_list_get_pkg(pmlist_t *db_list, const char *pkg_name) {
+	pmlist_t *i;
+	pmpkg_t *pkg = NULL;
+
+	for (i = db_list; i && !pkg; i = i->next) {
+		pmdb_t *db = i->data;
+		pkg = _pacman_db_get_pkgfromcache(db, pkg_name);
+	}
+	if (pkg == NULL) {
+		_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), pkg_name);
+		for (i = db_list; i && !pkg; i = i->next) {
+			pmdb_t *db = i->data;
+			pkg = _pacman_db_search_provider (db, pkg_name);
+		}
+	}
+	return pkg;
+}
+
 int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 {
 	char targline[PKG_FULLNAME_LEN];
@@ -82,7 +101,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	pmsyncpkg_t *ps;
 	int cmp;
 	pmdb_t *db_local = trans->handle->db_local;
-	pmlist_t *dbs_sync = trans->handle->dbs_sync;
+	pmlist_t *dbs_search = NULL;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -96,28 +115,17 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 		targ++;
 		dbs = _pacman_handle_get_db_sync (trans->handle, targline);
 		if (dbs != NULL) {
-			spkg = _pacman_db_get_pkgfromcache(dbs, targ);
-			if(spkg == NULL) {
-				/* Search provides */
-				_pacman_log(PM_LOG_FLOW2, _("target '%s' not found"), targ);
-				spkg = _pacman_db_search_provider (dbs, targ);
+			/* FIXME: the list is leaked in this case */
+			dbs_search = _pacman_list_add (dbs_search, dbs);
+			if(dbs_search == NULL) {
+				return -1;
 			}
 		}
 	} else {
 		targ = targline;
-		for(j = dbs_sync; j && !spkg; j = j->next) {
-			pmdb_t *dbs = j->data;
-			spkg = _pacman_db_get_pkgfromcache(dbs, targ);
-		}
-		if(spkg == NULL) {
-			/* Search provides */
-			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found"), targ);
-			for(j = dbs_sync; j && !spkg; j = j->next) {
-				pmdb_t *dbs = j->data;
-				spkg = _pacman_db_search_provider (dbs, targ);
-			}
-		}
+		dbs_search = trans->handle->dbs_sync;
 	}
+	spkg = _pacman_db_list_get_pkg (dbs_search, targ);
 	if(spkg == NULL) {
 		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 	}
