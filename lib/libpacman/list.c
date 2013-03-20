@@ -235,20 +235,6 @@ int _pacman_list_count(pmlist_t *list)
 	return(i);
 }
 
-/* Test for existence of a string in a pmlist_t
- */
-int _pacman_list_is_strin(const char *needle, pmlist_t *haystack)
-{
-	pmlist_t *lp;
-
-	for(lp = haystack; lp; lp = lp->next) {
-		if(lp->data && !strcmp(lp->data, needle)) {
-			return(1);
-		}
-	}
-	return(0);
-}
-
 pmlist_t *_pacman_list_last(pmlist_t *list)
 {
 	if(list == NULL) {
@@ -271,7 +257,7 @@ pmlist_t *_pacman_list_remove_dupes(pmlist_t *list)
 	pmlist_t *i, *newlist = NULL;
 
 	for(i = list; i; i = i->next) {
-		if(!_pacman_list_is_strin(i->data, newlist)) {
+		if(!_pacman_strlist_find(newlist, i->data)) {
 			newlist = _pacman_list_add(newlist, strdup(i->data));
 		}
 	}
@@ -300,6 +286,12 @@ pmlist_t *_pacman_list_reverse(pmlist_t *list)
 pmlist_t *_pacman_strlist_dup(pmlist_t *list)
 {
 	return _pacman_list_dup (list, (_pacman_fn_dup)strdup);
+}
+
+/* Test for existence of a string in a pmlist_t
+ */
+pmlist_t *_pacman_strlist_find(pmlist_t *list, const char *str) {
+	return _pacman_list_detect(list, (_pacman_fn_detect)strcmp, str);
 }
 
 /* vim: set ts=2 sw=2 noet: */

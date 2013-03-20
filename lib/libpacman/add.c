@@ -341,7 +341,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				 * eg, /home/httpd/html/index.html may be removed so index.php
 				 * could be used.
 				 */
-				if(_pacman_list_is_strin(pathname, handle->noextract)) {
+				if(_pacman_strlist_find(handle->noextract, pathname)) {
 					pacman_logaction(_("notice: %s is in NoExtract -- skipping extraction"), pathname);
 					archive_read_data_skip (archive);
 					continue;
@@ -352,11 +352,11 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 					if(S_ISLNK(buf.st_mode)) {
 						continue;
 					} else if(!S_ISDIR(buf.st_mode)) {
-						if(_pacman_list_is_strin(pathname, handle->noupgrade)) {
+						if(_pacman_strlist_find(handle->noupgrade, pathname)) {
 							notouch = 1;
 						} else {
 							if(!pmo_upgrade || oldpkg == NULL) {
-								nb = _pacman_list_is_strin(pathname, info->backup);
+								nb = _pacman_strlist_find(info->backup, pathname);
 							} else {
 								/* op == PM_TRANS_TYPE_UPGRADE */
 								md5_orig = _pacman_needbackup(pathname, oldpkg->backup);
@@ -608,7 +608,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				if(_pacman_splitdep(tmppm->data, &depend)) {
 					continue;
 				}
-				if(tmppm->data && (!strcmp(depend.name, info->name) || _pacman_list_is_strin(depend.name, info->provides))) {
+				if(tmppm->data && (!strcmp(depend.name, info->name) || _pacman_strlist_find(info->provides, depend.name))) {
 					_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), tmpp->name, info->name);
 					info->requiredby = _pacman_list_add(info->requiredby, strdup(tmpp->name));
 				}

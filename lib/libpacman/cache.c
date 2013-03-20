@@ -176,7 +176,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 		}
 
 		for(i = pkg->groups; i; i = i->next) {
-			if(!_pacman_list_is_strin(i->data, db->grpcache)) {
+			if(!_pacman_strlist_find(db->grpcache, i->data)) {
 				pmgrp_t *grp = _pacman_grp_new();
 
 				STRNCPY(grp->name, (char *)i->data, GRP_NAME_LEN);
@@ -189,7 +189,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 					pmgrp_t *grp = j->data;
 
 					if(strcmp(grp->name, i->data) == 0) {
-						if(!_pacman_list_is_strin(pkg->name, grp->packages)) {
+						if(!_pacman_strlist_find(grp->packages, pkg->name)) {
 							grp->packages = _pacman_list_add_sorted(grp->packages, (char *)pkg->name, _pacman_grp_cmp);
 						}
 					}
@@ -308,7 +308,7 @@ int _pacman_sync_cleancache(int level)
 				}
 				if(!strcmp(name, n)) {
 					char *ptr = (pacman_pkg_vercmp(version, v) < 0) ? str : s;
-					if(!_pacman_list_is_strin(ptr, clean)) {
+					if(!_pacman_strlist_find(clean, ptr)) {
 						clean = _pacman_list_add(clean, strdup(ptr));
 					}
 				}

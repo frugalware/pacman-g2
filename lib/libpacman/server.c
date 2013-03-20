@@ -240,7 +240,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		for(lp = files; lp; lp = lp->next) {
 			char *fn = (char *)lp->data;
 
-			if(_pacman_list_is_strin(fn, complete)) {
+			if(_pacman_strlist_find(complete, fn)) {
 				continue;
 			}
 

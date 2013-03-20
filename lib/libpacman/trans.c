@@ -251,7 +251,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if(_pacman_list_is_strin(target, trans->targets)) {
+	if(_pacman_strlist_find(trans->targets, target)) {
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
 
@@ -349,7 +349,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 		}
 
 		/* ignore holdpkgs on upgrade */
-		if((trans == handle->trans) && _pacman_list_is_strin(trans_pkg->pkg_new->name, handle->holdpkg)) {
+		if((trans == handle->trans) && _pacman_strlist_find(handle->holdpkg, trans_pkg->pkg_new->name)) {
 			int resp = 0;
 			QUESTION(trans, PM_TRANS_CONV_REMOVE_HOLDPKG, trans_pkg->pkg_new, NULL, NULL, &resp);
 			if(!resp) {

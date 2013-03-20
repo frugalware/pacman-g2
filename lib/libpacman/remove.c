@@ -183,7 +183,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 				if(!nb && trans->type == PM_TRANS_TYPE_UPGRADE) {
 					/* check noupgrade */
-					if(_pacman_list_is_strin(file, handle->noupgrade)) {
+					if(_pacman_strlist_find(handle->noupgrade, file)) {
 						nb = 1;
 					}
 				}

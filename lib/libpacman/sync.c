@@ -352,7 +352,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				local = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
 				/* check if this package also "provides" the package it's conflicting with
 				 */
-				if(_pacman_list_is_strin(miss->depend.name, ps->pkg_new->provides)) {
+				if(_pacman_strlist_find(ps->pkg_new->provides, miss->depend.name)) {
 					/* so just treat it like a "replaces" item so the REQUIREDBY
 					 * fields are inherited properly.
 					 */
@@ -376,8 +376,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 
 						/* figure out which one was requested in targets.  If they both were,
 						 * then it's still an unresolvable conflict. */
-						target = _pacman_list_is_strin(miss->target, trans->targets);
-						depend = _pacman_list_is_strin(miss->depend.name, trans->targets);
+						target = _pacman_strlist_find(trans->targets, miss->target);
+						depend = _pacman_strlist_find(trans->targets, miss->depend.name);
 						if(depend && !target) {
 							_pacman_log(PM_LOG_DEBUG, _("'%s' is in the target list -- keeping it"),
 								miss->depend.name);
@@ -409,7 +409,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				_pacman_log(PM_LOG_DEBUG, _("resolving package '%s' conflict"), miss->target);
 				if(local) {
 					int doremove = 0;
-					if(!_pacman_list_is_strin(miss->depend.name, asked)) {
+					if(!_pacman_strlist_find(asked, miss->depend.name)) {
 						QUESTION(trans, PM_TRANS_CONV_CONFLICT_PKG, miss->target, miss->depend.name, NULL, &doremove);
 						asked = _pacman_list_add(asked, strdup(miss->depend.name));
 						if(doremove) {
@@ -700,7 +700,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 					pmpkg_t *old = j->data;
 					/* merge lists */
 					for(k = old->requiredby; k; k = k->next) {
-						if(!_pacman_list_is_strin(k->data, new->requiredby)) {
+						if(!_pacman_strlist_find(new->requiredby, k->data)) {
 							/* replace old's name with new's name in the requiredby's dependency list */
 							pmlist_t *m;
 							pmpkg_t *depender = _pacman_db_get_pkgfromcache(db_local, k->data);

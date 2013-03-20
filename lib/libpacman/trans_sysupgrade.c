@@ -89,7 +89,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 					pmpkg_t *lpkg = m->data;
 					if(!strcmp(k->data, lpkg->name)) {
 						_pacman_log(PM_LOG_DEBUG, _("checking replacement '%s' for package '%s'"), k->data, spkg->name);
-						if(_pacman_list_is_strin(lpkg->name, handle->ignorepkg)) {
+						if(_pacman_strlist_find(handle->ignorepkg, lpkg->name)) {
 							_pacman_log(PM_LOG_WARNING, _("%s-%s: ignoring package upgrade (to be replaced by %s-%s)"),
 								lpkg->name, lpkg->version, spkg->name, spkg->version);
 						} else {
@@ -173,7 +173,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 				local->name, local->version);
 		} else if(cmp == 0) {
 			/* versions are identical */
-		} else if(_pacman_list_is_strin(local->name, handle->ignorepkg)) {
+		} else if(_pacman_strlist_find(handle->ignorepkg, local->name)) {
 			/* package should be ignored (IgnorePkg) */
 			_pacman_log(PM_LOG_WARNING, _("%s-%s: ignoring package upgrade (%s)"),
 				local->name, local->version, spkg->version);
