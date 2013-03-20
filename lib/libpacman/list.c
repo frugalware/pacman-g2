@@ -235,18 +235,6 @@ int _pacman_list_count(pmlist_t *list)
 	return(i);
 }
 
-int _pacman_list_is_in(void *needle, pmlist_t *haystack)
-{
-	pmlist_t *lp;
-
-	for(lp = haystack; lp; lp = lp->next) {
-		if(lp->data == needle) {
-			return(1);
-		}
-	}
-	return(0);
-}
-
 /* Test for existence of a string in a pmlist_t
  */
 int _pacman_list_is_strin(const char *needle, pmlist_t *haystack)

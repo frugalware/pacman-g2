@@ -334,7 +334,7 @@ int pacman_db_update(int force, PM_DB *db)
 		RET_ERR(PM_ERR_HANDLE_LOCK, -1);
 	}
 
-	if(!_pacman_list_is_in(db, handle->dbs_sync)) {
+	if(!_pacman_list_find(handle->dbs_sync, db)) {
 		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
 	}
 
