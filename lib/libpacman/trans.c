@@ -118,11 +118,7 @@ void __pacman_trans_fini(struct pmobject *obj) {
 	pmtrans_t *trans = (pmtrans_t *)obj;
 
 	FREELIST(trans->targets);
-	for(i = trans->packages; i; i = i->next) {
-		__pacman_trans_pkg_delete (i->data);
-		i->data = NULL;
-	}
-	FREELIST(trans->packages);
+	_pacman_list_free(trans->packages, (_pacman_fn_free)__pacman_trans_pkg_delete);
 	FREELIST(trans->skiplist);
 }
 
