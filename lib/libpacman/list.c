@@ -28,6 +28,11 @@
 #include "list.h"
 #include "util.h"
 
+static
+int __pacman_ptr_cmp(const void *ptr1, const void *ptr2) {
+	return ptr1-ptr2;
+}
+
 pmlist_t *_pacman_list_new()
 {
 	pmlist_t *list = _pacman_malloc(sizeof(pmlist_t));
@@ -64,6 +69,29 @@ void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn)
 		}
 		free(it);
 		it = ptr;
+	}
+}
+
+pmlist_t *_pacman_list_detect(pmlist_t *list, _pacman_fn_detect fn, void *user_data) {
+	while (list != NULL) {
+		if (fn (list->data, user_data) == 0) {
+			return list;
+		}
+		list = list->next;
+	}
+	return NULL;
+}
+
+pmlist_t *_pacman_list_find(pmlist_t *list, void *data) {
+	return _pacman_list_detect(list, (_pacman_fn_detect)__pacman_ptr_cmp, data);
+}
+
+void _pacman_list_foreach(pmlist_t *list, _pacman_fn_foreach fn, void *user_data) {
+	pmlist_t *i = list;
+
+	while (i != NULL) {
+		fn (i, user_data);
+		i = i->next;
 	}
 }
 

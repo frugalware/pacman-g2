@@ -33,14 +33,27 @@ typedef struct __pmlist_t {
 #define FREELIST(p) _FREELIST(p, free)
 #define FREELISTPTR(p) _FREELIST(p, NULL)
 
+/**
+ * Detection comparison callback function declaration.
+ * 
+ * If detection is successful callback must return 0, or any other
+ * values in case of failure (So it can be equivalent to a cmp).
+ */
+typedef int (*_pacman_fn_detect)(const void *, void *);
 typedef void *(*_pacman_fn_dup)(const void *);
 typedef void (*_pacman_fn_free)(void *);
+typedef void (*_pacman_fn_foreach)(void *, void *);
 /* Sort comparison callback function declaration */
 typedef int (*_pacman_fn_cmp)(const void *, const void *);
 
 pmlist_t *_pacman_list_new(void);
 pmlist_t *_pacman_list_dup(pmlist_t *list, _pacman_fn_dup fn);
 void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn);
+
+pmlist_t *_pacman_list_detect(pmlist_t *list, _pacman_fn_detect fn, void *user_data);
+pmlist_t *_pacman_list_find(pmlist_t *list, void *data);
+void _pacman_list_foreach(pmlist_t *list, _pacman_fn_foreach fn, void *user_data);
+
 pmlist_t *_pacman_list_add(pmlist_t *list, void *data);
 pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn);
 pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp fn, void **data);
