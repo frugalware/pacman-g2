@@ -404,4 +404,16 @@ int _pacman_handle_get_option(pmhandle_t *ph, unsigned char val, long *data)
 	return(0);
 }
 
+pmdb_t *_pacman_handle_get_db_sync(pmhandle_t *handle, const char *name) {
+	pmlist_t *i;
+
+	for (i = handle->dbs_sync; i; i = i->next) {
+		pmdb_t *db = i->data;
+		if (strcmp(db->treename, name) == 0) {
+			return db;
+		}
+	}
+	return NULL;
+}
+
 /* vim: set ts=2 sw=2 noet: */

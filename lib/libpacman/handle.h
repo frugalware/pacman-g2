@@ -85,6 +85,8 @@ int _pacman_handle_free(pmhandle_t *handle);
 int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long data);
 int _pacman_handle_get_option(pmhandle_t *handle, unsigned char val, long *data);
 
+pmdb_t *_pacman_handle_get_db_sync(pmhandle_t *handle, const char *name);
+
 #endif /* _PACMAN_HANDLE_H */
 
 /* vim: set ts=2 sw=2 noet: */
