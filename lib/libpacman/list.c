@@ -42,6 +42,17 @@ pmlist_t *_pacman_list_new()
 	return(list);
 }
 
+pmlist_t *_pacman_list_dup (pmlist_t *list, _pacman_fn_dup fn) {
+	pmlist_t *newlist = NULL;
+	pmlist_t *i;
+
+	for(i = list; i; i = i->next) {
+		newlist = _pacman_list_add(newlist, fn != NULL ? fn(i->data) : i->data);
+	}
+
+	return(newlist);
+}
+
 void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn)
 {
 	pmlist_t *ptr, *it = list;
@@ -272,14 +283,7 @@ pmlist_t *_pacman_list_reverse(pmlist_t *list)
 
 pmlist_t *_pacman_list_strdup(pmlist_t *list)
 {
-	pmlist_t *newlist = NULL;
-	pmlist_t *lp;
-
-	for(lp = list; lp; lp = lp->next) {
-		newlist = _pacman_list_add(newlist, strdup(lp->data));
-	}
-
-	return(newlist);
+	return _pacman_list_dup (list, (_pacman_fn_dup)strdup);
 }
 
 /* vim: set ts=2 sw=2 noet: */

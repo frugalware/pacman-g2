@@ -33,11 +33,13 @@ typedef struct __pmlist_t {
 #define FREELIST(p) _FREELIST(p, free)
 #define FREELISTPTR(p) _FREELIST(p, NULL)
 
+typedef void *(*_pacman_fn_dup)(const void *);
 typedef void (*_pacman_fn_free)(void *);
 /* Sort comparison callback function declaration */
 typedef int (*_pacman_fn_cmp)(const void *, const void *);
 
 pmlist_t *_pacman_list_new(void);
+pmlist_t *_pacman_list_dup(pmlist_t *list, _pacman_fn_dup fn);
 void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn);
 pmlist_t *_pacman_list_add(pmlist_t *list, void *data);
 pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn);
