@@ -620,6 +620,19 @@ error:
 	return(-1);
 }
 
+static
+void _pacman_db_write_item_list (FILE *fp, const char *item_name, pmlist_t *item_list) {
+	if (item_list != NULL) {
+		pmlist_t *i = item_list;
+
+		fprintf(fp, "%%%s%%\n", item_name);
+		for(i = item_list; i; i = i->next) {
+			fprintf(fp, "%s\n", (char *)i->data);
+		}
+		fprintf(fp, "\n");
+	}	
+}
+
 int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 {
 	FILE *fp = NULL;
@@ -654,31 +667,15 @@ int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 		fprintf(fp, "%%NAME%%\n%s\n\n"
 			"%%VERSION%%\n%s\n\n", info->name, info->version);
 		if(info->desc[0]) {
-			fputs("%DESC%\n", fp);
-			for(lp = info->desc_localized; lp; lp = lp->next) {
-				fprintf(fp, "%s\n", (char *)lp->data);
-			}
-			fprintf(fp, "\n");
+			_pacman_db_write_item_list(fp, "DESC", info->desc_localized);
 		}
-		if(info->groups) {
-			fputs("%GROUPS%\n", fp);
-			for(lp = info->groups; lp; lp = lp->next) {
-				fprintf(fp, "%s\n", (char *)lp->data);
-			}
-			fprintf(fp, "\n");
-		}
+		_pacman_db_write_item_list(fp, "GROUPS", info->groups);
 		if(local) {
 			if(info->url[0]) {
 				fprintf(fp, "%%URL%%\n"
 					"%s\n\n", info->url);
 			}
-			if(info->license) {
-				fputs("%LICENSE%\n", fp);
-				for(lp = info->license; lp; lp = lp->next) {
-					fprintf(fp, "%s\n", (char *)lp->data);
-				}
-				fprintf(fp, "\n");
-			}
+			_pacman_db_write_item_list(fp, "LICENSE", info->license);
 			if(info->arch[0]) {
 				fprintf(fp, "%%ARCH%%\n"
 					"%s\n\n", info->arch);
@@ -736,20 +733,8 @@ int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 			retval = -1;
 			goto cleanup;
 		}
-		if(info->files) {
-			fprintf(fp, "%%FILES%%\n");
-			for(lp = info->files; lp; lp = lp->next) {
-				fprintf(fp, "%s\n", (char *)lp->data);
-			}
-			fprintf(fp, "\n");
-		}
-		if(info->backup) {
-			fprintf(fp, "%%BACKUP%%\n");
-			for(lp = info->backup; lp; lp = lp->next) {
-				fprintf(fp, "%s\n", (char *)lp->data);
-			}
-			fprintf(fp, "\n");
-		}
+		_pacman_db_write_item_list(fp, "FILES", info->files);
+		_pacman_db_write_item_list(fp, "BACKUP", info->backup);
 		fclose(fp);
 		fp = NULL;
 	}
@@ -762,42 +747,14 @@ int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 			retval = -1;
 			goto cleanup;
 		}
-		if(info->depends) {
-			fputs("%DEPENDS%\n", fp);
-			for(lp = info->depends; lp; lp = lp->next) {
-				fprintf(fp, "%s\n", (char *)lp->data);
-			}
-			fprintf(fp, "\n");
+		_pacman_db_write_item_list(fp, "DEPENDS", info->depends);
+		if (local) {
+			_pacman_db_write_item_list(fp, "REQUIREDBY", info->requiredby);
 		}
-		if(local && info->requiredby) {
-			fputs("%REQUIREDBY%\n", fp);
-			for(lp = info->requiredby; lp; lp = lp->next) {
-				fprintf(fp, "%s\n", (char *)lp->data);
-			}
-			fprintf(fp, "\n");
-		}
-		if(info->conflicts) {
-			fputs("%CONFLICTS%\n", fp);
-			for(lp = info->conflicts; lp; lp = lp->next) {
-				fprintf(fp, "%s\n", (char *)lp->data);
-			}
-			fprintf(fp, "\n");
-		}
-		if(info->provides) {
-			fputs("%PROVIDES%\n", fp);
-			for(lp = info->provides; lp; lp = lp->next) {
-				fprintf(fp, "%s\n", (char *)lp->data);
-			}
-			fprintf(fp, "\n");
-		}
+		_pacman_db_write_item_list(fp, "CONFLICTS", info->conflicts);
+		_pacman_db_write_item_list(fp, "PROVIDES", info->provides);
 		if(!local) {
-			if(info->replaces) {
-				fputs("%REPLACES%\n", fp);
-				for(lp = info->replaces; lp; lp = lp->next) {
-					fprintf(fp, "%s\n", (char *)lp->data);
-				}
-				fprintf(fp, "\n");
-			}
+			_pacman_db_write_item_list(fp, "REPLACES", info->replaces);
 			if(info->force) {
 				fprintf(fp, "%%FORCE%%\n"
 					"\n");
