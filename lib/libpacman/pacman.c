@@ -1064,7 +1064,7 @@ char *pacman_fetch_pkgurl(char *url)
  * @param pattern the pattern to search for
  * @return 1 on match, 0 on non-match, -1 on error (pm_errno is set accordingly)
  */
-int pacman_reg_match(char *string, char *pattern)
+int pacman_reg_match(const char *string, const char *pattern)
 {
 	ASSERT(string != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT(pattern != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));

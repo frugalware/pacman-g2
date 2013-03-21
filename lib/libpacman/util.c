@@ -788,7 +788,7 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 }
 
 /* match a string against a regular expression */
-int _pacman_reg_match(char *string, char *pattern)
+int _pacman_reg_match(const char *string, const char *pattern)
 {
 	int result;
 	regex_t reg;
