@@ -90,80 +90,40 @@ int _pacman_db_cmp(const void *db1, const void *db2)
 	return(strcmp(((pmdb_t *)db1)->treename, ((pmdb_t *)db2)->treename));
 }
 
+static
+int _pacman_reg_match_or_strstr(const char *string, const char *pattern) {
+	if (_pacman_reg_match(string, pattern) > 0 ||
+			strstr(string, pattern) != NULL) {
+		return 0;
+	}
+	return 1;
+}
+
 pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 {
-	pmlist_t *i, *j, *k, *ret = NULL;
+	pmlist_t *i, *j, *ret = NULL;
 
 	for(i = needles; i; i = i->next) {
-		char *targ;
-		int retval;
+		/* FIXME: precompile regex once per loop, and handle bad regexp more gracefully */
+		const char *targ;
 
 		if(i->data == NULL) {
 			continue;
 		}
-		targ = strdup(i->data);
+
+		targ = i->data;
 		_pacman_log(PM_LOG_DEBUG, "searching for target '%s'\n", targ);
 
 		for(j = _pacman_db_get_pkgcache(db); j; j = j->next) {
 			pmpkg_t *pkg = j->data;
-			char *haystack, *ptr;
-			int match = 0;
 
-			/* check name */
-			haystack = strdup(pkg->name);
-			retval = _pacman_reg_match(haystack, targ);
-			if(retval < 0) {
-				/* bad regexp */
-				FREE(haystack);
-				return(NULL);
-			} else if(retval) {
-				_pacman_log(PM_LOG_DEBUG, "    search target '%s' matched '%s'", targ, haystack);
-				match = 1;
-			} else if (!match && (ptr = strstr(haystack, targ))) {
-				match = 1;
-			}
-			FREE(haystack);
-
-			/* check description */
-			if(!match) {
-				haystack = strdup(_pacman_pkg_getinfo(pkg, PM_PKG_DESC));
-				retval = _pacman_reg_match(haystack, targ);
-				if(retval < 0) {
-					/* bad regexp */
-					FREE(haystack);
-					return(NULL);
-				} else if(retval) {
-					match = 1;
-				} else if (!match && (ptr = strstr(haystack, targ))) {
-					match = 1;
-				}
-				FREE(haystack);
-			}
-
-			/* check provides */
-			if(!match) {
-				for(k = _pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES); k; k = k->next) {
-					haystack = strdup(k->data);
-					retval = _pacman_reg_match(haystack, targ);
-					if(retval < 0) {
-						/* bad regexp */
-						FREE(haystack);
-						return(NULL);
-					} else if(retval) {
-						match = 1;
-					} else if (!match && (ptr = strstr(haystack, targ))) {
-						match = 1;
-					}
-					FREE(haystack);
-				}
-			}
-
-			if(match) {
+			if (_pacman_reg_match_or_strstr(pkg->name, targ) == 0 ||
+					_pacman_reg_match_or_strstr(_pacman_pkg_getinfo(pkg, PM_PKG_DESC), targ) == 0 ||
+					_pacman_list_detect(_pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES), (_pacman_fn_detect)_pacman_reg_match_or_strstr, (void *)targ)) {
+				_pacman_log(PM_LOG_DEBUG, "    search target '%s' matched '%s'", targ, pkg->name);
 				ret = _pacman_list_add(ret, pkg);
 			}
 		}
-
-		FREE(targ);
 	}
 
 	return(ret);
