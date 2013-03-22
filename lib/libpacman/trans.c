@@ -114,7 +114,6 @@ pmsyncpkg_t *__pacman_trans_get_trans_pkg(pmtrans_t *trans, const char *package)
 
 static
 void __pacman_trans_fini(struct pmobject *obj) {
-	pmlist_t *i;
 	pmtrans_t *trans = (pmtrans_t *)obj;
 
 	FREELIST(trans->targets);

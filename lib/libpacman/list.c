@@ -291,7 +291,7 @@ pmlist_t *_pacman_strlist_dup(pmlist_t *list)
 /* Test for existence of a string in a pmlist_t
  */
 pmlist_t *_pacman_strlist_find(pmlist_t *list, const char *str) {
-	return _pacman_list_detect(list, (_pacman_fn_detect)strcmp, str);
+	return _pacman_list_detect(list, (_pacman_fn_detect)strcmp, (void *)str);
 }
 
 /* vim: set ts=2 sw=2 noet: */

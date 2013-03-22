@@ -95,7 +95,6 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 {
 	char targline[PKG_FULLNAME_LEN];
 	char *targ;
-	pmlist_t *j;
 	pmpkg_t *local;
 	pmpkg_t *spkg = NULL;
 	pmsyncpkg_t *ps;
