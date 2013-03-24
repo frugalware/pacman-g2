@@ -72,26 +72,71 @@ void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn)
 	}
 }
 
-pmlist_t *_pacman_list_detect(pmlist_t *list, _pacman_fn_detect fn, void *user_data) {
-	while (list != NULL) {
+pmlist_t *_pacman_list_first (pmlist_t *list) {
+	if (list != NULL) {
+		for (; list->prev != NULL; list = list->prev)
+			/* Do nothing */;
+	}
+	return list;
+}
+
+pmlist_t *_pacman_list_last (pmlist_t *list) {
+	if (list != NULL) {
+		for (; list->next != NULL; list = list->next)
+			/* Do nothing */;
+	}
+	return list;
+}
+
+static
+void _pacman_list_accumulator (void *data, pmlist_t **list) {
+	*list = _pacman_list_add (*list, data);
+}
+
+pmlist_t *_pacman_list_detect (pmlist_t *list, _pacman_fn_detect fn, void *user_data) {
+	for (;list != NULL; list = list->next) {
 		if (fn (list->data, user_data) == 0) {
 			return list;
 		}
-		list = list->next;
 	}
 	return NULL;
 }
 
-pmlist_t *_pacman_list_find(pmlist_t *list, void *data) {
-	return _pacman_list_detect(list, (_pacman_fn_detect)__pacman_ptr_cmp, data);
+pmlist_t *_pacman_list_filter (pmlist_t *list, _pacman_fn_detect fn, void *user_data) {
+	pmlist_t *ret = NULL;
+
+	for (; list != NULL; list = list->next) {
+		if (fn (list->data, user_data) == 0) {
+			ret = _pacman_list_add (ret, list->data);
+		}
+	}
+	return ret;
 }
 
-void _pacman_list_foreach(pmlist_t *list, _pacman_fn_foreach fn, void *user_data) {
-	pmlist_t *i = list;
+pmlist_t *_pacman_list_find (pmlist_t *list, void *data) {
+	return _pacman_list_detect (list, (_pacman_fn_detect)__pacman_ptr_cmp, data);
+}
 
-	while (i != NULL) {
-		fn (i, user_data);
-		i = i->next;
+void _pacman_list_foreach (pmlist_t *list, _pacman_fn_foreach fn, void *user_data) {
+	for (; list != NULL; list = list->next) {
+		fn (list->data, user_data);
+	}
+}
+
+/* Reverse the order of a list
+ *
+ * The caller is responsible for freeing the old list
+ */
+pmlist_t *_pacman_list_reverse (pmlist_t *list) {
+	pmlist_t *ret = NULL;
+
+	_pacman_list_reverse_foreach (list, (_pacman_fn_foreach)_pacman_list_accumulator, &ret);
+	return ret;
+}
+
+void _pacman_list_reverse_foreach (pmlist_t *list, _pacman_fn_foreach fn, void *user_data) {
+	for (list = _pacman_list_last (list); list != NULL; list = list->prev) {
+		fn (list->data, user_data);
 	}
 }
 
@@ -235,17 +280,6 @@ int _pacman_list_count(pmlist_t *list)
 	return(i);
 }
 
-pmlist_t *_pacman_list_last(pmlist_t *list)
-{
-	if(list == NULL) {
-		return(NULL);
-	}
-
-	assert(list->last != NULL);
-
-	return(list->last);
-}
-
 /* Filter out any duplicate strings in a list.
  *
  * Not the most efficient way, but simple to implement -- we assemble
@@ -262,25 +296,6 @@ pmlist_t *_pacman_list_remove_dupes(pmlist_t *list)
 		}
 	}
 	return newlist;
-}
-
-/* Reverse the order of a list
- *
- * The caller is responsible for freeing the old list
- */
-pmlist_t *_pacman_list_reverse(pmlist_t *list)
-{
-	/* simple but functional -- we just build a new list, starting
-	 * with the old list's tail
-	 */
-	pmlist_t *newlist = NULL;
-	pmlist_t *lp;
-
-	for(lp = list->last; lp; lp = lp->prev) {
-		newlist = _pacman_list_add(newlist, lp->data);
-	}
-
-	return(newlist);
 }
 
 pmlist_t *_pacman_strlist_dup(pmlist_t *list)

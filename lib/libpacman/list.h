@@ -39,28 +39,32 @@ typedef struct __pmlist_t {
  * If detection is successful callback must return 0, or any other
  * values in case of failure (So it can be equivalent to a cmp).
  */
-typedef int (*_pacman_fn_detect)(const void *, void *);
+typedef int   (*_pacman_fn_detect)(const void *, void *);
 typedef void *(*_pacman_fn_dup)(const void *);
-typedef void (*_pacman_fn_free)(void *);
-typedef void (*_pacman_fn_foreach)(void *, void *);
+typedef void  (*_pacman_fn_free)(void *);
+typedef void  (*_pacman_fn_foreach)(void *, void *);
 /* Sort comparison callback function declaration */
-typedef int (*_pacman_fn_cmp)(const void *, const void *);
+typedef int   (*_pacman_fn_cmp)(const void *, const void *);
 
 pmlist_t *_pacman_list_new(void);
 pmlist_t *_pacman_list_dup(pmlist_t *list, _pacman_fn_dup fn);
-void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn);
+void      _pacman_list_free(pmlist_t *list, _pacman_fn_free fn);
+
+pmlist_t *_pacman_list_first(pmlist_t *list);
+pmlist_t *_pacman_list_last(pmlist_t *list);
 
 pmlist_t *_pacman_list_detect(pmlist_t *list, _pacman_fn_detect fn, void *user_data);
+pmlist_t *_pacman_list_filter(pmlist_t *list, _pacman_fn_detect fn, void *user_data);
 pmlist_t *_pacman_list_find(pmlist_t *list, void *data);
-void _pacman_list_foreach(pmlist_t *list, _pacman_fn_foreach fn, void *user_data);
+void      _pacman_list_foreach(pmlist_t *list, _pacman_fn_foreach fn, void *user_data);
+pmlist_t *_pacman_list_reverse(pmlist_t *list);
+void      _pacman_list_reverse_foreach(pmlist_t *list, _pacman_fn_foreach fn, void *user_data);
 
 pmlist_t *_pacman_list_add(pmlist_t *list, void *data);
 pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn);
 pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 int _pacman_list_count(pmlist_t *list);
-pmlist_t *_pacman_list_last(pmlist_t *list);
 pmlist_t *_pacman_list_remove_dupes(pmlist_t *list);
-pmlist_t *_pacman_list_reverse(pmlist_t *list);
 
 pmlist_t *_pacman_strlist_dup(pmlist_t *list);
 pmlist_t *_pacman_strlist_find(pmlist_t *list, const char *str);
