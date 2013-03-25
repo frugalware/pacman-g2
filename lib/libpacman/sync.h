@@ -23,8 +23,6 @@
 #ifndef _PACMAN_SYNC_H
 #define _PACMAN_SYNC_H
 
-#include "db.h"
-#include "package.h"
 #include "trans.h"
 
 const pmtrans_ops_t _pacman_sync_pmtrans_opts;

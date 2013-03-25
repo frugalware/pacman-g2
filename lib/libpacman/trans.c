@@ -23,16 +23,19 @@
  */
 
 #include "config.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <libintl.h>
+
 /* pacman-g2 */
+#include "trans.h"
+
 #include "error.h"
 #include "package.h"
 #include "util.h"
 #include "log.h"
-#include "list.h"
 #include "handle.h"
 #include "add.h"
 #include "remove.h"

@@ -34,10 +34,12 @@
 #endif
 #include <dirent.h>
 #include <libintl.h>
+
 /* pacman-g2 */
+#include "trans_sysupgrade.h"
+
 #include "log.h"
 #include "error.h"
-#include "list.h"
 #include "package.h"
 #include "db.h"
 #include "cache.h"
@@ -55,8 +57,6 @@
 #include "sha1.h"
 #include "handle.h"
 #include "server.h"
-
-#include "trans_sysupgrade.h"
 
 #include "sync.h"
 

@@ -21,6 +21,7 @@
  */
 
 #include "config.h"
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,17 +30,18 @@
 #include <sys/stat.h>
 #include <libintl.h>
 #include <dirent.h>
+
 /* pacman-g2 */
+#include "cache.h"
+
 #include "log.h"
 #include "pacman.h"
-#include "list.h"
 #include "util.h"
 #include "package.h"
 #include "group.h"
 #include "db.h"
 #include "handle.h"
 #include "error.h"
-#include "cache.h"
 
 /* Returns a new package cache from db.
  * It frees the cache if it already exists.

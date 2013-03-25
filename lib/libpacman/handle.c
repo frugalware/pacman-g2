@@ -22,6 +22,7 @@
  */
 
 #include "config.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -33,15 +34,16 @@
 #include <time.h>
 #include <ftplib.h>
 #include <locale.h>
+
 /* pacman-g2 */
+#include "handle.h"
+
 #include "util.h"
 #include "log.h"
-#include "list.h"
 #include "error.h"
 #include "trans.h"
 #include "pacman.h"
 #include "server.h"
-#include "handle.h"
 
 static
 void _pacman_handle_fini(struct pmobject *obj)

@@ -21,13 +21,15 @@
  */
 
 #include "config.h"
+
 #include <stdlib.h>
 #include <string.h>
+
 /* pacman-g2 */
-#include "cache.h"
-#include "list.h"
-#include "db.h"
 #include "provide.h"
+
+#include "cache.h"
+#include "db.h"
 
 /* return a pmlist_t of packages in "db" that provide "package"
  */

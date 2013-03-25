@@ -23,6 +23,8 @@
  *  USA.
  */
 
+#include "config.h"
+
 #if defined(__APPLE__) || defined(__OpenBSD__)
 #include <sys/syslimits.h>
 #endif
@@ -30,7 +32,6 @@
 #include <sys/stat.h>
 #endif
 
-#include "config.h"
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
@@ -38,8 +39,10 @@
 #include <string.h>
 #include <limits.h>
 #include <libintl.h>
+
 /* pacman-g2 */
-#include "list.h"
+#include "add.h"
+
 #include "trans.h"
 #include "util.h"
 #include "error.h"

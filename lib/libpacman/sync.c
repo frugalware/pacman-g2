@@ -23,6 +23,7 @@
  */
 
 #include "config.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -33,10 +34,12 @@
 #endif
 #include <dirent.h>
 #include <libintl.h>
+
 /* pacman-g2 */
+#include "sync.h"
+
 #include "log.h"
 #include "error.h"
-#include "list.h"
 #include "package.h"
 #include "db.h"
 #include "cache.h"
@@ -45,7 +48,6 @@
 #include "provide.h"
 #include "trans.h"
 #include "util.h"
-#include "sync.h"
 #include "versioncmp.h"
 #include "handle.h"
 #include "util.h"

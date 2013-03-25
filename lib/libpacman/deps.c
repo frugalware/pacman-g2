@@ -21,6 +21,8 @@
  *  USA.
  */
 
+#include "config.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -28,17 +30,17 @@
 #include <strings.h>
 #endif
 #include <libintl.h>
+
 /* pacman-g2 */
-#include "config.h"
+#include "deps.h"
+
 #include "util.h"
 #include "log.h"
 #include "error.h"
-#include "list.h"
 #include "package.h"
 #include "db.h"
 #include "cache.h"
 #include "provide.h"
-#include "deps.h"
 #include "versioncmp.h"
 #include "handle.h"
 

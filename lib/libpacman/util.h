@@ -38,6 +38,7 @@
 #include <libintl.h>
 
 #include "error.h"
+#include "list.h"
 
 #define FREE(p) do { if (p) { free(p); p = NULL; } } while(0)
 

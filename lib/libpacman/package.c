@@ -23,6 +23,7 @@
  */
 
 #include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -31,15 +32,16 @@
 #include <libintl.h>
 #include <locale.h>
 #include <sys/utsname.h>
+
 /* pacman-g2 */
+#include "package.h"
+
 #include "log.h"
 #include "util.h"
 #include "error.h"
-#include "list.h"
 #include "db.h"
 #include "handle.h"
 #include "cache.h"
-#include "package.h"
 #include "pacman.h"
 
 /* Test if a package is valid.

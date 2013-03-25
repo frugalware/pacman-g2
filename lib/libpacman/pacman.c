@@ -22,6 +22,8 @@
  *  USA.
  */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -35,15 +37,16 @@
 #include <limits.h> /* PATH_MAX */
 #include <stdarg.h>
 #include <libintl.h>
+
 /* pacman-g2 */
-#include "config.h"
+#include "pacman.h"
+
 #include "log.h"
 #include "error.h"
 #include "deps.h"
 #include "versioncmp.h"
 #include "md5.h"
 #include "sha1.h"
-#include "list.h"
 #include "package.h"
 #include "group.h"
 #include "util.h"
@@ -57,7 +60,6 @@
 #include "handle.h"
 #include "provide.h"
 #include "server.h"
-#include "pacman.h"
 
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 
