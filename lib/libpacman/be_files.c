@@ -21,6 +21,7 @@
  */
 
 #include "config.h"
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,11 +32,11 @@
 #endif
 #include <sys/stat.h>
 #include <dirent.h>
-#include <libintl.h>
 #include <locale.h>
 #ifdef CYGWIN
 #include <limits.h> /* PATH_MAX */
 #endif
+
 /* pacman-g2 */
 #include "log.h"
 #include "util.h"

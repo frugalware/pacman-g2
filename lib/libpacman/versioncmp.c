@@ -22,15 +22,16 @@
  */
 
 #include "config.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include <libintl.h>
+
 /* pacman-g2 */
-#include "config.h"
-#include "deps.h"
 #include "versioncmp.h"
+
+#include "deps.h"
 #include "log.h"
 #include "util.h"
 

@@ -19,14 +19,16 @@ documentation and/or software.
  */
 #define MD MD5
 
+#include "config.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
-#include <libintl.h>
-#include "config.h"
-#include "util.h"
+
 #include "md5.h"
+
+#include "util.h"
 
 /* Length of test block, number of test blocks.
  */

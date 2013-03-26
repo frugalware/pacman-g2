@@ -29,7 +29,6 @@
 #ifdef __sun__
 #include <strings.h>
 #endif
-#include <libintl.h>
 
 /* pacman-g2 */
 #include "deps.h"

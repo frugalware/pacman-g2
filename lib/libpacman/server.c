@@ -19,10 +19,11 @@
  *  USA.
  */
 
+#include "config.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <libintl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -32,8 +33,8 @@
 #include <errno.h>
 
 /* pacman-g2 */
-#include "config.h"
 #include "server.h"
+
 #include "error.h"
 #include "log.h"
 #include "pacman.h"

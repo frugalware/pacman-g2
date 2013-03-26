@@ -28,7 +28,6 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <libintl.h>
 #include <dirent.h>
 
 /* pacman-g2 */

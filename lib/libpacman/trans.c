@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <libintl.h>
 
 /* pacman-g2 */
 #include "trans.h"

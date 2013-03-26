@@ -22,8 +22,8 @@
  *  USA.
  */
 
-#include <libintl.h>
 #include "config.h"
+
 #include "util.h"
 #include "pacman.h"
 

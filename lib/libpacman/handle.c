@@ -30,7 +30,6 @@
 #include <sys/types.h>
 #include <stdarg.h>
 #include <syslog.h>
-#include <libintl.h>
 #include <time.h>
 #include <ftplib.h>
 #include <locale.h>

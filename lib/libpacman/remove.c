@@ -39,7 +39,6 @@
 #include <string.h>
 #include <limits.h>
 #include <zlib.h>
-#include <libintl.h>
 
 /* pacman-g2 */
 #include "remove.h"

@@ -33,7 +33,6 @@
 #include <limits.h> /* PATH_MAX */
 #endif
 #include <dirent.h>
-#include <libintl.h>
 
 /* pacman-g2 */
 #include "trans_sysupgrade.h"

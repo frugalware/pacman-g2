@@ -23,24 +23,26 @@
  *  USA.
  */
 
+#include "config.h"
+
 #if defined(__APPLE__) || defined(__OpenBSD__)
 #include <sys/syslimits.h>
 #endif
 
-#include "config.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <limits.h>
 #include <sys/stat.h>
-#include <libintl.h>
+
 /* pacman-g2 */
+#include "conflict.h"
+
 #include "util.h"
 #include "error.h"
 #include "log.h"
 #include "cache.h"
 #include "deps.h"
-#include "conflict.h"
 
 /* Returns a pmlist_t* of pmdepmissing_t pointers.
  *

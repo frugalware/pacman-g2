@@ -38,7 +38,6 @@
 #include <fcntl.h>
 #include <string.h>
 #include <limits.h>
-#include <libintl.h>
 
 /* pacman-g2 */
 #include "add.h"

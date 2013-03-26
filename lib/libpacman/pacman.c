@@ -36,7 +36,6 @@
 #include <syslog.h>
 #include <limits.h> /* PATH_MAX */
 #include <stdarg.h>
-#include <libintl.h>
 
 /* pacman-g2 */
 #include "pacman.h"

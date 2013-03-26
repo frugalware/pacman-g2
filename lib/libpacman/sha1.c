@@ -25,7 +25,6 @@
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
-#include <libintl.h>
 
 #include "util.h"
 #include "sha1.h"
