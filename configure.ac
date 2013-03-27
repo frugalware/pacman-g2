@@ -462,10 +462,11 @@ CFLAGS="$CFLAGS"
 dnl ==========================================================================
 
 AC_OUTPUT([
+lib/libflib/Makefile
+lib/libftp/Makefile
 lib/libpacman/Makefile
 lib/libpacman/po/Makefile.in
 lib/libpacman/pacman.pc
-lib/libftp/Makefile
 src/pacman-g2/Makefile
 src/pacman-g2/po/Makefile.in
 src/vercmp/Makefile
