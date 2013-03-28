@@ -26,17 +26,17 @@
 
 #include "fstringlist.h"
 
-FList *f_stringlist_dup(FList *list)
+FList *f_stringlist_deep_copy (FList *list)
 {
-	return f_list_dup (list, (f_fn_dup)strdup);
+	return f_list_deep_copy (list, (FCopyFunc)strdup, NULL);
 }
 
-FList *f_stringlist_filter_dupes(FList *list) {
-	return f_list_filter_dupes (list, (f_fn_cmp)strcmp);
+FList *f_stringlist_find (FList *list, const char *str) {
+	return f_list_detect (list, (FDetectFunc)strcmp, (void *)str);
 }
 
-FList *f_stringlist_find(FList *list, const char *str) {
-	return f_list_detect (list, (f_fn_detect)strcmp, (void *)str);
+FList *f_stringlist_uniques (FList *list) {
+	  return f_list_uniques (list, (FCompareFunc)strcmp, NULL);
 }
 
 /* vim: set ts=2 sw=2 noet: */

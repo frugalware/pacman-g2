@@ -23,20 +23,15 @@
 #include "config.h"
 
 #include <assert.h>
-#include <string.h>
 
 #include "flist.h"
 
 #include "fstdlib.h"
 
-#if 0
-/* Chained list struct */
-struct FList {
-	void *data;
-	struct FList *prev;
-	struct FList *next;
-};
-#endif
+static
+void *f_ptrcpy(const void *p) {
+	return (void *)p;
+}
 
 static
 void f_list_accumulator (void *data, FList **list) {
@@ -47,7 +42,7 @@ FList *f_list_new()
 {
 	FList *list = f_malloc(sizeof(FList));
 
-	if(list == NULL) {
+	if (list == NULL) {
 		return(NULL);
 	}
 	list->data = NULL;
@@ -57,27 +52,16 @@ FList *f_list_new()
 	return(list);
 }
 
-FList *f_list_dup (FList *list, f_fn_dup fn) {
-	FList *newlist = NULL;
-	FList *i;
-
-	for(i = list; i; i = i->next) {
-		newlist = f_list_add(newlist, fn != NULL ? fn(i->data) : i->data);
-	}
-
-	return(newlist);
-}
-
-void f_list_free(FList *list, f_fn_free fn)
+void f_list_free(FList *list, FVisitorFunc fn, void *user_data)
 {
 	FList *ptr, *it = list;
 
-	while(it) {
+	while (it) {
 		ptr = it->next;
-		if(fn) {
-			fn(it->data);
+		if (fn) {
+			fn (it->data, user_data);
 		}
-		free(it);
+		free (it);
 		it = ptr;
 	}
 }
@@ -107,16 +91,60 @@ FList *f_list_last (FList *list) {
 	return list;
 }
 
-FList *f_list_detect (FList *list, f_fn_detect fn, void *user_data) {
-	for (;list != NULL; list = list->next) {
-		if (fn (list->data, user_data) == 0) {
-			return list;
-		}
+#if 0
+FList *f_list_append (FList *list, void *data) {
+	FList *last;
+
+	if ((last = f_list_last (list)) != NULL) {
+		f_list_insert_after (last, data);
+	} else {
+		list = f_list_insert_after (last, data);
 	}
-	return NULL;
+	return list;
 }
 
-FList *f_list_filter (FList *list, f_fn_detect fn, void *user_data) {
+FList *f_list_concat (FList *list1, FList *list2) {
+}
+
+FList *f_list_insert_after (FList *list, void *data) {
+}
+
+Flist *f_list_insert_before (FList *list, void *data) {
+}
+
+Flist *f_list_remove (FList *item) {
+}
+#endif
+
+FList *f_list_copy (FList *list) {
+	return f_list_deep_copy (list, (FCopyFunc)f_ptrcpy, NULL);
+}
+
+FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data) {
+	FList *newlist = NULL;
+
+	for (; list; list = list->next) {
+		newlist = f_list_add (newlist, fn(list->data, user_data));
+	}
+	return newlist;
+}
+
+void f_list_detach (FList *list, FCopyFunc fn, void *user_data) {
+	for (; list != NULL; list = list->next) {
+		list->data = fn (list->data, user_data);
+	}
+}
+
+FList *f_list_detect (FList *list, FDetectFunc fn, void *user_data) {
+	for (; list != NULL; list = list->next) {
+		if (fn (list->data, user_data) == 0) {
+			break;
+		}
+	}
+	return list;
+}
+
+FList *f_list_filter (FList *list, FDetectFunc fn, void *user_data) {
 	FList *ret = NULL;
 
 	for (; list != NULL; list = list->next) {
@@ -127,29 +155,11 @@ FList *f_list_filter (FList *list, f_fn_detect fn, void *user_data) {
 	return ret;
 }
 
-/* Filter out any duplicate strings in a list.
- *
- * Not the most efficient way, but simple to implement -- we assemble
- * a new list, using is_in() to check for dupes at each iteration.
- *
- */
-FList *f_list_filter_dupes (FList *list, f_fn_cmp fn)
-{
-	FList *ret = NULL;
-
-	for(; list != NULL; list = list->next) {
-		if(f_list_detect(ret, (f_fn_detect)fn, list->data) != NULL) {
-			ret = f_list_add(ret, strdup(list->data));
-		}
-	}
-	return ret;
+FList *f_list_find (FList *list, const void *ptr) {
+	return f_list_search (list, ptr, (FCompareFunc)f_ptrcmp, NULL);
 }
 
-FList *f_list_find (FList *list, void *data) {
-	return f_list_detect (list, (f_fn_detect)f_ptrcmp, data);
-}
-
-void f_list_foreach (FList *list, f_fn_foreach fn, void *user_data) {
+void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
 	for (; list != NULL; list = list->next) {
 		fn (list->data, user_data);
 	}
@@ -162,14 +172,35 @@ void f_list_foreach (FList *list, f_fn_foreach fn, void *user_data) {
 FList *f_list_reverse (FList *list) {
 	FList *ret = NULL;
 
-	f_list_reverse_foreach (list, (f_fn_foreach)f_list_accumulator, &ret);
+	f_list_reverse_foreach (list, (FVisitorFunc)f_list_accumulator, &ret);
 	return ret;
 }
 
-void f_list_reverse_foreach (FList *list, f_fn_foreach fn, void *user_data) {
+void f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data) {
 	for (list = f_list_last (list); list != NULL; list = list->prev) {
 		fn (list->data, user_data);
 	}
+}
+
+FList *f_list_search (FList *list, const void *ptr, FCompareFunc fn, void *user_data) {
+	for (; list != NULL; list = list->next) {
+		if (fn (list->data, ptr, user_data) == 0) {
+			break;
+		}
+	}
+	return list;
+}
+
+FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data)
+{
+	FList *ret = NULL;
+
+	for (; list != NULL; list = list->next) {
+		if (f_list_search (ret, list->data, fn, user_data) == NULL) {
+			ret = f_list_add(ret, list->data);
+		}
+	}
+	return ret;
 }
 
 FList *f_list_add(FList *list, void *data)
@@ -206,7 +237,7 @@ FList *f_list_add(FList *list, void *data)
 /* Add items to a list in sorted order. Use the given comparison function to
  * determine order.
  */
-FList *f_list_add_sorted(FList *list, void *data, f_fn_cmp fn)
+FList *f_list_add_sorted(FList *list, void *data, FCompareFunc fn, void *user_data)
 {
 	FList *add;
 	FList *prev = NULL;
@@ -217,7 +248,7 @@ FList *f_list_add_sorted(FList *list, void *data, f_fn_cmp fn)
 
 	/* Find insertion point. */
 	while(iter) {
-		if(fn(add->data, iter->data) <= 0) break;
+		if(fn(add->data, iter->data, user_data) <= 0) break;
 		prev = iter;
 		iter = iter->next;
 	}
@@ -255,7 +286,7 @@ FList *f_list_add_sorted(FList *list, void *data, f_fn_cmp fn)
  * Otherwise, it is set to NULL.
  * Return the new list (without the removed element).
  */
-FList *f_list_remove(FList *haystack, void *needle, f_fn_cmp fn, void **data)
+FList *f_list_remove(FList *haystack, void *needle, FCompareFunc fn, void **data)
 {
 	FList *i = haystack;
 
@@ -267,7 +298,7 @@ FList *f_list_remove(FList *haystack, void *needle, f_fn_cmp fn, void **data)
 		if(i->data == NULL) {
 			continue;
 		}
-		if(fn(needle, i->data) == 0) {
+		if(fn(needle, i->data, NULL /* user_data */) == 0) {
 			break;
 		}
 		i = i->next;
