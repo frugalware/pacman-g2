@@ -895,18 +895,16 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 				FREE(md5sum2);
 				FREE(sha1sum2);
 			}
-			if(!retval) {
+			if(retval == 0) {
+				EVENT(trans, PM_TRANS_EVT_INTEGRITY_DONE, NULL, NULL);
 				break;
 			}
 		}
 	}
 	
-	if(retval) {
+	if(retval != 0) {
 		pm_errno = PM_ERR_PKG_CORRUPTED;
 		goto error;
-	}
-	if(!(trans->flags & PM_TRANS_FLAG_NOINTEGRITY)) {
-		EVENT(trans, PM_TRANS_EVT_INTEGRITY_DONE, NULL, NULL);
 	}
 	if(trans->flags & PM_TRANS_FLAG_DOWNLOADONLY) {
 		return(0);
