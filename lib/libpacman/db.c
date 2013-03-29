@@ -80,6 +80,13 @@ void _pacman_db_free(void *data)
 {
 	pmdb_t *db = data;
 
+	_pacman_log(PM_LOG_FLOW1, _("unregistering database '%s'"), db->treename);
+
+	/* Cleanup */
+	_pacman_db_free_pkgcache(db);
+
+	_pacman_db_close(db);
+
 	FREELISTSERVERS(db->servers);
 	free(db->path);
 	free(db);

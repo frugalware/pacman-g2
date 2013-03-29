@@ -135,6 +135,8 @@ void _pacman_db_close(pmdb_t *db)
 		return;
 	}
 
+	_pacman_log(PM_LOG_DEBUG, _("closing database '%s'"), db->treename);
+
 	if(db->handle) {
 		if (islocal(db))
 			closedir(db->handle);
