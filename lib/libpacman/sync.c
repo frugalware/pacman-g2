@@ -89,6 +89,9 @@ pmpkg_t *_pacman_db_list_get_pkg(pmlist_t *db_list, const char *pkg_name) {
 			pkg = _pacman_db_search_provider (db, pkg_name);
 		}
 	}
+	if (pkg == NULL) {
+		RET_ERR(PM_ERR_PKG_NOT_FOUND, NULL);
+	}
 	return pkg;
 }
 
@@ -127,7 +130,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	}
 	spkg = _pacman_db_list_get_pkg (dbs_search, targ);
 	if(spkg == NULL) {
-		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
+		return -1;
 	}
 
 	local = _pacman_db_get_pkgfromcache(db_local, spkg->name);
