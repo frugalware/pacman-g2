@@ -417,4 +417,32 @@ pmdb_t *_pacman_handle_get_db_sync(pmhandle_t *handle, const char *name) {
 	return NULL;
 }
 
+int _pacman_handle_lock_acquire (pmhandle_t *handle) {
+	char path[PATH_MAX];
+
+	snprintf (path, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
+	handle->lckfd = _pacman_lckmk (path);
+	if (handle->lckfd == -1) {
+		RET_ERR(PM_ERR_HANDLE_LOCK, -1);
+	}
+	return 0;
+}
+
+int _pacman_handle_lock_release (pmhandle_t *handle) {
+	char path[PATH_MAX];
+
+	if (handle->lckfd == -1) {
+		return 0;
+	}
+	close (handle->lckfd);
+	handle->lckfd = -1;
+
+	snprintf(path, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
+	if (_pacman_lckrm (path)) {
+		_pacman_log (PM_LOG_WARNING, _("could not remove lock file %s"), path);
+		pacman_logaction (_("warning: could not remove lock file %s"), path);
+		return -1;
+	}
+	return 0;
+}
 /* vim: set ts=2 sw=2 noet: */
