@@ -729,6 +729,7 @@ int pacman_trans_addtarget(const char *target)
 {
 	pmtrans_t *trans;
 	__pmtrans_pkg_type_t type = _PACMAN_TRANS_PKG_TYPE_NULL;
+	int flag = _PACMAN_TRANS_PKG_FLAG_EXPLICIT;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -745,12 +746,15 @@ int pacman_trans_addtarget(const char *target)
 		type = _PACMAN_TRANS_PKG_TYPE_REMOVE;
 		break;
 	case PM_TRANS_TYPE_UPGRADE:
-		case PM_TRANS_TYPE_SYNC:
+	case PM_TRANS_TYPE_SYNC:
 		type = _PACMAN_TRANS_PKG_TYPE_UPGRADE;
 		break;
 	}
-
-	return(_pacman_trans_addtarget(trans, target, type, 0));
+	if (handle->sysupgrade != 0 ||
+			trans->type == PM_TRANS_TYPE_UPGRADE) {
+		flag &= ~_PACMAN_TRANS_PKG_FLAG_EXPLICIT;
+	}
+	return(_pacman_trans_addtarget(trans, target, type, flag));
 }
 
 /** Prepare a transaction.

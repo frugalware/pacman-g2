@@ -245,10 +245,11 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(trans->ops != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(target != NULL && strlen(target) != 0, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(trans_pkg != NULL, return -1); /* pm_error is allready set by __pacman_trans_pkg_new */
+	ASSERT(trans_pkg != NULL, return -1); /* pm_errno is allready set by __pacman_trans_pkg_new */
 
 	db_local = trans->handle->db_local;
 	pkg_name = target;
+	trans_pkg->flags = flags;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
@@ -276,32 +277,39 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 			goto error;
 		}
 
-		if(stat(pkg_name, &buf)) {
-			pm_errno = PM_ERR_NOT_A_FILE;
-			goto error;
+		if (stat(pkg_name, &buf) == 0) {
+			_pacman_log(PM_LOG_FLOW2, _("loading target '%s'"), pkg_name);
+			trans_pkg->pkg_new = _pacman_pkg_load(pkg_name);
+			if(trans_pkg->pkg_new == NULL) {
+				/* pm_errno is already set by pkg_load() */
+				goto error;
+			}
 		}
 
-		_pacman_log(PM_LOG_FLOW2, _("loading target '%s'"), pkg_name);
-		trans_pkg->pkg_new = _pacman_pkg_load(pkg_name);
-		if(trans_pkg->pkg_new == NULL) {
-			/* pm_errno is already set by pkg_load() */
+		if (trans_pkg->pkg_new == NULL) {
+			pm_errno = PM_ERR_PKG_NOT_FOUND;
 			goto error;
 		}
 
 		trans_pkg->pkg_local = _pacman_db_get_pkgfromcache(db_local, _pacman_pkg_getinfo(trans_pkg->pkg_new, PM_PKG_NAME));
-		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
-			/* only install this package if it is not already installed */
-			if(trans_pkg->pkg_local) {
+		if (trans_pkg->pkg_local != NULL) {
+			int cmp = _pacman_versioncmp(trans_pkg->pkg_local->version, trans_pkg->pkg_new->version);
+
+			if (type == _PACMAN_TRANS_PKG_TYPE_ADD) {
+				/* only install this package if it is not already installed */
 				pm_errno = PM_ERR_PKG_INSTALLED;
+				goto error;
+			}
+			if (trans->flags & PM_TRANS_FLAG_FRESHEN && cmp >= 0) {
+				/* only upgrade/install this package if it is at a lesser version */
+				pm_errno = PM_ERR_PKG_CANT_FRESH;
 				goto error;
 			}
 		} else {
 			if(trans->flags & PM_TRANS_FLAG_FRESHEN) {
-				/* only upgrade/install this package if it is already installed and at a lesser version */
-				if(trans_pkg->pkg_local == NULL || _pacman_versioncmp(trans_pkg->pkg_local->version, trans_pkg->pkg_new->version) >= 0) {
-					pm_errno = PM_ERR_PKG_CANT_FRESH;
-					goto error;
-				}
+				/* only upgrade/install this package if it is already installed */
+				pm_errno = PM_ERR_PKG_CANT_FRESH;
+				goto error;
 			}
 		}
 
@@ -328,13 +336,15 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 			}
 		}
 
-		if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
-			trans_pkg->pkg_new->reason = PM_PKG_REASON_DEPEND;
-		}
-
 		/* copy over the install reason */
 		if(trans_pkg->pkg_local) {
 			trans_pkg->pkg_new->reason = (long)_pacman_pkg_getinfo(trans_pkg->pkg_local, PM_PKG_REASON);
+		}
+		if(trans_pkg->flags & _PACMAN_TRANS_PKG_FLAG_EXPLICIT) {
+			trans_pkg->pkg_new->reason = PM_PKG_REASON_EXPLICIT;
+		}
+		if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
+			trans_pkg->pkg_new->reason = PM_PKG_REASON_DEPEND;
 		}
 		goto out;
 	}
