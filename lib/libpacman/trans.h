@@ -39,13 +39,6 @@ enum {
 	STATE_MAX
 };
 
-typedef enum {
-	_PACMAN_TRANS_PKG_TYPE_NULL    = 0,
-	_PACMAN_TRANS_PKG_TYPE_REMOVE  = (1 << 0),
-	_PACMAN_TRANS_PKG_TYPE_ADD     = (1 << 1),
-	_PACMAN_TRANS_PKG_TYPE_UPGRADE = (_PACMAN_TRANS_PKG_TYPE_REMOVE | _PACMAN_TRANS_PKG_TYPE_ADD)
-} __pmtrans_pkg_type_t;
-
 #define _PACMAN_TRANS_PKG_FLAG_EXPLICIT			(1 << 0)
 #define _PACMAN_TRANS_PKG_FLAG_NOSCRIPTLET	(1 << 1)
 
@@ -111,7 +104,7 @@ pmtrans_t *_pacman_trans_new(void);
 void _pacman_trans_free(pmtrans_t *trans);
 
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state);
-int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_type_t type, unsigned int flags);
+int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t type, unsigned int flags);
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data);
 int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data);
 
@@ -120,7 +113,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans);
 /* FIXME: Make private when unification is done */
 /* RENAMEME: struct __pmtrans_pkg  */
 typedef struct __pmsyncpkg_t {
-	unsigned char type; /* Change type to __pmtrans_pkg_type_t */
+	pmtranstype_t type;
 	pmpkg_t *pkg_new;
 	pmpkg_t *pkg_local;
 	void *data;

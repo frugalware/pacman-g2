@@ -256,10 +256,10 @@ int pacman_sync_cleancache(int full);
 
 /* Types */
 typedef enum _pmtranstype_t {
-	PM_TRANS_TYPE_ADD = 1,
-	PM_TRANS_TYPE_REMOVE,
-	PM_TRANS_TYPE_UPGRADE,
-	PM_TRANS_TYPE_SYNC
+	PM_TRANS_TYPE_ADD			= (1 << 0),
+	PM_TRANS_TYPE_REMOVE	= (1 << 1),
+	PM_TRANS_TYPE_UPGRADE	= (PM_TRANS_TYPE_ADD | PM_TRANS_TYPE_REMOVE),
+	PM_TRANS_TYPE_SYNC		= (1 << 2),
 } pmtranstype_t;
 
 /* Flags */

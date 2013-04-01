@@ -236,7 +236,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
-					if(_pacman_trans_addtarget(tr, info->name, _PACMAN_TRANS_PKG_TYPE_REMOVE, 0) == -1) {
+					if(_pacman_trans_addtarget(tr, info->name, PM_TRANS_TYPE_REMOVE, 0) == -1) {
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}

@@ -235,7 +235,7 @@ error:
 	return NULL;
 }
 
-int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_type_t type, unsigned int flags)
+int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t type, unsigned int flags)
 {
 	char *pkg_name;
 	pmsyncpkg_t *trans_pkg = __pacman_trans_pkg_new(type, NULL, NULL);
@@ -264,7 +264,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 		}
 	} else {
 
-	if (type & _PACMAN_TRANS_PKG_TYPE_ADD) {
+	if (type & PM_TRANS_TYPE_ADD) {
 		pmlist_t *i;
 		struct stat buf;
 
@@ -295,7 +295,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 		if (trans_pkg->pkg_local != NULL) {
 			int cmp = _pacman_versioncmp(trans_pkg->pkg_local->version, trans_pkg->pkg_new->version);
 
-			if (type == _PACMAN_TRANS_PKG_TYPE_ADD) {
+			if (type == PM_TRANS_TYPE_ADD) {
 				/* only install this package if it is not already installed */
 				pm_errno = PM_ERR_PKG_INSTALLED;
 				goto error;
@@ -337,19 +337,19 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, __pmtrans_pkg_
 		}
 
 		/* copy over the install reason */
-		if(trans_pkg->pkg_local) {
+		if (trans_pkg->pkg_local) {
 			trans_pkg->pkg_new->reason = (long)_pacman_pkg_getinfo(trans_pkg->pkg_local, PM_PKG_REASON);
 		}
-		if(trans_pkg->flags & _PACMAN_TRANS_PKG_FLAG_EXPLICIT) {
-			trans_pkg->pkg_new->reason = PM_PKG_REASON_EXPLICIT;
-		}
-		if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
+		if (trans->flags & PM_TRANS_FLAG_ALLDEPS) {
 			trans_pkg->pkg_new->reason = PM_PKG_REASON_DEPEND;
+		}
+		if (trans_pkg->flags & _PACMAN_TRANS_PKG_FLAG_EXPLICIT) {
+			trans_pkg->pkg_new->reason = PM_PKG_REASON_EXPLICIT;
 		}
 		goto out;
 	}
 
-	if (type & _PACMAN_TRANS_PKG_TYPE_REMOVE) {
+	if (type & PM_TRANS_TYPE_REMOVE) {
 		if(_pacman_pkg_isin(pkg_name, trans->_packages)) {
 			RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 		}

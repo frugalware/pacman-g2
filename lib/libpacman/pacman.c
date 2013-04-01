@@ -728,7 +728,7 @@ int pacman_trans_sysupgrade()
 int pacman_trans_addtarget(const char *target)
 {
 	pmtrans_t *trans;
-	__pmtrans_pkg_type_t type = _PACMAN_TRANS_PKG_TYPE_NULL;
+	pmtranstype_t type = 0;
 	int flag = _PACMAN_TRANS_PKG_FLAG_EXPLICIT;
 
 	/* Sanity checks */
@@ -736,23 +736,17 @@ int pacman_trans_addtarget(const char *target)
 	ASSERT(target != NULL && strlen(target) != 0, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	trans = handle->trans;
+
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(trans->state == STATE_INITIALIZED, RET_ERR(PM_ERR_TRANS_NOT_INITIALIZED, -1));
-	switch (trans->type) {
-	case PM_TRANS_TYPE_ADD:
-		type = _PACMAN_TRANS_PKG_TYPE_ADD;
-		break;
-	case PM_TRANS_TYPE_REMOVE:
-		type = _PACMAN_TRANS_PKG_TYPE_REMOVE;
-		break;
-	case PM_TRANS_TYPE_UPGRADE:
-	case PM_TRANS_TYPE_SYNC:
-		type = _PACMAN_TRANS_PKG_TYPE_UPGRADE;
-		break;
-	}
+
+	type = trans->type;
 	if (handle->sysupgrade != 0 ||
-			trans->type == PM_TRANS_TYPE_UPGRADE) {
+			type == PM_TRANS_TYPE_UPGRADE) {
 		flag &= ~_PACMAN_TRANS_PKG_FLAG_EXPLICIT;
+	}
+	if (type == PM_TRANS_TYPE_SYNC) {
+		type = PM_TRANS_TYPE_UPGRADE;
 	}
 	return(_pacman_trans_addtarget(trans, target, type, flag));
 }
