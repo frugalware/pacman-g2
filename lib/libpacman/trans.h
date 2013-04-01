@@ -39,9 +39,6 @@ enum {
 	STATE_MAX
 };
 
-#define _PACMAN_TRANS_PKG_FLAG_EXPLICIT			(1 << 0)
-#define _PACMAN_TRANS_PKG_FLAG_NOSCRIPTLET	(1 << 1)
-
 typedef struct __pmtrans_ops_t {
 	void (*fini)(pmtrans_t *trans);
 	int (*addtarget)(pmtrans_t *trans, const char *name);

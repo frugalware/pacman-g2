@@ -337,7 +337,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 		if (trans->flags & PM_TRANS_FLAG_ALLDEPS) {
 			trans_pkg->pkg_new->reason = PM_PKG_REASON_DEPEND;
 		}
-		if (trans_pkg->flags & _PACMAN_TRANS_PKG_FLAG_EXPLICIT) {
+		if (trans_pkg->flags & PM_TRANS_FLAG_EXPLICIT) {
 			trans_pkg->pkg_new->reason = PM_PKG_REASON_EXPLICIT;
 		}
 		goto out;
