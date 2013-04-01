@@ -152,10 +152,8 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 		/* we don't care about a to-be-replaced package's newer version */
 		for(j = trans->packages; j && !replace; j=j->next) {
 			ps = j->data;
-			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				if(_pacman_pkg_isin(spkg->name, ps->replaces)) {
-					replace=1;
-				}
+			if(_pacman_pkg_isin(spkg->name, ps->replaces)) {
+				replace=1;
 			}
 		}
 		if(replace) {

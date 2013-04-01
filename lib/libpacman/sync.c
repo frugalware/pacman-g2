@@ -330,10 +330,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				 */
 				for(j = trans->packages; j && !found; j = j->next) {
 					ps = j->data;
-					if(ps->type == PM_SYNC_TYPE_REPLACE) {
-						if(_pacman_pkg_isin(miss->depend.name, ps->replaces)) {
-							found = 1;
-						}
+					if(_pacman_pkg_isin(miss->depend.name, ps->replaces)) {
+						found = 1;
 					}
 				}
 				if(found) {
@@ -497,10 +495,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 		/*EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
 		for(i = trans->packages; i; i = i->next) {
 			pmsyncpkg_t *ps = i->data;
-			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				for(j = ps->replaces; j; j = j->next) {
-					list = _pacman_list_add(list, j->data);
-				}
+			for(j = ps->replaces; j; j = j->next) {
+				list = _pacman_list_add(list, j->data);
 			}
 		}
 		if(list) {
@@ -621,15 +617,13 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 
 	for(i = trans->packages; i; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
-		if(ps->type == PM_SYNC_TYPE_REPLACE) {
-			for(j = ps->replaces; j; j = j->next) {
-				pmpkg_t *pkg = j->data;
-				if(!_pacman_pkg_isin(pkg->name, tr->_packages)) {
-					if(_pacman_trans_addtarget(tr, pkg->name, PM_TRANS_TYPE_REMOVE, 0) == -1) {
-						goto error;
-					}
-					replaces++;
+		for(j = ps->replaces; j; j = j->next) {
+			pmpkg_t *pkg = j->data;
+			if(!_pacman_pkg_isin(pkg->name, tr->_packages)) {
+				if(_pacman_trans_addtarget(tr, pkg->name, PM_TRANS_TYPE_REMOVE, 0) == -1) {
+					goto error;
 				}
+				replaces++;
 			}
 		}
 	}
@@ -692,7 +686,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		_pacman_log(PM_LOG_FLOW1, _("updating database for replaced packages' dependencies"));
 		for(i = trans->packages; i; i = i->next) {
 			pmsyncpkg_t *ps = i->data;
-			if(ps->type == PM_SYNC_TYPE_REPLACE) {
+			if (ps->replaces != NULL) {
 				pmpkg_t *new = _pacman_db_get_pkgfromcache(db_local, ps->pkg_new->name);
 				for(j = ps->replaces; j; j = j->next) {
 					pmlist_t *k;
