@@ -116,11 +116,11 @@ typedef struct __pmsyncpkg_t {
 	pmtranstype_t type;
 	pmpkg_t *pkg_new;
 	pmpkg_t *pkg_local;
-	void *data;
+	pmlist_t *replaces; /* list of (pmpkg_t *) */
 	int flags;
 } pmsyncpkg_t;
 
-pmsyncpkg_t *__pacman_trans_pkg_new (int type, pmpkg_t *spkg, void *data);
+pmsyncpkg_t *__pacman_trans_pkg_new (int type, pmpkg_t *spkg);
 void __pacman_trans_pkg_delete (pmsyncpkg_t *pkg);
 
 /* Implementation details */

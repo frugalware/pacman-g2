@@ -44,9 +44,9 @@
 
 #include "trans_sysupgrade.h"
 
-pmsyncpkg_t *__pacman_trans_pkg_new(int type, pmpkg_t *spkg, void *data)
+pmsyncpkg_t *__pacman_trans_pkg_new(int type, pmpkg_t *spkg)
 {
-	pmsyncpkg_t *trans_pkg = _pacman_malloc(sizeof(pmsyncpkg_t));
+	pmsyncpkg_t *trans_pkg = _pacman_zalloc(sizeof(pmsyncpkg_t));
 
 	if (trans_pkg == NULL) {
 		return(NULL);
@@ -54,7 +54,6 @@ pmsyncpkg_t *__pacman_trans_pkg_new(int type, pmpkg_t *spkg, void *data)
 
 	trans_pkg->type = type;
 	trans_pkg->pkg_new = spkg;
-	trans_pkg->data = data;
 
 	return(trans_pkg);
 }
@@ -70,12 +69,7 @@ void __pacman_trans_pkg_delete(pmsyncpkg_t *trans_pkg)
 	FREEPKG(trans_pkg->pkg_new);
 	FREEPKG(trans_pkg->pkg_local);
 #endif
-
-	if(trans_pkg->type == PM_SYNC_TYPE_REPLACE) {
-		FREELISTPKGS(trans_pkg->data);
-	} else {
-		FREEPKG(trans_pkg->data);
-	}
+	FREELISTPKGS(trans_pkg->replaces);
 	free(trans_pkg);
 }
 
@@ -238,7 +232,7 @@ error:
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t type, unsigned int flags)
 {
 	char *pkg_name;
-	pmsyncpkg_t *trans_pkg = __pacman_trans_pkg_new(type, NULL, NULL);
+	pmsyncpkg_t *trans_pkg = __pacman_trans_pkg_new(type, NULL);
 	pmdb_t *db_local;
 
 	/* Sanity checks */

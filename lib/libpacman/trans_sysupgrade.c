@@ -110,15 +110,15 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 								ps = __pacman_trans_get_trans_pkg(trans, spkg->name);
 								if(ps) {
 									/* found it -- just append to the replaces list */
-									ps->data = _pacman_list_add(ps->data, dummy);
+									ps->replaces = _pacman_list_add(ps->replaces, dummy);
 								} else {
 									/* none found -- enter pkg into the final sync list */
-									ps = __pacman_trans_pkg_new (PM_SYNC_TYPE_REPLACE, spkg, NULL);
+									ps = __pacman_trans_pkg_new (PM_SYNC_TYPE_REPLACE, spkg);
 									if(ps == NULL) {
 										FREEPKG(dummy);
 										goto error;
 									}
-									ps->data = _pacman_list_add(NULL, dummy);
+									ps->replaces = _pacman_list_add(ps->replaces, dummy);
 									trans->packages = _pacman_list_add(trans->packages, ps);
 								}
 								_pacman_log(PM_LOG_FLOW2, _("%s-%s elected for upgrade (to be replaced by %s-%s)"),
@@ -153,7 +153,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 		for(j = trans->packages; j && !replace; j=j->next) {
 			ps = j->data;
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				if(_pacman_pkg_isin(spkg->name, ps->data)) {
+				if(_pacman_pkg_isin(spkg->name, ps->replaces)) {
 					replace=1;
 				}
 			}
@@ -188,15 +188,11 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 				local->name, local->version, local->version, spkg->version);
 			/* check if spkg->name is already in the packages list. */
 			if(!__pacman_trans_get_trans_pkg(trans, spkg->name)) {
-				pmpkg_t *dummy = _pacman_pkg_new(local->name, local->version);
-				if(dummy == NULL) {
-					goto error;
-				}
-				ps = __pacman_trans_pkg_new (PM_SYNC_TYPE_UPGRADE, spkg, dummy);
+				ps = __pacman_trans_pkg_new (PM_SYNC_TYPE_UPGRADE, spkg);
 				if(ps == NULL) {
-					FREEPKG(dummy);
 					goto error;
 				}
+				ps->pkg_local = local;
 				trans->packages = _pacman_list_add(trans->packages, ps);
 			} else {
 				/* spkg->name is already in the packages list -- just ignore it */

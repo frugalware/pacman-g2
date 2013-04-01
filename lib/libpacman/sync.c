@@ -157,23 +157,19 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 
 	/* add the package to the transaction */
 	if(!__pacman_trans_get_trans_pkg(trans, spkg->name)) {
-		pmpkg_t *dummy = NULL;
-		if(local) {
-			dummy = _pacman_pkg_new(local->name, local->version);
-			if(dummy == NULL) {
-				RET_ERR(PM_ERR_MEMORY, -1);
-			}
-		}
-		ps = __pacman_trans_pkg_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
+		ps = __pacman_trans_pkg_new(PM_SYNC_TYPE_UPGRADE, spkg);
 		if(ps == NULL) {
-			FREEPKG(dummy);
-			RET_ERR(PM_ERR_MEMORY, -1);
+			goto error;
 		}
+		ps->pkg_local = local;
 		_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), spkg->name);
 		trans->packages = _pacman_list_add(trans->packages, ps);
 	}
 
 	return(0);
+
+error:
+	return -1;
 }
 
 /* Helper functions for _pacman_list_remove
@@ -257,7 +253,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 			/* add the dependencies found by resolvedeps to the transaction set */
 			pmpkg_t *spkg = i->data;
 			if(!__pacman_trans_get_trans_pkg(trans, spkg->name)) {
-				pmsyncpkg_t *ps = __pacman_trans_pkg_new(PM_SYNC_TYPE_DEPEND, spkg, NULL);
+				pmsyncpkg_t *ps = __pacman_trans_pkg_new(PM_SYNC_TYPE_DEPEND, spkg);
 				if(ps == NULL) {
 					ret = -1;
 					goto cleanup;
@@ -335,7 +331,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				for(j = trans->packages; j && !found; j = j->next) {
 					ps = j->data;
 					if(ps->type == PM_SYNC_TYPE_REPLACE) {
-						if(_pacman_pkg_isin(miss->depend.name, ps->data)) {
+						if(_pacman_pkg_isin(miss->depend.name, ps->replaces)) {
 							found = 1;
 						}
 					}
@@ -429,11 +425,11 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 							if(ps->type != PM_SYNC_TYPE_REPLACE) {
 								/* switch this sync type to REPLACE */
 								ps->type = PM_SYNC_TYPE_REPLACE;
-								FREEPKG(ps->data);
+								//FREEPKG(ps->data);
 							}
 							/* append to the replaces list */
 							_pacman_log(PM_LOG_FLOW2, _("electing '%s' for removal"), miss->depend.name);
-							ps->data = _pacman_list_add(ps->data, q);
+							ps->replaces = _pacman_list_add(ps->replaces, q);
 							if(rsync) {
 								/* remove it from the target list */
 								pmsyncpkg_t *spkg = NULL;
@@ -502,7 +498,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 		for(i = trans->packages; i; i = i->next) {
 			pmsyncpkg_t *ps = i->data;
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				for(j = ps->data; j; j = j->next) {
+				for(j = ps->replaces; j; j = j->next) {
 					list = _pacman_list_add(list, j->data);
 				}
 			}
@@ -626,7 +622,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 	for(i = trans->packages; i; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
 		if(ps->type == PM_SYNC_TYPE_REPLACE) {
-			for(j = ps->data; j; j = j->next) {
+			for(j = ps->replaces; j; j = j->next) {
 				pmpkg_t *pkg = j->data;
 				if(!_pacman_pkg_isin(pkg->name, tr->_packages)) {
 					if(_pacman_trans_addtarget(tr, pkg->name, PM_TRANS_TYPE_REMOVE, 0) == -1) {
@@ -698,7 +694,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 			pmsyncpkg_t *ps = i->data;
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
 				pmpkg_t *new = _pacman_db_get_pkgfromcache(db_local, ps->pkg_new->name);
-				for(j = ps->data; j; j = j->next) {
+				for(j = ps->replaces; j; j = j->next) {
 					pmlist_t *k;
 					pmpkg_t *old = j->data;
 					/* merge lists */
