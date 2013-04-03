@@ -60,65 +60,6 @@
 #include "pacman.h"
 #include "packages_transaction.h"
 
-int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
-{
-	pmlist_t *lp;
-	pmdb_t *db = trans->handle->db_local;
-
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-
-	if(!(trans->flags & (PM_TRANS_FLAG_NODEPS)) && (trans->type != PM_TRANS_TYPE_UPGRADE)) {
-		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
-
-		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-		lp = _pacman_checkdeps(trans, db, trans->type, trans->_packages);
-		if(lp != NULL) {
-			if(trans->flags & PM_TRANS_FLAG_CASCADE) {
-				while(lp) {
-					pmlist_t *i;
-					for(i = lp; i; i = i->next) {
-						pmdepmissing_t *miss = (pmdepmissing_t *)i->data;
-						pmpkg_t *info = _pacman_db_scan(db, miss->depend.name, INFRQ_ALL);
-						if(info) {
-							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), info->name);
-							trans->_packages = _pacman_list_add(trans->_packages, info);
-						} else {
-							_pacman_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
-								miss->depend.name);
-						}
-					}
-					FREELIST(lp);
-					lp = _pacman_checkdeps(trans, db, trans->type, trans->_packages);
-				}
-			} else {
-				if(data) {
-					*data = lp;
-				} else {
-					FREELIST(lp);
-				}
-				RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
-			}
-		}
-
-		if(trans->flags & PM_TRANS_FLAG_RECURSE) {
-			_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
-			trans->_packages = _pacman_removedeps(db, trans->_packages);
-		}
-
-		/* re-order w.r.t. dependencies */
-		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _pacman_sortbydeps(trans->_packages, PM_TRANS_TYPE_REMOVE);
-		/* free the old alltargs */
-		FREELISTPTR(trans->_packages);
-		trans->_packages = lp;
-
-		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
-	}
-
-	return(0);
-}
-
 /* Helper function for comparing strings
  */
 static int str_cmp(const void *s1, const void *s2)
@@ -326,8 +267,6 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 }
 
 const pmtrans_ops_t _pacman_remove_pmtrans_opts = {
-	.addtarget = NULL,
-	.prepare = _pacman_remove_prepare,
 	.commit = _pacman_remove_commit
 };
 

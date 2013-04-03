@@ -61,104 +61,6 @@
 #include "handle.h"
 #include "packages_transaction.h"
 
-int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
-{
-	pmlist_t *lp;
-	pmlist_t *rmlist = NULL;
-	char rm_fname[PATH_MAX];
-	pmpkg_t *info = NULL;
-	pmdb_t *db = trans->handle->db_local;
-
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-
-	/* Check dependencies
-	 */
-	if(!(trans->flags & PM_TRANS_FLAG_NODEPS)) {
-		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
-
-		/* look for unsatisfied dependencies */
-		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-		lp = _pacman_checkdeps(trans, db, trans->type, trans->_packages);
-		if(lp != NULL) {
-			if(data) {
-				*data = lp;
-			} else {
-				FREELIST(lp);
-			}
-			RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
-		}
-
-		/* no unsatisfied deps, so look for conflicts */
-		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		lp = _pacman_checkconflicts(trans, db, trans->_packages);
-		if(lp != NULL) {
-			if(data) {
-				*data = lp;
-			} else {
-				FREELIST(lp);
-			}
-			RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
-		}
-
-		/* re-order w.r.t. dependencies */
-		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _pacman_sortbydeps(trans->_packages, PM_TRANS_TYPE_ADD);
-		/* free the old alltargs */
-		FREELISTPTR(trans->_packages);
-		trans->_packages = lp;
-
-		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
-	}
-
-	/* Cleaning up
-	 */
-	EVENT(trans, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
-	_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
-	for (lp=trans->_packages; lp!=NULL; lp=lp->next) {
-		info=(pmpkg_t *)lp->data;
-		for (rmlist=info->removes; rmlist!=NULL; rmlist=rmlist->next) {
-			snprintf(rm_fname, PATH_MAX, "%s%s", handle->root, (char *)rmlist->data);
-			remove(rm_fname);
-		}
-	}
-	EVENT(trans, PM_TRANS_EVT_CLEANUP_DONE, NULL, NULL);
-
-	/* Check for file conflicts
-	 */
-	if(!(trans->flags & PM_TRANS_FLAG_FORCE)) {
-		pmlist_t *skiplist = NULL;
-
-		EVENT(trans, PM_TRANS_EVT_FILECONFLICTS_START, NULL, NULL);
-
-		_pacman_log(PM_LOG_FLOW1, _("looking for file conflicts"));
-		lp = _pacman_db_find_conflicts(db, trans, handle->root, &skiplist);
-		if(lp != NULL) {
-			if(data) {
-				*data = lp;
-			} else {
-				FREELIST(lp);
-			}
-			FREELIST(skiplist);
-			RET_ERR(PM_ERR_FILE_CONFLICTS, -1);
-		}
-
-		/* copy the file skiplist into the transaction */
-		trans->skiplist = skiplist;
-
-		EVENT(trans, PM_TRANS_EVT_FILECONFLICTS_DONE, NULL, NULL);
-	}
-
-#ifndef __sun__
-	if(_pacman_check_freespace(trans, data) == -1) {
-			/* pm_errno is set by check_freespace */
-			return(-1);
-	}
-#endif
-
-	return(0);
-}
-
 int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 {
 	int i, ret = 0, errors = 0, needdisp = 0;
@@ -700,8 +602,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 }
 
 const pmtrans_ops_t _pacman_add_pmtrans_opts = {
-	.addtarget = NULL,
-	.prepare = _pacman_add_prepare,
 	.commit = _pacman_add_commit
 };
 

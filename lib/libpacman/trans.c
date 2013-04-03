@@ -31,6 +31,7 @@
 /* pacman-g2 */
 #include "trans.h"
 
+#include "deps.h"
 #include "error.h"
 #include "package.h"
 #include "util.h"
@@ -400,22 +401,164 @@ int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 {
+	pmdb_t *db_local;
+
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(trans->ops != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(trans->ops->prepare != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(data != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	*data = NULL;
+	db_local = trans->handle->db_local;
+
+	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	/* If there's nothing to do, return without complaining */
 	if(trans->_packages == NULL && trans->packages == NULL) {
 		return(0);
 	}
 
-	if(trans->ops->prepare(trans, data) == -1) {
-		/* pm_errno is set by trans->ops->prepare() */
-		return(-1);
+	if(trans->ops->prepare != NULL) {
+		if(trans->ops->prepare(trans, data) == -1) {
+			/* pm_errno is set by trans->ops->prepare() */
+			return(-1);
+		}
+	} else {
+
+	pmlist_t *lp;
+	pmlist_t *rmlist = NULL;
+	char rm_fname[PATH_MAX];
+	pmpkg_t *info = NULL;
+
+	if (trans->type & PM_TRANS_TYPE_ADD) {
+		/* Check dependencies */
+		if(!(trans->flags & PM_TRANS_FLAG_NODEPS)) {
+			EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
+			/* look for unsatisfied dependencies */
+			_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
+			lp = _pacman_checkdeps(trans, db_local, trans->type, trans->_packages);
+			if(lp != NULL) {
+				if(data) {
+					*data = lp;
+				} else {
+					FREELIST(lp);
+				}
+				RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
+			}
+
+			/* no unsatisfied deps, so look for conflicts */
+			_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
+			lp = _pacman_checkconflicts(trans, db_local, trans->_packages);
+			if(lp != NULL) {
+				if(data) {
+					*data = lp;
+				} else {
+					FREELIST(lp);
+				}
+				RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
+			}
+
+			/* re-order w.r.t. dependencies */
+			_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
+			lp = _pacman_sortbydeps(trans->_packages, PM_TRANS_TYPE_ADD);
+			/* free the old alltargs */
+			FREELISTPTR(trans->_packages);
+			trans->_packages = lp;
+			EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
+		}
+
+		/* Cleaning up */
+		EVENT(trans, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
+		_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
+		for (lp=trans->_packages; lp!=NULL; lp=lp->next) {
+			info=(pmpkg_t *)lp->data;
+			for (rmlist=info->removes; rmlist!=NULL; rmlist=rmlist->next) {
+				snprintf(rm_fname, PATH_MAX, "%s%s", handle->root, (char *)rmlist->data);
+				remove(rm_fname);
+			}
+		}
+		EVENT(trans, PM_TRANS_EVT_CLEANUP_DONE, NULL, NULL);
+
+		/* Check for file conflicts */
+		if(!(trans->flags & PM_TRANS_FLAG_FORCE)) {
+			pmlist_t *skiplist = NULL;
+
+			EVENT(trans, PM_TRANS_EVT_FILECONFLICTS_START, NULL, NULL);
+
+			_pacman_log(PM_LOG_FLOW1, _("looking for file conflicts"));
+			lp = _pacman_db_find_conflicts(db_local, trans, handle->root, &skiplist);
+			if(lp != NULL) {
+				if(data) {
+					*data = lp;
+				} else {
+					FREELIST(lp);
+				}
+				FREELIST(skiplist);
+				RET_ERR(PM_ERR_FILE_CONFLICTS, -1);
+			}
+
+			/* copy the file skiplist into the transaction */
+			trans->skiplist = skiplist;
+
+			EVENT(trans, PM_TRANS_EVT_FILECONFLICTS_DONE, NULL, NULL);
+		}
+
+#ifndef __sun__
+		if(_pacman_check_freespace(trans, data) == -1) {
+			/* pm_errno is set by check_freespace */
+			return(-1);
+		}
+#endif
+	}
+
+	if(!(trans->flags & (PM_TRANS_FLAG_NODEPS)) && (trans->type != PM_TRANS_TYPE_UPGRADE)) {
+		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
+
+		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
+		lp = _pacman_checkdeps(trans, db_local, trans->type, trans->_packages);
+		if(lp != NULL) {
+			if(trans->flags & PM_TRANS_FLAG_CASCADE) {
+				while(lp) {
+					pmlist_t *i;
+					for(i = lp; i; i = i->next) {
+						pmdepmissing_t *miss = (pmdepmissing_t *)i->data;
+						pmpkg_t *info = _pacman_db_scan(db_local, miss->depend.name, INFRQ_ALL);
+						if(info) {
+							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), info->name);
+							trans->_packages = _pacman_list_add(trans->_packages, info);
+						} else {
+							_pacman_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
+								miss->depend.name);
+						}
+					}
+					FREELIST(lp);
+					lp = _pacman_checkdeps(trans, db_local, trans->type, trans->_packages);
+				}
+			} else {
+				if(data) {
+					*data = lp;
+				} else {
+					FREELIST(lp);
+				}
+				RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
+			}
+		}
+
+		if(trans->flags & PM_TRANS_FLAG_RECURSE) {
+			_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
+			trans->_packages = _pacman_removedeps(db_local, trans->_packages);
+		}
+
+		/* re-order w.r.t. dependencies */
+		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
+		lp = _pacman_sortbydeps(trans->_packages, PM_TRANS_TYPE_REMOVE);
+		/* free the old alltargs */
+		FREELISTPTR(trans->_packages);
+		trans->_packages = lp;
+
+		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
+	}
+
 	}
 
 	_pacman_trans_set_state(trans, STATE_PREPARED);
