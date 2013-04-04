@@ -28,7 +28,6 @@ TARGETS = md5driver.c \
 	packages_transaction.c \
 	trans.c \
 	trans_sysupgrade.c \
-	add.c \
 	remove.c \
 	sync.c \
 	handle.c \
