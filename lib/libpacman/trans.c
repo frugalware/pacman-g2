@@ -101,7 +101,9 @@ pmsyncpkg_t *__pacman_trans_get_trans_pkg(pmtrans_t *trans, const char *package)
 
 	for(i = trans->packages; i != NULL ; i = i->next) {
 		syncpkg = i->data;
-		if(syncpkg && !strcmp(syncpkg->pkg_new->name, package)) {
+		if(syncpkg && (
+				(syncpkg->pkg_new && strcmp(syncpkg->pkg_new->name, package) == 0) ||
+				(syncpkg->pkg_local && strcmp(syncpkg->pkg_local->name, package) == 0))) {
 			return(syncpkg);
 		}
 	}
