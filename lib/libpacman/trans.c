@@ -434,7 +434,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 			EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 			/* look for unsatisfied dependencies */
 			_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-			lp = _pacman_checkdeps(trans, db_local, trans->type, trans->_packages);
+			lp = _pacman_checkdeps(trans, trans->type, trans->_packages);
 			if(lp != NULL) {
 				if(data) {
 					*data = lp;
@@ -513,7 +513,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-		lp = _pacman_checkdeps(trans, db_local, trans->type, trans->_packages);
+		lp = _pacman_checkdeps(trans, trans->type, trans->_packages);
 		if(lp != NULL) {
 			if(trans->flags & PM_TRANS_FLAG_CASCADE) {
 				while(lp) {
@@ -530,7 +530,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 						}
 					}
 					FREELIST(lp);
-					lp = _pacman_checkdeps(trans, db_local, trans->type, trans->_packages);
+					lp = _pacman_checkdeps(trans, trans->type, trans->_packages);
 				}
 			} else {
 				if(data) {

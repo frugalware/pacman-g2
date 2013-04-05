@@ -204,7 +204,7 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
  * dependencies can include versions with depmod operators.
  *
  */
-pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist_t *packages)
+pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packages)
 {
 	pmdepend_t depend;
 	pmlist_t *i, *j, *k;
@@ -212,10 +212,12 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmli
 	int found = 0;
 	pmlist_t *baddeps = NULL;
 	pmdepmissing_t *miss = NULL;
+	pmdb_t *db = trans->handle->db_local;
 
 	if(db == NULL) {
 		return(NULL);
 	}
+
 
 	if(op == PM_TRANS_TYPE_UPGRADE) {
 		/* PM_TRANS_TYPE_UPGRADE handles the backwards dependencies, ie, the packages
@@ -564,19 +566,19 @@ pmlist_t *_pacman_removedeps(pmdb_t *db, pmlist_t *targs)
  *
  * make sure *list and *trail are already initialized
  */
-int _pacman_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pmlist_t *list,
-                      pmlist_t *trail, pmtrans_t *trans, pmlist_t **data)
+int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t *list,
+                      pmlist_t *trail, pmlist_t **data)
 {
 	pmlist_t *i, *j;
 	pmlist_t *targ;
 	pmlist_t *deps = NULL;
 
-	if(local == NULL || dbs_sync == NULL || syncpkg == NULL) {
+	if(trans == NULL || syncpkg == NULL) {
 		return(-1);
 	}
 
 	targ = _pacman_list_add(NULL, syncpkg);
-	deps = _pacman_checkdeps(trans, local, PM_TRANS_TYPE_ADD, targ);
+	deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_ADD, targ);
 	FREELISTPTR(targ);
 
 	if(deps == NULL) {
@@ -603,11 +605,11 @@ int _pacman_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pml
 
 		/* find the package in one of the repositories */
 		/* check literals */
-		for(j = dbs_sync; !ps && j; j = j->next) {
+		for(j = trans->handle->dbs_sync; !ps && j; j = j->next) {
 			ps = _pacman_db_get_pkgfromcache(j->data, miss->depend.name);
 		}
 		/* check provides */
-		for(j = dbs_sync; !ps && j; j = j->next) {
+		for(j = trans->handle->dbs_sync; !ps && j; j = j->next) {
 			pmlist_t *provides;
 			provides = _pacman_db_whatprovides(j->data, miss->depend.name);
 			if(provides) {
@@ -648,7 +650,7 @@ int _pacman_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pml
 			}
 			if(usedep) {
 				trail = _pacman_list_add(trail, ps);
-				if(_pacman_resolvedeps(local, dbs_sync, ps, list, trail, trans, data)) {
+				if(_pacman_resolvedeps(trans, ps, list, trail, data)) {
 					goto error;
 				}
 				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s (needed by %s)"),
