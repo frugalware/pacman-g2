@@ -709,11 +709,6 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 				RET_ERR(PM_ERR_MEMORY, -1);
 			}
 			STRNCPY(what, info->name, strlen(info->name)+1);
-
-			/* pre_install scriptlet */
-			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-				_pacman_runscriptlet(handle->root, info->data, "pre_install", info->version, NULL, trans);
-			}
 		} else {
 			_pacman_log(PM_LOG_FLOW1, _("adding new package %s-%s"), info->name, info->version);
 		}
