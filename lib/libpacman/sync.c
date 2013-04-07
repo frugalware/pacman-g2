@@ -172,13 +172,6 @@ error:
 	return -1;
 }
 
-/* Helper functions for _pacman_list_remove
- */
-static int ptr_cmp(const void *s1, const void *s2)
-{
-	return(strcmp(((pmsyncpkg_t *)s1)->pkg_new->name, ((pmsyncpkg_t *)s2)->pkg_new->name));
-}
-
 static int pkg_cmp(const void *p1, const void *p2)
 {
 	return(strcmp(((pmpkg_t *)p1)->name, ((pmsyncpkg_t *)p2)->pkg_new->name));
@@ -394,7 +387,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 							pmsyncpkg_t *rsync = __pacman_trans_get_trans_pkg(trans, rmpkg);
 							pmsyncpkg_t *spkg = NULL;
 							_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
-							trans->packages = _pacman_list_remove(trans->packages, rsync, ptr_cmp, (void **)&spkg);
+							trans->packages = _pacman_list_remove(trans->packages, rsync, __pacman_transpkg_cmp, (void **)&spkg);
 							__pacman_trans_pkg_delete (spkg);
 							spkg = NULL;
 							continue;
@@ -432,7 +425,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 								/* remove it from the target list */
 								pmsyncpkg_t *spkg = NULL;
 								_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), miss->depend.name);
-								trans->packages = _pacman_list_remove(trans->packages, rsync, ptr_cmp, (void **)&spkg);
+								trans->packages = _pacman_list_remove(trans->packages, rsync, __pacman_transpkg_cmp, (void **)&spkg);
 								__pacman_trans_pkg_delete (spkg);
 								spkg = NULL;
 							}

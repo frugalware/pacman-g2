@@ -74,6 +74,26 @@ void __pacman_trans_pkg_delete(pmsyncpkg_t *trans_pkg)
 	free(trans_pkg);
 }
 
+const char *__pacman_transpkg_name (pmsyncpkg_t *transpkg) {
+	if (transpkg != NULL) {
+		if (transpkg->pkg_new != NULL) {
+			return transpkg->pkg_new->name;
+		}
+		if (transpkg->pkg_local != NULL) {
+			return transpkg->pkg_local->name;
+		}
+	}
+	return NULL;
+}
+
+int __pacman_transpkg_cmp (pmtranspkg_t *transpkg1, pmtranspkg_t *transpkg2) {
+	return __pacman_transpkg_detect_name (transpkg1, __pacman_transpkg_name (transpkg2)); 
+}
+
+int __pacman_transpkg_detect_name (pmtranspkg_t *transpkg, const char *package) {
+	return strcmp (__pacman_transpkg_name (transpkg), package);
+}
+
 static
 int check_oldcache(pmtrans_t *trans)
 {
@@ -99,16 +119,18 @@ pmsyncpkg_t *__pacman_trans_get_trans_pkg(pmtrans_t *trans, const char *package)
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
 
+#if 1
 	for(i = trans->packages; i != NULL ; i = i->next) {
 		syncpkg = i->data;
-		if(syncpkg && (
-				(syncpkg->pkg_new && strcmp(syncpkg->pkg_new->name, package) == 0) ||
-				(syncpkg->pkg_local && strcmp(syncpkg->pkg_local->name, package) == 0))) {
+		if(syncpkg && __pacman_transpkg_detect_name (syncpkg, package) == 0) {
 			return(syncpkg);
 		}
 	}
 
 	return(NULL);
+#else
+	return f_list_detect (trans->packages, (FDetectFunc)__pacman_transpkg_detect_name, package);
+#endif
 }
 
 static
@@ -235,7 +257,7 @@ error:
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t type, unsigned int flags)
 {
 	char *pkg_name;
-	pmsyncpkg_t *trans_pkg = __pacman_trans_pkg_new(type, NULL);
+	pmtranspkg_t *trans_pkg = __pacman_trans_pkg_new(type, NULL);
 	pmdb_t *db_local;
 
 	/* Sanity checks */
@@ -342,6 +364,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 		if (trans_pkg->flags & PM_TRANS_FLAG_EXPLICIT) {
 			trans_pkg->pkg_new->reason = PM_PKG_REASON_EXPLICIT;
 		}
+		trans->_packages = _pacman_list_add(trans->_packages, trans_pkg->pkg_new);
 		goto out;
 	}
 
@@ -350,24 +373,23 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 			RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 		}
 
-		if((trans_pkg->pkg_new = _pacman_db_scan(db_local, pkg_name, INFRQ_ALL)) == NULL) {
+		if((trans_pkg->pkg_local = _pacman_db_scan(db_local, pkg_name, INFRQ_ALL)) == NULL) {
 			_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), pkg_name);
 			RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 		}
 
 		/* ignore holdpkgs on upgrade */
-		if((trans == handle->trans) && _pacman_strlist_find(handle->holdpkg, trans_pkg->pkg_new->name)) {
+		if((trans == handle->trans) && _pacman_strlist_find(handle->holdpkg, __pacman_transpkg_name(trans_pkg))) {
 			int resp = 0;
 			QUESTION(trans, PM_TRANS_CONV_REMOVE_HOLDPKG, trans_pkg->pkg_new, NULL, NULL, &resp);
 			if(!resp) {
 				RET_ERR(PM_ERR_PKG_HOLD, -1);
 			}
 		}
-
+		trans->_packages = _pacman_list_add(trans->_packages, trans_pkg->pkg_local);
 	}
 out:
-	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), trans_pkg->pkg_new->name);
-	trans->_packages = _pacman_list_add(trans->_packages, trans_pkg->pkg_new);
+	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), __pacman_transpkg_name(trans_pkg));
 	trans->packages = _pacman_list_add(trans->packages, trans_pkg);
 	}
 

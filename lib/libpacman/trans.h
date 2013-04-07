@@ -25,6 +25,7 @@
 #define _PACMAN_TRANS_H
 
 typedef struct __pmtrans_t pmtrans_t;
+typedef struct __pmsyncpkg_t pmtranspkg_t;
 
 #include "handle.h"
 
@@ -119,6 +120,10 @@ typedef struct __pmsyncpkg_t {
 
 pmsyncpkg_t *__pacman_trans_pkg_new (int type, pmpkg_t *spkg);
 void __pacman_trans_pkg_delete (pmsyncpkg_t *pkg);
+
+const char *__pacman_transpkg_name (pmtranspkg_t *transpkg);
+int __pacman_transpkg_cmp (pmtranspkg_t *transpkg1, pmtranspkg_t *transpkg2);
+int __pacman_transpkg_detect_name (pmtranspkg_t *transpkg, const char *package);
 
 /* Implementation details */
 int __pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
