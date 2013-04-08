@@ -60,13 +60,6 @@
 #include "pacman.h"
 #include "packages_transaction.h"
 
-/* Helper function for comparing strings
- */
-static int str_cmp(const void *s1, const void *s2)
-{
-	return(strcmp(s1, s2));
-}
-
 int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 {
 	pmpkg_t *info;
@@ -244,7 +237,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 			}
 			/* splice out this entry from requiredby */
-			depinfo->requiredby = _pacman_list_remove(_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), info->name, str_cmp, (void **)&data);
+			depinfo->requiredby = _pacman_list_remove(_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), info->name, strcmp, (void **)&data);
 			FREE(data);
 			_pacman_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name);
 			if(_pacman_db_write(db, depinfo, INFRQ_DEPENDS)) {
