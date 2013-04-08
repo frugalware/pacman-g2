@@ -72,12 +72,12 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
-	howmany = _pacman_list_count(trans->_packages);
+	howmany = _pacman_list_count(trans->packages);
 
-	for(targ = trans->_packages; targ; targ = targ->next) {
+	for(targ = trans->packages; targ; targ = targ->next) {
 		int position = 0;
 		char pm_install[PATH_MAX];
-		info = (pmpkg_t*)targ->data;
+		info = ((pmtranspkg_t*)targ->data)->pkg_local;
 
 		if(handle->trans->state == STATE_INTERRUPTED) {
 			break;
@@ -215,7 +215,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 			 * its requiredby info: it is in the process of being removed (if not
 			 * already done!)
 			 */
-			if(_pacman_pkg_isin(depend.name, trans->_packages)) {
+			if(__pacman_trans_get_trans_pkg(trans, depend.name) != NULL) {
 				continue;
 			}
 			depinfo = _pacman_db_get_pkgfromcache(db, depend.name);
