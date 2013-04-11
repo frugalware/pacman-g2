@@ -254,11 +254,42 @@ error:
 	return NULL;
 }
 
+static
+int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
+	const char *pkgname;
+	pmtranspkg_t *transpkg_in;
+
+	pkgname = __pacman_transpkg_name (transpkg);
+	if ((transpkg_in = __pacman_trans_get_trans_pkg(trans, pkgname)) != NULL) {
+		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
+	} else {
+		_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), pkgname);
+		trans->packages = _pacman_list_add(trans->packages, transpkg);
+		trans->_packages = _pacman_list_add(trans->_packages, transpkg->pkg_new != NULL ? transpkg->pkg_new : transpkg->pkg_local);
+	}
+
+	if (transpkg->type & PM_TRANS_TYPE_ADD) {
+		/* copy over the install reason */
+		if (transpkg->pkg_local != NULL) {
+			transpkg->pkg_new->reason = (long)_pacman_pkg_getinfo(transpkg->pkg_local, PM_PKG_REASON);
+		}
+		if (trans->flags & PM_TRANS_FLAG_ALLDEPS) {
+			transpkg->pkg_new->reason = PM_PKG_REASON_DEPEND;
+		}
+		if (transpkg->flags & PM_TRANS_FLAG_EXPLICIT) {
+			transpkg->pkg_new->reason = PM_PKG_REASON_EXPLICIT;
+		}
+	}
+
+	return 0;
+}
+
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t type, unsigned int flags)
 {
 	char *pkg_name;
 	pmtranspkg_t *trans_pkg = __pacman_trans_pkg_new(type, NULL);
 	pmdb_t *db_local;
+	int ret;
 
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -276,10 +307,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 	}
 
 	if(trans->ops != NULL && trans->ops->addtarget != NULL) {
-		if (trans->ops->addtarget(trans, target) == -1) {
-			/* pm_errno is set by trans->ops->addtarget() */
-			return(-1);
-		}
+		ret = trans->ops->addtarget(trans, target);
 	} else {
 
 	if (type & PM_TRANS_TYPE_ADD) {
@@ -353,23 +381,11 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 				return(0);
 			}
 		}
-
-		/* copy over the install reason */
-		if (trans_pkg->pkg_local) {
-			trans_pkg->pkg_new->reason = (long)_pacman_pkg_getinfo(trans_pkg->pkg_local, PM_PKG_REASON);
-		}
-		if (trans->flags & PM_TRANS_FLAG_ALLDEPS) {
-			trans_pkg->pkg_new->reason = PM_PKG_REASON_DEPEND;
-		}
-		if (trans_pkg->flags & PM_TRANS_FLAG_EXPLICIT) {
-			trans_pkg->pkg_new->reason = PM_PKG_REASON_EXPLICIT;
-		}
-		trans->_packages = _pacman_list_add(trans->_packages, trans_pkg->pkg_new);
 		goto out;
 	}
 
 	if (type & PM_TRANS_TYPE_REMOVE) {
-		if(_pacman_pkg_isin(pkg_name, trans->_packages)) {
+		if (__pacman_trans_get_trans_pkg (trans, pkg_name) != NULL) {
 			RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 		}
 
@@ -386,15 +402,15 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 				RET_ERR(PM_ERR_PKG_HOLD, -1);
 			}
 		}
-		trans->_packages = _pacman_list_add(trans->_packages, trans_pkg->pkg_local);
 	}
 out:
-	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), __pacman_transpkg_name(trans_pkg));
-	trans->packages = _pacman_list_add(trans->packages, trans_pkg);
+	ret = _pacman_trans_add (trans, trans_pkg);
 	}
 
-	trans->targets = _pacman_list_add(trans->targets, strdup(target));
-	return(0);
+	if (ret == 0) {
+		trans->targets = _pacman_list_add(trans->targets, strdup(target));
+	}
+	return ret;
 
 error:
 	__pacman_trans_pkg_delete(trans_pkg);
