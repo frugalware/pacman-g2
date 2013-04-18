@@ -23,9 +23,9 @@
 
 #include "fstdlib.h"
 
-void *f_malloc(size_t size)
+void *f_malloc (size_t size)
 {
-	void *ptr = malloc(size);
+	void *ptr = malloc (size);
 #if 0
 	if(ptr == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), size);
@@ -35,23 +35,29 @@ void *f_malloc(size_t size)
 	return ptr;
 }
 
-void *f_zalloc(size_t size)
+void *f_zalloc (size_t size)
 {
-	void *ptr = f_malloc(size);
-	if(ptr != NULL)
-		memset(ptr, 0, size);
+	void *ptr = f_malloc (size);
+	if (ptr != NULL)
+		memset (ptr, 0, size);
 	return ptr;
 }
 
-void *f_memdup(const void *ptr, size_t size) {
-	void *dest = f_malloc(size);
-	if(dest != NULL)
-		memcpy(dest, ptr, size);
+void *f_memdup (const void *ptr, size_t size) {
+	void *dest = f_malloc (size);
+	if (dest != NULL)
+		memcpy (dest, ptr, size);
 	return dest;
 }
 
-int f_ptrcmp(const void *p1, const void *p2) {
+int f_ptrcmp (const void *p1, const void *p2) {
 	  return p1-p2;
+}
+
+void f_ptrswap (void **p1, void **p2) {
+	void *tmp = *p1;
+	*p2 = *p1;
+	*p1 = tmp;
 }
 
 /* vim: set ts=2 sw=2 noet: */
