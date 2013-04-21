@@ -57,122 +57,6 @@
 #include "server.h"
 #include "packages_transaction.h"
 
-static
-pmpkg_t *_pacman_db_search_provider(pmdb_t *db, const char *name) {
-	pmlist_t *p;
-	pmpkg_t *pkg;
-
-	_pacman_log(PM_LOG_FLOW2, _("looking for provisions of '%s' in database '%s'"), name, db->treename);
-	p = _pacman_db_whatprovides(db, name);
-	if (p == NULL) {
-		RET_ERR(PM_ERR_PKG_NOT_FOUND, NULL);
-	}
-	pkg = _pacman_pkg_dup(p->data);
-	FREELISTPTR(p);
-	_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s' in database '%S'"), pkg->name, name, db->treename);
-	return pkg;
-}
-
-static
-pmpkg_t *_pacman_db_list_get_pkg(pmlist_t *db_list, const char *pkg_name) {
-	pmlist_t *i;
-	pmpkg_t *pkg = NULL;
-
-	for (i = db_list; i && !pkg; i = i->next) {
-		pmdb_t *db = i->data;
-		pkg = _pacman_db_get_pkgfromcache(db, pkg_name);
-	}
-	if (pkg == NULL) {
-		_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), pkg_name);
-		for (i = db_list; i && !pkg; i = i->next) {
-			pmdb_t *db = i->data;
-			pkg = _pacman_db_search_provider (db, pkg_name);
-		}
-	}
-	if (pkg == NULL) {
-		RET_ERR(PM_ERR_PKG_NOT_FOUND, NULL);
-	}
-	return pkg;
-}
-
-int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
-{
-	char targline[PKG_FULLNAME_LEN];
-	char *targ;
-	pmpkg_t *local;
-	pmpkg_t *spkg = NULL;
-	pmsyncpkg_t *ps;
-	int cmp;
-	pmdb_t *db_local = trans->handle->db_local;
-	pmlist_t *dbs_search = NULL;
-
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(name != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	STRNCPY(targline, name, PKG_FULLNAME_LEN);
-	targ = strchr(targline, '/');
-	if(targ) {
-		pmdb_t *dbs;
-		*targ = '\0';
-		targ++;
-		dbs = _pacman_handle_get_db_sync (trans->handle, targline);
-		if (dbs != NULL) {
-			/* FIXME: the list is leaked in this case */
-			dbs_search = _pacman_list_add (dbs_search, dbs);
-			if(dbs_search == NULL) {
-				return -1;
-			}
-		}
-	} else {
-		targ = targline;
-		dbs_search = trans->handle->dbs_sync;
-	}
-	spkg = _pacman_db_list_get_pkg (dbs_search, targ);
-	if(spkg == NULL) {
-		return -1;
-	}
-
-	local = _pacman_db_get_pkgfromcache(db_local, spkg->name);
-	if(local) {
-		cmp = _pacman_versioncmp(local->version, spkg->version);
-		if(cmp > 0) {
-			/* local version is newer -- get confirmation before adding */
-			int resp = 0;
-			QUESTION(trans, PM_TRANS_CONV_LOCAL_NEWER, local, NULL, NULL, &resp);
-			if(!resp) {
-				_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), local->name, local->version);
-				return(0);
-			}
-		} else if(cmp == 0) {
-			/* versions are identical -- get confirmation before adding */
-			int resp = 0;
-			QUESTION(trans, PM_TRANS_CONV_LOCAL_UPTODATE, local, NULL, NULL, &resp);
-			if(!resp) {
-				_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), local->name, local->version);
-				return(0);
-			}
-		}
-	}
-
-	/* add the package to the transaction */
-	if(!__pacman_trans_get_trans_pkg(trans, spkg->name)) {
-		ps = __pacman_trans_pkg_new(PM_TRANS_TYPE_UPGRADE, spkg);
-		if(ps == NULL) {
-			goto error;
-		}
-		ps->flags = PM_TRANS_FLAG_EXPLICIT;
-		ps->pkg_local = local;
-		_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), spkg->name);
-		trans->packages = _pacman_list_add(trans->packages, ps);
-	}
-
-	return(0);
-
-error:
-	return -1;
-}
-
 static int pkg_cmp(const void *p1, const void *p2)
 {
 	return(strcmp(((pmpkg_t *)p1)->name, ((pmsyncpkg_t *)p2)->pkg_new->name));
@@ -927,16 +811,7 @@ error:
 	return(-1);
 }
 
-#if 0
 const pmtrans_ops_t _pacman_sync_pmtrans_opts = {
-	.addtarget = _pacman_sync_addtarget,
-	.prepare = _pacman_sync_prepare,
-	.commit = _pacman_sync_commit
-};
-#endif
-
-const pmtrans_ops_t _pacman_sync_pmtrans_opts = {
-	.addtarget = _pacman_sync_addtarget,
 	.prepare = _pacman_sync_prepare,
 	.commit = _pacman_trans_download_commit
 };
