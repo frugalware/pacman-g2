@@ -517,6 +517,7 @@ int syncpkg(list_t *targets)
 	if(!((unsigned long)pacman_trans_getinfo(PM_TRANS_FLAGS) & PM_TRANS_FLAG_PRINTURIS)) {
 		list_t *list_install = NULL;
 		list_t *list_remove = NULL;
+		list_t *list_upgrade = NULL;
 		char *str;
 		unsigned long totalsize = 0;
 		unsigned long totalusize = 0;
@@ -527,25 +528,24 @@ int syncpkg(list_t *targets)
 			PM_PKG *pkg = pacman_sync_getinfo(ps, PM_SYNC_PKG);
 			char *pkgname, *pkgver;
 
-			if((long)pacman_sync_getinfo(ps, PM_SYNC_TYPE) == PM_SYNC_TYPE_REPLACE) {
-				PM_LIST *j;
-				data = pacman_sync_getinfo(ps, PM_SYNC_DATA);
-				for(j = pacman_list_first(data); j; j = pacman_list_next(j)) {
-					PM_PKG *p = pacman_list_getdata(j);
-					pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
-					if(!list_is_strin(pkgname, list_remove)) {
-						list_remove = list_add(list_remove, strdup(pkgname));
-					}
-				}
-			}
-
 			pkgname = pacman_pkg_getinfo(pkg, PM_PKG_NAME);
 			pkgver = pacman_pkg_getinfo(pkg, PM_PKG_VERSION);
 			totalsize += (long)pacman_pkg_getinfo(pkg, PM_PKG_SIZE);
 			totalusize += (long)pacman_pkg_getinfo(pkg, PM_PKG_USIZE);
 
 			asprintf(&str, "%s-%s", pkgname, pkgver);
-			list_install = list_add(list_install, str);
+
+			switch ((long)pacman_sync_getinfo(ps, PM_SYNC_TYPE)) {
+			case PM_TRANS_TYPE_ADD:
+				list_install = list_add (list_install, str);
+				break;
+			case PM_TRANS_TYPE_REMOVE:
+				list_remove = list_add (list_remove, str);
+				break;
+			case PM_TRANS_TYPE_UPGRADE:
+				list_upgrade = list_add (list_upgrade, str);
+				break;
+			}
 		}
 		if(list_remove) {
 			MSG(NL, _("\nRemove:  "));

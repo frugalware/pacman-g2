@@ -234,12 +234,6 @@ void *pacman_grp_getinfo(PM_GRP *grp, unsigned char parm);
  * Sync
  */
 
-/* Types */
-enum {
-	PM_SYNC_TYPE_REPLACE = 1,
-	PM_SYNC_TYPE_UPGRADE,
-	PM_SYNC_TYPE_DEPEND
-};
 /* Info parameters */
 enum {
 	PM_SYNC_TYPE = 1,

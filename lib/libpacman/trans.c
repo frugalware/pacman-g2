@@ -61,7 +61,7 @@ pmsyncpkg_t *__pacman_trans_pkg_new(int type, pmpkg_t *spkg)
 
 void __pacman_trans_pkg_delete(pmsyncpkg_t *trans_pkg)
 {
-	if(trans_pkg == NULL) {
+	if (trans_pkg == NULL) {
 		return;
 	}
 
@@ -151,7 +151,7 @@ pmtrans_t *_pacman_trans_new()
 {
 	pmtrans_t *trans = _pacman_zalloc(sizeof(pmtrans_t));
 
-	if(trans) {
+	if (trans != NULL) {
 		__pacman_object_init (&trans->base, &_pacman_trans_ops);
 		trans->state = STATE_IDLE;
 	}
@@ -214,7 +214,7 @@ pmpkg_t *fakepkg_create(const char *name)
 	pmpkg_t *dummy = NULL;
 
 	dummy = _pacman_pkg_new(NULL, NULL);
-	if(dummy == NULL) {
+	if (dummy == NULL) {
 		goto error;
 	}
 
@@ -452,7 +452,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	/* If there's nothing to do, return without complaining */
-	if(trans->_packages == NULL && trans->packages == NULL) {
+	if (trans->packages == NULL) {
 		return(0);
 	}
 
@@ -644,7 +644,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	/* If there's nothing to do, return without complaining */
-	if(trans->_packages == NULL && trans->packages == NULL) {
+	if (trans->packages == NULL) {
 		return(0);
 	}
 

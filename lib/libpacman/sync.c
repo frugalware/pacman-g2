@@ -157,10 +157,11 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 
 	/* add the package to the transaction */
 	if(!__pacman_trans_get_trans_pkg(trans, spkg->name)) {
-		ps = __pacman_trans_pkg_new(PM_SYNC_TYPE_UPGRADE, spkg);
+		ps = __pacman_trans_pkg_new(PM_TRANS_TYPE_UPGRADE, spkg);
 		if(ps == NULL) {
 			goto error;
 		}
+		ps->flags = PM_TRANS_FLAG_EXPLICIT;
 		ps->pkg_local = local;
 		_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), spkg->name);
 		trans->packages = _pacman_list_add(trans->packages, ps);
@@ -246,7 +247,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 			/* add the dependencies found by resolvedeps to the transaction set */
 			pmpkg_t *spkg = i->data;
 			if(!__pacman_trans_get_trans_pkg(trans, spkg->name)) {
-				pmsyncpkg_t *ps = __pacman_trans_pkg_new(PM_SYNC_TYPE_DEPEND, spkg);
+				pmsyncpkg_t *ps = __pacman_trans_pkg_new(PM_TRANS_TYPE_ADD, spkg);
 				if(ps == NULL) {
 					ret = -1;
 					goto cleanup;
@@ -413,9 +414,9 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 								goto cleanup;
 							}
 							q->requiredby = _pacman_strlist_dup(local->requiredby);
-							if(ps->type != PM_SYNC_TYPE_REPLACE) {
+							if(ps->type != PM_TRANS_TYPE_ADD) {
 								/* switch this sync type to REPLACE */
-								ps->type = PM_SYNC_TYPE_REPLACE;
+								ps->type = PM_TRANS_TYPE_ADD;
 								//FREEPKG(ps->data);
 							}
 							/* append to the replaces list */
@@ -657,9 +658,9 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		/* using _pacman_list_last() is ok because addtarget() adds the new target at the
 		 * end of the tr->packages list */
 		spkg = _pacman_list_last(tr->_packages)->data;
-		if(ps->type == PM_SYNC_TYPE_DEPEND || trans->flags & PM_TRANS_FLAG_ALLDEPS) {
+		if(ps->type == PM_TRANS_TYPE_ADD || trans->flags & PM_TRANS_FLAG_ALLDEPS) {
 			spkg->reason = PM_PKG_REASON_DEPEND;
-		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !handle->sysupgrade) {
+		} else if(ps->type == PM_TRANS_TYPE_UPGRADE && !handle->sysupgrade) {
 			spkg->reason = PM_PKG_REASON_EXPLICIT;
 		}
 	}

@@ -113,7 +113,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 									ps->replaces = _pacman_list_add(ps->replaces, dummy);
 								} else {
 									/* none found -- enter pkg into the final sync list */
-									ps = __pacman_trans_pkg_new (PM_SYNC_TYPE_REPLACE, spkg);
+									ps = __pacman_trans_pkg_new (PM_TRANS_TYPE_ADD, spkg);
 									if(ps == NULL) {
 										FREEPKG(dummy);
 										goto error;
@@ -186,7 +186,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 				local->name, local->version, local->version, spkg->version);
 			/* check if spkg->name is already in the packages list. */
 			if(!__pacman_trans_get_trans_pkg(trans, spkg->name)) {
-				ps = __pacman_trans_pkg_new (PM_SYNC_TYPE_UPGRADE, spkg);
+				ps = __pacman_trans_pkg_new (PM_TRANS_TYPE_UPGRADE, spkg);
 				if(ps == NULL) {
 					goto error;
 				}
