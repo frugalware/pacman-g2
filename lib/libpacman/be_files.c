@@ -275,6 +275,7 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	if(pkg == NULL) {
 		return(NULL);
 	}
+	pkg->reason = PM_PKG_REASON_EXPLICIT;
 	char *dname;
 	if (islocal(db)) {
 		dname = strdup(ent->d_name);
