@@ -301,7 +301,7 @@ int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 	if ((transpkg_in = __pacman_trans_get_trans_pkg(trans, pkgname)) != NULL) {
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	} else {
-		_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), pkgname);
+		_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), pkgname);
 		trans->packages = _pacman_list_add(trans->packages, transpkg);
 		trans->_packages = _pacman_list_add(trans->_packages, transpkg->pkg_new != NULL ? transpkg->pkg_new : transpkg->pkg_local);
 	}
@@ -320,84 +320,6 @@ int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 	}
 
 	return 0;
-}
-
-int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
-{
-	char targline[PKG_FULLNAME_LEN];
-	char *targ;
-	pmpkg_t *local;
-	pmpkg_t *spkg = NULL;
-	pmsyncpkg_t *ps;
-	int cmp;
-	pmdb_t *db_local = trans->handle->db_local;
-	pmlist_t *dbs_search = NULL;
-
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(name != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	STRNCPY(targline, name, PKG_FULLNAME_LEN);
-	targ = strchr(targline, '/');
-	if(targ) {
-		pmdb_t *dbs;
-		*targ = '\0';
-		targ++;
-		dbs = _pacman_handle_get_db_sync (trans->handle, targline);
-		if (dbs != NULL) {
-			/* FIXME: the list is leaked in this case */
-			dbs_search = _pacman_list_add (dbs_search, dbs);
-			if(dbs_search == NULL) {
-				return -1;
-			}
-		}
-	} else {
-		targ = targline;
-		dbs_search = trans->handle->dbs_sync;
-	}
-	spkg = _pacman_db_list_get_pkg (dbs_search, targ);
-	if(spkg == NULL) {
-		return -1;
-	}
-
-	local = _pacman_db_get_pkgfromcache(db_local, spkg->name);
-	if(local) {
-		cmp = _pacman_versioncmp(local->version, spkg->version);
-		if(cmp > 0) {
-			/* local version is newer -- get confirmation before adding */
-			int resp = 0;
-			QUESTION(trans, PM_TRANS_CONV_LOCAL_NEWER, local, NULL, NULL, &resp);
-			if(!resp) {
-				_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), local->name, local->version);
-				return(0);
-			}
-		} else if(cmp == 0) {
-			/* versions are identical -- get confirmation before adding */
-			int resp = 0;
-			QUESTION(trans, PM_TRANS_CONV_LOCAL_UPTODATE, local, NULL, NULL, &resp);
-			if(!resp) {
-				_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), local->name, local->version);
-				return(0);
-			}
-		}
-	}
-
-	/* add the package to the transaction */
-	if(!__pacman_trans_get_trans_pkg(trans, spkg->name)) {
-		ps = __pacman_trans_pkg_new(PM_TRANS_TYPE_UPGRADE, spkg);
-		if(ps == NULL) {
-			goto error;
-		}
-		ps->flags = PM_TRANS_FLAG_EXPLICIT;
-		ps->pkg_local = local;
-		_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), spkg->name);
-		trans->packages = _pacman_list_add(trans->packages, ps);
-	}
-
-	return(0);
-
-error:
-	return -1;
 }
 
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t type, unsigned int flags)
@@ -422,10 +344,6 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
 
-	if(trans->ops == &_pacman_sync_pmtrans_opts) {
-		ret = _pacman_sync_addtarget (trans, target);
-	} else {
-
 	if (type & PM_TRANS_TYPE_ADD) {
 		pmlist_t *i;
 		struct stat buf;
@@ -449,6 +367,32 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 		}
 
 		if (trans_pkg->pkg_new == NULL) {
+			char targline[PKG_FULLNAME_LEN];
+			char *targ;
+			pmlist_t *dbs_search = NULL;
+
+			STRNCPY(targline, target, PKG_FULLNAME_LEN);
+			targ = strchr(targline, '/');
+			if(targ) {
+				pmdb_t *dbs;
+				*targ = '\0';
+				targ++;
+				dbs = _pacman_handle_get_db_sync (trans->handle, targline);
+				if (dbs != NULL) {
+					/* FIXME: the list is leaked in this case */
+					dbs_search = _pacman_list_add (dbs_search, dbs);
+					if(dbs_search == NULL) {
+						return -1;
+					}
+				}
+			} else {
+				targ = targline;
+				dbs_search = trans->handle->dbs_sync;
+			}
+			trans_pkg->pkg_new = _pacman_db_list_get_pkg (dbs_search, targ);
+		}
+
+		if (trans_pkg->pkg_new == NULL) {
 			pm_errno = PM_ERR_PKG_NOT_FOUND;
 			goto error;
 		}
@@ -466,6 +410,23 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 				/* only upgrade/install this package if it is at a lesser version */
 				pm_errno = PM_ERR_PKG_CANT_FRESH;
 				goto error;
+			}
+			if(cmp > 0) {
+				/* local version is newer -- get confirmation before adding */
+				int resp = 0;
+				QUESTION(trans, PM_TRANS_CONV_LOCAL_NEWER, trans_pkg->pkg_local, NULL, NULL, &resp);
+				if(!resp) {
+					_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), trans_pkg->pkg_local->name, trans_pkg->pkg_local->version);
+					return(0);
+				}
+			} else if(cmp == 0) {
+				/* versions are identical -- get confirmation before adding */
+				int resp = 0;
+				QUESTION(trans, PM_TRANS_CONV_LOCAL_UPTODATE, trans_pkg->pkg_local, NULL, NULL, &resp);
+				if(!resp) {
+					_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), trans_pkg->pkg_local->name, trans_pkg->pkg_local->version);
+					return(0);
+				}
 			}
 		} else {
 			if(trans->flags & PM_TRANS_FLAG_FRESHEN) {
@@ -521,7 +482,6 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 	}
 out:
 	ret = _pacman_trans_add (trans, trans_pkg);
-	}
 
 	if (ret == 0) {
 		trans->targets = _pacman_list_add(trans->targets, strdup(target));
