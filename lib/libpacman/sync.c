@@ -539,14 +539,6 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		if(_pacman_trans_addtarget(tr, str, PM_TRANS_TYPE_UPGRADE, ps->flags) == -1) {
 			goto error;
 		}
-		/* using _pacman_list_last() is ok because addtarget() adds the new target at the
-		 * end of the tr->packages list */
-		spkg = _pacman_list_last(tr->_packages)->data;
-		if(ps->type == PM_TRANS_TYPE_ADD || trans->flags & PM_TRANS_FLAG_ALLDEPS) {
-			spkg->reason = PM_PKG_REASON_DEPEND;
-		} else if(ps->type == PM_TRANS_TYPE_UPGRADE && !handle->sysupgrade) {
-			spkg->reason = PM_PKG_REASON_EXPLICIT;
-		}
 	}
 	if(_pacman_trans_prepare(tr, data) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("could not prepare transaction"));
