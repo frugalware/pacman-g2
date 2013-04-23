@@ -409,12 +409,6 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 			for(j = _pacman_pkg_getinfo(tp, PM_PKG_REQUIREDBY); j; j = j->next) {
 				if(!_pacman_strlist_find(packages, (char *)j->data)) {
 					/* check if a package in trans->packages provides this package */
-					for(k=trans->_packages; !found && k; k=k->next) {
-						pmpkg_t *spkg = spkg = k->data;
-						if(spkg && _pacman_strlist_find(_pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES), tp->name)) {
-							found=1;
-						}
-					}
 					for (k = trans->packages; !found && k; k = k->next) {
 						pmsyncpkg_t *ps = k->data;
 						pmpkg_t *spkg = ps->pkg_new;
