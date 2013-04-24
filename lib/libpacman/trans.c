@@ -733,7 +733,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 			return(-1);
 		}
 	} else {
-	int i, errors = 0, needdisp = 0;
+	int i, errors = 0;
 	int remain, howmany, archive_ret;
 	double percent;
 	register struct archive *archive;
@@ -864,10 +864,8 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 				STRNCPY(pathname, archive_entry_pathname (entry), PATH_MAX);
 
 				if (info->size != 0)
-		    			percent = (double)archive_position_uncompressed(archive) / info->size;
-				if (needdisp == 0) {
-					PROGRESS(trans, event->pre.event, what, (int)(percent * 100), howmany, (howmany - remain +1));
-				}
+					percent = (double)archive_position_uncompressed(archive) / info->size;
+				PROGRESS(trans, event->pre.event, what, (int)(percent * 100), howmany, (howmany - remain +1));
 
 				if(!strcmp(pathname, ".PKGINFO") || !strcmp(pathname, ".FILELIST")) {
 					archive_read_data_skip (archive);
@@ -1228,7 +1226,6 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 			}
 		}
 
-		needdisp = 0;
 		EVENT(trans, PM_TRANS_EVT_EXTRACT_DONE, NULL, NULL);
 		FREE(what);
 
