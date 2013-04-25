@@ -739,7 +739,6 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 	register struct archive *archive;
 	struct archive_entry *entry;
 	char expath[PATH_MAX], cwd[PATH_MAX] = "";
-	time_t t;
 	pmlist_t *targ, *lp;
 
 	for(targ = trans->_packages; targ; targ = targ->next) {
@@ -815,12 +814,11 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 					FREETRANS(tr);
 				}
 		}
-		if(transtype & PM_TRANS_TYPE_ADD) {
-			_pacman_log(PM_LOG_FLOW1, _("adding package %s-%s"), info->name, info->version);
-		}
-
 		if(!(trans->flags & PM_TRANS_FLAG_DBONLY)) {
 			_pacman_log(PM_LOG_FLOW1, _("extracting files"));
+
+			if(transtype & PM_TRANS_TYPE_ADD) {
+				_pacman_log(PM_LOG_FLOW1, _("adding package %s-%s"), info->name, info->version);
 
 			/* Extract the package */
 			if ((archive = archive_read_new ()) == NULL)
@@ -1138,10 +1136,14 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 			} else {
 			PROGRESS(trans, event->pre.event, info->name, 100, howmany, howmany - remain + 1);
 			}
+			}
 		}
 
+		if(transtype & PM_TRANS_TYPE_ADD) {
 		/* Add the package to the database */
-		t = time(NULL);
+			time_t t = time(NULL);
+
+			_pacman_log(PM_LOG_FLOW1, _("adding package %s-%s to the database"), info->name, info->version);
 
 		/* Update the requiredby field by scanning the whole database
 		 * looking for packages depending on the package to add */
@@ -1215,7 +1217,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 				          depinfo->name, depinfo->version);
 			}
 		}
-
+		}
 		EVENT(trans, PM_TRANS_EVT_EXTRACT_DONE, NULL, NULL);
 
 		/* run the post-install script if it exists  */
