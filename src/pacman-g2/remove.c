@@ -144,7 +144,8 @@ int removepkg(list_t *targets)
 		/* list transaction targets */
 		i = NULL;
 		for(lp = pacman_list_first(pacman_trans_getinfo(PM_TRANS_PACKAGES)); lp; lp = pacman_list_next(lp)) {
-			PM_PKG *pkg = pacman_list_getdata(lp);
+			PM_SYNCPKG *ps = pacman_list_getdata(lp);
+			PM_PKG *pkg = pacman_sync_getinfo(ps, PM_SYNC_PKG);
 			i = list_add(i, strdup(pacman_pkg_getinfo(pkg, PM_PKG_NAME)));
 		}
 		list_display(_("\nTargets:"), i);
