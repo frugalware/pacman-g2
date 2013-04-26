@@ -322,18 +322,17 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 					/* Check if the conflicting file has been moved to another package/target */
 					if(!ok) {
 						/* Look at all the targets */
-						for(k = trans->_packages; k && !ok; k = k->next) {
-							pmpkg_t *p2 = k->data;
+						for(k = trans->packages; k && !ok; k = k->next) {
+							pmtranspkg_t *p2 = k->data;
+
 							/* As long as they're not the current package */
-							if(strcmp(p2->name, p1->name)) {
-								pmpkg_t *dbpkg2 = NULL;
-								dbpkg2 = _pacman_db_get_pkgfromcache(db, p2->name);
-								if(dbpkg2 && !(dbpkg2->infolevel & INFRQ_FILES)) {
-									_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg2->name);
-									_pacman_db_read(db, INFRQ_FILES, dbpkg2);
+							if(p2->pkg_new && p2->pkg_new != p1) {
+								if(p2->pkg_local && !(p2->pkg_local->infolevel & INFRQ_FILES)) {
+									_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), p2->pkg_local->name);
+									_pacman_db_read(db, INFRQ_FILES, p2->pkg_local);
 								}
 								/* If it used to exist in there, but doesn't anymore */
-								if(dbpkg2 && !_pacman_strlist_find(p2->files, filestr) && _pacman_strlist_find(dbpkg2->files, filestr)) {
+								if(p2->pkg_local && !_pacman_strlist_find(p2->pkg_new->files, filestr) && _pacman_strlist_find(p2->pkg_local->files, filestr)) {
 									ok = 1;
 									/* Add to the "skip list" of files that we shouldn't remove during an upgrade.
 									 *
