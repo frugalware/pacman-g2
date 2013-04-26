@@ -29,10 +29,9 @@ typedef struct FList FList;
 /* FIXME: Make private as soon as possible */
 /* Chained list struct */
 struct FList {
-	void *data;
 	FList *prev;
 	FList *next;
-	FList *last;
+	void *data;
 };
 
 /* Sort comparison callback function declaration */
@@ -53,9 +52,7 @@ void   f_list_delete (FList *list, FVisitorFunc fn, void *user_data);
 FList *f_list_alloc (void *data);
 FList *f_list_free (FList *item, FVisitorFunc fn, void *user_data);
 void f_list_insert_after (FList *item, FList *list);
-#if 0
 void f_list_insert_before (FList *item, FList *list);
-#endif
 
 size_t f_list_count (FList *list);
 FList *f_list_first (FList *list);

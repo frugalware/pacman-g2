@@ -52,7 +52,6 @@ FList *f_list_alloc (void *data) {
 
 	if (list != NULL) {
 		list->data = data;
-		list->last = list;
 	}
 	return list;
 }
@@ -82,15 +81,12 @@ FList *f_list_free (FList *item, FVisitorFunc fn, void *user_data) {
 }
 
 void f_list_insert_after (FList *item, FList *list) {
-	FList *last;
+	FList *last = f_list_last (list);
 
-	if (item == NULL) {
-		return list;
-	}
+	assert (item != NULL);
 	if (list == NULL) {
 		return;
 	}
-	last = f_list_last (list);
 	list->prev = item;
 	last->next = item->next;
 	item->next = list;
@@ -99,10 +95,20 @@ void f_list_insert_after (FList *item, FList *list) {
 	}
 }
 
-#if 0
 void f_list_insert_before (FList *item, FList *list) {
+	FList *last = f_list_last (list);
+
+	assert (item != NULL);
+	if (list == NULL) {
+		return;
+	}
+	last->next = item;
+	item->prev = last;
+	list->prev = item->prev;
+	if (item->prev != NULL) {
+		item->prev->next = list;
+	}
 }
-#endif
 
 size_t f_list_count(FList *list)
 {
@@ -134,8 +140,11 @@ FList *f_list_append (FList *list, void *data) {
 }
 
 FList *f_list_concat (FList *list1, FList *list2) {
+	if (list1 == NULL) {
+		return list2;
+	}
 	f_list_insert_after (f_list_last (list1), list2);
-	return list1 != NULL ? list1 : list2;
+	return list1;
 }
 
 FList *f_list_copy (FList *list) {
@@ -207,7 +216,8 @@ FList *f_list_reverse (FList *list) {
 }
 
 void f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data) {
-	for (list = f_list_last (list); list != NULL; list = list->prev) {
+	FList *last = list != NULL ? list->prev : NULL;
+	for (list = f_list_last (list); list != last; list = list->prev) {
 		fn (list->data, user_data);
 	}
 }
@@ -221,8 +231,7 @@ FList *f_list_search (FList *list, const void *ptr, FCompareFunc fn, void *user_
 	return list;
 }
 
-FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data)
-{
+FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data) {
 	FList *ret = NULL;
 
 	for (; list != NULL; list = list->next) {
@@ -236,17 +245,14 @@ FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data)
 /* Add items to a list in sorted order. Use the given comparison function to
  * determine order.
  */
-FList *f_list_add_sorted(FList *list, void *data, FCompareFunc fn, void *user_data)
-{
-	FList *add;
+FList *f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_data) {
+	FList *add = f_list_alloc (data);
 	FList *prev = NULL;
 	FList *iter = list;
 
-	add = f_list_alloc (data);
-
 	/* Find insertion point. */
-	while(iter) {
-		if(fn(add->data, iter->data, user_data) <= 0) break;
+	while (iter) {
+		if (fn (add->data, iter->data, user_data) <= 0) break;
 		prev = iter;
 		iter = iter->next;
 	}
@@ -257,21 +263,11 @@ FList *f_list_add_sorted(FList *list, void *data, FCompareFunc fn, void *user_da
 
 	if(iter != NULL) {
 		iter->prev = add;   /*  Not at end.  */
-	} else {
-		if (list != NULL) {
-			list->last = add;   /* Added new to end, so update the link to last. */
-		}
 	}
 
 	if(prev != NULL) {
 		prev->next = add;       /*  In middle.  */
 	} else {
-		if(list == NULL) {
-			add->last = add;
-		} else {
-			add->last = list->last;
-			list->last = NULL;
-		}
 		list = add;           /*  Start or empty, new list head.  */
 	}
 
@@ -312,13 +308,7 @@ FList *f_list_remove(FList *haystack, void *needle, FCompareFunc fn, void **data
 		}
 		if(i == haystack) {
 			/* The item found is the first in the chain */
-			if(haystack->next) {
-				haystack->next->last = haystack->last;
-			}
 			haystack = haystack->next;
-		} else if(i == haystack->last) {
-			/* The item found is the last in the chain */
-			haystack->last = i->prev;
 		}
 
 		if(data) {
