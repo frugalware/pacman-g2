@@ -187,6 +187,14 @@ void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
 	}
 }
 
+void f_list_foreach_filter (FList *list, FVisitorFunc fn, FDetectFunc dfn, void *user_data) {
+	for (; list != NULL; list = list->next) {
+		if (dfn (list->data, user_data) == 0) {
+			fn (list->data, user_data);
+		}
+	}
+}
+
 /* Reverse the order of a list
  *
  * The caller is responsible for freeing the old list
