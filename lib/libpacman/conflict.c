@@ -48,7 +48,7 @@
  *
  * conflicts are always name only
  */
-pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmdb_t *db, pmlist_t *packages)
+pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 {
 	pmpkg_t *info = NULL;
 	pmlist_t *i, *j, *k;
@@ -56,10 +56,6 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmdb_t *db, pmlist_t *package
 	pmdepmissing_t *miss = NULL;
 	int howmany, remain;
 	double percent;
-
-	if(db == NULL) {
-		return(NULL);
-	}
 
 	howmany = _pacman_list_count(packages);
 
@@ -84,7 +80,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmdb_t *db, pmlist_t *package
 			}
 			/* CHECK 1: check targets against database */
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs db"), tp->name);
-			for(k = _pacman_db_get_pkgcache(db); k; k = k->next) {
+			for(k = _pacman_db_get_pkgcache(trans->handle->db_local); k; k = k->next) {
 				pmpkg_t *dp = (pmpkg_t *)k->data;
 				if(!strcmp(dp->name, tp->name)) {
 					/* a package cannot conflict with itself -- that's just not nice */
@@ -156,7 +152,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmdb_t *db, pmlist_t *package
 		}
 		/* CHECK 3: check database against targets */
 		_pacman_log(PM_LOG_DEBUG, _("checkconflicts: db vs targ '%s'"), tp->name);
-		for(k = _pacman_db_get_pkgcache(db); k; k = k->next) {
+		for(k = _pacman_db_get_pkgcache(trans->handle->db_local); k; k = k->next) {
 			pmlist_t *conflicts = NULL;
 			int usenewconflicts = 0;
 
@@ -253,7 +249,7 @@ static pmlist_t *chk_fileconflicts(pmlist_t *filesA, pmlist_t *filesB)
 	return(ret);
 }
 
-pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pmlist_t **skip_list)
+pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 {
 	pmlist_t *i, *j, *k;
 	char *filestr = NULL;
@@ -264,8 +260,9 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 	pmpkg_t *p, *dbpkg;
 	double percent;
 	int howmany, remain;
+	pmdb_t *db = trans->handle->db_local;
 
-	if(db == NULL || targets == NULL || root == NULL) {
+	if(db == NULL || targets == NULL) {
 		return(NULL);
 	}
 	howmany = _pacman_list_count(targets);
@@ -300,7 +297,7 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 		dbpkg = NULL;
 		for(j = p->files; j; j = j->next) {
 			filestr = (char*)j->data;
-			snprintf(path, PATH_MAX, "%s%s", root, filestr);
+			snprintf(path, PATH_MAX, "%s%s", trans->handle->root, filestr);
 			/* is this target a file or directory? */
 			if(path[strlen(path)-1] == '/') {
 				path[strlen(path)-1] = '\0';
