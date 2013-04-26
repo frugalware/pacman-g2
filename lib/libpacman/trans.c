@@ -295,7 +295,27 @@ int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 	pmtranspkg_t *transpkg_in;
 
 	pkgname = __pacman_transpkg_name (transpkg);
+	/* Check if an older version of said package is already in transaction packages. */
 	if ((transpkg_in = __pacman_trans_get_trans_pkg(trans, pkgname)) != NULL) {
+		/* if so, replace it in the list */
+		/* FIXME: check that transtype are equivalent */
+		if (trans->type & PM_TRANS_TYPE_ADD) {
+			if (_pacman_versioncmp(transpkg_in->pkg_new->version, transpkg->pkg_new->version) < 0) {
+				_pacman_log (PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
+						transpkg_in->pkg_new->name, transpkg_in->pkg_new->version, transpkg->pkg_new->version);
+				_pacman_list_find (trans->_packages, transpkg_in->pkg_new)->data = transpkg->pkg_new;
+				FREEPKG(transpkg_in->pkg_new);
+				transpkg_in->pkg_new = transpkg->pkg_new;
+				/* FIXME: use
+				f_ptrswap (&transpkg_in->pkg_new, &transpkg->pkg_new);
+				__pacman_trans_pkg_delete (transpkg);
+				*/
+			} else {
+				_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
+						transpkg_in->pkg_new->name, transpkg_in->pkg_new->version, transpkg->pkg_new->version);
+			}
+			return 0;
+		}
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	} else {
 		_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), pkgname);
@@ -430,29 +450,6 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 				/* only upgrade/install this package if it is already installed */
 				pm_errno = PM_ERR_PKG_CANT_FRESH;
 				goto error;
-			}
-		}
-
-		/* check if an older version of said package is already in transaction packages.
-		* if so, replace it in the list */
-		for(i = trans->_packages; i; i = i->next) {
-			pmpkg_t *pkg = i->data;
-			if(strcmp(pkg->name, _pacman_pkg_getinfo(trans_pkg->pkg_new, PM_PKG_NAME)) == 0) {
-				if(_pacman_versioncmp(pkg->version, trans_pkg->pkg_new->version) < 0) {
-					pmpkg_t *newpkg;
-					_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
-						pkg->name, pkg->version, trans_pkg->pkg_new->version);
-					if((newpkg = _pacman_pkg_load(pkg_name)) == NULL) {
-						/* pm_errno is already set by pkg_load() */
-						goto error;
-					}
-					FREEPKG(i->data);
-					i->data = newpkg;
-				} else {
-					_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
-						pkg->name, pkg->version, trans_pkg->pkg_new->version);
-				}
-				return(0);
 			}
 		}
 		goto out;
