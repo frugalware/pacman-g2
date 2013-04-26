@@ -21,53 +21,43 @@
 #ifndef _PACMAN_LIST_H
 #define _PACMAN_LIST_H
 
-/* Chained list struct */
-typedef struct __pmlist_t {
-	void *data;
-	struct __pmlist_t *prev;
-	struct __pmlist_t *next;
-	struct __pmlist_t *last; /* Quick access to last item in list */
-} pmlist_t;
+#include "flist.h"
 
-#define _FREELIST(p, f) do { if(p) { _pacman_list_free(p, f); p = NULL; } } while(0)
+typedef FList pmlist_t;
+
+#define _FREELIST(ptr, fn) do { if(ptr) { _pacman_list_free(ptr, fn); ptr = NULL; } } while(0)
 #define FREELIST(p) _FREELIST(p, free)
 #define FREELISTPTR(p) _FREELIST(p, NULL)
 
-/**
- * Detection comparison callback function declaration.
- * 
- * If detection is successful callback must return 0, or any other
- * values in case of failure (So it can be equivalent to a cmp).
- */
-typedef int   (*_pacman_fn_detect)(const void *, void *);
-typedef void *(*_pacman_fn_dup)(const void *);
-typedef void  (*_pacman_fn_free)(void *);
-typedef void  (*_pacman_fn_foreach)(void *, void *);
-/* Sort comparison callback function declaration */
-typedef int   (*_pacman_fn_cmp)(const void *, const void *);
+typedef FCompareFunc _pacman_fn_cmp;
+typedef FDetectFunc _pacman_fn_detect;
+typedef FCopyFunc _pacman_fn_dup;
+typedef FVisitorFunc _pacman_fn_free;
+typedef FVisitorFunc _pacman_fn_foreach;
 
-pmlist_t *_pacman_list_new(void);
-pmlist_t *_pacman_list_dup(pmlist_t *list, _pacman_fn_dup fn);
-void      _pacman_list_free(pmlist_t *list, _pacman_fn_free fn);
+#define _pacman_list_new f_list_new
+#define _pacman_list_free(list, fn) f_list_delete ((list), (FVisitorFunc)(fn), NULL)
 
-pmlist_t *_pacman_list_first(pmlist_t *list);
-pmlist_t *_pacman_list_last(pmlist_t *list);
+#define _pacman_list_first f_list_first
+#define _pacman_list_last f_list_last
 
-pmlist_t *_pacman_list_detect(pmlist_t *list, _pacman_fn_detect fn, void *user_data);
-pmlist_t *_pacman_list_filter(pmlist_t *list, _pacman_fn_detect fn, void *user_data);
-pmlist_t *_pacman_list_find(pmlist_t *list, void *data);
-void      _pacman_list_foreach(pmlist_t *list, _pacman_fn_foreach fn, void *user_data);
-pmlist_t *_pacman_list_reverse(pmlist_t *list);
-void      _pacman_list_reverse_foreach(pmlist_t *list, _pacman_fn_foreach fn, void *user_data);
+#define _pacman_list_detect f_list_detect
+#define _pacman_list_filter f_list_filter
+#define _pacman_list_find f_list_find
+#define _pacman_list_foreach f_list_foreach
+#define _pacman_list_reverse f_list_reverse
+#define _pacman_list_reverse_foreach f_list_reverse_foreach
 
-pmlist_t *_pacman_list_add(pmlist_t *list, void *data);
-pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn);
-pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp fn, void **data);
-int _pacman_list_count(pmlist_t *list);
-pmlist_t *_pacman_list_remove_dupes(pmlist_t *list);
+#define _pacman_list_add f_list_append
+#define _pacman_list_add_sorted(list, ptr, fn) f_list_add_sorted ((list), (ptr), (FCompareFunc)(fn), NULL)
+#define _pacman_list_remove(list, ptr, fn, data) f_list_remove((list), (ptr), (FCompareFunc)(fn), (data))
+#define _pacman_list_count f_list_count
 
-pmlist_t *_pacman_strlist_dup(pmlist_t *list);
-pmlist_t *_pacman_strlist_find(pmlist_t *list, const char *str);
+#include "fstringlist.h"
+
+#define _pacman_strlist_dup f_stringlist_deep_copy
+#define _pacman_strlist_find f_stringlist_find
+#define _pacman_list_remove_dupes f_stringlist_filter_dupes
 
 #endif /* _PACMAN_LIST_H */
 

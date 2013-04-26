@@ -21,6 +21,9 @@
 #ifndef _PM_CONF_H
 #define _PM_CONF_H
 
+#include "list.h"
+#include "pacman.h" /* for PM_DB */
+
 typedef struct __config_t {
 	/* command line options */
 	char *root;

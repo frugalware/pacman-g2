@@ -1,7 +1,8 @@
 AUTOMAKE_OPTIONS = gnu
 DEFINES = -pedantic -D_GNU_SOURCE
 AM_CFLAGS = $(DEFINES) \
-	    -I$(top_srcdir)/lib/libftp
+	-I$(top_srcdir)/lib/libflib \
+	-I$(top_srcdir)/lib/libftp
 SUBDIRS = po
 
 localedir = $(datadir)/locale
@@ -11,7 +12,6 @@ TARGETS = md5driver.c \
 	md5.c \
 	sha1.c \
 	util.c \
-	list.c \
 	log.c \
 	error.c \
 	package.c \
@@ -41,7 +41,7 @@ include_HEADERS = pacman.h
 libpacman_la_SOURCES = $(TARGETS)
 
 libpacman_la_LDFLAGS = -no-undefined -version-info $(PM_VERSION_INFO)
-libpacman_la_LIBADD = $(top_builddir)/lib/libftp/libftp.la
+libpacman_la_LIBADD = $(top_builddir)/lib/libflib/libflib.la $(top_builddir)/lib/libftp/libftp.la
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = pacman.pc
