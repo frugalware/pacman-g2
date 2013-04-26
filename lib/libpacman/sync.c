@@ -57,6 +57,8 @@
 #include "server.h"
 #include "packages_transaction.h"
 
+#include "fstringlist.h"
+
 static int pkg_cmp(const void *p1, const void *p2)
 {
 	return(strcmp(((pmpkg_t *)p1)->name, ((pmsyncpkg_t *)p2)->pkg_new->name));
@@ -227,7 +229,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				local = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
 				/* check if this package also "provides" the package it's conflicting with
 				 */
-				if(_pacman_strlist_find(ps->pkg_new->provides, miss->depend.name)) {
+				if(f_stringlist_find (ps->pkg_new->provides, miss->depend.name)) {
 					/* so just treat it like a "replaces" item so the REQUIREDBY
 					 * fields are inherited properly.
 					 */
@@ -251,8 +253,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 
 						/* figure out which one was requested in targets.  If they both were,
 						 * then it's still an unresolvable conflict. */
-						target = _pacman_strlist_find(trans->targets, miss->target);
-						depend = _pacman_strlist_find(trans->targets, miss->depend.name);
+						target = f_stringlist_find (trans->targets, miss->target);
+						depend = f_stringlist_find (trans->targets, miss->depend.name);
 						if(depend && !target) {
 							_pacman_log(PM_LOG_DEBUG, _("'%s' is in the target list -- keeping it"),
 								miss->depend.name);
@@ -284,9 +286,9 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				_pacman_log(PM_LOG_DEBUG, _("resolving package '%s' conflict"), miss->target);
 				if(local) {
 					int doremove = 0;
-					if(!_pacman_strlist_find(asked, miss->depend.name)) {
+					if(!f_stringlist_find (asked, miss->depend.name)) {
 						QUESTION(trans, PM_TRANS_CONV_CONFLICT_PKG, miss->target, miss->depend.name, NULL, &doremove);
-						asked = _pacman_list_add(asked, strdup(miss->depend.name));
+						asked = f_stringlist_append (asked, miss->depend.name);
 						if(doremove) {
 							pmsyncpkg_t *rsync = __pacman_trans_get_trans_pkg(trans, miss->depend.name);
 							pmpkg_t *q = _pacman_pkg_new(miss->depend.name, NULL);
@@ -563,7 +565,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 					pmpkg_t *old = j->data;
 					/* merge lists */
 					for(k = old->requiredby; k; k = k->next) {
-						if(!_pacman_strlist_find(new->requiredby, k->data)) {
+						if(!f_stringlist_find (new->requiredby, k->data)) {
 							/* replace old's name with new's name in the requiredby's dependency list */
 							pmlist_t *m;
 							pmpkg_t *depender = _pacman_db_get_pkgfromcache(db_local, k->data);
@@ -585,7 +587,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 								          new->name, new->version);
 							}
 							/* add the new requiredby */
-							new->requiredby = _pacman_list_add(new->requiredby, strdup(k->data));
+							new->requiredby = f_stringlist_append (new->requiredby, k->data);
 						}
 					}
 				}
@@ -730,7 +732,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 					} else {
 						if(stat(lcpath, &buf)) {
 							/* file is not in the cache dir, so add it to the list */
-							files = _pacman_list_add(files, strdup(filename));
+							files = f_stringlist_append (files, filename);
 						} else {
 							_pacman_log(PM_LOG_DEBUG, _("%s is already in the cache\n"), filename);
 						}

@@ -44,6 +44,8 @@
 #include "cache.h"
 #include "deps.h"
 
+#include "fstringlist.h"
+
 /* Returns a pmlist_t* of pmdepmissing_t pointers.
  *
  * conflicts are always name only
@@ -316,7 +318,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg->name);
 						_pacman_db_read(db, INFRQ_FILES, dbpkg);
 					}
-					if(dbpkg && _pacman_strlist_find(dbpkg->files, j->data)) {
+					if(dbpkg && f_stringlist_find (dbpkg->files, j->data)) {
 						ok = 1;
 					}
 					/* Check if the conflicting file has been moved to another package/target */
@@ -332,7 +334,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 									_pacman_db_read(db, INFRQ_FILES, p2->pkg_local);
 								}
 								/* If it used to exist in there, but doesn't anymore */
-								if(p2->pkg_local && !_pacman_strlist_find(p2->pkg_new->files, filestr) && _pacman_strlist_find(p2->pkg_local->files, filestr)) {
+								if(p2->pkg_local && !f_stringlist_find (p2->pkg_new->files, filestr) && f_stringlist_find (p2->pkg_local->files, filestr)) {
 									ok = 1;
 									/* Add to the "skip list" of files that we shouldn't remove during an upgrade.
 									 *

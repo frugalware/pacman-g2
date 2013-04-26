@@ -45,6 +45,8 @@
 
 #include "trans_sysupgrade.h"
 
+#include "fstringlist.h"
+
 pmsyncpkg_t *__pacman_trans_pkg_new(int type, pmpkg_t *spkg)
 {
 	pmsyncpkg_t *trans_pkg = _pacman_zalloc(sizeof(pmsyncpkg_t));
@@ -358,7 +360,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if(_pacman_strlist_find(trans->targets, target)) {
+	if(f_stringlist_find (trans->targets, target)) {
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
 
@@ -467,7 +469,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 		}
 
 		/* ignore holdpkgs on upgrade */
-		if((trans == handle->trans) && _pacman_strlist_find(handle->holdpkg, __pacman_transpkg_name(trans_pkg))) {
+		if((trans == handle->trans) && f_stringlist_find (handle->holdpkg, __pacman_transpkg_name(trans_pkg))) {
 			int resp = 0;
 			QUESTION(trans, PM_TRANS_CONV_REMOVE_HOLDPKG, trans_pkg->pkg_new, NULL, NULL, &resp);
 			if(!resp) {
@@ -757,7 +759,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 				if(!nb && trans->type == PM_TRANS_TYPE_UPGRADE) {
 					/* check noupgrade */
-					if(_pacman_strlist_find(handle->noupgrade, file)) {
+					if(f_stringlist_find (handle->noupgrade, file)) {
 						nb = 1;
 					}
 				}
@@ -1086,7 +1088,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 				 * eg, /home/httpd/html/index.html may be removed so index.php
 				 * could be used.
 				 */
-				if(_pacman_strlist_find(handle->noextract, pathname)) {
+				if(f_stringlist_find (handle->noextract, pathname)) {
 					pacman_logaction(_("notice: %s is in NoExtract -- skipping extraction"), pathname);
 					archive_read_data_skip (archive);
 					continue;
@@ -1097,11 +1099,11 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 					if(S_ISLNK(buf.st_mode)) {
 						continue;
 					} else if(!S_ISDIR(buf.st_mode)) {
-						if(_pacman_strlist_find(handle->noupgrade, pathname)) {
+						if(f_stringlist_find (handle->noupgrade, pathname)) {
 							notouch = 1;
 						} else {
 							if((transtype == PM_TRANS_TYPE_ADD)|| oldpkg == NULL) {
-								nb = _pacman_strlist_find(info->backup, pathname);
+								nb = f_stringlist_find (info->backup, pathname);
 							} else {
 								/* op == PM_TRANS_TYPE_UPGRADE */
 								md5_orig = _pacman_needbackup(pathname, oldpkg->backup);
@@ -1357,7 +1359,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 				if(_pacman_splitdep(tmppm->data, &depend)) {
 					continue;
 				}
-				if(tmppm->data && (!strcmp(depend.name, info->name) || _pacman_strlist_find(info->provides, depend.name))) {
+				if(tmppm->data && (!strcmp(depend.name, info->name) || f_stringlist_find (info->provides, depend.name))) {
 					_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), tmpp->name, info->name);
 					info->requiredby = _pacman_list_add(info->requiredby, strdup(tmpp->name));
 				}

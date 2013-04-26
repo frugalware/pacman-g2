@@ -31,6 +31,8 @@
 #include "cache.h"
 #include "db.h"
 
+#include "fstringlist.h"
+
 /* return a pmlist_t of packages in "db" that provide "package"
  */
 pmlist_t *_pacman_db_whatprovides(pmdb_t *db, const char *package)
@@ -45,7 +47,7 @@ pmlist_t *_pacman_db_whatprovides(pmdb_t *db, const char *package)
 	for(lp = _pacman_db_get_pkgcache(db); lp; lp = lp->next) {
 		pmpkg_t *info = lp->data;
 
-		if(_pacman_strlist_find(_pacman_pkg_getinfo(info, PM_PKG_PROVIDES), package)) {
+		if (f_stringlist_find (_pacman_pkg_getinfo(info, PM_PKG_PROVIDES), package)) {
 			pkgs = _pacman_list_add(pkgs, info);
 		}
 	}

@@ -41,6 +41,8 @@
 #include "util.h"
 #include "handle.h"
 
+#include "fstringlist.h"
+
 FtpCallback pm_dlcb = NULL;
 /* progress bar */
 char *pm_dlfnm=NULL;
@@ -241,7 +243,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		for(lp = files; lp; lp = lp->next) {
 			char *fn = (char *)lp->data;
 
-			if(_pacman_strlist_find(complete, fn)) {
+			if(f_stringlist_find (complete, fn)) {
 				continue;
 			}
 

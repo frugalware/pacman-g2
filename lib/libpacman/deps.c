@@ -43,6 +43,8 @@
 #include "versioncmp.h"
 #include "handle.h"
 
+#include "fstringlist.h"
+
 static pmgraph_t *_pacman_graph_new(void)
 {
 	pmgraph_t *graph = _pacman_zalloc(sizeof(pmgraph_t));
@@ -349,9 +351,9 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
  				for(k = packages; k && !found; k = k->next) {
  					pmpkg_t *p = (pmpkg_t *)k->data;
  					/* see if the package names match OR if p provides depend.name */
- 					if(!strcmp(p->name, depend.name) || _pacman_strlist_find(_pacman_pkg_getinfo(p, PM_PKG_PROVIDES), depend.name)) {
+ 					if(!strcmp(p->name, depend.name) || f_stringlist_find (_pacman_pkg_getinfo(p, PM_PKG_PROVIDES), depend.name)) {
 						if(depend.mod == PM_DEP_MOD_ANY ||
-								_pacman_strlist_find(_pacman_pkg_getinfo(p, PM_PKG_PROVIDES), depend.name)) {
+								f_stringlist_find (_pacman_pkg_getinfo(p, PM_PKG_PROVIDES), depend.name)) {
 							/* depend accepts any version or p provides depend (provides - by
 							 * definition - is for all versions) */
 							found = 1;
@@ -393,12 +395,12 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 			/* check requiredby fields */
 			found=0;
 			for(j = _pacman_pkg_getinfo(tp, PM_PKG_REQUIREDBY); j; j = j->next) {
-				if(!_pacman_strlist_find(packages, (char *)j->data)) {
+				if(!f_stringlist_find (packages, (char *)j->data)) {
 					/* check if a package in trans->packages provides this package */
 					for (k = trans->packages; !found && k; k = k->next) {
 						pmsyncpkg_t *ps = k->data;
 						pmpkg_t *spkg = ps->pkg_new;
-						if(spkg && _pacman_strlist_find(_pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES), tp->name)) {
+						if(spkg && f_stringlist_find (_pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES), tp->name)) {
 							found=1;
 						}
 					}
@@ -573,7 +575,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t *list,
 		/* check if one of the packages in *list already provides this dependency */
 		for(j = list; j && !found; j = j->next) {
 			pmpkg_t *sp = (pmpkg_t *)j->data;
-			if(_pacman_strlist_find(_pacman_pkg_getinfo(sp, PM_PKG_PROVIDES), miss->depend.name)) {
+			if(f_stringlist_find (_pacman_pkg_getinfo(sp, PM_PKG_PROVIDES), miss->depend.name)) {
 				_pacman_log(PM_LOG_DEBUG, _("%s provides dependency %s -- skipping"),
 				          sp->name, miss->depend.name);
 				found = 1;
@@ -623,7 +625,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t *list,
 			 * something we're not supposed to.
 			 */
 			int usedep = 1;
-			if(_pacman_strlist_find(handle->ignorepkg, ps->name)) {
+			if(f_stringlist_find (handle->ignorepkg, ps->name)) {
 				pmpkg_t *dummypkg = _pacman_pkg_new(miss->target, NULL);
 				QUESTION(trans, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg, ps, NULL, &usedep);
 				FREEPKG(dummypkg);
@@ -670,7 +672,7 @@ int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep)
 	const char *mod = "~=";
 
 	if(strcmp(pkg->name, dep->name) == 0
-	    	|| _pacman_strlist_find(_pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES), dep->name)) {
+	    	|| f_stringlist_find (_pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES), dep->name)) {
 			if(dep->mod == PM_DEP_MOD_ANY) {
 				equal = 1;
 			} else {

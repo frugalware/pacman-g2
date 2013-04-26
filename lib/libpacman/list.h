@@ -32,10 +32,6 @@ typedef FList pmlist_t;
 #define _pacman_list_add f_list_append
 #define _pacman_list_remove(list, ptr, fn, data) f_list_remove((list), (ptr), (FCompareFunc)(fn), (data))
 
-#include "fstringlist.h"
-
-#define _pacman_strlist_find f_stringlist_find
-
 #endif /* _PACMAN_LIST_H */
 
 /* vim: set ts=2 sw=2 noet: */

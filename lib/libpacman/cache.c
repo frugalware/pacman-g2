@@ -42,6 +42,8 @@
 #include "handle.h"
 #include "error.h"
 
+#include "fstringlist.h"
+
 /* Returns a new package cache from db.
  * It frees the cache if it already exists.
  */
@@ -177,7 +179,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 		}
 
 		for(i = pkg->groups; i; i = i->next) {
-			if(!_pacman_strlist_find(db->grpcache, i->data)) {
+			if(!f_stringlist_find (db->grpcache, i->data)) {
 				pmgrp_t *grp = _pacman_grp_new();
 
 				STRNCPY(grp->name, (char *)i->data, GRP_NAME_LEN);
@@ -190,7 +192,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 					pmgrp_t *grp = j->data;
 
 					if(strcmp(grp->name, i->data) == 0) {
-						if(!_pacman_strlist_find(grp->packages, pkg->name)) {
+						if(!f_stringlist_find (grp->packages, pkg->name)) {
 							grp->packages = f_list_add_sorted(grp->packages, (char *)pkg->name, (FCompareFunc)_pacman_grp_cmp, NULL);
 						}
 					}
@@ -274,7 +276,7 @@ int _pacman_sync_cleancache(int level)
 			if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
 				continue;
 			}
-			cache = _pacman_list_add(cache, strdup(ent->d_name));
+			cache = f_stringlist_append (cache, ent->d_name);
 		}
 		closedir(dir);
 
@@ -283,7 +285,7 @@ int _pacman_sync_cleancache(int level)
 			char name[256], version[64];
 
 			if(strstr(str, PM_EXT_PKG) == NULL) {
-				clean = _pacman_list_add(clean, strdup(str));
+				clean = f_stringlist_append (clean, str);
 				continue;
 			}
 			/* we keep partially downloaded files */
@@ -291,7 +293,7 @@ int _pacman_sync_cleancache(int level)
 				continue;
 			}
 			if(_pacman_pkg_splitname(str, name, version, 1) != 0) {
-				clean = _pacman_list_add(clean, strdup(str));
+				clean = f_stringlist_append (clean, str);
 				continue;
 			}
 			for(j = i->next; j; j = j->next) {
@@ -309,8 +311,8 @@ int _pacman_sync_cleancache(int level)
 				}
 				if(!strcmp(name, n)) {
 					char *ptr = (pacman_pkg_vercmp(version, v) < 0) ? str : s;
-					if(!_pacman_strlist_find(clean, ptr)) {
-						clean = _pacman_list_add(clean, strdup(ptr));
+					if(!f_stringlist_find (clean, ptr)) {
+						clean = f_stringlist_append (clean, ptr);
 					}
 				}
 			}
