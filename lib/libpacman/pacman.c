@@ -320,7 +320,7 @@ int pacman_db_update(int force, PM_DB *db)
 		return -1;
 	}
 
-	if(!_pacman_list_find(handle->dbs_sync, db)) {
+	if(!f_list_find(handle->dbs_sync, db)) {
 		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
 	}
 
@@ -984,7 +984,7 @@ int pacman_list_count(pmlist_t *list)
 {
 	ASSERT(list != NULL, return(-1));
 
-	return(_pacman_list_count(list));
+	return f_list_count (list);
 }
 /** @} */
 

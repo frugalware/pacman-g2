@@ -57,14 +57,14 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 	int howmany, remain;
 	double percent;
 
-	howmany = _pacman_list_count(packages);
+	howmany = f_list_count (packages);
 
 	for(i = packages; i; i = i->next) {
 		pmpkg_t *tp = i->data;
 		if(tp == NULL) {
 			continue;
 		}
-		remain = _pacman_list_count(i);
+		remain = f_list_count (i);
 		percent = (double)(howmany - remain + 1) / howmany;
 
 		if(trans->type == PM_TRANS_TYPE_SYNC) {
@@ -259,7 +259,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 	double percent;
 	int remain;
 	pmdb_t *db = trans->handle->db_local;
-	int howmany = _pacman_list_count(trans->packages);
+	int howmany = f_list_count (trans->packages);
 
 	if (howmany == 0) {
 		return(NULL);
@@ -269,7 +269,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 	for (i = trans->_packages; i; i = i->next) {
 		pmpkg_t *p1 = i->data;
 
-		remain = _pacman_list_count(i);
+		remain = f_list_count (i);
 		percent = (double)(howmany - remain + 1) / howmany;
 		PROGRESS(trans, PM_TRANS_PROGRESS_CONFLICTS_START, "", (percent * 100), howmany, howmany - remain + 1);
 		for(j = i; j; j = j->next) {

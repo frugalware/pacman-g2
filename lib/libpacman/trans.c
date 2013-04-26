@@ -138,7 +138,7 @@ void __pacman_trans_fini(struct pmobject *obj) {
 	pmtrans_t *trans = (pmtrans_t *)obj;
 
 	FREELIST(trans->targets);
-	_pacman_list_free(trans->packages, (_pacman_fn_free)__pacman_trans_pkg_delete);
+	f_list_free(trans->packages, (FVisitorFunc)__pacman_trans_pkg_delete, NULL);
 	FREELIST(trans->skiplist);
 }
 
@@ -304,7 +304,7 @@ int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 			if (_pacman_versioncmp(transpkg_in->pkg_new->version, transpkg->pkg_new->version) < 0) {
 				_pacman_log (PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
 						transpkg_in->pkg_new->name, transpkg_in->pkg_new->version, transpkg->pkg_new->version);
-				_pacman_list_find (trans->_packages, transpkg_in->pkg_new)->data = transpkg->pkg_new;
+				f_list_find (trans->_packages, transpkg_in->pkg_new)->data = transpkg->pkg_new;
 				FREEPKG(transpkg_in->pkg_new);
 				transpkg_in->pkg_new = transpkg->pkg_new;
 				/* FIXME: use
@@ -711,7 +711,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
-	howmany = _pacman_list_count(trans->packages);
+	howmany = f_list_count (trans->packages);
 
 	for(targ = trans->packages; targ; targ = targ->next) {
 		int position = 0;
@@ -722,7 +722,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 			break;
 		}
 
-		remain = _pacman_list_count(targ);
+		remain = f_list_count (targ);
 
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			EVENT(trans, PM_TRANS_EVT_REMOVE_START, info, NULL);
@@ -736,11 +736,11 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 		}
 
 		if(!(trans->flags & PM_TRANS_FLAG_DBONLY)) {
-			int filenum = _pacman_list_count(info->files);
+			int filenum = f_list_count (info->files);
 			_pacman_log(PM_LOG_FLOW1, _("removing files"));
 
 			/* iterate through the list backwards, unlinking files */
-			for(lp = _pacman_list_last(info->files); lp; lp = lp->prev) {
+			for(lp = f_list_last(info->files); lp; lp = lp->prev) {
 				int nb = 0;
 				double percent;
 				char *file = lp->data;
@@ -947,8 +947,8 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 		pmpkg_t *local = NULL;
 		pmpkg_t *oldpkg = NULL;
 		errors = 0;
-		remain = _pacman_list_count(targ);
-		howmany = _pacman_list_count(trans->_packages);
+		remain = f_list_count (targ);
+		howmany = f_list_count (trans->_packages);
 		struct trans_event_table_item *event;
 
 		if(handle->trans->state == STATE_INTERRUPTED) {

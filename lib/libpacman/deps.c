@@ -188,7 +188,7 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 
 	if(mode == PM_TRANS_TYPE_REMOVE) {
 		/* we're removing packages, so reverse the order */
-		pmlist_t *tmptargs = _pacman_list_reverse(newtargs);
+		pmlist_t *tmptargs = f_list_reverse(newtargs);
 		/* free the old one */
 		FREELISTPTR(newtargs);
 		newtargs = tmptargs;

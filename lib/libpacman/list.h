@@ -25,33 +25,13 @@
 
 typedef FList pmlist_t;
 
-#define _FREELIST(ptr, fn) do { if(ptr) { _pacman_list_free(ptr, fn); ptr = NULL; } } while(0)
+#define _FREELIST(ptr, fn) do { if(ptr) { f_list_free(ptr, (FVisitorFunc)fn, NULL); ptr = NULL; } } while(0)
 #define FREELIST(p) _FREELIST(p, free)
 #define FREELISTPTR(p) _FREELIST(p, NULL)
-
-typedef FCompareFunc _pacman_fn_cmp;
-typedef FDetectFunc _pacman_fn_detect;
-typedef FCopyFunc _pacman_fn_dup;
-typedef FVisitorFunc _pacman_fn_free;
-typedef FVisitorFunc _pacman_fn_foreach;
-
-#define _pacman_list_new f_list_new
-#define _pacman_list_free(list, fn) f_list_delete ((list), (FVisitorFunc)(fn), NULL)
-
-#define _pacman_list_first f_list_first
-#define _pacman_list_last f_list_last
-
-#define _pacman_list_detect f_list_detect
-#define _pacman_list_filter f_list_filter
-#define _pacman_list_find f_list_find
-#define _pacman_list_foreach f_list_foreach
-#define _pacman_list_reverse f_list_reverse
-#define _pacman_list_reverse_foreach f_list_reverse_foreach
 
 #define _pacman_list_add f_list_append
 #define _pacman_list_add_sorted(list, ptr, fn) f_list_add_sorted ((list), (ptr), (FCompareFunc)(fn), NULL)
 #define _pacman_list_remove(list, ptr, fn, data) f_list_remove((list), (ptr), (FCompareFunc)(fn), (data))
-#define _pacman_list_count f_list_count
 
 #include "fstringlist.h"
 

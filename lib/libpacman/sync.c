@@ -113,7 +113,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 	}
 
 	if(!(trans->flags & PM_TRANS_FLAG_NODEPS)) {
-		trail = _pacman_list_new();
+		trail = f_list_new();
 
 		/* Resolve targets dependencies */
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);

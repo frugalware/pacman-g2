@@ -128,7 +128,7 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 
 			if (_pacman_reg_match_or_strstr(pkg->name, targ) == 0 ||
 					_pacman_reg_match_or_strstr(_pacman_pkg_getinfo(pkg, PM_PKG_DESC), targ) == 0 ||
-					_pacman_list_detect(_pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES), (_pacman_fn_detect)_pacman_reg_match_or_strstr, (void *)targ)) {
+					f_list_detect(_pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES), (FDetectFunc)_pacman_reg_match_or_strstr, (void *)targ)) {
 				_pacman_log(PM_LOG_DEBUG, "    search target '%s' matched '%s'", targ, pkg->name);
 				ret = _pacman_list_add(ret, pkg);
 			}

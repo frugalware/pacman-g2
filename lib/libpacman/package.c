@@ -204,7 +204,7 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 				STRNCPY(info->version, ptr, sizeof(info->version));
 			} else if(!strcmp(key, "PKGDESC")) {
 				info->desc_localized = _pacman_list_add(info->desc_localized, strdup(ptr));
-				if(_pacman_list_count(info->desc_localized) == 1) {
+				if(f_list_count (info->desc_localized) == 1) {
 					STRNCPY(info->desc, ptr, sizeof(info->desc));
 				} else if (!strncmp(ptr, handle->language, strlen(handle->language))) {
 					STRNCPY(info->desc, ptr+strlen(handle->language)+1, sizeof(info->desc));
