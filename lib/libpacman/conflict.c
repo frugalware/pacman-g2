@@ -252,24 +252,23 @@ static pmlist_t *chk_fileconflicts(pmlist_t *filesA, pmlist_t *filesB)
 pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 {
 	pmlist_t *i, *j, *k;
-	char *filestr = NULL;
 	char path[PATH_MAX+1];
 	struct stat buf;
 	pmlist_t *conflicts = NULL;
-	pmlist_t *targets = trans->_packages;
-	pmpkg_t *p, *dbpkg;
+	pmpkg_t *dbpkg;
 	double percent;
-	int howmany, remain;
+	int remain;
 	pmdb_t *db = trans->handle->db_local;
+	int howmany = _pacman_list_count(trans->packages);
 
-	if(db == NULL || targets == NULL) {
+	if (howmany == 0) {
 		return(NULL);
 	}
-	howmany = _pacman_list_count(targets);
 
 	/* CHECK 1: check every target against every target */
-	for(i = targets; i; i = i->next) {
-		pmpkg_t *p1 = (pmpkg_t*)i->data;
+	for (i = trans->_packages; i; i = i->next) {
+		pmpkg_t *p1 = i->data;
+
 		remain = _pacman_list_count(i);
 		percent = (double)(howmany - remain + 1) / howmany;
 		PROGRESS(trans, PM_TRANS_PROGRESS_CONFLICTS_START, "", (percent * 100), howmany, howmany - remain + 1);
@@ -293,10 +292,10 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 		}
 
 		/* CHECK 2: check every target against the filesystem */
-		p = (pmpkg_t*)i->data;
 		dbpkg = NULL;
-		for(j = p->files; j; j = j->next) {
-			filestr = (char*)j->data;
+		for (j = p1->files; j; j = j->next) {
+			char *filestr = (char*)j->data;
+
 			snprintf(path, PATH_MAX, "%s%s", trans->handle->root, filestr);
 			/* is this target a file or directory? */
 			if(path[strlen(path)-1] == '/') {
@@ -311,7 +310,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 					ok = 1;
 				} else {
 					if(dbpkg == NULL) {
-						dbpkg = _pacman_db_get_pkgfromcache(db, p->name);
+						dbpkg = _pacman_db_get_pkgfromcache(db, p1->name);
 					}
 					if(dbpkg && !(dbpkg->infolevel & INFRQ_FILES)) {
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg->name);
@@ -323,10 +322,10 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 					/* Check if the conflicting file has been moved to another package/target */
 					if(!ok) {
 						/* Look at all the targets */
-						for(k = targets; k && !ok; k = k->next) {
-							pmpkg_t *p2 = (pmpkg_t *)k->data;
+						for(k = trans->_packages; k && !ok; k = k->next) {
+							pmpkg_t *p2 = k->data;
 							/* As long as they're not the current package */
-							if(strcmp(p2->name, p->name)) {
+							if(strcmp(p2->name, p1->name)) {
 								pmpkg_t *dbpkg2 = NULL;
 								dbpkg2 = _pacman_db_get_pkgfromcache(db, p2->name);
 								if(dbpkg2 && !(dbpkg2->infolevel & INFRQ_FILES)) {
@@ -364,7 +363,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 						continue;
 					}
 					conflict->type = PM_CONFLICT_TYPE_FILE;
-					STRNCPY(conflict->target, p->name, PKG_NAME_LEN);
+					STRNCPY(conflict->target, p1->name, PKG_NAME_LEN);
 					STRNCPY(conflict->file, filestr, CONFLICT_FILE_LEN);
 					conflict->ctarget[0] = 0;
 					conflicts = _pacman_list_add(conflicts, conflict);
