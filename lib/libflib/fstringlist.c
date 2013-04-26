@@ -26,8 +26,11 @@
 
 #include "fstringlist.h"
 
-FList *f_stringlist_deep_copy (FList *list)
-{
+FList *f_stringlist_append (FList *list, const char *str) {
+	return f_list_append (list, strdup (str));
+}
+
+FList *f_stringlist_deep_copy (FList *list) {
 	return f_list_deep_copy (list, (FCopyFunc)strdup, NULL);
 }
 

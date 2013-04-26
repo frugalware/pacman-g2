@@ -983,7 +983,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), local->name);
 						_pacman_db_read(db_local, INFRQ_FILES, local);
 					}
-					oldpkg->backup = _pacman_strlist_dup(local->backup);
+					oldpkg->backup = f_stringlist_deep_copy(local->backup);
 					strncpy(oldpkg->name, local->name, PKG_NAME_LEN);
 					strncpy(oldpkg->version, local->version, PKG_VERSION_LEN);
 				}
@@ -1005,7 +1005,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
 					/* copy the skiplist over */
-					tr->skiplist = _pacman_strlist_dup(trans->skiplist);
+					tr->skiplist = f_stringlist_deep_copy(trans->skiplist);
 					if(_pacman_remove_commit(tr, NULL) == -1) {
 						FREETRANS(tr);
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);

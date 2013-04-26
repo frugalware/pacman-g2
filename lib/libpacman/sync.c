@@ -297,7 +297,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 								ret = -1;
 								goto cleanup;
 							}
-							q->requiredby = _pacman_strlist_dup(local->requiredby);
+							q->requiredby = f_stringlist_deep_copy(local->requiredby);
 							if(ps->type != PM_TRANS_TYPE_ADD) {
 								/* switch this sync type to REPLACE */
 								ps->type = PM_TRANS_TYPE_ADD;

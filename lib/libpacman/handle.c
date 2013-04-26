@@ -196,7 +196,7 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 		break;
 		case PM_OPT_NOUPGRADE:
 			if((char *)data && strlen((char *)data) != 0) {
-				ph->noupgrade = _pacman_list_add(ph->noupgrade, strdup((char *)data));
+				ph->noupgrade = f_stringlist_append (ph->noupgrade, (char *)data);
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NOUPGRADE"), (char *)data);
 			} else {
 				FREELIST(ph->noupgrade);
@@ -205,7 +205,7 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 		break;
 		case PM_OPT_NOEXTRACT:
 			if((char *)data && strlen((char *)data) != 0) {
-				ph->noextract = _pacman_list_add(ph->noextract, strdup((char *)data));
+				ph->noextract = f_stringlist_append (ph->noextract, (char *)data);
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NOEXTRACT"), (char *)data);
 			} else {
 				FREELIST(ph->noextract);
@@ -214,7 +214,7 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 		break;
 		case PM_OPT_IGNOREPKG:
 			if((char *)data && strlen((char *)data) != 0) {
-				ph->ignorepkg = _pacman_list_add(ph->ignorepkg, strdup((char *)data));
+				ph->ignorepkg = f_stringlist_append (ph->ignorepkg, (char *)data);
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_IGNOREPKG"), (char *)data);
 			} else {
 				FREELIST(ph->ignorepkg);
@@ -223,7 +223,7 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 		break;
 		case PM_OPT_HOLDPKG:
 			if((char *)data && strlen((char *)data) != 0) {
-				ph->holdpkg = _pacman_list_add(ph->holdpkg, strdup((char *)data));
+				ph->holdpkg = f_stringlist_append (ph->holdpkg, (char *)data);
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_HOLDPKG"), (char *)data);
 			} else {
 				FREELIST(ph->holdpkg);
@@ -232,7 +232,7 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 		break;
 		case PM_OPT_NEEDLES:
 			if((char *)data && strlen((char *)data) != 0) {
-				ph->needles = _pacman_list_add(ph->needles, strdup((char *)data));
+				ph->needles = f_stringlist_append (ph->needles, (char *)data);
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NEEDLES"), (char *)data);
 			} else {
 				FREELIST(ph->needles);

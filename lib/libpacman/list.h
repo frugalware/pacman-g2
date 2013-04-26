@@ -30,14 +30,11 @@ typedef FList pmlist_t;
 #define FREELISTPTR(p) _FREELIST(p, NULL)
 
 #define _pacman_list_add f_list_append
-#define _pacman_list_add_sorted(list, ptr, fn) f_list_add_sorted ((list), (ptr), (FCompareFunc)(fn), NULL)
 #define _pacman_list_remove(list, ptr, fn, data) f_list_remove((list), (ptr), (FCompareFunc)(fn), (data))
 
 #include "fstringlist.h"
 
-#define _pacman_strlist_dup f_stringlist_deep_copy
 #define _pacman_strlist_find f_stringlist_find
-#define _pacman_list_remove_dupes f_stringlist_filter_dupes
 
 #endif /* _PACMAN_LIST_H */
 

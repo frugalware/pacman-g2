@@ -66,7 +66,7 @@ int _pacman_db_load_pkgcache(pmdb_t *db)
 		info->origin = PKG_FROM_CACHE;
 		info->data = db;
 		/* add to the collective */
-		db->pkgcache = _pacman_list_add_sorted(db->pkgcache, info, _pacman_pkg_cmp);
+		db->pkgcache = f_list_add_sorted(db->pkgcache, info, (FCompareFunc)_pacman_pkg_cmp, NULL);
 	}
 
 	return(0);
@@ -114,7 +114,7 @@ int _pacman_db_add_pkgincache(pmdb_t *db, pmpkg_t *pkg)
 		return(-1);
 	}
 	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), newpkg->name, db->treename);
-	db->pkgcache = _pacman_list_add_sorted(db->pkgcache, newpkg, _pacman_pkg_cmp);
+	db->pkgcache = f_list_add_sorted(db->pkgcache, newpkg, (FCompareFunc)_pacman_pkg_cmp, NULL);
 
 	_pacman_db_free_grpcache(db);
 
@@ -181,8 +181,8 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 				pmgrp_t *grp = _pacman_grp_new();
 
 				STRNCPY(grp->name, (char *)i->data, GRP_NAME_LEN);
-				grp->packages = _pacman_list_add_sorted(grp->packages, pkg->name, _pacman_grp_cmp);
-				db->grpcache = _pacman_list_add_sorted(db->grpcache, grp, _pacman_grp_cmp);
+				grp->packages = f_list_add_sorted(grp->packages, pkg->name, (FCompareFunc)_pacman_grp_cmp, NULL);
+				db->grpcache = f_list_add_sorted(db->grpcache, grp, (FCompareFunc)_pacman_grp_cmp, NULL);
 			} else {
 				pmlist_t *j;
 
@@ -191,7 +191,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 
 					if(strcmp(grp->name, i->data) == 0) {
 						if(!_pacman_strlist_find(grp->packages, pkg->name)) {
-							grp->packages = _pacman_list_add_sorted(grp->packages, (char *)pkg->name, _pacman_grp_cmp);
+							grp->packages = f_list_add_sorted(grp->packages, (char *)pkg->name, (FCompareFunc)_pacman_grp_cmp, NULL);
 						}
 					}
 				}

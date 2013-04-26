@@ -23,6 +23,7 @@
 
 #include "flist.h"
 
+FList *f_stringlist_append (FList *list, const char *str);
 FList *f_stringlist_deep_copy (FList *list);
 FList *f_stringlist_find (FList *list, const char *str);
 FList *f_stringlist_uniques (FList *list);
