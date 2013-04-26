@@ -218,17 +218,17 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 		return(NULL);
 	}
 
+	for (i = packages; i; i = i->next) {
+		pmpkg_t *tp = i->data;
+		if(tp == NULL) {
+			continue;
+		}
 
-	if(op == PM_TRANS_TYPE_UPGRADE) {
-		/* PM_TRANS_TYPE_UPGRADE handles the backwards dependencies, ie, the packages
-		 * listed in the requiredby field.
-		 */
-		for(i = packages; i; i = i->next) {
-			pmpkg_t *tp = i->data;
+		if(op == PM_TRANS_TYPE_UPGRADE) {
+			/* PM_TRANS_TYPE_UPGRADE handles the backwards dependencies, ie, the packages
+			 * listed in the requiredby field.
+			 */
 			pmpkg_t *oldpkg;
-			if(tp == NULL) {
-				continue;
-			}
 
 			if((oldpkg = _pacman_db_get_pkgfromcache(db, tp->name)) == NULL) {
 				continue;
@@ -262,15 +262,8 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				}
 			}
 		}
-	}
-	if(op == PM_TRANS_TYPE_ADD || op == PM_TRANS_TYPE_UPGRADE) {
-		/* DEPENDENCIES -- look for unsatisfied dependencies */
-		for(i = packages; i; i = i->next) {
-			pmpkg_t *tp = i->data;
-			if(tp == NULL) {
-				continue;
-			}
-
+		if(op == PM_TRANS_TYPE_ADD || op == PM_TRANS_TYPE_UPGRADE) {
+			/* DEPENDENCIES -- look for unsatisfied dependencies */
 			for(j = _pacman_pkg_getinfo(tp, PM_PKG_DEPENDS); j; j = j->next) {
 				/* split into name/version pairs */
 				_pacman_splitdep((char *)j->data, &depend);
@@ -396,15 +389,8 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 					}
 				}
 			}
-		}
-	} else if(op == PM_TRANS_TYPE_REMOVE) {
-		/* check requiredby fields */
-		for(i = packages; i; i = i->next) {
-			pmpkg_t *tp = i->data;
-			if(tp == NULL) {
-				continue;
-			}
-
+		} else if(op == PM_TRANS_TYPE_REMOVE) {
+			/* check requiredby fields */
 			found=0;
 			for(j = _pacman_pkg_getinfo(tp, PM_PKG_REQUIREDBY); j; j = j->next) {
 				if(!_pacman_strlist_find(packages, (char *)j->data)) {
