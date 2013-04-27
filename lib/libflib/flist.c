@@ -48,7 +48,7 @@ void f_list_delete (FList *list, FVisitorFunc fn, void *user_data) {
 }
 
 FList *f_list_alloc (void *data) {
-	FList *list = f_zalloc(sizeof(FList));
+	FList *list = f_zalloc (sizeof(FList));
 
 	if (list != NULL) {
 		list->data = data;
@@ -135,6 +135,34 @@ FList *f_list_last (FList *list) {
 	return list;
 }
 
+FList *f_list_next (FList *list) {
+	if (list != NULL) {
+		return list->next;
+	}
+	return NULL;
+}
+
+FList *f_list_next_filtered (FList *list, FDetectFunc dfn, void *user_data) {
+	while (list != NULL && dfn (list, user_data) != 0) {
+		list = list->next;
+	}
+	return NULL;
+}
+
+FList *f_list_previous (FList *list) {
+	if (list != NULL) {
+		return list->prev;
+	} 
+	return NULL;
+}
+
+FList *f_list_previous_filtered (FList *list, FDetectFunc dfn, void *user_data) {
+	while (list != NULL && dfn (list, user_data) != 0) {
+		list = list->prev;
+	} 
+	return NULL;
+}
+
 FList *f_list_append (FList *list, void *data) {
 	return f_list_concat (list, f_list_alloc (data));
 }
@@ -155,7 +183,7 @@ FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data) {
 	FList *newlist = NULL;
 
 	for (; list; list = list->next) {
-		newlist = f_list_append (newlist, fn(list->data, user_data));
+		newlist = f_list_append (newlist, fn (list->data, user_data));
 	}
 	return newlist;
 }
@@ -175,13 +203,11 @@ FList *f_list_detect (FList *list, FDetectFunc fn, void *user_data) {
 	return list;
 }
 
-FList *f_list_filter (FList *list, FDetectFunc fn, void *user_data) {
+FList *f_list_filter (FList *list, FDetectFunc dfn, void *user_data) {
 	FList *ret = NULL;
 
-	for (; list != NULL; list = list->next) {
-		if (fn (list->data, user_data) == 0) {
-			ret = f_list_append (ret, list->data);
-		}
+	for (; list != NULL; list = f_list_next_filtered (list, dfn, user_data)) {
+		ret = f_list_append (ret, list->data);
 	}
 	return ret;
 }
@@ -196,11 +222,9 @@ void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
 	}
 }
 
-void f_list_foreach_filter (FList *list, FVisitorFunc fn, FDetectFunc dfn, void *user_data) {
-	for (; list != NULL; list = list->next) {
-		if (dfn (list->data, user_data) == 0) {
-			fn (list->data, user_data);
-		}
+void f_list_foreach_filtered (FList *list, FVisitorFunc fn, FDetectFunc dfn, void *user_data) {
+	for (; list != NULL; list = f_list_next_filtered (list, dfn, user_data)) {
+		fn (list->data, user_data);
 	}
 }
 
@@ -280,8 +304,7 @@ FList *f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_d
  * Otherwise, it is set to NULL.
  * Return the new list (without the removed element).
  */
-FList *f_list_remove(FList *haystack, void *needle, FCompareFunc fn, void **data)
-{
+FList *f_list_remove (FList *haystack, void *needle, FCompareFunc fn, void **data) {
 	FList *i = haystack;
 
 	if(data) {
