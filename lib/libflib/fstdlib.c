@@ -54,6 +54,14 @@ int f_ptrcmp (const void *p1, const void *p2) {
 	  return p1-p2;
 }
 
+int f_ptreq (const void *p1, const void *p2) {
+	return f_ptrcmp (p1, p2);
+}
+
+int f_ptrneq (const void *p1, const void *p2) {
+	return !f_ptreq (p1, p2); 
+}
+
 void f_ptrswap (void **p1, void **p2) {
 	void *tmp = *p1;
 	*p2 = *p1;

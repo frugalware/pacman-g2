@@ -30,7 +30,8 @@ void *f_memdup (const void *ptr, size_t size);
 void *f_zalloc (size_t size);
 
 int f_ptrcmp (const void *p1, const void *p2);
-
+int f_ptreq (const void *p1, const void *p2);
+int f_ptrneq (const void *p1, const void *p2);
 void f_ptrswap (void **p1, void **p2);
 
 #endif /* F_STDLIB_H */
