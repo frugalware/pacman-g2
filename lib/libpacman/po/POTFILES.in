@@ -1,4 +1,3 @@
-add.c
 pacman.c
 backup.c
 be_files.c
@@ -9,13 +8,11 @@ deps.c
 error.c
 group.c
 handle.c
-list.c
 log.c
 md5.c
 md5driver.c
 package.c
 provide.c
-remove.c
 sha1.c
 sync.c
 trans.c
