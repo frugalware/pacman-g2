@@ -657,7 +657,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 
 		if(trans->flags & PM_TRANS_FLAG_RECURSE) {
 			_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
-			trans->_packages = _pacman_removedeps(db_local, trans->_packages);
+			_pacman_removedeps(trans);
 		}
 
 		/* re-order w.r.t. dependencies */

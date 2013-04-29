@@ -473,17 +473,18 @@ int _pacman_splitdep(char *depstr, pmdepend_t *depend)
  * I mean dependencies that are *only* required for packages in the target
  * list, so they can be safely removed.  This function is recursive.
  */
-pmlist_t *_pacman_removedeps(pmdb_t *db, pmlist_t *targs)
+void _pacman_removedeps(pmtrans_t *trans)
 {
 	pmlist_t *i, *j, *k;
-	pmlist_t *newtargs = targs;
+	pmdb_t *db = trans->handle->db_local;
 
 	if(db == NULL) {
-		return(newtargs);
+		return;
 	}
 
-	for(i = targs; i; i = i->next) {
-		for(j = (_pacman_pkg_getinfo((pmpkg_t *)i->data, PM_PKG_DEPENDS)); j; j = j->next) {
+	for (i = trans->packages; i; i = f_list_next(i), NULL) {
+		pmtranspkg_t *transpkg = i->data;
+		for(j = (_pacman_pkg_getinfo(transpkg->pkg_local, PM_PKG_DEPENDS)); j; j = j->next) {
 			pmdepend_t depend;
 			pmpkg_t *dep;
 			int needed = 0;
@@ -508,7 +509,7 @@ pmlist_t *_pacman_removedeps(pmdb_t *db, pmlist_t *targs)
 				}
 				FREELISTPTR(k);
 			}
-			if(_pacman_pkg_isin(dep->name, targs)) {
+			if(__pacman_trans_get_trans_pkg (trans, dep->name) != NULL) {
 				continue;
 			}
 
@@ -521,7 +522,7 @@ pmlist_t *_pacman_removedeps(pmdb_t *db, pmlist_t *targs)
 			/* see if other packages need it */
 			for(k = _pacman_pkg_getinfo(dep, PM_PKG_REQUIREDBY); k && !needed; k = k->next) {
 				pmpkg_t *dummy = _pacman_db_get_pkgfromcache(db, k->data);
-				if(!_pacman_pkg_isin(dummy->name, targs)) {
+				if(__pacman_trans_get_trans_pkg (trans, dummy->name) == NULL) {
 					needed = 1;
 				}
 			}
@@ -531,16 +532,10 @@ pmlist_t *_pacman_removedeps(pmdb_t *db, pmlist_t *targs)
 					continue;
 				}
 				/* add it to the target list */
-				_pacman_log(PM_LOG_DEBUG, _("loading ALL info for '%s'"), pkg->name);
-				_pacman_db_read(db, INFRQ_ALL, pkg);
-				newtargs = _pacman_list_add(newtargs, pkg);
-				_pacman_log(PM_LOG_FLOW2, _("adding '%s' to the targets"), pkg->name);
-				newtargs = _pacman_removedeps(db, newtargs);
+				_pacman_trans_addtarget (trans, dep->name, transpkg->type, transpkg->flags);
 			}
 		}
 	}
-
-	return(newtargs);
 }
 
 /* populates *list with packages that need to be installed to satisfy all
