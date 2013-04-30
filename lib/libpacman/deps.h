@@ -55,7 +55,6 @@ int _pacman_splitdep(char *depstr, pmdepend_t *depend);
 void _pacman_removedeps(pmtrans_t *trans);
 int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t *list,
                 pmlist_t *trail, pmlist_t **data);
-int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep);
 
 #endif /* _PACMAN_DEPS_H */
 

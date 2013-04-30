@@ -59,6 +59,53 @@ static void _pacman_graph_free(void *data)
 	FREE(graph);
 }
 
+static
+int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep)
+{
+	int equal = 0, cmp;
+	const char *mod = "~=";
+
+	if(strcmp(pkg->name, dep->name) == 0
+		|| f_stringlist_find (_pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES), dep->name)) {
+			if(dep->mod == PM_DEP_MOD_ANY) {
+				equal = 1;
+			} else {
+				cmp = _pacman_versioncmp(_pacman_pkg_getinfo(pkg, PM_PKG_VERSION), dep->version);
+				switch(dep->mod) {
+					case PM_DEP_MOD_EQ: equal = (cmp == 0); break;
+					case PM_DEP_MOD_GE: equal = (cmp >= 0); break;
+					case PM_DEP_MOD_LE: equal = (cmp <= 0); break;
+					case PM_DEP_MOD_LT: equal = (cmp < 0); break;
+					case PM_DEP_MOD_GT: equal = (cmp > 0); break;
+					default: equal = 1; break;
+				}
+			}
+
+		switch(dep->mod) {
+			case PM_DEP_MOD_EQ: mod = "=="; break;
+			case PM_DEP_MOD_GE: mod = ">="; break;
+			case PM_DEP_MOD_LE: mod = "<="; break;
+			case PM_DEP_MOD_LT: mod = "<"; break;
+			case PM_DEP_MOD_GT: mod = ">"; break;
+			default: break;
+		}
+
+		if(strlen(dep->version) > 0) {
+			_pacman_log(PM_LOG_DEBUG, _("depcmp: %s-%s %s %s-%s => %s"),
+								_pacman_pkg_getinfo(pkg, PM_PKG_NAME), _pacman_pkg_getinfo(pkg, PM_PKG_NAME),
+								mod, dep->name, dep->version,
+								(equal ? "match" : "no match"));
+		} else {
+			_pacman_log(PM_LOG_DEBUG, _("depcmp: %s-%s %s %s => %s"),
+								_pacman_pkg_getinfo(pkg, PM_PKG_NAME), _pacman_pkg_getinfo(pkg, PM_PKG_VERSION),
+								mod, dep->name,
+								(equal ? "match" : "no match"));
+		}
+	}
+
+	return equal;
+}
+
 pmdepmissing_t *_pacman_depmiss_new(const char *target, unsigned char type, unsigned char depmod,
                                   const char *depname, const char *depversion)
 {
@@ -661,49 +708,4 @@ error:
 	return(-1);
 }
 
-int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep)
-{
-	int equal = 0, cmp;
-	const char *mod = "~=";
-
-	if(strcmp(pkg->name, dep->name) == 0
-	    	|| f_stringlist_find (_pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES), dep->name)) {
-			if(dep->mod == PM_DEP_MOD_ANY) {
-				equal = 1;
-			} else {
-				cmp = _pacman_versioncmp(_pacman_pkg_getinfo(pkg, PM_PKG_VERSION), dep->version);
-				switch(dep->mod) {
-					case PM_DEP_MOD_EQ: equal = (cmp == 0); break;
-					case PM_DEP_MOD_GE: equal = (cmp >= 0); break;
-					case PM_DEP_MOD_LE: equal = (cmp <= 0); break;
-					case PM_DEP_MOD_LT: equal = (cmp < 0); break;
-					case PM_DEP_MOD_GT: equal = (cmp > 0); break;
-					default: equal = 1; break;
-				}
-			}
-
-		switch(dep->mod) {
-			case PM_DEP_MOD_EQ: mod = "=="; break;
-			case PM_DEP_MOD_GE: mod = ">="; break;
-			case PM_DEP_MOD_LE: mod = "<="; break;
-			case PM_DEP_MOD_LT: mod = "<"; break;
-			case PM_DEP_MOD_GT: mod = ">"; break;
-			default: break;
-		}
-
-		if(strlen(dep->version) > 0) {
-			_pacman_log(PM_LOG_DEBUG, _("depcmp: %s-%s %s %s-%s => %s"),
-								_pacman_pkg_getinfo(pkg, PM_PKG_NAME), _pacman_pkg_getinfo(pkg, PM_PKG_NAME),
-								mod, dep->name, dep->version,
-								(equal ? "match" : "no match"));
-		} else {
-			_pacman_log(PM_LOG_DEBUG, _("depcmp: %s-%s %s %s => %s"),
-								_pacman_pkg_getinfo(pkg, PM_PKG_NAME), _pacman_pkg_getinfo(pkg, PM_PKG_VERSION),
-								mod, dep->name,
-								(equal ? "match" : "no match"));
-		}
-	}
-
-	return equal;
-}
 /* vim: set ts=2 sw=2 noet: */
