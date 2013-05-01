@@ -62,48 +62,58 @@ static void _pacman_graph_free(void *data)
 static
 int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep)
 {
-	int equal = 0, cmp;
+	int cmp = 1;
 	const char *mod = "~=";
 
-	if(strcmp(pkg->name, dep->name) == 0
-		|| f_stringlist_find (_pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES), dep->name)) {
-			if(dep->mod == PM_DEP_MOD_ANY) {
-				equal = 1;
-			} else {
-				cmp = _pacman_versioncmp(_pacman_pkg_getinfo(pkg, PM_PKG_VERSION), dep->version);
-				switch(dep->mod) {
-					case PM_DEP_MOD_EQ: equal = (cmp == 0); break;
-					case PM_DEP_MOD_GE: equal = (cmp >= 0); break;
-					case PM_DEP_MOD_LE: equal = (cmp <= 0); break;
-					case PM_DEP_MOD_LT: equal = (cmp < 0); break;
-					case PM_DEP_MOD_GT: equal = (cmp > 0); break;
-					default: equal = 1; break;
-				}
-			}
-
-		switch(dep->mod) {
-			case PM_DEP_MOD_EQ: mod = "=="; break;
-			case PM_DEP_MOD_GE: mod = ">="; break;
-			case PM_DEP_MOD_LE: mod = "<="; break;
-			case PM_DEP_MOD_LT: mod = "<"; break;
-			case PM_DEP_MOD_GT: mod = ">"; break;
-			default: break;
-		}
-
-		if(strlen(dep->version) > 0) {
-			_pacman_log(PM_LOG_DEBUG, _("depcmp: %s-%s %s %s-%s => %s"),
-								_pacman_pkg_getinfo(pkg, PM_PKG_NAME), _pacman_pkg_getinfo(pkg, PM_PKG_NAME),
-								mod, dep->name, dep->version,
-								(equal ? "match" : "no match"));
+	if (strcmp(pkg->name, dep->name) == 0) {
+		if(dep->mod == PM_DEP_MOD_ANY) {
+			cmp = 0;
 		} else {
-			_pacman_log(PM_LOG_DEBUG, _("depcmp: %s-%s %s %s => %s"),
-								_pacman_pkg_getinfo(pkg, PM_PKG_NAME), _pacman_pkg_getinfo(pkg, PM_PKG_VERSION),
-								mod, dep->name,
-								(equal ? "match" : "no match"));
+			int equal;
+
+			/* check for a release in depend.version. if it's
+			 * missing remove it from p->version as well.
+			 */
+			cmp = _pacman_versioncmp(_pacman_pkg_getinfo(pkg, PM_PKG_VERSION), dep->version);
+			switch(dep->mod) {
+				case PM_DEP_MOD_EQ: equal = (cmp == 0); break;
+				case PM_DEP_MOD_GE: equal = (cmp >= 0); break;
+				case PM_DEP_MOD_LE: equal = (cmp <= 0); break;
+				case PM_DEP_MOD_LT: equal = (cmp < 0); break;
+				case PM_DEP_MOD_GT: equal = (cmp > 0); break;
+				default: equal = 1; break;
+			}
+			cmp = !equal; /* reverse test so 0 means success */
 		}
+	} else if (f_stringlist_find (_pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES), dep->name) != NULL) {
+		/* accepts any version for provides */
+		cmp = 0;
+	} else {
+		return 1;
 	}
 
-	return equal;
+	switch(dep->mod) {
+		case PM_DEP_MOD_EQ: mod = "=="; break;
+		case PM_DEP_MOD_GE: mod = ">="; break;
+		case PM_DEP_MOD_LE: mod = "<="; break;
+		case PM_DEP_MOD_LT: mod = "<"; break;
+		case PM_DEP_MOD_GT: mod = ">"; break;
+		default: break;
+	}
+
+	if(strlen(dep->version) > 0) {
+		_pacman_log(PM_LOG_DEBUG, _("depcmp: %s-%s %s %s-%s => %s"),
+							_pacman_pkg_getinfo(pkg, PM_PKG_NAME), _pacman_pkg_getinfo(pkg, PM_PKG_NAME),
+							mod, dep->name, dep->version,
+							(cmp == 0 ? "match" : "no match"));
+	} else {
+		_pacman_log(PM_LOG_DEBUG, _("depcmp: %s-%s %s %s => %s"),
+							_pacman_pkg_getinfo(pkg, PM_PKG_NAME), _pacman_pkg_getinfo(pkg, PM_PKG_VERSION),
+							mod, dep->name,
+							(cmp == 0 ? "match" : "no match"));
+	}
+
+	return cmp;
 }
 
 pmdepmissing_t *_pacman_depmiss_new(const char *target, unsigned char type, unsigned char depmod,
@@ -192,7 +202,7 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 			for(k = _pacman_pkg_getinfo(p_i, PM_PKG_DEPENDS); k && !child; k = k->next) {
 				pmdepend_t depend;
 				_pacman_splitdep(k->data, &depend);
-				child = _pacman_depcmp(p_j, &depend);
+				child = _pacman_depcmp(p_j, &depend) == 0;
 			}
 			if(child) {
 				vertex_i->children = _pacman_list_add(vertex_i->children, vertex_j);
@@ -297,7 +307,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				for(k = _pacman_pkg_getinfo(p, PM_PKG_DEPENDS); k; k = k->next) {
 					/* don't break any existing dependencies (possible provides) */
 					_pacman_splitdep(k->data, &depend);
-					if(_pacman_depcmp(oldpkg, &depend) && !_pacman_depcmp(tp, &depend)) {
+					if(_pacman_depcmp(oldpkg, &depend) == 0 && _pacman_depcmp(tp, &depend) != 0) {
 						_pacman_log(PM_LOG_DEBUG, _("checkdeps: updated '%s' won't satisfy a dependency of '%s'"),
 								oldpkg->name, p->name);
 						miss = _pacman_depmiss_new(p->name, PM_DEP_TYPE_DEPEND, depend.mod,
@@ -320,30 +330,8 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				/* check database for literal packages */
 				for(k = _pacman_db_get_pkgcache(db); k && !found; k = k->next) {
 					pmpkg_t *p = (pmpkg_t *)k->data;
-					if(!strcmp(p->name, depend.name)) {
-						if(depend.mod == PM_DEP_MOD_ANY) {
-							/* accept any version */
-							found = 1;
-						} else {
-							char *ver = strdup(p->version);
-							/* check for a release in depend.version.  if it's
-							 * missing remove it from p->version as well.
-							 */
-							if(!index(depend.version,'-')) {
-								char *ptr;
-								for(ptr = ver; *ptr != '-'; ptr++);
-								*ptr = '\0';
-							}
-							cmp = _pacman_versioncmp(ver, depend.version);
-							switch(depend.mod) {
-								case PM_DEP_MOD_EQ: found = (cmp == 0); break;
-								case PM_DEP_MOD_GE: found = (cmp >= 0); break;
-								case PM_DEP_MOD_LE: found = (cmp <= 0); break;
-								case PM_DEP_MOD_LT: found = (cmp < 0); break;
-								case PM_DEP_MOD_GT: found = (cmp > 0); break;
-							}
-							FREE(ver);
-						}
+					if (_pacman_depcmp(p, &depend) == 0) {
+						found = 1;
 					}
 				}
  				/* check database for provides matches */
@@ -368,62 +356,19 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
  							continue;
  						}
 
-						if(depend.mod == PM_DEP_MOD_ANY) {
-							/* accept any version */
+						if (_pacman_depcmp(p, &depend) == 0) {
 							found = 1;
-						} else {
-							char *ver = strdup(p->version);
-							/* check for a release in depend.version.  if it's
-							 * missing remove it from p->version as well.
-							 */
-							if(!index(depend.version,'-')) {
-								char *ptr;
-								for(ptr = ver; *ptr != '-'; ptr++);
-								*ptr = '\0';
-							}
-							cmp = _pacman_versioncmp(ver, depend.version);
-							switch(depend.mod) {
-								case PM_DEP_MOD_EQ: found = (cmp == 0); break;
-								case PM_DEP_MOD_GE: found = (cmp >= 0); break;
-								case PM_DEP_MOD_LE: found = (cmp <= 0); break;
-								case PM_DEP_MOD_LT: found = (cmp < 0); break;
-								case PM_DEP_MOD_GT: found = (cmp > 0); break;
-							}
-							FREE(ver);
 						}
 					}
 					FREELISTPTR(k);
 				}
- 				/* check other targets */
- 				for(k = packages; k && !found; k = k->next) {
- 					pmpkg_t *p = (pmpkg_t *)k->data;
- 					/* see if the package names match OR if p provides depend.name */
- 					if(!strcmp(p->name, depend.name) || f_stringlist_find (_pacman_pkg_getinfo(p, PM_PKG_PROVIDES), depend.name)) {
-						if(depend.mod == PM_DEP_MOD_ANY ||
-								f_stringlist_find (_pacman_pkg_getinfo(p, PM_PKG_PROVIDES), depend.name)) {
-							/* depend accepts any version or p provides depend (provides - by
-							 * definition - is for all versions) */
-							found = 1;
-						} else {
-							char *ver = strdup(p->version);
-							/* check for a release in depend.version.  if it's
-							 * missing remove it from p->version as well.
-							 */
-							if(!index(depend.version,'-')) {
-								char *ptr;
-								for(ptr = ver; *ptr != '-'; ptr++);
-								*ptr = '\0';
-							}
-							cmp = _pacman_versioncmp(ver, depend.version);
-							switch(depend.mod) {
-								case PM_DEP_MOD_EQ: found = (cmp == 0); break;
-								case PM_DEP_MOD_GE: found = (cmp >= 0); break;
-								case PM_DEP_MOD_LE: found = (cmp <= 0); break;
-								case PM_DEP_MOD_LT: found = (cmp < 0); break;
-								case PM_DEP_MOD_GT: found = (cmp > 0); break;
-							}
-							FREE(ver);
-						}
+				/* check other targets */
+				for(k = packages; k && !found; k = k->next) {
+					pmpkg_t *p = (pmpkg_t *)k->data;
+
+					/* see if the package names match OR if p provides depend.name */
+					if (_pacman_depcmp(p, &depend) == 0) {
+						found = 1;
 					}
 				}
 				/* else if still not found... */
