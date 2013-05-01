@@ -51,7 +51,7 @@ pmdepmissing_t *_pacman_depmiss_new(const char *target, unsigned char type, unsi
 int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack);
 pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode);
 pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packages);
-int _pacman_splitdep(char *depstr, pmdepend_t *depend);
+int _pacman_splitdep(const char *depstr, pmdepend_t *depend);
 void _pacman_removedeps(pmtrans_t *trans);
 int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t *list,
                 pmlist_t *trail, pmlist_t **data);

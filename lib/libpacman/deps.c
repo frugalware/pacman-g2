@@ -59,6 +59,53 @@ static void _pacman_graph_free(void *data)
 	FREE(graph);
 }
 
+int _pacman_splitdep(const char *depstr, pmdepend_t *depend)
+{
+	char *str = NULL;
+	char *ptr = NULL;
+
+	if(depstr == NULL || depend == NULL) {
+		return(-1);
+	}
+
+	depend->mod = 0;
+	depend->name[0] = 0;
+	depend->version[0] = 0;
+
+	str = strdup(depstr);
+
+	if((ptr = strstr(str, ">="))) {
+		depend->mod = PM_DEP_MOD_GE;
+	} else if((ptr = strstr(str, "<="))) {
+		depend->mod = PM_DEP_MOD_LE;
+	} else if((ptr = strstr(str, "="))) {
+		depend->mod = PM_DEP_MOD_EQ;
+	} else if((ptr = strstr(str, "<"))) {
+		depend->mod = PM_DEP_MOD_LT;
+	} else if((ptr = strstr(str, ">"))) {
+		depend->mod = PM_DEP_MOD_GT;
+	} else {
+		/* no version specified - accept any */
+		depend->mod = PM_DEP_MOD_ANY;
+		STRNCPY(depend->name, str, PKG_NAME_LEN);
+	}
+
+	if(ptr == NULL) {
+		FREE(str);
+		return(0);
+	}
+	*ptr = '\0';
+	STRNCPY(depend->name, str, PKG_NAME_LEN);
+	ptr++;
+	if(depend->mod == PM_DEP_MOD_GE || depend->mod == PM_DEP_MOD_LE) {
+		ptr++;
+	}
+	STRNCPY(depend->version, ptr, PKG_VERSION_LEN);
+	FREE(str);
+
+	return(0);
+}
+
 static
 int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep)
 {
@@ -411,53 +458,6 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 	}
 
 	return(baddeps);
-}
-
-int _pacman_splitdep(char *depstr, pmdepend_t *depend)
-{
-	char *str = NULL;
-	char *ptr = NULL;
-
-	if(depstr == NULL || depend == NULL) {
-		return(-1);
-	}
-
-	depend->mod = 0;
-	depend->name[0] = 0;
-	depend->version[0] = 0;
-
-	str = strdup(depstr);
-
-	if((ptr = strstr(str, ">="))) {
-		depend->mod = PM_DEP_MOD_GE;
-	} else if((ptr = strstr(str, "<="))) {
-		depend->mod = PM_DEP_MOD_LE;
-	} else if((ptr = strstr(str, "="))) {
-		depend->mod = PM_DEP_MOD_EQ;
-	} else if((ptr = strstr(str, "<"))) {
-		depend->mod = PM_DEP_MOD_LT;
-	} else if((ptr = strstr(str, ">"))) {
-		depend->mod = PM_DEP_MOD_GT;
-	} else {
-		/* no version specified - accept any */
-		depend->mod = PM_DEP_MOD_ANY;
-		STRNCPY(depend->name, str, PKG_NAME_LEN);
-	}
-
-	if(ptr == NULL) {
-		FREE(str);
-		return(0);
-	}
-	*ptr = '\0';
-	STRNCPY(depend->name, str, PKG_NAME_LEN);
-	ptr++;
-	if(depend->mod == PM_DEP_MOD_GE || depend->mod == PM_DEP_MOD_LE) {
-		ptr++;
-	}
-	STRNCPY(depend->version, ptr, PKG_VERSION_LEN);
-	FREE(str);
-
-	return(0);
 }
 
 /* return a new pmlist_t target list containing all packages in the original
