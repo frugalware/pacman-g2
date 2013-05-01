@@ -41,7 +41,6 @@ enum {
 };
 
 typedef struct __pmtrans_ops_t {
-	int (*prepare)(pmtrans_t *trans, pmlist_t **data);
 	int (*commit)(pmtrans_t *trans, pmlist_t **data);
 } pmtrans_ops_t;
 
