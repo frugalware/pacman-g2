@@ -107,7 +107,7 @@ int _pacman_splitdep(const char *depstr, pmdepend_t *depend)
 }
 
 static
-int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep)
+int _pacman_pkg_is_depend_satisfied (pmpkg_t *pkg, pmdepend_t *dep)
 {
 	int cmp = 1;
 	const char *mod = "~=";
@@ -161,6 +161,43 @@ int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep)
 	}
 
 	return cmp;
+}
+
+static
+int _pacman_transpkg_is_depend_satisfied (pmtranspkg_t *transpkg, pmdepend_t *depend) {
+	if (transpkg->type & PM_TRANS_TYPE_ADD &&
+			_pacman_pkg_is_depend_satisfied (transpkg->pkg_new, depend) == 0) {
+		return 0;
+	}
+	return 1;
+}
+
+static
+int _pacman_trans_is_depend_satisfied (pmtrans_t *trans, pmdepend_t *depend) {
+	pmlist_t *i;
+	pmtranspkg_t *transpkg = __pacman_trans_get_trans_pkg (trans, depend->name);
+
+	/* Check against named depend in transaction list if it's not removed */
+	if (transpkg != NULL &&
+			transpkg->type != PM_TRANS_TYPE_REMOVE) {
+		return _pacman_transpkg_is_depend_satisfied (transpkg, depend);
+	}
+
+	/* Else check transaction for provides */
+	if (f_list_detect (trans->packages, (FDetectFunc)_pacman_transpkg_is_depend_satisfied, depend) != NULL) {
+		return 0;
+	}
+
+	/* Else check local database for provides excluding packages in transaction */
+	for(i = _pacman_db_get_pkgcache(trans->handle->db_local); i != NULL; i = i->next) {
+		pmpkg_t *pkg = i->data;
+
+		if (__pacman_trans_get_trans_pkg (trans, pkg->name) == NULL &&
+				_pacman_pkg_is_depend_satisfied (pkg, depend) == 0) {
+			return 0;
+		}
+	}
+	return 1;
 }
 
 pmdepmissing_t *_pacman_depmiss_new(const char *target, unsigned char type, unsigned char depmod,
@@ -249,7 +286,7 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 			for(k = _pacman_pkg_getinfo(p_i, PM_PKG_DEPENDS); k && !child; k = k->next) {
 				pmdepend_t depend;
 				_pacman_splitdep(k->data, &depend);
-				child = _pacman_depcmp(p_j, &depend) == 0;
+				child = _pacman_pkg_is_depend_satisfied (p_j, &depend) == 0;
 			}
 			if(child) {
 				vertex_i->children = _pacman_list_add(vertex_i->children, vertex_j);
@@ -314,7 +351,6 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 {
 	pmdepend_t depend;
 	pmlist_t *i, *j, *k;
-	int cmp;
 	int found = 0;
 	pmlist_t *baddeps = NULL;
 	pmdepmissing_t *miss = NULL;
@@ -326,10 +362,24 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 
 	for (i = packages; i; i = i->next) {
 		pmpkg_t *tp = i->data;
-		if(tp == NULL) {
-			continue;
-		}
 
+		if(op & PM_TRANS_TYPE_ADD) {
+			/* DEPENDENCIES -- look for unsatisfied dependencies */
+			for(j = _pacman_pkg_getinfo(tp, PM_PKG_DEPENDS); j; j = j->next) {
+				/* split into name/version pairs */
+				_pacman_splitdep((char *)j->data, &depend);
+				if(_pacman_trans_is_depend_satisfied(trans, &depend) != 0) {
+					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s as a dependency for %s"),
+					          depend.name, tp->name);
+					miss = _pacman_depmiss_new(tp->name, PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
+					if(!_pacman_depmiss_isin(miss, baddeps)) {
+						baddeps = _pacman_list_add(baddeps, miss);
+					} else {
+						FREE(miss);
+					}
+				}
+			}
+		}
 		if(op == PM_TRANS_TYPE_UPGRADE) {
 			/* PM_TRANS_TYPE_UPGRADE handles the backwards dependencies, ie, the packages
 			 * listed in the requiredby field.
@@ -354,7 +404,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				for(k = _pacman_pkg_getinfo(p, PM_PKG_DEPENDS); k; k = k->next) {
 					/* don't break any existing dependencies (possible provides) */
 					_pacman_splitdep(k->data, &depend);
-					if(_pacman_depcmp(oldpkg, &depend) == 0 && _pacman_depcmp(tp, &depend) != 0) {
+					if (_pacman_pkg_is_depend_satisfied (oldpkg, &depend) == 0 && _pacman_pkg_is_depend_satisfied (tp, &depend) != 0) {
 						_pacman_log(PM_LOG_DEBUG, _("checkdeps: updated '%s' won't satisfy a dependency of '%s'"),
 								oldpkg->name, p->name);
 						miss = _pacman_depmiss_new(p->name, PM_DEP_TYPE_DEPEND, depend.mod,
@@ -368,69 +418,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				}
 			}
 		}
-		if(op == PM_TRANS_TYPE_ADD || op == PM_TRANS_TYPE_UPGRADE) {
-			/* DEPENDENCIES -- look for unsatisfied dependencies */
-			for(j = _pacman_pkg_getinfo(tp, PM_PKG_DEPENDS); j; j = j->next) {
-				/* split into name/version pairs */
-				_pacman_splitdep((char *)j->data, &depend);
-				found = 0;
-				/* check database for literal packages */
-				for(k = _pacman_db_get_pkgcache(db); k && !found; k = k->next) {
-					pmpkg_t *p = (pmpkg_t *)k->data;
-					if (_pacman_depcmp(p, &depend) == 0) {
-						found = 1;
-					}
-				}
- 				/* check database for provides matches */
- 				if(!found) {
- 					pmlist_t *m;
- 					k = _pacman_db_whatprovides(db, depend.name);
- 					for(m = k; m && !found; m = m->next) {
- 						/* look for a match that isn't one of the packages we're trying
- 						 * to install.  this way, if we match against a to-be-installed
- 						 * package, we'll defer to the NEW one, not the one already
- 						 * installed. */
- 						pmpkg_t *p = m->data;
- 						pmlist_t *n;
- 						int skip = 0;
- 						for(n = packages; n && !skip; n = n->next) {
- 							pmpkg_t *ptp = n->data;
- 							if(!strcmp(ptp->name, p->name)) {
- 								skip = 1;
- 							}
- 						}
- 						if(skip) {
- 							continue;
- 						}
-
-						if (_pacman_depcmp(p, &depend) == 0) {
-							found = 1;
-						}
-					}
-					FREELISTPTR(k);
-				}
-				/* check other targets */
-				for(k = packages; k && !found; k = k->next) {
-					pmpkg_t *p = (pmpkg_t *)k->data;
-
-					/* see if the package names match OR if p provides depend.name */
-					if (_pacman_depcmp(p, &depend) == 0) {
-						found = 1;
-					}
-				}
-				/* else if still not found... */
-				if(!found) {
-					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s as a dependency for %s"),
-					          depend.name, tp->name);
-					miss = _pacman_depmiss_new(tp->name, PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
-					if(!_pacman_depmiss_isin(miss, baddeps)) {
-						baddeps = _pacman_list_add(baddeps, miss);
-					} else {
-						FREE(miss);
-					}
-				}
-			}
-		} else if(op == PM_TRANS_TYPE_REMOVE) {
+		if(op == PM_TRANS_TYPE_REMOVE) {
 			/* check requiredby fields */
 			found=0;
 			for(j = _pacman_pkg_getinfo(tp, PM_PKG_REQUIREDBY); j; j = j->next) {
