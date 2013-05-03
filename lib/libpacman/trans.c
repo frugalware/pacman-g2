@@ -620,14 +620,7 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 			/* add the dependencies found by resolvedeps to the transaction set */
 			pmpkg_t *spkg = i->data;
 			if(!__pacman_trans_get_trans_pkg(trans, spkg->name)) {
-				pmsyncpkg_t *ps = __pacman_trans_pkg_new(PM_TRANS_TYPE_ADD, spkg);
-				if(ps == NULL) {
-					ret = -1;
-					goto cleanup;
-				}
-				trans->packages = _pacman_list_add(trans->packages, ps);
-				_pacman_log(PM_LOG_FLOW2, _("adding package %s-%s to the transaction targets"),
-						spkg->name, spkg->version);
+				_pacman_trans_add_pkg (trans, spkg, PM_TRANS_TYPE_UPGRADE, 0);
 			} else {
 				/* remove the original targets from the list if requested */
 				if((trans->flags & PM_TRANS_FLAG_DEPENDSONLY)) {

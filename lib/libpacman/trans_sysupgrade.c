@@ -186,17 +186,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 		} else {
 			_pacman_log(PM_LOG_FLOW2, _("%s-%s elected for upgrade (%s => %s)"),
 				local->name, local->version, local->version, spkg->version);
-			/* check if spkg->name is already in the packages list. */
-			if(!__pacman_trans_get_trans_pkg(trans, spkg->name)) {
-				ps = __pacman_trans_pkg_new (PM_TRANS_TYPE_UPGRADE, spkg);
-				if(ps == NULL) {
-					goto error;
-				}
-				ps->pkg_local = local;
-				trans->packages = _pacman_list_add(trans->packages, ps);
-			} else {
-				/* spkg->name is already in the packages list -- just ignore it */
-			}
+			_pacman_trans_add_pkg (trans, spkg, PM_TRANS_TYPE_UPGRADE, 0);
 		}
 	}
 
