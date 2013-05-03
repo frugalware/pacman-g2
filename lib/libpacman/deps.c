@@ -362,6 +362,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 
 	for (i = packages; i; i = i->next) {
 		pmpkg_t *tp = i->data;
+		const char *pkg_name = tp->name;
 
 		if(op & PM_TRANS_TYPE_ADD) {
 			/* DEPENDENCIES -- look for unsatisfied dependencies */
@@ -370,8 +371,8 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				_pacman_splitdep((char *)j->data, &depend);
 				if(_pacman_trans_is_depend_satisfied(trans, &depend) != 0) {
 					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s as a dependency for %s"),
-					          depend.name, tp->name);
-					miss = _pacman_depmiss_new(tp->name, PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
+					          depend.name, pkg_name);
+					miss = _pacman_depmiss_new(pkg_name, PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
 					if(!_pacman_depmiss_isin(miss, baddeps)) {
 						baddeps = _pacman_list_add(baddeps, miss);
 					} else {
@@ -386,7 +387,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 			 */
 			pmpkg_t *oldpkg;
 
-			if((oldpkg = _pacman_db_get_pkgfromcache(db, tp->name)) == NULL) {
+			if((oldpkg = _pacman_db_get_pkgfromcache(db, pkg_name)) == NULL) {
 				continue;
 			}
 			for(j = _pacman_pkg_getinfo(oldpkg, PM_PKG_REQUIREDBY); j; j = j->next) {
@@ -427,13 +428,13 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 					for (k = trans->packages; !found && k; k = k->next) {
 						pmsyncpkg_t *ps = k->data;
 						pmpkg_t *spkg = ps->pkg_new;
-						if(spkg && f_stringlist_find (_pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES), tp->name)) {
+						if(spkg && f_stringlist_find (_pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES), pkg_name)) {
 							found=1;
 						}
 					}
 					if(!found) {
-						_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s which requires %s"), (char *)j->data, tp->name);
-						miss = _pacman_depmiss_new(tp->name, PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, j->data, NULL);
+						_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s which requires %s"), (char *)j->data, pkg_name);
+						miss = _pacman_depmiss_new (pkg_name, PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, j->data, NULL);
 						if(!_pacman_depmiss_isin(miss, baddeps)) {
 							baddeps = _pacman_list_add(baddeps, miss);
 						} else {
