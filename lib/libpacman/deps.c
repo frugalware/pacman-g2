@@ -351,7 +351,6 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 {
 	pmdepend_t depend;
 	pmlist_t *i, *j, *k;
-	int found = 0;
 	pmlist_t *baddeps = NULL;
 	pmdepmissing_t *miss = NULL;
 	pmdb_t *db = trans->handle->db_local;
@@ -391,17 +390,21 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				continue;
 			}
 			for(j = _pacman_pkg_getinfo(oldpkg, PM_PKG_REQUIREDBY); j; j = j->next) {
-				//char *ver;
+				pmtranspkg_t *requiredtranspkg = __pacman_trans_get_trans_pkg (trans, (const char *)j->data);
 				pmpkg_t *p;
-				found = 0;
+				int found = 0;
+
+				if (requiredtranspkg != NULL &&
+						requiredtranspkg->type & PM_TRANS_TYPE_ADD) {
+					/* this package is also in the upgrade list, so don't worry about it */
+					continue;
+				}
+
 				if((p = _pacman_db_get_pkgfromcache(db, j->data)) == NULL) {
 					/* hmmm... package isn't installed.. */
 					continue;
 				}
-				if(_pacman_pkg_isin(p->name, packages)) {
-					/* this package is also in the upgrade list, so don't worry about it */
-					continue;
-				}
+
 				for(k = _pacman_pkg_getinfo(p, PM_PKG_DEPENDS); k; k = k->next) {
 					/* don't break any existing dependencies (possible provides) */
 					_pacman_splitdep(k->data, &depend);
@@ -421,9 +424,9 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 		}
 		if(op == PM_TRANS_TYPE_REMOVE) {
 			/* check requiredby fields */
-			found=0;
 			for(j = _pacman_pkg_getinfo(tp, PM_PKG_REQUIREDBY); j; j = j->next) {
 				pmtranspkg_t *requiredtranspkg = __pacman_trans_get_trans_pkg (trans, (const char *)j->data);
+				int found = 0;
 
 				/* Ignore required packages to be deleted */
 				if (requiredtranspkg != NULL &&
