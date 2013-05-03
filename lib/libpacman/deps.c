@@ -423,21 +423,27 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 			/* check requiredby fields */
 			found=0;
 			for(j = _pacman_pkg_getinfo(tp, PM_PKG_REQUIREDBY); j; j = j->next) {
-				if(f_stringlist_find (packages, (char *)j->data) != NULL) {
+				pmtranspkg_t *requiredtranspkg = __pacman_trans_get_trans_pkg (trans, (const char *)j->data);
+
+				/* Ignore required packages to be deleted */
+				if (requiredtranspkg != NULL &&
+						requiredtranspkg->type == PM_TRANS_TYPE_REMOVE) {
 					continue;
 				}
+
 				/* check if a package in trans->packages provides this package */
 				for (k = trans->packages; !found && k; k = k->next) {
 					pmsyncpkg_t *ps = k->data;
 					pmpkg_t *spkg = ps->pkg_new;
-					if(spkg && f_stringlist_find (_pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES), pkg_name)) {
+					if (spkg && f_stringlist_find (_pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES), pkg_name)) {
 						found=1;
 					}
 				}
+
 				if(!found) {
 					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s which requires %s"), (char *)j->data, pkg_name);
 					miss = _pacman_depmiss_new (pkg_name, PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, j->data, NULL);
-					if(!_pacman_depmiss_isin(miss, baddeps)) {
+					if (!_pacman_depmiss_isin(miss, baddeps)) {
 						baddeps = _pacman_list_add(baddeps, miss);
 					} else {
 						FREE(miss);
