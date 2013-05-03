@@ -308,16 +308,12 @@ int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 				_pacman_log (PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
 						transpkg_in->pkg_new->name, transpkg_in->pkg_new->version, transpkg->pkg_new->version);
 				f_list_find (trans->_packages, transpkg_in->pkg_new)->data = transpkg->pkg_new;
-				FREEPKG(transpkg_in->pkg_new);
-				transpkg_in->pkg_new = transpkg->pkg_new;
-				/* FIXME: use
 				f_ptrswap (&transpkg_in->pkg_new, &transpkg->pkg_new);
-				__pacman_trans_pkg_delete (transpkg);
-				*/
 			} else {
 				_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
 						transpkg_in->pkg_new->name, transpkg_in->pkg_new->version, transpkg->pkg_new->version);
 			}
+			__pacman_trans_pkg_delete (transpkg);
 			return 0;
 		}
 
@@ -325,6 +321,7 @@ int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 		if (transpkg_in->type == PM_TRANS_TYPE_REMOVE &&
 				transpkg->type == PM_TRANS_TYPE_REMOVE) {
 			_pacman_log(PM_LOG_DEBUG, _("%s transpkg removal compressed"), transpkg_name);
+			__pacman_trans_pkg_delete (transpkg);
 			return 0;
 		}
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
@@ -430,7 +427,7 @@ int _pacman_trans_add_pkg (pmtrans_t *trans, pmpkg_t *pkg, pmtranstype_t type, u
 
 	ret = _pacman_trans_add (trans, transpkg);
 	if (ret != 0) {
-		__pacman_trans_pkg_delete(transpkg);
+		__pacman_trans_pkg_delete (transpkg);
 	}
 	return ret;
 }
