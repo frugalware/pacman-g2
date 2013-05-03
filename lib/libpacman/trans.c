@@ -294,15 +294,16 @@ error:
 
 static
 int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
-	const char *pkgname;
+	const char *transpkg_name = __pacman_transpkg_name (transpkg);
 	pmtranspkg_t *transpkg_in;
 
-	pkgname = __pacman_transpkg_name (transpkg);
-	/* Check if an older version of said package is already in transaction packages. */
-	if ((transpkg_in = __pacman_trans_get_trans_pkg(trans, pkgname)) != NULL) {
-		/* if so, replace it in the list */
-		/* FIXME: check that transtype are equivalent */
-		if (trans->type & PM_TRANS_TYPE_ADD) {
+	/* Check if an transaction packages already exist for the same package,
+	 * and if so try to compress it */
+	if ((transpkg_in = __pacman_trans_get_trans_pkg(trans, transpkg_name)) != NULL) {
+		/* If both transpkg tries to install (or upgrade), let's compress the transpkg. */
+		/* FIXME: do something with transpkg->flags */
+		if (transpkg_in->type & PM_TRANS_TYPE_ADD &&
+				transpkg->type & PM_TRANS_TYPE_ADD) {
 			if (_pacman_versioncmp(transpkg_in->pkg_new->version, transpkg->pkg_new->version) < 0) {
 				_pacman_log (PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
 						transpkg_in->pkg_new->name, transpkg_in->pkg_new->version, transpkg->pkg_new->version);
@@ -319,18 +320,33 @@ int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 			}
 			return 0;
 		}
+
+		/* If both transpkg tries to remove (and not upgrade), let's compress the transpkg. */
+		if (transpkg_in->type == PM_TRANS_TYPE_REMOVE &&
+				transpkg->type == PM_TRANS_TYPE_REMOVE) {
+			_pacman_log(PM_LOG_DEBUG, _("%s transpkg removal compressed"), transpkg_name);
+			return 0;
+		}
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
-	} else {
-		_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), pkgname);
-		trans->packages = _pacman_list_add(trans->packages, transpkg);
-		trans->_packages = _pacman_list_add(trans->_packages, transpkg->pkg_new != NULL ? transpkg->pkg_new : transpkg->pkg_local);
 	}
 
 	if (transpkg->type & PM_TRANS_TYPE_ADD) {
-		/* copy over the install reason */
+		/* Ensure pkg_local is filled */
+		if (transpkg->pkg_local == NULL) {
+			transpkg->pkg_local = _pacman_db_scan(trans->handle->db_local, transpkg_name, INFRQ_ALL);
+//			trans_pkg->pkg_local = _pacman_db_get_pkgfromcache(db_local, _pacman_pkg_getinfo(trans_pkg->pkg_new, PM_PKG_NAME));
+		}
+
 		if (transpkg->pkg_local != NULL) {
+			/* Only install this package if it is not already installed */
+			if (transpkg->type == PM_TRANS_TYPE_ADD) {
+				RET_ERR(PM_ERR_PKG_INSTALLED, -1);
+			}
+
+			/* Copy over the install reason */
 			transpkg->pkg_new->reason = (long)_pacman_pkg_getinfo(transpkg->pkg_local, PM_PKG_REASON);
 		}
+
 		if (trans->flags & PM_TRANS_FLAG_ALLDEPS) {
 			transpkg->pkg_new->reason = PM_PKG_REASON_DEPEND;
 		}
@@ -338,6 +354,47 @@ int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 			transpkg->pkg_new->reason = PM_PKG_REASON_EXPLICIT;
 		}
 	}
+
+	/* Check if it is really a upgrade and not an install */
+	if (transpkg->type == PM_TRANS_TYPE_UPGRADE &&
+			transpkg->pkg_local == NULL) {
+		if (trans->flags & PM_TRANS_FLAG_FRESHEN) {
+			RET_ERR(PM_ERR_PKG_CANT_FRESH, -1);
+		}
+		_pacman_log(PM_LOG_DEBUG, _("promote target '%s' from upgrade to install"), transpkg_name);
+		transpkg->type = PM_TRANS_TYPE_ADD;
+	}
+
+	if (transpkg->type == PM_TRANS_TYPE_UPGRADE) {
+		int cmp = _pacman_versioncmp(transpkg->pkg_local->version, transpkg->pkg_new->version);
+
+		if (trans->flags & PM_TRANS_FLAG_FRESHEN &&
+				cmp >= 0) {
+			/* only upgrade/install this package if it is at a lesser version */
+			RET_ERR(PM_ERR_PKG_CANT_FRESH, -1);
+		}
+		if(cmp > 0) {
+			/* local version is newer -- get confirmation before adding */
+			int resp = 0;
+			QUESTION(trans, PM_TRANS_CONV_LOCAL_NEWER, transpkg->pkg_local, NULL, NULL, &resp);
+			if(!resp) {
+				_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), transpkg_name, transpkg->pkg_local->version);
+				return(0);
+			}
+		} else if(cmp == 0) {
+			/* versions are identical -- get confirmation before adding */
+			int resp = 0;
+			QUESTION(trans, PM_TRANS_CONV_LOCAL_UPTODATE, transpkg->pkg_local, NULL, NULL, &resp);
+			if(!resp) {
+				_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), transpkg_name, transpkg->pkg_local->version);
+				return(0);
+			}
+		}
+	}
+
+	_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), transpkg_name);
+	trans->packages = _pacman_list_add(trans->packages, transpkg);
+	trans->_packages = _pacman_list_add(trans->_packages, transpkg->pkg_new != NULL ? transpkg->pkg_new : transpkg->pkg_local);
 
 	return 0;
 }
@@ -365,7 +422,6 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 	}
 
 	if (type & PM_TRANS_TYPE_ADD) {
-		pmlist_t *i;
 		struct stat buf;
 
 		/* Check if we need to add a fake target to the transaction. */
@@ -415,45 +471,6 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 		if (trans_pkg->pkg_new == NULL) {
 			pm_errno = PM_ERR_PKG_NOT_FOUND;
 			goto error;
-		}
-
-		trans_pkg->pkg_local = _pacman_db_get_pkgfromcache(db_local, _pacman_pkg_getinfo(trans_pkg->pkg_new, PM_PKG_NAME));
-		if (trans_pkg->pkg_local != NULL) {
-			int cmp = _pacman_versioncmp(trans_pkg->pkg_local->version, trans_pkg->pkg_new->version);
-
-			if (type == PM_TRANS_TYPE_ADD) {
-				/* only install this package if it is not already installed */
-				pm_errno = PM_ERR_PKG_INSTALLED;
-				goto error;
-			}
-			if (trans->flags & PM_TRANS_FLAG_FRESHEN && cmp >= 0) {
-				/* only upgrade/install this package if it is at a lesser version */
-				pm_errno = PM_ERR_PKG_CANT_FRESH;
-				goto error;
-			}
-			if(cmp > 0) {
-				/* local version is newer -- get confirmation before adding */
-				int resp = 0;
-				QUESTION(trans, PM_TRANS_CONV_LOCAL_NEWER, trans_pkg->pkg_local, NULL, NULL, &resp);
-				if(!resp) {
-					_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), trans_pkg->pkg_local->name, trans_pkg->pkg_local->version);
-					return(0);
-				}
-			} else if(cmp == 0) {
-				/* versions are identical -- get confirmation before adding */
-				int resp = 0;
-				QUESTION(trans, PM_TRANS_CONV_LOCAL_UPTODATE, trans_pkg->pkg_local, NULL, NULL, &resp);
-				if(!resp) {
-					_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), trans_pkg->pkg_local->name, trans_pkg->pkg_local->version);
-					return(0);
-				}
-			}
-		} else {
-			if(trans->flags & PM_TRANS_FLAG_FRESHEN) {
-				/* only upgrade/install this package if it is already installed */
-				pm_errno = PM_ERR_PKG_CANT_FRESH;
-				goto error;
-			}
 		}
 		goto out;
 	}
@@ -555,7 +572,6 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 	pmlist_t *i, *j, *k, *l, *m;
 	int ret = 0;
 	pmdb_t *db_local = trans->handle->db_local;
-	pmlist_t *dbs_sync = trans->handle->dbs_sync;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
