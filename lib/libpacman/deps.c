@@ -261,7 +261,7 @@ void _pacman_sortbydeps(pmtrans_t *trans, int mode)
 	int found;
 
 	if (trans->_packages == NULL) {
-		return(NULL);
+		return;
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("started sorting dependencies"));
@@ -532,8 +532,7 @@ void _pacman_removedeps(pmtrans_t *trans)
  *
  * make sure *trail are already initialized
  */
-int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg,
-                      pmlist_t *trail, pmlist_t **data)
+int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t **data)
 {
 	pmlist_t *i, *j;
 	pmlist_t *targ;
@@ -597,14 +596,12 @@ int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg,
 			pm_errno = PM_ERR_UNSATISFIED_DEPS;
 			goto error;
 		}
-		if(_pacman_pkg_isin(ps->name, trans->_packages)) {
+		if (__pacman_trans_get_trans_pkg (trans, ps->name) != NULL) {
 			/* this dep is already in the target list */
 			_pacman_log(PM_LOG_DEBUG, _("dependency %s is already in the target list -- skipping"),
 			          ps->name);
 			continue;
-		}
-
-		if(!_pacman_pkg_isin(ps->name, trail)) {
+		} else {
 			/* check pmo_ignorepkg and pmo_s_ignore to make sure we haven't pulled in
 			 * something we're not supposed to.
 			 */
@@ -615,13 +612,12 @@ int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg,
 				FREEPKG(dummypkg);
 			}
 			if(usedep) {
-				trail = _pacman_list_add(trail, ps);
-				if(_pacman_resolvedeps(trans, ps, trail, data)) {
-					goto error;
-				}
 				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s (needed by %s)"),
 				          ps->name, syncpkg->name);
-				trans->_packages = _pacman_list_add(trans->_packages, ps);
+				_pacman_trans_add_pkg (trans, ps, PM_TRANS_TYPE_UPGRADE, 0);
+				if(_pacman_resolvedeps(trans, ps, data)) {
+					goto error;
+				}
 			} else {
 				_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\""), miss->target);
 				if(data) {
@@ -635,9 +631,6 @@ int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg,
 				pm_errno = PM_ERR_UNSATISFIED_DEPS;
 				goto error;
 			}
-		} else {
-			/* cycle detected -- skip it */
-			_pacman_log(PM_LOG_DEBUG, _("dependency cycle detected: %s"), ps->name);
 		}
 	}
 

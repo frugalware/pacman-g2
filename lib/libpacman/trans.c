@@ -568,7 +568,6 @@ static
 int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *deps = NULL;
-	pmlist_t *trail = NULL; /* breadcrum list to avoid running into circles */
 	pmlist_t *asked = NULL;
 	pmlist_t *i, *j, *k, *l, *m;
 	int ret = 0;
@@ -582,14 +581,12 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 	}
 
 	if(!(trans->flags & PM_TRANS_FLAG_NODEPS)) {
-		trail = f_list_new();
-
 		/* Resolve targets dependencies */
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 		for(i = trans->packages; i; i = i->next) {
 			pmpkg_t *spkg = ((pmsyncpkg_t *)i->data)->pkg_new;
-			if (_pacman_resolvedeps (trans, spkg, trail, data) == -1) {
+			if (_pacman_resolvedeps (trans, spkg, data) == -1) {
 				/* pm_errno is set by resolvedeps */
 				ret = -1;
 				goto cleanup;
@@ -625,8 +622,6 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 			ret = -1;
 			goto cleanup;
 		}
-
-		FREELISTPTR(trail);
 	}
 
 	if(!(trans->flags & PM_TRANS_FLAG_NOCONFLICTS)) {
@@ -897,7 +892,6 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 	check_olddelay();
 
 cleanup:
-	FREELISTPTR(trail);
 	FREELIST(asked);
 
 	return(ret);

@@ -53,8 +53,7 @@ void _pacman_sortbydeps(pmtrans_t *trans, int mode);
 pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packages);
 int _pacman_splitdep(const char *depstr, pmdepend_t *depend);
 void _pacman_removedeps(pmtrans_t *trans);
-int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg,
-                pmlist_t *trail, pmlist_t **data);
+int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t **data);
 
 #endif /* _PACMAN_DEPS_H */
 
