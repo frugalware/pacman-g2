@@ -115,24 +115,10 @@ int check_oldcache(pmtrans_t *trans)
 }
 
 pmsyncpkg_t *__pacman_trans_get_trans_pkg(pmtrans_t *trans, const char *package) {
-	pmlist_t *i;
-	pmsyncpkg_t *syncpkg;
-
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
 
-#if 1
-	for(i = trans->packages; i != NULL ; i = i->next) {
-		syncpkg = i->data;
-		if(syncpkg && __pacman_transpkg_detect_name (syncpkg, package) == 0) {
-			return(syncpkg);
-		}
-	}
-
-	return(NULL);
-#else
-	return f_list_detect (trans->packages, (FDetectFunc)__pacman_transpkg_detect_name, package);
-#endif
+	return f_list_get (f_list_detect (trans->packages, (FDetectFunc)__pacman_transpkg_detect_name, (void *)package));
 }
 
 static
