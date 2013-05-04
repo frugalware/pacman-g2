@@ -589,7 +589,7 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 		for(i = trans->packages; i; i = i->next) {
 			pmpkg_t *spkg = ((pmsyncpkg_t *)i->data)->pkg_new;
-			if (_pacman_resolvedeps (trans, spkg, trans->_packages, trail, data) == -1) {
+			if (_pacman_resolvedeps (trans, spkg, trail, data) == -1) {
 				/* pm_errno is set by resolvedeps */
 				ret = -1;
 				goto cleanup;
@@ -813,9 +813,9 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 		 * package that's in our final (upgrade) list.
 		 */
 		/*EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
-		if(trans->_packages) {
+		if (trans->_packages) {
 			_pacman_log(PM_LOG_FLOW1, _("checking dependencies of packages designated for removal"));
-			deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_REMOVE, trans->_packages);
+			deps = _pacman_checkdeps (trans, PM_TRANS_TYPE_REMOVE, trans->_packages);
 			if(deps) {
 				int errorout = 0;
 				for(i = deps; i; i = i->next) {

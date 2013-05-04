@@ -527,12 +527,12 @@ void _pacman_removedeps(pmtrans_t *trans)
 	}
 }
 
-/* populates *list with packages that need to be installed to satisfy all
+/* populates *trans with packages that need to be installed to satisfy all
  * dependencies (recursive) for syncpkg
  *
- * make sure *list and *trail are already initialized
+ * make sure *trail are already initialized
  */
-int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t *list,
+int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg,
                       pmlist_t *trail, pmlist_t **data)
 {
 	pmlist_t *i, *j;
@@ -557,7 +557,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t *list,
 		pmpkg_t *ps = NULL;
 
 		/* check if one of the packages in *list already provides this dependency */
-		for(j = list; j && !found; j = j->next) {
+		for(j = trans->_packages; j && !found; j = j->next) {
 			pmpkg_t *sp = (pmpkg_t *)j->data;
 			if(f_stringlist_find (_pacman_pkg_getinfo(sp, PM_PKG_PROVIDES), miss->depend.name)) {
 				_pacman_log(PM_LOG_DEBUG, _("%s provides dependency %s -- skipping"),
@@ -597,7 +597,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t *list,
 			pm_errno = PM_ERR_UNSATISFIED_DEPS;
 			goto error;
 		}
-		if(_pacman_pkg_isin(ps->name, list)) {
+		if(_pacman_pkg_isin(ps->name, trans->_packages)) {
 			/* this dep is already in the target list */
 			_pacman_log(PM_LOG_DEBUG, _("dependency %s is already in the target list -- skipping"),
 			          ps->name);
@@ -616,12 +616,12 @@ int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t *list,
 			}
 			if(usedep) {
 				trail = _pacman_list_add(trail, ps);
-				if(_pacman_resolvedeps(trans, ps, list, trail, data)) {
+				if(_pacman_resolvedeps(trans, ps, trail, data)) {
 					goto error;
 				}
 				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s (needed by %s)"),
 				          ps->name, syncpkg->name);
-				list = _pacman_list_add(list, ps);
+				trans->_packages = _pacman_list_add(trans->_packages, ps);
 			} else {
 				_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\""), miss->target);
 				if(data) {
