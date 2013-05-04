@@ -1010,10 +1010,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 
 			/* re-order w.r.t. dependencies */
 			_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-			lp = _pacman_sortbydeps(trans->_packages, PM_TRANS_TYPE_ADD);
-			/* free the old alltargs */
-			FREELISTPTR(trans->_packages);
-			trans->_packages = lp;
+			trans->_packages = _pacman_sortbydeps(trans->_packages, PM_TRANS_TYPE_ADD);
 			EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 		}
 
@@ -1074,8 +1071,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 						pmdepmissing_t *miss = (pmdepmissing_t *)i->data;
 						pmpkg_t *info = _pacman_db_scan(db_local, miss->depend.name, INFRQ_ALL);
 						if(info) {
-							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), info->name);
-							trans->_packages = _pacman_list_add(trans->_packages, info);
+							_pacman_trans_add_pkg (trans, info, PM_TRANS_TYPE_UPGRADE, 0);
 						} else {
 							_pacman_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
 								miss->depend.name);
@@ -1101,10 +1097,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 
 		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _pacman_sortbydeps(trans->_packages, PM_TRANS_TYPE_REMOVE);
-		/* free the old alltargs */
-		FREELISTPTR(trans->_packages);
-		trans->_packages = lp;
+		trans->_packages = _pacman_sortbydeps(trans->_packages, PM_TRANS_TYPE_REMOVE);
 
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
@@ -1374,12 +1367,13 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 		}
 	} else {
 	int i, errors = 0;
-	int remain, howmany, archive_ret;
+	int remain, archive_ret;
 	double percent;
 	register struct archive *archive;
 	struct archive_entry *entry;
 	char expath[PATH_MAX], cwd[PATH_MAX] = "";
 	pmlist_t *targ, *lp;
+	const int howmany = f_list_count (trans->packages);
 
 	for(targ = trans->_packages; targ; targ = targ->next) {
 		pmtranstype_t transtype;
@@ -1389,7 +1383,6 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 		pmpkg_t *oldpkg = NULL;
 		errors = 0;
 		remain = f_list_count (targ);
-		howmany = f_list_count (trans->_packages);
 		struct trans_event_table_item *event;
 
 		if(handle->trans->state == STATE_INTERRUPTED) {
