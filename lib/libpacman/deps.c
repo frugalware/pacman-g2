@@ -378,32 +378,30 @@ int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_
 			/* PM_TRANS_TYPE_UPGRADE handles the backwards dependencies, ie, the packages
 			 * listed in the requiredby field.
 			 */
-			pmpkg_t *oldpkg;
-
-			if((oldpkg = _pacman_db_get_pkgfromcache(db, pkg_name)) == NULL) {
-				return;
-			}
-			for(j = _pacman_pkg_getinfo(oldpkg, PM_PKG_REQUIREDBY); j; j = j->next) {
+			if(transpkg->pkg_local != NULL) {
+				/* Really an upgrade*/
+			for(j = _pacman_pkg_getinfo(transpkg->pkg_local, PM_PKG_REQUIREDBY); j; j = j->next) {
 				pmtranspkg_t *requiredtranspkg = __pacman_trans_get_trans_pkg (trans, (const char *)j->data);
 				pmpkg_t *p;
 
 				if (requiredtranspkg != NULL &&
 						requiredtranspkg->type & PM_TRANS_TYPE_ADD) {
 					/* this package is also in the upgrade list, so don't worry about it */
-					return;
+					continue;
 				}
 
 				if((p = _pacman_db_get_pkgfromcache(db, j->data)) == NULL) {
 					/* hmmm... package isn't installed.. */
-					return;
+					continue;
 				}
 
 				for(k = _pacman_pkg_getinfo(p, PM_PKG_DEPENDS); k; k = k->next) {
 					/* don't break any existing dependencies (possible provides) */
 					_pacman_splitdep(k->data, &depend);
-					if (_pacman_pkg_is_depend_satisfied (oldpkg, &depend) == 0 && _pacman_pkg_is_depend_satisfied (transpkg->pkg_new, &depend) != 0) {
+					if (_pacman_pkg_is_depend_satisfied (transpkg->pkg_local, &depend) == 0 &&
+						 	_pacman_pkg_is_depend_satisfied (transpkg->pkg_new, &depend) != 0) {
 						_pacman_log(PM_LOG_DEBUG, _("checkdeps: updated '%s' won't satisfy a dependency of '%s'"),
-								oldpkg->name, p->name);
+								transpkg->pkg_local->name, p->name);
 						miss = _pacman_depmiss_new(p->name, PM_DEP_TYPE_DEPEND, depend.mod,
 								depend.name, depend.version);
 						if (!_pacman_depmiss_isin(miss, *baddeps)) {
@@ -413,6 +411,7 @@ int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_
 						}
 					}
 				}
+			}
 			}
 		}
 		if (transpkg->type == PM_TRANS_TYPE_REMOVE) {
@@ -462,7 +461,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 		transpkg.type = op;
 		if (op & PM_TRANS_TYPE_ADD) {
 			transpkg.pkg_new = i->data;
-			transpkg.pkg_local = _pacman_db_get_pkgfromcache(trans->handle->db_local, i->data);
+			transpkg.pkg_local = _pacman_db_get_pkgfromcache(trans->handle->db_local, transpkg.pkg_new->name);
 		} else {
 			transpkg.pkg_new = NULL;
 			transpkg.pkg_local = i->data;
