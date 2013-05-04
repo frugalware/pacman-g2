@@ -608,7 +608,7 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for unresolvable dependencies"));
-		deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_UPGRADE, trans->_packages);
+		_pacman_trans_checkdeps (trans, &deps);
 		if(deps) {
 			if(data) {
 				*data = deps;
@@ -918,7 +918,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 		}
 	} else {
 
-	pmlist_t *lp;
+	pmlist_t *lp = NULL;
 	pmlist_t *rmlist = NULL;
 	char rm_fname[PATH_MAX];
 	pmpkg_t *info = NULL;
@@ -929,7 +929,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 			EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 			/* look for unsatisfied dependencies */
 			_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-			lp = _pacman_checkdeps(trans, trans->type, trans->_packages);
+			_pacman_trans_checkdeps (trans, &lp);
 			if(lp != NULL) {
 				if(data) {
 					*data = lp;
@@ -1003,7 +1003,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-		lp = _pacman_checkdeps(trans, trans->type, trans->_packages);
+		_pacman_trans_checkdeps (trans, &lp);
 		if(lp != NULL) {
 			if(trans->flags & PM_TRANS_FLAG_CASCADE) {
 				while(lp) {
@@ -1019,7 +1019,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 						}
 					}
 					FREELIST(lp);
-					lp = _pacman_checkdeps(trans, trans->type, trans->_packages);
+					_pacman_trans_checkdeps (trans, &lp);
 				}
 			} else {
 				if(data) {

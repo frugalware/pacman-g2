@@ -374,12 +374,11 @@ int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_
 				}
 			}
 		}
-		if (transpkg->type == PM_TRANS_TYPE_UPGRADE) {
+		if (transpkg->type == PM_TRANS_TYPE_UPGRADE &&
+				transpkg->pkg_local != NULL) { /* Really an upgrade */
 			/* PM_TRANS_TYPE_UPGRADE handles the backwards dependencies, ie, the packages
 			 * listed in the requiredby field.
 			 */
-			if(transpkg->pkg_local != NULL) {
-				/* Really an upgrade*/
 			for(j = _pacman_pkg_getinfo(transpkg->pkg_local, PM_PKG_REQUIREDBY); j; j = j->next) {
 				pmtranspkg_t *requiredtranspkg = __pacman_trans_get_trans_pkg (trans, (const char *)j->data);
 				pmpkg_t *p;
@@ -411,7 +410,6 @@ int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_
 						}
 					}
 				}
-			}
 			}
 		}
 		if (transpkg->type == PM_TRANS_TYPE_REMOVE) {
@@ -449,11 +447,22 @@ int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_
 	return 0;
 }
 
+int _pacman_trans_checkdeps (pmtrans_t *trans, pmlist_t **depmisslist) {
+	pmlist_t *i;
+
+	for (i = trans->packages; i != NULL; i = i->next) {
+		pmtranspkg_t *transpkg = i->data;
+
+		_pacman_transpkg_checkdeps (trans, transpkg, depmisslist);
+	}
+	return 0;
+}
+
 /* Returns a pmlist_t* of missing_t pointers.
  *
  * dependencies can include versions with depmod operators.
  */
-pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packages) {
+pmlist_t *_pacman_checkdeps (pmtrans_t *trans, unsigned char op, pmlist_t *packages) {
 	pmlist_t *i, *ret = NULL;
 
 	for (i = packages; i; i = i->next) {
