@@ -80,6 +80,33 @@ FList *f_list_free (FList *item, FVisitorFunc fn, void *user_data) {
 	return next;
 }
 
+void *f_list_get (FList *item) {
+	return item != NULL ? item->data : NULL;
+}
+
+void f_list_set (FList *item, void *data) {
+	if (item) {
+		item->data = data;
+	}
+}
+
+size_t f_list_count(FList *list)
+{
+	size_t count;
+
+	for (count = 0; list != NULL; list = list->next, count++)
+		/* Do nothing */;
+	return count;
+}
+
+FList *f_list_first (FList *list) {
+	if (list != NULL) {
+		for (; list->prev != NULL; list = list->prev)
+			/* Do nothing */;
+	}
+	return list;
+}
+
 void f_list_insert_after (FList *item, FList *list) {
 	FList *last = f_list_last (list);
 
@@ -108,23 +135,6 @@ void f_list_insert_before (FList *item, FList *list) {
 	if (item->prev != NULL) {
 		item->prev->next = list;
 	}
-}
-
-size_t f_list_count(FList *list)
-{
-	size_t count;
-
-	for (count = 0; list != NULL; list = list->next, count++)
-		/* Do nothing */;
-	return count;
-}
-
-FList *f_list_first (FList *list) {
-	if (list != NULL) {
-		for (; list->prev != NULL; list = list->prev)
-			/* Do nothing */;
-	}
-	return list;
 }
 
 FList *f_list_last (FList *list) {
