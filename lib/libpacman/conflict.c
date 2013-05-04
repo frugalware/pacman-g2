@@ -50,8 +50,7 @@
  *
  * conflicts are always name only
  */
-pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
-{
+pmlist_t *_pacman_checkconflicts(pmtrans_t *trans) {
 	pmpkg_t *info = NULL;
 	pmlist_t *i, *j, *k;
 	pmlist_t *baddeps = NULL;
@@ -59,13 +58,12 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 	int howmany, remain;
 	double percent;
 
-	howmany = f_list_count (packages);
+	howmany = f_list_count (trans->packages);
 
-	for(i = packages; i; i = i->next) {
-		pmpkg_t *tp = i->data;
-		if(tp == NULL) {
-			continue;
-		}
+	for(i = trans->packages; i; i = i->next) {
+		pmtranspkg_t *transpkg = i->data;
+		const char *transpkg_name = __pacman_transpkg_name (transpkg);
+
 		remain = f_list_count (i);
 		percent = (double)(howmany - remain + 1) / howmany;
 
@@ -75,24 +73,28 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 					howmany - remain + 1);
 		}
 
-		for(j = _pacman_pkg_getinfo(tp, PM_PKG_CONFLICTS); j; j = j->next) {
-			if(!strcmp(tp->name, j->data)) {
+		if (!(transpkg->type & PM_TRANS_TYPE_ADD)) {
+			continue;
+		}
+
+		for(j = _pacman_pkg_getinfo(transpkg->pkg_new, PM_PKG_CONFLICTS); j; j = j->next) {
+			if(!strcmp(transpkg_name, j->data)) {
 				/* a package cannot conflict with itself -- that's just not nice */
 				continue;
 			}
 			/* CHECK 1: check targets against database */
-			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs db"), tp->name);
+			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs db"), transpkg_name);
 			for(k = _pacman_db_get_pkgcache(trans->handle->db_local); k; k = k->next) {
 				pmpkg_t *dp = (pmpkg_t *)k->data;
-				if(!strcmp(dp->name, tp->name)) {
+				if(!strcmp(dp->name, transpkg_name)) {
 					/* a package cannot conflict with itself -- that's just not nice */
 					continue;
 				}
 				if(!strcmp(j->data, dp->name)) {
 					/* conflict */
 					_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
-					          dp->name, tp->name);
-					miss = _pacman_depmiss_new(tp->name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, dp->name, NULL);
+					          dp->name, transpkg_name);
+					miss = _pacman_depmiss_new(transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, dp->name, NULL);
 					if(!_pacman_depmiss_isin(miss, baddeps)) {
 						baddeps = _pacman_list_add(baddeps, miss);
 					} else {
@@ -105,8 +107,8 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 						if(!strcmp(m->data, j->data)) {
 							/* confict */
 							_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
-							          dp->name, tp->name);
-							miss = _pacman_depmiss_new(tp->name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, dp->name, NULL);
+							          dp->name, transpkg_name);
+							miss = _pacman_depmiss_new(transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, dp->name, NULL);
 							if(!_pacman_depmiss_isin(miss, baddeps)) {
 								baddeps = _pacman_list_add(baddeps, miss);
 							} else {
@@ -117,18 +119,21 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 				}
 			}
 			/* CHECK 2: check targets against targets */
-			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs targs"), tp->name);
-			for(k = packages; k; k = k->next) {
-				pmpkg_t *otp = (pmpkg_t *)k->data;
-				if(!strcmp(otp->name, tp->name)) {
+			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs targs"), transpkg_name);
+			for(k = trans->packages; k; k = k->next) {
+				pmtranspkg_t *other_transpkg = k->data;
+				const char *other_transpkg_name = __pacman_transpkg_name (other_transpkg);
+
+				if (other_transpkg == transpkg ||
+						!(other_transpkg->type & PM_TRANS_TYPE_ADD)) {
 					/* a package cannot conflict with itself -- that's just not nice */
 					continue;
 				}
-				if(!strcmp(otp->name, (char *)j->data)) {
+				if(!strcmp(other_transpkg_name, (char *)j->data)) {
 					/* otp is listed in tp's conflict list */
 					_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
-					          otp->name, tp->name);
-					miss = _pacman_depmiss_new(tp->name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, otp->name, NULL);
+					          other_transpkg_name, transpkg_name);
+					miss = _pacman_depmiss_new(transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, other_transpkg_name, NULL);
 					if(!_pacman_depmiss_isin(miss, baddeps)) {
 						baddeps = _pacman_list_add(baddeps, miss);
 					} else {
@@ -137,11 +142,11 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 				} else {
 					/* see if otp provides something in tp's conflict list */
 					pmlist_t *m;
-					for(m = _pacman_pkg_getinfo(otp, PM_PKG_PROVIDES); m; m = m->next) {
+					for(m = _pacman_pkg_getinfo(other_transpkg->pkg_new, PM_PKG_PROVIDES); m; m = m->next) {
 						if(!strcmp(m->data, j->data)) {
 							_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
-							          otp->name, tp->name);
-							miss = _pacman_depmiss_new(tp->name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, otp->name, NULL);
+							          other_transpkg_name, transpkg_name);
+							miss = _pacman_depmiss_new(transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, other_transpkg_name, NULL);
 							if(!_pacman_depmiss_isin(miss, baddeps)) {
 								baddeps = _pacman_list_add(baddeps, miss);
 							} else {
@@ -153,24 +158,26 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 			}
 		}
 		/* CHECK 3: check database against targets */
-		_pacman_log(PM_LOG_DEBUG, _("checkconflicts: db vs targ '%s'"), tp->name);
+		_pacman_log(PM_LOG_DEBUG, _("checkconflicts: db vs targ '%s'"), transpkg_name);
 		for(k = _pacman_db_get_pkgcache(trans->handle->db_local); k; k = k->next) {
 			pmlist_t *conflicts = NULL;
 			int usenewconflicts = 0;
 
 			info = k->data;
-			if(!strcmp(info->name, tp->name)) {
+			if(!strcmp(info->name, transpkg_name)) {
 				/* a package cannot conflict with itself -- that's just not nice */
 				continue;
 			}
 			/* If this package (*info) is also in our packages pmlist_t, use the
 			 * conflicts list from the new package, not the old one (*info)
 			 */
-			for(j = packages; j; j = j->next) {
-				pmpkg_t *pkg = j->data;
-				if(!strcmp(pkg->name, info->name)) {
+			for(j = trans->packages; j; j = j->next) {
+				pmtranspkg_t *transpkg = j->data;
+
+				if (transpkg->type & PM_TRANS_TYPE_ADD &&
+						!strcmp(transpkg->pkg_new->name, info->name)) {
 					/* Use the new, to-be-installed package's conflicts */
-					conflicts = _pacman_pkg_getinfo(pkg, PM_PKG_CONFLICTS);
+					conflicts = _pacman_pkg_getinfo(transpkg->pkg_new, PM_PKG_CONFLICTS);
 					usenewconflicts = 1;
 				}
 			}
@@ -179,10 +186,10 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 				conflicts = _pacman_pkg_getinfo(info, PM_PKG_CONFLICTS);
 			}
 			for(j = conflicts; j; j = j->next) {
-				if(!strcmp((char *)j->data, tp->name)) {
+				if(!strcmp((char *)j->data, transpkg_name)) {
 					_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
-					          info->name, tp->name);
-					miss = _pacman_depmiss_new(tp->name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name, NULL);
+					          info->name, transpkg_name);
+					miss = _pacman_depmiss_new(transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name, NULL);
 					if(!_pacman_depmiss_isin(miss, baddeps)) {
 						baddeps = _pacman_list_add(baddeps, miss);
 					} else {
@@ -193,11 +200,11 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 					pmlist_t *m;
 					for(m = conflicts; m; m = m->next) {
 						pmlist_t *n;
-						for(n = _pacman_pkg_getinfo(tp, PM_PKG_PROVIDES); n; n = n->next) {
+						for(n = _pacman_pkg_getinfo(transpkg->pkg_new, PM_PKG_PROVIDES); n; n = n->next) {
 							if(!strcmp(m->data, n->data)) {
 								_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
-								          info->name, tp->name);
-								miss = _pacman_depmiss_new(tp->name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name, NULL);
+								          info->name, transpkg_name);
+								miss = _pacman_depmiss_new(transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name, NULL);
 								if(!_pacman_depmiss_isin(miss, baddeps)) {
 									baddeps = _pacman_list_add(baddeps, miss);
 								} else {

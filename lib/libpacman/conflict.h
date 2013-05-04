@@ -33,7 +33,7 @@ typedef struct __pmconflict_t {
 	char ctarget[PKG_NAME_LEN];
 } pmconflict_t;
 
-pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages);
+pmlist_t *_pacman_checkconflicts(pmtrans_t *trans);
 pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list);
 
 #endif /* _PACMAN_CONFLICT_H */

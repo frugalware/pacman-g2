@@ -345,7 +345,6 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 /* Returns a pmlist_t* of missing_t pointers.
  *
  * dependencies can include versions with depmod operators.
- *
  */
 pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packages)
 {

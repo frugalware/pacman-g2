@@ -672,7 +672,7 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_INTERCONFLICTS_START, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		deps = _pacman_checkconflicts(trans, list);
+		deps = _pacman_checkconflicts(trans);
 		if(deps) {
 			int errorout = 0;
 
@@ -998,7 +998,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 
 			/* no unsatisfied deps, so look for conflicts */
 			_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-			lp = _pacman_checkconflicts(trans, trans->_packages);
+			lp = _pacman_checkconflicts(trans);
 			if(lp != NULL) {
 				if(data) {
 					*data = lp;
