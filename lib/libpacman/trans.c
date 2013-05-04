@@ -583,14 +583,10 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 	if(!(trans->flags & PM_TRANS_FLAG_NODEPS)) {
 		/* Resolve targets dependencies */
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
-		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
-		for(i = trans->packages; i; i = i->next) {
-			pmpkg_t *spkg = ((pmsyncpkg_t *)i->data)->pkg_new;
-			if (_pacman_resolvedeps (trans, spkg, data) == -1) {
-				/* pm_errno is set by resolvedeps */
-				ret = -1;
-				goto cleanup;
-			}
+		if (_pacman_trans_resolvedeps (trans, data) == -1) {
+			/* pm_errno is set by resolvedeps */
+			ret = -1;
+			goto cleanup;
 		}
 
 		for (i = trans->_packages; i; i = i->next) {

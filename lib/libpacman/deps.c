@@ -341,78 +341,73 @@ void _pacman_sortbydeps(pmtrans_t *trans, int mode)
 	trans->_packages = newtargs;
 }
 
-/* Returns a pmlist_t* of missing_t pointers.
+/* Returns a pmlist_t* of missing_t pointers in **baddeps.
  *
  * dependencies can include versions with depmod operators.
  */
-pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packages)
-{
+static
+int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_t **baddeps) {
 	pmdepend_t depend;
-	pmlist_t *i, *j, *k;
-	pmlist_t *baddeps = NULL;
+	pmlist_t *j, *k;
 	pmdepmissing_t *miss = NULL;
 	pmdb_t *db = trans->handle->db_local;
+	const char *pkg_name = __pacman_transpkg_name (transpkg);
 
 	if(db == NULL) {
-		return(NULL);
+		return -1;
 	}
 
-	for (i = packages; i; i = i->next) {
-		pmpkg_t *tp = i->data;
-		const char *pkg_name = tp->name;
-
-		if(op & PM_TRANS_TYPE_ADD) {
+		if (transpkg->type & PM_TRANS_TYPE_ADD) {
 			/* DEPENDENCIES -- look for unsatisfied dependencies */
-			for(j = _pacman_pkg_getinfo(tp, PM_PKG_DEPENDS); j; j = j->next) {
+			for(j = _pacman_pkg_getinfo (transpkg->pkg_new, PM_PKG_DEPENDS); j; j = j->next) {
 				/* split into name/version pairs */
 				_pacman_splitdep((char *)j->data, &depend);
 				if(_pacman_trans_is_depend_satisfied(trans, &depend) != 0) {
 					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s as a dependency for %s"),
 					          depend.name, pkg_name);
 					miss = _pacman_depmiss_new(pkg_name, PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
-					if(!_pacman_depmiss_isin(miss, baddeps)) {
-						baddeps = _pacman_list_add(baddeps, miss);
+					if (!_pacman_depmiss_isin(miss, *baddeps)) {
+						*baddeps = _pacman_list_add(*baddeps, miss);
 					} else {
 						FREE(miss);
 					}
 				}
 			}
 		}
-		if(op == PM_TRANS_TYPE_UPGRADE) {
+		if (transpkg->type == PM_TRANS_TYPE_UPGRADE) {
 			/* PM_TRANS_TYPE_UPGRADE handles the backwards dependencies, ie, the packages
 			 * listed in the requiredby field.
 			 */
 			pmpkg_t *oldpkg;
 
 			if((oldpkg = _pacman_db_get_pkgfromcache(db, pkg_name)) == NULL) {
-				continue;
+				return;
 			}
 			for(j = _pacman_pkg_getinfo(oldpkg, PM_PKG_REQUIREDBY); j; j = j->next) {
 				pmtranspkg_t *requiredtranspkg = __pacman_trans_get_trans_pkg (trans, (const char *)j->data);
 				pmpkg_t *p;
-				int found = 0;
 
 				if (requiredtranspkg != NULL &&
 						requiredtranspkg->type & PM_TRANS_TYPE_ADD) {
 					/* this package is also in the upgrade list, so don't worry about it */
-					continue;
+					return;
 				}
 
 				if((p = _pacman_db_get_pkgfromcache(db, j->data)) == NULL) {
 					/* hmmm... package isn't installed.. */
-					continue;
+					return;
 				}
 
 				for(k = _pacman_pkg_getinfo(p, PM_PKG_DEPENDS); k; k = k->next) {
 					/* don't break any existing dependencies (possible provides) */
 					_pacman_splitdep(k->data, &depend);
-					if (_pacman_pkg_is_depend_satisfied (oldpkg, &depend) == 0 && _pacman_pkg_is_depend_satisfied (tp, &depend) != 0) {
+					if (_pacman_pkg_is_depend_satisfied (oldpkg, &depend) == 0 && _pacman_pkg_is_depend_satisfied (transpkg->pkg_new, &depend) != 0) {
 						_pacman_log(PM_LOG_DEBUG, _("checkdeps: updated '%s' won't satisfy a dependency of '%s'"),
 								oldpkg->name, p->name);
 						miss = _pacman_depmiss_new(p->name, PM_DEP_TYPE_DEPEND, depend.mod,
 								depend.name, depend.version);
-						if(!_pacman_depmiss_isin(miss, baddeps)) {
-							baddeps = _pacman_list_add(baddeps, miss);
+						if (!_pacman_depmiss_isin(miss, *baddeps)) {
+							*baddeps = _pacman_list_add(*baddeps, miss);
 						} else {
 							FREE(miss);
 						}
@@ -420,9 +415,9 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				}
 			}
 		}
-		if(op == PM_TRANS_TYPE_REMOVE) {
+		if (transpkg->type == PM_TRANS_TYPE_REMOVE) {
 			/* check requiredby fields */
-			for(j = _pacman_pkg_getinfo(tp, PM_PKG_REQUIREDBY); j; j = j->next) {
+			for (j = _pacman_pkg_getinfo (transpkg->pkg_local, PM_PKG_REQUIREDBY); j; j = j->next) {
 				pmtranspkg_t *requiredtranspkg = __pacman_trans_get_trans_pkg (trans, (const char *)j->data);
 				int found = 0;
 
@@ -444,17 +439,37 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				if(!found) {
 					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s which requires %s"), (char *)j->data, pkg_name);
 					miss = _pacman_depmiss_new (pkg_name, PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, j->data, NULL);
-					if (!_pacman_depmiss_isin(miss, baddeps)) {
-						baddeps = _pacman_list_add(baddeps, miss);
+					if (!_pacman_depmiss_isin(miss, *baddeps)) {
+						*baddeps = _pacman_list_add(*baddeps, miss);
 					} else {
 						FREE(miss);
 					}
 				}
 			}
 		}
-	}
+	return 0;
+}
 
-	return(baddeps);
+/* Returns a pmlist_t* of missing_t pointers.
+ *
+ * dependencies can include versions with depmod operators.
+ */
+pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packages) {
+	pmlist_t *i, *ret = NULL;
+
+	for (i = packages; i; i = i->next) {
+		pmtranspkg_t transpkg;
+		transpkg.type = op;
+		if (op & PM_TRANS_TYPE_ADD) {
+			transpkg.pkg_new = i->data;
+			transpkg.pkg_local = _pacman_db_get_pkgfromcache(trans->handle->db_local, i->data);
+		} else {
+			transpkg.pkg_new = NULL;
+			transpkg.pkg_local = i->data;
+		}
+		_pacman_transpkg_checkdeps(trans, &transpkg, &ret);
+	}
+	return ret;
 }
 
 /* return a new pmlist_t target list containing all packages in the original
@@ -529,8 +544,6 @@ void _pacman_removedeps(pmtrans_t *trans)
 
 /* populates *trans with packages that need to be installed to satisfy all
  * dependencies (recursive) for syncpkg
- *
- * make sure *trail are already initialized
  */
 int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t **data)
 {
@@ -641,6 +654,21 @@ int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t **data)
 error:
 	FREELIST(deps);
 	return(-1);
+}
+
+int _pacman_trans_resolvedeps(pmtrans_t *trans, pmlist_t **data) {
+	pmlist_t *i;
+
+	_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
+	for(i = trans->packages; i; i = i->next) {
+		pmpkg_t *pkg = ((pmtranspkg_t *)i->data)->pkg_new;
+
+		if (_pacman_resolvedeps (trans, pkg, data) == -1) {
+			/* pm_errno is set by resolvedeps */
+			return -1;
+		}
+	}
+	return 0;
 }
 
 /* vim: set ts=2 sw=2 noet: */
