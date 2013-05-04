@@ -630,25 +630,7 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 			}
 		}
 
-		/* re-order w.r.t. dependencies */
-		k = l = NULL;
-		for(i=trans->packages; i; i=i->next) {
-			pmsyncpkg_t *s = (pmsyncpkg_t*)i->data;
-			k = _pacman_list_add(k, s->pkg_new);
-		}
-		m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
-		for(i=m; i; i=i->next) {
-			for(j=trans->packages; j; j=j->next) {
-				pmsyncpkg_t *s = (pmsyncpkg_t*)j->data;
-				if(s->pkg_new==i->data) {
-					l = _pacman_list_add(l, s);
-				}
-			}
-		}
-		FREELISTPTR(k);
-		FREELISTPTR(m);
-		FREELISTPTR(trans->packages);
-		trans->packages = l;
+		_pacman_sortbydeps(trans, PM_TRANS_TYPE_ADD);
 
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
 
@@ -1008,9 +990,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 				RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
 			}
 
-			/* re-order w.r.t. dependencies */
-			_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-			trans->_packages = _pacman_sortbydeps(trans->_packages, PM_TRANS_TYPE_ADD);
+			_pacman_sortbydeps(trans, PM_TRANS_TYPE_ADD);
 			EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 		}
 
@@ -1096,8 +1076,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 		}
 
 		/* re-order w.r.t. dependencies */
-		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		trans->_packages = _pacman_sortbydeps(trans->_packages, PM_TRANS_TYPE_REMOVE);
+		_pacman_sortbydeps(trans, PM_TRANS_TYPE_REMOVE);
 
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}

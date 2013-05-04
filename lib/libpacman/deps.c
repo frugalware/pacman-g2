@@ -250,9 +250,8 @@ int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
  * affects the dependency order sortbydeps() will use.
  *
  * This function returns the new pmlist_t* target list.
- *
  */
-pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
+void _pacman_sortbydeps(pmtrans_t *trans, int mode)
 {
 	pmlist_t *newtargs = NULL;
 	pmlist_t *i, *j, *k;
@@ -261,14 +260,14 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 	pmgraph_t *vertex;
 	int found;
 
-	if(targets == NULL) {
+	if (trans->_packages == NULL) {
 		return(NULL);
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("started sorting dependencies"));
 
 	/* We create the vertices */
-	for(i = targets; i; i = i->next) {
+	for (i = trans->_packages; i; i = i->next) {
 		pmgraph_t *v = _pacman_graph_new();
 		v->data = (void *)i->data;
 		vertices = _pacman_list_add(vertices, v);
@@ -339,7 +338,7 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 
 	_FREELIST(vertices, _pacman_graph_free);
 
-	return(newtargs);
+	trans->_packages = newtargs;
 }
 
 /* Returns a pmlist_t* of missing_t pointers.
