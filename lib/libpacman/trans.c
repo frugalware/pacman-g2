@@ -568,7 +568,6 @@ static
 int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *deps = NULL;
-	pmlist_t *list = NULL; /* list allowing checkdeps usage with data from trans->packages */
 	pmlist_t *trail = NULL; /* breadcrum list to avoid running into circles */
 	pmlist_t *asked = NULL;
 	pmlist_t *i, *j, *k, *l, *m;
@@ -582,11 +581,6 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 		*data = NULL;
 	}
 
-	for(i = trans->packages; i; i = i->next) {
-		pmsyncpkg_t *ps = i->data;
-		list = _pacman_list_add(list, ps->pkg_new);
-	}
-
 	if(!(trans->flags & PM_TRANS_FLAG_NODEPS)) {
 		trail = f_list_new();
 
@@ -595,14 +589,14 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 		for(i = trans->packages; i; i = i->next) {
 			pmpkg_t *spkg = ((pmsyncpkg_t *)i->data)->pkg_new;
-			if(_pacman_resolvedeps(trans, spkg, list, trail, data) == -1) {
+			if (_pacman_resolvedeps (trans, spkg, trans->_packages, trail, data) == -1) {
 				/* pm_errno is set by resolvedeps */
 				ret = -1;
 				goto cleanup;
 			}
 		}
 
-		for(i = list; i; i = i->next) {
+		for (i = trans->_packages; i; i = i->next) {
 			/* add the dependencies found by resolvedeps to the transaction set */
 			pmpkg_t *spkg = i->data;
 			if(!__pacman_trans_get_trans_pkg(trans, spkg->name)) {
@@ -621,7 +615,7 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for unresolvable dependencies"));
-		deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_UPGRADE, list);
+		deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_UPGRADE, trans->_packages);
 		if(deps) {
 			if(data) {
 				*data = deps;
@@ -804,8 +798,6 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_INTERCONFLICTS_DONE, NULL, NULL);
 	}
 
-	FREELISTPTR(list);
-
 	/* XXX: this fails for cases where a requested package wants
 	 *      a dependency that conflicts with an older version of
 	 *      the package.  It will be removed from final, and the user
@@ -821,15 +813,9 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 		 * package that's in our final (upgrade) list.
 		 */
 		/*EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
-		for(i = trans->packages; i; i = i->next) {
-			pmsyncpkg_t *ps = i->data;
-			for(j = ps->replaces; j; j = j->next) {
-				list = _pacman_list_add(list, j->data);
-			}
-		}
-		if(list) {
+		if(trans->_packages) {
 			_pacman_log(PM_LOG_FLOW1, _("checking dependencies of packages designated for removal"));
-			deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_REMOVE, list);
+			deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_REMOVE, trans->_packages);
 			if(deps) {
 				int errorout = 0;
 				for(i = deps; i; i = i->next) {
@@ -911,7 +897,6 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 	check_olddelay();
 
 cleanup:
-	FREELISTPTR(list);
 	FREELISTPTR(trail);
 	FREELIST(asked);
 
@@ -1061,7 +1046,6 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 			_pacman_removedeps(trans);
 		}
 
-		/* re-order w.r.t. dependencies */
 		_pacman_sortbydeps(trans, PM_TRANS_TYPE_REMOVE);
 
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
