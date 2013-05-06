@@ -109,20 +109,12 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 								}
 								dummy->requiredby = f_stringlist_deep_copy(lpkg->requiredby);
 								/* check if spkg->name is already in the packages list. */
-								ps = __pacman_trans_get_trans_pkg(trans, spkg->name);
-								if(ps) {
-									/* found it -- just append to the replaces list */
-									ps->replaces = _pacman_list_add(ps->replaces, dummy);
-								} else {
-									/* none found -- enter pkg into the final sync list */
-									ps = __pacman_trans_pkg_new (PM_TRANS_TYPE_ADD, spkg);
-									if(ps == NULL) {
-										FREEPKG(dummy);
-										goto error;
-									}
-									ps->replaces = _pacman_list_add(ps->replaces, dummy);
-									trans->packages = _pacman_list_add(trans->packages, ps);
+								ps = _pacman_trans_add_pkg (trans, spkg, PM_TRANS_TYPE_UPGRADE, 0);
+								if (ps == NULL) {
+									FREEPKG(dummy);
+									goto error;
 								}
+								ps->replaces = _pacman_list_add(ps->replaces, dummy);
 								_pacman_log(PM_LOG_FLOW2, _("%s-%s elected for upgrade (to be replaced by %s-%s)"),
 								          lpkg->name, lpkg->version, spkg->name, spkg->version);
 							}
