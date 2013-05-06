@@ -553,15 +553,12 @@ void _pacman_removedeps(pmtrans_t *trans)
 /* populates *trans with packages that need to be installed to satisfy all
  * dependencies (recursive) for syncpkg
  */
-int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t **data)
+static
+int _pacman_resolvedeps (pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t **data)
 {
 	pmlist_t *i, *j;
 	pmlist_t *targ;
 	pmlist_t *deps = NULL;
-
-	if(trans == NULL || syncpkg == NULL) {
-		return(-1);
-	}
 
 	targ = _pacman_list_add(NULL, syncpkg);
 	deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_ADD, targ);
@@ -666,6 +663,10 @@ error:
 
 int _pacman_trans_resolvedeps(pmtrans_t *trans, pmlist_t **data) {
 	pmlist_t *i;
+
+	if (trans == NULL) {
+		return(-1);
+	}
 
 	_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 	for(i = trans->packages; i; i = i->next) {
