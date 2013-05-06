@@ -279,7 +279,7 @@ error:
 }
 
 static
-int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
+pmtranspkg_t *_pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 	const char *transpkg_name = __pacman_transpkg_name (transpkg);
 	pmtranspkg_t *transpkg_in;
 
@@ -300,7 +300,7 @@ int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 						transpkg_in->pkg_new->name, transpkg_in->pkg_new->version, transpkg->pkg_new->version);
 			}
 			__pacman_trans_pkg_delete (transpkg);
-			return 0;
+			return transpkg_in;
 		}
 
 		/* If both transpkg tries to remove (and not upgrade), let's compress the transpkg. */
@@ -308,9 +308,9 @@ int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 				transpkg->type == PM_TRANS_TYPE_REMOVE) {
 			_pacman_log(PM_LOG_DEBUG, _("%s transpkg removal compressed"), transpkg_name);
 			__pacman_trans_pkg_delete (transpkg);
-			return 0;
+			return transpkg_in;
 		}
-		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
+		RET_ERR(PM_ERR_TRANS_DUP_TARGET, NULL);
 	}
 
 	if (transpkg->type & PM_TRANS_TYPE_ADD) {
@@ -323,7 +323,7 @@ int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 		if (transpkg->pkg_local != NULL) {
 			/* Only install this package if it is not already installed */
 			if (transpkg->type == PM_TRANS_TYPE_ADD) {
-				RET_ERR(PM_ERR_PKG_INSTALLED, -1);
+				RET_ERR(PM_ERR_PKG_INSTALLED, NULL);
 			}
 
 			/* Copy over the install reason */
@@ -354,7 +354,7 @@ int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 		if (trans->flags & PM_TRANS_FLAG_FRESHEN &&
 				cmp >= 0) {
 			/* only upgrade/install this package if it is at a lesser version */
-			RET_ERR(PM_ERR_PKG_CANT_FRESH, -1);
+			RET_ERR(PM_ERR_PKG_CANT_FRESH, NULL);
 		}
 		if(cmp > 0) {
 			/* local version is newer -- get confirmation before adding */
@@ -381,7 +381,7 @@ int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 		int resp = 0;
 		QUESTION(trans, PM_TRANS_CONV_REMOVE_HOLDPKG, transpkg->pkg_local, NULL, NULL, &resp);
 		if(!resp) {
-			RET_ERR(PM_ERR_PKG_HOLD, -1);
+			RET_ERR(PM_ERR_PKG_HOLD, NULL);
 		}
 	}
 
@@ -389,12 +389,15 @@ int _pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 	trans->packages = _pacman_list_add(trans->packages, transpkg);
 	trans->_packages = _pacman_list_add(trans->_packages, transpkg->pkg_new != NULL ? transpkg->pkg_new : transpkg->pkg_local);
 
-	return 0;
+	return transpkg;
+
+error:
+	__pacman_trans_pkg_delete (transpkg);
+	return NULL;
 }
 
-int _pacman_trans_add_pkg (pmtrans_t *trans, pmpkg_t *pkg, pmtranstype_t type, unsigned int flags) {
+pmtranspkg_t *_pacman_trans_add_pkg (pmtrans_t *trans, pmpkg_t *pkg, pmtranstype_t type, unsigned int flags) {
 	pmtranspkg_t *transpkg = __pacman_trans_pkg_new(type, NULL);
-	int ret;
 	
 	/* Sanity checks */
 	ASSERT(transpkg != NULL, return -1); /* pm_errno is allready set by __pacman_trans_pkg_new */
@@ -411,11 +414,7 @@ int _pacman_trans_add_pkg (pmtrans_t *trans, pmpkg_t *pkg, pmtranstype_t type, u
 	}
 	transpkg->flags = flags;
 
-	ret = _pacman_trans_add (trans, transpkg);
-	if (ret != 0) {
-		__pacman_trans_pkg_delete (transpkg);
-	}
-	return ret;
+	return _pacman_trans_add (trans, transpkg);
 }
 
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t type, unsigned int flags)
@@ -423,7 +422,6 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 	char *pkg_name;
 	pmpkg_t *pkg = NULL;
 	pmdb_t *db_local;
-	int ret;
 
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -500,13 +498,13 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 			RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 		}
 	}
-out:
-	ret = _pacman_trans_add_pkg (trans, pkg, type, flags);
 
-	if (ret == 0) {
+out:
+	if (_pacman_trans_add_pkg (trans, pkg, type, flags) != NULL) {
 		trans->targets = _pacman_list_add(trans->targets, strdup(target));
+		return 0;
 	}
-	return ret;
+	return -1;
 }
 
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state)

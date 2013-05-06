@@ -99,13 +99,13 @@ pmtrans_t *_pacman_trans_new(void);
 void _pacman_trans_free(pmtrans_t *trans);
 
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state);
+pmtranspkg_t *_pacman_trans_add_pkg (pmtrans_t *trans, pmpkg_t *target, pmtranstype_t type, unsigned int flags);
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t type, unsigned int flags);
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data);
 int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data);
 
 int _pacman_trans_sysupgrade(pmtrans_t *trans);
 
-/* FIXME: Make private when unification is done */
 /* RENAMEME: struct __pmtrans_pkg  */
 typedef struct __pmsyncpkg_t {
 	pmtranstype_t type;
