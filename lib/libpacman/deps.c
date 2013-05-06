@@ -45,6 +45,9 @@
 
 #include "fstringlist.h"
 
+static
+int _pacman_transpkg_resolvedeps (pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_t **data);
+
 static pmgraph_t *_pacman_graph_new(void)
 {
 	pmgraph_t *graph = _pacman_zalloc(sizeof(pmgraph_t));
@@ -453,7 +456,9 @@ int _pacman_trans_checkdeps (pmtrans_t *trans, pmlist_t **depmisslist) {
 	for (i = trans->packages; i != NULL; i = i->next) {
 		pmtranspkg_t *transpkg = i->data;
 
-		_pacman_transpkg_checkdeps (trans, transpkg, depmisslist);
+		if (_pacman_transpkg_checkdeps (trans, transpkg, depmisslist) != 0) {
+			return -1;
+		}
 	}
 	return 0;
 }
@@ -554,20 +559,15 @@ void _pacman_removedeps(pmtrans_t *trans)
  * dependencies (recursive) for syncpkg
  */
 static
-int _pacman_resolvedeps (pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t **data)
+int _pacman_resolvedeps (pmtrans_t *trans, pmlist_t *deps, pmlist_t **data)
 {
 	pmlist_t *i, *j;
-	pmlist_t *targ;
-	pmlist_t *deps = NULL;
-
-	targ = _pacman_list_add(NULL, syncpkg);
-	deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_ADD, targ);
-	FREELISTPTR(targ);
 
 	if(deps == NULL) {
 		return(0);
 	}
 
+	_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 	for(i = deps; i; i = i->next) {
 		int found = 0;
 		pmdepmissing_t *miss = i->data;
@@ -630,10 +630,10 @@ int _pacman_resolvedeps (pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t **data)
 				FREEPKG(dummypkg);
 			}
 			if(usedep) {
-				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s (needed by %s)"),
-				          ps->name, syncpkg->name);
-				_pacman_trans_add_pkg (trans, ps, PM_TRANS_TYPE_UPGRADE, 0);
-				if(_pacman_resolvedeps(trans, ps, data)) {
+				pmtranspkg_t *transpkg = _pacman_trans_add_pkg (trans, ps, PM_TRANS_TYPE_UPGRADE, 0);
+
+				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s"), ps->name);
+				if (_pacman_transpkg_resolvedeps(trans, transpkg, data) != 0) {
 					goto error;
 				}
 			} else {
@@ -661,23 +661,28 @@ error:
 	return(-1);
 }
 
-int _pacman_trans_resolvedeps(pmtrans_t *trans, pmlist_t **data) {
-	pmlist_t *i;
+static
+int _pacman_transpkg_resolvedeps (pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_t **data) {
+	pmlist_t *deps = NULL;
+
+	if (_pacman_transpkg_checkdeps (trans, transpkg, &deps) != 0) {
+		return -1;
+	}
+	return _pacman_resolvedeps (trans, deps, data);
+}
+
+int _pacman_trans_resolvedeps (pmtrans_t *trans, pmlist_t **data) {
+	pmlist_t *deps = NULL;
 
 	if (trans == NULL) {
 		return(-1);
 	}
 
-	_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
-	for(i = trans->packages; i; i = i->next) {
-		pmpkg_t *pkg = ((pmtranspkg_t *)i->data)->pkg_new;
-
-		if (_pacman_resolvedeps (trans, pkg, data) == -1) {
-			/* pm_errno is set by resolvedeps */
-			return -1;
-		}
+	if (_pacman_trans_checkdeps (trans, &deps) != 0) {
+		/* pm_errno is set by checkdeps */
+		return -1;
 	}
-	return 0;
+	return _pacman_resolvedeps (trans, deps, data);
 }
 
 /* vim: set ts=2 sw=2 noet: */
