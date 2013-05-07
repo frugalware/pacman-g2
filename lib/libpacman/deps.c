@@ -387,7 +387,7 @@ int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_
 	if (transpkg->type & PM_TRANS_TYPE_ADD) {
 		_pacman_trans_check_package_depends (trans, transpkg->pkg_new, baddeps);
 	}
-	if (transpkg->type == PM_TRANS_TYPE_UPGRADE) {
+	if (transpkg->type & PM_TRANS_TYPE_REMOVE) {
 		pmlist_t *i;
 
 		/* Check reverse depends using PM_PKG_REQUIREDBY */
@@ -396,33 +396,17 @@ int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_
 			pmtranspkg_t *required_transpkg = __pacman_trans_get_trans_pkg (trans, required_pkg_name);
 			pmpkg_t *required_pkg_local;
 
-			if (required_transpkg != NULL &&
-					required_transpkg->type & PM_TRANS_TYPE_ADD) {
-				/* this package is also in the upgrade list, so don't worry about it */
-				continue;
-			}
-
-			if((required_pkg_local = _pacman_db_get_pkgfromcache(db, required_pkg_name)) == NULL) {
-				/* hmmm... package isn't installed.. */
-				continue;
-			}
-
-			_pacman_trans_check_package_depends (trans, required_pkg_local, baddeps);
-		}
-	}
-	if (transpkg->type == PM_TRANS_TYPE_REMOVE) {
-		pmlist_t *i;
-
-		/* Check reverse depends using PM_PKG_REQUIREDBY */
-		for (i = _pacman_pkg_getinfo (transpkg->pkg_local, PM_PKG_REQUIREDBY); i; i = i->next) {
-			const char *required_pkg_name = i->data;
-			pmtranspkg_t *required_transpkg = __pacman_trans_get_trans_pkg (trans, required_pkg_name);
-			pmpkg_t *required_pkg_local;
-
-			if (required_transpkg != NULL &&
-					required_transpkg->type == PM_TRANS_TYPE_REMOVE) {
-				/* Ignore required packages to be deleted */
-				continue;
+			if (required_transpkg != NULL) {
+				if (transpkg->type & PM_TRANS_TYPE_ADD &&
+						required_transpkg->type & PM_TRANS_TYPE_ADD) {
+					/* The required package is also to be upgraded, so don't worry about it */
+					continue;
+				}
+				if (transpkg->type == PM_TRANS_TYPE_REMOVE &&
+						required_transpkg->type == PM_TRANS_TYPE_REMOVE) {
+					/* The required package is also to be deleted, so don't worry about it */
+					continue;
+				}
 			}
 
 			if((required_pkg_local = _pacman_db_get_pkgfromcache(db, required_pkg_name)) == NULL) {
