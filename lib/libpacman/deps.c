@@ -375,8 +375,7 @@ int _pacman_trans_check_package_depends (pmtrans_t *trans, pmpkg_t *pkg, pmlist_
  */
 static
 int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_t **baddeps) {
-	pmdepend_t depend;
-	pmlist_t *j, *k;
+	pmlist_t *k;
 	pmdepmissing_t *miss = NULL;
 	pmdb_t *db = trans->handle->db_local;
 	const char *pkg_name = __pacman_transpkg_name (transpkg);
@@ -385,64 +384,67 @@ int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_
 		return -1;
 	}
 
-		if (transpkg->type & PM_TRANS_TYPE_ADD) {
+	if (transpkg->type & PM_TRANS_TYPE_ADD) {
 		_pacman_trans_check_package_depends (trans, transpkg->pkg_new, baddeps);
-		}
-		if (transpkg->type == PM_TRANS_TYPE_UPGRADE &&
-				transpkg->pkg_local != NULL) { /* Really an upgrade */
-			/* PM_TRANS_TYPE_UPGRADE handles the backwards dependencies, ie, the packages
-			 * listed in the requiredby field.
-			 */
-			for(j = _pacman_pkg_getinfo(transpkg->pkg_local, PM_PKG_REQUIREDBY); j; j = j->next) {
-				pmtranspkg_t *requiredtranspkg = __pacman_trans_get_trans_pkg (trans, (const char *)j->data);
-				pmpkg_t *p;
+	}
+	if (transpkg->type == PM_TRANS_TYPE_UPGRADE) {
+		pmlist_t *i;
 
-				if (requiredtranspkg != NULL &&
-						requiredtranspkg->type & PM_TRANS_TYPE_ADD) {
-					/* this package is also in the upgrade list, so don't worry about it */
-					continue;
-				}
+		/* Check reverse depends using PM_PKG_REQUIREDBY */
+		for(i = _pacman_pkg_getinfo(transpkg->pkg_local, PM_PKG_REQUIREDBY); i; i = i->next) {
+			const char *required_pkg_name = i->data;
+			pmtranspkg_t *required_transpkg = __pacman_trans_get_trans_pkg (trans, required_pkg_name);
+			pmpkg_t *required_pkg_local;
 
-				if((p = _pacman_db_get_pkgfromcache(db, j->data)) == NULL) {
-					/* hmmm... package isn't installed.. */
-					continue;
-				}
-
-			_pacman_trans_check_package_depends (trans, p, baddeps);
+			if (required_transpkg != NULL &&
+					required_transpkg->type & PM_TRANS_TYPE_ADD) {
+				/* this package is also in the upgrade list, so don't worry about it */
+				continue;
 			}
-		}
-		if (transpkg->type == PM_TRANS_TYPE_REMOVE) {
-			/* check requiredby fields */
-			for (j = _pacman_pkg_getinfo (transpkg->pkg_local, PM_PKG_REQUIREDBY); j; j = j->next) {
-				pmtranspkg_t *requiredtranspkg = __pacman_trans_get_trans_pkg (trans, (const char *)j->data);
-				int found = 0;
 
+			if((required_pkg_local = _pacman_db_get_pkgfromcache(db, required_pkg_name)) == NULL) {
+				/* hmmm... package isn't installed.. */
+				continue;
+			}
+
+			_pacman_trans_check_package_depends (trans, required_pkg_local, baddeps);
+		}
+	}
+	if (transpkg->type == PM_TRANS_TYPE_REMOVE) {
+		pmlist_t *i;
+
+		/* Check reverse depends using PM_PKG_REQUIREDBY */
+		for (i = _pacman_pkg_getinfo (transpkg->pkg_local, PM_PKG_REQUIREDBY); i; i = i->next) {
+			const char *required_pkg_name = i->data;
+			pmtranspkg_t *required_transpkg = __pacman_trans_get_trans_pkg (trans, required_pkg_name);
+			int found = 0;
+
+			if (required_transpkg != NULL &&
+					required_transpkg->type == PM_TRANS_TYPE_REMOVE) {
 				/* Ignore required packages to be deleted */
-				if (requiredtranspkg != NULL &&
-						requiredtranspkg->type == PM_TRANS_TYPE_REMOVE) {
-					continue;
-				}
+				continue;
+			}
 
-				/* check if a package in trans->packages provides this package */
-				for (k = trans->packages; !found && k; k = k->next) {
-					pmsyncpkg_t *ps = k->data;
-					pmpkg_t *spkg = ps->pkg_new;
-					if (spkg && f_stringlist_find (_pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES), pkg_name)) {
-						found=1;
-					}
+			/* check if a package in trans->packages provides this package */
+			for (k = trans->packages; !found && k; k = k->next) {
+				pmsyncpkg_t *ps = k->data;
+				pmpkg_t *spkg = ps->pkg_new;
+				if (spkg && f_stringlist_find (_pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES), pkg_name)) {
+					found=1;
 				}
+			}
 
-				if(!found) {
-					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s which requires %s"), (char *)j->data, pkg_name);
-					miss = _pacman_depmiss_new (pkg_name, PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, j->data, NULL);
-					if (!_pacman_depmiss_isin(miss, *baddeps)) {
-						*baddeps = _pacman_list_add(*baddeps, miss);
-					} else {
-						FREE(miss);
-					}
+			if(!found) {
+				_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s which requires %s"), required_pkg_name, pkg_name);
+				miss = _pacman_depmiss_new (pkg_name, PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, required_pkg_name, NULL);
+				if (!_pacman_depmiss_isin(miss, *baddeps)) {
+					*baddeps = _pacman_list_add(*baddeps, miss);
+				} else {
+					FREE(miss);
 				}
 			}
 		}
+	}
 	return 0;
 }
 
