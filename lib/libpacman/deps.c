@@ -375,8 +375,6 @@ int _pacman_trans_check_package_depends (pmtrans_t *trans, pmpkg_t *pkg, pmlist_
  */
 static
 int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_t **baddeps) {
-	pmlist_t *k;
-	pmdepmissing_t *miss = NULL;
 	pmdb_t *db = trans->handle->db_local;
 	const char *pkg_name = __pacman_transpkg_name (transpkg);
 

@@ -122,7 +122,7 @@ pmsyncpkg_t *__pacman_trans_get_trans_pkg(pmtrans_t *trans, const char *package)
 }
 
 static
-void __pacman_trans_fini(struct pmobject *obj) {
+void __pacman_trans_fini(FObject *obj) {
 	pmtrans_t *trans = (pmtrans_t *)obj;
 
 	FREELIST(trans->targets);
@@ -567,7 +567,7 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *deps = NULL;
 	pmlist_t *asked = NULL;
-	pmlist_t *i, *j, *k, *l, *m;
+	pmlist_t *i, *j, *k;
 	int ret = 0;
 	pmdb_t *db_local = trans->handle->db_local;
 

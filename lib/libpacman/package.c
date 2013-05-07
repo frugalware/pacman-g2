@@ -43,6 +43,8 @@
 #include "cache.h"
 #include "pacman.h"
 
+#include "fstringlist.h"
+
 /* Test if a package is valid.
  *
  * Return 0 on success and !0 on failure.
@@ -57,7 +59,8 @@ int __pacman_pkg_isvalid (pmpkg_t *pkg) {
 	return 0;
 }
 
-void __pacman_pkg_fini (struct pmobject *obj) {
+static
+void __pacman_pkg_fini (FObject *obj) {
 	pmpkg_t *pkg = (pmpkg_t *)obj;
 
 	FREELIST(pkg->license);
