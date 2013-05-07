@@ -344,6 +344,31 @@ void _pacman_sortbydeps(pmtrans_t *trans, int mode)
 	trans->_packages = newtargs;
 }
 
+static
+int _pacman_trans_check_package_depends (pmtrans_t *trans, pmpkg_t *pkg, pmlist_t **missdeps) {
+	pmlist_t *i;
+
+	for(i = _pacman_pkg_getinfo (pkg, PM_PKG_DEPENDS); i; i = i->next) {
+		const char *pkg_depend = i->data;
+		pmdepend_t depend;
+		pmdepmissing_t *miss;
+
+		/* split into name/version pairs */
+		_pacman_splitdep (pkg_depend, &depend);
+		if (_pacman_trans_is_depend_satisfied (trans, &depend) != 0) {
+			_pacman_log (PM_LOG_DEBUG, _("checkdeps: found %s as a dependency for %s"),
+					depend.name, pkg->name);
+			miss = _pacman_depmiss_new(pkg->name, PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
+			if (!_pacman_depmiss_isin(miss, *missdeps)) {
+				*missdeps = _pacman_list_add(*missdeps, miss);
+			} else {
+				FREE(miss);
+			}
+		}
+	}
+	return 0;
+}
+
 /* Returns a pmlist_t* of missing_t pointers in **baddeps.
  *
  * dependencies can include versions with depmod operators.
@@ -361,21 +386,7 @@ int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_
 	}
 
 		if (transpkg->type & PM_TRANS_TYPE_ADD) {
-			/* DEPENDENCIES -- look for unsatisfied dependencies */
-			for(j = _pacman_pkg_getinfo (transpkg->pkg_new, PM_PKG_DEPENDS); j; j = j->next) {
-				/* split into name/version pairs */
-				_pacman_splitdep((char *)j->data, &depend);
-				if(_pacman_trans_is_depend_satisfied(trans, &depend) != 0) {
-					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s as a dependency for %s"),
-					          depend.name, pkg_name);
-					miss = _pacman_depmiss_new(pkg_name, PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
-					if (!_pacman_depmiss_isin(miss, *baddeps)) {
-						*baddeps = _pacman_list_add(*baddeps, miss);
-					} else {
-						FREE(miss);
-					}
-				}
-			}
+		_pacman_trans_check_package_depends (trans, transpkg->pkg_new, baddeps);
 		}
 		if (transpkg->type == PM_TRANS_TYPE_UPGRADE &&
 				transpkg->pkg_local != NULL) { /* Really an upgrade */
@@ -397,22 +408,7 @@ int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_
 					continue;
 				}
 
-				for(k = _pacman_pkg_getinfo(p, PM_PKG_DEPENDS); k; k = k->next) {
-					/* don't break any existing dependencies (possible provides) */
-					_pacman_splitdep(k->data, &depend);
-					if (_pacman_pkg_is_depend_satisfied (transpkg->pkg_local, &depend) == 0 &&
-						 	_pacman_pkg_is_depend_satisfied (transpkg->pkg_new, &depend) != 0) {
-						_pacman_log(PM_LOG_DEBUG, _("checkdeps: updated '%s' won't satisfy a dependency of '%s'"),
-								transpkg->pkg_local->name, p->name);
-						miss = _pacman_depmiss_new(p->name, PM_DEP_TYPE_DEPEND, depend.mod,
-								depend.name, depend.version);
-						if (!_pacman_depmiss_isin(miss, *baddeps)) {
-							*baddeps = _pacman_list_add(*baddeps, miss);
-						} else {
-							FREE(miss);
-						}
-					}
-				}
+			_pacman_trans_check_package_depends (trans, p, baddeps);
 			}
 		}
 		if (transpkg->type == PM_TRANS_TYPE_REMOVE) {
