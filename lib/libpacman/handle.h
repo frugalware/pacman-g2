@@ -31,8 +31,9 @@ typedef struct __pmhandle_t pmhandle_t;
 
 #include "list.h"
 #include "db.h"
-#include "object.h"
 #include "trans.h"
+
+#include "fobject.h"
 
 typedef enum __pmaccess_t {
 	PM_ACCESS_RO,
@@ -40,7 +41,7 @@ typedef enum __pmaccess_t {
 } pmaccess_t;
 
 struct __pmhandle_t {
-	struct pmobject base;
+	FObject base;
 
 	pmaccess_t access;
 	uid_t uid;
@@ -81,7 +82,7 @@ extern pmhandle_t *handle;
 #define FREEHANDLE(p) do { if (p) { _pacman_handle_free(p); p = NULL; } } while (0)
 
 pmhandle_t *_pacman_handle_new(void);
-int _pacman_handle_free(pmhandle_t *handle);
+void _pacman_handle_free(pmhandle_t *handle);
 int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long data);
 int _pacman_handle_get_option(pmhandle_t *handle, unsigned char val, long *data);
 

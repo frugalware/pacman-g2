@@ -45,10 +45,8 @@
 #include "server.h"
 
 static
-void _pacman_handle_fini(struct pmobject *obj)
+void _pacman_handle_fini(pmhandle_t *ph)
 {
-	pmhandle_t *ph = (pmhandle_t *)obj;
-
 	/* close logfiles */
 	if(ph->logfd) {
 		fclose(ph->logfd);
@@ -78,7 +76,7 @@ void _pacman_handle_fini(struct pmobject *obj)
 }
 
 static const
-struct pmobject_ops _pacman_handle_ops = {
+FObjectOps _pacman_handle_ops = {
 	.fini = _pacman_handle_fini,
 };
 
@@ -90,7 +88,7 @@ pmhandle_t *_pacman_handle_new()
 		return(NULL);
 	}
 
-	__pacman_object_init (&ph->base, &_pacman_handle_ops);
+	f_object_init (&ph->base, &_pacman_handle_ops);
 
 	ph->lckfd = -1;
 	ph->maxtries = 1;
@@ -128,9 +126,9 @@ pmhandle_t *_pacman_handle_new()
 	return(ph);
 }
 
-int _pacman_handle_free(pmhandle_t *ph)
+void _pacman_handle_free(pmhandle_t *ph)
 {
-	return _pacman_object_free (&ph->base);
+	f_object_delete (&ph->base);
 }
 
 int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long data)

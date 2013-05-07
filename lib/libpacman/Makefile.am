@@ -24,7 +24,6 @@ TARGETS = md5driver.c \
 	versioncmp.c \
 	backup.c \
 	file.c \
-	object.c \
 	packages_transaction.c \
 	trans.c \
 	trans_sysupgrade.c \

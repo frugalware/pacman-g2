@@ -51,7 +51,7 @@ typedef struct __pmtrans_cbs_t {
 } pmtrans_cbs_t;
 
 struct __pmtrans_t {
-	struct pmobject base;
+	FObject base;
 
 	const pmtrans_ops_t *ops;
 	int (*set_state)(pmtrans_t *trans, int new_state);

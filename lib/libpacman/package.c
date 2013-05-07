@@ -148,10 +148,9 @@ pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 	return(newpkg);
 }
 
-void _pacman_pkg_free(void *data)
+void _pacman_pkg_free(pmpkg_t *pkg)
 {
-	pmpkg_t *pkg = data;
-	_pacman_object_free (&pkg->base.base);
+	f_object_delete (&pkg->base.base);
 }
 
 /* Helper function for comparing packages

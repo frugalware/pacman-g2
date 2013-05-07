@@ -21,23 +21,23 @@
 #ifndef _PACMAN_FILE_H
 #define _PACMAN_FILE_H
 
-#include "object.h"
+#include "fobject.h"
 
 struct pmfile {
-	struct pmobject base;
+	FObject base;
 
 	char *path;
 };
 
 struct pmfile_ops {
-	struct pmobject_ops base;
+	FObjectOps base;
 };
 
 struct pmfile *_pacman_file_new(void);
 
 /* Implementation details */
 int __pacman_file_init(struct pmfile *file, const struct pmfile_ops *ops);
-int __pacman_file_fini(struct pmobject *object);
+int __pacman_file_fini(struct pmfile *object);
 
 #endif /* _PACMAN_OBJECT_H */
 

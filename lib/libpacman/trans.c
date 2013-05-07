@@ -131,7 +131,7 @@ void __pacman_trans_fini(struct pmobject *obj) {
 }
 
 static const
-struct pmobject_ops _pacman_trans_ops = {
+FObjectOps _pacman_trans_ops = {
 	.fini = __pacman_trans_fini,
 };
 
@@ -140,7 +140,7 @@ pmtrans_t *_pacman_trans_new()
 	pmtrans_t *trans = _pacman_zalloc(sizeof(pmtrans_t));
 
 	if (trans != NULL) {
-		__pacman_object_init (&trans->base, &_pacman_trans_ops);
+		f_object_init (&trans->base, &_pacman_trans_ops);
 		trans->state = STATE_IDLE;
 	}
 
@@ -148,7 +148,7 @@ pmtrans_t *_pacman_trans_new()
 }
 
 void _pacman_trans_free(pmtrans_t *trans) {
-	_pacman_object_free (&trans->base);
+	f_object_delete (&trans->base);
 }
 
 int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs)

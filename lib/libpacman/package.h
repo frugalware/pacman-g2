@@ -98,7 +98,7 @@ do { \
 
 pmpkg_t* _pacman_pkg_new(const char *name, const char *version);
 pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg);
-void _pacman_pkg_free(void *data);
+void _pacman_pkg_free(pmpkg_t *pkg);
 int _pacman_pkg_cmp(const void *p1, const void *p2);
 pmpkg_t *_pacman_pkg_load(const char *pkgfile);
 pmpkg_t *_pacman_pkg_isin(const char *needle, pmlist_t *haystack);

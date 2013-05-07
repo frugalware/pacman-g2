@@ -29,7 +29,7 @@
 
 int __pacman_file_init(struct pmfile *file, const struct pmfile_ops *ops) {
 	if (ops == NULL ||
-			__pacman_object_init(&file->base, &ops->base)) {
+			f_object_init(&file->base, &ops->base)) {
 		return EINVAL;
 	}
 
@@ -37,9 +37,7 @@ int __pacman_file_init(struct pmfile *file, const struct pmfile_ops *ops) {
 	return 0;
 }
 
-int __pacman_file_fini(struct pmobject *object) {
-	struct pmfile *file = (struct pmfile *)object;
-
+int __pacman_file_fini(struct pmfile *file) {
 	free(file->path);
 	return 0;
 }
