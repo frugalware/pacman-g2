@@ -18,16 +18,13 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef F_STRINGLIST_H
-#define F_STRINGLIST_H
+#ifndef F_STRING_H
+#define F_STRING_H
 
-#include "flist.h"
+#include "string.h"
 
-FList *f_stringlist_append (FList *list, const char *str);
-FList *f_stringlist_deep_copy (FList *list);
-FList *f_stringlist_find (FList *list, const char *str);
-FList *f_stringlist_uniques (FList *list);
+char *f_strdup (const char *str);
 
-#endif /* F_STRINGLIST_H */
+#endif /* F_STRING_H */
 
 /* vim: set ts=2 sw=2 noet: */

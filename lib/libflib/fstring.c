@@ -1,5 +1,5 @@
 /*
- *  stringlist.h
+ *  stringlist.c
  *
  *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
  *
@@ -18,16 +18,15 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef F_STRINGLIST_H
-#define F_STRINGLIST_H
 
-#include "flist.h"
+#include "config.h"
 
-FList *f_stringlist_append (FList *list, const char *str);
-FList *f_stringlist_deep_copy (FList *list);
-FList *f_stringlist_find (FList *list, const char *str);
-FList *f_stringlist_uniques (FList *list);
+#include <string.h>
 
-#endif /* F_STRINGLIST_H */
+#include "fstring.h"
+
+char *f_strdup (const char *str) {
+	return str != NULL ? strdup (str) : NULL;
+}
 
 /* vim: set ts=2 sw=2 noet: */

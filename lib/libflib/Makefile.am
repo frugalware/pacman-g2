@@ -14,6 +14,7 @@ libflib_la_SOURCES = \
 	flist.c \
 	fobject.c \
 	fstdlib.c \
+	fstring.c \
 	fstringlist.c \
 	fvalue.c
 
