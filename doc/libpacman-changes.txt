@@ -24,11 +24,12 @@ PM_LIST is now a flib FList meaning that pacman_list(3) API will be deprecated w
 
 ==== Symbols added:
 
+PM_PKG_DATABASE: New package data accessor.
 PM_TRANS_FLAG_EXPLICIT: (internal) Specify the user added the package on purpose.
 
 ==== Symbols removed:
 
-PM_PKG_DATA, PM_SYNC_DATA: Provided ambiguity in the API, returned value type was not consistant and was depending on other returned values.
+PM_PKG_DATA, PM_SYNC_DATA: These data accessors provided ambiguity in the API, returning value type was not consistant and was depending on other returned values.
 
 PM_SYNC_TYPE_REPLACE, PM_SYNC_TYPE_UPGRADE, PM_SYNC_TYPE_DEPEND: One should use the PM_TRANS_TYPE_* equivalent instead.
 
@@ -36,7 +37,7 @@ pacman_pkg_checkmd5sum, pacman_pkg_checksha1sum: Unused and broken since a while
 
 === Behaviour changes
 
-None known.
+PM_TRANS_CONV_REPLACE_PKG data3 third argument is now allways NULL, you can get the database and its name using PM_PKG_DATABASE.
 
 == AUTHORS
 

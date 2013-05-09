@@ -167,7 +167,8 @@ PM_LIST *pacman_db_test(PM_DB *db);
 /* Info parameters */
 enum {
 	/* Desc entry */
-	PM_PKG_NAME = 1,
+	PM_PKG_DATABASE,
+	PM_PKG_NAME,
 	PM_PKG_VERSION,
 	PM_PKG_DESC,
 	PM_PKG_GROUPS,

@@ -558,6 +558,7 @@ void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 	}
 
 	switch(parm) {
+		case PM_PKG_DATABASE:    data = pkg->db; break;
 		case PM_PKG_NAME:        data = pkg->name; break;
 		case PM_PKG_VERSION:     data = pkg->version; break;
 		case PM_PKG_DESC:        data = pkg->desc; break;
