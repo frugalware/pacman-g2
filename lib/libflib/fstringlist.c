@@ -35,6 +35,10 @@ FList *f_stringlist_deep_copy (FList *list) {
 	return f_list_deep_copy (list, (FCopyFunc)f_strdup, NULL);
 }
 
+void f_stringlist_detach (FList *list) {
+	f_list_detach (list, (FCopyFunc)f_strdup, NULL);
+}
+
 FList *f_stringlist_find (FList *list, const char *str) {
 	return f_list_detect (list, (FDetectFunc)strcmp, (void *)str);
 }

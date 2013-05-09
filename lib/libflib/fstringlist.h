@@ -25,6 +25,7 @@
 
 FList *f_stringlist_append (FList *list, const char *str);
 FList *f_stringlist_deep_copy (FList *list);
+void   f_stringlist_detach (FList *list);
 FList *f_stringlist_find (FList *list, const char *str);
 FList *f_stringlist_uniques (FList *list);
 
