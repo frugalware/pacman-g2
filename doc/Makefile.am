@@ -1,6 +1,6 @@
 if HAS_ASCIIDOC
 
-man3 = libpacman.3
+man3 = libpacman.3 libpacman-changes.3
 man5 = FrugalBuild.5
 
 man8 = makepkg.8 pacman-g2.8

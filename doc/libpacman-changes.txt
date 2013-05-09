@@ -1,0 +1,47 @@
+= libpacman-changes(3)
+
+== NAME
+
+libpacman-changes - Changelog for libpacman(3)
+
+== SYNOPSIS
+
+A attempt to have all the changes in API and behaviour of the libpacman over versions.
+
+== Changes for version XXX
+
+=== Dependency changes
+
+==== FLib
+
+A new private (for now) library that abstract some of the usual API a 'C' programmer need.
+
+=== API changes
+
+==== Symbols changed:
+
+PM_LIST is now a flib FList meaning that pacman_list(3) API will be deprecated when FLib will be stabilized. 
+
+==== Symbols added:
+
+PM_TRANS_FLAG_EXPLICIT: (internal) Specify the user added the package on purpose.
+
+==== Symbols removed:
+
+PM_PKG_DATA, PM_SYNC_DATA: Provided ambiguity in the API, returned value type was not consistant and was depending on other returned values.
+
+PM_SYNC_TYPE_REPLACE, PM_SYNC_TYPE_UPGRADE, PM_SYNC_TYPE_DEPEND: One should use the PM_TRANS_TYPE_* equivalent instead.
+
+pacman_pkg_checkmd5sum, pacman_pkg_checksha1sum: Unused and broken since a while and nobody noticed it, so it is unused (can can be easily replaced by other means).
+
+=== Behaviour changes
+
+None known.
+
+== AUTHORS
+
+See /usr/share/doc/pacman-g2-*/AUTHORS.
+
+== REPORTING BUGS
+
+If you find any bug, then please file a bugreport at <http://bugs.frugalware.org/>.
