@@ -66,7 +66,7 @@ int _pacman_db_load_pkgcache(pmdb_t *db)
 	_pacman_db_rewind(db);
 	while((info = _pacman_db_scan(db, NULL, inforeq)) != NULL) {
 		info->origin = PKG_FROM_CACHE;
-		info->data = db;
+		info->db = db;
 		/* add to the collective */
 		db->pkgcache = f_list_add_sorted(db->pkgcache, info, (FCompareFunc)_pacman_pkg_cmp, NULL);
 	}
@@ -175,7 +175,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 		pmpkg_t *pkg = lp->data;
 
 		if(!(pkg->infolevel & INFRQ_DESC)) {
-			_pacman_db_read(pkg->data, INFRQ_DESC, pkg);
+			_pacman_db_read(pkg->db, INFRQ_DESC, pkg);
 		}
 
 		for(i = pkg->groups; i; i = i->next) {

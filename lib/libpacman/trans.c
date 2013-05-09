@@ -285,7 +285,7 @@ pmtranspkg_t *_pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 
 	/* Check if an transaction packages already exist for the same package,
 	 * and if so try to compress it */
-	if ((transpkg_in = __pacman_trans_get_trans_pkg(trans, transpkg_name)) != NULL) {
+	if ((transpkg_in = __pacman_trans_get_trans_pkg (trans, transpkg_name)) != NULL) {
 		/* If both transpkg tries to install (or upgrade), let's compress the transpkg. */
 		/* FIXME: do something with transpkg->flags */
 		if (transpkg_in->type & PM_TRANS_TYPE_ADD &&
@@ -1340,8 +1340,9 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 		event = &trans_event_table[transtype];
 		EVENT(trans, event->pre.event, info, NULL);
 		if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-			_pacman_runscriptlet(handle->root, info->data, event->pre.hook, info->version, local ? local->version : NULL,
-				trans);
+			/* FIXME: check that it is really info->archive_path that whas expected */
+			_pacman_runscriptlet (handle->root, info->archive_path, event->pre.hook, info->version,
+					local ? local->version : NULL, trans);
 		}
 
 		if (transtype & PM_TRANS_TYPE_REMOVE) {
@@ -1397,7 +1398,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 			archive_read_support_compression_all (archive);
 			archive_read_support_format_all (archive);
 
-			if (archive_read_open_file (archive, info->data, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
+			if (archive_read_open_file (archive, info->archive_path, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
 				RET_ERR(PM_ERR_PKG_OPEN, -1);
 			}
 

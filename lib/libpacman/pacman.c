@@ -581,7 +581,6 @@ void *pacman_sync_getinfo(pmsyncpkg_t *ps, unsigned char parm)
 	switch(parm) {
 		case PM_SYNC_TYPE: data = (void *)(long)ps->type; break;
 		case PM_SYNC_PKG:  data = ps->pkg_new != NULL ? ps->pkg_new : ps->pkg_local; break;
-		case PM_SYNC_DATA: data = ps->replaces; break; /* FIXME: change the name */
 		default:
 			data = NULL;
 		break;

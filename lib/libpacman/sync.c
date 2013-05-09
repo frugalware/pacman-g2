@@ -302,7 +302,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 			for(j = trans->packages; j; j = j->next) {
 				pmsyncpkg_t *ps = j->data;
 				pmpkg_t *spkg = ps->pkg_new;
-				pmdb_t *dbs = spkg->data;
+				pmdb_t *dbs = spkg->db;
 
 				if(current == dbs) {
 					char filename[PATH_MAX];

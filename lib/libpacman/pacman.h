@@ -196,7 +196,6 @@ enum {
 	/* Sciplet */
 	PM_PKG_SCRIPLET,
 	/* Misc */
-	PM_PKG_DATA,
 	PM_PKG_FORCE,
 	PM_PKG_STICK
 };
@@ -238,7 +237,6 @@ void *pacman_grp_getinfo(PM_GRP *grp, unsigned char parm);
 enum {
 	PM_SYNC_TYPE = 1,
 	PM_SYNC_PKG,
-	PM_SYNC_DATA
 };
 
 void *pacman_sync_getinfo(PM_SYNCPKG *sync, unsigned char parm);

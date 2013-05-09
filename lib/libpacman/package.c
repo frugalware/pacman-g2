@@ -43,6 +43,7 @@
 #include "cache.h"
 #include "pacman.h"
 
+#include "fstring.h"
 #include "fstringlist.h"
 
 /* Test if a package is valid.
@@ -74,9 +75,7 @@ void __pacman_pkg_fini (FObject *obj) {
 	FREELIST(pkg->groups);
 	FREELIST(pkg->provides);
 	FREELIST(pkg->replaces);
-	if(pkg->origin == PKG_FROM_FILE) {
-		FREE(pkg->data);
-	}
+	free (pkg->archive_path);
 }
 
 static const
@@ -115,6 +114,7 @@ pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 	}
 	__pacman_file_init (&newpkg->base, &_pacman_pkg_ops);
 
+	newpkg->db         = pkg->db;
 	STRNCPY(newpkg->name, pkg->name, PKG_NAME_LEN);
 	STRNCPY(newpkg->version, pkg->version, PKG_VERSION_LEN);
 	STRNCPY(newpkg->desc, pkg->desc, PKG_DESC_LEN);
@@ -145,7 +145,7 @@ pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 	newpkg->replaces   = f_stringlist_deep_copy(pkg->replaces);
 	/* internal */
 	newpkg->origin     = pkg->origin;
-	newpkg->data = (newpkg->origin == PKG_FROM_FILE) ? strdup(pkg->data) : pkg->data;
+	newpkg->archive_path = f_strdup (pkg->archive_path);
 	newpkg->infolevel  = pkg->infolevel;
 
 	return(newpkg);
@@ -412,7 +412,7 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 
 	/* internal */
 	info->origin = PKG_FROM_FILE;
-	info->data = strdup(pkgfile);
+	info->archive_path = strdup(pkgfile);
 	info->infolevel = 0xFF;
 
 	if (__pacman_pkg_isvalid (info) != 0) {
@@ -526,7 +526,7 @@ void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 			case PM_PKG_FORCE:
 				if(!(pkg->infolevel & INFRQ_DESC)) {
 					_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), pkg->name);
-					_pacman_db_read(pkg->data, INFRQ_DESC, pkg);
+					_pacman_db_read(pkg->db, INFRQ_DESC, pkg);
 				}
 			break;
 			/* Depends entry */
@@ -536,22 +536,22 @@ void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 			case PM_PKG_PROVIDES:
 				if(!(pkg->infolevel & INFRQ_DEPENDS)) {
 					_pacman_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", pkg->name);
-					_pacman_db_read(pkg->data, INFRQ_DEPENDS, pkg);
+					_pacman_db_read(pkg->db, INFRQ_DEPENDS, pkg);
 				}
 			break;
 			/* Files entry */
 			case PM_PKG_FILES:
 			case PM_PKG_BACKUP:
-				if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_FILES)) {
+				if(pkg->db == handle->db_local && !(pkg->infolevel & INFRQ_FILES)) {
 					_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg->name);
-					_pacman_db_read(pkg->data, INFRQ_FILES, pkg);
+					_pacman_db_read(pkg->db, INFRQ_FILES, pkg);
 				}
 			break;
 			/* Scriptlet */
 			case PM_PKG_SCRIPLET:
-				if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_SCRIPLET)) {
+				if(pkg->db == handle->db_local && !(pkg->infolevel & INFRQ_SCRIPLET)) {
 					_pacman_log(PM_LOG_DEBUG, _("loading SCRIPLET info for '%s'"), pkg->name);
-					_pacman_db_read(pkg->data, INFRQ_SCRIPLET, pkg);
+					_pacman_db_read(pkg->db, INFRQ_SCRIPLET, pkg);
 				}
 			break;
 		}
@@ -585,7 +585,6 @@ void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 		case PM_PKG_FILES:       data = pkg->files; break;
 		case PM_PKG_BACKUP:      data = pkg->backup; break;
 		case PM_PKG_SCRIPLET:    data = (void *)(long)pkg->scriptlet; break;
-		case PM_PKG_DATA:        data = pkg->data; break;
 		default:
 			data = NULL;
 		break;

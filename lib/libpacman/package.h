@@ -52,6 +52,7 @@ enum {
 typedef struct __pmpkg_t {
 	struct pmfile base;
 
+	struct __pmdb_t *db;
 	char name[PKG_NAME_LEN];
 	char version[PKG_VERSION_LEN];
 	char desc[PKG_DESC_LEN];
@@ -83,7 +84,7 @@ typedef struct __pmpkg_t {
 	pmlist_t *provides;
 	/* internal */
 	unsigned char origin;
-	void *data;
+	char *archive_path;
 	unsigned char infolevel;
 } pmpkg_t;
 
