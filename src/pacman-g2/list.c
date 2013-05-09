@@ -30,75 +30,6 @@
 
 extern int maxcols;
 
-static list_t *list_last(list_t *list);
-
-list_t *list_new()
-{
-	list_t *list = NULL;
-
-	list = (list_t *)malloc(sizeof(list_t));
-	if(list == NULL) {
-		return(NULL);
-	}
-	list->data = NULL;
-	list->next = NULL;
-	return(list);
-}
-
-void list_free(list_t *list)
-{
-	list_t *ptr, *it = list;
-
-	while(it) {
-		ptr = it->next;
-		free(it->data);
-		free(it);
-		it = ptr;
-	}
-	return;
-}
-
-list_t *list_add(list_t *list, void *data)
-{
-	list_t *ptr, *lp;
-
-	ptr = list;
-	if(ptr == NULL) {
-		ptr = list_new();
-	}
-
-	lp = list_last(ptr);
-	if(lp == ptr && lp->data == NULL) {
-		/* nada */
-	} else {
-		lp->next = list_new();
-		if(lp->next == NULL) {
-			return(NULL);
-		}
-		lp = lp->next;
-	}
-	lp->data = data;
-	return(ptr);
-}
-
-int list_count(list_t *list)
-{
-	int i;
-	list_t *lp;
-
-	for(lp = list, i = 0; lp; lp = lp->next, i++);
-
-	return(i);
-}
-
-static list_t *list_last(list_t *list)
-{
-	list_t *ptr;
-
-	for(ptr = list; ptr && ptr->next; ptr = ptr->next);
-	return(ptr);
-}
-
 /* Test for existence of a string in a list_t
  */
 int list_is_strin(char *needle, list_t *haystack)
@@ -142,56 +73,6 @@ void list_display(const char *title, list_t *list)
 	} else {
 		printf(_("None\n"));
 	}
-}
-
-void PM_LIST_display(const char *title, PM_LIST *list)
-{
-	PM_LIST *lp;
-	int cols, len;
-
-	len = strlen(title);
-	printf("%s ", title);
-
-	if(list) {
-		for(lp = list, cols = len; lp; lp = pacman_list_next(lp)) {
-			int s = strlen(pacman_list_getdata(lp))+1;
-			if(s+cols >= maxcols) {
-				int i;
-				cols = len;
-				printf("\n");
-				for (i = 0; i < len+1; i++) {
-					printf(" ");
-				}
-			}
-			printf("%s ", (char *)pacman_list_getdata(lp));
-			cols += s;
-		}
-		printf("\n");
-	} else {
-		printf(_("None\n"));
-	}
-}
-
-/* Filter out any duplicate strings in a PM_LIST
- *
- * Not the most efficient way, but simple to implement -- we assemble
- * a new list, using is_in() to check for dupes at each iteration.
- *
- * This function takes a PM_LIST* and returns a list_t*
- *
- */
-list_t *PM_LIST_remove_dupes(PM_LIST *list)
-{
-	PM_LIST *i;
-	list_t *newlist = NULL;
-
-	for(i = pacman_list_first(list); i; i = pacman_list_next(i)) {
-		char *data = pacman_list_getdata(i);
-		if(!list_is_strin(data, newlist)) {
-			newlist = list_add(newlist, strdup(data));
-		}
-	}
-	return newlist;
 }
 
 /* vim: set ts=2 sw=2 noet: */

@@ -49,6 +49,8 @@
 #include "sync.h"
 #include "conf.h"
 
+#include "fstringlist.h"
+
 extern PM_DB *db_local;
 
 extern config_t *config;
@@ -134,7 +136,7 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 
 				if(grp) {
 					MSG(NL, "%s\n", (char *)pacman_grp_getinfo(grp, PM_GRP_NAME));
-					PM_LIST_display("   ", pacman_grp_getinfo(grp, PM_GRP_PKGNAMES));
+					list_display("   ", pacman_grp_getinfo(grp, PM_GRP_PKGNAMES));
 					found = 1;
 				}
 			}
@@ -153,7 +155,7 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 
 				MSG(NL, "%s\n", (char *)pacman_grp_getinfo(grp, PM_GRP_NAME));
 				if(grp && level > 1) {
-					PM_LIST_display("   ", pacman_grp_getinfo(grp, PM_GRP_PKGNAMES));
+					list_display("   ", pacman_grp_getinfo(grp, PM_GRP_PKGNAMES));
 				}
 			}
 		}
@@ -261,7 +263,7 @@ int syncpkg(list_t *targets)
 	list_t *i;
 	PM_LIST *packages, *data, *lp;
 
-	if(pmc_syncs == NULL || !list_count(pmc_syncs)) {
+	if (f_list_count (pmc_syncs) == 0) {
 		ERR(NL, _("no usable package repositories configured.\n"));
 		return(1);
 	}
@@ -343,7 +345,7 @@ int syncpkg(list_t *targets)
 		for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
 			PM_SYNCPKG *ps = pacman_list_getdata(lp);
 			PM_PKG *spkg = pacman_sync_getinfo(ps, PM_SYNC_PKG);
-			if(!strcmp("pacman-g2", pacman_pkg_getinfo(spkg, PM_PKG_NAME)) && pacman_list_count(data) > 1) {
+			if (!strcmp("pacman-g2", pacman_pkg_getinfo(spkg, PM_PKG_NAME)) && f_list_count (data) > 1) {
 				MSG(NL, _("\n:: pacman-g2 has detected a newer version of the \"pacman-g2\" package.\n"));
 				MSG(NL, _(":: It is recommended that you allow pacman-g2 to upgrade itself\n"));
 				MSG(NL, _(":: first, then you can re-run the operation with the newer version.\n"));
@@ -400,7 +402,7 @@ int syncpkg(list_t *targets)
 						pmpkgs = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
 						/* remove dupe entries in case a package exists in multiple repos */
 						/*   (the dupe function takes a PM_LIST* and returns a list_t*) */
-						pkgs = PM_LIST_remove_dupes(pmpkgs);
+						pkgs = f_stringlist_uniques (pmpkgs);
 						list_display("   ", pkgs);
 						if(yesno(_(":: Install whole content? [Y/n] "))) {
 							for(k = pkgs; k; k = k->next) {
@@ -414,7 +416,7 @@ int syncpkg(list_t *targets)
 								}
 							}
 						}
-						FREELIST(pkgs);
+						FREELISTPTR(pkgs);
 					}
 				}
 				/* targ is not a group, see if it's a regex */

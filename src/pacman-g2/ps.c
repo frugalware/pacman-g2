@@ -34,6 +34,8 @@
 #include "conf.h"
 #include "ps.h"
 
+#include "flist.h"
+
 extern config_t *config;
 
 static int start_lsof(FILE** childout, pid_t* childpid, int silent)
@@ -109,7 +111,7 @@ static int ps_free(ps_t *ps)
 static list_t* add_or_free(list_t* l, ps_t* ps)
 {
 	if (ps) {
-		if (list_count(ps->files) > 0) {
+		if (f_list_count (ps->files) > 0) {
 			l = list_add(l, ps);
 		} else
 			ps_free(ps);
@@ -145,7 +147,7 @@ static list_t* ps_parse(FILE *fp)
 {
 	char buf[PATH_MAX+1], *ptr;
 	ps_t* ps = NULL;
-	list_t* ret = list_new();
+	list_t* ret = f_list_new ();
 
 	while(!feof(fp)) {
 		if(fgets(buf, PATH_MAX, fp) == NULL)

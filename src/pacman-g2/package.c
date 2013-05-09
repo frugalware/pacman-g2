@@ -50,11 +50,11 @@ void dump_pkg_full(PM_PKG *pkg, int level)
 	printf(_("Name           : %s\n"), (char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME));
 	printf(_("Version        : %s\n"), (char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION));
 
-	PM_LIST_display(_("Groups         :"), pacman_pkg_getinfo(pkg, PM_PKG_GROUPS));
+	list_display(_("Groups         :"), pacman_pkg_getinfo(pkg, PM_PKG_GROUPS));
 
 	printf(_("Packager       : %s\n"), (char *)pacman_pkg_getinfo(pkg, PM_PKG_PACKAGER));
 	printf("URL            : %s\n", (char *)pacman_pkg_getinfo(pkg, PM_PKG_URL));
-	PM_LIST_display(_("License        :"), pacman_pkg_getinfo(pkg, PM_PKG_LICENSE));
+	list_display(_("License        :"), pacman_pkg_getinfo(pkg, PM_PKG_LICENSE));
 	printf(_("Architecture   : %s\n"), (char *)pacman_pkg_getinfo(pkg, PM_PKG_ARCH));
 	printf(_("Size           : %ld\n"), (long int)pacman_pkg_getinfo(pkg, PM_PKG_SIZE));
 
@@ -80,11 +80,11 @@ void dump_pkg_full(PM_PKG *pkg, int level)
 			break;
 	}
 
-	PM_LIST_display(_("Provides       :"), pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES));
-	PM_LIST_display(_("Depends On     :"), pacman_pkg_getinfo(pkg, PM_PKG_DEPENDS));
-	PM_LIST_display(_("Removes        :"), pacman_pkg_getinfo(pkg, PM_PKG_REMOVES));
-	PM_LIST_display(_("Required By    :"), pacman_pkg_getinfo(pkg, PM_PKG_REQUIREDBY));
-	PM_LIST_display(_("Conflicts With :"), pacman_pkg_getinfo(pkg, PM_PKG_CONFLICTS));
+	list_display(_("Provides       :"), pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES));
+	list_display(_("Depends On     :"), pacman_pkg_getinfo(pkg, PM_PKG_DEPENDS));
+	list_display(_("Removes        :"), pacman_pkg_getinfo(pkg, PM_PKG_REMOVES));
+	list_display(_("Required By    :"), pacman_pkg_getinfo(pkg, PM_PKG_REQUIREDBY));
+	list_display(_("Conflicts With :"), pacman_pkg_getinfo(pkg, PM_PKG_CONFLICTS));
 
 	printf(_("Description    : "));
 	indentprint(pacman_pkg_getinfo(pkg, PM_PKG_DESC), 17);
@@ -145,12 +145,12 @@ void dump_pkg_sync(PM_PKG *pkg, char *treename)
 	printf(_("Name              : %s\n"), (char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME));
 	printf(_("Version           : %s\n"), (char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION));
 
-	PM_LIST_display(_("Groups            :"), pacman_pkg_getinfo(pkg, PM_PKG_GROUPS));
-	PM_LIST_display(_("Provides          :"), pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES));
-	PM_LIST_display(_("Depends On        :"), pacman_pkg_getinfo(pkg, PM_PKG_DEPENDS));
-	PM_LIST_display(_("Removes           :"), pacman_pkg_getinfo(pkg, PM_PKG_REMOVES));
-	PM_LIST_display(_("Conflicts With    :"), pacman_pkg_getinfo(pkg, PM_PKG_CONFLICTS));
-	PM_LIST_display(_("Replaces          :"), pacman_pkg_getinfo(pkg, PM_PKG_REPLACES));
+	list_display(_("Groups            :"), pacman_pkg_getinfo(pkg, PM_PKG_GROUPS));
+	list_display(_("Provides          :"), pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES));
+	list_display(_("Depends On        :"), pacman_pkg_getinfo(pkg, PM_PKG_DEPENDS));
+	list_display(_("Removes           :"), pacman_pkg_getinfo(pkg, PM_PKG_REMOVES));
+	list_display(_("Conflicts With    :"), pacman_pkg_getinfo(pkg, PM_PKG_CONFLICTS));
+	list_display(_("Replaces          :"), pacman_pkg_getinfo(pkg, PM_PKG_REPLACES));
 
 	printf(_("Size (compressed) : %ld\n"), (long)pacman_pkg_getinfo(pkg, PM_PKG_SIZE));
 	printf(_("Size (installed)  : %ld\n"), (long)pacman_pkg_getinfo(pkg, PM_PKG_USIZE));

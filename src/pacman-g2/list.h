@@ -23,30 +23,17 @@
 
 #include <pacman.h>
 
+#include "flist.h"
+
 /* Chained list struct */
-typedef struct __list_t {
-	void *data;
-	struct __list_t *next;
-} list_t;
+typedef FList list_t;
 
-#define FREELIST(p) do { if(p) { list_free(p); p = NULL; } } while(0)
-#define FREELISTPTR(p) do { \
-	list_t *q; \
-	for(q = p; q; q = q->next) { \
-		q->data = NULL; \
-	} \
-	FREELIST(p); \
-} while(0)
+#define FREELIST(p) do { if(p) { f_list_delete (p, (FVisitorFunc)free, NULL); p = NULL; } } while(0)
+#define FREELISTPTR(p) do { if(p) { f_list_delete (p, NULL, NULL); p = NULL; } } while (0)
 
-list_t *list_new(void);
-void list_free(list_t *list);
-list_t *list_add(list_t *list, void *data);
-int list_count(list_t *list);
+#define list_add f_list_append
 int list_is_strin(char *needle, list_t *haystack);
 void list_display(const char *title, list_t *list);
-
-void PM_LIST_display(const char *title, PM_LIST *list);
-list_t *PM_LIST_remove_dupes(PM_LIST *list);
 
 #endif /* _PM_LIST_H */
 

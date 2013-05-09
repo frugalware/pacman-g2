@@ -62,7 +62,7 @@ int removepkg(list_t *targets)
 			pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
 
 			MSG(NL, _(":: group %s:\n"), pacman_grp_getinfo(grp, PM_GRP_NAME));
-			PM_LIST_display("   ", pkgnames);
+			list_display("   ", pkgnames);
 			all = yesno(_("    Remove whole content? [Y/n] "));
 			for(lp = pacman_list_first(pkgnames); lp; lp = pacman_list_next(lp)) {
 				if(all || yesno(_(":: Remove %s from group %s? [Y/n] "), (char *)pacman_list_getdata(lp), i->data)) {
