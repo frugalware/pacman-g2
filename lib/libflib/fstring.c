@@ -25,8 +25,12 @@
 
 #include "fstring.h"
 
-char *f_strdup (const char *str) {
-	return str != NULL ? strdup (str) : NULL;
+char *f_strdup (const char *s) {
+	return s != NULL ? strdup (s) : NULL;
+}
+
+size_t f_strlen (const char *s) {
+	return s != NULL ? strlen (s) : NULL;
 }
 
 /* vim: set ts=2 sw=2 noet: */

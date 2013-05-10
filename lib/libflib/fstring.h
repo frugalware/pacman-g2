@@ -23,7 +23,9 @@
 
 #include "string.h"
 
-char *f_strdup (const char *str);
+char *f_strdup (const char *s);
+
+size_t f_strlen (const char *s);
 
 #endif /* F_STRING_H */
 
