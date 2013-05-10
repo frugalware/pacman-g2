@@ -37,7 +37,9 @@ pacman_pkg_checkmd5sum, pacman_pkg_checksha1sum: Unused and broken since a while
 
 === Behaviour changes
 
-PM_TRANS_CONV_REPLACE_PKG data3 third argument is now allways NULL, you can get the database and its name using PM_PKG_DATABASE.
+PM_TRANS_CONV_REPLACE_PKG: hook data3 argument is now allways NULL, you can get the database and its name using PM_PKG_DATABASE.
+
+PM_TRANS_PACKAGES: Now allways return a PM_SYNCPKG.
 
 == AUTHORS
 
