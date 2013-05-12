@@ -376,7 +376,6 @@ int _pacman_trans_check_package_depends (pmtrans_t *trans, pmpkg_t *pkg, pmlist_
 static
 int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_t **baddeps) {
 	pmdb_t *db = trans->handle->db_local;
-	const char *pkg_name = __pacman_transpkg_name (transpkg);
 
 	if(db == NULL) {
 		return -1;
@@ -537,22 +536,8 @@ int _pacman_resolvedeps (pmtrans_t *trans, pmlist_t *deps, pmlist_t **data)
 
 	_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 	for(i = deps; i; i = i->next) {
-		int found = 0;
 		pmdepmissing_t *miss = i->data;
 		pmpkg_t *ps = NULL;
-
-		/* check if one of the packages in *list already provides this dependency */
-		for(j = trans->_packages; j && !found; j = j->next) {
-			pmpkg_t *sp = (pmpkg_t *)j->data;
-			if(f_stringlist_find (_pacman_pkg_getinfo(sp, PM_PKG_PROVIDES), miss->depend.name)) {
-				_pacman_log(PM_LOG_DEBUG, _("%s provides dependency %s -- skipping"),
-				          sp->name, miss->depend.name);
-				found = 1;
-			}
-		}
-		if(found) {
-			continue;
-		}
 
 		/* find the package in one of the repositories */
 		/* check literals */
