@@ -50,7 +50,7 @@ FList *f_list_new (void);
 void   f_list_delete (FList *list, FVisitorFunc fn, void *user_data);
 
 FList *f_list_alloc (void *data);
-FList *f_list_free (FList *item, FVisitorFunc fn, void *user_data);
+void   f_list_free (FList *item, FVisitorFunc fn, void *user_data);
 void  *f_list_get (FList *item);
 void   f_list_set (FList *item, void *data);
 void   f_list_insert_after (FList *item, FList *list);

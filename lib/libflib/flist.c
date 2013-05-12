@@ -43,8 +43,12 @@ FList *f_list_new () {
 }
 
 void f_list_delete (FList *list, FVisitorFunc fn, void *user_data) {
-	while ((list = f_list_free (list, fn, user_data)) != NULL)
-		/* Do nothing */;
+	FList *next;
+
+	for (; list != NULL; list = next) {
+		next = list->next;
+		f_list_free (list, fn, user_data);
+	}
 }
 
 FList *f_list_alloc (void *data) {
@@ -61,18 +65,14 @@ FList *f_list_alloc (void *data) {
  *
  * Returns the next item in the list or NULL if item was the last one in the list.
  */
-FList *f_list_free (FList *item, FVisitorFunc fn, void *user_data) {
-	FList *next = NULL;
-
+void f_list_free (FList *item, FVisitorFunc fn, void *user_data) {
 	if (item != NULL) {
 		if (fn != NULL) {
 			fn (item->data, user_data);
 		}
-		next = item->next;
 		f_list_remove (item);
 		free (item);
 	}
-	return next;
 }
 
 void *f_list_get (FList *item) {
