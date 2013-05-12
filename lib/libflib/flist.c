@@ -163,23 +163,9 @@ FList *f_list_next (FList *list) {
 	return NULL;
 }
 
-FList *f_list_next_filtered (FList *list, FDetectFunc dfn, void *user_data) {
-	while (list != NULL && dfn (list, user_data) != 0) {
-		list = list->next;
-	}
-	return NULL;
-}
-
 FList *f_list_previous (FList *list) {
 	if (list != NULL) {
 		return list->prev;
-	} 
-	return NULL;
-}
-
-FList *f_list_previous_filtered (FList *list, FDetectFunc dfn, void *user_data) {
-	while (list != NULL && dfn (list, user_data) != 0) {
-		list = list->prev;
 	} 
 	return NULL;
 }
@@ -224,10 +210,15 @@ FList *f_list_detect (FList *list, FDetectFunc fn, void *user_data) {
 	return list;
 }
 
+FList *f_list_detect_next (FList *list, FDetectFunc fn, void *user_data) {
+	return f_list_detect (f_list_next (list), fn, user_data);
+}
+
 FList *f_list_filter (FList *list, FDetectFunc dfn, void *user_data) {
 	FList *ret = NULL;
 
-	for (; list != NULL; list = f_list_next_filtered (list, dfn, user_data)) {
+	for (list = f_list_detect (list, dfn, user_data); list != NULL;
+			list = f_list_detect_next (list, dfn, user_data)) {
 		ret = f_list_append (ret, list->data);
 	}
 	return ret;
@@ -253,7 +244,8 @@ void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
 }
 
 void f_list_foreach_filtered (FList *list, FVisitorFunc fn, FDetectFunc dfn, void *user_data) {
-	for (; list != NULL; list = f_list_next_filtered (list, dfn, user_data)) {
+	for (list = f_list_detect (list, dfn, user_data); list != NULL;
+			list = f_list_detect_next (list, dfn, user_data)) {
 		fn (list->data, user_data);
 	}
 }
