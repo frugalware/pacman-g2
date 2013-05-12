@@ -1,5 +1,5 @@
 /*
- *  list.c
+ *  flist.c
  *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
@@ -219,13 +219,13 @@ FList *f_list_filter (FList *list, FDetectFunc dfn, void *user_data) {
 
 	for (list = f_list_detect (list, dfn, user_data); list != NULL;
 			list = f_list_detect_next (list, dfn, user_data)) {
-		ret = f_list_append (ret, list->data);
+		f_listaccumulator (list->data, &ret);
 	}
 	return ret;
 }
 
 FList *f_list_find (FList *list, const void *data) {
-	return f_list_find_custom (list, data, (FDetectFunc)f_ptrcmp, NULL);
+	return f_list_find_custom (list, data, (FCompareFunc)f_ptrcmp, NULL);
 }
 
 FList *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data) {
