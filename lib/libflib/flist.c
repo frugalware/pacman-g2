@@ -222,8 +222,17 @@ FList *f_list_filter (FList *list, FDetectFunc dfn, void *user_data) {
 	return ret;
 }
 
-FList *f_list_find (FList *list, const void *ptr) {
-	return f_list_search (list, ptr, (FCompareFunc)f_ptrcmp, NULL);
+FList *f_list_find (FList *list, const void *data) {
+	return f_list_find_custom (list, data, (FDetectFunc)f_ptrcmp, NULL);
+}
+
+FList *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data) {
+	for (; list != NULL; list = list->next) {
+		if (cfn (list->data, data, user_data) == 0) {
+			break;
+		}
+	}
+	return list;
 }
 
 void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
@@ -256,20 +265,11 @@ void f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data) {
 	}
 }
 
-FList *f_list_search (FList *list, const void *ptr, FCompareFunc fn, void *user_data) {
-	for (; list != NULL; list = list->next) {
-		if (fn (list->data, ptr, user_data) == 0) {
-			break;
-		}
-	}
-	return list;
-}
-
 FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data) {
 	FList *ret = NULL;
 
 	for (; list != NULL; list = list->next) {
-		if (f_list_search (ret, list->data, fn, user_data) == NULL) {
+		if (f_list_find_custom (ret, list->data, fn, user_data) == NULL) {
 			ret = f_list_append (ret, list->data);
 		}
 	}

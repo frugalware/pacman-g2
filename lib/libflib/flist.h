@@ -71,13 +71,13 @@ FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data);
 void   f_list_detach (FList *list, FCopyFunc fn, void *user_data);
 FList *f_list_detect (FList *list, FDetectFunc fn, void *user_data);
 FList *f_list_filter (FList *list, FDetectFunc fn, void *user_data);
-FList *f_list_find (FList *list, const void *ptr);
+FList *f_list_find (FList *list, const void *data);
+FList *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data);
 void   f_list_foreach (FList *list, FVisitorFunc fn, void *user_data);
 void   f_list_foreach_filtered (FList *list, FVisitorFunc fn, FDetectFunc dfn, void *user_data);
 FList *f_list_reverse (FList *list);
 void   f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data);
 FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data);
-FList *f_list_search (FList *list, const void *ptr, FCompareFunc fn, void *user_data);
 
 FList *f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_data);
 FList *f_list_remove (FList *haystack, void *needle, FCompareFunc fn, void **data);
