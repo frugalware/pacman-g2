@@ -34,7 +34,7 @@ void *f_ptrcpy(const void *p) {
 }
 
 static
-void f_list_accumulator (void *data, FList **list) {
+void f_listaccumulator (void *data, FList **list) {
 	*list = f_list_append (*list, data);
 }
 
@@ -257,7 +257,7 @@ void f_list_foreach_filtered (FList *list, FVisitorFunc fn, FDetectFunc dfn, voi
 FList *f_list_reverse (FList *list) {
 	FList *ret = NULL;
 
-	f_list_reverse_foreach (list, (FVisitorFunc)f_list_accumulator, &ret);
+	f_list_reverse_foreach (list, (FVisitorFunc)f_listaccumulator, &ret);
 	return ret;
 }
 
@@ -273,7 +273,7 @@ FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data) {
 
 	for (; list != NULL; list = list->next) {
 		if (f_list_find_custom (ret, list->data, fn, user_data) == NULL) {
-			ret = f_list_append (ret, list->data);
+			f_listaccumulator (list->data, &ret);
 		}
 	}
 	return ret;
