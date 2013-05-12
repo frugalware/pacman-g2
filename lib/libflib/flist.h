@@ -53,11 +53,12 @@ FList *f_list_alloc (void *data);
 FList *f_list_free (FList *item, FVisitorFunc fn, void *user_data);
 void  *f_list_get (FList *item);
 void   f_list_set (FList *item, void *data);
+void   f_list_insert_after (FList *item, FList *list);
+void   f_list_insert_before (FList *item, FList *list);
+void   f_list_remove (FList *item);
 
 size_t f_list_count (FList *list);
 FList *f_list_first (FList *list);
-void   f_list_insert_after (FList *item, FList *list);
-void   f_list_insert_before (FList *item, FList *list);
 FList *f_list_last (FList *list);
 FList *f_list_next (FList *list);
 FList *f_list_next_filtered (FList *list, FDetectFunc dfn, void *user_data);

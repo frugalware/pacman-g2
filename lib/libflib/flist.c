@@ -69,12 +69,7 @@ FList *f_list_free (FList *item, FVisitorFunc fn, void *user_data) {
 			fn (item->data, user_data);
 		}
 		next = item->next;
-		if (item->prev != NULL) {
-			item->prev->next = next;
-		}
-		if (next != NULL) {
-			next->prev = item->prev;
-		}
+		f_list_remove (item);
 		free (item);
 	}
 	return next;
@@ -88,23 +83,6 @@ void f_list_set (FList *item, void *data) {
 	if (item) {
 		item->data = data;
 	}
-}
-
-size_t f_list_count(FList *list)
-{
-	size_t count;
-
-	for (count = 0; list != NULL; list = list->next, count++)
-		/* Do nothing */;
-	return count;
-}
-
-FList *f_list_first (FList *list) {
-	if (list != NULL) {
-		for (; list->prev != NULL; list = list->prev)
-			/* Do nothing */;
-	}
-	return list;
 }
 
 void f_list_insert_after (FList *item, FList *list) {
@@ -135,6 +113,39 @@ void f_list_insert_before (FList *item, FList *list) {
 	if (item->prev != NULL) {
 		item->prev->next = list;
 	}
+}
+
+/**
+ * Remove a list item from the list it belongs.
+ */
+void f_list_remove (FList *item) {
+	if (item != NULL) {
+		if (item->prev != NULL) {
+			item->prev->next = item->next;
+		}
+		if (item->next != NULL) {
+			item->next->prev = item->prev;
+		}
+		item->prev = NULL;
+		item->next = NULL;
+	}
+}
+
+size_t f_list_count(FList *list)
+{
+	size_t count;
+
+	for (count = 0; list != NULL; list = list->next, count++)
+		/* Do nothing */;
+	return count;
+}
+
+FList *f_list_first (FList *list) {
+	if (list != NULL) {
+		for (; list->prev != NULL; list = list->prev)
+			/* Do nothing */;
+	}
+	return list;
 }
 
 FList *f_list_last (FList *list) {
