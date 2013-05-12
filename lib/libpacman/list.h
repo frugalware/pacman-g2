@@ -30,7 +30,7 @@ typedef FList pmlist_t;
 #define FREELISTPTR(p) _FREELIST(p, NULL)
 
 #define _pacman_list_add f_list_append
-#define _pacman_list_remove(list, ptr, fn, data) f_list_remove((list), (ptr), (FCompareFunc)(fn), (data))
+#define _pacman_list_remove(list, ptr, fn, data) f_list_remove_find_custom((list), (ptr), (FCompareFunc)(fn), (data))
 
 #endif /* _PACMAN_LIST_H */
 

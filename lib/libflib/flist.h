@@ -80,7 +80,7 @@ void   f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data);
 FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data);
 
 FList *f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_data);
-FList *f_list_remove (FList *haystack, void *needle, FCompareFunc fn, void **data);
+FList *f_list_remove_find_custom (FList *haystack, void *needle, FCompareFunc fn, void **data);
 
 #endif /* F_LIST_H */
 

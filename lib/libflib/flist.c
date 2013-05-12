@@ -314,7 +314,7 @@ FList *f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_d
  * Otherwise, it is set to NULL.
  * Return the new list (without the removed element).
  */
-FList *f_list_remove (FList *haystack, void *needle, FCompareFunc fn, void **data) {
+FList *f_list_remove_find_custom (FList *haystack, void *needle, FCompareFunc fn, void **data) {
 	FList *i = haystack;
 
 	if(data) {
