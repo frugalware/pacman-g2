@@ -85,6 +85,9 @@ void f_list_set (FList *item, void *data) {
 	}
 }
 
+/**
+ * Insert a @list after @item.
+ */
 void f_list_insert_after (FList *item, FList *list) {
 	FList *last = f_list_last (list);
 
@@ -92,14 +95,17 @@ void f_list_insert_after (FList *item, FList *list) {
 	if (list == NULL) {
 		return;
 	}
-	list->prev = item;
 	last->next = item->next;
-	item->next = list;
 	if (last->next != NULL) {
 		last->next->prev = last;
 	}
+	item->next = list;
+	list->prev = item;
 }
 
+/**
+ * Insert a @list before @item.
+ */
 void f_list_insert_before (FList *item, FList *list) {
 	FList *last = f_list_last (list);
 
@@ -107,16 +113,16 @@ void f_list_insert_before (FList *item, FList *list) {
 	if (list == NULL) {
 		return;
 	}
+	list->prev = item->prev;
+	if (list->prev != NULL) {
+		list->prev->next = list;
+	}
 	last->next = item;
 	item->prev = last;
-	list->prev = item->prev;
-	if (item->prev != NULL) {
-		item->prev->next = list;
-	}
 }
 
 /**
- * Remove a list item from the list it belongs.
+ * Remove an @item from the list it belongs.
  */
 void f_list_remove (FList *item) {
 	if (item != NULL) {
