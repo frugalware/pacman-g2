@@ -1,15 +1,8 @@
 ENV_CFLAGS=$CFLAGS
 
-dnl Define here the libpacman version number
-m4_define([pm_major_version], [3])
-m4_define([pm_minor_version], [9])
-m4_define([pm_micro_version], [0])
-m4_define([pm_extra_version], [])
-m4_define([pm_version], [pm_major_version.pm_minor_version.pm_micro_versionpm_microversion])
-
 AC_PREREQ(2.59)
 dnl Update it right before the release since $pkgver_foo are all _post_ release snapshots
-AC_INIT([pacman-g2 package manager], m4_esyscmd([echo pm_version | tr -d '\n']), [frugalware-devel@frugalware.org], pacman-g2)
+AC_INIT([pacman-g2 package manager], 3.9.0, [frugalware-devel@frugalware.org], pacman-g2)
 AC_CONFIG_MACRO_DIR([m4])
 AC_LANG(C)
 AC_CONFIG_HEADERS(config.h)
@@ -25,10 +18,11 @@ case "${host}" in
 esac
 
 dnl Define here the libpacman version number
-PM_MAJOR_VERSION=pm_major_version
-PM_MINOR_VERSION=pm_minor_version
-PM_MICRO_VERSION=pm_micro_version
-PM_VERSION=pm_version
+PM_MAJOR_VERSION=0
+PM_MINOR_VERSION=3
+PM_MICRO_VERSION=8
+PM_MICRO_VERSION_SUFFIX=.9
+PM_VERSION=$PM_MAJOR_VERSION.$PM_MINOR_VERSION.$PM_MICRO_VERSION$PM_MICRO_VERSION_SUFFIX
 dnl Needed for libtool to create proper shared lib version
 PM_VERSION_INFO=`expr $PM_MAJOR_VERSION + $PM_MINOR_VERSION`:$PM_MICRO_VERSION:$PM_MINOR_VERSION
 

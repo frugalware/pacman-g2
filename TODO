@@ -56,9 +56,4 @@ libpacman and codechanges
   into the sources.
 
 
-Christian Hamar alias krix <krics@linuxforum.hu>
-
-makepkg/pacman-g2:
-Define a TRIGER list.
-Define a PARENTPKG information attribute (to inform about subpackages).
-Bump so version.
+Christian Hamar alias krix <krics@linuxforum.hu> 
