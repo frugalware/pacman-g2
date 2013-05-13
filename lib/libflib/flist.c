@@ -26,16 +26,12 @@
 
 #include "flist.h"
 
+#include "flistaccumulator.h"
 #include "fstdlib.h"
 
 static
 void *f_ptrcpy(const void *p) {
 	return (void *)p;
-}
-
-static
-void f_listaccumulator (void *data, FList **list) {
-	*list = f_list_append (*list, data);
 }
 
 FList *f_list_new () {
@@ -193,12 +189,13 @@ FList *f_list_copy (FList *list) {
 }
 
 FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data) {
-	FList *newlist = NULL;
+	FListAccumulator listaccumulator;
 
+	f_listaccumulator_init (&listaccumulator);
 	for (; list; list = list->next) {
-		newlist = f_list_append (newlist, fn (list->data, user_data));
+		f_listaccumulator (fn (list->data, user_data), &listaccumulator);
 	}
-	return newlist;
+	return f_listaccumulator_fini (&listaccumulator);
 }
 
 void f_list_detach (FList *list, FCopyFunc fn, void *user_data) {
@@ -221,13 +218,14 @@ FList *f_list_detect_next (FList *list, FDetectFunc fn, void *user_data) {
 }
 
 FList *f_list_filter (FList *list, FDetectFunc dfn, void *user_data) {
-	FList *ret = NULL;
+	FListAccumulator listaccumulator;
 
+	f_listaccumulator_init (&listaccumulator);
 	for (list = f_list_detect (list, dfn, user_data); list != NULL;
 			list = f_list_detect_next (list, dfn, user_data)) {
-		f_listaccumulator (list->data, &ret);
+		f_listaccumulator (list->data, &listaccumulator);
 	}
-	return ret;
+	return f_listaccumulator_fini (&listaccumulator);
 }
 
 FList *f_list_find (FList *list, const void *data) {
@@ -261,10 +259,11 @@ void f_list_foreach_filtered (FList *list, FVisitorFunc fn, FDetectFunc dfn, voi
  * The caller is responsible for freeing the old list
  */
 FList *f_list_reverse (FList *list) {
-	FList *ret = NULL;
+	FListAccumulator listaccumulator;
 
-	f_list_reverse_foreach (list, (FVisitorFunc)f_listaccumulator, &ret);
-	return ret;
+	f_listaccumulator_init (&listaccumulator);
+	f_list_foreach (list, (FVisitorFunc)f_listreverseaccumulator, &listaccumulator);
+	return f_listaccumulator_fini (&listaccumulator);
 }
 
 void f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data) {
@@ -275,14 +274,15 @@ void f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data) {
 }
 
 FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data) {
-	FList *ret = NULL;
+	FListAccumulator listaccumulator;
 
+	f_listaccumulator_init (&listaccumulator);
 	for (; list != NULL; list = list->next) {
-		if (f_list_find_custom (ret, list->data, fn, user_data) == NULL) {
-			f_listaccumulator (list->data, &ret);
+		if (f_list_find_custom (listaccumulator.head, list->data, fn, user_data) == NULL) {
+			f_listaccumulator (list->data, &listaccumulator);
 		}
 	}
-	return ret;
+	return f_listaccumulator_fini (&listaccumulator);
 }
 
 /* Add items to a list in sorted order. Use the given comparison function to
