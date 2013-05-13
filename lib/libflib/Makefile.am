@@ -12,6 +12,7 @@ noinst_LTLIBRARIES = libflib.la
 
 libflib_la_SOURCES = \
 	flist.c \
+	flistaccumulator.c \
 	fobject.c \
 	fstdlib.c \
 	fstring.c \
