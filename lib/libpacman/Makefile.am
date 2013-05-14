@@ -9,7 +9,6 @@ localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
 TARGETS = md5driver.c \
-	md5.c \
 	sha1.c \
 	util.c \
 	log.c \

@@ -9,7 +9,6 @@ error.c
 group.c
 handle.c
 log.c
-md5.c
 md5driver.c
 package.c
 provide.c

@@ -26,7 +26,8 @@ documentation and/or software.
 #include <time.h>
 #include <string.h>
 
-#include "md5.h"
+#include "global.h"
+#include "fmd5.h"
 
 #include "util.h"
 
@@ -36,9 +37,9 @@ documentation and/or software.
 #define TEST_BLOCK_COUNT 1000
 
 #define MD_CTX MD5_CTX
-#define MDInit _pacman_MD5Init
-#define MDUpdate _pacman_MD5Update
-#define MDFinal _pacman_MD5Final
+#define MDInit f_MD5Init
+#define MDUpdate f_MD5Update
+#define MDFinal f_MD5Final
 
 char* _pacman_MDFile(char *filename)
 {

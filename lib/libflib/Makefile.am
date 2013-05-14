@@ -10,13 +10,24 @@ AM_CFLAGS = $(DEFINES)
 noinst_LTLIBRARIES = libflib.la
 #lib_LTLIBRARIES = libflib.la
 
+libflib_crypto_hash_SOURCES = \
+	fmd5.c
+
+libflib_crypto_SOURCES = \
+	$(libflib_crypto_hash_SOURCES)
+
+libflib_posix_SOURCES = \
+	fstdlib.c \
+	fstring.c
+
 libflib_la_SOURCES = \
+	$(libflib_crypto_SOURCES) \
+	$(libflib_posix_SOURCES) \
 	flist.c \
 	flistaccumulator.c \
 	fobject.c \
-	fstdlib.c \
-	fstring.c \
 	fstringlist.c \
 	fvalue.c
 
 #libflib_la_LDFLAGS = -L. -version-info $(SOVER)
+libflib_la_LIBADD = 

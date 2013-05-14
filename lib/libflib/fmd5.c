@@ -24,7 +24,8 @@ documentation and/or software.
  */
 
 #include <string.h>
-#include "md5.h"
+
+#include "fmd5.h"
 
 /* Constants for MD5Transform routine.
  */
@@ -93,7 +94,7 @@ Rotation is separate from addition to prevent recomputation.
 
 /* MD5 initialization. Begins an MD5 operation, writing a new context.
  */
-void _pacman_MD5Init (context)
+void f_MD5Init (context)
 MD5_CTX *context;                                        /* context */
 {
   context->count[0] = context->count[1] = 0;
@@ -109,7 +110,7 @@ MD5_CTX *context;                                        /* context */
   operation, processing another message block, and updating the
   context.
  */
-void _pacman_MD5Update (context, input, inputLen)
+void f_MD5Update (context, input, inputLen)
 MD5_CTX *context;                                        /* context */
 unsigned char *input;                                /* input block */
 unsigned int inputLen;                     /* length of input block */
@@ -149,7 +150,7 @@ unsigned int inputLen;                     /* length of input block */
 /* MD5 finalization. Ends an MD5 message-digest operation, writing the
   the message digest and zeroizing the context.
  */
-void _pacman_MD5Final (digest, context)
+void f_MD5Final (digest, context)
 unsigned char digest[16];                         /* message digest */
 MD5_CTX *context;                                       /* context */
 {
@@ -163,10 +164,10 @@ MD5_CTX *context;                                       /* context */
 */
   md5_index = (unsigned int)((context->count[0] >> 3) & 0x3f);
   padLen = (md5_index < 56) ? (56 - md5_index) : (120 - md5_index);
-  _pacman_MD5Update (context, PADDING, padLen);
+  f_MD5Update (context, PADDING, padLen);
 
   /* Append length (before padding) */
-  _pacman_MD5Update (context, bits, 8);
+  f_MD5Update (context, bits, 8);
 
   /* Store state in digest */
   Encode (digest, context->state, 16);
