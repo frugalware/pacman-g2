@@ -590,9 +590,7 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 		for (i = trans->_packages; i; i = i->next) {
 			/* add the dependencies found by resolvedeps to the transaction set */
 			pmpkg_t *spkg = i->data;
-			if(!__pacman_trans_get_trans_pkg(trans, spkg->name)) {
-				_pacman_trans_add_pkg (trans, spkg, PM_TRANS_TYPE_UPGRADE, 0);
-			} else {
+			if(__pacman_trans_get_trans_pkg(trans, spkg->name) != NULL) {
 				/* remove the original targets from the list if requested */
 				if((trans->flags & PM_TRANS_FLAG_DEPENDSONLY)) {
 					/* they are just pointers so we don't have to free them */
