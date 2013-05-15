@@ -23,6 +23,10 @@
 
 #include "fstdlib.h"
 
+void f_free (void *ptr) {
+	free (ptr);
+}
+
 void *f_malloc (size_t size)
 {
 	void *ptr = malloc (size);
