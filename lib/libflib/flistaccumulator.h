@@ -31,7 +31,7 @@ struct FListAccumulator {
 	FList *last;
 };
 
-void f_listaccumulator_init (FListAccumulator *listaccumulator);
+void f_listaccumulator_init (FListAccumulator *listaccumulator, FList *list);
 FList *f_listaccumulator_fini (FListAccumulator *listaccumulator);
 
 void f_listaccumulator_accumulate (FListAccumulator *listaccumulator, void *data);

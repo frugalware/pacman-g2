@@ -191,7 +191,7 @@ FList *f_list_copy (FList *list) {
 FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data) {
 	FListAccumulator listaccumulator;
 
-	f_listaccumulator_init (&listaccumulator);
+	f_listaccumulator_init (&listaccumulator, f_list_new ());
 	for (; list; list = list->next) {
 		f_listaccumulator (fn (list->data, user_data), &listaccumulator);
 	}
@@ -204,25 +204,21 @@ void f_list_detach (FList *list, FCopyFunc fn, void *user_data) {
 	}
 }
 
-FList *f_list_detect (FList *list, FDetectFunc fn, void *user_data) {
+FList *f_list_detect (FList *list, FDetectFunc dfn, void *user_data) {
 	for (; list != NULL; list = list->next) {
-		if (fn (list->data, user_data) == 0) {
+		if (dfn (list->data, user_data) == 0) {
 			break;
 		}
 	}
 	return list;
 }
 
-FList *f_list_detect_next (FList *list, FDetectFunc fn, void *user_data) {
-	return f_list_detect (f_list_next (list), fn, user_data);
-}
-
 FList *f_list_filter (FList *list, FDetectFunc dfn, void *user_data) {
 	FListAccumulator listaccumulator;
 
-	f_listaccumulator_init (&listaccumulator);
+	f_listaccumulator_init (&listaccumulator, f_list_new ());
 	for (list = f_list_detect (list, dfn, user_data); list != NULL;
-			list = f_list_detect_next (list, dfn, user_data)) {
+			list = f_list_detect (f_list_next (list), dfn, user_data)) {
 		f_listaccumulator (list->data, &listaccumulator);
 	}
 	return f_listaccumulator_fini (&listaccumulator);
@@ -249,7 +245,7 @@ void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
 
 void f_list_foreach_filtered (FList *list, FVisitorFunc fn, FDetectFunc dfn, void *user_data) {
 	for (list = f_list_detect (list, dfn, user_data); list != NULL;
-			list = f_list_detect_next (list, dfn, user_data)) {
+			list = f_list_detect (f_list_next (list), dfn, user_data)) {
 		fn (list->data, user_data);
 	}
 }
@@ -261,7 +257,7 @@ void f_list_foreach_filtered (FList *list, FVisitorFunc fn, FDetectFunc dfn, voi
 FList *f_list_reverse (FList *list) {
 	FListAccumulator listaccumulator;
 
-	f_listaccumulator_init (&listaccumulator);
+	f_listaccumulator_init (&listaccumulator, f_list_new ());
 	f_list_foreach (list, (FVisitorFunc)f_listreverseaccumulator, &listaccumulator);
 	return f_listaccumulator_fini (&listaccumulator);
 }
@@ -276,7 +272,7 @@ void f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data) {
 FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data) {
 	FListAccumulator listaccumulator;
 
-	f_listaccumulator_init (&listaccumulator);
+	f_listaccumulator_init (&listaccumulator, f_list_new ());
 	for (; list != NULL; list = list->next) {
 		if (f_list_find_custom (listaccumulator.head, list->data, fn, user_data) == NULL) {
 			f_listaccumulator (list->data, &listaccumulator);

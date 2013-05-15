@@ -27,14 +27,15 @@
 
 #include "flist.h"
 
-void f_listaccumulator_init (FListAccumulator *listaccumulator) {
-	listaccumulator->head = listaccumulator->last = NULL;
+void f_listaccumulator_init (FListAccumulator *listaccumulator, FList *list) {
+	listaccumulator->head = list;
+	listaccumulator->last = f_list_last (list);
 }
 
 FList *f_listaccumulator_fini (FListAccumulator *listaccumulator) {
 	FList *ret = listaccumulator->head;
 
-	f_listaccumulator_init (listaccumulator);
+	listaccumulator->head = listaccumulator->last = NULL;
 	return ret;
 }
 
