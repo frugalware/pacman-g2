@@ -46,18 +46,6 @@ typedef struct MD5_CTX {
   unsigned char buffer[64];                         /* input buffer */
 } MD5_CTX;
 
-
-FMD5 *f_md5_new () {
-	FMD5 *md5 = f_malloc (sizeof (*md5));
-
-	f_md5_init (md5);
-	return md5;
-}
-
-void f_md5_delete (FMD5 *md5) {
-	f_free (md5);
-}
-
 /* Constants for MD5Transform routine.
  */
 
@@ -333,6 +321,19 @@ unsigned int len;
   for (i = 0, j = 0; j < len; i++, j += 4)
  output[i] = ((UINT4)input[j]) | (((UINT4)input[j+1]) << 8) |
    (((UINT4)input[j+2]) << 16) | (((UINT4)input[j+3]) << 24);
+}
+
+FMD5 *f_md5_new () {
+	FMD5 *md5 = f_malloc (sizeof (*md5));
+
+	if (md5 != NULL) {
+		f_md5_init (md5);
+	}
+	return md5;
+}
+
+void f_md5_delete (FMD5 *md5) {
+	f_free (md5);
 }
 
 /* vim: set ts=2 sw=2 noet: */
