@@ -30,9 +30,47 @@
 
 #include <sys/types.h>
 
+#include <limits.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
+#include <time.h>
+
+#define rol(x,n) ( ((x) << (n)) | ((x) >> (32 -(n))) )
+/* The code below is from md5.h (from coreutils), little modifications */
+#define UINT_MAX_32_BITS 4294967295U
+
+#if UINT_MAX == UINT_MAX_32_BITS
+    typedef unsigned int sha_uint32;
+#else
+#if USHRT_MAX == UINT_MAX_32_BITS
+    typedef unsigned short sha_uint32;
+#else
+#if ULONG_MAX == UINT_MAX_32_BITS
+    typedef unsigned long sha_uint32;
+#else
+    /* The following line is intended to evoke an error. Using #error is not portable enough.  */
+#error "Cannot determine unsigned 32-bit data type"
+#endif
+#endif
+#endif
+/* We have to make a guess about the integer type equivalent in size
+   to pointers which should always be correct.  */
+typedef unsigned long int sha_uintptr;
+
+/* Structure to save state of computation between the single steps.  */
+struct sha_ctx
+{
+  sha_uint32 A;
+  sha_uint32 B;
+  sha_uint32 C;
+  sha_uint32 D;
+  sha_uint32 E;
+
+  sha_uint32 total[2];
+  sha_uint32 buflen;
+  char buffer[128];
+};
+
 
 /*
   Not-swap is a macro that does an endian swap on architectures that are
@@ -366,3 +404,15 @@ sha_process_block (const void *buffer, size_t len, struct sha_ctx *ctx)
     }
 }
 
+FSHA1 *f_sha1_new () {
+  FSHA1 *sha1 = f_malloc (sizeof (*sha1));
+
+  if (sha1 != NULL) {
+    f_sha1_init (sha1);
+  }
+  return sha1;
+}
+
+void f_sha1_delete (FSHA1 *sha1) {
+  f_free_sha1;
+}

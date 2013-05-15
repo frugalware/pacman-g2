@@ -41,22 +41,25 @@ These notices must be retained in any copies of any part of this
 documentation and/or software.
  */
 
-
 char* _pacman_SHAFile(char *filename) {
     FILE *file;
-    struct sha_ctx context;
+    FSHA1 *sha1;
     int len = 0, i, x;
     unsigned char buffer[1024], digest[20];
     char *ret;
 
+    if ((sha1 = f_sha1_new ()) == NULL) {
+        return NULL;
+    }
+
     if((file = fopen(filename, "rb")) == NULL) {
 	fprintf(stderr, _("%s can't be opened\n"), filename);
     } else {
-	f_sha1_init (&context);
+	f_sha1_init (sha1);
 	while((len = fread(buffer, 1, 1024, file))) {
-	    f_sha1_update (&context, buffer, len);
+	    f_sha1_update (sha1, buffer, len);
 	}
-	f_sha1_fini (&context, digest);
+	f_sha1_fini (sha1, digest);
 	fclose(file);
 #ifdef DEBUG
 	SHAPrint(digest);
@@ -71,5 +74,8 @@ char* _pacman_SHAFile(char *filename) {
 	return(ret);
     }
 
+    f_sha1_delete (sha1);
+
     return(NULL);
 }
+
