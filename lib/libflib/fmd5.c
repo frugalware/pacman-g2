@@ -27,6 +27,37 @@ documentation and/or software.
 
 #include "fmd5.h"
 
+#include "fstdlib.h"
+
+/* POINTER defines a generic pointer type */
+typedef unsigned char *POINTER;
+
+/* UINT2 defines a two byte word */
+typedef unsigned short int UINT2;
+
+/* UINT4 defines a four byte word */
+typedef unsigned int UINT4;
+
+
+/* MD5 context. */
+typedef struct MD5_CTX {
+  UINT4 state[4];                                   /* state (ABCD) */
+  UINT4 count[2];        /* number of bits, modulo 2^64 (lsb first) */
+  unsigned char buffer[64];                         /* input buffer */
+} MD5_CTX;
+
+
+FMD5 *f_md5_new () {
+	FMD5 *md5 = f_malloc (sizeof (*md5));
+
+	f_md5_init (md5);
+	return md5;
+}
+
+void f_md5_delete (FMD5 *md5) {
+	f_free (md5);
+}
+
 /* Constants for MD5Transform routine.
  */
 

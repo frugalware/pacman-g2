@@ -41,9 +41,13 @@ documentation and/or software.
 char* _pacman_MDFile(char *filename)
 {
 	FILE *file;
-	MD_CTX context;
+	FMD5 *md5;
 	int len = 0;
 	unsigned char buffer[1024], digest[16];
+
+	if ((md5 = f_md5_new ()) == NULL) {
+		return NULL;
+	}
 
 	if((file = fopen(filename, "rb")) == NULL) {
 		printf (_("%s can't be opened\n"), filename);
@@ -51,11 +55,11 @@ char* _pacman_MDFile(char *filename)
 		char *ret;
 		int i, x;
 
-		f_md5_init (&context);
+		f_md5_init (md5);
 		while((len = fread(buffer, 1, 1024, file))) {
-			f_md5_update (&context, buffer, len);
+			f_md5_update (md5, buffer, len);
 		}
-		f_md5_fini (digest, &context);
+		f_md5_fini (md5, digest);
 		fclose(file);
 		/*printf("MD5 (%s) = ", filename);
 		MDPrint(digest);
@@ -70,6 +74,7 @@ char* _pacman_MDFile(char *filename)
 		ret[32] = '\0';
 		return(ret);
 	}
+	f_md5_delete (md5);
 	return(NULL);
 }
 

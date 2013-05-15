@@ -23,25 +23,13 @@ These notices must be retained in any copies of any part of this
 documentation and/or software.
  */
 
-/* POINTER defines a generic pointer type */
-typedef unsigned char *POINTER;
+typedef struct MD5_CTX FMD5;
 
-/* UINT2 defines a two byte word */
-typedef unsigned short int UINT2;
+FMD5 *f_md5_new ();
+void f_md5_delete (FMD5 *md5);
 
-/* UINT4 defines a four byte word */
-typedef unsigned int UINT4;
-
-
-/* MD5 context. */
-typedef struct {
-  UINT4 state[4];                                   /* state (ABCD) */
-  UINT4 count[2];        /* number of bits, modulo 2^64 (lsb first) */
-  unsigned char buffer[64];                         /* input buffer */
-} MD5_CTX;
-
-void f_md5_init (MD5_CTX *);
-void f_md5_update (MD5_CTX *, unsigned char *, unsigned int);
-void f_md5_fini (MD5_CTX *, unsigned char [16]);
+void f_md5_init (FMD5 *);
+void f_md5_update (FMD5 *, unsigned char *, unsigned int);
+void f_md5_fini (FMD5 *, unsigned char [16]);
 
 /* vim: set ts=2 sw=2 noet: */
