@@ -26,14 +26,16 @@
 # include <config.h>
 #endif
 
-#include "fsha1.h"
-
 #include <sys/types.h>
 
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+#include "fsha1.h"
+
+#include "fstdlib.h"
 
 #define rol(x,n) ( ((x) << (n)) | ((x) >> (32 -(n))) )
 /* The code below is from md5.h (from coreutils), little modifications */
@@ -414,5 +416,5 @@ FSHA1 *f_sha1_new () {
 }
 
 void f_sha1_delete (FSHA1 *sha1) {
-  f_free_sha1;
+  f_free (sha1);
 }
