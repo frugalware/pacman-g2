@@ -11,7 +11,8 @@ noinst_LTLIBRARIES = libflib.la
 #lib_LTLIBRARIES = libflib.la
 
 libflib_crypto_hash_SOURCES = \
-	fmd5.c
+	fmd5.c \
+	fsha1.c
 
 libflib_crypto_SOURCES = \
 	$(libflib_crypto_hash_SOURCES)
