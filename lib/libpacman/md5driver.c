@@ -37,9 +37,6 @@ documentation and/or software.
 #define TEST_BLOCK_COUNT 1000
 
 #define MD_CTX MD5_CTX
-#define MDInit f_MD5Init
-#define MDUpdate f_MD5Update
-#define MDFinal f_MD5Final
 
 char* _pacman_MDFile(char *filename)
 {
@@ -54,11 +51,11 @@ char* _pacman_MDFile(char *filename)
 		char *ret;
 		int i, x;
 
-		MDInit(&context);
+		f_md5_init (&context);
 		while((len = fread(buffer, 1, 1024, file))) {
-			MDUpdate(&context, buffer, len);
+			f_md5_update (&context, buffer, len);
 		}
-		MDFinal(digest, &context);
+		f_md5_fini (digest, &context);
 		fclose(file);
 		/*printf("MD5 (%s) = ", filename);
 		MDPrint(digest);

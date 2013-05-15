@@ -40,8 +40,8 @@ typedef struct {
   unsigned char buffer[64];                         /* input buffer */
 } MD5_CTX;
 
-void f_MD5Init(MD5_CTX *);
-void f_MD5Update(MD5_CTX *, unsigned char *, unsigned int);
-void f_MD5Final(unsigned char [16], MD5_CTX *);
+void f_md5_init (MD5_CTX *);
+void f_md5_update (MD5_CTX *, unsigned char *, unsigned int);
+void f_md5_fini (MD5_CTX *, unsigned char [16]);
 
 /* vim: set ts=2 sw=2 noet: */
