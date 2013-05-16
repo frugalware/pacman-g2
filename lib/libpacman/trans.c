@@ -96,6 +96,10 @@ int __pacman_transpkg_detect_name (pmtranspkg_t *transpkg, const char *package) 
 	return strcmp (__pacman_transpkg_name (transpkg), package);
 }
 
+int _pacman_transpkg_has_flags (pmtranspkg_t *transpkg, int flagsmask) {
+	return (transpkg->flags & flagsmask) == flagsmask ? 0 : 1;
+}
+
 static
 int check_oldcache(pmtrans_t *trans)
 {
@@ -585,18 +589,6 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 			/* pm_errno is set by resolvedeps */
 			ret = -1;
 			goto cleanup;
-		}
-
-		for (i = trans->_packages; i; i = i->next) {
-			/* add the dependencies found by resolvedeps to the transaction set */
-			pmpkg_t *spkg = i->data;
-			if(__pacman_trans_get_trans_pkg(trans, spkg->name) != NULL) {
-				/* remove the original targets from the list if requested */
-				if((trans->flags & PM_TRANS_FLAG_DEPENDSONLY)) {
-					/* they are just pointers so we don't have to free them */
-					trans->packages = _pacman_list_remove(trans->packages, spkg, pkg_cmp, NULL);
-				}
-			}
 		}
 
 		_pacman_sortbydeps(trans, PM_TRANS_TYPE_ADD);

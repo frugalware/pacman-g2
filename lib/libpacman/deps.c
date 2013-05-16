@@ -522,6 +522,15 @@ void _pacman_removedeps(pmtrans_t *trans)
 	}
 }
 
+static
+int _pacman_transpkg_remove_dependsonly (pmtrans_t *trans) {
+	FList *excludes = NULL;
+
+	f_list_exclude (&trans->packages, &excludes, (FDetectFunc)_pacman_transpkg_has_flags, (void*)PM_TRANS_FLAG_DEPENDSONLY);
+	f_list_delete (excludes, NULL, NULL);
+	return 0;
+}
+
 /* populates *trans with packages that need to be installed to satisfy all
  * dependencies (recursive) for syncpkg
  */
@@ -618,10 +627,12 @@ static
 int _pacman_transpkg_resolvedeps (pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_t **data) {
 	pmlist_t *deps = NULL;
 
-	if (_pacman_transpkg_checkdeps (trans, transpkg, &deps) != 0) {
+	if (_pacman_transpkg_checkdeps (trans, transpkg, &deps) != 0 ||
+			_pacman_resolvedeps (trans, deps, data) != 0) {
+		/* pm_errno is allready set */
 		return -1;
 	}
-	return _pacman_resolvedeps (trans, deps, data);
+	return 0;
 }
 
 int _pacman_trans_resolvedeps (pmtrans_t *trans, pmlist_t **data) {
@@ -631,11 +642,13 @@ int _pacman_trans_resolvedeps (pmtrans_t *trans, pmlist_t **data) {
 		return(-1);
 	}
 
-	if (_pacman_trans_checkdeps (trans, &deps) != 0) {
-		/* pm_errno is set by checkdeps */
+	if (_pacman_trans_checkdeps (trans, &deps) != 0 ||
+			_pacman_resolvedeps (trans, deps, data) != 0 ||
+			_pacman_transpkg_remove_dependsonly (trans) != 0) {
+		/* pm_errno is allready set */
 		return -1;
 	}
-	return _pacman_resolvedeps (trans, deps, data);
+	return 0;
 }
 
 /* vim: set ts=2 sw=2 noet: */
