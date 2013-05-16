@@ -37,8 +37,8 @@ FList *f_listaccumulator_fini (FListAccumulator *listaccumulator);
 void f_listaccumulator_accumulate (FListAccumulator *listaccumulator, void *data);
 void f_listaccumulator_reverse_accumulate (FListAccumulator *listaccumulator, void *data);
 
-void f_listaccumulator (void *data, FListAccumulator *listaccumulator);
-void f_listreverseaccumulator (void *data, FListAccumulator *listaccumulator);
+void f_listaccumulate (void *data, FListAccumulator *listaccumulator);
+void f_listreverseaccumulate (void *data, FListAccumulator *listaccumulator);
 
 #endif /* F_LISTACCUMULATOR_H */
 

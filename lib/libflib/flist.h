@@ -69,6 +69,7 @@ FList *f_list_copy (FList *list);
 FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data);
 void   f_list_detach (FList *list, FCopyFunc fn, void *user_data);
 FList *f_list_detect (FList *list, FDetectFunc dfn, void *user_data);
+void   f_list_exclude (FList **list, FList **excludelist, FDetectFunc dfn, void *user_data);
 FList *f_list_filter (FList *list, FDetectFunc fn, void *user_data);
 FList *f_list_find (FList *list, const void *data);
 FList *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data);
