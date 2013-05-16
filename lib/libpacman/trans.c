@@ -88,10 +88,12 @@ const char *__pacman_transpkg_name (pmsyncpkg_t *transpkg) {
 	return NULL;
 }
 
+static
 int __pacman_transpkg_cmp (pmtranspkg_t *transpkg1, pmtranspkg_t *transpkg2) {
-	return __pacman_transpkg_detect_name (transpkg1, __pacman_transpkg_name (transpkg2)); 
+	return strcmp (__pacman_transpkg_name (transpkg1), __pacman_transpkg_name (transpkg2)); 
 }
 
+static
 int __pacman_transpkg_detect_name (pmtranspkg_t *transpkg, const char *package) {
 	return strcmp (__pacman_transpkg_name (transpkg), package);
 }

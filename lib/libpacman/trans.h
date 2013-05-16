@@ -120,8 +120,6 @@ pmsyncpkg_t *__pacman_trans_pkg_new (int type, pmpkg_t *spkg);
 void __pacman_trans_pkg_delete (pmsyncpkg_t *pkg);
 
 const char *__pacman_transpkg_name (pmtranspkg_t *transpkg);
-int __pacman_transpkg_cmp (pmtranspkg_t *transpkg1, pmtranspkg_t *transpkg2);
-int __pacman_transpkg_detect_name (pmtranspkg_t *transpkg, const char *package);
 int _pacman_transpkg_has_flags (pmtranspkg_t *transpkg, int flagsmask);
 
 /* Implementation details */
