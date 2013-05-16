@@ -421,23 +421,24 @@ pmtranspkg_t *_pacman_trans_add_pkg (pmtrans_t *trans, pmpkg_t *pkg, pmtranstype
 	return _pacman_trans_add (trans, transpkg);
 }
 
-int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t type, unsigned int flags)
+pmtranspkg_t *_pacman_trans_add_target(pmtrans_t *trans, const char *target, pmtranstype_t type, unsigned int flags)
 {
+	pmtranspkg_t *transpkg;
 	char *pkg_name;
 	pmpkg_t *pkg = NULL;
 	pmdb_t *db_local;
 
 	/* Sanity checks */
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(target != NULL && strlen(target) != 0, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
+	ASSERT(target != NULL && strlen(target) != 0, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	db_local = trans->handle->db_local;
 	pkg_name = target;
 
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
 	if(f_stringlist_find (trans->targets, target)) {
-		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
+		RET_ERR(PM_ERR_TRANS_DUP_TARGET, NULL);
 	}
 
 	if (type & PM_TRANS_TYPE_ADD) {
@@ -447,7 +448,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 		if(strchr(pkg_name, '|')) {
 			pkg = fakepkg_create(pkg_name);
 			if (pkg == NULL) {
-				return -1;
+				return NULL;
 			}
 		}
 
@@ -456,7 +457,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 			pkg = _pacman_pkg_load(pkg_name);
 			if(pkg == NULL) {
 				/* pm_errno is already set by pkg_load() */
-				return -1;
+				return NULL;
 			}
 		}
 
@@ -476,39 +477,43 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t 
 					/* FIXME: the list is leaked in this case */
 					dbs_search = _pacman_list_add (dbs_search, dbs);
 					if(dbs_search == NULL) {
-						return -1;
+						return NULL;
 					}
 				}
 			} else {
 				targ = targline;
 				dbs_search = trans->handle->dbs_sync;
 			}
-			pkg = _pacman_db_list_get_pkg (dbs_search, targ);
+			pkg = _pacman_dblist_get_pkg (dbs_search, targ, flags);
 		}
 
 		if (pkg == NULL) {
-			RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
+			RET_ERR(PM_ERR_PKG_NOT_FOUND, NULL);
 		}
 		goto out;
 	}
 
 	if (type & PM_TRANS_TYPE_REMOVE) {
 		if (__pacman_trans_get_trans_pkg (trans, pkg_name) != NULL) {
-			RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
+			RET_ERR(PM_ERR_TRANS_DUP_TARGET, NULL);
 		}
 
 		if((pkg = _pacman_db_scan(db_local, pkg_name, INFRQ_ALL)) == NULL) {
 			_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), pkg_name);
-			RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
+			RET_ERR(PM_ERR_PKG_NOT_FOUND, NULL);
 		}
 	}
 
 out:
-	if (_pacman_trans_add_pkg (trans, pkg, type, flags) != NULL) {
+	transpkg = _pacman_trans_add_pkg (trans, pkg, type, flags);
+	if (transpkg != NULL) {
 		trans->targets = _pacman_list_add(trans->targets, strdup(target));
-		return 0;
 	}
-	return -1;
+	return transpkg;
+}
+
+int _pacman_trans_addtarget (pmtrans_t *trans, const char *target, pmtranstype_t type, unsigned int flags) {
+	return _pacman_trans_add_target (trans, target, type, flags) != NULL ? 0 : -1;
 }
 
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state)

@@ -99,7 +99,8 @@ pmtrans_t *_pacman_trans_new(void);
 void _pacman_trans_free(pmtrans_t *trans);
 
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state);
-pmtranspkg_t *_pacman_trans_add_pkg (pmtrans_t *trans, pmpkg_t *target, pmtranstype_t type, unsigned int flags);
+pmtranspkg_t *_pacman_trans_add_pkg (pmtrans_t *trans, pmpkg_t *pkg, pmtranstype_t type, unsigned int flags);
+pmtranspkg_t *_pacman_trans_add_target (pmtrans_t *trans, const char *target, pmtranstype_t type, unsigned int flags);
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target, pmtranstype_t type, unsigned int flags);
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data);
 int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data);
