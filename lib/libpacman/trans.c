@@ -213,17 +213,18 @@ pmpkg_t *_pacman_db_search_provider(pmdb_t *db, const char *name) {
 }
 
 static
-pmpkg_t *_pacman_db_list_get_pkg(pmlist_t *db_list, const char *pkg_name) {
+pmpkg_t *_pacman_dblist_get_pkg(pmlist_t *dblist, const char *pkg_name, int flags) {
 	pmlist_t *i;
 	pmpkg_t *pkg = NULL;
 
-	for (i = db_list; i && !pkg; i = i->next) {
+	for (i = dblist; i && !pkg; i = i->next) {
 		pmdb_t *db = i->data;
 		pkg = _pacman_db_get_pkgfromcache(db, pkg_name);
 	}
-	if (pkg == NULL) {
+	if (pkg == NULL &&
+			flags & PM_TRANS_FLAG_ALLOWPROVIDEREPLACEMENT) {
 		_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), pkg_name);
-		for (i = db_list; i && !pkg; i = i->next) {
+		for (i = dblist; i && !pkg; i = i->next) {
 			pmdb_t *db = i->data;
 			pkg = _pacman_db_search_provider (db, pkg_name);
 		}
@@ -366,7 +367,7 @@ pmtranspkg_t *_pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 			QUESTION(trans, PM_TRANS_CONV_LOCAL_NEWER, transpkg->pkg_local, NULL, NULL, &resp);
 			if(!resp) {
 				_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), transpkg_name, transpkg->pkg_local->version);
-				return(0);
+				return NULL;
 			}
 		} else if(cmp == 0) {
 			/* versions are identical -- get confirmation before adding */
@@ -374,7 +375,7 @@ pmtranspkg_t *_pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 			QUESTION(trans, PM_TRANS_CONV_LOCAL_UPTODATE, transpkg->pkg_local, NULL, NULL, &resp);
 			if(!resp) {
 				_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), transpkg_name, transpkg->pkg_local->version);
-				return(0);
+				return NULL;
 			}
 		}
 	}
