@@ -742,6 +742,7 @@ int pacman_trans_addtarget(const char *target)
 			type == PM_TRANS_TYPE_UPGRADE) {
 		flag &= ~PM_TRANS_FLAG_EXPLICIT;
 	}
+	flag |= trans->type & PM_TRANS_FLAG_DEPENDSONLY;
 	if (type == PM_TRANS_TYPE_SYNC) {
 		type = PM_TRANS_TYPE_UPGRADE;
 	}

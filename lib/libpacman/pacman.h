@@ -263,7 +263,7 @@ typedef enum _pmtranstype_t {
 #define PM_TRANS_FLAG_CASCADE 0x10
 #define PM_TRANS_FLAG_RECURSE 0x20
 #define PM_TRANS_FLAG_DBONLY  0x40
-#define PM_TRANS_FLAG_DEPENDSONLY 0x80
+#define PM_TRANS_FLAG_DEPENDSONLY 0x80 /* only handle its depends, exclude them from the transaction */
 #define PM_TRANS_FLAG_ALLDEPS 0x100
 #define PM_TRANS_FLAG_DOWNLOADONLY 0x200
 #define PM_TRANS_FLAG_NOSCRIPTLET 0x400
