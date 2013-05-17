@@ -229,12 +229,22 @@ void f_list_exclude (FList **list, FList **excludelist, FDetectFunc dfn, void *u
 
 FList *f_list_filter (FList *list, FDetectFunc dfn, void *user_data) {
 	FListAccumulator listaccumulator;
+	FDetector detector = {
+		.fn = dfn,
+		.user_data = user_data
+	};
+	FVisitor visitor = {
+		.fn = (FVisitorFunc)f_listaccumulate,
+		.user_data = &listaccumulator
+	};
+	FDetectVisitor detectvisitor = {
+		.detect = &detector,
+		.success = &visitor,
+		.fail = NULL
+	};
 
 	f_listaccumulator_init (&listaccumulator, f_list_new ());
-	for (list = f_list_detect (list, dfn, user_data); list != NULL;
-			list = f_list_detect (f_list_next (list), dfn, user_data)) {
-		f_listaccumulate (list->data, &listaccumulator);
-	}
+	f_list_foreach (list, (FVisitorFunc)f_detectvisit, &detectvisitor);
 	return f_listaccumulator_fini (&listaccumulator);
 }
 
