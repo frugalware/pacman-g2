@@ -52,7 +52,8 @@ void   f_list_insert_after (FList *item, FList *list);
 void   f_list_insert_before (FList *item, FList *list);
 void   f_list_remove (FList *item);
 
-size_t f_list_count (FList *list);
+FListItem *f_list_begin (FList *list);
+FListItem *f_list_end (FList *list);
 FList *f_list_first (FList *list);
 FList *f_list_last (FList *list);
 FList *f_list_next (FList *list);
@@ -61,6 +62,7 @@ FList *f_list_previous (FList *list);
 FList *f_list_append (FList *list, void *data);
 FList *f_list_concat (FList *list1, FList *list2);
 FList *f_list_copy (FList *list);
+size_t f_list_count (FList *list);
 FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data);
 void   f_list_detach (FList *list, FCopyFunc fn, void *user_data);
 FList *f_list_detect (FList *list, FDetectFunc dfn, void *user_data);

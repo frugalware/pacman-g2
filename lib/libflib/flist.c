@@ -131,13 +131,12 @@ void f_list_remove (FList *item) {
 	}
 }
 
-size_t f_list_count(FList *list)
-{
-	size_t count;
+FListItem *f_list_begin (FList *list) {
+	return list;
+}
 
-	for (count = 0; list != NULL; list = list->next, count++)
-		/* Do nothing */;
-	return count;
+FListItem *f_list_end (FList *list) {
+	return NULL;
 }
 
 FList *f_list_first (FList *list) {
@@ -184,6 +183,15 @@ FList *f_list_concat (FList *list1, FList *list2) {
 
 FList *f_list_copy (FList *list) {
 	return f_list_deep_copy (list, (FCopyFunc)f_ptrcpy, NULL);
+}
+
+size_t f_list_count(FList *list)
+{
+	size_t count;
+
+	for (count = 0; list != NULL; list = list->next, count++)
+		/* Do nothing */;
+	return count;
 }
 
 FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data) {
