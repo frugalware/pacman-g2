@@ -48,7 +48,7 @@ void f_listaccumulator_reverse_accumulate (FListAccumulator *listaccumulator, vo
 }
 
 void f_listaccumulate (void *data, FListAccumulator *listaccumulator) {
-	FList *item = f_list_alloc (data);
+	FList *item = f_listitem_new (data);
 
 	if (listaccumulator->head != NULL) {
 		f_list_insert_after (listaccumulator->last, item);
@@ -59,7 +59,7 @@ void f_listaccumulate (void *data, FListAccumulator *listaccumulator) {
 }
 
 void f_listreverseaccumulate (void *data, FListAccumulator *listaccumulator) {
-	FList *item = f_list_alloc (data);
+	FList *item = f_listitem_new (data);
 
 	if (listaccumulator->head != NULL) {
 		f_list_insert_before (listaccumulator->head, item);

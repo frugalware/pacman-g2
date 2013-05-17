@@ -34,20 +34,7 @@ void *f_ptrcpy(const void *p) {
 	return (void *)p;
 }
 
-FList *f_list_new () {
-	return NULL;
-}
-
-void f_list_delete (FList *list, FVisitorFunc fn, void *user_data) {
-	FList *next = list;
-
-	while ((list = next) != NULL) {
-		next = list->next;
-		f_list_free (list, fn, user_data);
-	}
-}
-
-FList *f_list_alloc (void *data) {
+FListItem *f_listitem_new (void *data) {
 	FList *list = f_zalloc (sizeof(FList));
 
 	if (list != NULL) {
@@ -59,7 +46,7 @@ FList *f_list_alloc (void *data) {
 /**
  * Remove the item from it's list and free it.
  */
-void f_list_free (FList *item, FVisitorFunc fn, void *user_data) {
+void f_listitem_delete (FList *item, FVisitorFunc fn, void *user_data) {
 	if (item != NULL) {
 		if (fn != NULL) {
 			fn (item->data, user_data);
@@ -69,13 +56,26 @@ void f_list_free (FList *item, FVisitorFunc fn, void *user_data) {
 	}
 }
 
-void *f_list_get (FList *item) {
+void *f_listitem_get (FListItem *item) {
 	return item != NULL ? item->data : NULL;
 }
 
-void f_list_set (FList *item, void *data) {
+void f_listitem_set (FListItem *item, void *data) {
 	if (item) {
 		item->data = data;
+	}
+}
+
+FList *f_list_new () {
+	return NULL;
+}
+
+void f_list_delete (FList *list, FVisitorFunc fn, void *user_data) {
+	FList *next = list;
+
+	while ((list = next) != NULL) {
+		next = list->next;
+		f_listitem_delete (list, fn, user_data);
 	}
 }
 
@@ -171,7 +171,7 @@ FList *f_list_previous (FList *list) {
 }
 
 FList *f_list_append (FList *list, void *data) {
-	return f_list_concat (list, f_list_alloc (data));
+	return f_list_concat (list, f_listitem_new (data));
 }
 
 FList *f_list_concat (FList *list1, FList *list2) {
@@ -302,7 +302,7 @@ FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data) {
  * determine order.
  */
 FList *f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_data) {
-	FList *add = f_list_alloc (data);
+	FList *add = f_listitem_new (data);
 	FList *prev = NULL;
 	FList *iter = list;
 

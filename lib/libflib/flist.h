@@ -26,6 +26,15 @@
 
 #include <fcallbacks.h>
 
+/* FIXME: Make it a struct FListItem */
+typedef struct FList FListItem;
+
+FListItem *f_listitem_new (void *data);
+void f_listitem_delete (FListItem *item, FVisitorFunc fn, void *user_data);
+
+void *f_listitem_get (FListItem *item);
+void f_listitem_set (FListItem *item, void *data);
+
 typedef struct FList FList;
 
 /* FIXME: Make private as soon as possible */
@@ -39,10 +48,6 @@ struct FList {
 FList *f_list_new (void);
 void   f_list_delete (FList *list, FVisitorFunc fn, void *user_data);
 
-FList *f_list_alloc (void *data);
-void   f_list_free (FList *item, FVisitorFunc fn, void *user_data);
-void  *f_list_get (FList *item);
-void   f_list_set (FList *item, void *data);
 void   f_list_insert_after (FList *item, FList *list);
 void   f_list_insert_before (FList *item, FList *list);
 void   f_list_remove (FList *item);
