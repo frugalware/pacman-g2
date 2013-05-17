@@ -33,7 +33,7 @@ void f_visit (void *ptr, FVisitor *visitor) {
 	}
 }
 
-void f_conditionalvisit (void *ptr, FDetectVisitor *detectvisitor) {
+void f_detectvisit (void *ptr, FDetectVisitor *detectvisitor) {
 	if (detectvisitor != NULL) {
 		f_visit (ptr, f_detect (ptr, detectvisitor->detect) == 0 ?
 				detectvisitor->success : detectvisitor->fail);
