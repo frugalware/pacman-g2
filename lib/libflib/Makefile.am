@@ -24,6 +24,7 @@ libflib_posix_SOURCES = \
 libflib_la_SOURCES = \
 	$(libflib_crypto_SOURCES) \
 	$(libflib_posix_SOURCES) \
+	fcallbacks.c \
 	flist.c \
 	flistaccumulator.c \
 	fobject.c \

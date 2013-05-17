@@ -24,6 +24,8 @@
 
 #include <stddef.h>
 
+#include <fcallbacks.h>
+
 typedef struct FList FList;
 
 /* FIXME: Make private as soon as possible */
@@ -33,18 +35,6 @@ struct FList {
 	FList *next;
 	void *data;
 };
-
-/* Sort comparison callback function declaration */
-typedef int   (*FCompareFunc) (const void *ptr1, const void *ptr2, void *user_data);
-typedef void *(*FCopyFunc) (const void *ptr, void *user_data);
-/**
- * Detection comparison callback function declaration.
- * 
- * If detection is successful callback must return 0, or any other
- * values in case of failure (So it can be equivalent to a cmp).
- */
-typedef int   (*FDetectFunc) (const void *ptr, void *user_data);
-typedef void  (*FVisitorFunc) (void *ptr, void *user_data);
 
 FList *f_list_new (void);
 void   f_list_delete (FList *list, FVisitorFunc fn, void *user_data);
