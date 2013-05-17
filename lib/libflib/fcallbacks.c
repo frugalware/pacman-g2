@@ -28,7 +28,7 @@ int f_detect (const void *ptr, FDetector *detector) {
 }
 
 void f_visit (void *ptr, FVisitor *visitor) {
-	if (visitor != NULL) {	
+	if (visitor != NULL && visitor->fn != NULL) {	
 		visitor->fn (ptr, visitor->user_data);
 	}
 }
