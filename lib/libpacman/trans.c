@@ -132,7 +132,7 @@ void __pacman_trans_fini(FObject *obj) {
 	pmtrans_t *trans = (pmtrans_t *)obj;
 
 	FREELIST(trans->targets);
-	f_list_free(trans->packages, (FVisitorFunc)__pacman_trans_pkg_delete, NULL);
+	f_list_delete (trans->packages, (FVisitorFunc)__pacman_trans_pkg_delete, NULL);
 	FREELIST(trans->skiplist);
 }
 

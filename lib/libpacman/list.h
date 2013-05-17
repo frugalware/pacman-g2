@@ -25,7 +25,7 @@
 
 typedef FList pmlist_t;
 
-#define _FREELIST(ptr, fn) do { if(ptr) { f_list_free(ptr, (FVisitorFunc)fn, NULL); ptr = NULL; } } while(0)
+#define _FREELIST(ptr, fn) do { if(ptr) { f_list_delete (ptr, (FVisitorFunc)fn, NULL); ptr = NULL; } } while(0)
 #define FREELIST(p) _FREELIST(p, free)
 #define FREELISTPTR(p) _FREELIST(p, NULL)
 
