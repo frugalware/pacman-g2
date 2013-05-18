@@ -524,9 +524,9 @@ void _pacman_removedeps(pmtrans_t *trans)
 
 static
 int _pacman_transpkg_remove_dependsonly (pmtrans_t *trans) {
-	FList *excludes = NULL;
+	FList *excludes = f_list_new ();
 
-	f_list_exclude (&trans->packages, &excludes, (FDetectFunc)_pacman_transpkg_has_flags, (void*)PM_TRANS_FLAG_DEPENDSONLY);
+	_f_list_exclude (&trans->packages, &excludes, (FDetectFunc)_pacman_transpkg_has_flags, (void*)PM_TRANS_FLAG_DEPENDSONLY);
 	f_list_delete (excludes, NULL, NULL);
 	return 0;
 }

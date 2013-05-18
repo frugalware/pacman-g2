@@ -37,6 +37,7 @@ void f_listitem_set (FListItem *item, void *data);
 
 FListItem *f_listitem_next (FListItem *item);
 FListItem *f_listitem_previous (FListItem *item);
+void f_listitem_remove (FListItem *item);
 
 typedef struct FList FList;
 
@@ -53,7 +54,6 @@ void   f_list_delete (FList *list, FVisitorFunc fn, void *user_data);
 
 void   f_list_insert_after (FList *item, FList *list);
 void   f_list_insert_before (FList *item, FList *list);
-void   f_list_remove (FList *item);
 
 FListItem *f_list_begin (FList *list);
 FListItem *f_list_end (FList *list);
@@ -73,7 +73,7 @@ size_t f_list_count (FList *list);
 FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data);
 void   f_list_detach (FList *list, FCopyFunc fn, void *user_data);
 FListItem *f_list_detect (FList *list, FDetectFunc dfn, void *user_data);
-void   f_list_exclude (FList **list, FList **excludelist, FDetectFunc dfn, void *user_data);
+//void   f_list_exclude (FList *list, FList *excludelist, FDetectFunc dfn, void *user_data);
 FList *f_list_filter (FList *list, FDetectFunc fn, void *user_data);
 FListItem *f_list_find (FList *list, const void *data);
 FListItem *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data);
@@ -82,6 +82,9 @@ FList *f_list_reverse (FList *list);
 void   f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data);
 FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data);
 
+/* FIXME: To be removed */
+void   _f_list_exclude (FList **list, FList **excludelist, FDetectFunc dfn, void *user_data);
+void   _f_list_remove (FList **list, FListItem *item);
 FList *f_list_remove_find_custom (FList *haystack, void *needle, FCompareFunc fn, void **data);
 
 #endif /* F_LIST_H */

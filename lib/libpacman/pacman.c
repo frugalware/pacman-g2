@@ -197,9 +197,10 @@ int pacman_db_unregister(pmdb_t *db)
 		handle->db_local = NULL;
 		found = 1;
 	} else {
-		pmdb_t *data;
-		handle->dbs_sync = _pacman_list_remove(handle->dbs_sync, db, _pacman_db_cmp, (void **)&data);
-		if(data) {
+		FListItem *item = f_list_find (handle->dbs_sync, db);
+		if (item != f_list_end (handle->dbs_sync)) {
+			_f_list_remove (&handle->dbs_sync, item);
+			f_listitem_delete (item, NULL, NULL);
 			found = 1;
 		}
 	}

@@ -51,7 +51,7 @@ void f_listitem_delete (FList *item, FVisitorFunc fn, void *user_data) {
 		if (fn != NULL) {
 			fn (item->data, user_data);
 		}
-		f_list_remove (item);
+		f_listitem_remove (item);
 		free (item);
 	}
 }
@@ -72,6 +72,22 @@ FListItem *f_listitem_next (FListItem *item) {
 
 FListItem *f_listitem_previous (FListItem *item) {
 	return item != NULL ? item->prev : NULL;
+}
+
+/**
+ * Remove an @item from the list it belongs.
+ */
+void f_listitem_remove (FListItem *item) {
+	if (item != NULL) {
+		if (item->prev != NULL) {
+			item->prev->next = item->next;
+		}
+		if (item->next != NULL) {
+			item->next->prev = item->prev;
+		}
+		item->prev = NULL;
+		item->next = NULL;
+	}
 }
 
 FList *f_list_new () {
@@ -121,22 +137,6 @@ void f_list_insert_before (FList *item, FList *list) {
 	}
 	last->next = item;
 	item->prev = last;
-}
-
-/**
- * Remove an @item from the list it belongs.
- */
-void f_list_remove (FList *item) {
-	if (item != NULL) {
-		if (item->prev != NULL) {
-			item->prev->next = item->next;
-		}
-		if (item->next != NULL) {
-			item->next->prev = item->prev;
-		}
-		item->prev = NULL;
-		item->next = NULL;
-	}
 }
 
 FListItem *f_list_begin (FList *list) {
@@ -265,7 +265,7 @@ FListItem *f_list_detect (FList *list, FDetectFunc dfn, void *user_data) {
 	return it;
 }
 
-void f_list_exclude (FList **list, FList **excludelist, FDetectFunc dfn, void *user_data) {
+void _f_list_exclude (FList **list, FList **excludelist, FDetectFunc dfn, void *user_data) {
 	FListAccumulator listaccumulator;
 	FList *item, *next = *list;
 
@@ -275,7 +275,7 @@ void f_list_exclude (FList **list, FList **excludelist, FDetectFunc dfn, void *u
 		if (*list == item) {
 			*list = (*list)->next;
 		}
-		f_list_remove (item);
+		f_listitem_remove (item);
 		f_listaccumulate (item, &listaccumulator);
 	}
 	*excludelist = f_listaccumulator_fini (&listaccumulator);
@@ -353,6 +353,13 @@ FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data) {
 		uniques = f_list_append_unique (uniques, it->data, fn, user_data);
 	}
 	return uniques;
+}
+
+void _f_list_remove (FList **list, FListItem *item) {
+	if (*list == item) {
+		*list = item->next;
+	}
+	f_listitem_remove (item);
 }
 
 /* Remove an item in a list. Use the given comparison function to find the
