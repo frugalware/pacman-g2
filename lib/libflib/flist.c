@@ -35,12 +35,12 @@ void *f_ptrcpy(const void *p) {
 }
 
 FListItem *f_listitem_new (void *data) {
-	FList *list = f_zalloc (sizeof(FList));
+	FListItem *item = f_zalloc (sizeof(FList));
 
-	if (list != NULL) {
-		list->data = data;
+	if (item != NULL) {
+		item->data = data;
 	}
-	return list;
+	return item;
 }
 
 /**
@@ -139,20 +139,16 @@ FListItem *f_list_end (FList *list) {
 	return NULL;
 }
 
-FList *f_list_first (FList *list) {
-	if (list != NULL) {
-		for (; list->prev != NULL; list = list->prev)
-			/* Do nothing */;
-	}
-	return list;
-}
-
-FList *f_list_last (FList *list) {
+FListItem *f_list_rbegin (FList *list) {
 	if (list != NULL) {
 		for (; list->next != NULL; list = list->next)
 			/* Do nothing */;
 	}
 	return list;
+}
+
+FListItem *f_list_rend (FList *list) {
+	return NULL;
 }
 
 FList *f_list_next (FList *list) {
@@ -167,6 +163,14 @@ FList *f_list_previous (FList *list) {
 		return list->prev;
 	} 
 	return NULL;
+}
+
+FListItem *f_list_first (FList *list) {
+	return f_list_begin (list);
+}
+
+FListItem *f_list_last (FList *list) {
+	return f_list_rbegin (list);
 }
 
 FList *f_list_append (FList *list, void *data) {
@@ -185,38 +189,43 @@ FList *f_list_copy (FList *list) {
 	return f_list_deep_copy (list, (FCopyFunc)f_ptrcpy, NULL);
 }
 
-size_t f_list_count(FList *list)
-{
-	size_t count;
+size_t f_list_count (FList *list) {
+	FListItem *it = f_list_begin (list), *end = f_list_end(list);
+	size_t count = 0;
 
-	for (count = 0; list != NULL; list = list->next, count++)
+	for (; it != end; it = it->next, ++count)
 		/* Do nothing */;
 	return count;
 }
 
 FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data) {
+	FListItem *it = f_list_begin (list), *end = f_list_end(list);
 	FListAccumulator listaccumulator;
 
 	f_listaccumulator_init (&listaccumulator, f_list_new ());
-	for (; list; list = list->next) {
-		f_listaccumulate (fn (list->data, user_data), &listaccumulator);
+	for (; it != end; it = it->next) {
+		f_listaccumulate (fn (it->data, user_data), &listaccumulator);
 	}
 	return f_listaccumulator_fini (&listaccumulator);
 }
 
 void f_list_detach (FList *list, FCopyFunc fn, void *user_data) {
-	for (; list != NULL; list = list->next) {
-		list->data = fn (list->data, user_data);
+	FListItem *it = f_list_begin (list), *end = f_list_end(list);
+
+	for (; it != end; it = it->next) {
+		it->data = fn (it->data, user_data);
 	}
 }
 
-FList *f_list_detect (FList *list, FDetectFunc dfn, void *user_data) {
-	for (; list != NULL; list = list->next) {
-		if (dfn (list->data, user_data) == 0) {
+FListItem *f_list_detect (FList *list, FDetectFunc dfn, void *user_data) {
+	FListItem *it = f_list_begin (list), *end = f_list_end(list);
+
+	for (; it != end; it = it->next) {
+		if (dfn (it->data, user_data) == 0) {
 			break;
 		}
 	}
-	return list;
+	return it;
 }
 
 void f_list_exclude (FList **list, FList **excludelist, FDetectFunc dfn, void *user_data) {
@@ -256,22 +265,26 @@ FList *f_list_filter (FList *list, FDetectFunc dfn, void *user_data) {
 	return f_listaccumulator_fini (&listaccumulator);
 }
 
-FList *f_list_find (FList *list, const void *data) {
+FListItem *f_list_find (FList *list, const void *data) {
 	return f_list_find_custom (list, data, (FCompareFunc)f_ptrcmp, NULL);
 }
 
-FList *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data) {
-	for (; list != NULL; list = list->next) {
-		if (cfn (list->data, data, user_data) == 0) {
+FListItem *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data) {
+	FListItem *it = f_list_begin (list), *end = f_list_end(list);
+
+	for (; it != end; it = it->next) {
+		if (cfn (it->data, data, user_data) == 0) {
 			break;
 		}
 	}
-	return list;
+	return it;
 }
 
 void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
-	for (; list != NULL; list = list->next) {
-		fn (list->data, user_data);
+	FListItem *it = f_list_begin (list), *end = f_list_end(list);
+
+	for (; it != end; it = it->next) {
+		fn (it->data, user_data);
 	}
 }
 
@@ -288,9 +301,10 @@ FList *f_list_reverse (FList *list) {
 }
 
 void f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data) {
-	FList *last = list != NULL ? list->prev : NULL;
-	for (list = f_list_last (list); list != last; list = list->prev) {
-		fn (list->data, user_data);
+	FListItem *it = f_list_rbegin (list), *end = f_list_rend(list);
+
+	for (; it != end; it = it->prev) {
+		fn (it->data, user_data);
 	}
 }
 

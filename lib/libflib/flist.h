@@ -54,10 +54,13 @@ void   f_list_remove (FList *item);
 
 FListItem *f_list_begin (FList *list);
 FListItem *f_list_end (FList *list);
-FList *f_list_first (FList *list);
-FList *f_list_last (FList *list);
+FListItem *f_list_rbegin (FList *list);
+FListItem *f_list_rend (FList *list);
 FList *f_list_next (FList *list);
 FList *f_list_previous (FList *list);
+
+FListItem *f_list_first (FList *list);
+FListItem *f_list_last (FList *list);
 
 FList *f_list_append (FList *list, void *data);
 FList *f_list_concat (FList *list1, FList *list2);
@@ -65,11 +68,11 @@ FList *f_list_copy (FList *list);
 size_t f_list_count (FList *list);
 FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data);
 void   f_list_detach (FList *list, FCopyFunc fn, void *user_data);
-FList *f_list_detect (FList *list, FDetectFunc dfn, void *user_data);
+FListItem *f_list_detect (FList *list, FDetectFunc dfn, void *user_data);
 void   f_list_exclude (FList **list, FList **excludelist, FDetectFunc dfn, void *user_data);
 FList *f_list_filter (FList *list, FDetectFunc fn, void *user_data);
-FList *f_list_find (FList *list, const void *data);
-FList *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data);
+FListItem *f_list_find (FList *list, const void *data);
+FListItem *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data);
 void   f_list_foreach (FList *list, FVisitorFunc fn, void *user_data);
 FList *f_list_reverse (FList *list);
 void   f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data);
