@@ -466,7 +466,7 @@ void _pacman_removedeps(pmtrans_t *trans)
 		return;
 	}
 
-	for (i = trans->packages; i; i = f_list_next(i), NULL) {
+	for (i = trans->packages; i; i = i->next, NULL) {
 		pmtranspkg_t *transpkg = i->data;
 		for(j = (_pacman_pkg_getinfo(transpkg->pkg_local, PM_PKG_DEPENDS)); j; j = j->next) {
 			pmdepend_t depend;

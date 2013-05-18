@@ -35,6 +35,9 @@ void f_listitem_delete (FListItem *item, FVisitorFunc fn, void *user_data);
 void *f_listitem_get (FListItem *item);
 void f_listitem_set (FListItem *item, void *data);
 
+FListItem *f_listitem_next (FListItem *item);
+FListItem *f_listitem_previous (FListItem *item);
+
 typedef struct FList FList;
 
 /* FIXME: Make private as soon as possible */
@@ -56,8 +59,6 @@ FListItem *f_list_begin (FList *list);
 FListItem *f_list_end (FList *list);
 FListItem *f_list_rbegin (FList *list);
 FListItem *f_list_rend (FList *list);
-FList *f_list_next (FList *list);
-FList *f_list_previous (FList *list);
 
 FListItem *f_list_first (FList *list);
 FListItem *f_list_last (FList *list);

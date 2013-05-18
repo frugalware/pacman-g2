@@ -66,6 +66,14 @@ void f_listitem_set (FListItem *item, void *data) {
 	}
 }
 
+FListItem *f_listitem_next (FListItem *item) {
+	return item != NULL ? item->next : NULL;
+}
+
+FListItem *f_listitem_previous (FListItem *item) {
+	return item != NULL ? item->prev : NULL;
+}
+
 FList *f_list_new () {
 	return NULL;
 }
@@ -148,20 +156,6 @@ FListItem *f_list_rbegin (FList *list) {
 }
 
 FListItem *f_list_rend (FList *list) {
-	return NULL;
-}
-
-FList *f_list_next (FList *list) {
-	if (list != NULL) {
-		return list->next;
-	}
-	return NULL;
-}
-
-FList *f_list_previous (FList *list) {
-	if (list != NULL) {
-		return list->prev;
-	} 
 	return NULL;
 }
 
