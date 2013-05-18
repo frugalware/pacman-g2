@@ -519,6 +519,17 @@ int _pacman_trans_addtarget (pmtrans_t *trans, const char *target, pmtranstype_t
 	return _pacman_trans_add_target (trans, target, type, flags) != NULL ? 0 : -1;
 }
 
+static
+void _pacman_trans_remove_target (pmtrans_t *trans, const char *target) {
+	FListItem *item = f_list_detect (trans->packages, (FDetectFunc)__pacman_transpkg_detect_name, (void *)target);
+
+	if (item != f_list_end (trans->packages)) {
+		_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), target);
+		_f_list_remove (&trans->packages, item);
+		f_listitem_delete (item, (FVisitorFunc)__pacman_trans_pkg_delete, NULL);
+	}
+}
+
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 {
 	/* Sanity checks */
@@ -700,12 +711,7 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 							rmpkg = miss->depend.name;
 						}
 						if(rmpkg) {
-							pmsyncpkg_t *rsync = __pacman_trans_get_trans_pkg(trans, rmpkg);
-							pmsyncpkg_t *spkg = NULL;
-							_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
-							trans->packages = _pacman_list_remove(trans->packages, rsync, __pacman_transpkg_cmp, (void **)&spkg);
-							__pacman_trans_pkg_delete (spkg);
-							spkg = NULL;
+							_pacman_trans_remove_target (trans, rmpkg);
 							continue;
 						}
 					}
@@ -719,7 +725,6 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 						QUESTION(trans, PM_TRANS_CONV_CONFLICT_PKG, miss->target, miss->depend.name, NULL, &doremove);
 						asked = f_stringlist_append (asked, miss->depend.name);
 						if(doremove) {
-							pmsyncpkg_t *rsync = __pacman_trans_get_trans_pkg(trans, miss->depend.name);
 							pmpkg_t *q = _pacman_pkg_new(miss->depend.name, NULL);
 							if(q == NULL) {
 								if(data) {
@@ -737,14 +742,7 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 							/* append to the replaces list */
 							_pacman_log(PM_LOG_FLOW2, _("electing '%s' for removal"), miss->depend.name);
 							ps->replaces = _pacman_list_add(ps->replaces, q);
-							if(rsync) {
-								/* remove it from the target list */
-								pmsyncpkg_t *spkg = NULL;
-								_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), miss->depend.name);
-								trans->packages = _pacman_list_remove(trans->packages, rsync, __pacman_transpkg_cmp, (void **)&spkg);
-								__pacman_trans_pkg_delete (spkg);
-								spkg = NULL;
-							}
+							_pacman_trans_remove_target (trans, miss->depend.name);
 						} else {
 							/* abort */
 							_pacman_log(PM_LOG_ERROR, _("unresolvable package conflicts detected"));
