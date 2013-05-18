@@ -167,8 +167,51 @@ FListItem *f_list_last (FList *list) {
 	return f_list_rbegin (list);
 }
 
-FList *f_list_append (FList *list, void *data) {
-	return f_list_concat (list, f_listitem_new (data));
+FList *f_list_add (FList *list, void *ptr) {
+	return f_list_append (list, ptr);
+}
+
+/* Add items to a list in sorted order. Use the given comparison function to
+ * determine order.
+ */
+FList *f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_data) {
+	FList *add = f_listitem_new (data);
+	FList *prev = NULL;
+	FList *iter = list;
+
+	/* Find insertion point. */
+	while (iter) {
+		if (fn (add->data, iter->data, user_data) <= 0) break;
+		prev = iter;
+		iter = iter->next;
+	}
+
+	/*  Insert node before insertion point. */
+	add->prev = prev;
+	add->next = iter;
+
+	if(iter != NULL) {
+		iter->prev = add;   /*  Not at end.  */
+	}
+
+	if(prev != NULL) {
+		prev->next = add;       /*  In middle.  */
+	} else {
+		list = add;           /*  Start or empty, new list head.  */
+	}
+
+	return(list);
+}
+
+FList *f_list_append (FList *list, void *ptr) {
+	return f_list_concat (list, f_listitem_new (ptr));
+}
+
+FList *f_list_append_unique (FList *list, void *ptr, FCompareFunc fn, void *user_data) {
+	if (f_list_find_custom (list, ptr, fn, user_data) == NULL) {
+		return f_list_append (list, ptr);
+	}
+	return list;
 }
 
 FList *f_list_concat (FList *list1, FList *list2) {
@@ -184,7 +227,7 @@ FList *f_list_copy (FList *list) {
 }
 
 size_t f_list_count (FList *list) {
-	FListItem *it = f_list_begin (list), *end = f_list_end(list);
+	FListItem *it = f_list_begin (list), *end = f_list_end (list);
 	size_t count = 0;
 
 	for (; it != end; it = it->next, ++count)
@@ -193,7 +236,7 @@ size_t f_list_count (FList *list) {
 }
 
 FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data) {
-	FListItem *it = f_list_begin (list), *end = f_list_end(list);
+	FListItem *it = f_list_begin (list), *end = f_list_end (list);
 	FListAccumulator listaccumulator;
 
 	f_listaccumulator_init (&listaccumulator, f_list_new ());
@@ -204,7 +247,7 @@ FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data) {
 }
 
 void f_list_detach (FList *list, FCopyFunc fn, void *user_data) {
-	FListItem *it = f_list_begin (list), *end = f_list_end(list);
+	FListItem *it = f_list_begin (list), *end = f_list_end (list);
 
 	for (; it != end; it = it->next) {
 		it->data = fn (it->data, user_data);
@@ -212,7 +255,7 @@ void f_list_detach (FList *list, FCopyFunc fn, void *user_data) {
 }
 
 FListItem *f_list_detect (FList *list, FDetectFunc dfn, void *user_data) {
-	FListItem *it = f_list_begin (list), *end = f_list_end(list);
+	FListItem *it = f_list_begin (list), *end = f_list_end (list);
 
 	for (; it != end; it = it->next) {
 		if (dfn (it->data, user_data) == 0) {
@@ -264,7 +307,7 @@ FListItem *f_list_find (FList *list, const void *data) {
 }
 
 FListItem *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data) {
-	FListItem *it = f_list_begin (list), *end = f_list_end(list);
+	FListItem *it = f_list_begin (list), *end = f_list_end (list);
 
 	for (; it != end; it = it->next) {
 		if (cfn (it->data, data, user_data) == 0) {
@@ -275,7 +318,7 @@ FListItem *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, 
 }
 
 void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
-	FListItem *it = f_list_begin (list), *end = f_list_end(list);
+	FListItem *it = f_list_begin (list), *end = f_list_end (list);
 
 	for (; it != end; it = it->next) {
 		fn (it->data, user_data);
@@ -295,7 +338,7 @@ FList *f_list_reverse (FList *list) {
 }
 
 void f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data) {
-	FListItem *it = f_list_rbegin (list), *end = f_list_rend(list);
+	FListItem *it = f_list_rbegin (list), *end = f_list_rend (list);
 
 	for (; it != end; it = it->prev) {
 		fn (it->data, user_data);
@@ -303,47 +346,13 @@ void f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data) {
 }
 
 FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data) {
-	FListAccumulator listaccumulator;
+	FListItem *it = f_list_begin (list), *end = f_list_end (list);
+	FList *uniques = f_list_new ();
 
-	f_listaccumulator_init (&listaccumulator, f_list_new ());
-	for (; list != NULL; list = list->next) {
-		if (f_list_find_custom (listaccumulator.head, list->data, fn, user_data) == NULL) {
-			f_listaccumulate (list->data, &listaccumulator);
-		}
+	for (; it != end; it = it->next) {
+		uniques = f_list_append_unique (uniques, it->data, fn, user_data);
 	}
-	return f_listaccumulator_fini (&listaccumulator);
-}
-
-/* Add items to a list in sorted order. Use the given comparison function to
- * determine order.
- */
-FList *f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_data) {
-	FList *add = f_listitem_new (data);
-	FList *prev = NULL;
-	FList *iter = list;
-
-	/* Find insertion point. */
-	while (iter) {
-		if (fn (add->data, iter->data, user_data) <= 0) break;
-		prev = iter;
-		iter = iter->next;
-	}
-
-	/*  Insert node before insertion point. */
-	add->prev = prev;
-	add->next = iter;
-
-	if(iter != NULL) {
-		iter->prev = add;   /*  Not at end.  */
-	}
-
-	if(prev != NULL) {
-		prev->next = add;       /*  In middle.  */
-	} else {
-		list = add;           /*  Start or empty, new list head.  */
-	}
-
-	return(list);
+	return uniques;
 }
 
 /* Remove an item in a list. Use the given comparison function to find the

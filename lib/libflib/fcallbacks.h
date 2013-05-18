@@ -62,7 +62,7 @@ struct FDetectVisitor {
 	FVisitor *fail;
 };
 
-void f_detectvisit (void *ptr, FDetectVisitor *conditionalvisitor);
+void f_detectvisit (void *ptr, FDetectVisitor *detectvisitor);
 
 #endif /* F_CALLBACKS_H */
 

@@ -63,7 +63,10 @@ FListItem *f_list_rend (FList *list);
 FListItem *f_list_first (FList *list);
 FListItem *f_list_last (FList *list);
 
+FList *f_list_add (FList *list, void *data);
+FList *f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_data);
 FList *f_list_append (FList *list, void *data);
+FList *f_list_append_unique (FList *list, void *data, FCompareFunc fn, void *user_data);
 FList *f_list_concat (FList *list1, FList *list2);
 FList *f_list_copy (FList *list);
 size_t f_list_count (FList *list);
@@ -79,7 +82,6 @@ FList *f_list_reverse (FList *list);
 void   f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data);
 FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data);
 
-FList *f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_data);
 FList *f_list_remove_find_custom (FList *haystack, void *needle, FCompareFunc fn, void **data);
 
 #endif /* F_LIST_H */
