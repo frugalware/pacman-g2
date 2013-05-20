@@ -203,10 +203,10 @@ int _pacman_trans_is_depend_satisfied (pmtrans_t *trans, pmdepend_t *depend) {
 	return 1;
 }
 
-pmdepmissing_t *_pacman_depmiss_new(const char *target, unsigned char type, unsigned char depmod,
+pmdepmissing_t *_pacman_depmissing_new(const char *target, unsigned char type, unsigned char depmod,
                                   const char *depname, const char *depversion)
 {
-	pmdepmissing_t *miss = _pacman_malloc(sizeof(pmdepmissing_t));
+	pmdepmissing_t *miss = _pacman_zalloc(sizeof(pmdepmissing_t));
 
 	if(miss == NULL) {
 		return(NULL);
@@ -225,6 +225,7 @@ pmdepmissing_t *_pacman_depmiss_new(const char *target, unsigned char type, unsi
 	return(miss);
 }
 
+static
 int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
 {
 	pmlist_t *i;
@@ -238,6 +239,21 @@ int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
 	}
 
 	return(0);
+}
+
+int _pacman_depmissinglist_add (pmlist_t **depmissinglist, const char *target, unsigned char type,
+		unsigned char depmod, const char *depname, const char *depversion) {
+	pmdepmissing_t *depmissing;
+
+	_pacman_log(PM_LOG_DEBUG, _("Adding %s as a conflict for %s"),
+			depname, target);
+	depmissing = _pacman_depmissing_new(target, type, depmod, depname, depversion);
+	if (!_pacman_depmiss_isin (depmissing, *depmissinglist)) {
+		*depmissinglist = _pacman_list_add (*depmissinglist, depmissing);
+	} else {
+		FREE(depmissing);
+	}
+	return 0;
 }
 
 /* Re-order a list of target packages with respect to their dependencies.
@@ -358,12 +374,8 @@ int _pacman_trans_check_package_depends (pmtrans_t *trans, pmpkg_t *pkg, pmlist_
 		if (_pacman_trans_is_depend_satisfied (trans, &depend) != 0) {
 			_pacman_log (PM_LOG_DEBUG, _("checkdeps: found %s as a dependency for %s"),
 					depend.name, pkg->name);
-			miss = _pacman_depmiss_new(pkg->name, PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
-			if (!_pacman_depmiss_isin(miss, *missdeps)) {
-				*missdeps = _pacman_list_add(*missdeps, miss);
-			} else {
-				FREE(miss);
-			}
+			_pacman_depmissinglist_add (missdeps, pkg->name, PM_DEP_TYPE_DEPEND,
+					depend.mod, depend.name, depend.version);
 		}
 	}
 	return 0;

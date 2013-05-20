@@ -92,28 +92,14 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans) {
 				}
 				if(!strcmp(j->data, dp->name)) {
 					/* conflict */
-					_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
-					          dp->name, transpkg_name);
-					miss = _pacman_depmiss_new(transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, dp->name, NULL);
-					if(!_pacman_depmiss_isin(miss, baddeps)) {
-						baddeps = _pacman_list_add(baddeps, miss);
-					} else {
-						FREE(miss);
-					}
+					_pacman_depmissinglist_add (&baddeps, transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, dp->name, NULL);
 				} else {
 					/* see if dp provides something in tp's conflict list */
 					pmlist_t *m;
 					for(m = _pacman_pkg_getinfo(dp, PM_PKG_PROVIDES); m; m = m->next) {
 						if(!strcmp(m->data, j->data)) {
 							/* confict */
-							_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
-							          dp->name, transpkg_name);
-							miss = _pacman_depmiss_new(transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, dp->name, NULL);
-							if(!_pacman_depmiss_isin(miss, baddeps)) {
-								baddeps = _pacman_list_add(baddeps, miss);
-							} else {
-								FREE(miss);
-							}
+							_pacman_depmissinglist_add (&baddeps, transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, dp->name, NULL);
 						}
 					}
 				}
@@ -131,27 +117,13 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans) {
 				}
 				if(!strcmp(other_transpkg_name, (char *)j->data)) {
 					/* otp is listed in tp's conflict list */
-					_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
-					          other_transpkg_name, transpkg_name);
-					miss = _pacman_depmiss_new(transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, other_transpkg_name, NULL);
-					if(!_pacman_depmiss_isin(miss, baddeps)) {
-						baddeps = _pacman_list_add(baddeps, miss);
-					} else {
-						FREE(miss);
-					}
+					_pacman_depmissinglist_add (&baddeps, transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, other_transpkg_name, NULL);
 				} else {
 					/* see if otp provides something in tp's conflict list */
 					pmlist_t *m;
 					for(m = _pacman_pkg_getinfo(other_transpkg->pkg_new, PM_PKG_PROVIDES); m; m = m->next) {
 						if(!strcmp(m->data, j->data)) {
-							_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
-							          other_transpkg_name, transpkg_name);
-							miss = _pacman_depmiss_new(transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, other_transpkg_name, NULL);
-							if(!_pacman_depmiss_isin(miss, baddeps)) {
-								baddeps = _pacman_list_add(baddeps, miss);
-							} else {
-								FREE(miss);
-							}
+							_pacman_depmissinglist_add (&baddeps, transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, other_transpkg_name, NULL);
 						}
 					}
 				}
@@ -187,14 +159,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans) {
 			}
 			for(j = conflicts; j; j = j->next) {
 				if(!strcmp((char *)j->data, transpkg_name)) {
-					_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
-					          info->name, transpkg_name);
-					miss = _pacman_depmiss_new(transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name, NULL);
-					if(!_pacman_depmiss_isin(miss, baddeps)) {
-						baddeps = _pacman_list_add(baddeps, miss);
-					} else {
-						FREE(miss);
-					}
+					_pacman_depmissinglist_add (&baddeps, transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name, NULL);
 				} else {
 					/* see if the db package conflicts with something we provide */
 					pmlist_t *m;
@@ -202,14 +167,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans) {
 						pmlist_t *n;
 						for(n = _pacman_pkg_getinfo(transpkg->pkg_new, PM_PKG_PROVIDES); n; n = n->next) {
 							if(!strcmp(m->data, n->data)) {
-								_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
-								          info->name, transpkg_name);
-								miss = _pacman_depmiss_new(transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name, NULL);
-								if(!_pacman_depmiss_isin(miss, baddeps)) {
-									baddeps = _pacman_list_add(baddeps, miss);
-								} else {
-									FREE(miss);
-								}
+								_pacman_depmissinglist_add (&baddeps, transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name, NULL);
 							}
 						}
 					}
