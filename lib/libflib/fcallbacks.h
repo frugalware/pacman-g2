@@ -54,6 +54,16 @@ struct FVisitor {
 
 void f_visit (void *ptr, FVisitor *visitor);
 
+typedef struct FCompareDetector FCompareDetector;
+
+struct FCompareDetector {
+	FCompareFunc fn;
+	const void *ptr;
+	void *user_data;
+};
+
+int f_comparedetect (const void *ptr, FCompareDetector *comparedetector);
+
 typedef struct FDetectVisitor FDetectVisitor;
 
 struct FDetectVisitor {

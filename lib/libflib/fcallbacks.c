@@ -33,6 +33,10 @@ void f_visit (void *ptr, FVisitor *visitor) {
 	}
 }
 
+int f_comparedetect (const void *ptr, FCompareDetector *comparedetector) {
+	return comparedetector->fn (ptr, comparedetector->ptr, comparedetector->user_data);
+}
+
 void f_detectvisit (void *ptr, FDetectVisitor *detectvisitor) {
 	if (detectvisitor != NULL) {
 		f_visit (ptr, f_detect (ptr, detectvisitor->detect) == 0 ?

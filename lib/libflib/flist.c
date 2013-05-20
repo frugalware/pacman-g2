@@ -307,14 +307,13 @@ FListItem *f_list_find (FList *list, const void *data) {
 }
 
 FListItem *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data) {
-	FListItem *it = f_list_begin (list), *end = f_list_end (list);
+	FCompareDetector comparedetector = {
+		.fn = cfn,
+		.ptr = data,
+		.user_data = user_data
+	};
 
-	for (; it != end; it = it->next) {
-		if (cfn (it->data, data, user_data) == 0) {
-			break;
-		}
-	}
-	return it;
+	return f_list_detect (list, f_comparedetect, &comparedetector);
 }
 
 void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
