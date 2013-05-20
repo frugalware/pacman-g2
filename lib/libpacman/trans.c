@@ -1243,8 +1243,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 			}
 			/* splice out this entry from requiredby */
-			depinfo->requiredby = _pacman_list_remove(_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), info->name, strcmp, (void **)&data);
-			FREE(data);
+			depinfo->requiredby = f_stringlist_remove_all (_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), info->name);
 			_pacman_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name);
 			if(_pacman_db_write(db, depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
