@@ -43,6 +43,14 @@ FList *f_stringlist_find (FList *list, const char *str) {
 	return f_list_detect (list, (FDetectFunc)strcmp, (void *)str);
 }
 
+FList *f_stringlist_remove_all (FList *list, const char *str) {
+	FList *excludes = f_list_new ();
+
+	_f_list_exclude (&list, &excludes, (FDetectFunc)strcmp, str);
+	f_list_delete (excludes, (FVisitorFunc)f_free, NULL);
+	return list;
+}
+
 FList *f_stringlist_uniques (FList *list) {
 	  return f_list_uniques (list, (FCompareFunc)strcmp, NULL);
 }
