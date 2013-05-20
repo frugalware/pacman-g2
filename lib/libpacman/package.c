@@ -166,7 +166,6 @@ int _pacman_pkg_cmp(const void *p1, const void *p2)
 /* Parses the package description file for the current package
  *
  * Returns: 0 on success, 1 on error
- *
  */
 static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 {

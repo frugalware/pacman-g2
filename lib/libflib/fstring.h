@@ -1,5 +1,5 @@
 /*
- *  stringlist.h
+ *  fstring.h
  *
  *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
  *

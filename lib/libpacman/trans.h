@@ -107,7 +107,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data);
 
 int _pacman_trans_sysupgrade(pmtrans_t *trans);
 
-/* RENAMEME: struct __pmtrans_pkg  */
+/* RENAMEME: struct pmtranspkg_t */
 typedef struct __pmsyncpkg_t {
 	pmtranstype_t type;
 	pmpkg_t *pkg_new;

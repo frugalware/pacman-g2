@@ -28,8 +28,8 @@ struct FObjectOps {
 	/* int  (*init) (FObject *object); */
 	void (*fini) (FObject *object);
 #if 0
-	int (*get) (const char *property, intptr_t *data);
-	int (*set) (const char *property, intptr_t data);
+	int (*get) (FObject *object, const char *property, intptr_t *data);
+	int (*set) (FObject *object, const char *property, intptr_t data);
 #endif
 };
 
