@@ -29,6 +29,12 @@
 #include "flistaccumulator.h"
 #include "fstdlib.h"
 
+/* DO NOT MAKE PUBLIC FOR NOW:
+ * Require list implemantation change.
+ */
+static
+void f_list_foreach_safe (FList *list, FVisitorFunc fn, void *user_data);
+
 static
 void *f_ptrcpy(const void *p) {
 	return (void *)p;
@@ -43,17 +49,25 @@ FListItem *f_listitem_new (void *data) {
 	return item;
 }
 
+static
+void _f_listitem_delete (FListItem *item, FVisitor *visitor) {
+	if (item != NULL) {
+		f_visit (item->data, visitor);
+		f_listitem_remove (item);
+		f_free (item);
+	}
+}
+
 /**
  * Remove the item from it's list and free it.
  */
-void f_listitem_delete (FList *item, FVisitorFunc fn, void *user_data) {
-	if (item != NULL) {
-		if (fn != NULL) {
-			fn (item->data, user_data);
-		}
-		f_listitem_remove (item);
-		free (item);
-	}
+void f_listitem_delete (FListItem *item, FVisitorFunc fn, void *user_data) {
+	FVisitor visitor = {
+		.fn = fn,
+		.user_data = user_data
+	};
+
+	_f_listitem_delete (item, &visitor);
 }
 
 void *f_listitem_get (FListItem *item) {
@@ -95,12 +109,12 @@ FList *f_list_new () {
 }
 
 void f_list_delete (FList *list, FVisitorFunc fn, void *user_data) {
-	FList *next = list;
+	FVisitor visitor = {
+		.fn = fn,
+		.user_data = user_data
+	};
 
-	while ((list = next) != NULL) {
-		next = list->next;
-		f_listitem_delete (list, fn, user_data);
-	}
+	f_list_foreach_safe (list, (FVisitorFunc)_f_listitem_delete, &visitor);
 }
 
 /**
@@ -313,7 +327,7 @@ FListItem *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, 
 		.user_data = user_data
 	};
 
-	return f_list_detect (list, f_comparedetect, &comparedetector);
+	return f_list_detect (list, (FDetectFunc)f_comparedetect, &comparedetector);
 }
 
 void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
@@ -321,6 +335,20 @@ void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
 
 	for (; it != end; it = it->next) {
 		fn (it->data, user_data);
+	}
+}
+
+/**
+ * A foreach safe in the sence you can detach the current element.
+ *
+ * Differs from foreach since it pass an FListItem instead of data.
+ */
+void f_list_foreach_safe (FList *list, FVisitorFunc fn, void *user_data) {
+	FListItem *it, *next = f_list_begin (list), *end = f_list_end (list);
+
+	for (it = next; it != end; it = next) {
+		next = it->next;
+		fn (it, user_data);
 	}
 }
 
