@@ -800,7 +800,7 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 		/*EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
 		if (trans->_packages) {
 			_pacman_log(PM_LOG_FLOW1, _("checking dependencies of packages designated for removal"));
-			deps = _pacman_checkdeps (trans, PM_TRANS_TYPE_REMOVE, trans->_packages);
+			_pacman_trans_checkdeps (trans, &deps);
 			if(deps) {
 				int errorout = 0;
 				for(i = deps; i; i = i->next) {
