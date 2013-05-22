@@ -105,18 +105,11 @@ pmlist_t *_pacman_db_get_pkgcache(pmdb_t *db)
 
 int _pacman_db_add_pkgincache(pmdb_t *db, pmpkg_t *pkg)
 {
-	pmpkg_t *newpkg;
-
 	if(db == NULL || pkg == NULL) {
 		return(-1);
 	}
-
-	newpkg = _pacman_pkg_dup(pkg);
-	if(newpkg == NULL) {
-		return(-1);
-	}
-	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), newpkg->name, db->treename);
-	db->pkgcache = f_list_add_sorted(db->pkgcache, newpkg, (FCompareFunc)_pacman_pkg_cmp, NULL);
+	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), pkg->name, db->treename);
+	db->pkgcache = f_list_add_sorted(db->pkgcache, pkg, (FCompareFunc)_pacman_pkg_cmp, NULL);
 
 	_pacman_db_free_grpcache(db);
 

@@ -105,52 +105,6 @@ pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 	return(pkg);
 }
 
-pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
-{
-	pmpkg_t* newpkg = _pacman_malloc(sizeof(pmpkg_t));
-
-	if(newpkg == NULL) {
-		return(NULL);
-	}
-	__pacman_file_init (&newpkg->base, &_pacman_pkg_ops);
-
-	newpkg->db         = pkg->db;
-	STRNCPY(newpkg->name, pkg->name, PKG_NAME_LEN);
-	STRNCPY(newpkg->version, pkg->version, PKG_VERSION_LEN);
-	STRNCPY(newpkg->desc, pkg->desc, PKG_DESC_LEN);
-	STRNCPY(newpkg->url, pkg->url, PKG_URL_LEN);
-	STRNCPY(newpkg->builddate, pkg->builddate, PKG_DATE_LEN);
-	STRNCPY(newpkg->buildtype, pkg->buildtype, PKG_DATE_LEN);
-	STRNCPY(newpkg->installdate, pkg->installdate, PKG_DATE_LEN);
-	STRNCPY(newpkg->packager, pkg->packager, PKG_PACKAGER_LEN);
-	STRNCPY(newpkg->md5sum, pkg->md5sum, PKG_MD5SUM_LEN);
-	STRNCPY(newpkg->sha1sum, pkg->sha1sum, PKG_SHA1SUM_LEN);
-	STRNCPY(newpkg->arch, pkg->arch, PKG_ARCH_LEN);
-	newpkg->size       = pkg->size;
-	newpkg->usize      = pkg->usize;
-	newpkg->force      = pkg->force;
-	newpkg->stick      = pkg->stick;
-	newpkg->scriptlet  = pkg->scriptlet;
-	newpkg->reason     = pkg->reason;
-	newpkg->license    = f_stringlist_deep_copy(pkg->license);
-	newpkg->desc_localized = f_stringlist_deep_copy(pkg->desc_localized);
-	newpkg->requiredby = f_stringlist_deep_copy(pkg->requiredby);
-	newpkg->conflicts  = f_stringlist_deep_copy(pkg->conflicts);
-	newpkg->files      = f_stringlist_deep_copy(pkg->files);
-	newpkg->backup     = f_stringlist_deep_copy(pkg->backup);
-	newpkg->depends    = f_stringlist_deep_copy(pkg->depends);
-	newpkg->removes    = f_stringlist_deep_copy(pkg->removes);
-	newpkg->groups     = f_stringlist_deep_copy(pkg->groups);
-	newpkg->provides   = f_stringlist_deep_copy(pkg->provides);
-	newpkg->replaces   = f_stringlist_deep_copy(pkg->replaces);
-	/* internal */
-	newpkg->origin     = pkg->origin;
-	newpkg->archive_path = f_strdup (pkg->archive_path);
-	newpkg->infolevel  = pkg->infolevel;
-
-	return(newpkg);
-}
-
 void _pacman_pkg_free(pmpkg_t *pkg)
 {
 	f_object_delete (&pkg->base.base);

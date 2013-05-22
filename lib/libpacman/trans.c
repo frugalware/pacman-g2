@@ -208,7 +208,7 @@ pmpkg_t *_pacman_db_search_provider(pmdb_t *db, const char *name) {
 	if (p == NULL) {
 		RET_ERR(PM_ERR_PKG_NOT_FOUND, NULL);
 	}
-	pkg = _pacman_pkg_dup(p->data);
+	pkg = p->data;
 	FREELISTPTR(p);
 	_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s' in database '%S'"), pkg->name, name, db->treename);
 	return pkg;
