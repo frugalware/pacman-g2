@@ -296,7 +296,7 @@ void _pacman_sortbydeps(pmtrans_t *trans, int mode)
 	for(i = vertices; i; i = i->next) {
 		pmgraph_t *vertex_i = i->data;
 		pmpkg_t *p_i = vertex_i->data;
-		/* TODO this should be somehow combined with _pacman_checkdeps */
+		/* TODO this should be somehow combined with _pacman_trans_checkdeps */
 		for(j = vertices; j; j = j->next) {
 			pmgraph_t *vertex_j = j->data;
 			pmpkg_t *p_j = vertex_j->data;
@@ -440,28 +440,6 @@ int _pacman_trans_checkdeps (pmtrans_t *trans, pmlist_t **depmisslist) {
 		}
 	}
 	return 0;
-}
-
-/* Returns a pmlist_t* of missing_t pointers.
- *
- * dependencies can include versions with depmod operators.
- */
-pmlist_t *_pacman_checkdeps (pmtrans_t *trans, unsigned char op, pmlist_t *packages) {
-	pmlist_t *i, *ret = NULL;
-
-	for (i = packages; i; i = i->next) {
-		pmtranspkg_t transpkg;
-		transpkg.type = op;
-		if (op & PM_TRANS_TYPE_ADD) {
-			transpkg.pkg_new = i->data;
-			transpkg.pkg_local = _pacman_db_get_pkgfromcache(trans->handle->db_local, transpkg.pkg_new->name);
-		} else {
-			transpkg.pkg_new = NULL;
-			transpkg.pkg_local = i->data;
-		}
-		_pacman_transpkg_checkdeps(trans, &transpkg, &ret);
-	}
-	return ret;
 }
 
 /* return a new pmlist_t target list containing all packages in the original

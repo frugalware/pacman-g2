@@ -52,7 +52,6 @@ int _pacman_depmissinglist_add (pmlist_t **depmissinglist, const char *target, u
 		unsigned char depmod, const char *depname, const char *depversion);
 
 void _pacman_sortbydeps(pmtrans_t *trans, int mode);
-pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packages);
 int _pacman_splitdep(const char *depstr, pmdepend_t *depend);
 void _pacman_removedeps(pmtrans_t *trans);
 
