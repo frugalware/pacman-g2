@@ -331,7 +331,7 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 					info->desc_localized = f_stringlist_append (info->desc_localized, line);
 				}
 				STRNCPY(info->desc, (char*)info->desc_localized->data, sizeof(info->desc));
-				for (i = info->desc_localized; i; i = i->next) {
+				f_foreach (i, info->desc_localized) {
 					if (!strncmp(i->data, handle->language, strlen(handle->language)) &&
 							*((char*)i->data+strlen(handle->language)) == ' ') {
 						STRNCPY(info->desc, (char*)i->data+strlen(handle->language)+1, sizeof(info->desc));
@@ -630,7 +630,7 @@ void _pacman_db_write_item_list (FILE *fp, const char *item_name, pmlist_t *item
 		pmlist_t *i = item_list;
 
 		fprintf(fp, "%%%s%%\n", item_name);
-		for(i = item_list; i; i = i->next) {
+		f_foreach (i, item_list) {
 			fprintf(fp, "%s\n", (char *)i->data);
 		}
 		fprintf(fp, "\n");

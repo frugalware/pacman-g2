@@ -81,7 +81,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 
 	/* check for "recommended" package replacements */
 	_pacman_log(PM_LOG_FLOW1, _("checking for package replacements"));
-	for(i = dbs_sync; i; i = i->next) {
+	f_foreach (i, dbs_sync) {
 		for(j = _pacman_db_get_pkgcache(i->data); j; j = j->next) {
 			pmpkg_t *spkg = j->data;
 			for(k = _pacman_pkg_getinfo(spkg, PM_PKG_REPLACES); k; k = k->next) {
@@ -144,10 +144,11 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans)
 		}
 
 		/* we don't care about a to-be-replaced package's newer version */
-		for(j = trans->packages; j && !replace; j=j->next) {
+		f_foreach (j, trans->packages) {
 			ps = j->data;
 			if(_pacman_pkg_isin(spkg->name, ps->replaces)) {
 				replace=1;
+				break;
 			}
 		}
 		if(replace) {

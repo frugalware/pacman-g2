@@ -42,7 +42,7 @@ char *_pacman_needbackup(char *file, pmlist_t *backup)
 	}
 
 	/* run through the backup list and parse out the md5 or sha1 hash for our file */
-	for(lp = backup; lp; lp = lp->next) {
+	f_foreach (lp, backup) {
 		char *str = strdup(lp->data);
 		char *ptr;
 

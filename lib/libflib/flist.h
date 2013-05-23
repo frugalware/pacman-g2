@@ -87,6 +87,12 @@ void   _f_list_exclude (FList **list, FList **excludelist, FDetectFunc dfn, void
 void   _f_list_remove (FList **list, FListItem *item);
 FList *f_list_remove_find_custom (FList *haystack, void *needle, FCompareFunc fn, void **data);
 
+#define f_foreach(it, list) \
+	for (it = f_list_begin (list); it != f_list_end (list); it = f_listitem_next (it))
+
+#define f_rforeach(it, list) \
+	for (it = f_list_rbegin (list); it != f_list_rend (list); it = f_listitem_prev (it))
+
 #endif /* F_LIST_H */
 
 /* vim: set ts=2 sw=2 noet: */

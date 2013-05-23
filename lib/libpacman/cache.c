@@ -163,7 +163,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 
 	_pacman_log(PM_LOG_DEBUG, _("loading group cache for repository '%s'"), db->treename);
 
-	for(lp = db->pkgcache; lp; lp = lp->next) {
+	f_foreach (lp, db->pkgcache) {
 		pmlist_t *i;
 		pmpkg_t *pkg = lp->data;
 
@@ -171,7 +171,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 			_pacman_db_read(pkg->db, INFRQ_DESC, pkg);
 		}
 
-		for(i = pkg->groups; i; i = i->next) {
+		f_foreach (i, pkg->groups) {
 			if(!f_stringlist_find (db->grpcache, i->data)) {
 				pmgrp_t *grp = _pacman_grp_new();
 
@@ -181,7 +181,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 			} else {
 				pmlist_t *j;
 
-				for(j = db->grpcache; j; j = j->next) {
+				f_foreach (j, db->grpcache) {
 					pmgrp_t *grp = j->data;
 
 					if(strcmp(grp->name, i->data) == 0) {
@@ -205,7 +205,7 @@ void _pacman_db_free_grpcache(pmdb_t *db)
 		return;
 	}
 
-	for(lg = db->grpcache; lg; lg = lg->next) {
+	f_foreach (lg, db->grpcache) {
 		pmgrp_t *grp = lg->data;
 
 		FREELISTPTR(grp->packages);
@@ -273,7 +273,7 @@ int _pacman_sync_cleancache(int level)
 		}
 		closedir(dir);
 
-		for(i = cache; i; i = i->next) {
+		f_foreach (i, cache) {
 			char *str = i->data;
 			char name[256], version[64];
 
@@ -312,7 +312,7 @@ int _pacman_sync_cleancache(int level)
 		}
 		FREELIST(cache);
 
-		for(i = clean; i; i = i->next) {
+		f_foreach (i, clean) {
 			char path[PATH_MAX];
 
 			snprintf(path, PATH_MAX, "%s/%s", dirpath, (char *)i->data);

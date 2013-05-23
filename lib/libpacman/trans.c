@@ -570,7 +570,7 @@ int check_olddelay(void)
 
 	memset(&tm,0,sizeof(struct tm));
 
-	for(i = handle->dbs_sync; i; i= i->next) {
+	f_foreach (i, handle->dbs_sync) {
 		pmdb_t *db = i->data;
 		if(_pacman_db_getlastupdate(db, lastupdate) == -1) {
 			continue;
@@ -648,10 +648,11 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 				/* check if the conflicting package is one that's about to be removed/replaced.
 				 * if so, then just ignore it
 				 */
-				for(j = trans->packages; j && !found; j = j->next) {
+				f_foreach (j, trans->packages) {
 					ps = j->data;
 					if(_pacman_pkg_isin(miss->depend.name, ps->replaces)) {
 						found = 1;
+						break;
 					}
 				}
 				if(found) {
@@ -803,7 +804,7 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 			_pacman_trans_checkdeps (trans, &deps);
 			if(deps) {
 				int errorout = 0;
-				for(i = deps; i; i = i->next) {
+				f_foreach (i, deps) {
 					pmdepmissing_t *miss = i->data;
 					if(!__pacman_trans_get_trans_pkg(trans, miss->depend.name)) {
 						int pfound = 0;
@@ -952,9 +953,9 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 		/* Cleaning up */
 		EVENT(trans, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
-		for (lp=trans->_packages; lp!=NULL; lp=lp->next) {
+		f_foreach (lp, trans->_packages) {
 			info=(pmpkg_t *)lp->data;
-			for (rmlist=info->removes; rmlist!=NULL; rmlist=rmlist->next) {
+			f_foreach (rmlist, info->removes) {
 				snprintf(rm_fname, PATH_MAX, "%s%s", handle->root, (char *)rmlist->data);
 				remove(rm_fname);
 			}
@@ -1002,7 +1003,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 			if(trans->flags & PM_TRANS_FLAG_CASCADE) {
 				while(lp) {
 					pmlist_t *i;
-					for(i = lp; i; i = i->next) {
+					f_foreach (i, lp) {
 						pmdepmissing_t *miss = (pmdepmissing_t *)i->data;
 						pmpkg_t *info = _pacman_db_scan(db_local, miss->depend.name, INFRQ_ALL);
 						if(info) {
@@ -1080,7 +1081,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 
 	howmany = f_list_count (trans->packages);
 
-	for(targ = trans->packages; targ; targ = targ->next) {
+	f_foreach (targ, trans->packages) {
 		int position = 0;
 		char pm_install[PATH_MAX];
 		info = ((pmtranspkg_t*)targ->data)->pkg_local;
@@ -1146,9 +1147,10 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 					 * explanation. */
 					int skipit = 0;
 					pmlist_t *j;
-					for(j = trans->skiplist; j; j = j->next) {
+					f_foreach (j, trans->skiplist) {
 						if(!strcmp(file, (char*)j->data)) {
 							skipit = 1;
+							break;
 						}
 					}
 					if(skipit) {
@@ -1210,7 +1212,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 
 		/* update dependency packages' REQUIREDBY fields */
 		_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
-		for(lp = info->depends; lp; lp = lp->next) {
+		f_foreach (lp, info->depends) {
 			pmpkg_t *depinfo = NULL;
 			pmdepend_t depend;
 			char *data;
@@ -1307,7 +1309,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 	pmlist_t *targ, *lp;
 	const int howmany = f_list_count (trans->packages);
 
-	for(targ = trans->_packages; targ; targ = targ->next) {
+	f_foreach (targ, trans->_packages) {
 		pmtranstype_t transtype;
 		char pm_install[PATH_MAX];
 		pmpkg_t *info = (pmpkg_t *)targ->data;
@@ -1511,7 +1513,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 					/* append the new md5 or sha1 hash to it's respective entry in info->backup
 					 * (it will be the new orginal)
 					 */
-					for(lp = info->backup; lp; lp = lp->next) {
+					f_foreach (lp, info->backup) {
 						char *fn;
 						char *file = lp->data;
 
@@ -1653,7 +1655,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 						errors++;
 					}
 					/* calculate an md5 or sha1 hash if this is in info->backup */
-					for(lp = info->backup; lp; lp = lp->next) {
+					f_foreach (lp, info->backup) {
 						char *fn, *md5, *sha1;
 						char path[PATH_MAX];
 						char *file = lp->data;
@@ -1719,7 +1721,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 			if(tmpp == NULL) {
 				continue;
 			}
-			for(tmppm = tmpp->depends; tmppm; tmppm = tmppm->next) {
+			f_foreach (tmppm, tmpp->depends) {
 				pmdepend_t depend;
 				if(_pacman_splitdep(tmppm->data, &depend)) {
 					continue;
@@ -1752,7 +1754,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 		if(info->depends) {
 			_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
 		}
-		for(lp = info->depends; lp; lp = lp->next) {
+		f_foreach (lp, info->depends) {
 			pmpkg_t *depinfo;
 			pmdepend_t depend;
 			if(_pacman_splitdep(lp->data, &depend)) {

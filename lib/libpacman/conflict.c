@@ -60,7 +60,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans) {
 
 	howmany = f_list_count (trans->packages);
 
-	for(i = trans->packages; i; i = i->next) {
+	f_foreach (i, trans->packages) {
 		pmtranspkg_t *transpkg = i->data;
 		const char *transpkg_name = __pacman_transpkg_name (transpkg);
 
@@ -106,7 +106,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans) {
 			}
 			/* CHECK 2: check targets against targets */
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs targs"), transpkg_name);
-			for(k = trans->packages; k; k = k->next) {
+			f_foreach (k, trans->packages) {
 				pmtranspkg_t *other_transpkg = k->data;
 				const char *other_transpkg_name = __pacman_transpkg_name (other_transpkg);
 
@@ -143,7 +143,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans) {
 			/* If this package (*info) is also in our packages pmlist_t, use the
 			 * conflicts list from the new package, not the old one (*info)
 			 */
-			for(j = trans->packages; j; j = j->next) {
+			f_foreach (j, trans->packages) {
 				pmtranspkg_t *transpkg = j->data;
 
 				if (transpkg->type & PM_TRANS_TYPE_ADD &&
@@ -157,13 +157,14 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans) {
 				/* Use the old package's conflicts, it's the only set we have */
 				conflicts = _pacman_pkg_getinfo(info, PM_PKG_CONFLICTS);
 			}
-			for(j = conflicts; j; j = j->next) {
+			f_foreach (j, conflicts) {
 				if(!strcmp((char *)j->data, transpkg_name)) {
 					_pacman_depmissinglist_add (&baddeps, transpkg_name, PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name, NULL);
 				} else {
 					/* see if the db package conflicts with something we provide */
 					pmlist_t *m;
-					for(m = conflicts; m; m = m->next) {
+
+					f_foreach (m, conflicts) {
 						pmlist_t *n;
 						for(n = _pacman_pkg_getinfo(transpkg->pkg_new, PM_PKG_PROVIDES); n; n = n->next) {
 							if(!strcmp(m->data, n->data)) {
@@ -233,7 +234,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 	}
 
 	/* CHECK 1: check every target against every target */
-	for (i = trans->packages; i; i = i->next) {
+	f_foreach (i, trans->packages) {
 		pmtranspkg_t *p1 = i->data;
 
 		if (p1->pkg_new == NULL) {
