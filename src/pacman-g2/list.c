@@ -30,20 +30,6 @@
 
 extern int maxcols;
 
-/* Test for existence of a string in a list_t
- */
-int list_is_strin(char *needle, list_t *haystack)
-{
-	list_t *lp;
-
-	for(lp = haystack; lp; lp = lp->next) {
-		if(lp->data && !strcmp(lp->data, needle)) {
-			return(1);
-		}
-	}
-	return(0);
-}
-
 /* Display the content of a list_t struct of strings
  */
 
