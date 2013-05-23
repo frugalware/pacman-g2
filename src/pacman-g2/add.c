@@ -48,7 +48,7 @@ int addpkg(list_t *targets)
 
 	/* Check for URL targets and process them
 	 */
-	for(i = targets; i; i = i->next) {
+	f_foreach (i, targets) {
 		if(strstr(i->data, "://")) {
 			char *str = pacman_fetch_pkgurl(i->data);
 			if(str == NULL) {
@@ -74,7 +74,7 @@ int addpkg(list_t *targets)
 
 	/* and add targets to it */
 	MSG(NL, _("loading package data... "));
-	for(i = targets; i; i = i->next) {
+	f_foreach (i, targets) {
 		if(pacman_trans_addtarget(i->data) == -1) {
 			ERR(NL, _("failed to add target '%s' (%s)\n"), (char *)i->data, pacman_strerror(pm_errno));
 			retval = 1;

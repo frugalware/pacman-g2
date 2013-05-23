@@ -62,7 +62,7 @@ static int sync_synctree(int level, list_t *syncs)
 	list_t *i;
 	int success = 0, ret;
 
-	for(i = syncs; i; i = i->next) {
+	f_foreach (i, syncs) {
 		PM_DB *db = i->data;
 
 		ret = pacman_db_update((level < 2 ? 0 : 1), db);
@@ -88,18 +88,18 @@ static int sync_search(list_t *syncs, list_t *targets)
 	PM_LIST *ret;
 	PM_PKG *ipkg;
 
-	for(i = syncs; i; i = i->next) {
+	f_foreach (i, syncs) {
 		PM_DB *db = i->data;
 		PM_LIST *lp;
 
-		for(j = targets; j; j = j->next) {
+		f_foreach (j, targets) {
 			pacman_set_option(PM_OPT_NEEDLES, (long)j->data);
 		}
 		ret = pacman_db_search(db);
 		if(ret == NULL) {
 			continue;
 		}
-		for(lp = ret; lp; lp = pacman_list_next(lp)) {
+		f_foreach (lp, ret) {
 			PM_PKG *pkg = pacman_list_getdata(lp);
 			char *name = (char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME);
 
@@ -128,9 +128,10 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 	int ret = 0;
 
 	if(targets) {
-		for(i = targets; i; i = i->next) {
+		f_foreach (i, targets) {
 			int found = 0;
-			for(j = syncs; j; j = j->next) {
+
+			f_foreach (j, syncs) {
 				PM_DB *db = j->data;
 				PM_GRP *grp = pacman_db_readgrp(db, i->data);
 
@@ -146,7 +147,7 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 			}
 		}
 	} else {
-		for(j = syncs; j; j = j->next) {
+		f_foreach (j, syncs) {
 			PM_DB *db = j->data;
 			PM_LIST *lp;
 
@@ -169,7 +170,7 @@ static int sync_info(list_t *syncs, list_t *targets)
 	list_t *i, *j;
 
 	if(targets) {
-		for(i = targets; i; i = i->next) {
+		f_foreach (i, targets) {
 			int found = 0;
 
 			for(j = syncs; j && !found; j = j->next) {
@@ -192,7 +193,7 @@ static int sync_info(list_t *syncs, list_t *targets)
 			}
 		}
 	} else {
-		for(j = syncs; j; j = j->next) {
+		f_foreach (j, syncs) {
 			PM_DB *db = j->data;
 			PM_LIST *lp;
 
@@ -212,15 +213,16 @@ static int sync_list(list_t *syncs, list_t *targets)
 	list_t *ls = NULL;
 
 	if(targets) {
-		for(i = targets; i; i = i->next) {
+		f_foreach (i, targets) {
 			list_t *j;
 			PM_DB *db = NULL;
 
-			for(j = syncs; j && !db; j = j->next) {
+			f_foreach (j, syncs) {
 				PM_DB *d = j->data;
 
 				if(strcmp(i->data, (char *)pacman_db_getinfo(d, PM_DB_TREENAME)) == 0) {
 					db = d;
+					break;
 				}
 			}
 
@@ -236,7 +238,7 @@ static int sync_list(list_t *syncs, list_t *targets)
 		ls = syncs;
 	}
 
-	for(i = ls; i; i = i->next) {
+	f_foreach (i, ls) {
 		PM_LIST *lp;
 		PM_DB *db = i->data;
 
@@ -342,7 +344,7 @@ int syncpkg(list_t *targets)
 		 * when sysupgrade'ing with an older version of pacman-g2.
 		 */
 		data = pacman_trans_getinfo(PM_TRANS_PACKAGES);
-		for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+		f_foreach (lp, data) {
 			PM_SYNCPKG *ps = pacman_list_getdata(lp);
 			PM_PKG *spkg = pacman_sync_getinfo(ps, PM_SYNC_PKG);
 			if (!strcmp("pacman-g2", pacman_pkg_getinfo(spkg, PM_PKG_NAME)) && f_list_count (data) > 1) {
@@ -375,7 +377,7 @@ int syncpkg(list_t *targets)
 		}
 	} else {
 		/* process targets */
-		for(i = targets; i; i = i->next) {
+		f_foreach (i, targets) {
 			char *targ = i->data;
 			if(pacman_trans_addtarget(targ) == -1) {
 				PM_GRP *grp = NULL;
@@ -391,7 +393,7 @@ int syncpkg(list_t *targets)
 					goto cleanup;
 				}
 				/* target not found: check if it's a group */
-				for(j = pmc_syncs; j; j = j->next) {
+				f_foreach (j, pmc_syncs) {
 					PM_DB *db = j->data;
 					grp = pacman_db_readgrp(db, targ);
 					if(grp) {
@@ -405,11 +407,11 @@ int syncpkg(list_t *targets)
 						pkgs = f_stringlist_uniques (pmpkgs);
 						list_display("   ", pkgs);
 						if(yesno(_(":: Install whole content? [Y/n] "))) {
-							for(k = pkgs; k; k = k->next) {
+							f_foreach (k, pkgs) {
 								targets = list_add(targets, strdup(k->data));
 							}
 						} else {
-							for(k = pkgs; k; k = k->next) {
+							f_foreach (k, pkgs) {
 								char *pkgname = k->data;
 								if(yesno(_(":: Install %s from group %s? [Y/n] "), pkgname, targ)) {
 									targets = list_add(targets, strdup(pkgname));
@@ -421,7 +423,7 @@ int syncpkg(list_t *targets)
 				}
 				/* targ is not a group, see if it's a regex */
 				if(!found && config->regex) {
-					for(j = pmc_syncs; j; j = j->next) {
+					f_foreach (j, pmc_syncs) {
 						PM_DB *db = j->data;
 						PM_LIST *k;
 						for(k = pacman_db_getpkgcache(db); k; k = pacman_list_next(k)) {
@@ -470,7 +472,7 @@ int syncpkg(list_t *targets)
 		ERR(NL, _("failed to prepare transaction (%s)\n"), pacman_strerror(pm_errno));
 		switch(pm_errno) {
 			case PM_ERR_UNSATISFIED_DEPS:
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				f_foreach (lp, data) {
 					PM_DEPMISS *miss = pacman_list_getdata(lp);
 					MSG(NL, ":: %s: %s %s", pacman_dep_getinfo(miss, PM_DEP_TARGET),
 					    (long)pacman_dep_getinfo(miss, PM_DEP_TYPE) == PM_DEP_TYPE_DEPEND ? _("requires") : _("is required by"),
@@ -485,7 +487,7 @@ int syncpkg(list_t *targets)
 				pacman_list_free(data);
 			break;
 			case PM_ERR_CONFLICTING_DEPS:
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				f_foreach (lp, data) {
 					PM_DEPMISS *miss = pacman_list_getdata(lp);
 
 					MSG(NL, _(":: %s: conflicts with %s"),
@@ -525,7 +527,7 @@ int syncpkg(list_t *targets)
 		unsigned long totalusize = 0;
 		double mb, umb;
 
-		for(lp = pacman_list_first(packages); lp; lp = pacman_list_next(lp)) {
+		f_foreach (lp, packages) {
 			PM_SYNCPKG *ps = pacman_list_getdata(lp);
 			PM_PKG *pkg = pacman_sync_getinfo(ps, PM_SYNC_PKG);
 			char *pkgname, *pkgver;
@@ -609,7 +611,7 @@ int syncpkg(list_t *targets)
 		ERR(NL, _("failed to commit transaction (%s)\n"), pacman_strerror(pm_errno));
 		switch(pm_errno) {
 			case PM_ERR_FILE_CONFLICTS:
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				f_foreach (lp, data) {
 					PM_CONFLICT *conflict = pacman_list_getdata(lp);
 					switch((long)pacman_conflict_getinfo(conflict, PM_CONFLICT_TYPE)) {
 						case PM_CONFLICT_TYPE_TARGET:
@@ -630,7 +632,7 @@ int syncpkg(list_t *targets)
 				pacman_list_free(data);
 			break;
 			case PM_ERR_PKG_CORRUPTED:
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				f_foreach (lp, data) {
 					MSG(NL, "%s", (char*)pacman_list_getdata(lp));
 				}
 				pacman_list_free(data);

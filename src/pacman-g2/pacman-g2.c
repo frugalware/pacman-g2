@@ -618,7 +618,7 @@ int main(int argc, char *argv[])
 	FREE(config->cachedir);
 	pacman_get_option(PM_OPT_CACHEDIR, (long *)&config->cachedir);
 
-	for(lp = config->op_s_ignore; lp; lp = lp->next) {
+	f_foreach (lp, config->op_s_ignore) {
 		if(pacman_set_option(PM_OPT_IGNOREPKG, (long)lp->data) == -1) {
 			ERR(NL, _("failed to set option IGNOREPKG (%s)\n"), pacman_strerror(pm_errno));
 			cleanup(1);

@@ -51,14 +51,14 @@ int querypkg(list_t *targets)
 	int done = 0, errors = 0;
 
 	if(config->op_q_search) {
-		for(i = targets; i; i = i->next) {
+		f_foreach (i, targets) {
 			pacman_set_option(PM_OPT_NEEDLES, (long)i->data);
 		}
 		ret = pacman_db_search(db_local);
 		if(ret == NULL) {
 			return(1);
 		}
-		for(j = ret; j; j = pacman_list_next(j)) {
+		f_foreach (j, ret) {
 			PM_PKG *pkg = pacman_list_getdata(j);
 
 			printf("local/%s %s-%s [Desc: %s]\n",
@@ -76,7 +76,7 @@ int querypkg(list_t *targets)
 			printf(_(":: the database seems to be consistent\n"));
 			return(0);
 		}
-		for(j = ret; j; j = pacman_list_next(j)) {
+		f_foreach (j, ret) {
 			char *str = pacman_list_getdata(j);
 			printf(":: %s\n", str);
 		}
@@ -112,7 +112,7 @@ int querypkg(list_t *targets)
 					grpname = pacman_grp_getinfo(grp, PM_GRP_NAME);
 					pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
 
-					for(lq = pkgnames; lq; lq = pacman_list_next(lq)) {
+					f_foreach (lq, pkgnames) {
 						MSG(NL, "%s %s\n", grpname, (char *)pacman_list_getdata(lq));
 					}
 				}
@@ -120,7 +120,7 @@ int querypkg(list_t *targets)
 				PM_GRP *grp = pacman_db_readgrp(db_local, package);
 				if(grp) {
 					PM_LIST *lq, *pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
-					for(lq = pkgnames; lq; lq = pacman_list_next(lq)) {
+					f_foreach (lq, pkgnames) {
 						MSG(NL, "%s %s\n", package, (char *)pacman_list_getdata(lq));
 					}
 				} else {
@@ -164,7 +164,7 @@ int querypkg(list_t *targets)
 				errors++;
 			} else {
 				PM_LIST *lp;
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				f_foreach (lp, data) {
 					PM_PKG *pkg = pacman_list_getdata(lp);
 					printf(_("%s %s is an owner of %s\n"), (char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME),
 							(char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION), package);
@@ -204,7 +204,7 @@ int querypkg(list_t *targets)
 					}
 					if(config->op_q_foreign) {
 						int match = 0;
-						for(i = pmc_syncs; i; i = i->next) {
+						f_foreach (i, pmc_syncs) {
 							PM_DB *db = i->data;
 							for(j = pacman_db_getpkgcache(db); j; j = pacman_list_next(j)) {
 								PM_PKG *pkg = pacman_list_getdata(j);

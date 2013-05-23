@@ -79,7 +79,7 @@ int deptestpkg(list_t *targets)
 		goto cleanup;
 	}
 	strcpy(str, "name=dummy|version=1.0-1");
-	for(i = targets; i; i = i->next) {
+	f_foreach (i, targets) {
 		str = (char *)realloc(str, strlen(str)+8+strlen(i->data)+1);
 		strcat(str, "|depend=");
 		strcat(str, i->data);
