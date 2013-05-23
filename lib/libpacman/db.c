@@ -112,7 +112,7 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 {
 	pmlist_t *i, *j, *ret = NULL;
 
-	for(i = needles; i; i = i->next) {
+	f_foreach (i, needles) {
 		/* FIXME: precompile regex once per loop, and handle bad regexp more gracefully */
 		const char *targ;
 
@@ -151,7 +151,8 @@ pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback
 		}
 	} else {
 		pmlist_t *i;
-		for(i = handle->dbs_sync; i; i = i->next) {
+
+		f_foreach (i, handle->dbs_sync) {
 			pmdb_t *sdb = i->data;
 			if(strcmp(treename, sdb->treename) == 0) {
 				_pacman_log(PM_LOG_DEBUG, _("attempt to re-register the '%s' database, using existing\n"), sdb->treename);

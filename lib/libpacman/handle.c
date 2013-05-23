@@ -406,8 +406,9 @@ int _pacman_handle_get_option(pmhandle_t *ph, unsigned char val, long *data)
 pmdb_t *_pacman_handle_get_db_sync(pmhandle_t *handle, const char *name) {
 	pmlist_t *i;
 
-	for (i = handle->dbs_sync; i; i = i->next) {
+	f_foreach (i, handle->dbs_sync) {
 		pmdb_t *db = i->data;
+
 		if (strcmp(db->treename, name) == 0) {
 			return db;
 		}

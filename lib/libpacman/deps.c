@@ -230,7 +230,7 @@ int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
 {
 	pmlist_t *i;
 
-	for(i = haystack; i; i = i->next) {
+	f_foreach (i, haystack) {
 		pmdepmissing_t *miss = i->data;
 		if(!memcmp(needle, miss, sizeof(pmdepmissing_t))
 		   && !memcmp(&needle->depend, &miss->depend, sizeof(pmdepend_t))) {
@@ -286,18 +286,18 @@ void _pacman_sortbydeps(pmtrans_t *trans, int mode)
 	_pacman_log(PM_LOG_DEBUG, _("started sorting dependencies"));
 
 	/* We create the vertices */
-	for (i = trans->_packages; i; i = i->next) {
+	f_foreach (i, trans->_packages) {
 		pmgraph_t *v = _pacman_graph_new();
 		v->data = (void *)i->data;
 		vertices = _pacman_list_add(vertices, v);
 	}
 
 	/* We compute the edges */
-	for(i = vertices; i; i = i->next) {
+	f_foreach (i, vertices) {
 		pmgraph_t *vertex_i = i->data;
 		pmpkg_t *p_i = vertex_i->data;
 		/* TODO this should be somehow combined with _pacman_trans_checkdeps */
-		for(j = vertices; j; j = j->next) {
+		f_foreach (j, vertices) {
 			pmgraph_t *vertex_j = j->data;
 			pmpkg_t *p_j = vertex_j->data;
 			int child = 0;
@@ -432,7 +432,7 @@ int _pacman_transpkg_checkdeps(pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_
 int _pacman_trans_checkdeps (pmtrans_t *trans, pmlist_t **depmisslist) {
 	pmlist_t *i;
 
-	for (i = trans->packages; i != NULL; i = i->next) {
+	f_foreach (i, trans->packages) {
 		pmtranspkg_t *transpkg = i->data;
 
 		if (_pacman_transpkg_checkdeps (trans, transpkg, depmisslist) != 0) {

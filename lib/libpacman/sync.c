@@ -84,9 +84,10 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		goto error;
 	}
 
-	for(i = trans->packages; i; i = i->next) {
+	f_foreach (i, trans->packages) {
 		pmsyncpkg_t *ps = i->data;
-		for(j = ps->replaces; j; j = j->next) {
+
+		f_foreach (j, ps->replaces) {
 			pmpkg_t *pkg = j->data;
 			if(__pacman_trans_get_trans_pkg(tr, pkg->name) == NULL) {
 				if(_pacman_trans_addtarget(tr, pkg->name, PM_TRANS_TYPE_REMOVE, 0) == -1) {
@@ -122,7 +123,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		_pacman_log(PM_LOG_ERROR, _("could not initialize transaction"));
 		goto error;
 	}
-	for(i = trans->packages; i; i = i->next) {
+	f_foreach (i, trans->packages) {
 		pmsyncpkg_t *ps = i->data;
 		pmpkg_t *spkg = ps->pkg_new;
 		char str[PATH_MAX];
@@ -145,15 +146,15 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 	/* propagate replaced packages' requiredby fields to their new owners */
 	if(replaces) {
 		_pacman_log(PM_LOG_FLOW1, _("updating database for replaced packages' dependencies"));
-		for(i = trans->packages; i; i = i->next) {
+		f_foreach (i, trans->packages) {
 			pmsyncpkg_t *ps = i->data;
 			if (ps->replaces != NULL) {
 				pmpkg_t *new = _pacman_db_get_pkgfromcache(db_local, ps->pkg_new->name);
-				for(j = ps->replaces; j; j = j->next) {
+				f_foreach (j, ps->replaces) {
 					pmlist_t *k;
 					pmpkg_t *old = j->data;
 					/* merge lists */
-					for(k = old->requiredby; k; k = k->next) {
+					f_foreach (k, old->requiredby) {
 						if(!f_stringlist_find (new->requiredby, k->data)) {
 							/* replace old's name with new's name in the requiredby's dependency list */
 							pmlist_t *m;
@@ -165,7 +166,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 								 * here. */
 								continue;
 							}
-							for(m = depender->depends; m; m = m->next) {
+							f_foreach (m, depender->depends) {
 								if(!strcmp(m->data, old->name)) {
 									FREE(m->data);
 									m->data = strdup(new->name);
@@ -210,7 +211,7 @@ int _pacman_trans_check_integrity (pmtrans_t *trans, pmlist_t **data) {
 
 	EVENT(trans, PM_TRANS_EVT_INTEGRITY_START, NULL, NULL);
 
-	for(i = trans->packages; i; i = i->next) {
+	f_foreach (i, trans->packages) {
 		pmsyncpkg_t *ps = i->data;
 		pmpkg_t *spkg = ps->pkg_new;
 		char str[PATH_MAX], pkgname[PATH_MAX];
@@ -295,11 +296,11 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 		retval = 0;
 		FREELIST(*data);
 		int done = 1;
-		for(i = handle->dbs_sync; i; i = i->next) {
+		f_foreach (i, handle->dbs_sync) {
 			struct stat buf;
 			pmdb_t *current = i->data;
 
-			for(j = trans->packages; j; j = j->next) {
+			f_foreach (j, trans->packages) {
 				pmsyncpkg_t *ps = j->data;
 				pmpkg_t *spkg = ps->pkg_new;
 				pmdb_t *dbs = spkg->db;
@@ -383,7 +384,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 
 	if(!varcache && !(trans->flags & PM_TRANS_FLAG_DOWNLOADONLY)) {
 		/* delete packages */
-		for(i = files; i; i = i->next) {
+		f_foreach (i, files) {
 			unlink(i->data);
 		}
 	}
