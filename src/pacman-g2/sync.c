@@ -149,9 +149,9 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 	} else {
 		f_foreach (j, syncs) {
 			PM_DB *db = j->data;
-			PM_LIST *lp;
+			PM_LIST *lp, *db_grpcache = pacman_db_getgrpcache(db);
 
-			for(lp = pacman_db_getgrpcache(db); lp; lp = pacman_list_next(lp)) {
+			f_foreach (lp, db_grpcache) {
 				PM_GRP *grp = pacman_list_getdata(lp);
 
 				MSG(NL, "%s\n", (char *)pacman_grp_getinfo(grp, PM_GRP_NAME));
@@ -175,15 +175,16 @@ static int sync_info(list_t *syncs, list_t *targets)
 
 			for(j = syncs; j && !found; j = j->next) {
 				PM_DB *db = j->data;
-				PM_LIST *lp;
+				PM_LIST *lp, *db_pkgcache = pacman_db_getpkgcache(db);
 
-				for(lp = pacman_db_getpkgcache(db); !found && lp; lp = pacman_list_next(lp)) {
+				f_foreach (lp, db_pkgcache) {
 					PM_PKG *pkg = pacman_list_getdata(lp);
 
 					if(!strcmp(pacman_pkg_getinfo(pkg, PM_PKG_NAME), i->data)) {
 						dump_pkg_sync(pkg, (char *)pacman_db_getinfo(db, PM_DB_TREENAME));
 						MSG(NL, "\n");
 						found = 1;
+						break;
 					}
 				}
 			}
@@ -195,9 +196,9 @@ static int sync_info(list_t *syncs, list_t *targets)
 	} else {
 		f_foreach (j, syncs) {
 			PM_DB *db = j->data;
-			PM_LIST *lp;
+			PM_LIST *lp, *db_pkgcache = pacman_db_getpkgcache(db);
 
-			for(lp = pacman_db_getpkgcache(db); lp; lp = pacman_list_next(lp)) {
+			f_foreach (lp, db_pkgcache) {
 				dump_pkg_sync(pacman_list_getdata(lp), (char *)pacman_db_getinfo(db, PM_DB_TREENAME));
 				MSG(NL, "\n");
 			}
@@ -239,10 +240,10 @@ static int sync_list(list_t *syncs, list_t *targets)
 	}
 
 	f_foreach (i, ls) {
-		PM_LIST *lp;
 		PM_DB *db = i->data;
+		PM_LIST *lp, *db_pkgcache = pacman_db_getpkgcache(db);
 
-		for(lp = pacman_db_getpkgcache(db); lp; lp = pacman_list_next(lp)) {
+		f_foreach (lp, db_pkgcache) {
 			PM_PKG *pkg = pacman_list_getdata(lp);
 
 			MSG(NL, "%s %s %s\n", (char *)pacman_db_getinfo(db, PM_DB_TREENAME),
@@ -425,8 +426,9 @@ int syncpkg(list_t *targets)
 				if(!found && config->regex) {
 					f_foreach (j, pmc_syncs) {
 						PM_DB *db = j->data;
-						PM_LIST *k;
-						for(k = pacman_db_getpkgcache(db); k; k = pacman_list_next(k)) {
+						PM_LIST *k, *db_pkgcache = pacman_db_getpkgcache(db);
+
+						f_foreach (k, db_pkgcache) {
 							PM_PKG *p = pacman_list_getdata(k);
 							char *pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
 							int match = pacman_reg_match(pkgname, targ);

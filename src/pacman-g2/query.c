@@ -104,7 +104,9 @@ int querypkg(list_t *targets)
 		if(config->group) {
 			PM_LIST *lp;
 			if(targets == NULL) {
-				for(lp = pacman_db_getgrpcache(db_local); lp; lp = pacman_list_next(lp)) {
+				PM_LIST *db_grpcache = pacman_db_getgrpcache(db_local);
+
+				f_foreach (lp, db_grpcache) {
 					PM_GRP *grp = pacman_list_getdata(lp);
 					PM_LIST *lq, *pkgnames;
 					char *grpname;
@@ -187,9 +189,9 @@ int querypkg(list_t *targets)
 				return(1);
 			}
 
-			PM_LIST *lp;
+			PM_LIST *lp, *db_pkgcache = pacman_db_getpkgcache (db_local);
 			/* no target */
-			for(lp = pacman_db_getpkgcache(db_local); lp; lp = pacman_list_next(lp)) {
+			f_foreach (lp, db_pkgcache) {
 				PM_PKG *tmpp = pacman_list_getdata(lp);
 				char *pkgname, *pkgver;
 
@@ -206,7 +208,9 @@ int querypkg(list_t *targets)
 						int match = 0;
 						f_foreach (i, pmc_syncs) {
 							PM_DB *db = i->data;
-							for(j = pacman_db_getpkgcache(db); j; j = pacman_list_next(j)) {
+							PM_LIST *db_pkgcache = pacman_db_getpkgcache(db);
+
+							f_foreach (j, db_pkgcache) {
 								PM_PKG *pkg = pacman_list_getdata(j);
 								char *haystack;
 								char *needle;
