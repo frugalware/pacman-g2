@@ -553,7 +553,7 @@ int syncpkg(list_t *targets)
 		}
 		if(list_remove) {
 			MSG(NL, _("\nRemove:  "));
-			str = buildstring(list_remove);
+			str = f_stringlist_join (list_remove, " ");
 			indentprint(str, 9);
 			MSG(CL, "\n");
 			FREELIST(list_remove);
@@ -569,7 +569,7 @@ int syncpkg(list_t *targets)
 			umb = 0.1;
 		}
 		MSG(NL, _("\nTargets: "));
-		str = buildstring(list_install);
+		str = f_stringlist_join (list_install, " ");
 		indentprint(str, 9);
 		MSG(NL, _("\nTotal Package Size:   %.1f MB\n"), mb);
 		if(umb > 0) {

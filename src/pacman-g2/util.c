@@ -86,32 +86,6 @@ void indentprint(char *str, int indent)
 	}
 }
 
-/* Condense a list of strings into one long (space-delimited) string
- */
-char *buildstring(list_t *strlist)
-{
-	char *str;
-	int size = 1;
-	list_t *lp;
-
-	f_foreach (lp, strlist) {
-		size += strlen(lp->data) + 1;
-	}
-	str = (char *)malloc(size);
-	if(str == NULL) {
-		ERR(NL, _("failed to allocated %d bytes\n"), size);
-	}
-	str[0] = '\0';
-	f_foreach (lp, strlist) {
-		strcat(str, lp->data);
-		strcat(str, " ");
-	}
-	/* shave off the last space */
-	str[strlen(str)-1] = '\0';
-
-	return(str);
-}
-
 /* Convert a string to uppercase
  */
 char *strtoupper(char *str)

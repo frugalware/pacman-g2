@@ -39,6 +39,32 @@ void f_stringlist_detach (FList *list) {
 	f_list_detach (list, (FCopyFunc)f_strdup, NULL);
 }
 
+/* Condense a list of strings into one long (space-delimited) string
+ *  */
+char *f_stringlist_join (FList *stringlist, const char *sep)
+{
+	char *str;
+	size_t size = 1, sep_size = strlen (sep);
+	FList *lp;
+
+	f_foreach (lp, stringlist) {
+		size += strlen(lp->data) + sep_size;
+	}
+	str = f_malloc(size);
+	if (str == NULL) {
+		return NULL;
+	}
+	str[0] = '\0';
+	f_foreach (lp, stringlist) {
+		strcat(str, lp->data);
+		strcat(str, sep);
+	}
+	/* shave off the last sep */
+	str[strlen(str) - sep_size] = '\0';
+
+	return(str);
+}
+
 FList *f_stringlist_find (FList *list, const char *str) {
 	return f_list_detect (list, (FDetectFunc)strcmp, (void *)str);
 }
