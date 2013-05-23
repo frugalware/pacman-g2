@@ -248,7 +248,8 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 			pmtranspkg_t *p2 = j->data;
 			if (p2->pkg_new != NULL) {
 				pmlist_t *ret = chk_fileconflicts(p1->pkg_new->files, p2->pkg_new->files);
-				for(k = ret; k; k = k->next) {
+
+				f_foreach (k, ret) {
 						pmconflict_t *conflict = _pacman_malloc(sizeof(pmconflict_t));
 						if(conflict == NULL) {
 							continue;
@@ -265,7 +266,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 
 		/* CHECK 2: check every target against the filesystem */
 		dbpkg = NULL;
-		for (j = p1->pkg_new->files; j; j = j->next) {
+		f_foreach (j, p1->pkg_new->files) {
 			char *filestr = (char*)j->data;
 
 			snprintf(path, PATH_MAX, "%s%s", trans->handle->root, filestr);
@@ -294,7 +295,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 					/* Check if the conflicting file has been moved to another package/target */
 					if(!ok) {
 						/* Look at all the targets */
-						for(k = trans->packages; k && !ok; k = k->next) {
+						f_foreach (k, trans->packages) {
 							pmtranspkg_t *p2 = k->data;
 
 							/* As long as they're not the current package */
@@ -304,8 +305,9 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 									_pacman_db_read(db, INFRQ_FILES, p2->pkg_local);
 								}
 								/* If it used to exist in there, but doesn't anymore */
-								if(p2->pkg_local && !f_stringlist_find (p2->pkg_new->files, filestr) && f_stringlist_find (p2->pkg_local->files, filestr)) {
-									ok = 1;
+								if (p2->pkg_local &&
+										!f_stringlist_find (p2->pkg_new->files, filestr) &&
+										f_stringlist_find (p2->pkg_local->files, filestr)) {
 									/* Add to the "skip list" of files that we shouldn't remove during an upgrade.
 									 *
 									 * This is a workaround for the following scenario:
@@ -323,6 +325,8 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 									 * ones, looking for files that jump to different packages.
 									 */
 									*skip_list = _pacman_list_add(*skip_list, strdup(filestr));
+									ok = 1;
+									break;
 								}
 							}
 						}

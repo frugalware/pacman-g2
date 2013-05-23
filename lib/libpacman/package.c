@@ -395,7 +395,7 @@ pmpkg_t *_pacman_pkg_isin(const char *needle, pmlist_t *haystack)
 		return(NULL);
 	}
 
-	for(lp = haystack; lp; lp = lp->next) {
+	f_foreach (lp, haystack) {
 		pmpkg_t *info = lp->data;
 
 		if(info && !strcmp(info->name, needle)) {

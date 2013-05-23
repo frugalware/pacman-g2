@@ -267,10 +267,11 @@ int pacman_db_setserver(pmdb_t *db, char *url)
 		}
 	} else {
 		pmlist_t *i;
-		for(i = handle->dbs_sync; i && !found; i = i->next) {
+		f_foreach (i, handle->dbs_sync) {
 			pmdb_t *sdb = i->data;
 			if(strcmp(db->treename, sdb->treename) == 0) {
 				found = 1;
+				break;
 			}
 		}
 	}

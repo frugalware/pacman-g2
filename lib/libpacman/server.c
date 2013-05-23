@@ -240,7 +240,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		}
 
 		/* get each file in the list */
-		for(lp = files; lp; lp = lp->next) {
+		f_foreach (lp, files) {
 			char *fn = (char *)lp->data;
 
 			if(f_stringlist_find (complete, fn)) {

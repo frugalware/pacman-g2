@@ -219,16 +219,22 @@ pmpkg_t *_pacman_dblist_get_pkg(pmlist_t *dblist, const char *pkg_name, int flag
 	pmlist_t *i;
 	pmpkg_t *pkg = NULL;
 
-	for (i = dblist; i && !pkg; i = i->next) {
+	f_foreach (i, dblist) {
 		pmdb_t *db = i->data;
-		pkg = _pacman_db_get_pkgfromcache(db, pkg_name);
+
+		if ((pkg = _pacman_db_get_pkgfromcache(db, pkg_name)) != NULL) {
+			break;
+		}
 	}
 	if (pkg == NULL &&
 			flags & PM_TRANS_FLAG_ALLOWPROVIDEREPLACEMENT) {
 		_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), pkg_name);
-		for (i = dblist; i && !pkg; i = i->next) {
+		f_foreach (i, dblist) {
 			pmdb_t *db = i->data;
-			pkg = _pacman_db_search_provider (db, pkg_name);
+
+			if ((pkg = _pacman_db_search_provider (db, pkg_name)) != NULL) {
+				break;
+			}
 		}
 	}
 	if (pkg == NULL) {
@@ -829,12 +835,13 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 									pmlist_t *n, *o;
 									for(n = trans->packages; n && !pfound; n = n->next) {
 										pmsyncpkg_t *sp = n->data;
-										for(o = sp->pkg_new->provides; o && !pfound; o = o->next) {
+										f_foreach (o, sp->pkg_new->provides) {
 											if(!strcmp(m->data, o->data)) {
 												/* found matching provisio -- we're good to go */
 												_pacman_log(PM_LOG_FLOW2, _("found '%s' as a provision for '%s' -- conflict aborted"),
 														sp->pkg_new->name, (char *)o->data);
 												pfound = 1;
+												break;
 											}
 										}
 									}

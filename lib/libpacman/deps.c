@@ -456,9 +456,11 @@ void _pacman_removedeps(pmtrans_t *trans)
 		return;
 	}
 
-	for (i = trans->packages; i; i = i->next, NULL) {
+	f_foreach (i, trans->packages) {
 		pmtranspkg_t *transpkg = i->data;
-		for(j = (_pacman_pkg_getinfo(transpkg->pkg_local, PM_PKG_DEPENDS)); j; j = j->next) {
+		FList *transpkg_depends = _pacman_pkg_getinfo(transpkg->pkg_local, PM_PKG_DEPENDS);
+
+		f_foreach (j, transpkg_depends) {
 			pmdepend_t depend;
 			pmpkg_t *dep;
 			int needed = 0;
@@ -534,23 +536,27 @@ int _pacman_resolvedeps (pmtrans_t *trans, pmlist_t *deps, pmlist_t **data)
 	}
 
 	_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
-	for(i = deps; i; i = i->next) {
+	f_foreach (i, deps) {
 		pmdepmissing_t *miss = i->data;
 		pmpkg_t *ps = NULL;
 
 		/* find the package in one of the repositories */
 		/* check literals */
-		for(j = trans->handle->dbs_sync; !ps && j; j = j->next) {
-			ps = _pacman_db_get_pkgfromcache(j->data, miss->depend.name);
+		f_foreach (j, trans->handle->dbs_sync) {
+			if ((ps = _pacman_db_get_pkgfromcache(j->data, miss->depend.name)) != NULL) {
+				break;
+			}
 		}
 		/* check provides */
-		for(j = trans->handle->dbs_sync; !ps && j; j = j->next) {
+		f_foreach (j, trans->handle->dbs_sync) {
 			pmlist_t *provides;
+
 			provides = _pacman_db_whatprovides(j->data, miss->depend.name);
 			if(provides) {
 				ps = provides->data;
+				FREELISTPTR(provides);
+				break;
 			}
-			FREELISTPTR(provides);
 		}
 		if(ps == NULL) {
 			_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"),
