@@ -91,11 +91,12 @@ void dump_pkg_full(PM_PKG *pkg, int level)
 	printf("\n");
 
 	if(level > 1) {
-		PM_LIST *i;
+		PM_LIST *i, *pkg_backup = pacman_pkg_getinfo(pkg, PM_PKG_BACKUP);
 		char *root;
+
 		pacman_get_option(PM_OPT_ROOT, (long *)&root);
 		fprintf(stdout, "\n");
-		for(i = pacman_list_first(pacman_pkg_getinfo(pkg, PM_PKG_BACKUP)); i; i = pacman_list_next(i)) {
+		f_foreach (i, pkg_backup) {
 			struct stat buf;
 			char path[PATH_MAX];
 			char *str = strdup(pacman_list_getdata(i));
@@ -175,7 +176,7 @@ void dump_pkg_files(PM_PKG *pkg)
 	pkgname = pacman_pkg_getinfo(pkg, PM_PKG_NAME);
 	pkgfiles = pacman_pkg_getinfo(pkg, PM_PKG_FILES);
 
-	for(i = pkgfiles; i; i = pacman_list_next(i)) {
+	f_foreach (i, pkgfiles) {
 		fprintf(stdout, "%s %s%s\n", (char *)pkgname, config->root, (char *)pacman_list_getdata(i));
 	}
 
@@ -218,7 +219,7 @@ void pkg_fsck(PM_PKG *pkg){
 	/* maybe this can be used also to get more information about files */
 	struct stat buf;
 
-	for(i = pkgfiles; i; i = pacman_list_next(i)) {
+	f_foreach (i, pkgfiles) {
 		snprintf(path, PATH_MAX, "%s%s", config->root, (char *)pacman_list_getdata(i));
 		if(lstat(path, &buf) == -1) {
 			fprintf(stdout, "%s %s\t%s.\n", pkgname, path, strerror(errno));

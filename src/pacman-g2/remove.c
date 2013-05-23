@@ -51,7 +51,7 @@ int removepkg(list_t *targets)
 	/* If the target is a group, ask if its packages should be removed
 	 * (the library can't remove groups for now)
 	 */
-	for(i = targets; i; i = i->next) {
+	f_foreach (i, targets) {
 		PM_GRP *grp;
 
 		grp = pacman_db_readgrp(db_local, i->data);
@@ -64,7 +64,7 @@ int removepkg(list_t *targets)
 			MSG(NL, _(":: group %s:\n"), pacman_grp_getinfo(grp, PM_GRP_NAME));
 			list_display("   ", pkgnames);
 			all = yesno(_("    Remove whole content? [Y/n] "));
-			for(lp = pacman_list_first(pkgnames); lp; lp = pacman_list_next(lp)) {
+			f_foreach (lp, pkgnames) {
 				if(all || yesno(_(":: Remove %s from group %s? [Y/n] "), (char *)pacman_list_getdata(lp), i->data)) {
 					finaltargs = list_add(finaltargs, strdup(pacman_list_getdata(lp)));
 				}
@@ -87,13 +87,14 @@ int removepkg(list_t *targets)
 		return(1);
 	}
 	/* and add targets to it */
-	for(i = finaltargs; i; i = i->next) {
+	f_foreach (i, finaltargs) {
 		if(pacman_trans_addtarget(i->data) == -1) {
 			int found=0;
 			/* check for regex */
 			if(config->regex) {
-				PM_LIST *k;
-				for(k = pacman_db_getpkgcache(db_local); k; k = pacman_list_next(k)) {
+				PM_LIST *k, *db_pkgcache = pacman_db_getpkgcache(db_local);
+
+				f_foreach (k, db_pkgcache) {
 					PM_PKG *p = pacman_list_getdata(k);
 					char *pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
 					int match = pacman_reg_match(pkgname, i->data);
@@ -123,7 +124,7 @@ int removepkg(list_t *targets)
 		ERR(NL, _("failed to prepare transaction (%s)\n"), pacman_strerror(pm_errno));
 		switch(pm_errno) {
 			case PM_ERR_UNSATISFIED_DEPS:
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				f_foreach (lp, data) {
 					PM_DEPMISS *miss = pacman_list_getdata(lp);
 					MSG(NL, _("  %s: is required by %s\n"), pacman_dep_getinfo(miss, PM_DEP_TARGET),
 					    pacman_dep_getinfo(miss, PM_DEP_NAME));
@@ -140,10 +141,10 @@ int removepkg(list_t *targets)
 	/* Warn user in case of dangerous operation
 	 */
 	if(config->flags & PM_TRANS_FLAG_RECURSE || config->flags & PM_TRANS_FLAG_CASCADE) {
-		PM_LIST *lp;
+		PM_LIST *lp, *packages = pacman_trans_getinfo(PM_TRANS_PACKAGES);
 		/* list transaction targets */
 		i = NULL;
-		for(lp = pacman_list_first(pacman_trans_getinfo(PM_TRANS_PACKAGES)); lp; lp = pacman_list_next(lp)) {
+		f_foreach (lp, packages) {
 			PM_SYNCPKG *ps = pacman_list_getdata(lp);
 			PM_PKG *pkg = pacman_sync_getinfo(ps, PM_SYNC_PKG);
 			i = list_add(i, strdup(pacman_pkg_getinfo(pkg, PM_PKG_NAME)));

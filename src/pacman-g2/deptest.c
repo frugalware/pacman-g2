@@ -104,7 +104,7 @@ int deptestpkg(list_t *targets)
 		 */
 		switch(pm_errno) {
 			case PM_ERR_UNSATISFIED_DEPS:
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				f_foreach (lp, data) {
 					PM_DEPMISS *miss = pacman_list_getdata(lp);
 					if(!config->op_d_resolve) {
 						MSG(NL, _("requires: %s"), pacman_dep_getinfo(miss, PM_DEP_NAME));
@@ -121,7 +121,7 @@ int deptestpkg(list_t *targets)
 			break;
 			case PM_ERR_CONFLICTING_DEPS:
 				/* we can't auto-resolve conflicts */
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				f_foreach (lp, data) {
 					PM_DEPMISS *miss = pacman_list_getdata(lp);
 					MSG(NL, _("conflict: %s"), pacman_dep_getinfo(miss, PM_DEP_NAME));
 				}

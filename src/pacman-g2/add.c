@@ -92,7 +92,7 @@ int addpkg(list_t *targets)
 		ERR(NL, _("failed to prepare transaction (%s)\n"), pacman_strerror(pm_errno));
 		switch(pm_errno) {
 			case PM_ERR_UNSATISFIED_DEPS:
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				f_foreach (lp, data) {
 					PM_DEPMISS *miss = pacman_list_getdata(lp);
 					MSG(NL, _(":: %s: requires %s"), pacman_dep_getinfo(miss, PM_DEP_TARGET),
 					                              pacman_dep_getinfo(miss, PM_DEP_NAME));
@@ -106,7 +106,7 @@ int addpkg(list_t *targets)
 				pacman_list_free(data);
 			break;
 			case PM_ERR_CONFLICTING_DEPS:
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				f_foreach (lp, data) {
 					PM_DEPMISS *miss = pacman_list_getdata(lp);
 					MSG(NL, _(":: %s: conflicts with %s"),
 						pacman_dep_getinfo(miss, PM_DEP_TARGET), pacman_dep_getinfo(miss, PM_DEP_NAME));
@@ -114,7 +114,7 @@ int addpkg(list_t *targets)
 				pacman_list_free(data);
 			break;
 			case PM_ERR_FILE_CONFLICTS:
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				f_foreach (lp, data) {
 					PM_CONFLICT *conflict = pacman_list_getdata(lp);
 					switch((long)pacman_conflict_getinfo(conflict, PM_CONFLICT_TYPE)) {
 						case PM_CONFLICT_TYPE_TARGET:
