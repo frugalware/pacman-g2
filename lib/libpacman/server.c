@@ -178,9 +178,9 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
-	int count;
-	for(i = servers, count = 0; i && !done; i = i->next, count++) {
-		if (count < skip)
+	int count = 0;
+	f_foreach (i, servers) {
+		if (++count < skip)
 			continue; /* the caller requested skip of this server */
 		_pacman_log(PM_LOG_DEBUG, _("server check, done? %d\n"),done);
 		server = (pmserver_t*)i->data;
@@ -579,6 +579,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 
 		if (f_list_count (complete) == f_list_count (files)) {
 			done = 1;
+			break;
 		}
 	}
 
