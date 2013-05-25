@@ -940,7 +940,7 @@ int pacman_logaction(const char *fmt, ...)
  */
 pmlist_t *pacman_list_first(pmlist_t *list)
 {
-	return(list);
+	return f_list_begin (list);
 }
 
 /** Get the next element of a list.
