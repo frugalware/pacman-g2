@@ -425,9 +425,9 @@ pmtranspkg_t *_pacman_trans_add_pkg (pmtrans_t *trans, pmpkg_t *pkg, pmtranstype
 	pmtranspkg_t *transpkg = __pacman_trans_pkg_new(type, NULL);
 	
 	/* Sanity checks */
-	ASSERT(transpkg != NULL, return -1); /* pm_errno is allready set by __pacman_trans_pkg_new */
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(pkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(transpkg != NULL, return NULL); /* pm_errno is allready set by __pacman_trans_pkg_new */
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
+	ASSERT(pkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
 
 	transpkg->type = type;
 	if (type & PM_TRANS_TYPE_ADD) {
