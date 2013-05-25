@@ -67,7 +67,7 @@ int f_ptrneq (const void *p1, const void *p2) {
 }
 
 void f_ptrswap (void **p1, void **p2) {
-	void *tmp = *p1;
+	void *tmp = *p2;
 	*p2 = *p1;
 	*p1 = tmp;
 }
