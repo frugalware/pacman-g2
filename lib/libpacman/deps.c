@@ -503,10 +503,6 @@ void _pacman_removedeps(pmtrans_t *trans)
 				}
 			}
 			if(!needed) {
-				pmpkg_t *pkg = _pacman_pkg_new(dep->name, dep->version);
-				if(pkg == NULL) {
-					continue;
-				}
 				/* add it to the target list */
 				_pacman_trans_addtarget (trans, dep->name, transpkg->type, transpkg->flags);
 			}
