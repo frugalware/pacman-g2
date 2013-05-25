@@ -327,6 +327,18 @@ pmtranspkg_t *_pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 	}
 
 	if (transpkg->type & PM_TRANS_TYPE_ADD) {
+		/* check pmo_ignorepkg and pmo_s_ignore to make sure we haven't pulled in
+		 * something we're not supposed to.
+		 */
+		if(f_stringlist_find (handle->ignorepkg, transpkg_name)) {
+			int usedep = 1;
+
+			QUESTION(trans, PM_TRANS_CONV_INSTALL_IGNOREPKG, NULL, transpkg->pkg_new, NULL, &usedep);
+			if (usedep == 0) {
+				return NULL;
+			}
+		}
+
 		/* Ensure pkg_local is filled */
 		if (transpkg->pkg_local == NULL) {
 			transpkg->pkg_local = _pacman_db_scan(trans->handle->db_local, transpkg_name, INFRQ_ALL);

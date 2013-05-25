@@ -574,19 +574,11 @@ int _pacman_resolvedeps (pmtrans_t *trans, pmlist_t *deps, pmlist_t **data)
 			          ps->name);
 			continue;
 		} else {
-			/* check pmo_ignorepkg and pmo_s_ignore to make sure we haven't pulled in
-			 * something we're not supposed to.
-			 */
-			int usedep = 1;
-			if(f_stringlist_find (handle->ignorepkg, ps->name)) {
-				pmpkg_t *dummypkg = _pacman_pkg_new(miss->target, NULL);
-				QUESTION(trans, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg, ps, NULL, &usedep);
-				FREEPKG(dummypkg);
-			}
-			if(usedep) {
-				pmtranspkg_t *transpkg = _pacman_trans_add_pkg (trans, ps, PM_TRANS_TYPE_UPGRADE, 0);
+			pmtranspkg_t *transpkg = _pacman_trans_add_target (trans, miss->depend.name,
+					PM_TRANS_TYPE_UPGRADE, PM_TRANS_FLAG_ALLOWPROVIDEREPLACEMENT);
 
-				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s"), ps->name);
+			if (transpkg != NULL) {
+				_pacman_log(PM_LOG_DEBUG, _("pulling dependencies for \"%s\""), __pacman_transpkg_name (transpkg));
 				if (_pacman_transpkg_resolvedeps(trans, transpkg, data) != 0) {
 					goto error;
 				}

@@ -273,7 +273,9 @@ typedef enum _pmtranstype_t {
 #define PM_TRANS_FLAG_NOARCH 0x4000
 #define PM_TRANS_FLAG_PRINTURIS_CACHED 0x8000 /* print uris for pkgs that are already cached */
 #define PM_TRANS_FLAG_DOWNGRADE 0x10000
+
 #define PM_TRANS_FLAG_EXPLICIT 0x20000 /* installation is explicit (by user) */
+#define PM_TRANS_FLAG_ALLOWPROVIDEREPLACEMENT 0x40000 /* allow the match for a provider of this target */
 
 /* Transaction Events */
 enum {
