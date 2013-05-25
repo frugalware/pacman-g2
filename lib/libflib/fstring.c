@@ -30,7 +30,7 @@ char *f_strdup (const char *s) {
 }
 
 size_t f_strlen (const char *s) {
-	return s != NULL ? strlen (s) : NULL;
+	return s != NULL ? strlen (s) : 0;
 }
 
 /* vim: set ts=2 sw=2 noet: */
