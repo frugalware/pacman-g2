@@ -805,7 +805,7 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 		 * package that's in our final (upgrade) list.
 		 */
 		/*EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
-		if (trans->_packages) {
+		if (trans->packages) {
 			_pacman_log(PM_LOG_FLOW1, _("checking dependencies of packages designated for removal"));
 			_pacman_trans_checkdeps (trans, &deps);
 			if(deps) {
@@ -960,8 +960,12 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 		/* Cleaning up */
 		EVENT(trans, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
-		f_foreach (lp, trans->_packages) {
-			info=(pmpkg_t *)lp->data;
+		f_foreach (lp, trans->packages) {
+			pmtranspkg_t *transpkg = lp->data;
+			info = transpkg->pkg_new;
+			if (info == NULL) {
+				continue;
+			}
 			f_foreach (rmlist, info->removes) {
 				snprintf(rm_fname, PATH_MAX, "%s%s", handle->root, (char *)rmlist->data);
 				remove(rm_fname);
@@ -1316,10 +1320,11 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 	pmlist_t *targ, *lp;
 	const int howmany = f_list_count (trans->packages);
 
-	f_foreach (targ, trans->_packages) {
+	f_foreach (targ, trans->packages) {
 		pmtranstype_t transtype;
 		char pm_install[PATH_MAX];
-		pmpkg_t *info = (pmpkg_t *)targ->data;
+		pmtranspkg_t *transpkg = targ->data;
+		pmpkg_t *info = transpkg->pkg_new;
 		pmpkg_t *local = NULL;
 		pmpkg_t *oldpkg = NULL;
 		errors = 0;
