@@ -213,7 +213,6 @@ static pmlist_t *chk_fileconflicts(pmlist_t *filesA, pmlist_t *filesB)
 			}
 	  }
 	}
-
 	return(ret);
 }
 

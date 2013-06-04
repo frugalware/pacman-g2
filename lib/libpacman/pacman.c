@@ -197,7 +197,7 @@ int pacman_db_unregister(pmdb_t *db)
 		handle->db_local = NULL;
 		found = 1;
 	} else {
-		FListItem *item = f_list_find (handle->dbs_sync, db);
+		FListItem *item = _f_list_find (handle->dbs_sync, db);
 		if (item != f_list_end (handle->dbs_sync)) {
 			_f_list_remove (&handle->dbs_sync, item);
 			f_listitem_delete (item, NULL, NULL);
@@ -322,7 +322,7 @@ int pacman_db_update(int force, PM_DB *db)
 		return -1;
 	}
 
-	if(!f_list_find(handle->dbs_sync, db)) {
+	if(!_f_list_find (handle->dbs_sync, db)) {
 		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
 	}
 

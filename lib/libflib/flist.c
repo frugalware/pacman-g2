@@ -117,6 +117,10 @@ void f_list_delete (FList *list, FVisitorFunc fn, void *user_data) {
 	f_list_foreach_safe (list, (FVisitorFunc)_f_listitem_delete, &visitor);
 }
 
+void f_list_init (FList *list) {
+	list->prev = list->next = list;
+}
+
 /**
  * Insert a @list after @item.
  */
@@ -181,7 +185,7 @@ FListItem *f_list_last (FList *list) {
 	return f_list_rbegin (list);
 }
 
-FList *f_list_add (FList *list, void *ptr) {
+int f_list_add (FList *list, FListItem *ptr) {
 	return f_list_append (list, ptr);
 }
 
@@ -217,13 +221,22 @@ FList *f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_d
 	return(list);
 }
 
-FList *f_list_append (FList *list, void *ptr) {
+int f_list_append (FList *list, FListItem *listitem) {
+	if (list == NULL ||
+			listitem == NULL) {
+		return -1;
+	}
+	f_list_insert_before (f_list_end (list), listitem);
+	return 0;
+}
+
+FList *_f_list_append (FList *list, void *ptr) {
 	return f_list_concat (list, f_listitem_new (ptr));
 }
 
-FList *f_list_append_unique (FList *list, void *ptr, FCompareFunc fn, void *user_data) {
-	if (f_list_find_custom (list, ptr, fn, user_data) == NULL) {
-		return f_list_append (list, ptr);
+FList *_f_list_append_unique (FList *list, void *ptr, FCompareFunc fn, void *user_data) {
+	if (_f_list_find_custom (list, ptr, fn, user_data) == NULL) {
+		return _f_list_append (list, ptr);
 	}
 	return list;
 }
@@ -316,11 +329,11 @@ FList *f_list_filter (FList *list, FDetectFunc dfn, void *user_data) {
 	return f_listaccumulator_fini (&listaccumulator);
 }
 
-FListItem *f_list_find (FList *list, const void *data) {
-	return f_list_find_custom (list, data, (FCompareFunc)f_ptrcmp, NULL);
+FListItem *_f_list_find (FList *list, const void *data) {
+	return _f_list_find_custom (list, data, (FCompareFunc)f_ptrcmp, NULL);
 }
 
-FListItem *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data) {
+FListItem *_f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data) {
 	FCompareDetector comparedetector = {
 		.fn = cfn,
 		.ptr = data,
@@ -377,7 +390,7 @@ FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data) {
 	FList *uniques = f_list_new ();
 
 	for (; it != end; it = it->next) {
-		uniques = f_list_append_unique (uniques, it->data, fn, user_data);
+		uniques = _f_list_append_unique (uniques, it->data, fn, user_data);
 	}
 	return uniques;
 }

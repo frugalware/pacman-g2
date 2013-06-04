@@ -25,10 +25,42 @@
 
 #include "fstringlist.h"
 
+#include "fstdlib.h"
 #include "fstring.h"
 
+struct FStringListItem {
+	FListItem base;
+	char str[1]; /* string + NULL terminator */
+};
+
+static
+FListItem *f_stringlistitem_as_listitem (FStringListItem *stringlistitem);
+
+FStringListItem *f_stringlistitem_new (const char *str, size_t size) {
+	FStringListItem *stringlistitem = f_zalloc (sizeof (*stringlistitem) +
+			size * sizeof (char));
+
+	if (stringlistitem != NULL) {
+//		f_listitem_init ();
+		strcpy (stringlistitem->str, str);
+	}
+	return stringlistitem;
+}
+
+void f_stringlistitem_delete (FStringListItem *stringlistitem) {
+	f_listitem_delete (f_stringlistitem_as_listitem (stringlistitem), NULL, NULL);
+}
+
+FListItem *f_stringlistitem_as_listitem (FStringListItem *stringlistitem) {
+	return &stringlistitem->base;
+}
+
+const char *f_stringlistitem_get (FStringListItem *stringlistitem) {
+	return stringlistitem != NULL ? stringlistitem->str : NULL;
+}
+
 FList *f_stringlist_append (FList *list, const char *str) {
-	return f_list_append (list, f_strdup (str));
+	return _f_list_append (list, f_strdup (str));
 }
 
 FList *f_stringlist_deep_copy (FList *list) {

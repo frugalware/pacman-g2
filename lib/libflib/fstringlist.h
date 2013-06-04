@@ -23,6 +23,10 @@
 
 #include "flist.h"
 
+typedef struct FStringListItem FStringListItem;
+
+typedef struct FStringList FStringList;
+
 FList *f_stringlist_append (FList *list, const char *str);
 FList *f_stringlist_deep_copy (FList *list);
 void   f_stringlist_detach (FList *list);

@@ -51,6 +51,7 @@ struct FList {
 
 FList *f_list_new (void);
 void   f_list_delete (FList *list, FVisitorFunc fn, void *user_data);
+void   f_list_init (FList *list);
 
 void   f_list_insert_after (FList *item, FList *list);
 void   f_list_insert_before (FList *item, FList *list);
@@ -63,10 +64,10 @@ FListItem *f_list_rend (FList *list);
 FListItem *f_list_first (FList *list);
 FListItem *f_list_last (FList *list);
 
-FList *f_list_add (FList *list, void *data);
-FList *f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_data);
-FList *f_list_append (FList *list, void *data);
-FList *f_list_append_unique (FList *list, void *data, FCompareFunc fn, void *user_data);
+int f_list_add (FList *list, FListItem *listitem);
+FList *_f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_data);
+FList *_f_list_append (FList *list, void *data);
+FList *_f_list_append_unique (FList *list, void *data, FCompareFunc fn, void *user_data);
 FList *f_list_concat (FList *list1, FList *list2);
 FList *f_list_copy (FList *list);
 size_t f_list_count (FList *list);
@@ -75,8 +76,8 @@ void   f_list_detach (FList *list, FCopyFunc fn, void *user_data);
 FListItem *f_list_detect (FList *list, FDetectFunc dfn, void *user_data);
 //void   f_list_exclude (FList *list, FList *excludelist, FDetectFunc dfn, void *user_data);
 FList *f_list_filter (FList *list, FDetectFunc fn, void *user_data);
-FListItem *f_list_find (FList *list, const void *data);
-FListItem *f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data);
+FListItem *_f_list_find (FList *list, const void *data);
+FListItem *_f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data);
 void   f_list_foreach (FList *list, FVisitorFunc fn, void *user_data);
 FList *f_list_reverse (FList *list);
 void   f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data);
