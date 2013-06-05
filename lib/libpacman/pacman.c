@@ -197,10 +197,10 @@ int pacman_db_unregister(pmdb_t *db)
 		handle->db_local = NULL;
 		found = 1;
 	} else {
-		FListItem *item = _f_list_find (handle->dbs_sync, db);
-		if (item != f_list_end (handle->dbs_sync)) {
-			_f_list_remove (&handle->dbs_sync, item);
-			f_listitem_delete (item, NULL, NULL);
+		FPtrListItem *item = f_ptrlist_find (handle->dbs_sync, db);
+		if (item != f_ptrlist_end (handle->dbs_sync)) {
+			_f_ptrlist_remove (&handle->dbs_sync, item);
+			f_ptrlistitem_delete (item, NULL, NULL);
 			found = 1;
 		}
 	}
@@ -322,7 +322,7 @@ int pacman_db_update(int force, PM_DB *db)
 		return -1;
 	}
 
-	if(!_f_list_find (handle->dbs_sync, db)) {
+	if(!f_ptrlist_find (handle->dbs_sync, db)) {
 		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
 	}
 
@@ -940,7 +940,7 @@ int pacman_logaction(const char *fmt, ...)
  */
 pmlist_t *pacman_list_first(pmlist_t *list)
 {
-	return f_list_begin (list);
+	return f_ptrlist_begin (list);
 }
 
 /** Get the next element of a list.
@@ -986,7 +986,7 @@ int pacman_list_count(pmlist_t *list)
 {
 	ASSERT(list != NULL, return(-1));
 
-	return f_list_count (list);
+	return f_ptrlist_count (list);
 }
 /** @} */
 

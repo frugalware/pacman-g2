@@ -23,14 +23,14 @@
 
 #include "flist.h"
 
-typedef FList pmlist_t;
+typedef FPtrList pmlist_t;
 
-#define _FREELIST(ptr, fn) do { if(ptr) { f_list_delete (ptr, (FVisitorFunc)fn, NULL); ptr = NULL; } } while(0)
+#define _FREELIST(ptr, fn) do { if(ptr) { f_ptrlist_delete (ptr, (FVisitorFunc)fn, NULL); ptr = NULL; } } while(0)
 #define FREELIST(p) _FREELIST(p, free)
 #define FREELISTPTR(p) _FREELIST(p, NULL)
 
-#define _pacman_list_add _f_list_append
-#define _pacman_list_remove(list, ptr, fn, data) f_list_remove_find_custom((list), (ptr), (FCompareFunc)(fn), (data))
+#define _pacman_list_add f_ptrlist_append
+#define _pacman_list_remove(list, ptr, fn, data) f_ptrlist_remove_find_custom((list), (ptr), (FCompareFunc)(fn), (data))
 
 #endif /* _PACMAN_LIST_H */
 

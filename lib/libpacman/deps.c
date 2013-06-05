@@ -187,7 +187,7 @@ int _pacman_trans_is_depend_satisfied (pmtrans_t *trans, pmdepend_t *depend) {
 	}
 
 	/* Else check transaction for provides */
-	if (f_list_detect (trans->packages, (FDetectFunc)_pacman_transpkg_is_depend_satisfied, depend) != NULL) {
+	if (f_ptrlist_detect (trans->packages, (FDetectFunc)_pacman_transpkg_is_depend_satisfied, depend) != NULL) {
 		return 0;
 	}
 
@@ -349,7 +349,7 @@ void _pacman_sortbydeps(pmtrans_t *trans, int mode)
 
 	if(mode == PM_TRANS_TYPE_REMOVE) {
 		/* we're removing packages, so reverse the order */
-		pmlist_t *tmptargs = f_list_reverse(newtargs);
+		pmlist_t *tmptargs = f_ptrlist_reverse(newtargs);
 		/* free the old one */
 		FREELISTPTR(newtargs);
 		newtargs = tmptargs;
@@ -458,7 +458,7 @@ void _pacman_removedeps(pmtrans_t *trans)
 
 	f_foreach (i, trans->packages) {
 		pmtranspkg_t *transpkg = i->data;
-		FList *transpkg_depends = _pacman_pkg_getinfo(transpkg->pkg_local, PM_PKG_DEPENDS);
+		FPtrList *transpkg_depends = _pacman_pkg_getinfo(transpkg->pkg_local, PM_PKG_DEPENDS);
 
 		f_foreach (j, transpkg_depends) {
 			pmdepend_t depend;
@@ -512,10 +512,10 @@ void _pacman_removedeps(pmtrans_t *trans)
 
 static
 int _pacman_transpkg_remove_dependsonly (pmtrans_t *trans) {
-	FList *excludes = f_list_new ();
+	FPtrList *excludes = f_ptrlist_new ();
 
-	_f_list_exclude (&trans->packages, &excludes, (FDetectFunc)_pacman_transpkg_has_flags, (void*)PM_TRANS_FLAG_DEPENDSONLY);
-	f_list_delete (excludes, NULL, NULL);
+	_f_ptrlist_exclude (&trans->packages, &excludes, (FDetectFunc)_pacman_transpkg_has_flags, (void*)PM_TRANS_FLAG_DEPENDSONLY);
+	f_ptrlist_delete (excludes, NULL, NULL);
 	return 0;
 }
 

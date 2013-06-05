@@ -27,42 +27,42 @@
 
 #include "flist.h"
 
-void f_listaccumulator_init (FListAccumulator *listaccumulator, FList *list) {
+void f_ptrlistaccumulator_init (FPtrListAccumulator *listaccumulator, FPtrList *list) {
 	listaccumulator->head = list;
-	listaccumulator->last = f_list_last (list);
+	listaccumulator->last = f_ptrlist_last (list);
 }
 
-FList *f_listaccumulator_fini (FListAccumulator *listaccumulator) {
-	FList *ret = listaccumulator->head;
+FPtrList *f_ptrlistaccumulator_fini (FPtrListAccumulator *listaccumulator) {
+	FPtrList *ret = listaccumulator->head;
 
 	listaccumulator->head = listaccumulator->last = NULL;
 	return ret;
 }
 
-void f_listaccumulator_accumulate (FListAccumulator *listaccumulator, void *data) {
-	f_listaccumulate (data, listaccumulator);
+void f_ptrlistaccumulator_accumulate (FPtrListAccumulator *listaccumulator, void *data) {
+	f_ptrlistaccumulate (data, listaccumulator);
 }
 
-void f_listaccumulator_reverse_accumulate (FListAccumulator *listaccumulator, void *data) {
-	f_listreverseaccumulate (data, listaccumulator);
+void f_ptrlistaccumulator_reverse_accumulate (FPtrListAccumulator *listaccumulator, void *data) {
+	f_ptrlistreverseaccumulate (data, listaccumulator);
 }
 
-void f_listaccumulate (void *data, FListAccumulator *listaccumulator) {
-	FList *item = f_listitem_new (data);
+void f_ptrlistaccumulate (void *data, FPtrListAccumulator *listaccumulator) {
+	FPtrList *item = f_ptrlistitem_new (data);
 
 	if (listaccumulator->head != NULL) {
-		f_list_insert_after (listaccumulator->last, item);
+		f_ptrlist_insert_after (listaccumulator->last, item);
 		listaccumulator->last = listaccumulator->last->next;
 	} else {
 		listaccumulator->head = listaccumulator->last = item;
 	}
 }
 
-void f_listreverseaccumulate (void *data, FListAccumulator *listaccumulator) {
-	FList *item = f_listitem_new (data);
+void f_ptrlistreverseaccumulate (void *data, FPtrListAccumulator *listaccumulator) {
+	FPtrList *item = f_ptrlistitem_new (data);
 
 	if (listaccumulator->head != NULL) {
-		f_list_insert_before (listaccumulator->head, item);
+		f_ptrlist_insert_before (listaccumulator->head, item);
 		listaccumulator->head = listaccumulator->head->prev;
 	} else {
 		listaccumulator->head = listaccumulator->last = item;

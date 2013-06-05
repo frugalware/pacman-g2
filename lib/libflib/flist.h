@@ -26,73 +26,93 @@
 
 #include <fcallbacks.h>
 
-/* FIXME: Make it a struct FListItem */
-typedef struct FList FListItem;
+typedef struct FListItem FListItem;
 
-FListItem *f_listitem_new (void *data);
-void f_listitem_delete (FListItem *item, FVisitorFunc fn, void *user_data);
-
-void *f_listitem_get (FListItem *item);
-void f_listitem_set (FListItem *item, void *data);
-
-FListItem *f_listitem_next (FListItem *item);
-FListItem *f_listitem_previous (FListItem *item);
-void f_listitem_remove (FListItem *item);
+struct FListItem {
+	FListItem *next;
+	FListItem *previous;
+};
 
 typedef struct FList FList;
 
-/* FIXME: Make private as soon as possible */
-/* Chained list struct */
 struct FList {
-	FList *prev;
-	FList *next;
+	FListItem head;
+};
+
+#if 0
+int f_list_add (FList *list, FListItem *listitem);
+int f_list_append (FList *list, FListItem *listitem);
+#endif
+
+typedef struct FPtrListItem FPtrListItem;
+
+struct FPtrListItem {
+	union {
+		FListItem base;
+		struct { /* For compatibility */
+			FPtrListItem *next;
+			FPtrListItem *prev;
+		};
+	};
 	void *data;
 };
 
-FList *f_list_new (void);
-void   f_list_delete (FList *list, FVisitorFunc fn, void *user_data);
-void   f_list_init (FList *list);
+FPtrListItem *f_ptrlistitem_new (void *data);
+void f_ptrlistitem_delete (FPtrListItem *item, FVisitorFunc fn, void *user_data);
 
-void   f_list_insert_after (FList *item, FList *list);
-void   f_list_insert_before (FList *item, FList *list);
+void *f_ptrlistitem_get (FPtrListItem *item);
+void f_ptrlistitem_set (FPtrListItem *item, void *data);
 
-FListItem *f_list_begin (FList *list);
-FListItem *f_list_end (FList *list);
-FListItem *f_list_rbegin (FList *list);
-FListItem *f_list_rend (FList *list);
+FPtrListItem *f_ptrlistitem_next (FPtrListItem *item);
+FPtrListItem *f_ptrlistitem_previous (FPtrListItem *item);
+void f_ptrlistitem_remove (FPtrListItem *item);
 
-FListItem *f_list_first (FList *list);
-FListItem *f_list_last (FList *list);
+/* FIXME: Make private as soon as possible */
+typedef struct FPtrListItem FPtrList;
 
-int f_list_add (FList *list, FListItem *listitem);
-FList *_f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_data);
-FList *_f_list_append (FList *list, void *data);
-FList *_f_list_append_unique (FList *list, void *data, FCompareFunc fn, void *user_data);
-FList *f_list_concat (FList *list1, FList *list2);
-FList *f_list_copy (FList *list);
-size_t f_list_count (FList *list);
-FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data);
-void   f_list_detach (FList *list, FCopyFunc fn, void *user_data);
-FListItem *f_list_detect (FList *list, FDetectFunc dfn, void *user_data);
-//void   f_list_exclude (FList *list, FList *excludelist, FDetectFunc dfn, void *user_data);
-FList *f_list_filter (FList *list, FDetectFunc fn, void *user_data);
-FListItem *_f_list_find (FList *list, const void *data);
-FListItem *_f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data);
-void   f_list_foreach (FList *list, FVisitorFunc fn, void *user_data);
-FList *f_list_reverse (FList *list);
-void   f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data);
-FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data);
+FPtrList *f_ptrlist_new (void);
+void   f_ptrlist_delete (FPtrList *list, FVisitorFunc fn, void *user_data);
+void   f_ptrlist_init (FPtrList *list);
+
+void   f_ptrlist_insert_after (FPtrList *item, FPtrList *list);
+void   f_ptrlist_insert_before (FPtrList *item, FPtrList *list);
+
+FPtrListItem *f_ptrlist_begin (FPtrList *list);
+FPtrListItem *f_ptrlist_end (FPtrList *list);
+FPtrListItem *f_ptrlist_rbegin (FPtrList *list);
+FPtrListItem *f_ptrlist_rend (FPtrList *list);
+
+FPtrListItem *f_ptrlist_first (FPtrList *list);
+FPtrListItem *f_ptrlist_last (FPtrList *list);
+
+FPtrList *f_ptrlist_add_sorted (FPtrList *list, void *data, FCompareFunc fn, void *user_data);
+FPtrList *f_ptrlist_append (FPtrList *list, void *data);
+FPtrList *f_ptrlist_append_unique (FPtrList *list, void *data, FCompareFunc fn, void *user_data);
+FPtrList *f_ptrlist_concat (FPtrList *list1, FPtrList *list2);
+FPtrList *f_ptrlist_copy (FPtrList *list);
+size_t f_ptrlist_count (FPtrList *list);
+FPtrList *f_ptrlist_deep_copy (FPtrList *list, FCopyFunc fn, void *user_data);
+void   f_ptrlist_detach (FPtrList *list, FCopyFunc fn, void *user_data);
+FPtrListItem *f_ptrlist_detect (FPtrList *list, FDetectFunc dfn, void *user_data);
+//void   f_ptrlist_exclude (FPtrList *list, FPtrList *excludelist, FDetectFunc dfn, void *user_data);
+FPtrList *f_ptrlist_filter (FPtrList *list, FDetectFunc fn, void *user_data);
+FPtrListItem *f_ptrlist_find (FPtrList *list, const void *data);
+FPtrListItem *f_ptrlist_find_custom (FPtrList *list, const void *data, FCompareFunc cfn, void *user_data);
+void   f_ptrlist_foreach (FPtrList *list, FVisitorFunc fn, void *user_data);
+FPtrList *f_ptrlist_reverse (FPtrList *list);
+void   f_ptrlist_reverse_foreach (FPtrList *list, FVisitorFunc fn, void *user_data);
+FPtrList *f_ptrlist_uniques (FPtrList *list, FCompareFunc fn, void *user_data);
 
 /* FIXME: To be removed */
-void   _f_list_exclude (FList **list, FList **excludelist, FDetectFunc dfn, void *user_data);
-void   _f_list_remove (FList **list, FListItem *item);
-FList *f_list_remove_find_custom (FList *haystack, void *needle, FCompareFunc fn, void **data);
+void   _f_ptrlist_exclude (FPtrList **list, FPtrList **excludelist, FDetectFunc dfn, void *user_data);
+void   _f_ptrlist_remove (FPtrList **list, FPtrListItem *item);
+FPtrList *f_ptrlist_remove_find_custom (FPtrList *haystack, void *needle, FCompareFunc fn, void **data);
 
 #define f_foreach(it, list) \
-	for (it = f_list_begin (list); it != f_list_end (list); it = f_listitem_next (it))
+	for (it = f_ptrlist_begin (list); it != f_ptrlist_end (list); it = f_ptrlistitem_next (it))
 
 #define f_rforeach(it, list) \
-	for (it = f_list_rbegin (list); it != f_list_rend (list); it = f_listitem_prev (it))
+	for (it = f_ptrlist_rbegin (list); it != f_ptrlist_rend (list); it = f_ptrlistitem_prev (it))
 
 #endif /* F_LIST_H */
 

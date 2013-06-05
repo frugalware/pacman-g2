@@ -29,19 +29,34 @@
 #include "flistaccumulator.h"
 #include "fstdlib.h"
 
+#if 0
+int f_list_add (FList *list, FListItem *listitem) {
+	return f_list_append (list, listitem);
+}
+
+int f_list_append (FList *list, FListItem *listitem) {
+	if (list == NULL ||
+			listitem == NULL) {
+		return -1;
+	}
+	f_listitem_insert_before (listitem, f_list_end (list));
+	return 0;
+}
+#endif
+
 /* DO NOT MAKE PUBLIC FOR NOW:
  * Require list implemantation change.
  */
 static
-void f_list_foreach_safe (FList *list, FVisitorFunc fn, void *user_data);
+void f_ptrlist_foreach_safe (FPtrList *list, FVisitorFunc fn, void *user_data);
 
 static
 void *f_ptrcpy(const void *p) {
 	return (void *)p;
 }
 
-FListItem *f_listitem_new (void *data) {
-	FListItem *item = f_zalloc (sizeof(FList));
+FPtrListItem *f_ptrlistitem_new (void *data) {
+	FPtrListItem *item = f_zalloc (sizeof(FPtrList));
 
 	if (item != NULL) {
 		item->data = data;
@@ -50,10 +65,10 @@ FListItem *f_listitem_new (void *data) {
 }
 
 static
-void _f_listitem_delete (FListItem *item, FVisitor *visitor) {
+void _f_ptrlistitem_delete (FPtrListItem *item, FVisitor *visitor) {
 	if (item != NULL) {
 		f_visit (item->data, visitor);
-		f_listitem_remove (item);
+		f_ptrlistitem_remove (item);
 		f_free (item);
 	}
 }
@@ -61,37 +76,37 @@ void _f_listitem_delete (FListItem *item, FVisitor *visitor) {
 /**
  * Remove the item from it's list and free it.
  */
-void f_listitem_delete (FListItem *item, FVisitorFunc fn, void *user_data) {
+void f_ptrlistitem_delete (FPtrListItem *item, FVisitorFunc fn, void *user_data) {
 	FVisitor visitor = {
 		.fn = fn,
 		.user_data = user_data
 	};
 
-	_f_listitem_delete (item, &visitor);
+	_f_ptrlistitem_delete (item, &visitor);
 }
 
-void *f_listitem_get (FListItem *item) {
+void *f_ptrlistitem_get (FPtrListItem *item) {
 	return item != NULL ? item->data : NULL;
 }
 
-void f_listitem_set (FListItem *item, void *data) {
+void f_ptrlistitem_set (FPtrListItem *item, void *data) {
 	if (item) {
 		item->data = data;
 	}
 }
 
-FListItem *f_listitem_next (FListItem *item) {
+FPtrListItem *f_ptrlistitem_next (FPtrListItem *item) {
 	return item != NULL ? item->next : NULL;
 }
 
-FListItem *f_listitem_previous (FListItem *item) {
+FPtrListItem *f_ptrlistitem_previous (FPtrListItem *item) {
 	return item != NULL ? item->prev : NULL;
 }
 
 /**
  * Remove an @item from the list it belongs.
  */
-void f_listitem_remove (FListItem *item) {
+void f_ptrlistitem_remove (FPtrListItem *item) {
 	if (item != NULL) {
 		if (item->prev != NULL) {
 			item->prev->next = item->next;
@@ -104,28 +119,28 @@ void f_listitem_remove (FListItem *item) {
 	}
 }
 
-FList *f_list_new () {
+FPtrList *f_ptrlist_new () {
 	return NULL;
 }
 
-void f_list_delete (FList *list, FVisitorFunc fn, void *user_data) {
+void f_ptrlist_delete (FPtrList *list, FVisitorFunc fn, void *user_data) {
 	FVisitor visitor = {
 		.fn = fn,
 		.user_data = user_data
 	};
 
-	f_list_foreach_safe (list, (FVisitorFunc)_f_listitem_delete, &visitor);
+	f_ptrlist_foreach_safe (list, (FVisitorFunc)_f_ptrlistitem_delete, &visitor);
 }
 
-void f_list_init (FList *list) {
+void f_ptrlist_init (FPtrList *list) {
 	list->prev = list->next = list;
 }
 
 /**
  * Insert a @list after @item.
  */
-void f_list_insert_after (FList *item, FList *list) {
-	FList *last = f_list_last (list);
+void f_ptrlist_insert_after (FPtrList *item, FPtrList *list) {
+	FPtrList *last = f_ptrlist_last (list);
 
 	assert (item != NULL);
 	if (list == NULL) {
@@ -142,8 +157,8 @@ void f_list_insert_after (FList *item, FList *list) {
 /**
  * Insert a @list before @item.
  */
-void f_list_insert_before (FList *item, FList *list) {
-	FList *last = f_list_last (list);
+void f_ptrlist_insert_before (FPtrList *item, FPtrList *list) {
+	FPtrList *last = f_ptrlist_last (list);
 
 	assert (item != NULL);
 	if (list == NULL) {
@@ -157,15 +172,15 @@ void f_list_insert_before (FList *item, FList *list) {
 	item->prev = last;
 }
 
-FListItem *f_list_begin (FList *list) {
+FPtrListItem *f_ptrlist_begin (FPtrList *list) {
 	return list;
 }
 
-FListItem *f_list_end (FList *list) {
+FPtrListItem *f_ptrlist_end (FPtrList *list) {
 	return NULL;
 }
 
-FListItem *f_list_rbegin (FList *list) {
+FPtrListItem *f_ptrlist_rbegin (FPtrList *list) {
 	if (list != NULL) {
 		for (; list->next != NULL; list = list->next)
 			/* Do nothing */;
@@ -173,29 +188,25 @@ FListItem *f_list_rbegin (FList *list) {
 	return list;
 }
 
-FListItem *f_list_rend (FList *list) {
+FPtrListItem *f_ptrlist_rend (FPtrList *list) {
 	return NULL;
 }
 
-FListItem *f_list_first (FList *list) {
-	return f_list_begin (list);
+FPtrListItem *f_ptrlist_first (FPtrList *list) {
+	return f_ptrlist_begin (list);
 }
 
-FListItem *f_list_last (FList *list) {
-	return f_list_rbegin (list);
-}
-
-int f_list_add (FList *list, FListItem *ptr) {
-	return f_list_append (list, ptr);
+FPtrListItem *f_ptrlist_last (FPtrList *list) {
+	return f_ptrlist_rbegin (list);
 }
 
 /* Add items to a list in sorted order. Use the given comparison function to
  * determine order.
  */
-FList *f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_data) {
-	FList *add = f_listitem_new (data);
-	FList *prev = NULL;
-	FList *iter = list;
+FPtrList *f_ptrlist_add_sorted (FPtrList *list, void *data, FCompareFunc fn, void *user_data) {
+	FPtrList *add = f_ptrlistitem_new (data);
+	FPtrList *prev = NULL;
+	FPtrList *iter = list;
 
 	/* Find insertion point. */
 	while (iter) {
@@ -221,40 +232,31 @@ FList *f_list_add_sorted (FList *list, void *data, FCompareFunc fn, void *user_d
 	return(list);
 }
 
-int f_list_append (FList *list, FListItem *listitem) {
-	if (list == NULL ||
-			listitem == NULL) {
-		return -1;
-	}
-	f_list_insert_before (f_list_end (list), listitem);
-	return 0;
+FPtrList *f_ptrlist_append (FPtrList *list, void *ptr) {
+	return f_ptrlist_concat (list, f_ptrlistitem_new (ptr));
 }
 
-FList *_f_list_append (FList *list, void *ptr) {
-	return f_list_concat (list, f_listitem_new (ptr));
-}
-
-FList *_f_list_append_unique (FList *list, void *ptr, FCompareFunc fn, void *user_data) {
-	if (_f_list_find_custom (list, ptr, fn, user_data) == NULL) {
-		return _f_list_append (list, ptr);
+FPtrList *f_ptrlist_append_unique (FPtrList *list, void *ptr, FCompareFunc fn, void *user_data) {
+	if (f_ptrlist_find_custom (list, ptr, fn, user_data) == NULL) {
+		return f_ptrlist_append (list, ptr);
 	}
 	return list;
 }
 
-FList *f_list_concat (FList *list1, FList *list2) {
+FPtrList *f_ptrlist_concat (FPtrList *list1, FPtrList *list2) {
 	if (list1 == NULL) {
 		return list2;
 	}
-	f_list_insert_after (f_list_last (list1), list2);
+	f_ptrlist_insert_after (f_ptrlist_last (list1), list2);
 	return list1;
 }
 
-FList *f_list_copy (FList *list) {
-	return f_list_deep_copy (list, (FCopyFunc)f_ptrcpy, NULL);
+FPtrList *f_ptrlist_copy (FPtrList *list) {
+	return f_ptrlist_deep_copy (list, (FCopyFunc)f_ptrcpy, NULL);
 }
 
-size_t f_list_count (FList *list) {
-	FListItem *it = f_list_begin (list), *end = f_list_end (list);
+size_t f_ptrlist_count (FPtrList *list) {
+	FPtrListItem *it = f_ptrlist_begin (list), *end = f_ptrlist_end (list);
 	size_t count = 0;
 
 	for (; it != end; it = it->next, ++count)
@@ -262,27 +264,27 @@ size_t f_list_count (FList *list) {
 	return count;
 }
 
-FList *f_list_deep_copy (FList *list, FCopyFunc fn, void *user_data) {
-	FListItem *it = f_list_begin (list), *end = f_list_end (list);
-	FListAccumulator listaccumulator;
+FPtrList *f_ptrlist_deep_copy (FPtrList *list, FCopyFunc fn, void *user_data) {
+	FPtrListItem *it = f_ptrlist_begin (list), *end = f_ptrlist_end (list);
+	FPtrListAccumulator listaccumulator;
 
-	f_listaccumulator_init (&listaccumulator, f_list_new ());
+	f_ptrlistaccumulator_init (&listaccumulator, f_ptrlist_new ());
 	for (; it != end; it = it->next) {
-		f_listaccumulate (fn (it->data, user_data), &listaccumulator);
+		f_ptrlistaccumulate (fn (it->data, user_data), &listaccumulator);
 	}
-	return f_listaccumulator_fini (&listaccumulator);
+	return f_ptrlistaccumulator_fini (&listaccumulator);
 }
 
-void f_list_detach (FList *list, FCopyFunc fn, void *user_data) {
-	FListItem *it = f_list_begin (list), *end = f_list_end (list);
+void f_ptrlist_detach (FPtrList *list, FCopyFunc fn, void *user_data) {
+	FPtrListItem *it = f_ptrlist_begin (list), *end = f_ptrlist_end (list);
 
 	for (; it != end; it = it->next) {
 		it->data = fn (it->data, user_data);
 	}
 }
 
-FListItem *f_list_detect (FList *list, FDetectFunc dfn, void *user_data) {
-	FListItem *it = f_list_begin (list), *end = f_list_end (list);
+FPtrListItem *f_ptrlist_detect (FPtrList *list, FDetectFunc dfn, void *user_data) {
+	FPtrListItem *it = f_ptrlist_begin (list), *end = f_ptrlist_end (list);
 
 	for (; it != end; it = it->next) {
 		if (dfn (it->data, user_data) == 0) {
@@ -292,30 +294,30 @@ FListItem *f_list_detect (FList *list, FDetectFunc dfn, void *user_data) {
 	return it;
 }
 
-void _f_list_exclude (FList **list, FList **excludelist, FDetectFunc dfn, void *user_data) {
-	FListAccumulator listaccumulator;
-	FList *item, *next = *list;
+void _f_ptrlist_exclude (FPtrList **list, FPtrList **excludelist, FDetectFunc dfn, void *user_data) {
+	FPtrListAccumulator listaccumulator;
+	FPtrList *item, *next = *list;
 
-	f_listaccumulator_init (&listaccumulator, *excludelist);
-	while ((item = f_list_detect (next, dfn, user_data)) != NULL) {
+	f_ptrlistaccumulator_init (&listaccumulator, *excludelist);
+	while ((item = f_ptrlist_detect (next, dfn, user_data)) != NULL) {
 		next = item->next;
 		if (*list == item) {
 			*list = (*list)->next;
 		}
-		f_listitem_remove (item);
-		f_listaccumulate (item, &listaccumulator);
+		f_ptrlistitem_remove (item);
+		f_ptrlistaccumulate (item, &listaccumulator);
 	}
-	*excludelist = f_listaccumulator_fini (&listaccumulator);
+	*excludelist = f_ptrlistaccumulator_fini (&listaccumulator);
 }
 
-FList *f_list_filter (FList *list, FDetectFunc dfn, void *user_data) {
-	FListAccumulator listaccumulator;
+FPtrList *f_ptrlist_filter (FPtrList *list, FDetectFunc dfn, void *user_data) {
+	FPtrListAccumulator listaccumulator;
 	FDetector detector = {
 		.fn = dfn,
 		.user_data = user_data
 	};
 	FVisitor visitor = {
-		.fn = (FVisitorFunc)f_listaccumulate,
+		.fn = (FVisitorFunc)f_ptrlistaccumulate,
 		.user_data = &listaccumulator
 	};
 	FDetectVisitor detectvisitor = {
@@ -324,27 +326,27 @@ FList *f_list_filter (FList *list, FDetectFunc dfn, void *user_data) {
 		.fail = NULL
 	};
 
-	f_listaccumulator_init (&listaccumulator, f_list_new ());
-	f_list_foreach (list, (FVisitorFunc)f_detectvisit, &detectvisitor);
-	return f_listaccumulator_fini (&listaccumulator);
+	f_ptrlistaccumulator_init (&listaccumulator, f_ptrlist_new ());
+	f_ptrlist_foreach (list, (FVisitorFunc)f_detectvisit, &detectvisitor);
+	return f_ptrlistaccumulator_fini (&listaccumulator);
 }
 
-FListItem *_f_list_find (FList *list, const void *data) {
-	return _f_list_find_custom (list, data, (FCompareFunc)f_ptrcmp, NULL);
+FPtrListItem *f_ptrlist_find (FPtrList *list, const void *data) {
+	return f_ptrlist_find_custom (list, data, (FCompareFunc)f_ptrcmp, NULL);
 }
 
-FListItem *_f_list_find_custom (FList *list, const void *data, FCompareFunc cfn, void *user_data) {
+FPtrListItem *f_ptrlist_find_custom (FPtrList *list, const void *data, FCompareFunc cfn, void *user_data) {
 	FCompareDetector comparedetector = {
 		.fn = cfn,
 		.ptr = data,
 		.user_data = user_data
 	};
 
-	return f_list_detect (list, (FDetectFunc)f_comparedetect, &comparedetector);
+	return f_ptrlist_detect (list, (FDetectFunc)f_comparedetect, &comparedetector);
 }
 
-void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
-	FListItem *it = f_list_begin (list), *end = f_list_end (list);
+void f_ptrlist_foreach (FPtrList *list, FVisitorFunc fn, void *user_data) {
+	FPtrListItem *it = f_ptrlist_begin (list), *end = f_ptrlist_end (list);
 
 	for (; it != end; it = it->next) {
 		fn (it->data, user_data);
@@ -354,10 +356,10 @@ void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
 /**
  * A foreach safe in the sence you can detach the current element.
  *
- * Differs from foreach since it pass an FListItem instead of data.
+ * Differs from foreach since it pass an FPtrListItem instead of data.
  */
-void f_list_foreach_safe (FList *list, FVisitorFunc fn, void *user_data) {
-	FListItem *it, *next = f_list_begin (list), *end = f_list_end (list);
+void f_ptrlist_foreach_safe (FPtrList *list, FVisitorFunc fn, void *user_data) {
+	FPtrListItem *it, *next = f_ptrlist_begin (list), *end = f_ptrlist_end (list);
 
 	for (it = next; it != end; it = next) {
 		next = it->next;
@@ -369,37 +371,37 @@ void f_list_foreach_safe (FList *list, FVisitorFunc fn, void *user_data) {
  *
  * The caller is responsible for freeing the old list
  */
-FList *f_list_reverse (FList *list) {
-	FListAccumulator listaccumulator;
+FPtrList *f_ptrlist_reverse (FPtrList *list) {
+	FPtrListAccumulator listaccumulator;
 
-	f_listaccumulator_init (&listaccumulator, f_list_new ());
-	f_list_foreach (list, (FVisitorFunc)f_listreverseaccumulate, &listaccumulator);
-	return f_listaccumulator_fini (&listaccumulator);
+	f_ptrlistaccumulator_init (&listaccumulator, f_ptrlist_new ());
+	f_ptrlist_foreach (list, (FVisitorFunc)f_ptrlistreverseaccumulate, &listaccumulator);
+	return f_ptrlistaccumulator_fini (&listaccumulator);
 }
 
-void f_list_reverse_foreach (FList *list, FVisitorFunc fn, void *user_data) {
-	FListItem *it = f_list_rbegin (list), *end = f_list_rend (list);
+void f_ptrlist_reverse_foreach (FPtrList *list, FVisitorFunc fn, void *user_data) {
+	FPtrListItem *it = f_ptrlist_rbegin (list), *end = f_ptrlist_rend (list);
 
 	for (; it != end; it = it->prev) {
 		fn (it->data, user_data);
 	}
 }
 
-FList *f_list_uniques (FList *list, FCompareFunc fn, void *user_data) {
-	FListItem *it = f_list_begin (list), *end = f_list_end (list);
-	FList *uniques = f_list_new ();
+FPtrList *f_ptrlist_uniques (FPtrList *list, FCompareFunc fn, void *user_data) {
+	FPtrListItem *it = f_ptrlist_begin (list), *end = f_ptrlist_end (list);
+	FPtrList *uniques = f_ptrlist_new ();
 
 	for (; it != end; it = it->next) {
-		uniques = _f_list_append_unique (uniques, it->data, fn, user_data);
+		uniques = f_ptrlist_append_unique (uniques, it->data, fn, user_data);
 	}
 	return uniques;
 }
 
-void _f_list_remove (FList **list, FListItem *item) {
+void _f_ptrlist_remove (FPtrList **list, FPtrListItem *item) {
 	if (*list == item) {
 		*list = item->next;
 	}
-	f_listitem_remove (item);
+	f_ptrlistitem_remove (item);
 }
 
 /* Remove an item in a list. Use the given comparison function to find the
@@ -408,8 +410,8 @@ void _f_list_remove (FList **list, FListItem *item) {
  * Otherwise, it is set to NULL.
  * Return the new list (without the removed element).
  */
-FList *f_list_remove_find_custom (FList *haystack, void *needle, FCompareFunc fn, void **data) {
-	FList *i = haystack;
+FPtrList *f_ptrlist_remove_find_custom (FPtrList *haystack, void *needle, FCompareFunc fn, void **data) {
+	FPtrList *i = haystack;
 
 	if(data) {
 		*data = NULL;

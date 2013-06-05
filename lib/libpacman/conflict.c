@@ -58,13 +58,13 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans) {
 	int howmany, remain;
 	double percent;
 
-	howmany = f_list_count (trans->packages);
+	howmany = f_ptrlist_count (trans->packages);
 
 	f_foreach (i, trans->packages) {
 		pmtranspkg_t *transpkg = i->data;
 		const char *transpkg_name = __pacman_transpkg_name (transpkg);
 
-		remain = f_list_count (i);
+		remain = f_ptrlist_count (i);
 		percent = (double)(howmany - remain + 1) / howmany;
 
 		if(trans->type == PM_TRANS_TYPE_SYNC) {
@@ -226,7 +226,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 	double percent;
 	int remain;
 	pmdb_t *db = trans->handle->db_local;
-	int howmany = f_list_count (trans->packages);
+	int howmany = f_ptrlist_count (trans->packages);
 
 	if (howmany == 0) {
 		return(NULL);
@@ -240,7 +240,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 			continue;
 		}
 
-		remain = f_list_count (i);
+		remain = f_ptrlist_count (i);
 		percent = (double)(howmany - remain + 1) / howmany;
 		PROGRESS(trans, PM_TRANS_PROGRESS_CONFLICTS_START, "", (percent * 100), howmany, howmany - remain + 1);
 		for(j = i->next; j; j = j->next) {

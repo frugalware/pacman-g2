@@ -84,7 +84,7 @@ int querypkg(list_t *targets)
 	}
 
 	if(config->op_q_foreign) {
-		if (f_list_count (pmc_syncs) == 0) {
+		if (f_ptrlist_count (pmc_syncs) == 0) {
 			ERR(NL, _("no usable package repositories configured.\n"));
 			return(1);
 		}

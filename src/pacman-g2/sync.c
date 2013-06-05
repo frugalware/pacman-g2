@@ -266,7 +266,7 @@ int syncpkg(list_t *targets)
 	list_t *i;
 	PM_LIST *packages, *data, *lp;
 
-	if (f_list_count (pmc_syncs) == 0) {
+	if (f_ptrlist_count (pmc_syncs) == 0) {
 		ERR(NL, _("no usable package repositories configured.\n"));
 		return(1);
 	}
@@ -348,7 +348,7 @@ int syncpkg(list_t *targets)
 		f_foreach (lp, data) {
 			PM_SYNCPKG *ps = pacman_list_getdata(lp);
 			PM_PKG *spkg = pacman_sync_getinfo(ps, PM_SYNC_PKG);
-			if (!strcmp("pacman-g2", pacman_pkg_getinfo(spkg, PM_PKG_NAME)) && f_list_count (data) > 1) {
+			if (!strcmp("pacman-g2", pacman_pkg_getinfo(spkg, PM_PKG_NAME)) && f_ptrlist_count (data) > 1) {
 				MSG(NL, _("\n:: pacman-g2 has detected a newer version of the \"pacman-g2\" package.\n"));
 				MSG(NL, _(":: It is recommended that you allow pacman-g2 to upgrade itself\n"));
 				MSG(NL, _(":: first, then you can re-run the operation with the newer version.\n"));

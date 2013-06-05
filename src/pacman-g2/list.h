@@ -25,13 +25,12 @@
 
 #include "flist.h"
 
-/* Chained list struct */
-typedef FList list_t;
+typedef FPtrList list_t;
 
-#define FREELIST(p) do { if(p) { f_list_delete (p, (FVisitorFunc)free, NULL); p = NULL; } } while(0)
-#define FREELISTPTR(p) do { if(p) { f_list_delete (p, NULL, NULL); p = NULL; } } while (0)
+#define FREELIST(p) do { if(p) { f_ptrlist_delete (p, (FVisitorFunc)free, NULL); p = NULL; } } while(0)
+#define FREELISTPTR(p) do { if(p) { f_ptrlist_delete (p, NULL, NULL); p = NULL; } } while (0)
 
-#define list_add _f_list_append
+#define list_add f_ptrlist_append
 void list_display(const char *title, list_t *list);
 
 #endif /* _PM_LIST_H */

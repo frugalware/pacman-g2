@@ -171,7 +171,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 
 	pm_errno = 0;
 	if(howmany) {
-		*howmany = f_list_count (files);
+		*howmany = f_ptrlist_count (files);
 	}
 	if(remain) {
 		*remain = 1;
@@ -577,7 +577,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 			}
 		}
 
-		if (f_list_count (complete) == f_list_count (files)) {
+		if (f_ptrlist_count (complete) == f_ptrlist_count (files)) {
 			done = 1;
 			break;
 		}

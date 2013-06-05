@@ -126,6 +126,7 @@ int _pacman_transpkg_has_flags (pmtranspkg_t *transpkg, int flagsmask);
 int __pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
 /* void __pacman_trans_fini(pmtrans_t *trans); */
 
+pmsyncpkg_t *__pacman_trans_get_transpkg (pmtrans_t *trans, const char *package, int flags);
 pmsyncpkg_t *__pacman_trans_get_trans_pkg(pmtrans_t *trans, const char *package);
 
 #endif /* _PACMAN_TRANS_H */

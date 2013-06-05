@@ -24,21 +24,21 @@
 
 #include "flist.h"
 
-typedef struct FListAccumulator FListAccumulator;
+typedef struct FPtrListAccumulator FPtrListAccumulator;
 
-struct FListAccumulator {
-	FList *head;
-	FList *last;
+struct FPtrListAccumulator {
+	FPtrList *head;
+	FPtrList *last;
 };
 
-void f_listaccumulator_init (FListAccumulator *listaccumulator, FList *list);
-FList *f_listaccumulator_fini (FListAccumulator *listaccumulator);
+void f_ptrlistaccumulator_init (FPtrListAccumulator *listaccumulator, FPtrList *list);
+FPtrList *f_ptrlistaccumulator_fini (FPtrListAccumulator *listaccumulator);
 
-void f_listaccumulator_accumulate (FListAccumulator *listaccumulator, void *data);
-void f_listaccumulator_reverse_accumulate (FListAccumulator *listaccumulator, void *data);
+void f_ptrlistaccumulator_accumulate (FPtrListAccumulator *listaccumulator, void *data);
+void f_ptrlistaccumulator_reverse_accumulate (FPtrListAccumulator *listaccumulator, void *data);
 
-void f_listaccumulate (void *data, FListAccumulator *listaccumulator);
-void f_listreverseaccumulate (void *data, FListAccumulator *listaccumulator);
+void f_ptrlistaccumulate (void *data, FPtrListAccumulator *listaccumulator);
+void f_ptrlistreverseaccumulate (void *data, FPtrListAccumulator *listaccumulator);
 
 #endif /* F_LISTACCUMULATOR_H */
 

@@ -46,7 +46,7 @@ extern "C" {
  * Structures (opaque)
  */
 
-typedef struct FList PM_LIST;
+typedef struct FPtrListItem PM_LIST;
 typedef struct __pmdb_t PM_DB;
 typedef struct __pmpkg_t PM_PKG;
 typedef struct __pmgrp_t PM_GRP;

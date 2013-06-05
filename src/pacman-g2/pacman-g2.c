@@ -638,7 +638,7 @@ int main(int argc, char *argv[])
 		cleanup(1);
 	}
 
-	if (f_list_count(pm_targets) == 0 && !(config->op == PM_OP_QUERY || (config->op == PM_OP_SYNC
+	if (f_ptrlist_count(pm_targets) == 0 && !(config->op == PM_OP_QUERY || (config->op == PM_OP_SYNC
 	   && (config->op_s_sync || config->op_s_upgrade || config->op_s_clean || config->group 
 	   || config->op_q_list)) || config->op == PM_OP_PS)) {
 		ERR(NL, _("no targets specified (use -h for help)\n"));
