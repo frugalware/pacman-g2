@@ -29,7 +29,123 @@
 #include "flistaccumulator.h"
 #include "fstdlib.h"
 
-#if 0
+void f_listitem_init (FListItem *listitem) {
+	listitem->next = listitem->previous = listitem;
+}
+
+void f_listitem_fini (FListItem *listitem, FVisitorFunc fn, void *user_data) {
+	FVisitor visitor = {
+		.fn = fn,
+		.user_data = user_data
+	};
+
+	f_visit (listitem, &visitor);
+	f_listitem_remove (listitem);
+}
+
+void f_listitem_delete (FListItem *listitem, FVisitorFunc fn, void *user_data) {
+	if (listitem != NULL) {
+		f_listitem_fini (listitem, fn, user_data);
+		f_free (listitem);
+	}
+}
+
+FListItem *f_listitem_next (FListItem *listitem) {
+	  return listitem != NULL ? listitem->next : NULL;
+}
+
+FListItem *f_listitem_previous (FListItem *listitem) {
+	  return listitem != NULL ? listitem->previous : NULL;
+}
+
+/**
+ * Insert a @listitem after @listitem_ref.
+ */
+void f_listitem_insert_after (FListItem *listitem, FListItem *listitem_ref) {
+	f_listitem_insert_range_after (listitem, listitem, listitem_ref);
+}
+
+/**
+ * Insert a @listitem before @listitem_ref.
+ */
+void f_listitem_insert_before (FListItem *listitem, FListItem *listitem_ref) {
+	f_listitem_insert_range_before (listitem, listitem, listitem_ref);
+}
+
+/**
+ * Insert a @listitem_first to @listitem_last after @listitem_ref.
+ */
+void f_listitem_insert_range_after (FListItem *listitem_first, FListItem *listitem_last, FListItem *listitem_ref) {
+	assert (listitem_ref != NULL);
+	if (listitem_first == NULL ||
+			listitem_last == NULL) {
+		return;
+	}
+	listitem_first->previous = listitem_ref;
+	listitem_last->next = listitem_ref->next;
+	listitem_first->previous->next = listitem_first;
+	listitem_last->next->previous = listitem_last;
+}
+
+/**
+ * Insert a @listitem_first to @listitem_last before @listitem_ref.
+ */
+void f_listitem_insert_range_before (FListItem *listitem_first, FListItem *listitem_last, FListItem *listitem_ref) {
+	assert (listitem_ref != NULL);
+	if (listitem_first == NULL ||
+			listitem_last == NULL) {
+		return;
+	}
+	listitem_first->previous = listitem_ref->previous;
+	listitem_last->next = listitem_ref;
+	listitem_first->previous->next = listitem_first;
+	listitem_last->next->previous = listitem_last;
+}
+
+/**
+ * Remove a @listitem from the list it belongs.
+ */
+void f_listitem_remove (FListItem *listitem) {
+	if (listitem != NULL) {
+		listitem->next->previous = listitem->previous;
+		listitem->previous->next = listitem->next;
+		f_listitem_init (listitem);
+	}
+}
+
+static
+FListItem *f_list_head (FList *list) {
+	return list != NULL ? &list->head : NULL;
+}
+
+FListItem *f_list_begin (FList *list) {
+	return f_list_first (list);
+}
+
+FListItem *f_list_end (FList *list) {
+	return f_list_head (list);
+}
+
+FListItem *f_list_rbegin (FList *list) {
+	return f_list_last (list);
+}
+
+FListItem *f_list_rend (FList *list) {
+	return f_list_head (list);
+}
+
+FListItem *f_list_first (FList *list) {
+	FListItem *head = f_list_head (list);
+
+	return head != NULL ? head->next : NULL;
+}
+
+FListItem *f_list_last (FList *list) {
+	FListItem *head = f_list_head (list);
+
+	return head != NULL ? head->previous : NULL;
+}
+
 int f_list_add (FList *list, FListItem *listitem) {
 	return f_list_append (list, listitem);
 }
@@ -42,7 +158,6 @@ int f_list_append (FList *list, FListItem *listitem) {
 	f_listitem_insert_before (listitem, f_list_end (list));
 	return 0;
 }
-#endif
 
 /* DO NOT MAKE PUBLIC FOR NOW:
  * Require list implemantation change.

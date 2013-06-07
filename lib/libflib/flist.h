@@ -32,16 +32,59 @@ struct FListItem {
 	FListItem *previous;
 };
 
+void f_listitem_init (FListItem *listitem);
+void f_listitem_fini (FListItem *listitem, FVisitorFunc fn, void *user_data);
+
+void f_listitem_delete (FListItem *listitem, FVisitorFunc fn, void *user_data);
+
+FListItem *f_listitem_next (FListItem *listitem);
+FListItem *f_listitem_previous (FListItem *listitem);
+
+void f_listitem_insert_after (FListItem *listitem, FListItem *listitem_ref);
+void f_listitem_insert_before (FListItem *listitem, FListItem *listitem_ref);
+void f_listitem_insert_range_after (FListItem *listitem_first, FListItem *listitem_last, FListItem *listitem_ref);
+void f_listitem_insert_range_before (FListItem *listitem_first, FListItem *listitem_last, FListItem *listitem_ref);
+void f_listitem_remove (FListItem *listitem);
+
 typedef struct FList FList;
 
 struct FList {
 	FListItem head;
 };
 
-#if 0
+FListItem *f_list_begin (FList *list);
+FListItem *f_list_end (FList *list);
+FListItem *f_list_rbegin (FList *list);
+FListItem *f_list_rend (FList *list);
+
+FListItem *f_list_first (FList *list);
+FListItem *f_list_last (FList *list);
+
 int f_list_add (FList *list, FListItem *listitem);
 int f_list_append (FList *list, FListItem *listitem);
+
+#define f_list_entry(ptr, type, member) \
+	f_containerof (ptr, type, member)
+#if 0
+#define f_foreach(it, list) \
+	for (it = f_list_begin (f_identity_cast(FList *, list)); \
+			it != f_list_end (list); \
+			it = f_identity_cast(FListItem *, it->next))
 #endif
+#define f_foreach_entry(it, list, member) \
+	for (it = f_list_entry (f_list_begin (list), f_typeof (*it), member); \
+			&it->member != f_list_end (list); \
+			it = f_list_entry (it->member.next, f_typeof (*it), member))
+#if 0
+#define f_rforeach(it, list) \
+	for (it = f_list_rbegin (f_identity_cast(FList *, list)); \
+			it != f_list_rend (FList *, list); \
+			it = f_identity_cast(FListItem *, it->next))
+#endif
+#define f_rforeach_entry(it, list, member) \
+	for (it = f_list_entry (f_list_rbegin (list), f_typeof (*it), member); \
+			&it->member != f_list_rend (list); \
+			it = f_list_entry (it->member.previous, f_typeof(*it), member))
 
 typedef struct FPtrListItem FPtrListItem;
 
