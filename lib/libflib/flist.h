@@ -22,9 +22,8 @@
 #ifndef F_LIST_H
 #define F_LIST_H
 
-#include <stddef.h>
-
 #include <fcallbacks.h>
+#include <fstddef.h>
 
 typedef struct FListItem FListItem;
 
