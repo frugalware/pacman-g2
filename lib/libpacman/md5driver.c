@@ -26,7 +26,6 @@ documentation and/or software.
 #include <time.h>
 #include <string.h>
 
-#include "global.h"
 #include "fmd5.h"
 
 #include "util.h"
