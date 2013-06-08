@@ -55,8 +55,6 @@ extern PM_DB *db_local;
 
 extern config_t *config;
 
-extern list_t *pmc_syncs;
-
 static int sync_synctree(int level, list_t *syncs)
 {
 	list_t *i;
@@ -265,6 +263,9 @@ int syncpkg(list_t *targets)
 	int retval = 0;
 	list_t *i;
 	PM_LIST *packages, *data, *lp;
+	PM_LIST *pmc_syncs;
+
+	pacman_get_option (PM_OPT_SYNCDB, (long *)&pmc_syncs);
 
 	if (f_ptrlist_count (pmc_syncs) == 0) {
 		ERR(NL, _("no usable package repositories configured.\n"));

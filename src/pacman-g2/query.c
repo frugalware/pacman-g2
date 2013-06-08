@@ -39,7 +39,6 @@
 
 extern config_t *config;
 extern PM_DB *db_local;
-extern list_t *pmc_syncs;
 
 int querypkg(list_t *targets)
 {
@@ -49,6 +48,9 @@ int querypkg(list_t *targets)
 	PM_LIST *j, *ret;
 	char *package = NULL;
 	int done = 0, errors = 0;
+	PM_LIST *pmc_syncs;
+	
+	pacman_get_option (PM_OPT_SYNCDB, (long *)&pmc_syncs);
 
 	if(config->op_q_search) {
 		f_foreach (i, targets) {

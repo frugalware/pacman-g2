@@ -80,8 +80,6 @@ enum {
 config_t *config = NULL;
 
 PM_DB *db_local;
-/* list of (PM_DB *) structs for sync locations */
-list_t *pmc_syncs = NULL;
 /* list of targets specified on command line */
 list_t *pm_targets  = NULL;
 
@@ -202,7 +200,6 @@ static void cleanup(int exitcode)
 	}
 
 	/* free memory */
-	FREELISTPTR(pmc_syncs);
 	FREELIST(pm_targets);
 	FREECONF(config);
 
@@ -561,7 +558,7 @@ int main(int argc, char *argv[])
 	if(config->configfile == NULL) {
 		config->configfile = strdup(PACCONF);
 	}
-	if(pacman_parse_config(config->configfile, cb_db_register, "") != 0) {
+	if(pacman_parse_config(config->configfile, NULL, "") != 0) {
 		ERR(NL, _("failed to parse config (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
