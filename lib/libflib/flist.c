@@ -30,9 +30,9 @@
 #include "fstdlib.h"
 
 void f_listitem_init (FListItem *listitem) {
-	if (listitem != NULL) {
-		listitem->next = listitem->previous = listitem;
-	}
+	assert (listitem != NULL);
+
+	listitem->next = listitem->previous = listitem;
 }
 
 void f_listitem_fini (FListItem *listitem, FVisitorFunc fn, void *user_data) {
@@ -46,18 +46,22 @@ void f_listitem_fini (FListItem *listitem, FVisitorFunc fn, void *user_data) {
 }
 
 void f_listitem_delete (FListItem *listitem, FVisitorFunc fn, void *user_data) {
-	if (listitem != NULL) {
-		f_listitem_fini (listitem, fn, user_data);
-		f_free (listitem);
-	}
+	assert (listitem != NULL);
+
+	f_listitem_fini (listitem, fn, user_data);
+	f_free (listitem);
 }
 
 FListItem *f_listitem_next (FListItem *listitem) {
-	  return listitem != NULL ? listitem->next : NULL;
+	assert (listitem != NULL);
+
+	return listitem->next;
 }
 
 FListItem *f_listitem_previous (FListItem *listitem) {
-	  return listitem != NULL ? listitem->previous : NULL;
+	assert (listitem != NULL);
+
+	return listitem->previous;
 }
 
 /**
@@ -78,11 +82,10 @@ void f_listitem_insert_before (FListItem *listitem, FListItem *listitem_ref) {
  * Insert a @listitem_first to @listitem_last after @listitem_ref.
  */
 void f_listitem_insert_range_after (FListItem *listitem_first, FListItem *listitem_last, FListItem *listitem_ref) {
+	assert (listitem_first != NULL);
+	assert (listitem_last != NULL);
 	assert (listitem_ref != NULL);
-	if (listitem_first == NULL ||
-			listitem_last == NULL) {
-		return;
-	}
+
 	listitem_first->previous = listitem_ref;
 	listitem_last->next = listitem_ref->next;
 	listitem_first->previous->next = listitem_first;
@@ -93,11 +96,10 @@ void f_listitem_insert_range_after (FListItem *listitem_first, FListItem *listit
  * Insert a @listitem_first to @listitem_last before @listitem_ref.
  */
 void f_listitem_insert_range_before (FListItem *listitem_first, FListItem *listitem_last, FListItem *listitem_ref) {
+	assert (listitem_first != NULL);
+	assert (listitem_last != NULL);
 	assert (listitem_ref != NULL);
-	if (listitem_first == NULL ||
-			listitem_last == NULL) {
-		return;
-	}
+
 	listitem_first->previous = listitem_ref->previous;
 	listitem_last->next = listitem_ref;
 	listitem_first->previous->next = listitem_first;
@@ -108,16 +110,18 @@ void f_listitem_insert_range_before (FListItem *listitem_first, FListItem *listi
  * Remove a @listitem from the list it belongs.
  */
 void f_listitem_remove (FListItem *listitem) {
-	if (listitem != NULL) {
-		listitem->next->previous = listitem->previous;
-		listitem->previous->next = listitem->next;
-		f_listitem_init (listitem);
-	}
+	assert (listitem != NULL);
+
+	listitem->next->previous = listitem->previous;
+	listitem->previous->next = listitem->next;
+	f_listitem_init (listitem);
 }
 
 static
 FListItem *f_list_head (FList *list) {
-	return list != NULL ? &list->head : NULL;
+	assert (list != NULL);
+
+	return &list->head;
 }
 
 void f_list_init (FList *list) {
@@ -130,7 +134,9 @@ void f_list_fini (FList *list, FVisitorFunc fn, void *user_data) {
 FList *f_list_new () {
 	FList *list = f_zalloc (sizeof (*list));
 
-	f_list_init (list);
+	if (list != NULL) {
+		f_list_init (list);
+	}
 	return list;
 }
 
@@ -140,7 +146,7 @@ void f_list_delete (FList *list, FVisitorFunc fn, void *user_data) {
 }
 
 FListItem *f_list_begin (FList *list) {
-	return list != NULL ? list->head.next : NULL;
+	return f_list_head (list)->next;
 }
 
 FListItem *f_list_end (FList *list) {
@@ -148,7 +154,7 @@ FListItem *f_list_end (FList *list) {
 }
 
 FListItem *f_list_rbegin (FList *list) {
-	return list != NULL ? list->head.previous : NULL;
+	return f_list_head (list)->previous;
 }
 
 FListItem *f_list_rend (FList *list) {
