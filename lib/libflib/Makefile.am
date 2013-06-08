@@ -21,14 +21,18 @@ libflib_posix_SOURCES = \
 	fstdlib.c \
 	fstring.c
 
+libflib_utils_SOURCES = \
+	fgraph.c \
+	flist.c \
+	flistaccumulator.c \
+	fstringlist.c
+
 libflib_la_SOURCES = \
 	$(libflib_crypto_SOURCES) \
 	$(libflib_posix_SOURCES) \
+	$(libflib_utils_SOURCES) \
 	fcallbacks.c \
-	flist.c \
-	flistaccumulator.c \
 	fobject.c \
-	fstringlist.c \
 	fvalue.c
 
 #libflib_la_LDFLAGS = -L. -version-info $(SOVER)
