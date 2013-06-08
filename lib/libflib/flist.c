@@ -167,17 +167,22 @@ FListItem *f_list_last (FList *list) {
 	return last != f_list_rend (list) ? last : NULL;
 }
 
-int f_list_add (FList *list, FListItem *listitem) {
-	return f_list_append (list, listitem);
+void f_list_add (FList *list, FListItem *listitem) {
+	f_list_append (list, listitem);
 }
 
-int f_list_append (FList *list, FListItem *listitem) {
-	if (list == NULL ||
-			listitem == NULL) {
-		return -1;
+void f_list_add_sorted (FList *list, FListItem *listitem, FCompareFunc cfn, void *user_data) {
+	FListItem *it = f_list_begin (list), *end = f_list_end (list);
+
+	while (it != end &&
+			cfn (it, listitem, user_data) <= 0) {
+		it = it->next;
 	}
+	f_listitem_insert_before (listitem, it);
+}
+
+void f_list_append (FList *list, FListItem *listitem) {
 	f_listitem_insert_before (listitem, f_list_end (list));
-	return 0;
 }
 
 /* DO NOT MAKE PUBLIC FOR NOW:
