@@ -127,8 +127,20 @@ void f_list_init (FList *list) {
 void f_list_fini (FList *list, FVisitorFunc fn, void *user_data) {
 }
 
+FList *f_list_new () {
+	FList *list = f_zalloc (sizeof (*list));
+
+	f_list_init (list);
+	return list;
+}
+
+void f_list_delete (FList *list, FVisitorFunc fn, void *user_data) {
+	f_list_fini (list, fn, user_data);
+	f_free (list);
+}
+
 FListItem *f_list_begin (FList *list) {
-	return f_list_first (list);
+	return list != NULL ? list->head.next : NULL;
 }
 
 FListItem *f_list_end (FList *list) {
@@ -136,7 +148,7 @@ FListItem *f_list_end (FList *list) {
 }
 
 FListItem *f_list_rbegin (FList *list) {
-	return f_list_last (list);
+	return list != NULL ? list->head.previous : NULL;
 }
 
 FListItem *f_list_rend (FList *list) {
@@ -144,15 +156,15 @@ FListItem *f_list_rend (FList *list) {
 }
 
 FListItem *f_list_first (FList *list) {
-	FListItem *head = f_list_head (list);
+	FListItem *first = f_list_begin (list);
 
-	return head != NULL ? head->next : NULL;
+	return first != f_list_end (list) ? first : NULL;
 }
 
 FListItem *f_list_last (FList *list) {
-	FListItem *head = f_list_head (list);
+	FListItem *last = f_list_rbegin (list);
 
-	return head != NULL ? head->previous : NULL;
+	return last != f_list_rend (list) ? last : NULL;
 }
 
 int f_list_add (FList *list, FListItem *listitem) {
