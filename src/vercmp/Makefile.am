@@ -7,3 +7,4 @@ vercmp_SOURCES = vercmp.c
 
 vercmp_LDADD = \
 	$(top_builddir)/lib/libpacman/libpacman.la
+
