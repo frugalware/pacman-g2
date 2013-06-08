@@ -52,6 +52,9 @@ struct FList {
 	FListItem head;
 };
 
+void f_list_init (FList *list);
+void f_list_fini (FList *list, FVisitorFunc fn, void *user_data);
+
 FListItem *f_list_begin (FList *list);
 FListItem *f_list_end (FList *list);
 FListItem *f_list_rbegin (FList *list);

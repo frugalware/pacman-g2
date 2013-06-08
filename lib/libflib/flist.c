@@ -30,7 +30,9 @@
 #include "fstdlib.h"
 
 void f_listitem_init (FListItem *listitem) {
-	listitem->next = listitem->previous = listitem;
+	if (listitem != NULL) {
+		listitem->next = listitem->previous = listitem;
+	}
 }
 
 void f_listitem_fini (FListItem *listitem, FVisitorFunc fn, void *user_data) {
@@ -116,6 +118,13 @@ void f_listitem_remove (FListItem *listitem) {
 static
 FListItem *f_list_head (FList *list) {
 	return list != NULL ? &list->head : NULL;
+}
+
+void f_list_init (FList *list) {
+	f_listitem_init (f_list_head (list));
+}
+
+void f_list_fini (FList *list, FVisitorFunc fn, void *user_data) {
 }
 
 FListItem *f_list_begin (FList *list) {
