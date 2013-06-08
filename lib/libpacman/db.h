@@ -64,7 +64,7 @@ int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
 int _pacman_db_remove(pmdb_t *db, pmpkg_t *info);
 int _pacman_db_getlastupdate(pmdb_t *db, char *ts);
 int _pacman_db_setlastupdate(pmdb_t *db, char *ts);
-pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback);
+pmdb_t *_pacman_db_register(const char *treename);
 
 #endif /* _PACMAN_DB_H */
 

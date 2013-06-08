@@ -138,7 +138,7 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 	return(ret);
 }
 
-pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback)
+pmdb_t *_pacman_db_register(const char *treename)
 {
 	struct stat buf;
 	pmdb_t *db;
@@ -182,9 +182,6 @@ pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback
 		_pacman_db_free(db);
 		RET_ERR(PM_ERR_DB_OPEN, NULL);
 	}
-
-	/* Only call callback on NEW registration. */
-	if(callback) callback(treename, db);
 
 	if(strcmp(treename, "local") == 0) {
 		handle->db_local = db;

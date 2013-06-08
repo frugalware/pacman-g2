@@ -22,6 +22,8 @@ A new private (for now) library that abstract some of the usual API a 'C' progra
 
 PM_LIST is now a flib FList meaning that pacman_list(3) API will be deprecated when FLib will be stabilized. 
 
+pacman_parse_config: Do not take the pacman_cb_db_register callback argument, it's only purpose was to fill up a list of PM_DB while we can allways get it with pacman_get_option (PM_OPT_SYNCDB, ...).
+
 ==== Symbols added:
 
 PM_PKG_DATABASE: New package data accessor.
@@ -32,6 +34,8 @@ PM_TRANS_FLAG_EXPLICIT: (internal) Specify the user added the package on purpose
 PM_PKG_DATA, PM_SYNC_DATA: These data accessors provided ambiguity in the API, returning value type was not consistant and was depending on other returned values.
 
 PM_SYNC_TYPE_REPLACE, PM_SYNC_TYPE_UPGRADE, PM_SYNC_TYPE_DEPEND: One should use the PM_TRANS_TYPE_* equivalent instead.
+
+pacman_cb_db_register: Remove as unused, see pacman_parse_config symbol change.
 
 pacman_pkg_checkmd5sum, pacman_pkg_checksha1sum: Unused and broken since a while and nobody noticed it, so it is unused (can can be easily replaced by other means).
 

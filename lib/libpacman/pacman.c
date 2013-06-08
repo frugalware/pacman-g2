@@ -176,7 +176,7 @@ pmdb_t *pacman_db_register(const char *treename)
 	/* Do not register a database if a transaction is on-going */
 	ASSERT(handle->trans == NULL, RET_ERR(PM_ERR_TRANS_NOT_NULL, NULL));
 
-	return(_pacman_db_register(treename, NULL));
+	return(_pacman_db_register(treename));
 }
 
 /** Unregister a package database
@@ -1042,11 +1042,10 @@ int pacman_reg_match(const char *string, const char *pattern)
 
 /** Parses a configuration file.
  * @param file path to the config file.
- * @param callback a function to be called upon new database creation
  * @param this_section the config current section being parsed
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *this_section)
+int pacman_parse_config(char *file, const char *this_section)
 {
 	FILE *fp = NULL;
 	char line[PATH_MAX+1];
@@ -1070,7 +1069,7 @@ int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *
 			RET_ERR(PM_ERR_CONF_LOCAL, -1);
 		}
 		if(strcmp(section, "options")) {
-			db = _pacman_db_register(section, callback);
+			db = _pacman_db_register(section);
 		}
 	} else {
 		FREELIST(handle->ignorepkg);
@@ -1100,7 +1099,7 @@ int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *
 				RET_ERR(PM_ERR_CONF_LOCAL, -1);
 			}
 			if(strcmp(section, "options")) {
-				db = _pacman_db_register(section, callback);
+				db = _pacman_db_register(section);
 				if(db == NULL) {
 					/* pm_errno is set by pacman_db_register */
 					return(-1);
@@ -1135,7 +1134,7 @@ int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *
 					char conf[PATH_MAX];
 					strncpy(conf, ptr, PATH_MAX);
 					_pacman_log(PM_LOG_DEBUG, _("config: including %s\n"), conf);
-					pacman_parse_config(conf, callback, section);
+					pacman_parse_config(conf, section);
 				} else if(!strcmp(section, "options")) {
 					if(!strcmp(key, "NOUPGRADE")) {
 						char *p = ptr;
