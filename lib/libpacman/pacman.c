@@ -37,6 +37,8 @@
 #include <limits.h> /* PATH_MAX */
 #include <stdarg.h>
 
+#include <fstring.h>
+
 /* pacman-g2 */
 #include "pacman.h"
 
@@ -1040,12 +1042,8 @@ int pacman_reg_match(const char *string, const char *pattern)
 	return(_pacman_reg_match(string, pattern));
 }
 
-/** Parses a configuration file.
- * @param file path to the config file.
- * @param this_section the config current section being parsed
- * @return 0 on success, -1 on error (pm_errno is set accordingly)
- */
-int pacman_parse_config(char *file, const char *this_section)
+static
+int _pacman_parse_config(char *file, const char *this_section)
 {
 	FILE *fp = NULL;
 	char line[PATH_MAX+1];
@@ -1063,7 +1061,7 @@ int pacman_parse_config(char *file, const char *this_section)
 		return(0);
 	}
 
-	if(this_section != NULL && strlen(this_section) > 0) {
+	if (f_strlen (this_section) > 0) {
 		strncpy(section, this_section, min(255, strlen(this_section)));
 		if(!strcmp(section, "local")) {
 			RET_ERR(PM_ERR_CONF_LOCAL, -1);
@@ -1134,7 +1132,7 @@ int pacman_parse_config(char *file, const char *this_section)
 					char conf[PATH_MAX];
 					strncpy(conf, ptr, PATH_MAX);
 					_pacman_log(PM_LOG_DEBUG, _("config: including %s\n"), conf);
-					pacman_parse_config(conf, section);
+					_pacman_parse_config(conf, section);
 				} else if(!strcmp(section, "options")) {
 					if(!strcmp(key, "NOUPGRADE")) {
 						char *p = ptr;
@@ -1290,6 +1288,15 @@ int pacman_parse_config(char *file, const char *this_section)
 	fclose(fp);
 
 	return(0);
+}
+
+/** Parses a configuration file.
+ * @param file path to the config file.
+ * @param this_section the config current section being parsed
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
+int pacman_parse_config (char *file) {
+	return _pacman_parse_config (file, NULL);
 }
 
 /* @} */

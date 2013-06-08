@@ -22,7 +22,7 @@ A new private (for now) library that abstract some of the usual API a 'C' progra
 
 PM_LIST is now a flib FList meaning that pacman_list(3) API will be deprecated when FLib will be stabilized. 
 
-pacman_parse_config: Do not take the pacman_cb_db_register callback argument, it's only purpose was to fill up a list of PM_DB while we can allways get it with pacman_get_option (PM_OPT_SYNCDB, ...).
+pacman_parse_config: Removed the pacman_cb_db_register callback argument, it's only purpose was to fill up a list of PM_DB while we can allways get it with pacman_get_option (PM_OPT_SYNCDB, ...). Removed the_this section argument, this can be easily replaced using the Include configuration directive and dedicated configuration files.
 
 ==== Symbols added:
 

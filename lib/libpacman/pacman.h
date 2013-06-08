@@ -211,7 +211,7 @@ PM_LIST *pacman_pkg_getowners(char *filename);
 int pacman_pkg_load(char *filename, PM_PKG **pkg);
 int pacman_pkg_free(PM_PKG *pkg);
 char *pacman_fetch_pkgurl(char *url);
-int pacman_parse_config(char *file, const char *this_section);
+int pacman_parse_config(char *file);
 int pacman_pkg_vercmp(const char *ver1, const char *ver2);
 int pacman_reg_match(const char *string, const char *pattern);
 
