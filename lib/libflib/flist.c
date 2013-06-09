@@ -219,7 +219,7 @@ void f_list_rforeach (FList *list, FVisitorFunc fn, void *user_data) {
 		return;
 	}
 	__f_rforeach (it, list) {
-		fn (fn, user_data);
+		fn (it, user_data);
 	}
 }
 
