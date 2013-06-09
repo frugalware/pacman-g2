@@ -66,6 +66,7 @@ FListItem *f_list_last (FList *list);
 void f_list_add (FList *list, FListItem *listitem);
 void f_list_add_sorted (FList *list, FListItem *listitem, FCompareFunc fn, void *user_data);
 void f_list_append (FList *list, FListItem *listitem);
+size_t f_list_count (FList *list);
 
 #define f_list_entry(ptr, type, member) \
 	f_containerof (f_identity_cast (FListItem *, ptr), type, member)

@@ -179,6 +179,15 @@ void f_list_append (FList *list, FListItem *listitem) {
 	f_listitem_insert_before (listitem, f_list_end (list));
 }
 
+size_t f_list_count (FList *list) {
+	FListItem *it = f_list_begin (list), *end = f_list_end (list);
+	size_t count = 0;
+
+	for (; it != end; it = it->next)
+		++count;
+	return count;
+}
+
 /* DO NOT MAKE PUBLIC FOR NOW:
  * Require list implemantation change.
  */
