@@ -190,6 +190,50 @@ size_t f_list_count (FList *list) {
 	return count;
 }
 
+void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
+	FListItem *it;
+
+	if (fn == NULL) {
+		return;
+	}
+	__f_foreach (it, list) {
+		fn (it, user_data);
+	}
+}
+
+void f_list_foreach_safe (FList *list, FVisitorFunc fn, void *user_data) {
+	FListItem *it, *next;
+
+	if (fn == NULL) {
+		return;
+	}
+	f_foreach_safe (it, next, list) {
+		fn (it, user_data);
+	}
+}
+
+void f_list_rforeach (FList *list, FVisitorFunc fn, void *user_data) {
+	FListItem *it;
+
+	if (fn == NULL) {
+		return;
+	}
+	__f_rforeach (it, list) {
+		fn (fn, user_data);
+	}
+}
+
+void f_list_rforeach_safe (FList *list, FVisitorFunc fn, void *user_data) {
+	FListItem *it, *next;
+
+	if (fn == NULL) {
+		return;
+	}
+	f_rforeach_safe (it, next, list) {
+		fn (it, user_data);
+	}
+}
+
 /* DO NOT MAKE PUBLIC FOR NOW:
  * Require list implemantation change.
  */

@@ -67,6 +67,10 @@ void f_list_add (FList *list, FListItem *listitem);
 void f_list_add_sorted (FList *list, FListItem *listitem, FCompareFunc fn, void *user_data);
 void f_list_append (FList *list, FListItem *listitem);
 size_t f_list_count (FList *list);
+void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data);
+void f_list_foreach_safe (FList *list, FVisitorFunc fn, void *user_data);
+void f_list_rforeach (FList *list, FVisitorFunc fn, void *user_data);
+void f_list_rforeach_safe (FList *list, FVisitorFunc fn, void *user_data);
 
 #define f_list_entry(ptr, type, member) \
 	f_containerof (f_identity_cast (FListItem *, ptr), type, member)
@@ -78,24 +82,44 @@ size_t f_list_count (FList *list);
 	f_list_entry (f_identity_cast (type *, ptr)->member.previous, type, member)
 
 #define __f_foreach(it, list) \
-	for (it = f_list_begin (f_identity_cast(FList *, list)); \
+	for (it = f_list_begin (list); \
 			it != f_list_end (list); \
 			it = f_identity_cast(FListItem *, it)->next)
+
+#define f_foreach_safe(it, next, list) \
+	for (it = f_list_begin (list), next = f_identity_cast (FListItem *, it)->next; \
+			it != f_list_end (list); \
+			it = next, next = f_identity_cast (FListItem *, it)->next)
 
 #define f_foreach_entry(it, list, member) \
 	for (it = f_list_entry (f_list_begin (list), f_typeof (*it), member); \
 			&it->member != f_list_end (list); \
 			it = f_list_entry_next (it, f_typeof (*it), member))
 
+#define f_foreach_entry_safe(it, next, list, member) \
+	for (it = f_list_entry (f_list_begin (list), f_typeof (*it), member), next = f_list_entry_next (it, f_typeof (*it), member); \
+			&it->member != f_list_end (list); \
+			it = next, next = f_list_entry_next (it, f_typeof (*it), member))
+
 #define __f_rforeach(it, list) \
-	for (it = f_list_rbegin (f_identity_cast(FList *, list)); \
-			it != f_list_rend (FList *, list); \
+	for (it = f_list_rbegin (list); \
+			it != f_list_rend (list); \
 			it = f_identity_cast(FListItem *, it)->previous)
+
+#define f_rforeach_safe(it, next, list) \
+	for (it = f_list_rbegin (list), next = f_identity_cast(FListItem *, it)->previous; \
+			it != f_list_rend (list); \
+			it = next, next = f_identity_cast (FListItem *, it)->previous)
 
 #define f_rforeach_entry(it, list, member) \
 	for (it = f_list_entry (f_list_rbegin (list), f_typeof (*it), member); \
 			&it->member != f_list_rend (list); \
 			it = f_list_entry_previous (it, f_typeof(*it), member))
+
+#define f_rforeach_entry_next(it, list, member) \
+	for (it = f_list_entry (f_list_rbegin (list), f_typeof (*it), member), next = f_list_entry_previous (it, f_typeof(*it), member); \
+			&it->member != f_list_rend (list); \
+			it = next, next = f_list_entry_previous (it, f_typeof(*it), member))
 
 typedef struct FPtrListItem FPtrListItem;
 
