@@ -202,6 +202,14 @@ void *f_ptrcpy(const void *p) {
 	return (void *)p;
 }
 
+static
+void f_ptrlistitem_visit (FListItem *listitem, FVisitorFunc fn, void *user_data);
+
+static
+FPtrListItem *f_ptrlistitem_of_listitem (FListItem *listitem) {
+	return f_list_entry (listitem, FPtrListItem, base);
+}
+
 FPtrListItem *f_ptrlistitem_new (void *data) {
 	FPtrListItem *item = f_zalloc (sizeof(FPtrList));
 
@@ -232,14 +240,25 @@ void f_ptrlistitem_delete (FPtrListItem *item, FVisitorFunc fn, void *user_data)
 	_f_ptrlistitem_delete (item, &visitor);
 }
 
-void *f_ptrlistitem_get (FPtrListItem *item) {
-	return item != NULL ? item->data : NULL;
+void *f_ptrlistitem_get (FPtrListItem *ptrlistitem) {
+	return ptrlistitem != NULL ? ptrlistitem->data : NULL;
 }
 
-void f_ptrlistitem_set (FPtrListItem *item, void *data) {
-	if (item) {
-		item->data = data;
-	}
+void f_ptrlistitem_set (FPtrListItem *ptrlistitem, void *data) {
+	assert (ptrlistitem != NULL);
+
+	ptrlistitem->data = data;
+}
+
+void f_ptrlistitem_visit (FListItem *listitem, FVisitorFunc fn, void *user_data) {
+	FVisitor visitor = {
+		.fn = fn,
+		.user_data = user_data
+	};
+
+	assert (listitem != NULL);
+
+	f_visit (f_ptrlistitem_of_listitem (listitem)->data, &visitor);
 }
 
 FPtrListItem *f_ptrlistitem_next (FPtrListItem *item) {
@@ -266,6 +285,26 @@ void f_ptrlistitem_remove (FPtrListItem *item) {
 	}
 }
 
+static
+FList *f_ptrlist_as_list (FPtrList *ptrlist) {
+	assert (ptrlist != NULL);
+
+	return &ptrlist->base;
+}
+
+void f_ptrlist_init (FPtrList *ptrlist) {
+	f_list_init (f_ptrlist_as_list (ptrlist));
+}
+
+void f_ptrlist_fini (FPtrList *ptrlist, FVisitorFunc fn, void *user_data) {
+	FVisitor visitor = {
+		.fn = fn,
+		.user_data = user_data
+	};
+
+	f_list_fini (f_ptrlist_as_list (ptrlist), (FVisitorFunc)f_ptrlistitem_visit, &visitor);
+}
+
 FPtrList *f_ptrlist_new () {
 	return NULL;
 }
@@ -277,10 +316,6 @@ void f_ptrlist_delete (FPtrList *list, FVisitorFunc fn, void *user_data) {
 	};
 
 	f_ptrlist_foreach_safe (list, (FVisitorFunc)_f_ptrlistitem_delete, &visitor);
-}
-
-void f_ptrlist_init (FPtrList *list) {
-	list->prev = list->next = list;
 }
 
 /**
