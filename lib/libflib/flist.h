@@ -37,9 +37,6 @@ void f_listitem_fini (FListItem *listitem, FVisitorFunc fn, void *user_data);
 
 void f_listitem_delete (FListItem *listitem, FVisitorFunc fn, void *user_data);
 
-FListItem *f_listitem_next (FListItem *listitem);
-FListItem *f_listitem_previous (FListItem *listitem);
-
 void f_listitem_insert_after (FListItem *listitem, FListItem *listitem_ref);
 void f_listitem_insert_before (FListItem *listitem, FListItem *listitem_ref);
 void f_listitem_insert_range_after (FListItem *listitem_first, FListItem *listitem_last, FListItem *listitem_ref);
@@ -71,27 +68,33 @@ void f_list_add_sorted (FList *list, FListItem *listitem, FCompareFunc fn, void 
 void f_list_append (FList *list, FListItem *listitem);
 
 #define f_list_entry(ptr, type, member) \
-	f_containerof (ptr, type, member)
+	f_containerof (f_identity_cast (FListItem *, ptr), type, member)
+
+#define f_list_entry_next(ptr, type, member) \
+	f_list_entry (f_identity_cast (type *, ptr)->member.next, type, member)
+
+#define f_list_entry_previous(ptr, type, member) \
+	f_list_entry (f_identity_cast (type *, ptr)->member.previous, type, member)
 #if 0
 #define f_foreach(it, list) \
 	for (it = f_list_begin (f_identity_cast(FList *, list)); \
 			it != f_list_end (list); \
-			it = f_identity_cast(FListItem *, it->next))
+			it = f_identity_cast(FListItem *, it)->next)
 #endif
 #define f_foreach_entry(it, list, member) \
 	for (it = f_list_entry (f_list_begin (list), f_typeof (*it), member); \
 			&it->member != f_list_end (list); \
-			it = f_list_entry (it->member.next, f_typeof (*it), member))
+			it = f_list_entry_next (it, f_typeof (*it), member))
 #if 0
 #define f_rforeach(it, list) \
 	for (it = f_list_rbegin (f_identity_cast(FList *, list)); \
 			it != f_list_rend (FList *, list); \
-			it = f_identity_cast(FListItem *, it->next))
+			it = f_identity_cast(FListItem *, it)->previous)
 #endif
 #define f_rforeach_entry(it, list, member) \
 	for (it = f_list_entry (f_list_rbegin (list), f_typeof (*it), member); \
 			&it->member != f_list_rend (list); \
-			it = f_list_entry (it->member.previous, f_typeof(*it), member))
+			it = f_list_entry_previous (it, f_typeof(*it), member))
 
 typedef struct FPtrListItem FPtrListItem;
 
@@ -112,8 +115,6 @@ void f_ptrlistitem_delete (FPtrListItem *item, FVisitorFunc fn, void *user_data)
 void *f_ptrlistitem_get (FPtrListItem *item);
 void f_ptrlistitem_set (FPtrListItem *item, void *data);
 
-FPtrListItem *f_ptrlistitem_next (FPtrListItem *item);
-FPtrListItem *f_ptrlistitem_previous (FPtrListItem *item);
 void f_ptrlistitem_remove (FPtrListItem *item);
 
 /* FIXME: Make private as soon as possible */
@@ -157,11 +158,15 @@ void   _f_ptrlist_exclude (FPtrList **list, FPtrList **excludelist, FDetectFunc 
 void   _f_ptrlist_remove (FPtrList **list, FPtrListItem *item);
 FPtrList *f_ptrlist_remove_find_custom (FPtrList *haystack, void *needle, FCompareFunc fn, void **data);
 
+#define f_ptrlist_entry(ptr) f_list_entry (ptr, FPtrListItem, base)
+#define f_ptrlist_entry_next(ptr) f_list_entry_next (ptr, FPtrListItem, base)
+#define f_ptrlist_entry_previous(ptr) f_list_entry_previous (ptr, FPtrListItem, base)
+
 #define f_foreach(it, list) \
-	for (it = f_ptrlist_begin (list); it != f_ptrlist_end (list); it = f_ptrlistitem_next (it))
+	for (it = f_ptrlist_begin (list); it != f_ptrlist_end (list); it = f_ptrlist_entry_next (it))
 
 #define f_rforeach(it, list) \
-	for (it = f_ptrlist_rbegin (list); it != f_ptrlist_rend (list); it = f_ptrlistitem_prev (it))
+	for (it = f_ptrlist_rbegin (list); it != f_ptrlist_rend (list); it = f_ptrlist_entry_previous (it))
 
 #endif /* F_LIST_H */
 

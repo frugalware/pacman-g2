@@ -52,18 +52,6 @@ void f_listitem_delete (FListItem *listitem, FVisitorFunc fn, void *user_data) {
 	f_free (listitem);
 }
 
-FListItem *f_listitem_next (FListItem *listitem) {
-	assert (listitem != NULL);
-
-	return listitem->next;
-}
-
-FListItem *f_listitem_previous (FListItem *listitem) {
-	assert (listitem != NULL);
-
-	return listitem->previous;
-}
-
 /**
  * Insert a @listitem after @listitem_ref.
  */
@@ -203,20 +191,29 @@ void *f_ptrcpy(const void *p) {
 }
 
 static
-void f_ptrlistitem_visit (FListItem *listitem, FVisitorFunc fn, void *user_data);
-
-static
 FPtrListItem *f_ptrlistitem_of_listitem (FListItem *listitem) {
 	return f_list_entry (listitem, FPtrListItem, base);
 }
 
-FPtrListItem *f_ptrlistitem_new (void *data) {
-	FPtrListItem *item = f_zalloc (sizeof(FPtrList));
+static
+void f_ptrlistitem_visit (FListItem *listitem, FVisitorFunc fn, void *user_data) {
+	FVisitor visitor = {
+		.fn = fn,
+		.user_data = user_data
+	};
 
-	if (item != NULL) {
-		item->data = data;
+	assert (listitem != NULL);
+
+	f_visit (f_ptrlistitem_of_listitem (listitem)->data, &visitor);
+}
+
+FPtrListItem *f_ptrlistitem_new (void *data) {
+	FPtrListItem *ptrlistitem = f_zalloc (sizeof (*ptrlistitem));
+
+	if (ptrlistitem != NULL) {
+		ptrlistitem->data = data;
 	}
-	return item;
+	return ptrlistitem;
 }
 
 static
@@ -248,25 +245,6 @@ void f_ptrlistitem_set (FPtrListItem *ptrlistitem, void *data) {
 	assert (ptrlistitem != NULL);
 
 	ptrlistitem->data = data;
-}
-
-void f_ptrlistitem_visit (FListItem *listitem, FVisitorFunc fn, void *user_data) {
-	FVisitor visitor = {
-		.fn = fn,
-		.user_data = user_data
-	};
-
-	assert (listitem != NULL);
-
-	f_visit (f_ptrlistitem_of_listitem (listitem)->data, &visitor);
-}
-
-FPtrListItem *f_ptrlistitem_next (FPtrListItem *item) {
-	return item != NULL ? item->next : NULL;
-}
-
-FPtrListItem *f_ptrlistitem_previous (FPtrListItem *item) {
-	return item != NULL ? item->prev : NULL;
 }
 
 /**
