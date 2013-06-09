@@ -36,8 +36,12 @@
 #warning Unsupported compiler
 #endif
 
+#define __f_containerof(ptr, type, offsetof) \
+	((type *) ((ptr) != NULL ? ((char *)(ptr)) - (offsetof) : NULL))
+
 #define f_containerof(ptr, type, member) \
-	((type *) ((char *)f_identity_cast (f_typeof (&((type *)0)->member), (ptr)) - offsetof (type, member)))
+	__f_containerof ( f_identity_cast (f_typeof_member (type, member), (ptr)), \
+			type, offsetof (type, member))
 
 #define f_identity_cast(type, expr) \
 	f_static_if (f_typecmp (type, f_typeof (expr)), \
@@ -48,6 +52,9 @@
 
 #define f_type_assert(expr, type) \
 	f_static_assert (f_typecmp (f_typeof (expr), type))
+
+#define f_typeof_member(type, member) \
+	f_typeof (&((type *)NULL)->member)
 
 #endif /* F_STDDEF_H */
 
