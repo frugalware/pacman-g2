@@ -166,11 +166,12 @@ void f_list_add (FList *list, FListItem *listitem) {
 }
 
 void f_list_add_sorted (FList *list, FListItem *listitem, FCompareFunc cfn, void *user_data) {
-	FListItem *it = f_list_begin (list), *end = f_list_end (list);
+	FListItem *it;
 
-	while (it != end &&
-			cfn (it, listitem, user_data) <= 0) {
-		it = it->next;
+	__f_foreach (it, list) {
+		if (cfn (it, listitem, user_data) > 0) {
+			break;
+		}
 	}
 	f_listitem_insert_before (listitem, it);
 }
@@ -180,11 +181,12 @@ void f_list_append (FList *list, FListItem *listitem) {
 }
 
 size_t f_list_count (FList *list) {
-	FListItem *it = f_list_begin (list), *end = f_list_end (list);
 	size_t count = 0;
+	FListItem *it;
 
-	for (; it != end; it = it->next)
+	__f_foreach (it, list) {
 		++count;
+	}
 	return count;
 }
 

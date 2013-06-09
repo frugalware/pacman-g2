@@ -76,22 +76,22 @@ size_t f_list_count (FList *list);
 
 #define f_list_entry_previous(ptr, type, member) \
 	f_list_entry (f_identity_cast (type *, ptr)->member.previous, type, member)
-#if 0
-#define f_foreach(it, list) \
+
+#define __f_foreach(it, list) \
 	for (it = f_list_begin (f_identity_cast(FList *, list)); \
 			it != f_list_end (list); \
 			it = f_identity_cast(FListItem *, it)->next)
-#endif
+
 #define f_foreach_entry(it, list, member) \
 	for (it = f_list_entry (f_list_begin (list), f_typeof (*it), member); \
 			&it->member != f_list_end (list); \
 			it = f_list_entry_next (it, f_typeof (*it), member))
-#if 0
-#define f_rforeach(it, list) \
+
+#define __f_rforeach(it, list) \
 	for (it = f_list_rbegin (f_identity_cast(FList *, list)); \
 			it != f_list_rend (FList *, list); \
 			it = f_identity_cast(FListItem *, it)->previous)
-#endif
+
 #define f_rforeach_entry(it, list, member) \
 	for (it = f_list_entry (f_list_rbegin (list), f_typeof (*it), member); \
 			&it->member != f_list_rend (list); \
