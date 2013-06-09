@@ -238,7 +238,7 @@ void f_list_rforeach_safe (FList *list, FVisitorFunc fn, void *user_data) {
  * Require list implemantation change.
  */
 static
-void f_ptrlist_foreach_safe (FPtrList *list, FVisitorFunc fn, void *user_data);
+void f_ptrlist_foreach_safe (FPtrList *ptrlist, FVisitorFunc fn, void *user_data);
 
 static
 void *f_ptrcpy(const void *p) {
@@ -342,86 +342,86 @@ FPtrList *f_ptrlist_new () {
 	return NULL;
 }
 
-void f_ptrlist_delete (FPtrList *list, FVisitorFunc fn, void *user_data) {
+void f_ptrlist_delete (FPtrList *ptrlist, FVisitorFunc fn, void *user_data) {
 	FVisitor visitor = {
 		.fn = fn,
 		.user_data = user_data
 	};
 
-	f_ptrlist_foreach_safe (list, (FVisitorFunc)_f_ptrlistitem_delete, &visitor);
+	f_ptrlist_foreach_safe (ptrlist, (FVisitorFunc)_f_ptrlistitem_delete, &visitor);
 }
 
 /**
  * Insert a @list after @item.
  */
-void f_ptrlist_insert_after (FPtrList *item, FPtrList *list) {
-	FPtrList *last = f_ptrlist_last (list);
+void f_ptrlist_insert_after (FPtrList *item, FPtrList *ptrlist) {
+	FPtrList *last = f_ptrlist_last (ptrlist);
 
 	assert (item != NULL);
-	if (list == NULL) {
+	if (ptrlist == NULL) {
 		return;
 	}
 	last->next = item->next;
 	if (last->next != NULL) {
 		last->next->prev = last;
 	}
-	item->next = list;
-	list->prev = item;
+	item->next = ptrlist;
+	ptrlist->prev = item;
 }
 
 /**
  * Insert a @list before @item.
  */
-void f_ptrlist_insert_before (FPtrList *item, FPtrList *list) {
-	FPtrList *last = f_ptrlist_last (list);
+void f_ptrlist_insert_before (FPtrList *item, FPtrList *ptrlist) {
+	FPtrList *last = f_ptrlist_last (ptrlist);
 
 	assert (item != NULL);
-	if (list == NULL) {
+	if (ptrlist == NULL) {
 		return;
 	}
-	list->prev = item->prev;
-	if (list->prev != NULL) {
-		list->prev->next = list;
+	ptrlist->prev = item->prev;
+	if (ptrlist->prev != NULL) {
+		ptrlist->prev->next = ptrlist;
 	}
 	last->next = item;
 	item->prev = last;
 }
 
-FPtrListItem *f_ptrlist_begin (FPtrList *list) {
-	return list;
+FPtrListItem *f_ptrlist_begin (FPtrList *ptrlist) {
+	return ptrlist;
 }
 
-FPtrListItem *f_ptrlist_end (FPtrList *list) {
+FPtrListItem *f_ptrlist_end (FPtrList *ptrlist) {
 	return NULL;
 }
 
-FPtrListItem *f_ptrlist_rbegin (FPtrList *list) {
-	if (list != NULL) {
-		for (; list->next != NULL; list = list->next)
+FPtrListItem *f_ptrlist_rbegin (FPtrList *ptrlist) {
+	if (ptrlist != NULL) {
+		for (; ptrlist->next != NULL; ptrlist = ptrlist->next)
 			/* Do nothing */;
 	}
-	return list;
+	return ptrlist;
 }
 
-FPtrListItem *f_ptrlist_rend (FPtrList *list) {
+FPtrListItem *f_ptrlist_rend (FPtrList *ptrlist) {
 	return NULL;
 }
 
-FPtrListItem *f_ptrlist_first (FPtrList *list) {
-	return f_ptrlist_begin (list);
+FPtrListItem *f_ptrlist_first (FPtrList *ptrlist) {
+	return f_ptrlist_begin (ptrlist);
 }
 
-FPtrListItem *f_ptrlist_last (FPtrList *list) {
-	return f_ptrlist_rbegin (list);
+FPtrListItem *f_ptrlist_last (FPtrList *ptrlist) {
+	return f_ptrlist_rbegin (ptrlist);
 }
 
 /* Add items to a list in sorted order. Use the given comparison function to
  * determine order.
  */
-FPtrList *f_ptrlist_add_sorted (FPtrList *list, void *data, FCompareFunc fn, void *user_data) {
+FPtrList *f_ptrlist_add_sorted (FPtrList *ptrlist, void *data, FCompareFunc fn, void *user_data) {
 	FPtrList *add = f_ptrlistitem_new (data);
 	FPtrList *prev = NULL;
-	FPtrList *iter = list;
+	FPtrList *iter = ptrlist;
 
 	/* Find insertion point. */
 	while (iter) {
@@ -441,37 +441,37 @@ FPtrList *f_ptrlist_add_sorted (FPtrList *list, void *data, FCompareFunc fn, voi
 	if(prev != NULL) {
 		prev->next = add;       /*  In middle.  */
 	} else {
-		list = add;           /*  Start or empty, new list head.  */
+		ptrlist = add;           /*  Start or empty, new list head.  */
 	}
 
-	return(list);
+	return(ptrlist);
 }
 
-FPtrList *f_ptrlist_append (FPtrList *list, void *ptr) {
-	return f_ptrlist_concat (list, f_ptrlistitem_new (ptr));
+FPtrList *f_ptrlist_append (FPtrList *ptrlist, void *ptr) {
+	return f_ptrlist_concat (ptrlist, f_ptrlistitem_new (ptr));
 }
 
-FPtrList *f_ptrlist_append_unique (FPtrList *list, void *ptr, FCompareFunc fn, void *user_data) {
-	if (f_ptrlist_find_custom (list, ptr, fn, user_data) == NULL) {
-		return f_ptrlist_append (list, ptr);
+FPtrList *f_ptrlist_append_unique (FPtrList *ptrlist, void *ptr, FCompareFunc fn, void *user_data) {
+	if (f_ptrlist_find_custom (ptrlist, ptr, fn, user_data) == NULL) {
+		return f_ptrlist_append (ptrlist, ptr);
 	}
-	return list;
+	return ptrlist;
 }
 
-FPtrList *f_ptrlist_concat (FPtrList *list1, FPtrList *list2) {
-	if (list1 == NULL) {
-		return list2;
+FPtrList *f_ptrlist_concat (FPtrList *ptrlist1, FPtrList *ptrlist2) {
+	if (ptrlist1 == NULL) {
+		return ptrlist2;
 	}
-	f_ptrlist_insert_after (f_ptrlist_last (list1), list2);
-	return list1;
+	f_ptrlist_insert_after (f_ptrlist_last (ptrlist1), ptrlist2);
+	return ptrlist1;
 }
 
-FPtrList *f_ptrlist_copy (FPtrList *list) {
-	return f_ptrlist_deep_copy (list, (FCopyFunc)f_ptrcpy, NULL);
+FPtrList *f_ptrlist_copy (FPtrList *ptrlist) {
+	return f_ptrlist_deep_copy (ptrlist, (FCopyFunc)f_ptrcpy, NULL);
 }
 
-size_t f_ptrlist_count (FPtrList *list) {
-	FPtrListItem *it = f_ptrlist_begin (list), *end = f_ptrlist_end (list);
+size_t f_ptrlist_count (FPtrList *ptrlist) {
+	FPtrListItem *it = f_ptrlist_begin (ptrlist), *end = f_ptrlist_end (ptrlist);
 	size_t count = 0;
 
 	for (; it != end; it = it->next, ++count)
@@ -479,8 +479,8 @@ size_t f_ptrlist_count (FPtrList *list) {
 	return count;
 }
 
-FPtrList *f_ptrlist_deep_copy (FPtrList *list, FCopyFunc fn, void *user_data) {
-	FPtrListItem *it = f_ptrlist_begin (list), *end = f_ptrlist_end (list);
+FPtrList *f_ptrlist_deep_copy (FPtrList *ptrlist, FCopyFunc fn, void *user_data) {
+	FPtrListItem *it = f_ptrlist_begin (ptrlist), *end = f_ptrlist_end (ptrlist);
 	FPtrListAccumulator listaccumulator;
 
 	f_ptrlistaccumulator_init (&listaccumulator, f_ptrlist_new ());
@@ -490,16 +490,16 @@ FPtrList *f_ptrlist_deep_copy (FPtrList *list, FCopyFunc fn, void *user_data) {
 	return f_ptrlistaccumulator_fini (&listaccumulator);
 }
 
-void f_ptrlist_detach (FPtrList *list, FCopyFunc fn, void *user_data) {
-	FPtrListItem *it = f_ptrlist_begin (list), *end = f_ptrlist_end (list);
+void f_ptrlist_detach (FPtrList *ptrlist, FCopyFunc fn, void *user_data) {
+	FPtrListItem *it = f_ptrlist_begin (ptrlist), *end = f_ptrlist_end (ptrlist);
 
 	for (; it != end; it = it->next) {
 		it->data = fn (it->data, user_data);
 	}
 }
 
-FPtrListItem *f_ptrlist_detect (FPtrList *list, FDetectFunc dfn, void *user_data) {
-	FPtrListItem *it = f_ptrlist_begin (list), *end = f_ptrlist_end (list);
+FPtrListItem *f_ptrlist_detect (FPtrList *ptrlist, FDetectFunc dfn, void *user_data) {
+	FPtrListItem *it = f_ptrlist_begin (ptrlist), *end = f_ptrlist_end (ptrlist);
 
 	for (; it != end; it = it->next) {
 		if (dfn (it->data, user_data) == 0) {
@@ -509,15 +509,15 @@ FPtrListItem *f_ptrlist_detect (FPtrList *list, FDetectFunc dfn, void *user_data
 	return it;
 }
 
-void _f_ptrlist_exclude (FPtrList **list, FPtrList **excludelist, FDetectFunc dfn, void *user_data) {
+void _f_ptrlist_exclude (FPtrList **ptrlist, FPtrList **excludelist, FDetectFunc dfn, void *user_data) {
 	FPtrListAccumulator listaccumulator;
-	FPtrList *item, *next = *list;
+	FPtrList *item, *next = *ptrlist;
 
 	f_ptrlistaccumulator_init (&listaccumulator, *excludelist);
 	while ((item = f_ptrlist_detect (next, dfn, user_data)) != NULL) {
 		next = item->next;
-		if (*list == item) {
-			*list = (*list)->next;
+		if (*ptrlist == item) {
+			*ptrlist = (*ptrlist)->next;
 		}
 		f_ptrlistitem_remove (item);
 		f_ptrlistaccumulate (item, &listaccumulator);
@@ -546,22 +546,22 @@ FPtrList *f_ptrlist_filter (FPtrList *list, FDetectFunc dfn, void *user_data) {
 	return f_ptrlistaccumulator_fini (&listaccumulator);
 }
 
-FPtrListItem *f_ptrlist_find (FPtrList *list, const void *data) {
-	return f_ptrlist_find_custom (list, data, (FCompareFunc)f_ptrcmp, NULL);
+FPtrListItem *f_ptrlist_find (FPtrList *ptrlist, const void *data) {
+	return f_ptrlist_find_custom (ptrlist, data, (FCompareFunc)f_ptrcmp, NULL);
 }
 
-FPtrListItem *f_ptrlist_find_custom (FPtrList *list, const void *data, FCompareFunc cfn, void *user_data) {
+FPtrListItem *f_ptrlist_find_custom (FPtrList *ptrlist, const void *data, FCompareFunc cfn, void *user_data) {
 	FCompareDetector comparedetector = {
 		.fn = cfn,
 		.ptr = data,
 		.user_data = user_data
 	};
 
-	return f_ptrlist_detect (list, (FDetectFunc)f_comparedetect, &comparedetector);
+	return f_ptrlist_detect (ptrlist, (FDetectFunc)f_comparedetect, &comparedetector);
 }
 
-void f_ptrlist_foreach (FPtrList *list, FVisitorFunc fn, void *user_data) {
-	FPtrListItem *it = f_ptrlist_begin (list), *end = f_ptrlist_end (list);
+void f_ptrlist_foreach (FPtrList *ptrlist, FVisitorFunc fn, void *user_data) {
+	FPtrListItem *it = f_ptrlist_begin (ptrlist), *end = f_ptrlist_end (ptrlist);
 
 	for (; it != end; it = it->next) {
 		fn (it->data, user_data);
@@ -573,8 +573,8 @@ void f_ptrlist_foreach (FPtrList *list, FVisitorFunc fn, void *user_data) {
  *
  * Differs from foreach since it pass an FPtrListItem instead of data.
  */
-void f_ptrlist_foreach_safe (FPtrList *list, FVisitorFunc fn, void *user_data) {
-	FPtrListItem *it, *next = f_ptrlist_begin (list), *end = f_ptrlist_end (list);
+void f_ptrlist_foreach_safe (FPtrList *ptrlist, FVisitorFunc fn, void *user_data) {
+	FPtrListItem *it, *next = f_ptrlist_begin (ptrlist), *end = f_ptrlist_end (ptrlist);
 
 	for (it = next; it != end; it = next) {
 		next = it->next;
@@ -586,24 +586,24 @@ void f_ptrlist_foreach_safe (FPtrList *list, FVisitorFunc fn, void *user_data) {
  *
  * The caller is responsible for freeing the old list
  */
-FPtrList *f_ptrlist_reverse (FPtrList *list) {
+FPtrList *f_ptrlist_reverse (FPtrList *ptrlist) {
 	FPtrListAccumulator listaccumulator;
 
 	f_ptrlistaccumulator_init (&listaccumulator, f_ptrlist_new ());
-	f_ptrlist_foreach (list, (FVisitorFunc)f_ptrlistreverseaccumulate, &listaccumulator);
+	f_ptrlist_foreach (ptrlist, (FVisitorFunc)f_ptrlistreverseaccumulate, &listaccumulator);
 	return f_ptrlistaccumulator_fini (&listaccumulator);
 }
 
-void f_ptrlist_reverse_foreach (FPtrList *list, FVisitorFunc fn, void *user_data) {
-	FPtrListItem *it = f_ptrlist_rbegin (list), *end = f_ptrlist_rend (list);
+void f_ptrlist_reverse_foreach (FPtrList *ptrlist, FVisitorFunc fn, void *user_data) {
+	FPtrListItem *it = f_ptrlist_rbegin (ptrlist), *end = f_ptrlist_rend (ptrlist);
 
 	for (; it != end; it = it->prev) {
 		fn (it->data, user_data);
 	}
 }
 
-FPtrList *f_ptrlist_uniques (FPtrList *list, FCompareFunc fn, void *user_data) {
-	FPtrListItem *it = f_ptrlist_begin (list), *end = f_ptrlist_end (list);
+FPtrList *f_ptrlist_uniques (FPtrList *ptrlist, FCompareFunc fn, void *user_data) {
+	FPtrListItem *it = f_ptrlist_begin (ptrlist), *end = f_ptrlist_end (ptrlist);
 	FPtrList *uniques = f_ptrlist_new ();
 
 	for (; it != end; it = it->next) {
@@ -612,9 +612,9 @@ FPtrList *f_ptrlist_uniques (FPtrList *list, FCompareFunc fn, void *user_data) {
 	return uniques;
 }
 
-void _f_ptrlist_remove (FPtrList **list, FPtrListItem *item) {
-	if (*list == item) {
-		*list = item->next;
+void _f_ptrlist_remove (FPtrList **ptrlist, FPtrListItem *item) {
+	if (*ptrlist == item) {
+		*ptrlist = item->next;
 	}
 	f_ptrlistitem_remove (item);
 }

@@ -146,42 +146,42 @@ void f_ptrlistitem_remove (FPtrListItem *item);
 typedef struct FPtrListItem FPtrList;
 
 FPtrList *f_ptrlist_new (void);
-void   f_ptrlist_delete (FPtrList *list, FVisitorFunc fn, void *user_data);
-void   f_ptrlist_init (FPtrList *list);
+void f_ptrlist_delete (FPtrList *ptrlist, FVisitorFunc fn, void *user_data);
+void f_ptrlist_init (FPtrList *ptrlist);
 
-void   f_ptrlist_insert_after (FPtrList *item, FPtrList *list);
-void   f_ptrlist_insert_before (FPtrList *item, FPtrList *list);
+void f_ptrlist_insert_after (FPtrList *item, FPtrList *ptrlist);
+void f_ptrlist_insert_before (FPtrList *item, FPtrList *ptrlist);
 
-FPtrListItem *f_ptrlist_begin (FPtrList *list);
-FPtrListItem *f_ptrlist_end (FPtrList *list);
-FPtrListItem *f_ptrlist_rbegin (FPtrList *list);
-FPtrListItem *f_ptrlist_rend (FPtrList *list);
+FPtrListItem *f_ptrlist_begin (FPtrList *ptrlist);
+FPtrListItem *f_ptrlist_end (FPtrList *ptrlist);
+FPtrListItem *f_ptrlist_rbegin (FPtrList *ptrlist);
+FPtrListItem *f_ptrlist_rend (FPtrList *ptrlist);
 
-FPtrListItem *f_ptrlist_first (FPtrList *list);
-FPtrListItem *f_ptrlist_last (FPtrList *list);
+FPtrListItem *f_ptrlist_first (FPtrList *ptrlist);
+FPtrListItem *f_ptrlist_last (FPtrList *ptrlist);
 
-FPtrList *f_ptrlist_add_sorted (FPtrList *list, void *data, FCompareFunc fn, void *user_data);
-FPtrList *f_ptrlist_append (FPtrList *list, void *data);
-FPtrList *f_ptrlist_append_unique (FPtrList *list, void *data, FCompareFunc fn, void *user_data);
-FPtrList *f_ptrlist_concat (FPtrList *list1, FPtrList *list2);
-FPtrList *f_ptrlist_copy (FPtrList *list);
-size_t f_ptrlist_count (FPtrList *list);
-FPtrList *f_ptrlist_deep_copy (FPtrList *list, FCopyFunc fn, void *user_data);
-void   f_ptrlist_detach (FPtrList *list, FCopyFunc fn, void *user_data);
-FPtrListItem *f_ptrlist_detect (FPtrList *list, FDetectFunc dfn, void *user_data);
-//void   f_ptrlist_exclude (FPtrList *list, FPtrList *excludelist, FDetectFunc dfn, void *user_data);
-FPtrList *f_ptrlist_filter (FPtrList *list, FDetectFunc fn, void *user_data);
-FPtrListItem *f_ptrlist_find (FPtrList *list, const void *data);
-FPtrListItem *f_ptrlist_find_custom (FPtrList *list, const void *data, FCompareFunc cfn, void *user_data);
-void   f_ptrlist_foreach (FPtrList *list, FVisitorFunc fn, void *user_data);
-FPtrList *f_ptrlist_reverse (FPtrList *list);
-void   f_ptrlist_reverse_foreach (FPtrList *list, FVisitorFunc fn, void *user_data);
-FPtrList *f_ptrlist_uniques (FPtrList *list, FCompareFunc fn, void *user_data);
+FPtrList *f_ptrlist_add_sorted (FPtrList *ptrlist, void *data, FCompareFunc fn, void *user_data);
+FPtrList *f_ptrlist_append (FPtrList *ptrlist, void *data);
+FPtrList *f_ptrlist_append_unique (FPtrList *ptrlist, void *data, FCompareFunc fn, void *user_data);
+FPtrList *f_ptrlist_concat (FPtrList *ptrlist1, FPtrList *ptrlist2);
+FPtrList *f_ptrlist_copy (FPtrList *ptrlist);
+size_t f_ptrlist_count (FPtrList *ptrlist);
+FPtrList *f_ptrlist_deep_copy (FPtrList *ptrlist, FCopyFunc fn, void *user_data);
+void   f_ptrlist_detach (FPtrList *ptrlist, FCopyFunc fn, void *user_data);
+FPtrListItem *f_ptrlist_detect (FPtrList *ptrlist, FDetectFunc dfn, void *user_data);
+//void   f_ptrlist_exclude (FPtrList *ptrlist, FPtrList *excludelist, FDetectFunc dfn, void *user_data);
+FPtrList *f_ptrlist_filter (FPtrList *ptrlist, FDetectFunc fn, void *user_data);
+FPtrListItem *f_ptrlist_find (FPtrList *ptrlist, const void *data);
+FPtrListItem *f_ptrlist_find_custom (FPtrList *ptrlist, const void *data, FCompareFunc cfn, void *user_data);
+void   f_ptrlist_foreach (FPtrList *ptrlist, FVisitorFunc fn, void *user_data);
+FPtrList *f_ptrlist_reverse (FPtrList *ptrlist);
+void   f_ptrlist_reverse_foreach (FPtrList *ptrlist, FVisitorFunc fn, void *user_data);
+FPtrList *f_ptrlist_uniques (FPtrList *ptrlist, FCompareFunc fn, void *user_data);
 
 /* FIXME: To be removed */
-void   _f_ptrlist_exclude (FPtrList **list, FPtrList **excludelist, FDetectFunc dfn, void *user_data);
-void   _f_ptrlist_remove (FPtrList **list, FPtrListItem *item);
-FPtrList *f_ptrlist_remove_find_custom (FPtrList *haystack, void *needle, FCompareFunc fn, void **data);
+void   _f_ptrlist_exclude (FPtrList **ptrlist, FPtrList **excludelist, FDetectFunc dfn, void *user_data);
+void   _f_ptrlist_remove (FPtrList **ptrlist, FPtrListItem *item);
+FPtrList *f_ptrlist_remove_find_custom (FPtrList *ptrlist, void *needle, FCompareFunc fn, void **data);
 
 #define f_ptrlist_entry(ptr) f_list_entry (ptr, FPtrListItem, base)
 #define f_ptrlist_entry_next(ptr) f_list_entry_next (ptr, FPtrListItem, base)
