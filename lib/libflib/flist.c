@@ -190,47 +190,75 @@ size_t f_list_count (FList *list) {
 	return count;
 }
 
-void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
+FList *f_list_deep_copy (FList *list, FCopyFunc cfn, void *user_data) {
+	FList *list_deep_copy = f_list_new ();
 	FListItem *it;
 
-	if (fn == NULL) {
-		return;
+	assert (cfn != NULL);
+
+	if (list_deep_copy != NULL) {
+		__f_foreach (it, list) {
+			f_list_append (list_deep_copy, cfn (it, user_data));
+		}
+	} 
+	return list_deep_copy;
+}
+
+FListItem *f_list_detect (FList *list, FDetectFunc dfn, void *user_data) {
+	assert (list != NULL);
+	if (dfn != NULL) {
+		FListItem *it;
+
+		__f_foreach (it, list) {
+			if (dfn (it, user_data) == 0) {
+				return it;
+			}
+		}
 	}
-	__f_foreach (it, list) {
-		fn (it, user_data);
+	return NULL;
+}
+
+void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
+	assert (list != NULL);
+	if (fn != NULL) {
+		FListItem *it;
+
+		__f_foreach (it, list) {
+			fn (it, user_data);
+		}
 	}
 }
 
 void f_list_foreach_safe (FList *list, FVisitorFunc fn, void *user_data) {
-	FListItem *it, *next;
+	assert (list != NULL);
+	if (fn != NULL) {
+		FListItem *it, *next;
 
-	if (fn == NULL) {
-		return;
-	}
-	f_foreach_safe (it, next, list) {
-		fn (it, user_data);
+		f_foreach_safe (it, next, list) {
+			fn (it, user_data);
+		}
 	}
 }
 
 void f_list_rforeach (FList *list, FVisitorFunc fn, void *user_data) {
-	FListItem *it;
+	assert (list != NULL);
+	if (fn != NULL) {
+		FListItem *it;
 
-	if (fn == NULL) {
-		return;
-	}
-	__f_rforeach (it, list) {
-		fn (it, user_data);
+		__f_rforeach (it, list) {
+			fn (it, user_data);
+		}
 	}
 }
 
 void f_list_rforeach_safe (FList *list, FVisitorFunc fn, void *user_data) {
-	FListItem *it, *next;
+	assert (list != NULL);
+	if (fn != NULL) {
+		FListItem *it, *next;
 
-	if (fn == NULL) {
-		return;
-	}
-	f_rforeach_safe (it, next, list) {
-		fn (it, user_data);
+		f_rforeach_safe (it, next, list) {
+			fn (it, user_data);
+		}
 	}
 }
 
@@ -471,42 +499,50 @@ FPtrList *f_ptrlist_copy (FPtrList *ptrlist) {
 }
 
 size_t f_ptrlist_count (FPtrList *ptrlist) {
-	FPtrListItem *it = f_ptrlist_begin (ptrlist), *end = f_ptrlist_end (ptrlist);
 	size_t count = 0;
+	FPtrListItem *it;
 
-	for (; it != end; it = it->next, ++count)
-		/* Do nothing */;
+	f_foreach (it, ptrlist) {
+	 	++count;
+	}
 	return count;
 }
 
-FPtrList *f_ptrlist_deep_copy (FPtrList *ptrlist, FCopyFunc fn, void *user_data) {
-	FPtrListItem *it = f_ptrlist_begin (ptrlist), *end = f_ptrlist_end (ptrlist);
-	FPtrListAccumulator listaccumulator;
+FPtrList *f_ptrlist_deep_copy (FPtrList *ptrlist, FCopyFunc cfn, void *user_data) {
+	FPtrList *ptrlist_deep_copy = f_ptrlist_new ();
+	FPtrListItem *it;
 
-	f_ptrlistaccumulator_init (&listaccumulator, f_ptrlist_new ());
-	for (; it != end; it = it->next) {
-		f_ptrlistaccumulate (fn (it->data, user_data), &listaccumulator);
-	}
-	return f_ptrlistaccumulator_fini (&listaccumulator);
+	assert (cfn != NULL);
+
+//	if (ptrlist_deep_copy != NULL) {
+		f_foreach (it, ptrlist) {
+			ptrlist_deep_copy = f_ptrlist_append (ptrlist_deep_copy, cfn (it->data, user_data));
+		}
+//	}
+	return ptrlist_deep_copy;
 }
 
 void f_ptrlist_detach (FPtrList *ptrlist, FCopyFunc fn, void *user_data) {
-	FPtrListItem *it = f_ptrlist_begin (ptrlist), *end = f_ptrlist_end (ptrlist);
+	FPtrListItem *it;
 
-	for (; it != end; it = it->next) {
+	assert (fn != NULL);
+
+	f_foreach (it, ptrlist) {
 		it->data = fn (it->data, user_data);
 	}
 }
 
 FPtrListItem *f_ptrlist_detect (FPtrList *ptrlist, FDetectFunc dfn, void *user_data) {
-	FPtrListItem *it = f_ptrlist_begin (ptrlist), *end = f_ptrlist_end (ptrlist);
+	if (dfn != NULL) {
+		FPtrListItem *it;
 
-	for (; it != end; it = it->next) {
-		if (dfn (it->data, user_data) == 0) {
-			break;
+		f_foreach (it, ptrlist) {
+			if (dfn (it->data, user_data) == 0) {
+				return it;
+			}
 		}
 	}
-	return it;
+	return NULL;
 }
 
 void _f_ptrlist_exclude (FPtrList **ptrlist, FPtrList **excludelist, FDetectFunc dfn, void *user_data) {

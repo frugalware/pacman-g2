@@ -67,6 +67,8 @@ void f_list_add (FList *list, FListItem *listitem);
 void f_list_add_sorted (FList *list, FListItem *listitem, FCompareFunc fn, void *user_data);
 void f_list_append (FList *list, FListItem *listitem);
 size_t f_list_count (FList *list);
+FList *f_list_deep_copy (FList *list, FCopyFunc cfn, void *user_data);
+FListItem *f_list_detect (FList *list, FDetectFunc dfn, void *user_data);
 void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data);
 void f_list_foreach_safe (FList *list, FVisitorFunc fn, void *user_data);
 void f_list_rforeach (FList *list, FVisitorFunc fn, void *user_data);
