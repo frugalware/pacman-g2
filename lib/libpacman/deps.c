@@ -512,10 +512,10 @@ void _pacman_removedeps(pmtrans_t *trans)
 
 static
 int _pacman_transpkg_remove_dependsonly (pmtrans_t *trans) {
-	FPtrList *excludes = f_ptrlist_new ();
+	FPtrList *removed = f_ptrlist_new ();
 
-	_f_ptrlist_exclude (&trans->packages, &excludes, (FDetectFunc)_pacman_transpkg_has_flags, (void*)PM_TRANS_FLAG_DEPENDSONLY);
-	f_ptrlist_delete (excludes, NULL, NULL);
+	_f_ptrlist_remove_all_detect (&trans->packages, (FDetectFunc)_pacman_transpkg_has_flags, (void*)PM_TRANS_FLAG_DEPENDSONLY, &removed);
+	f_ptrlist_delete (removed, NULL, NULL);
 	return 0;
 }
 

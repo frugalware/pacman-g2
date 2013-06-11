@@ -71,6 +71,7 @@ FList *f_list_deep_copy (FList *list, FCopyFunc cfn, void *user_data);
 FListItem *f_list_detect (FList *list, FDetectFunc dfn, void *user_data);
 void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data);
 void f_list_foreach_safe (FList *list, FVisitorFunc fn, void *user_data);
+void f_list_remove_all_detect (FList *list, FDetectFunc dfn, void *user_data, FList *list_removed);
 void f_list_rforeach (FList *list, FVisitorFunc fn, void *user_data);
 void f_list_rforeach_safe (FList *list, FVisitorFunc fn, void *user_data);
 
@@ -124,6 +125,7 @@ void f_list_rforeach_safe (FList *list, FVisitorFunc fn, void *user_data);
 			it = next, next = f_list_entry_previous (it, f_typeof(*it), member))
 
 typedef struct FPtrListItem FPtrListItem;
+typedef struct FPtrListItem FPtrList;
 
 struct FPtrListItem {
 	union {
@@ -142,10 +144,7 @@ void f_ptrlistitem_delete (FPtrListItem *item, FVisitorFunc fn, void *user_data)
 void *f_ptrlistitem_get (FPtrListItem *item);
 void f_ptrlistitem_set (FPtrListItem *item, void *data);
 
-void f_ptrlistitem_remove (FPtrListItem *item);
-
-/* FIXME: Make private as soon as possible */
-typedef struct FPtrListItem FPtrList;
+void f_ptrlistitem_remove (FPtrListItem *item, FPtrList **ptrlist);
 
 FPtrList *f_ptrlist_new (void);
 void f_ptrlist_delete (FPtrList *ptrlist, FVisitorFunc fn, void *user_data);
@@ -171,18 +170,17 @@ size_t f_ptrlist_count (FPtrList *ptrlist);
 FPtrList *f_ptrlist_deep_copy (FPtrList *ptrlist, FCopyFunc fn, void *user_data);
 void   f_ptrlist_detach (FPtrList *ptrlist, FCopyFunc fn, void *user_data);
 FPtrListItem *f_ptrlist_detect (FPtrList *ptrlist, FDetectFunc dfn, void *user_data);
-//void   f_ptrlist_exclude (FPtrList *ptrlist, FPtrList *excludelist, FDetectFunc dfn, void *user_data);
 FPtrList *f_ptrlist_filter (FPtrList *ptrlist, FDetectFunc fn, void *user_data);
 FPtrListItem *f_ptrlist_find (FPtrList *ptrlist, const void *data);
 FPtrListItem *f_ptrlist_find_custom (FPtrList *ptrlist, const void *data, FCompareFunc cfn, void *user_data);
 void   f_ptrlist_foreach (FPtrList *ptrlist, FVisitorFunc fn, void *user_data);
+//void f_ptrlist_remove_all_detect (FPtrList *ptrlist, FDetectFunc dfn, void *user_data, FPtrList *ptrlist_removed);
+void _f_ptrlist_remove_all_detect (FPtrList **ptrlist, FDetectFunc dfn, void *user_data, FPtrList **ptrlist_removed);
 FPtrList *f_ptrlist_reverse (FPtrList *ptrlist);
 void f_ptrlist_rforeach (FPtrList *ptrlist, FVisitorFunc fn, void *user_data);
 FPtrList *f_ptrlist_uniques (FPtrList *ptrlist, FCompareFunc fn, void *user_data);
 
 /* FIXME: To be removed */
-void   _f_ptrlist_exclude (FPtrList **ptrlist, FPtrList **excludelist, FDetectFunc dfn, void *user_data);
-void   _f_ptrlist_remove (FPtrList **ptrlist, FPtrListItem *item);
 FPtrList *f_ptrlist_remove_find_custom (FPtrList *ptrlist, void *needle, FCompareFunc fn, void **data);
 
 #define f_ptrlist_entry(ptr) f_list_entry (ptr, FPtrListItem, base)

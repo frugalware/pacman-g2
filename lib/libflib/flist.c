@@ -240,6 +240,22 @@ void f_list_foreach_safe (FList *list, FVisitorFunc fn, void *user_data) {
 	}
 }
 
+void f_list_remove_all_detect (FList *list, FDetectFunc dfn, void *user_data, FList *list_removed) {
+	assert (list != NULL);
+	assert (list_removed != NULL);
+
+	if (dfn) {
+		FListItem *it, *next;
+
+		f_foreach_safe (it, next, list) {
+			if (dfn (it, user_data) == 0) {
+				f_listitem_remove (it);
+				f_list_append (list_removed, it);
+			}
+		}
+	} 
+}
+
 void f_list_rforeach (FList *list, FVisitorFunc fn, void *user_data) {
 	assert (list != NULL);
 	if (fn != NULL) {
@@ -303,7 +319,7 @@ static
 void _f_ptrlistitem_delete (FPtrListItem *item, FVisitor *visitor) {
 	if (item != NULL) {
 		f_visit (item->data, visitor);
-		f_ptrlistitem_remove (item);
+		f_ptrlistitem_remove (item, NULL);
 		f_free (item);
 	}
 }
@@ -333,8 +349,11 @@ void f_ptrlistitem_set (FPtrListItem *ptrlistitem, void *data) {
 /**
  * Remove an @item from the list it belongs.
  */
-void f_ptrlistitem_remove (FPtrListItem *item) {
+void f_ptrlistitem_remove (FPtrListItem *item, FPtrList **ptrlist) {
 	if (item != NULL) {
+		if (ptrlist != NULL && *ptrlist == item) {
+			*ptrlist = item->next;
+		}
 		if (item->prev != NULL) {
 			item->prev->next = item->next;
 		}
@@ -545,22 +564,6 @@ FPtrListItem *f_ptrlist_detect (FPtrList *ptrlist, FDetectFunc dfn, void *user_d
 	return NULL;
 }
 
-void _f_ptrlist_exclude (FPtrList **ptrlist, FPtrList **excludelist, FDetectFunc dfn, void *user_data) {
-	FPtrListAccumulator listaccumulator;
-	FPtrList *item, *next = *ptrlist;
-
-	f_ptrlistaccumulator_init (&listaccumulator, *excludelist);
-	while ((item = f_ptrlist_detect (next, dfn, user_data)) != NULL) {
-		next = item->next;
-		if (*ptrlist == item) {
-			*ptrlist = (*ptrlist)->next;
-		}
-		f_ptrlistitem_remove (item);
-		f_ptrlistaccumulate (item, &listaccumulator);
-	}
-	*excludelist = f_ptrlistaccumulator_fini (&listaccumulator);
-}
-
 FPtrList *f_ptrlist_filter (FPtrList *list, FDetectFunc dfn, void *user_data) {
 	FPtrListAccumulator listaccumulator;
 	FDetector detector = {
@@ -618,6 +621,18 @@ void f_ptrlist_foreach_safe (FPtrList *ptrlist, FVisitorFunc fn, void *user_data
 	}
 }
 
+void _f_ptrlist_remove_all_detect (FPtrList **ptrlist, FDetectFunc dfn, void *user_data, FPtrList **ptrlist_removed) {
+	if (dfn != NULL) {
+		FPtrList *item, *next = *ptrlist;
+
+		while ((item = f_ptrlist_detect (next, dfn, user_data)) != NULL) {
+			next = item->next;
+			f_ptrlistitem_remove (item, *ptrlist);
+			f_ptrlist_append (*ptrlist_removed, item);
+		}
+	}
+}
+
 /* Reverse the order of a list
  *
  * The caller is responsible for freeing the old list
@@ -646,13 +661,6 @@ FPtrList *f_ptrlist_uniques (FPtrList *ptrlist, FCompareFunc fn, void *user_data
 		uniques = f_ptrlist_append_unique (uniques, it->data, fn, user_data);
 	}
 	return uniques;
-}
-
-void _f_ptrlist_remove (FPtrList **ptrlist, FPtrListItem *item) {
-	if (*ptrlist == item) {
-		*ptrlist = item->next;
-	}
-	f_ptrlistitem_remove (item);
 }
 
 /* Remove an item in a list. Use the given comparison function to find the

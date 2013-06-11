@@ -102,10 +102,10 @@ FPtrList *f_stringlist_find (FPtrList *list, const char *str) {
 }
 
 FPtrList *f_stringlist_remove_all (FPtrList *list, const char *str) {
-	FPtrList *excludes = f_ptrlist_new ();
+	FPtrList *removed = f_ptrlist_new ();
 
-	_f_ptrlist_exclude (&list, &excludes, (FDetectFunc)strcmp, str);
-	f_ptrlist_delete (excludes, (FVisitorFunc)f_free, NULL);
+	_f_ptrlist_remove_all_detect (&list, (FDetectFunc)strcmp, str, &removed);
+	f_ptrlist_delete (removed, (FVisitorFunc)f_free, NULL);
 	return list;
 }
 
