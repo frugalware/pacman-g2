@@ -630,19 +630,19 @@ FPtrList *f_ptrlist_reverse (FPtrList *ptrlist) {
 	return f_ptrlistaccumulator_fini (&listaccumulator);
 }
 
-void f_ptrlist_reverse_foreach (FPtrList *ptrlist, FVisitorFunc fn, void *user_data) {
-	FPtrListItem *it = f_ptrlist_rbegin (ptrlist), *end = f_ptrlist_rend (ptrlist);
+void f_ptrlist_rforeach (FPtrList *ptrlist, FVisitorFunc fn, void *user_data) {
+	FPtrListItem *it;
 
-	for (; it != end; it = it->prev) {
+	f_rforeach (it, ptrlist) {
 		fn (it->data, user_data);
 	}
 }
 
 FPtrList *f_ptrlist_uniques (FPtrList *ptrlist, FCompareFunc fn, void *user_data) {
-	FPtrListItem *it = f_ptrlist_begin (ptrlist), *end = f_ptrlist_end (ptrlist);
 	FPtrList *uniques = f_ptrlist_new ();
+	FPtrListItem *it;
 
-	for (; it != end; it = it->next) {
+	f_foreach (it, ptrlist) {
 		uniques = f_ptrlist_append_unique (uniques, it->data, fn, user_data);
 	}
 	return uniques;

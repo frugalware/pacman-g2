@@ -177,7 +177,7 @@ FPtrListItem *f_ptrlist_find (FPtrList *ptrlist, const void *data);
 FPtrListItem *f_ptrlist_find_custom (FPtrList *ptrlist, const void *data, FCompareFunc cfn, void *user_data);
 void   f_ptrlist_foreach (FPtrList *ptrlist, FVisitorFunc fn, void *user_data);
 FPtrList *f_ptrlist_reverse (FPtrList *ptrlist);
-void   f_ptrlist_reverse_foreach (FPtrList *ptrlist, FVisitorFunc fn, void *user_data);
+void f_ptrlist_rforeach (FPtrList *ptrlist, FVisitorFunc fn, void *user_data);
 FPtrList *f_ptrlist_uniques (FPtrList *ptrlist, FCompareFunc fn, void *user_data);
 
 /* FIXME: To be removed */
