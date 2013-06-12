@@ -36,6 +36,8 @@ void f_listitem_init (FListItem *listitem) {
 }
 
 void f_listitem_fini (FListItem *listitem, FVisitorFunc fn, void *user_data) {
+	assert (listitem != NULL);
+
 	FVisitor visitor = {
 		.fn = fn,
 		.user_data = user_data
@@ -46,8 +48,6 @@ void f_listitem_fini (FListItem *listitem, FVisitorFunc fn, void *user_data) {
 }
 
 void f_listitem_delete (FListItem *listitem, FVisitorFunc fn, void *user_data) {
-	assert (listitem != NULL);
-
 	f_listitem_fini (listitem, fn, user_data);
 	f_free (listitem);
 }
@@ -306,34 +306,32 @@ void f_ptrlistitem_visit (FListItem *listitem, FVisitorFunc fn, void *user_data)
 	f_visit (f_ptrlistitem_of_listitem (listitem)->data, &visitor);
 }
 
+void f_ptrlistitem_init (FPtrListItem *ptrlistitem, void *data) {
+	assert (ptrlistitem);
+
+	ptrlistitem->data = data;
+}
+
+void f_ptrlistitem_fini (FPtrListItem *ptrlistitem, FVisitorFunc fn, void *user_data, FPtrList **ptrlist) {
+	f_ptrlistitem_visit (ptrlistitem, fn, user_data);
+	f_ptrlistitem_remove (ptrlistitem, ptrlist);
+}
+
 FPtrListItem *f_ptrlistitem_new (void *data) {
 	FPtrListItem *ptrlistitem = f_zalloc (sizeof (*ptrlistitem));
 
 	if (ptrlistitem != NULL) {
-		ptrlistitem->data = data;
+		f_ptrlistitem_init (ptrlistitem, data);
 	}
 	return ptrlistitem;
-}
-
-static
-void _f_ptrlistitem_delete (FPtrListItem *item, FVisitor *visitor) {
-	if (item != NULL) {
-		f_visit (item->data, visitor);
-		f_ptrlistitem_remove (item, NULL);
-		f_free (item);
-	}
 }
 
 /**
  * Remove the item from it's list and free it.
  */
-void f_ptrlistitem_delete (FPtrListItem *item, FVisitorFunc fn, void *user_data) {
-	FVisitor visitor = {
-		.fn = fn,
-		.user_data = user_data
-	};
-
-	_f_ptrlistitem_delete (item, &visitor);
+void f_ptrlistitem_delete (FPtrListItem *item, FVisitorFunc fn, void *user_data, FPtrList **ptrlist) {
+	f_ptrlistitem_fini (item, fn, user_data, ptrlist);
+	f_free (item);
 }
 
 void *f_ptrlistitem_get (FPtrListItem *ptrlistitem) {
@@ -390,12 +388,9 @@ FPtrList *f_ptrlist_new () {
 }
 
 void f_ptrlist_delete (FPtrList *ptrlist, FVisitorFunc fn, void *user_data) {
-	FVisitor visitor = {
-		.fn = fn,
-		.user_data = user_data
-	};
-
-	f_ptrlist_foreach_safe (ptrlist, (FVisitorFunc)_f_ptrlistitem_delete, &visitor);
+	while (ptrlist != NULL) {
+		f_ptrlistitem_delete (ptrlist, fn, user_data, &ptrlist);
+	}
 }
 
 /**

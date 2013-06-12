@@ -547,8 +547,7 @@ void _pacman_trans_remove_target (pmtrans_t *trans, const char *target) {
 
 	if (item != f_ptrlist_end (trans->packages)) {
 		_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), target);
-		f_ptrlistitem_remove (item, &trans->packages);
-		f_ptrlistitem_delete (item, (FVisitorFunc)__pacman_trans_pkg_delete, NULL);
+		f_ptrlistitem_delete (item, (FVisitorFunc)__pacman_trans_pkg_delete, NULL, &trans->packages);
 	}
 }
 

@@ -201,8 +201,7 @@ int pacman_db_unregister(pmdb_t *db)
 	} else {
 		FPtrListItem *item = f_ptrlist_find (handle->dbs_sync, db);
 		if (item != f_ptrlist_end (handle->dbs_sync)) {
-			f_ptrlistitem_remove (item, &handle->dbs_sync);
-			f_ptrlistitem_delete (item, NULL, NULL);
+			f_ptrlistitem_delete (item, NULL, NULL, &handle->dbs_sync);
 			found = 1;
 		}
 	}

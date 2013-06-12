@@ -138,8 +138,11 @@ struct FPtrListItem {
 	void *data;
 };
 
+void f_ptrlistitem_init (FPtrListItem *ptrlistitem, void *data);
+void f_ptrlistitem_fini (FPtrListItem *ptrlistitem, FVisitorFunc fn, void *user_data, FPtrList **ptrlist);
+
 FPtrListItem *f_ptrlistitem_new (void *data);
-void f_ptrlistitem_delete (FPtrListItem *item, FVisitorFunc fn, void *user_data);
+void f_ptrlistitem_delete (FPtrListItem *item, FVisitorFunc fn, void *user_data, FPtrList **ptrlist);
 
 void *f_ptrlistitem_get (FPtrListItem *item);
 void f_ptrlistitem_set (FPtrListItem *item, void *data);

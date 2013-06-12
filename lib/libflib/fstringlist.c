@@ -48,7 +48,7 @@ FStringListItem *f_stringlistitem_new (const char *str, size_t size) {
 }
 
 void f_stringlistitem_delete (FStringListItem *stringlistitem) {
-	f_ptrlistitem_delete (f_stringlistitem_as_listitem (stringlistitem), NULL, NULL);
+	f_listitem_delete (f_stringlistitem_as_listitem (stringlistitem), NULL, NULL);
 }
 
 FPtrListItem *f_stringlistitem_as_listitem (FStringListItem *stringlistitem) {
