@@ -118,24 +118,21 @@ int _pacman_db_add_pkgincache(pmdb_t *db, pmpkg_t *pkg)
 
 int _pacman_db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg)
 {
-	pmpkg_t *data;
+	FPtrListItem *it;
 
 	if(db == NULL || pkg == NULL) {
 		return(-1);
 	}
 
-	db->pkgcache = _pacman_list_remove(db->pkgcache, pkg, _pacman_pkg_cmp, (void **)&data);
-	if(data == NULL) {
+	it = f_ptrlist_find_custom (db->pkgcache, pkg, _pacman_pkg_cmp, NULL);
+	if (it == NULL) {
 		/* package not found */
-		return(-1);
+		return -1;
 	}
-
 	_pacman_log(PM_LOG_DEBUG, _("removing entry '%s' from '%s' cache"), pkg->name, db->treename);
-	FREEPKG(data);
-
+	f_ptrlistitem_delete (it, (FVisitorFunc)pacman_pkg_free, NULL ,&db->pkgcache);
 	_pacman_db_free_grpcache(db);
-
-	return(0);
+	return 0;
 }
 
 pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, const char *target)

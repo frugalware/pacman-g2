@@ -183,13 +183,11 @@ FPtrList *f_ptrlist_reverse (FPtrList *ptrlist);
 void f_ptrlist_rforeach (FPtrList *ptrlist, FVisitorFunc fn, void *user_data);
 FPtrList *f_ptrlist_uniques (FPtrList *ptrlist, FCompareFunc fn, void *user_data);
 
-/* FIXME: To be removed */
-FPtrList *f_ptrlist_remove_find_custom (FPtrList *ptrlist, void *needle, FCompareFunc fn, void **data);
-
 #define f_ptrlist_entry(ptr) f_list_entry (ptr, FPtrListItem, base)
 #define f_ptrlist_entry_next(ptr) f_list_entry_next (ptr, FPtrListItem, base)
 #define f_ptrlist_entry_previous(ptr) f_list_entry_previous (ptr, FPtrListItem, base)
 
+/* FIXME: To be removed */
 #define f_foreach(it, list) \
 	for (it = f_ptrlist_begin (list); it != f_ptrlist_end (list); it = f_ptrlist_entry_next (it))
 
