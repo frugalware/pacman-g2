@@ -558,27 +558,6 @@ FPtrListItem *f_ptrlist_detect (FPtrList *ptrlist, FDetectFunc dfn, void *user_d
 	return NULL;
 }
 
-FPtrList *f_ptrlist_filter (FPtrList *list, FDetectFunc dfn, void *user_data) {
-	FPtrListAccumulator listaccumulator;
-	FDetector detector = {
-		.fn = dfn,
-		.user_data = user_data
-	};
-	FVisitor visitor = {
-		.fn = (FVisitorFunc)f_ptrlistaccumulate,
-		.user_data = &listaccumulator
-	};
-	FDetectVisitor detectvisitor = {
-		.detect = &detector,
-		.success = &visitor,
-		.fail = NULL
-	};
-
-	f_ptrlistaccumulator_init (&listaccumulator, f_ptrlist_new ());
-	f_ptrlist_foreach (list, (FVisitorFunc)f_detectvisit, &detectvisitor);
-	return f_ptrlistaccumulator_fini (&listaccumulator);
-}
-
 FPtrListItem *f_ptrlist_find (FPtrList *ptrlist, const void *data) {
 	return f_ptrlist_find_custom (ptrlist, data, (FCompareFunc)f_ptrcmp, NULL);
 }

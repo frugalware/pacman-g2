@@ -173,7 +173,6 @@ size_t f_ptrlist_count (FPtrList *ptrlist);
 FPtrList *f_ptrlist_deep_copy (FPtrList *ptrlist, FCopyFunc fn, void *user_data);
 void   f_ptrlist_detach (FPtrList *ptrlist, FCopyFunc fn, void *user_data);
 FPtrListItem *f_ptrlist_detect (FPtrList *ptrlist, FDetectFunc dfn, void *user_data);
-FPtrList *f_ptrlist_filter (FPtrList *ptrlist, FDetectFunc fn, void *user_data);
 FPtrListItem *f_ptrlist_find (FPtrList *ptrlist, const void *data);
 FPtrListItem *f_ptrlist_find_custom (FPtrList *ptrlist, const void *data, FCompareFunc cfn, void *user_data);
 void   f_ptrlist_foreach (FPtrList *ptrlist, FVisitorFunc fn, void *user_data);
