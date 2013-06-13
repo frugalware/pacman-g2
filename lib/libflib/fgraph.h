@@ -28,17 +28,17 @@ typedef struct FGraphEdge FGraphEdge;
 typedef struct FGraphVertex FGraphVertex;
 
 struct FGraph {
-	FList *vertices;
-	FList *edges;
+	FList vertices;
+	FList edges;
 };
 
 struct FGraphEdge {
-	FListItem *base;
+	FListItem base;
 	FGraph *graph;
 };
 
 struct FGraphVertex {
-	FListItem *base;
+	FListItem base;
 	FGraph *graph;
 	FPtrList *edges;
 };

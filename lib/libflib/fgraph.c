@@ -19,30 +19,38 @@
  *  USA.
  */
 
+#include "config.h"
+
+#include <assert.h>
+
 #include "fgraph.h"
 
 void f_graph_init (FGraph *graph) {
-	if (graph != NULL) {
-		f_list_init (&graph->vertices);
-		f_list_init (&graph->edges);
-	}
+	assert (graph != NULL);
+
+	f_list_init (&graph->vertices);
+	f_list_init (&graph->edges);
 }
 
 void f_graph_fini (FGraph *graph, FVisitorFunc fn, void *user_data) {
-	if (graph != NULL) {
-		f_list_fini (&graph->vertices, NULL, NULL);
-		f_list_fini (&graph->edges, NULL, NULL);
-	}
+	assert (graph != NULL);
+
+	f_list_fini (&graph->vertices, NULL, NULL);
+	f_list_fini (&graph->edges, NULL, NULL);
 }
 
 FGraph *f_graph_new () {
 	FGraph *graph = f_zalloc (sizeof(*graph));
 
-	f_graph_init (graph);
+	if (graph != NULL) {
+		f_graph_init (graph);
+	}
 	return graph;
 }
 
 void f_graph_delete (FGraph *graph, FVisitorFunc fn, void *user_data) {
+	f_graph_fini (graph, fn, user_data);
+	f_free (graph);
 }
 
 static
@@ -54,21 +62,35 @@ void f_graph_add_vertex (FGraph *graph, FGraphVertex *vertex) {
 }
 
 void f_graphedge_init (FGraphEdge *graphedge, FGraph *graph) {
+	assert (graphedge != NULL);
+
+	f_listitem_init (&graphedge->base);
+	graphedge->graph = graph;
 }
 
 void f_graphedge_fini (FGraphEdge *graphedge, FVisitorFunc fn, void *user_data) {
+	assert (graphedge != NULL);
 }
 
 void f_graphedge_delete (FGraphEdge *graphedge, FVisitorFunc fn, void *user_data) {
+	f_graphedge_fini (graphedge, fn, user_data);
+	f_free (graphedge);
 }
 
 void f_graphvertex_init (FGraphVertex *graphvertex, FGraph *graph) {
+	assert (graphvertex != NULL);
+
+	f_listitem_init (&graphvertex->base);
+	graphvertex->graph = graph;
 }
 
 void f_graphvertex_fini (FGraphVertex *graphvertex, FVisitorFunc fn, void *user_data) {
+	assert (graphvertex != NULL);
 }
 
 void f_graphvertex_delete (FGraphVertex *graphvertex, FVisitorFunc fn, void *user_data) {
+	f_graphvertex_fini (graphvertex, fn, user_data);
+	f_free (graphvertex);
 }
 
 /* vim: set ts=2 sw=2 noet: */
