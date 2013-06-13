@@ -32,6 +32,14 @@ struct FListItem {
 	FListItem *previous;
 };
 
+#define FLISTITEM_INIT(name) { \
+	.next = &(name), \
+	.previous = &(name) \
+}
+
+#define FLISTITEM(name) \
+	FListItem name = FLISTITEM_INIT (name)
+
 void f_listitem_init (FListItem *listitem);
 void f_listitem_fini (FListItem *listitem, FVisitorFunc fn, void *user_data);
 
@@ -48,6 +56,13 @@ typedef struct FList FList;
 struct FList {
 	FListItem head;
 };
+
+#define FLIST_INIT(name) { \
+	.head = FLISTITEM_INIT (name.head) \
+}
+
+#define FLIST(name) \
+	FList name = FLIST_INIT (name)
 
 void f_list_init (FList *list);
 void f_list_fini (FList *list, FVisitorFunc fn, void *user_data);
