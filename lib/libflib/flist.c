@@ -26,7 +26,6 @@
 
 #include "flist.h"
 
-#include "flistaccumulator.h"
 #include "fstdlib.h"
 
 void f_listitem_init (FListItem *listitem) {
@@ -633,11 +632,13 @@ void _f_ptrlist_remove_all_detect (FPtrList **ptrlist, FDetectFunc dfn, void *us
  * The caller is responsible for freeing the old list
  */
 FPtrList *f_ptrlist_reverse (FPtrList *ptrlist) {
-	FPtrListAccumulator listaccumulator;
+	FPtrList *ptrlist_reverse = f_ptrlist_new ();
+	FPtrListItem *it;
 
-	f_ptrlistaccumulator_init (&listaccumulator, f_ptrlist_new ());
-	f_ptrlist_foreach (ptrlist, (FVisitorFunc)f_ptrlistreverseaccumulate, &listaccumulator);
-	return f_ptrlistaccumulator_fini (&listaccumulator);
+	f_foreach (it, ptrlist) {
+		ptrlist_reverse = f_ptrlist_append (ptrlist_reverse, it->data);
+	}
+	return ptrlist_reverse;
 }
 
 void f_ptrlist_rforeach (FPtrList *ptrlist, FVisitorFunc fn, void *user_data) {

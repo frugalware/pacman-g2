@@ -24,7 +24,6 @@ libflib_posix_SOURCES = \
 libflib_utils_SOURCES = \
 	fgraph.c \
 	flist.c \
-	flistaccumulator.c \
 	fstringlist.c
 
 libflib_la_SOURCES = \
