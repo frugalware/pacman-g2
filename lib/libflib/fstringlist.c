@@ -59,6 +59,14 @@ const char *f_stringlistitem_get (FStringListItem *stringlistitem) {
 	return stringlistitem != NULL ? stringlistitem->str : NULL;
 }
 
+void f_stringlist_delete (FPtrList *stringlist) {
+	f_ptrlist_delete (stringlist, (FVisitorFunc)free, NULL);
+}
+
+FPtrList *f_stringlist_add_sorted (FPtrList *stringlist, const char *str) {
+	return f_ptrlist_add_sorted (stringlist, f_strdup (str), (FCompareFunc)strcmp, NULL);
+}
+
 FPtrList *f_stringlist_append (FPtrList *list, const char *str) {
 	return f_ptrlist_append (list, f_strdup (str));
 }
