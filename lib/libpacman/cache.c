@@ -169,25 +169,17 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 		}
 
 		f_foreach (i, pkg->groups) {
-			if(!f_stringlist_find (db->grpcache, i->data)) {
-				pmgrp_t *grp = _pacman_grp_new();
+			const char *group_name = i->data;
+			FPtrListItem *it = f_stringlist_find (db->grpcache, group_name);
+			pmgrp_t *grp = it != NULL ? it->data : NULL;
+
+			if(grp == NULL) {
+				grp = _pacman_grp_new();
 
 				STRNCPY(grp->name, (char *)i->data, GRP_NAME_LEN);
-				grp->packages = f_ptrlist_add_sorted(grp->packages, pkg->name, (FCompareFunc)_pacman_grp_cmp, NULL);
 				db->grpcache = f_ptrlist_add_sorted(db->grpcache, grp, (FCompareFunc)_pacman_grp_cmp, NULL);
-			} else {
-				pmlist_t *j;
-
-				f_foreach (j, db->grpcache) {
-					pmgrp_t *grp = j->data;
-
-					if(strcmp(grp->name, i->data) == 0) {
-						if(!f_stringlist_find (grp->packages, pkg->name)) {
-							grp->packages = f_ptrlist_add_sorted(grp->packages, (char *)pkg->name, (FCompareFunc)_pacman_grp_cmp, NULL);
-						}
-					}
-				}
 			}
+			_pacman_grp_add (grp, pkg);
 		}
 	}
 
@@ -198,17 +190,12 @@ void _pacman_db_free_grpcache(pmdb_t *db)
 {
 	pmlist_t *lg;
 
-	if(db == NULL || db->grpcache == NULL) {
+	if (db == NULL) {
 		return;
 	}
 
-	f_foreach (lg, db->grpcache) {
-		pmgrp_t *grp = lg->data;
-
-		FREELISTPTR(grp->packages);
-		FREEGRP(lg->data);
-	}
-	FREELIST(db->grpcache);
+	f_ptrlist_delete (db->grpcache, (FVisitorFunc)_pacman_grp_delete, NULL);
+	db->grpcache = f_ptrlist_new (); /* Reset grpcache till API is not changed */
 }
 
 pmlist_t *_pacman_db_get_grpcache(pmdb_t *db)
