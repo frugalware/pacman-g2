@@ -21,9 +21,12 @@
 
 #include "config.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#include <fstringlist.h>
 
 /* pacman-g2 */
 #include "group.h"
@@ -35,40 +38,41 @@
 
 pmgrp_t *_pacman_grp_new()
 {
-	pmgrp_t* grp = _pacman_malloc(sizeof(pmgrp_t));
+	pmgrp_t* group = _pacman_malloc(sizeof(*group));
 
-	if(grp == NULL) {
-		return(NULL);
+	if(group != NULL) {
+		group->name[0] = '\0';
+		group->packages = f_ptrlist_new ();
 	}
-
-	grp->name[0] = '\0';
-	grp->packages = NULL;
-
-	return(grp);
+	return group;
 }
 
-void _pacman_grp_free(void *data)
+void _pacman_grp_delete (pmgrp_t *group)
 {
-	pmgrp_t *grp = data;
-
-	if(grp == NULL) {
+	if(group == NULL) {
 		return;
 	}
 
-	FREELIST(grp->packages);
-	free(grp);
-
-	return;
+	f_stringlist_delete (group->packages);
+	free(group);
 }
 
 /* Helper function for sorting groups
  */
-int _pacman_grp_cmp(const void *g1, const void *g2)
-{
-	pmgrp_t *grp1 = (pmgrp_t *)g1;
-	pmgrp_t *grp2 = (pmgrp_t *)g2;
+int _pacman_grp_cmp(const pmgrp_t *group1, const pmgrp_t *group2) {
+	return strcmp (group1->name, group2->name);
+}
 
-	return(strcmp(grp1->name, grp2->name));
+void _pacman_grp_add (pmgrp_t *group, pmpkg_t *pkg) {
+	const char *pkgname;
+
+	assert (group != NULL);
+	assert (pkg != NULL);
+
+	pkgname = pkg->name;
+	if (f_ptrlist_find (group->packages, pkgname) == NULL) {
+		group->packages = f_stringlist_add_sorted(group->packages, pkgname);
+	}
 }
 
 /* vim: set ts=2 sw=2 noet: */

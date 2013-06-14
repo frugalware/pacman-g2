@@ -22,6 +22,7 @@
 #define _PACMAN_GROUP_H
 
 #include "list.h"
+#include "package.h"
 
 #define GRP_NAME_LEN 256
 
@@ -31,13 +32,12 @@ typedef struct __pmgrp_t {
 	pmlist_t *packages; /* List of strings */
 } pmgrp_t;
 
-#define FREEGRP(p) do { if(p) { _pacman_grp_free(p); p = NULL; } } while(0)
+pmgrp_t *_pacman_grp_new (void);
+void _pacman_grp_delete (pmgrp_t *group);
 
-#define FREELISTGRPS(p) _FREELIST(p, _pacman_grp_free)
+void _pacman_grp_add (pmgrp_t *group, pmpkg_t *pkg);
 
-pmgrp_t *_pacman_grp_new(void);
-void _pacman_grp_free(void *data);
-int _pacman_grp_cmp(const void *g1, const void *g2);
+int _pacman_grp_cmp(const pmgrp_t *group1, const pmgrp_t *group2);
 
 #endif /* _PACMAN_GROUP_H */
 
