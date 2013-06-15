@@ -17,6 +17,9 @@ libflib_crypto_hash_SOURCES = \
 libflib_crypto_SOURCES = \
 	$(libflib_crypto_hash_SOURCES)
 
+libflib_inputoutput_SOURCES = \
+	fbytestream.c
+
 libflib_posix_SOURCES = \
 	fstdlib.c \
 	fstring.c
@@ -28,6 +31,7 @@ libflib_utils_SOURCES = \
 
 libflib_la_SOURCES = \
 	$(libflib_crypto_SOURCES) \
+	$(libflib_inputoutput_SOURCES) \
 	$(libflib_posix_SOURCES) \
 	$(libflib_utils_SOURCES) \
 	fcallbacks.c \
