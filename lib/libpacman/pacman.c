@@ -1041,6 +1041,11 @@ int pacman_reg_match(const char *string, const char *pattern)
 	return(_pacman_reg_match(string, pattern));
 }
 
+/** Parses a configuration file.
+ * @param file path to the config file.
+ * @param this_section the config current section being parsed
+ * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ */
 static
 int _pacman_parse_config(char *file, const char *this_section)
 {
@@ -1291,7 +1296,6 @@ int _pacman_parse_config(char *file, const char *this_section)
 
 /** Parses a configuration file.
  * @param file path to the config file.
- * @param this_section the config current section being parsed
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
 int pacman_parse_config (char *file) {

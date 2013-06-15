@@ -801,11 +801,10 @@ int _pacman_db_remove(pmdb_t *db, pmpkg_t *info)
 	return(0);
 }
 
-/* reads dbpath/.lastupdate and populates *ts with the contents.
+/* Reads dbpath/treename.lastupdate and populates *ts with the contents.
  * *ts should be malloc'ed and should be at least 15 bytes.
  *
- * Returns 0 on success, 1 on error
- *
+ * Returns 0 on success, 1 on error.
  */
 int _pacman_db_getlastupdate(pmdb_t *db, char *ts)
 {
@@ -835,7 +834,7 @@ int _pacman_db_getlastupdate(pmdb_t *db, char *ts)
 	return(0);
 }
 
-/* writes the dbpath/.lastupdate with the contents of *ts
+/* Writes the dbpath/treename.lastupdate file with the contents of *ts
  */
 int _pacman_db_setlastupdate(pmdb_t *db, char *ts)
 {

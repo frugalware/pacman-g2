@@ -1,5 +1,5 @@
 /*
- *  fstream.c
+ *  fbytestream.c
  *
  *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
  *
