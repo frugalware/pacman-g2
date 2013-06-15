@@ -22,9 +22,9 @@
 #define F_OBJECT_H
 
 typedef struct FObject FObject;
-typedef struct FObjectOps FObjectOps;
+typedef struct FObjectOperations FObjectOperations;
 
-struct FObjectOps {
+struct FObjectOperations {
 	/* int  (*init) (FObject *object); */
 	void (*fini) (FObject *object);
 #if 0
@@ -34,13 +34,13 @@ struct FObjectOps {
 };
 
 struct FObject {
-	const struct FObjectOps *ops;
+	const struct FObjectOperations *operations;
 };
 
 void f_object_delete (FObject *object);
 
 /* Implementation details */
-int f_object_init (FObject *object, const FObjectOps *ops);
+int f_object_init (FObject *object, const FObjectOperations *operations);
 int f_object_fini (FObject *object);
 
 #endif /* F_OBJECT_H */

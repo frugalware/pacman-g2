@@ -30,7 +30,7 @@ struct pmfile {
 };
 
 struct pmfile_ops {
-	FObjectOps base;
+	FObjectOperations base;
 };
 
 struct pmfile *_pacman_file_new(void);

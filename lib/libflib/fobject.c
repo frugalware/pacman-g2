@@ -26,19 +26,19 @@
 
 #include "fobject.h"
 
-int f_object_init (FObject *object, const FObjectOps *ops) {
+int f_object_init (FObject *object, const FObjectOperations *operations) {
 	if (object == NULL ||
-			ops == NULL) {
+			operations == NULL) {
 		return EINVAL;
 	}
 
-	object->ops = ops;
+	object->operations = operations;
 	return 0;
 }
 
 int f_object_fini (FObject *object) {
 	if (object == NULL ||
-			object->ops == NULL) {
+			object->operations == NULL) {
 		return EINVAL;
 	}
 
@@ -47,9 +47,9 @@ int f_object_fini (FObject *object) {
 
 void f_object_delete (FObject *object) {
 	if (object != NULL) {
-		if (object->ops == NULL &&
-				object->ops->fini != NULL) {
-			object->ops->fini (object);
+		if (object->operations == NULL &&
+				object->operations->fini != NULL) {
+			object->operations->fini (object);
 		}
 		free (object);
 	}

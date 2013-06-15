@@ -141,7 +141,7 @@ void __pacman_trans_fini(FObject *obj) {
 }
 
 static const
-FObjectOps _pacman_trans_ops = {
+FObjectOperations _pacman_trans_ops = {
 	.fini = __pacman_trans_fini,
 };
 

@@ -76,7 +76,7 @@ void _pacman_handle_fini(pmhandle_t *ph)
 }
 
 static const
-FObjectOps _pacman_handle_ops = {
+FObjectOperations _pacman_handle_ops = {
 	.fini = _pacman_handle_fini,
 };
 
