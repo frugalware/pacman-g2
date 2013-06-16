@@ -116,10 +116,6 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 		/* FIXME: precompile regex once per loop, and handle bad regexp more gracefully */
 		const char *targ;
 
-		if(i->data == NULL) {
-			continue;
-		}
-
 		targ = i->data;
 		_pacman_log(PM_LOG_DEBUG, "searching for target '%s'\n", targ);
 
