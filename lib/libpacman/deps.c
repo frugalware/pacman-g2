@@ -225,6 +225,12 @@ pmdepmissing_t *_pacman_depmissing_new(const char *target, unsigned char type, u
 	return(miss);
 }
 
+pmdepmissing_t *_pacman_depmissing_clone (pmdepmissing_t *depmissing) {
+	pmdepmissing_t *depmissing_clone = f_memdup (depmissing);
+
+	return depmissing_clone;
+}
+
 static
 int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
 {
@@ -558,11 +564,10 @@ int _pacman_resolvedeps (pmtrans_t *trans, pmlist_t *deps, pmlist_t **data)
 			_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"),
 			          miss->target, miss->depend.name);
 			if(data) {
-				if ((miss = _pacman_malloc (sizeof (*miss))) == NULL) {
+				if ((miss = _pacman_depmissing_clone (miss)) == NULL) {
 					FREELIST(*data);
 					goto error;
 				}
-				*miss = *(pmdepmissing_t *)i->data;
 				*data = _pacman_list_add(*data, miss);
 			}
 			pm_errno = PM_ERR_UNSATISFIED_DEPS;
@@ -585,11 +590,10 @@ int _pacman_resolvedeps (pmtrans_t *trans, pmlist_t *deps, pmlist_t **data)
 			} else {
 				_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\""), miss->target);
 				if(data) {
-					if ((miss = _pacman_malloc (sizeof (*miss))) == NULL) {
+					if ((miss = _pacman_depmissing_clone (miss)) == NULL) {
 						FREELIST(*data);
 						goto error;
 					}
-					*miss = *(pmdepmissing_t *)i->data;
 					*data = _pacman_list_add(*data, miss);
 				}
 				pm_errno = PM_ERR_UNSATISFIED_DEPS;
