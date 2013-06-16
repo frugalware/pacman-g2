@@ -205,6 +205,7 @@ FList *f_list_deep_copy (FList *list, FCopyFunc cfn, void *user_data) {
 
 FListItem *f_list_detect (FList *list, FDetectFunc dfn, void *user_data) {
 	assert (list != NULL);
+
 	if (dfn != NULL) {
 		FListItem *it;
 
@@ -219,6 +220,7 @@ FListItem *f_list_detect (FList *list, FDetectFunc dfn, void *user_data) {
 
 void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
 	assert (list != NULL);
+
 	if (fn != NULL) {
 		FListItem *it;
 
@@ -230,6 +232,7 @@ void f_list_foreach (FList *list, FVisitorFunc fn, void *user_data) {
 
 void f_list_foreach_safe (FList *list, FVisitorFunc fn, void *user_data) {
 	assert (list != NULL);
+
 	if (fn != NULL) {
 		FListItem *it, *next;
 
