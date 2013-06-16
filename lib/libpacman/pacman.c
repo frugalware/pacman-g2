@@ -699,7 +699,6 @@ int pacman_trans_init(unsigned char type, unsigned int flags, pacman_trans_cb_ev
 		.progress = progress
 	};
 
-	_pacman_packages_transaction_init(handle->trans);
 	return(_pacman_trans_init(handle->trans, type, flags, cbs));
 }
 

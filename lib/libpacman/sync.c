@@ -55,7 +55,6 @@
 #include "sha1.h"
 #include "handle.h"
 #include "server.h"
-#include "packages_transaction.h"
 
 #include "fstringlist.h"
 

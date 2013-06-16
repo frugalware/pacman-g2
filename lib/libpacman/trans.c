@@ -561,15 +561,10 @@ int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 		return(0);
 	}
 
-	if (trans->set_state != NULL) {
-		if (trans->set_state(trans, new_state) == -1) {
-			/* pm_errno is set by trans->state_changed() */
-			return(-1);
-		}
-	}
+	/* FIXME: Call triggers from here */
 	trans->state = new_state;
 
-	return(0);
+	return 0;
 }
 
 static

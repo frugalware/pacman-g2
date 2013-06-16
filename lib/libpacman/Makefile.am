@@ -23,7 +23,6 @@ TARGETS = md5driver.c \
 	versioncmp.c \
 	backup.c \
 	file.c \
-	packages_transaction.c \
 	trans.c \
 	trans_sysupgrade.c \
 	sync.c \

@@ -54,7 +54,6 @@ struct __pmtrans_t {
 	FObject base;
 
 	const pmtrans_ops_t *ops;
-	int (*set_state)(pmtrans_t *trans, int new_state);
 	pmhandle_t *handle;
 	pmtranstype_t type;
 	unsigned int flags;
