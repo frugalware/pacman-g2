@@ -30,6 +30,7 @@
 #include <sys/stat.h>
 #endif
 
+#include <assert.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,46 +53,45 @@
 #include "cache.h"
 #include "pacman.h"
 
-pmdb_t *_pacman_db_new(char *root, char* dbpath, const char *treename)
-{
-	pmdb_t *db = _pacman_malloc (sizeof (*db));
-
-	if(db == NULL) {
-		return(NULL);
-	}
+void _pacman_db_init (pmdb_t *db, char *root, char* dbpath, const char *treename) {
+	assert (db != NULL);
 
 	db->path = _pacman_malloc(strlen(root)+strlen(dbpath)+strlen(treename)+2);
-	if(db->path == NULL) {
-		FREE(db);
-		return(NULL);
+	if (db->path == NULL) {
+		return;
 	}
 	sprintf(db->path, "%s%s/%s", root, dbpath, treename);
-
 	STRNCPY(db->treename, treename, PATH_MAX);
-
-	db->pkgcache = NULL;
-	db->grpcache = NULL;
-	db->servers = NULL;
-
-	return(db);
+	db->pkgcache = f_ptrlist_new ();
+	db->grpcache = f_ptrlist_new ();
+	db->servers = f_ptrlist_new ();
 }
 
-void _pacman_db_free(void *data)
-{
-	pmdb_t *db = data;
+void _pacman_db_fini (pmdb_t *db) {
+	assert (db != NULL);
 
 	_pacman_log(PM_LOG_FLOW1, _("unregistering database '%s'"), db->treename);
 
 	/* Cleanup */
 	_pacman_db_free_pkgcache(db);
-
 	_pacman_db_close(db);
-
 	FREELISTSERVERS(db->servers);
 	free(db->path);
-	free(db);
+}
 
-	return;
+pmdb_t *_pacman_db_new (char *root, char* dbpath, const char *treename) {
+	pmdb_t *db = _pacman_malloc (sizeof (*db));
+
+	if (db != NULL) {
+		_pacman_db_init (db, root, dbpath, treename);
+	}
+	return db;
+}
+
+void _pacman_db_free(pmdb_t *db)
+{
+	_pacman_db_fini (db);	
+	free(db);
 }
 
 int _pacman_db_cmp(const void *db1, const void *db2)
