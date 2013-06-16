@@ -96,11 +96,11 @@ pmlist_t *_pacman_db_get_pkgcache(pmdb_t *db)
 		return(NULL);
 	}
 
-	if(db->pkgcache == NULL) {
+	if (f_ptrlist_isempty (db->pkgcache) == 0) {
 		_pacman_db_load_pkgcache(db);
 	}
 
-	return(db->pkgcache);
+	return db->pkgcache;
 }
 
 int _pacman_db_add_pkgincache(pmdb_t *db, pmpkg_t *pkg)
