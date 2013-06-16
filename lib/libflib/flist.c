@@ -239,6 +239,10 @@ void f_list_foreach_safe (FList *list, FVisitorFunc fn, void *user_data) {
 	}
 }
 
+int f_list_isempty (FList *list) {
+	return f_list_begin (list) == f_list_end (list) ? 0 : -1;
+}
+
 void f_list_remove_all_detect (FList *list, FDetectFunc dfn, void *user_data, FList *list_removed) {
 	assert (list != NULL);
 	assert (list_removed != NULL);
@@ -592,6 +596,10 @@ void f_ptrlist_foreach_safe (FPtrList *ptrlist, FVisitorFunc fn, void *user_data
 		next = it->next;
 		fn (it, user_data);
 	}
+}
+
+int f_ptrlist_isempty (FPtrList *ptrlist) {
+	return ptrlist == NULL ? 0 : -1;
 }
 
 void _f_ptrlist_remove_all_detect (FPtrList **ptrlist, FDetectFunc dfn, void *user_data, FPtrList **ptrlist_removed) {
