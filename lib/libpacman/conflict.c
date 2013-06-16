@@ -249,7 +249,8 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 				pmlist_t *ret = chk_fileconflicts(p1->pkg_new->files, p2->pkg_new->files);
 
 				f_foreach (k, ret) {
-						pmconflict_t *conflict = _pacman_malloc(sizeof(pmconflict_t));
+						pmconflict_t *conflict = _pacman_malloc (sizeof (*conflict));
+
 						if(conflict == NULL) {
 							continue;
 						}
@@ -332,7 +333,8 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, pmlist_t **skip_list)
 					}
 				}
 				if(!ok) {
-					pmconflict_t *conflict = _pacman_malloc(sizeof(pmconflict_t));
+					pmconflict_t *conflict = _pacman_malloc (sizeof (*conflict));
+
 					if(conflict == NULL) {
 						continue;
 					}

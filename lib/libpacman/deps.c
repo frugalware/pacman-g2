@@ -558,7 +558,7 @@ int _pacman_resolvedeps (pmtrans_t *trans, pmlist_t *deps, pmlist_t **data)
 			_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"),
 			          miss->target, miss->depend.name);
 			if(data) {
-				if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
+				if ((miss = _pacman_malloc (sizeof (*miss))) == NULL) {
 					FREELIST(*data);
 					goto error;
 				}
@@ -585,7 +585,7 @@ int _pacman_resolvedeps (pmtrans_t *trans, pmlist_t *deps, pmlist_t **data)
 			} else {
 				_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\""), miss->target);
 				if(data) {
-					if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
+					if ((miss = _pacman_malloc (sizeof (*miss))) == NULL) {
 						FREELIST(*data);
 						goto error;
 					}

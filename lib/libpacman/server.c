@@ -629,7 +629,7 @@ char *_pacman_fetch_pkgurl(char *target)
 		pmlist_t *servers = NULL;
 		pmlist_t *files;
 
-		if((server = _pacman_malloc(sizeof(pmserver_t))) == NULL) {
+		if ((server = _pacman_malloc (sizeof (*server))) == NULL) {
 			return(NULL);
 		}
 		server->protocol = url;

@@ -54,7 +54,7 @@
 
 pmdb_t *_pacman_db_new(char *root, char* dbpath, const char *treename)
 {
-	pmdb_t *db = _pacman_malloc(sizeof(pmdb_t));
+	pmdb_t *db = _pacman_malloc (sizeof (*db));
 
 	if(db == NULL) {
 		return(NULL);
