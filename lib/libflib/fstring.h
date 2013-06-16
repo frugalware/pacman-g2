@@ -24,8 +24,11 @@
 #include "string.h"
 
 char *f_strdup (const char *s);
+char *f_strcpy (char *dest, const char *src);
+char *f_strncpy (char *dest, const char *src, size_t n);
 
 size_t f_strlen (const char *s);
+int f_strisempty (const char *s);
 
 #endif /* F_STRING_H */
 

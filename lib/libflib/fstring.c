@@ -21,6 +21,7 @@
 
 #include "config.h"
 
+#include <assert.h>
 #include <string.h>
 
 #include "fstring.h"
@@ -29,8 +30,34 @@ char *f_strdup (const char *s) {
 	return s != NULL ? strdup (s) : NULL;
 }
 
+char *f_strcpy (char *dest, const char *src) {
+	assert (dest != NULL);
+
+	if (f_strisempty (src) != 0) {
+		return strcpy (dest, src);
+	} else {
+		dest[0] = '\0';
+		return dest;
+	}
+}
+
+char *f_strncpy (char *dest, const char *src, size_t n) {
+	assert (dest != NULL);
+
+	if (f_strisempty (src) != 0) {
+		return strncpy (dest, src, n);
+	} else {
+		dest[0] = '\0';
+		return dest;
+	}
+}
+
 size_t f_strlen (const char *s) {
 	return s != NULL ? strlen (s) : 0;
+}
+
+int f_strisempty (const char *s) {
+	return (s == NULL || s[0] == '\0') ? 0 : -1;
 }
 
 /* vim: set ts=2 sw=2 noet: */

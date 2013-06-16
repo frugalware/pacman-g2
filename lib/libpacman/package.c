@@ -94,14 +94,9 @@ pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 	}
 	__pacman_file_init (&pkg->base, &_pacman_pkg_ops);
 
-	if(name && name[0] != 0) {
-		STRNCPY(pkg->name, name, PKG_NAME_LEN);
-	}
-	if(version && version[0] != 0) {
-		STRNCPY(pkg->version, version, PKG_VERSION_LEN);
-	}
+	f_strncpy (pkg->name, name, PKG_NAME_LEN-1);
+	f_strncpy (pkg->version, version, PKG_VERSION_LEN-1);
 	pkg->reason = PM_PKG_REASON_DEPEND;
-
 	return(pkg);
 }
 
