@@ -39,8 +39,8 @@
 
 /* Database */
 typedef struct __pmdb_t {
-	char *path;
-	char treename[PATH_MAX];
+	char path[PATH_MAX];
+	char *treename;
 	void *handle;
 	pmlist_t *pkgcache;
 	pmlist_t *grpcache;

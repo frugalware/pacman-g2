@@ -35,12 +35,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #ifdef CYGWIN
 #include <limits.h> /* PATH_MAX */
 #endif
+
+#include <fstring.h>
 
 /* pacman-g2 */
 #include "db.h"
@@ -54,14 +55,13 @@
 #include "pacman.h"
 
 void _pacman_db_init (pmdb_t *db, char *root, char* dbpath, const char *treename) {
+	size_t path_size;
+
 	assert (db != NULL);
 
-	db->path = _pacman_malloc(strlen(root)+strlen(dbpath)+strlen(treename)+2);
-	if (db->path == NULL) {
-		return;
-	}
-	sprintf(db->path, "%s%s/%s", root, dbpath, treename);
-	STRNCPY(db->treename, treename, PATH_MAX);
+	snprintf (db->path, PATH_MAX, "%s%s/", root, dbpath);
+	path_size = f_strlen (db->path);
+	db->treename = strncat (&db->path[path_size], treename, PATH_MAX - path_size - 1);
 	db->pkgcache = f_ptrlist_new ();
 	db->grpcache = f_ptrlist_new ();
 	db->servers = f_ptrlist_new ();
@@ -76,7 +76,6 @@ void _pacman_db_fini (pmdb_t *db) {
 	_pacman_db_free_pkgcache(db);
 	_pacman_db_close(db);
 	FREELISTSERVERS(db->servers);
-	free(db->path);
 }
 
 pmdb_t *_pacman_db_new (char *root, char* dbpath, const char *treename) {
