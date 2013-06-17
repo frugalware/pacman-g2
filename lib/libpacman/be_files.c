@@ -22,6 +22,7 @@
 
 #include "config.h"
 
+#include <assert.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +37,8 @@
 #ifdef CYGWIN
 #include <limits.h> /* PATH_MAX */
 #endif
+
+#include <fstringlist.h>
 
 /* pacman-g2 */
 #include "log.h"
@@ -53,16 +56,40 @@ static inline int islocal(pmdb_t *db)
 		return strcmp(db->treename, "local") == 0;
 }
 
-pmlist_t *_pacman_db_test(pmdb_t *db)
+int _pacman_localdb_open (pmdb_t *db) {
+	assert (db != NULL);
+
+	db->handle = opendir(db->path);
+	if(db->handle == NULL) {
+		RET_ERR(PM_ERR_DB_OPEN, -1);
+	}
+}
+
+void _pacman_localdb_close (pmdb_t *db) {
+	assert (db != NULL);
+
+	if(db->handle) {
+		closedir(db->handle);
+		db->handle = NULL;
+	}
+}
+
+void _pacman_localdb_rewind(pmdb_t *db)
 {
+	assert (db != NULL);
+
+	if (db->handle != NULL) {
+		rewinddir(db->handle);
+	}
+}
+
+pmlist_t *_pacman_localdb_test(pmdb_t *db) {
 	struct dirent *ent;
 	char path[PATH_MAX];
 	struct stat buf;
-	pmlist_t *ret = NULL;
+	pmlist_t *ret = f_ptrlist_new ();
 
-	/* testing sync dbs is not supported */
-	if (!islocal(db))
-		return ret;
+	assert (db != NULL);
 
 	while ((ent = readdir(db->handle)) != NULL) {
 		snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
@@ -89,84 +116,116 @@ pmlist_t *_pacman_db_test(pmdb_t *db)
 			ret = f_stringlist_append (ret, path);
 		}
 	}
-	return(ret);
+	return ret;
+}
+
+int _pacman_fdb_open (pmdb_t *db) {
+	char dbpath[PATH_MAX];
+
+	assert (db != NULL);
+
+	snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
+	struct stat buf;
+	if(stat(dbpath, &buf) != 0) {
+		// db is not there, we'll open it later
+		db->handle = NULL;
+		return 0;
+	}
+	if((db->handle = archive_read_new()) == NULL) {
+		RET_ERR(PM_ERR_DB_OPEN, -1);
+	}
+	archive_read_support_compression_all(db->handle);
+	archive_read_support_format_all(db->handle);
+	if(archive_read_open_filename(db->handle, dbpath, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
+		_pacman_fdb_close (db);
+		RET_ERR(PM_ERR_DB_OPEN, -1);
+	}
+	return 0;
+}
+
+void _pacman_fdb_close (pmdb_t *db) {
+	assert (db != NULL);
+
+	if(db->handle) {
+		archive_read_finish(db->handle);
+		db->handle = NULL;
+	}
+}
+
+void _pacman_fdb_rewind(pmdb_t *db)
+{
+	assert (db != NULL);
+
+	_pacman_fdb_close (db);
+	_pacman_fdb_open (db);
+}
+
+/* FIXME: Pass a logger object here instead of returning a string list of errors */
+pmlist_t *_pacman_db_test(pmdb_t *db)
+{
+	if (islocal(db)) {
+		return _pacman_localdb_test (db);
+	} else {
+		/* testing sync dbs is not supported */
+		return f_ptrlist_new ();
+	}
 }
 
 int _pacman_db_open(pmdb_t *db)
 {
-	if(db == NULL) {
+	int ret;
+	int (*open_fn) (pmdb_t *);
+
+	if (db == NULL) {
 		RET_ERR(PM_ERR_DB_NULL, -1);
 	}
 
 	if (islocal(db)) {
-		db->handle = opendir(db->path);
-		if(db->handle == NULL) {
-			RET_ERR(PM_ERR_DB_OPEN, -1);
-		}
+		open_fn = _pacman_localdb_open;
 	} else {
-		char dbpath[PATH_MAX];
-		snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
-		struct stat buf;
-		if(stat(dbpath, &buf) != 0) {
-			// db is not there, we'll open it later
-			db->handle = NULL;
-			return 0;
-		}
-		if((db->handle = archive_read_new()) == NULL) {
-			RET_ERR(PM_ERR_DB_OPEN, -1);
-		}
-		archive_read_support_compression_all(db->handle);
-		archive_read_support_format_all(db->handle);
-		if(archive_read_open_filename(db->handle, dbpath, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
-			archive_read_finish(db->handle);
-			RET_ERR(PM_ERR_DB_OPEN, -1);
-		}
+		open_fn = _pacman_fdb_open;
 	}
-	if(_pacman_db_getlastupdate(db, db->lastupdate) == -1) {
-		db->lastupdate[0] = '\0';
+	if ((ret = open_fn (db)) == 0) {
+		if(_pacman_db_getlastupdate(db, db->lastupdate) == -1) {
+			db->lastupdate[0] = '\0';
+		}
 	}
 
-	return(0);
+	return ret;
 }
 
 void _pacman_db_close(pmdb_t *db)
 {
-	if(db == NULL) {
+	int (*close_fn) (pmdb_t *);
+
+	if (db == NULL) {
 		return;
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("closing database '%s'"), db->treename);
 
-	if(db->handle) {
-		if (islocal(db))
-			closedir(db->handle);
-		else
-			archive_read_finish(db->handle);
-		db->handle = NULL;
+	if (islocal(db)) {
+		close_fn = _pacman_localdb_close;
+	} else {
+		close_fn = _pacman_fdb_close;
 	}
+	close_fn (db);
 }
 
 void _pacman_db_rewind(pmdb_t *db)
 {
-	if(db == NULL || (islocal(db) && db->handle == NULL)) {
+	void (*rewind_fn) (pmdb_t *);
+
+	if (db == NULL) {
 		return;
 	}
 
 	if (islocal(db)) {
-		rewinddir(db->handle);
+		rewind_fn = _pacman_localdb_rewind;
 	} else {
-		char dbpath[PATH_MAX];
-		snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
-		if (db->handle)
-			archive_read_finish(db->handle);
-		db->handle = archive_read_new();
-		archive_read_support_compression_all(db->handle);
-		archive_read_support_format_all(db->handle);
-		if (archive_read_open_filename(db->handle, dbpath, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
-			archive_read_finish(db->handle);
-			db->handle = NULL;
-		}
+		rewind_fn = _pacman_fdb_rewind;
 	}
+	rewind_fn (db);
 }
 
 pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
@@ -642,7 +701,6 @@ int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 	FILE *fp = NULL;
 	char path[PATH_MAX];
 	mode_t oldmask;
-	pmlist_t *lp = NULL;
 	int retval = 0;
 	int local = 0;
 
