@@ -873,7 +873,7 @@ int _pacman_db_getlastupdate(pmdb_t *db, char *ts)
 		return(-1);
 	}
 
-	snprintf(file, PATH_MAX, "%s%s/%s.lastupdate", handle->root, handle->dbpath, db->treename);
+	snprintf(file, PATH_MAX, "%s.lastupdate", db->path);
 
 	/* get the last update time, if it's there */
 	if((fp = fopen(file, "r")) == NULL) {

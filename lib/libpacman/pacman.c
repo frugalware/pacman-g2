@@ -38,6 +38,7 @@
 #include <stdarg.h>
 
 #include <fstring.h>
+#include <fstringlist.h>
 
 /* pacman-g2 */
 #include "pacman.h"
@@ -306,7 +307,7 @@ int pacman_db_setserver(pmdb_t *db, char *url)
  */
 int pacman_db_update(int force, PM_DB *db)
 {
-	char path[PATH_MAX], dirpath[PATH_MAX];
+	char path[PATH_MAX];
 	pmlist_t *files = NULL;
 	char newmtime[16] = "";
 	char lastupdate[16] = "";
@@ -337,7 +338,7 @@ int pacman_db_update(int force, PM_DB *db)
 
 	/* build a one-element list */
 	snprintf(path, PATH_MAX, "%s" PM_EXT_DB, db->treename);
-	files = _pacman_list_add(files, strdup(path));
+	files = f_stringlist_append (files, path);
 
 	snprintf(path, PATH_MAX, "%s%s", handle->root, handle->dbpath);
 
@@ -355,11 +356,10 @@ int pacman_db_update(int force, PM_DB *db)
 			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %s\n"), db->treename, newmtime);
 			updated = 1;
 		}
-		snprintf(dirpath, PATH_MAX, "%s%s/%s", handle->root, handle->dbpath, db->treename);
-		snprintf(path, PATH_MAX, "%s%s/%s" PM_EXT_DB, handle->root, handle->dbpath, db->treename);
+		snprintf(path, PATH_MAX, "%s" PM_EXT_DB, db->path);
 
 		/* remove the old dir */
-		_pacman_rmrf(dirpath);
+		_pacman_rmrf (db->path);
 
 		/* Cache needs to be rebuild */
 		_pacman_db_free_pkgcache(db);

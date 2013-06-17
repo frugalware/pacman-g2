@@ -1814,7 +1814,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 		if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 			/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
 			_pacman_ldconfig(handle->root);
-			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", handle->root, handle->dbpath, db_local->treename, info->name, info->version);
+			snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, info->name, info->version);
 			_pacman_runscriptlet(handle->root, pm_install, event->post.hook, info->version, oldpkg ? oldpkg->version : NULL, trans);
 		}
 
