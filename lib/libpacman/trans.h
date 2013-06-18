@@ -27,6 +27,8 @@
 typedef struct __pmtrans_t pmtrans_t;
 typedef struct __pmsyncpkg_t pmtranspkg_t;
 
+#include <fgraph.h>
+
 #include "handle.h"
 
 enum {
@@ -53,6 +55,7 @@ typedef struct __pmtrans_cbs_t {
 struct __pmtrans_t {
 	FObject base;
 
+	FGraph transpkg_graph;
 	const pmtrans_ops_t *ops;
 	pmhandle_t *handle;
 	pmtranstype_t type;
@@ -108,6 +111,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans);
 
 /* RENAMEME: struct pmtranspkg_t */
 typedef struct __pmsyncpkg_t {
+	FGraphVertex as_graphvertex;
 	pmtranstype_t type;
 	pmpkg_t *pkg_new;
 	pmpkg_t *pkg_local;
@@ -115,7 +119,7 @@ typedef struct __pmsyncpkg_t {
 	int flags;
 } pmsyncpkg_t;
 
-pmsyncpkg_t *__pacman_trans_pkg_new (int type, pmpkg_t *spkg);
+pmsyncpkg_t *__pacman_trans_pkg_new (pmtrans_t *trans);
 void __pacman_trans_pkg_delete (pmsyncpkg_t *pkg);
 
 const char *__pacman_transpkg_name (pmtranspkg_t *transpkg);

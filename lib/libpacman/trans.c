@@ -45,20 +45,18 @@
 
 #include "trans_sysupgrade.h"
 
-#include "fstringlist.h"
+#include <fstring.h>
+#include <fstringlist.h>
 
-pmsyncpkg_t *__pacman_trans_pkg_new(int type, pmpkg_t *spkg)
-{
-	pmsyncpkg_t *trans_pkg = _pacman_zalloc(sizeof(pmsyncpkg_t));
+pmsyncpkg_t *__pacman_trans_pkg_new (pmtrans_t *trans) {
+	pmsyncpkg_t *transpkg = _pacman_zalloc (sizeof (*transpkg));
 
-	if (trans_pkg == NULL) {
+	if (transpkg == NULL) {
 		return(NULL);
 	}
 
-	trans_pkg->type = type;
-	trans_pkg->pkg_new = spkg;
-
-	return(trans_pkg);
+	f_graphvertex_init (&transpkg->as_graphvertex, &trans->transpkg_graph);
+	return transpkg;
 }
 
 void __pacman_trans_pkg_delete(pmsyncpkg_t *trans_pkg)
@@ -426,7 +424,7 @@ error:
 }
 
 pmtranspkg_t *_pacman_trans_add_pkg (pmtrans_t *trans, pmpkg_t *pkg, pmtranstype_t type, unsigned int flags) {
-	pmtranspkg_t *transpkg = __pacman_trans_pkg_new(type, NULL);
+	pmtranspkg_t *transpkg = __pacman_trans_pkg_new (trans);
 	
 	/* Sanity checks */
 	ASSERT(transpkg != NULL, return NULL); /* pm_errno is allready set by __pacman_trans_pkg_new */
