@@ -196,7 +196,7 @@ int _pacman_db_open(pmdb_t *db)
 
 void _pacman_db_close(pmdb_t *db)
 {
-	int (*close_fn) (pmdb_t *);
+	void (*close_fn) (pmdb_t *);
 
 	if (db == NULL) {
 		return;
@@ -248,8 +248,9 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 
 	if(target != NULL) {
 		/* search for a specific package (by name only) */
+		/* search from the start */
+		_pacman_db_rewind (db);
 		if (islocal(db)) {
-			rewinddir(db->handle);
 			while(!found && (ent = readdir(db->handle)) != NULL) {
 				if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
 					continue;
@@ -273,9 +274,6 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 				}
 			}
 		} else {
-			// seek to start
-			_pacman_db_rewind(db->handle);
-
 			while (!found && archive_read_next_header(db->handle, &entry) == ARCHIVE_OK) {
 				// make sure it's a directory
 				const char *pathname = archive_entry_pathname(entry);
