@@ -25,6 +25,8 @@
 
 #include "fgraph.h"
 
+#include "fstdlib.h"
+
 void f_graph_init (FGraph *graph) {
 	assert (graph != NULL);
 
@@ -59,6 +61,26 @@ void f_graph_add_edge (FGraph *graph, FGraphEdge *edge) {
 
 static
 void f_graph_add_vertex (FGraph *graph, FGraphVertex *vertex) {
+}
+
+void f_graph_fill_edges_color (FGraph *graph, FGraphColor color) {
+	FGraphEdge *graphedge;
+
+	assert (graph != NULL);
+
+	f_foreach_entry (graphedge, &graph->edges, base) {
+		graphedge->color = color;
+	}
+}
+
+void f_graph_fill_vertices_color (FGraph *graph, FGraphColor color) {
+	FGraphVertex *graphvertex;
+
+	assert (graph != NULL);
+
+	f_foreach_entry (graphvertex, &graph->vertices, base) {
+		graphvertex->color = color;
+	}
 }
 
 void f_graphedge_init (FGraphEdge *graphedge, FGraph *graph) {

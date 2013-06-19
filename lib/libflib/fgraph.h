@@ -24,6 +24,7 @@
 #include <flist.h>
 
 typedef struct FGraph FGraph;
+typedef int FGraphColor;
 typedef struct FGraphEdge FGraphEdge;
 typedef struct FGraphVertex FGraphVertex;
 
@@ -35,12 +36,14 @@ struct FGraph {
 struct FGraphEdge {
 	FListItem base;
 	FGraph *graph;
+	FGraphColor color;
 };
 
 struct FGraphVertex {
 	FListItem base;
 	FGraph *graph;
 	FPtrList *edges;
+	FGraphColor color;
 };
 
 void f_graph_init (FGraph *graph);
@@ -48,6 +51,9 @@ void f_graph_fini (FGraph *graph, FVisitorFunc fn, void *user_data);
 
 FGraph *f_graph_new (void);
 void f_graph_delete (FGraph *graph, FVisitorFunc fn, void *user_data);
+
+void f_graph_fill_edges_color (FGraph *graph, FGraphColor color);
+void f_graph_fill_vertices_color (FGraph *graph, FGraphColor color);
 
 void f_graphedge_init (FGraphEdge *graphedge, FGraph *graph);
 void f_graphedge_fini (FGraphEdge *graphedge, FVisitorFunc fn, void *user_data);
