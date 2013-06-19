@@ -29,6 +29,7 @@ typedef struct FStringList FStringList;
 
 void f_stringlist_delete (FPtrList *stringlist);
 
+FPtrList *f_stringlist_add (FPtrList *list, const char *str);
 FPtrList *f_stringlist_add_sorted (FPtrList *list, const char *str);
 FPtrList *f_stringlist_append (FPtrList *list, const char *str);
 FPtrList *f_stringlist_deep_copy (FPtrList *list);
