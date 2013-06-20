@@ -262,7 +262,7 @@ int _pacman_depmissinglist_add (pmlist_t **depmissinglist, const char *target, u
  *
  * This function returns the new pmlist_t* target list.
  */
-void _pacman_sortbydeps(pmtrans_t *trans, int mode)
+void _pacman_sortbydeps (pmtrans_t *trans)
 {
 #if 0
 	typedef struct __pmgraph_t {
@@ -347,14 +347,6 @@ void _pacman_sortbydeps(pmtrans_t *trans, int mode)
 		}
 	}
 	_pacman_log(PM_LOG_DEBUG, _("sorting dependencies finished"));
-
-	if(mode == PM_TRANS_TYPE_REMOVE) {
-		/* we're removing packages, so reverse the order */
-		pmlist_t *tmptargs = f_ptrlist_reverse(newtargs);
-		/* free the old one */
-		FREELISTPTR(newtargs);
-		newtargs = tmptargs;
-	}
 
 	_FREELIST(vertices, _pacman_graph_free);
 

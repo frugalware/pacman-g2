@@ -624,7 +624,7 @@ int _pacman_sync_prepare (pmtrans_t *trans, pmlist_t **data)
 			goto cleanup;
 		}
 
-		_pacman_sortbydeps(trans, PM_TRANS_TYPE_ADD);
+		_pacman_sortbydeps (trans);
 
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
 
@@ -961,7 +961,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 				RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
 			}
 
-			_pacman_sortbydeps(trans, PM_TRANS_TYPE_ADD);
+			_pacman_sortbydeps (trans);
 			EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 		}
 
@@ -1050,7 +1050,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 			_pacman_removedeps(trans);
 		}
 
-		_pacman_sortbydeps(trans, PM_TRANS_TYPE_REMOVE);
+		_pacman_sortbydeps (trans);
 
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
