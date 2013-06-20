@@ -1132,7 +1132,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 			for(lp = f_ptrlist_last(info->files); lp; lp = lp->prev) {
 				int nb = 0;
 				double percent;
-				char *file = lp->data;
+				const char *file = lp->data;
 				char *hash_orig = _pacman_needbackup (file, info->backup);
 
 				if (position != 0) {
@@ -1164,15 +1164,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 					/* check the "skip list" before removing the file.
 					 * see the big comment block in db_find_conflicts() for an
 					 * explanation. */
-					int skipit = 0;
-					pmlist_t *j;
-					f_foreach (j, trans->skiplist) {
-						if(!strcmp(file, (char*)j->data)) {
-							skipit = 1;
-							break;
-						}
-					}
-					if(skipit) {
+					if (f_stringlist_find (trans->skiplist, file) != NULL) {
 						_pacman_log(PM_LOG_FLOW2, _("skipping removal of %s as it has moved to another package"),
 							file);
 					} else {
