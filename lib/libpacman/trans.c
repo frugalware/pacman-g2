@@ -308,7 +308,6 @@ pmtranspkg_t *_pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 			if (_pacman_versioncmp(transpkg_in->pkg_new->version, transpkg->pkg_new->version) < 0) {
 				_pacman_log (PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
 						transpkg_in->pkg_new->name, transpkg_in->pkg_new->version, transpkg->pkg_new->version);
-				f_ptrlist_find (trans->_packages, transpkg_in->pkg_new)->data = transpkg->pkg_new;
 				f_ptrswap (&transpkg_in->pkg_new, &transpkg->pkg_new);
 			} else {
 				_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
@@ -414,7 +413,6 @@ pmtranspkg_t *_pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 
 	_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), transpkg_name);
 	trans->packages = _pacman_list_add(trans->packages, transpkg);
-	trans->_packages = _pacman_list_add(trans->_packages, transpkg->pkg_new != NULL ? transpkg->pkg_new : transpkg->pkg_local);
 
 	return transpkg;
 

@@ -55,14 +55,13 @@ typedef struct __pmtrans_cbs_t {
 struct __pmtrans_t {
 	FObject base;
 
-	FGraph transpkg_graph;
+	FGraph transpkg_graph; /* FGraph of (pmsyncpkg_t *) */
 	const pmtrans_ops_t *ops;
 	pmhandle_t *handle;
 	pmtranstype_t type;
 	unsigned int flags;
 	unsigned char state;
 	pmlist_t *targets;     /* pmlist_t of (char *) */
-	pmlist_t *_packages;   /* pmlist_t of (pmpkg_t *) (TO BE REMOVED) */
 	pmlist_t *packages;    /* pmlist_t of (pmsyncpkg_t *) */
 	pmlist_t *skiplist;    /* pmlist_t of (char *) */
 	pmtrans_cbs_t cbs;
