@@ -1133,16 +1133,14 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 				int nb = 0;
 				double percent;
 				char *file = lp->data;
-				char *md5 =_pacman_needbackup(file, info->backup);
-				char *sha1 =_pacman_needbackup(file, info->backup);
+				char *hash_orig = _pacman_needbackup (file, info->backup);
 
 				if (position != 0) {
 				percent = (double)position / filenum;
 				}
-				if(md5 && sha1) {
+				if (hash_orig != NULL) {
 					nb = 1;
-					FREE(md5);
-					FREE(sha1);
+					FREE(hash_orig);
 				}
 				if(!nb && trans->type == PM_TRANS_TYPE_UPGRADE) {
 					/* check noupgrade */
