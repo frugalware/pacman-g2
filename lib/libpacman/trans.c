@@ -354,6 +354,10 @@ pmtranspkg_t *_pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 
 			/* Copy over the install reason */
 			transpkg->pkg_new->reason = (long)_pacman_pkg_getinfo(transpkg->pkg_local, PM_PKG_REASON);
+		} else {
+			/* no previous package version is installed, so this is actually
+			 * just an install. */
+			transpkg->type &= ~PM_TRANS_TYPE_REMOVE;
 		}
 
 		if (trans->flags & PM_TRANS_FLAG_ALLDEPS) {
@@ -1327,12 +1331,12 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 	const int howmany = f_ptrlist_count (trans->packages);
 
 	f_foreach (targ, trans->packages) {
-		pmtranstype_t transtype;
 		char pm_install[PATH_MAX];
 		pmtranspkg_t *transpkg = targ->data;
 		pmpkg_t *info = transpkg->pkg_new;
-		pmpkg_t *local = NULL;
+		pmpkg_t *local = transpkg->pkg_local;
 		pmpkg_t *oldpkg = NULL;
+		pmtranstype_t transtype = transpkg->type;
 		errors = 0;
 		remain = f_ptrlist_count (targ);
 		struct trans_event_table_item *event;
@@ -1341,17 +1345,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 			break;
 		}
 
-		transtype = (trans->type == PM_TRANS_TYPE_UPGRADE) ? PM_TRANS_TYPE_UPGRADE : PM_TRANS_TYPE_ADD;
-
 		/* see if this is an upgrade.  if so, remove the old package first */
-		if(transtype & PM_TRANS_TYPE_REMOVE) {
-			local = _pacman_db_get_pkgfromcache(db_local, info->name);
-			if(!local) {
-				/* no previous package version is installed, so this is actually
-				 * just an install.  */
-				transtype &= ~PM_TRANS_TYPE_REMOVE;
-			}
-		}
 		event = &trans_event_table[transtype];
 		EVENT(trans, event->pre.event, info, NULL);
 		if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
