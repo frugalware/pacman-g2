@@ -48,20 +48,6 @@
 static
 int _pacman_transpkg_resolvedeps (pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_t **data);
 
-static pmgraph_t *_pacman_graph_new(void)
-{
-	pmgraph_t *graph = _pacman_zalloc(sizeof(pmgraph_t));
-
-	return(graph);
-}
-
-static void _pacman_graph_free(void *data)
-{
-	pmgraph_t *graph = data;
-	FREELISTPTR(graph->children);
-	FREE(graph);
-}
-
 int _pacman_splitdep(const char *depstr, pmdepend_t *depend)
 {
 	char *str = NULL;
@@ -278,6 +264,15 @@ int _pacman_depmissinglist_add (pmlist_t **depmissinglist, const char *target, u
  */
 void _pacman_sortbydeps(pmtrans_t *trans, int mode)
 {
+#if 0
+	typedef struct __pmgraph_t {
+		int state; /* 0: untouched, -1: entered, other: leaving time */
+		void *data;
+		struct __pmgraph_t *parent; /* where did we come from? */
+		pmlist_t *children;
+		pmlist_t *childptr; /* points to a child in children list */
+	} pmgraph_t;
+
 	pmlist_t *newtargs = NULL;
 	pmlist_t *i, *j, *k;
 	pmlist_t *vertices = NULL;
@@ -364,6 +359,7 @@ void _pacman_sortbydeps(pmtrans_t *trans, int mode)
 	_FREELIST(vertices, _pacman_graph_free);
 
 	trans->_packages = newtargs;
+#endif
 }
 
 static
