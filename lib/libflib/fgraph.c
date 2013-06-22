@@ -95,11 +95,11 @@ void f_graph_fill_vertices_color (FGraph *graph, FGraphColor color) {
 	}
 }
 
-void f_graphedge_init (FGraphEdge *graphedge, FGraph *graph) {
+void f_graphedge_init (FGraphEdge *graphedge) {
 	assert (graphedge != NULL);
 
 	f_listitem_init (&graphedge->base);
-	graphedge->graph = graph;
+	graphedge->graph = NULL;
 	f_list_init (&graphedge->vertices);
 }
 
@@ -112,11 +112,11 @@ void f_graphedge_delete (FGraphEdge *graphedge, FVisitorFunc fn, void *user_data
 	f_free (graphedge);
 }
 
-void f_graphvertex_init (FGraphVertex *graphvertex, FGraph *graph) {
+void f_graphvertex_init (FGraphVertex *graphvertex) {
 	assert (graphvertex != NULL);
 
 	f_listitem_init (&graphvertex->base);
-	graphvertex->graph = graph;
+	graphvertex->graph = NULL;
 	f_list_init (&graphvertex->edges);
 }
 

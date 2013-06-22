@@ -56,7 +56,7 @@ pmsyncpkg_t *__pacman_trans_pkg_new (pmtrans_t *trans) {
 		return(NULL);
 	}
 
-	f_graphvertex_init (&transpkg->as_graphvertex, &trans->transpkg_graph);
+	f_graphvertex_init (&transpkg->as_graphvertex);
 	return transpkg;
 }
 
@@ -150,6 +150,7 @@ pmtrans_t *_pacman_trans_new()
 
 	if (trans != NULL) {
 		f_object_init (&trans->base, &_pacman_trans_ops);
+		f_graph_init (&trans->transpkg_graph);
 		trans->state = STATE_IDLE;
 	}
 
@@ -369,6 +370,7 @@ pmtranspkg_t *_pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 	}
 
 	_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), transpkg_name);
+	f_graph_add_vertex (&trans->transpkg_graph, &transpkg->as_graphvertex);
 	trans->packages = _pacman_list_add(trans->packages, transpkg);
 
 	return transpkg;

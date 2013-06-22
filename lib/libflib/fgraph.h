@@ -58,12 +58,12 @@ int f_graph_add_vertex (FGraph *graph, FGraphVertex *vertex);
 void f_graph_fill_edges_color (FGraph *graph, FGraphColor color);
 void f_graph_fill_vertices_color (FGraph *graph, FGraphColor color);
 
-void f_graphedge_init (FGraphEdge *graphedge, FGraph *graph);
+void f_graphedge_init (FGraphEdge *graphedge);
 void f_graphedge_fini (FGraphEdge *graphedge, FVisitorFunc fn, void *user_data);
 
 void f_graphedge_delete (FGraphEdge *graphedge, FVisitorFunc fn, void *user_data);
 
-void f_graphvertex_init (FGraphVertex *graphvertex, FGraph *graph);
+void f_graphvertex_init (FGraphVertex *graphvertex);
 void f_graphvertex_fini (FGraphVertex *graphvertex, FVisitorFunc fn, void *user_data);
 
 void f_graphvertex_delete (FGraphVertex *graphvertex, FVisitorFunc fn, void *user_data);

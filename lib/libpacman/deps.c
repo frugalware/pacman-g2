@@ -23,12 +23,16 @@
 
 #include "config.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #ifdef __sun__
 #include <strings.h>
 #endif
+
+#include <fstdlib.h>
+#include <fstringlist.h>
 
 /* pacman-g2 */
 #include "deps.h"
@@ -42,8 +46,6 @@
 #include "provide.h"
 #include "versioncmp.h"
 #include "handle.h"
-
-#include "fstringlist.h"
 
 static
 int _pacman_transpkg_resolvedeps (pmtrans_t *trans, pmtranspkg_t *transpkg, pmlist_t **data);
