@@ -246,54 +246,6 @@ pmpkg_t *_pacman_dblist_get_pkg(pmlist_t *dblist, const char *pkg_name, int flag
 }
 
 static
-pmpkg_t *fakepkg_create(const char *name)
-{
-	char *ptr, *p;
-	char *str = NULL;
-	pmpkg_t *dummy = NULL;
-
-	dummy = _pacman_pkg_new(NULL, NULL);
-	if (dummy == NULL) {
-		goto error;
-	}
-
-	/* Format: field1=value1|field2=value2|...
-	 * Valid fields are "name", "version" and "depend"
-	 */
-	str = strdup(name);
-	ptr = str;
-	while((p = strsep(&ptr, "|")) != NULL) {
-		char *q;
-		if(p[0] == 0) {
-			continue;
-		}
-		q = strchr(p, '=');
-		if(q == NULL) { /* not a valid token */
-			continue;
-		}
-		if(strncmp("name", p, q-p) == 0) {
-			STRNCPY(dummy->name, q+1, PKG_NAME_LEN);
-		} else if(strncmp("version", p, q-p) == 0) {
-			STRNCPY(dummy->version, q+1, PKG_VERSION_LEN);
-		} else if(strncmp("depend", p, q-p) == 0) {
-			dummy->depends = _pacman_list_add(dummy->depends, strdup(q+1));
-		} else {
-			_pacman_log(PM_LOG_ERROR, _("could not parse token %s"), p);
-		}
-	}
-	FREE(str);
-	if(dummy->name[0] == 0 || dummy->version[0] == 0) {
-		pm_errno = PM_ERR_PKG_INVALID_NAME;
-		goto error;
-	}
-	return(dummy);
-
-error:
-	FREEPKG(dummy);
-	return NULL;
-}
-
-static
 pmtranspkg_t *_pacman_trans_add (pmtrans_t *trans, pmtranspkg_t *transpkg) {
 	const char *transpkg_name = __pacman_transpkg_name (transpkg);
 	pmtranspkg_t *transpkg_in;

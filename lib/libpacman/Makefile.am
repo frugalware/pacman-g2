@@ -8,7 +8,12 @@ SUBDIRS = po
 localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
-TARGETS = md5driver.c \
+libpacman_fakedb_SOURCES = \
+	fakedb.c
+
+TARGETS = \
+	$(libpacman_fakedb_SOURCES) \
+	md5driver.c \
 	sha1.c \
 	util.c \
 	log.c \
