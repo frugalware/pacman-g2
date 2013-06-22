@@ -1654,31 +1654,29 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 					}
 					/* calculate an md5 or sha1 hash if this is in info->backup */
 					f_foreach (lp, info->backup) {
-						char *fn, *md5, *sha1;
+						char *fn;
 						char path[PATH_MAX];
 						char *file = lp->data;
+						char *file_hash = NULL;
+						size_t file_hash_length;
 
 						if(!file) continue;
 						if(!strcmp(file, pathname)) {
 							_pacman_log(PM_LOG_DEBUG, _("appending backup entry"));
 							snprintf(path, PATH_MAX, "%s%s", handle->root, file);
 							if (info->sha1sum != NULL && info->sha1sum != '\0') {
-							    md5 = _pacman_MDFile(path);
-							    /* 32 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
-							    if((fn = (char *)malloc(strlen(file)+34)) == NULL) {
-										RET_ERR(PM_ERR_MEMORY, -1);
-									}
-							    sprintf(fn, "%s\t%s", file, md5);
-							    FREE(md5);
+								file_hash = _pacman_MDFile(path);
 							} else {
-							    /* 41 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
-							    sha1 = _pacman_SHAFile(path);
-							    if((fn = (char *)malloc(strlen(file)+43)) == NULL) {
-										RET_ERR(PM_ERR_MEMORY, -1);
-									}
-							    sprintf(fn, "%s\t%s", file, sha1);
-							    FREE(sha1);
+								file_hash = _pacman_SHAFile(path);
 							}
+							file_hash_length = f_strlen (file_hash);
+							/* + 2 : 1 for the terminating NULL, and 1 for the tab delimiter */
+							if (file_hash_length <= 0 || 
+									(fn = (char *)malloc(strlen(file) + file_hash_length + 2)) == NULL) {
+								RET_ERR(PM_ERR_MEMORY, -1);
+							}
+							sprintf(fn, "%s\t%s", file, file_hash);
+							FREE(file_hash);
 							FREE(file);
 							lp->data = fn;
 						}
