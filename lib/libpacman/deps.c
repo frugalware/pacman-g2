@@ -212,7 +212,7 @@ pmdepmissing_t *_pacman_depmissing_new(const char *target, unsigned char type, u
 }
 
 pmdepmissing_t *_pacman_depmissing_clone (pmdepmissing_t *depmissing) {
-	pmdepmissing_t *depmissing_clone = f_memdup (depmissing);
+	pmdepmissing_t *depmissing_clone = f_memdup (depmissing, sizeof (*depmissing));
 
 	return depmissing_clone;
 }
