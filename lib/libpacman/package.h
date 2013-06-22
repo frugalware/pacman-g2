@@ -107,6 +107,7 @@ pmpkg_t *_pacman_pkg_isin(const char *needle, pmlist_t *haystack);
 int _pacman_pkg_splitname(char *target, char *name, char *version, int witharch);
 void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm);
 pmlist_t *_pacman_pkg_getowners(char *filename);
+char *_pacman_pkg_needbackup(pmpkg_t *pkg, char *file);
 
 int _pacman_pkg_filename(char *str, size_t size, const pmpkg_t *pkg);
 

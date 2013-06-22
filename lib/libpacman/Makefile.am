@@ -26,7 +26,6 @@ TARGETS = \
 	deps.c \
 	provide.c \
 	versioncmp.c \
-	backup.c \
 	file.c \
 	trans.c \
 	trans_sysupgrade.c \

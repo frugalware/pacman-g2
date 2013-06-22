@@ -5,6 +5,7 @@
  *  Copyright (c) 2005 by Aurelien Foret <orelien@chez.com>
  *  Copyright (c) 2005 by Christian Hamar <krics@linuxforum.hu>
  *  Copyright (c) 2005, 2006 by Miklos Vajna <vmiklos@frugalware.org>
+ *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -1085,7 +1086,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 				int nb = 0;
 				double percent;
 				const char *file = lp->data;
-				char *hash_orig = _pacman_needbackup (file, info->backup);
+				char *hash_orig = _pacman_pkg_needbackup (info, file);
 
 				if (position != 0) {
 				percent = (double)position / filenum;
@@ -1426,7 +1427,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 								nb = f_stringlist_find (info->backup, pathname);
 							} else {
 								/* op == PM_TRANS_TYPE_UPGRADE */
-								hash_orig = _pacman_needbackup(pathname, oldpkg->backup);
+								hash_orig = _pacman_pkg_needbackup (oldpkg, pathname);
 								if (hash_orig != NULL) {
 									nb = 1;
 								}
