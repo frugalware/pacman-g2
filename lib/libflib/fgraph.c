@@ -55,12 +55,24 @@ void f_graph_delete (FGraph *graph, FVisitorFunc fn, void *user_data) {
 	f_free (graph);
 }
 
-static
-void f_graph_add_edge (FGraph *graph, FGraphEdge *edge) {
+int f_graph_add_edge (FGraph *graph, FGraphEdge *edge) {
+	assert (graph != NULL);
+	assert (edge != NULL);
+	assert (edge->graph == NULL);
+
+	edge->graph = graph;
+	f_list_add (&graph->edges, &edge->base);
+	return 0;
 }
 
-static
-void f_graph_add_vertex (FGraph *graph, FGraphVertex *vertex) {
+int f_graph_add_vertex (FGraph *graph, FGraphVertex *vertex) {
+	assert (graph != NULL);
+	assert (vertex != NULL);
+	assert (vertex->graph == NULL);
+
+	vertex->graph = graph;
+	f_list_add (&graph->vertices, &vertex->base);
+	return 0;
 }
 
 void f_graph_fill_edges_color (FGraph *graph, FGraphColor color) {
@@ -88,6 +100,7 @@ void f_graphedge_init (FGraphEdge *graphedge, FGraph *graph) {
 
 	f_listitem_init (&graphedge->base);
 	graphedge->graph = graph;
+	f_list_init (&graphedge->vertices);
 }
 
 void f_graphedge_fini (FGraphEdge *graphedge, FVisitorFunc fn, void *user_data) {
@@ -104,6 +117,7 @@ void f_graphvertex_init (FGraphVertex *graphvertex, FGraph *graph) {
 
 	f_listitem_init (&graphvertex->base);
 	graphvertex->graph = graph;
+	f_list_init (&graphvertex->edges);
 }
 
 void f_graphvertex_fini (FGraphVertex *graphvertex, FVisitorFunc fn, void *user_data) {

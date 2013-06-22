@@ -37,13 +37,14 @@ struct FGraphEdge {
 	FListItem base;
 	FGraph *graph;
 	FGraphColor color;
+	FList vertices;
 };
 
 struct FGraphVertex {
 	FListItem base;
 	FGraph *graph;
-	FPtrList *edges;
 	FGraphColor color;
+	FList edges;
 };
 
 void f_graph_init (FGraph *graph);
@@ -52,6 +53,8 @@ void f_graph_fini (FGraph *graph, FVisitorFunc fn, void *user_data);
 FGraph *f_graph_new (void);
 void f_graph_delete (FGraph *graph, FVisitorFunc fn, void *user_data);
 
+int f_graph_add_edge (FGraph *graph, FGraphEdge *edge);
+int f_graph_add_vertex (FGraph *graph, FGraphVertex *vertex);
 void f_graph_fill_edges_color (FGraph *graph, FGraphColor color);
 void f_graph_fill_vertices_color (FGraph *graph, FGraphColor color);
 
