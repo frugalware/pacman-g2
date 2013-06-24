@@ -37,6 +37,8 @@
 #include <limits.h> /* PATH_MAX */
 #endif
 
+#include <fstringlist.h>
+
 #include <pacman.h>
 /* pacman-g2 */
 #include "util.h"
@@ -410,13 +412,13 @@ int syncpkg(list_t *targets)
 						list_display("   ", pkgs);
 						if(yesno(_(":: Install whole content? [Y/n] "))) {
 							f_foreach (k, pkgs) {
-								targets = list_add(targets, strdup(k->data));
+								targets = f_stringlist_add (targets, k->data);
 							}
 						} else {
 							f_foreach (k, pkgs) {
 								char *pkgname = k->data;
 								if(yesno(_(":: Install %s from group %s? [Y/n] "), pkgname, targ)) {
-									targets = list_add(targets, strdup(pkgname));
+									targets = f_stringlist_add (targets, pkgname);
 								}
 							}
 						}
@@ -439,7 +441,7 @@ int syncpkg(list_t *targets)
 								goto cleanup;
 							} else if(match) {
 								found++;
-								targets = list_add(targets, strdup(pkgname));
+								targets = f_stringlist_add (targets, pkgname);
 							}
 						}
 					}
@@ -457,7 +459,7 @@ int syncpkg(list_t *targets)
 					}
 					if(pname != NULL) {
 						/* targ is provided by pname */
-						targets = list_add(targets, strdup(pname));
+						targets = f_stringlist_add (targets, pname);
 					} else {
 						ERR(NL, _("could not add target '%s': not found in sync db\n"), targ);
 						retval = 1;

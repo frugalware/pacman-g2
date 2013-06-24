@@ -24,6 +24,8 @@
 #include <string.h>
 #include <libintl.h>
 
+#include <fstringlist.h>
+
 #include <pacman.h>
 /* pacman-g2 */
 #include "util.h"
@@ -66,12 +68,12 @@ int removepkg(list_t *targets)
 			all = yesno(_("    Remove whole content? [Y/n] "));
 			f_foreach (lp, pkgnames) {
 				if(all || yesno(_(":: Remove %s from group %s? [Y/n] "), (char *)pacman_list_getdata(lp), i->data)) {
-					finaltargs = list_add(finaltargs, strdup(pacman_list_getdata(lp)));
+					finaltargs = f_stringlist_add (finaltargs, pacman_list_getdata(lp));
 				}
 			}
 		} else {
 			/* not a group, so add it to the final targets */
-			finaltargs = list_add(finaltargs, strdup(i->data));
+			finaltargs = f_stringlist_add (finaltargs, i->data);
 		}
 	}
 
@@ -147,7 +149,7 @@ int removepkg(list_t *targets)
 		f_foreach (lp, packages) {
 			PM_SYNCPKG *ps = pacman_list_getdata(lp);
 			PM_PKG *pkg = pacman_sync_getinfo(ps, PM_SYNC_PKG);
-			i = list_add(i, strdup(pacman_pkg_getinfo(pkg, PM_PKG_NAME)));
+			i = f_stringlist_add (i, pacman_pkg_getinfo(pkg, PM_PKG_NAME));
 		}
 		list_display(_("\nTargets:"), i);
 		FREELIST(i);
