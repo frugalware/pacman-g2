@@ -25,6 +25,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <libintl.h>
+
+#include <fstringlist.h>
+
 #include <pacman.h>
 /* pacman-g2 */
 #include "util.h"
@@ -115,7 +118,7 @@ int deptestpkg(list_t *targets)
 						}
 						MSG(CL, "\n");
 					}
-					synctargs = list_add(synctargs, strdup(pacman_dep_getinfo(miss, PM_DEP_NAME)));
+					synctargs = f_stringlist_add (synctargs, pacman_dep_getinfo(miss, PM_DEP_NAME));
 				}
 				pacman_list_free(data);
 			break;

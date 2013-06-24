@@ -137,7 +137,7 @@ static list_t *ps_cgroup(pid_t pid) {
 			// drop newline
 			line[strlen(line)-1] = 0;
 			if ((ptr = strchr(line, ':')))
-				ret = list_add(ret, strdup(ptr+1));
+				ret = f_stringlist_add (ret, ptr+1);
 		}
 	}
 	return ret;
@@ -186,7 +186,7 @@ static list_t* ps_parse(FILE *fp)
 						}
 					}
 					if (!skip)
-						ps->files = list_add(ps->files, strdup(ptr+1));
+						ps->files = f_stringlist_add (ps->files, ptr+1);
 				}
 			}
 		}

@@ -487,7 +487,7 @@ pmtranspkg_t *_pacman_trans_add_target(pmtrans_t *trans, const char *target, pmt
 out:
 	transpkg = _pacman_trans_add_pkg (trans, pkg, type, flags);
 	if (transpkg != NULL) {
-		trans->targets = _pacman_list_add(trans->targets, strdup(target));
+		trans->targets = f_stringlist_add(trans->targets, target);
 	}
 	return transpkg;
 }
@@ -1679,7 +1679,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 				if(tmppm->data && (!strcmp(depend.name, info->name) || f_stringlist_find (info->provides, depend.name))) {
 					_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), tmpp->name, info->name);
-					info->requiredby = _pacman_list_add(info->requiredby, strdup(tmpp->name));
+					info->requiredby = f_stringlist_add(info->requiredby, tmpp->name);
 				}
 			}
 		}
@@ -1730,7 +1730,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 			}
 			_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), info->name, depinfo->name);
-			depinfo->requiredby = _pacman_list_add(_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), strdup(info->name));
+			depinfo->requiredby = f_stringlist_add (_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), info->name);
 			if(_pacman_db_write(db_local, depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
 				          depinfo->name, depinfo->version);
