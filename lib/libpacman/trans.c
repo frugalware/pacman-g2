@@ -1043,41 +1043,11 @@ struct trans_event_table_item {
 	}
 };
 
-int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
-{
-	pmpkg_t *info;
+int _pacman_localdb_remove_files (pmdb_t *localdb, pmpkg_t *info, pmtrans_t *trans) {
+	pmlist_t *lp;
+	int position = 0;
 	struct stat buf;
-	pmlist_t *targ, *lp;
 	char line[PATH_MAX+1];
-	int howmany, remain;
-	pmdb_t *db = trans->handle->db_local;
-
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-
-	howmany = f_ptrlist_count (trans->packages);
-
-	f_foreach (targ, trans->packages) {
-		int position = 0;
-		char pm_install[PATH_MAX];
-		info = ((pmtranspkg_t*)targ->data)->pkg_local;
-
-		if(handle->trans->state == STATE_INTERRUPTED) {
-			break;
-		}
-
-		remain = f_ptrlist_count (targ);
-
-		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
-			EVENT(trans, PM_TRANS_EVT_REMOVE_START, info, NULL);
-			_pacman_log(PM_LOG_FLOW1, _("removing package %s-%s"), info->name, info->version);
-
-			/* run the pre-remove scriptlet if it exists */
-			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
-				_pacman_runscriptlet(handle->root, pm_install, "pre_remove", info->version, NULL, trans);
-			}
-		}
 
 		if(!(trans->flags & PM_TRANS_FLAG_DBONLY)) {
 			int filenum = f_ptrlist_count (info->files);
@@ -1144,7 +1114,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 						} else {
 							_pacman_log(PM_LOG_FLOW2, _("unlinking %s"), file);
 							/* Need at here because we count only real unlinked files ? */
-							PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, (int)(percent * 100), howmany, howmany - remain + 1);
+//							PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, (int)(percent * 100), howmany, howmany - remain + 1);
 							position++;
 							if(unlink(line)) {
 								_pacman_log(PM_LOG_ERROR, _("cannot remove file %s"), file);
@@ -1153,9 +1123,45 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 					}
 				}
 			}
+//			PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, 100, howmany, howmany - remain + 1);
+		}
+}
+
+int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
+{
+	pmpkg_t *info;
+	pmlist_t *targ, *lp;
+	int howmany, remain;
+	pmdb_t *db = trans->handle->db_local;
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+
+	howmany = f_ptrlist_count (trans->packages);
+
+	f_foreach (targ, trans->packages) {
+		char pm_install[PATH_MAX];
+		info = ((pmtranspkg_t*)targ->data)->pkg_local;
+
+		if(handle->trans->state == STATE_INTERRUPTED) {
+			break;
 		}
 
-		PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, 100, howmany, howmany - remain + 1);
+		remain = f_ptrlist_count (targ);
+
+		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
+			EVENT(trans, PM_TRANS_EVT_REMOVE_START, info, NULL);
+			_pacman_log(PM_LOG_FLOW1, _("removing package %s-%s"), info->name, info->version);
+
+			/* run the pre-remove scriptlet if it exists */
+			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
+				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
+				_pacman_runscriptlet(handle->root, pm_install, "pre_remove", info->version, NULL, trans);
+			}
+		}
+
+		_pacman_localdb_remove_files (db, info, trans);
+
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			/* run the post-remove script if it exists */
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
