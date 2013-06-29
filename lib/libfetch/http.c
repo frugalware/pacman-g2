@@ -63,11 +63,6 @@
  * SUCH DAMAGE.
  */
 
-#if defined(__linux__) || defined(__MINT__)
-/* Keep this down to Linux or MiNT, it can create surprises elsewhere. */
-#define _GNU_SOURCE
-#endif
-
 /* Needed for gmtime_r on Interix */
 #define _REENTRANT
 
