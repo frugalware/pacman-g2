@@ -180,6 +180,7 @@ FPtrListItem *f_ptrlist_rend (FPtrList *ptrlist);
 FPtrListItem *f_ptrlist_first (FPtrList *ptrlist);
 FPtrListItem *f_ptrlist_last (FPtrList *ptrlist);
 
+FPtrList *f_ptrlist_add (FPtrList *ptrlist, void *data);
 FPtrList *f_ptrlist_add_sorted (FPtrList *ptrlist, void *data, FCompareFunc fn, void *user_data);
 FPtrList *f_ptrlist_append (FPtrList *ptrlist, void *data);
 FPtrList *f_ptrlist_append_unique (FPtrList *ptrlist, void *data, FCompareFunc fn, void *user_data);

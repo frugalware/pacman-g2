@@ -495,6 +495,10 @@ FPtrList *f_ptrlist_add_sorted (FPtrList *ptrlist, void *data, FCompareFunc fn, 
 	return(ptrlist);
 }
 
+FPtrList *f_ptrlist_add (FPtrList *ptrlist, void *ptr) {
+	return f_ptrlist_append (ptrlist, ptr);
+}
+
 FPtrList *f_ptrlist_append (FPtrList *ptrlist, void *ptr) {
 	return f_ptrlist_concat (ptrlist, f_ptrlistitem_new (ptr));
 }
