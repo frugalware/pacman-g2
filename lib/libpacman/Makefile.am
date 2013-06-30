@@ -1,7 +1,8 @@
 AUTOMAKE_OPTIONS = gnu
 DEFINES = -pedantic -D_GNU_SOURCE
 AM_CFLAGS = $(DEFINES) \
-	    -I$(top_srcdir)/lib/libftp
+	    -I$(top_srcdir)/lib/libftp \
+	    -I$(top_srcdir)/lib/libfetch
 SUBDIRS = po
 
 localedir = $(datadir)/locale
