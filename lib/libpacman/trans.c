@@ -30,6 +30,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <fstring.h>
+#include <fstringlist.h>
+
 /* pacman-g2 */
 #include "trans.h"
 
@@ -45,9 +48,6 @@
 #include "pacman.h"
 
 #include "trans_sysupgrade.h"
-
-#include <fstring.h>
-#include <fstringlist.h>
 
 pmsyncpkg_t *__pacman_trans_pkg_new (pmtrans_t *trans) {
 	pmsyncpkg_t *transpkg = _pacman_zalloc (sizeof (*transpkg));

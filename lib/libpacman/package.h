@@ -25,9 +25,7 @@
 #ifndef _PACMAN_PACKAGE_H
 #define _PACMAN_PACKAGE_H
 
-#if defined(__APPLE__) || defined(__sun__)
 #include <time.h>
-#endif
 
 #include "file.h"
 #include "list.h"

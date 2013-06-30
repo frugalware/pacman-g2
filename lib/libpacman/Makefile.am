@@ -11,8 +11,12 @@ DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 libpacman_fakedb_SOURCES = \
 	fakedb.c
 
+libpacman_frugalware_SOURCES = \
+	fdb.c
+
 TARGETS = \
 	$(libpacman_fakedb_SOURCES) \
+	$(libpacman_frugalware_SOURCES) \
 	md5driver.c \
 	sha1.c \
 	util.c \

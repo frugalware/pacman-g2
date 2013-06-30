@@ -41,9 +41,11 @@
 #include <fstringlist.h>
 
 /* pacman-g2 */
+#include "db.h"
+
+#include "fdb.h"
 #include "log.h"
 #include "util.h"
-#include "db.h"
 #include "pacman.h"
 #include "error.h"
 #include "handle.h"
@@ -117,47 +119,6 @@ pmlist_t *_pacman_localdb_test(pmdb_t *db) {
 		}
 	}
 	return ret;
-}
-
-int _pacman_fdb_open (pmdb_t *db) {
-	char dbpath[PATH_MAX];
-
-	assert (db != NULL);
-
-	snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
-	struct stat buf;
-	if(stat(dbpath, &buf) != 0) {
-		// db is not there, we'll open it later
-		db->handle = NULL;
-		return 0;
-	}
-	if((db->handle = archive_read_new()) == NULL) {
-		RET_ERR(PM_ERR_DB_OPEN, -1);
-	}
-	archive_read_support_compression_all(db->handle);
-	archive_read_support_format_all(db->handle);
-	if(archive_read_open_filename(db->handle, dbpath, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
-		_pacman_fdb_close (db);
-		RET_ERR(PM_ERR_DB_OPEN, -1);
-	}
-	return 0;
-}
-
-void _pacman_fdb_close (pmdb_t *db) {
-	assert (db != NULL);
-
-	if(db->handle) {
-		archive_read_finish(db->handle);
-		db->handle = NULL;
-	}
-}
-
-void _pacman_fdb_rewind(pmdb_t *db)
-{
-	assert (db != NULL);
-
-	_pacman_fdb_close (db);
-	_pacman_fdb_open (db);
 }
 
 /* FIXME: Pass a logger object here instead of returning a string list of errors */
