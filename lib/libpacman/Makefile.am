@@ -17,6 +17,9 @@ libpacman_frugalware_SOURCES = \
 TARGETS = \
 	$(libpacman_fakedb_SOURCES) \
 	$(libpacman_frugalware_SOURCES) \
+	cache.c \
+	db.c \
+	localdb.c \
 	md5driver.c \
 	sha1.c \
 	util.c \
@@ -24,8 +27,6 @@ TARGETS = \
 	error.c \
 	package.c \
 	group.c \
-	db.c \
-	cache.c \
 	conflict.c \
 	deps.c \
 	versioncmp.c \

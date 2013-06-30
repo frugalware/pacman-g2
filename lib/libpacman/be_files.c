@@ -44,6 +44,7 @@
 #include "db.h"
 
 #include "fdb.h"
+#include "localdb.h"
 #include "log.h"
 #include "util.h"
 #include "pacman.h"
@@ -56,69 +57,6 @@ static inline int islocal(pmdb_t *db)
 		return db == handle->db_local;
 	else
 		return strcmp(db->treename, "local") == 0;
-}
-
-int _pacman_localdb_open (pmdb_t *db) {
-	assert (db != NULL);
-
-	db->handle = opendir(db->path);
-	if(db->handle == NULL) {
-		RET_ERR(PM_ERR_DB_OPEN, -1);
-	}
-}
-
-void _pacman_localdb_close (pmdb_t *db) {
-	assert (db != NULL);
-
-	if(db->handle) {
-		closedir(db->handle);
-		db->handle = NULL;
-	}
-}
-
-void _pacman_localdb_rewind(pmdb_t *db)
-{
-	assert (db != NULL);
-
-	if (db->handle != NULL) {
-		rewinddir(db->handle);
-	}
-}
-
-pmlist_t *_pacman_localdb_test(pmdb_t *db) {
-	struct dirent *ent;
-	char path[PATH_MAX];
-	struct stat buf;
-	pmlist_t *ret = f_ptrlist_new ();
-
-	assert (db != NULL);
-
-	while ((ent = readdir(db->handle)) != NULL) {
-		snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
-		stat(path, &buf);
-		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..") || !S_ISDIR(buf.st_mode)) {
-			continue;
-		}
-		snprintf(path, PATH_MAX, "%s/%s/desc", db->path, ent->d_name);
-		if(stat(path, &buf))
-		{
-			snprintf(path, LOG_STR_LEN, _("%s: description file is missing"), ent->d_name);
-			ret = f_stringlist_append (ret, path);
-		}
-		snprintf(path, PATH_MAX, "%s/%s/depends", db->path, ent->d_name);
-		if(stat(path, &buf))
-		{
-			snprintf(path, LOG_STR_LEN, _("%s: dependency information is missing"), ent->d_name);
-			ret = f_stringlist_append (ret, path);
-		}
-		snprintf(path, PATH_MAX, "%s/%s/files", db->path, ent->d_name);
-		if(stat(path, &buf))
-		{
-			snprintf(path, LOG_STR_LEN, _("%s: file list is missing"), ent->d_name);
-			ret = f_stringlist_append (ret, path);
-		}
-	}
-	return ret;
 }
 
 /* FIXME: Pass a logger object here instead of returning a string list of errors */
