@@ -316,7 +316,7 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 				return(-1);
 			memset(c, 0, sizeof(cache_t));
 			c->str = strdup(ent->d_name);
-			cache = _pacman_list_add(cache, c);
+			cache = f_ptrlist_add (cache, c);
 		}
 	}
 	closedir(handle);
@@ -772,13 +772,13 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 				return(-1);
 			}
 			*ptr = pkgsize;
-			*data = _pacman_list_add(*data, ptr);
+			*data = f_ptrlist_add (*data, ptr);
 			if((ptr = (long long*)malloc(sizeof(long long)))==NULL) {
 				FREELIST(*data);
 				return(-1);
 			}
 			*ptr = freespace;
-			*data = _pacman_list_add(*data, ptr);
+			*data = f_ptrlist_add (*data, ptr);
 		}
 		pm_errno = PM_ERR_DISK_FULL;
 		return(-1);
