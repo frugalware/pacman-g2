@@ -63,7 +63,6 @@ void _pacman_db_close(pmdb_t *db);
 void _pacman_db_rewind(pmdb_t *db);
 pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq);
 int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info);
-int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
 int _pacman_db_remove(pmdb_t *db, pmpkg_t *info);
 int _pacman_db_getlastupdate(pmdb_t *db, char *ts);
 int _pacman_db_setlastupdate(pmdb_t *db, char *ts);

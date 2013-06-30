@@ -1697,7 +1697,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 
 		_pacman_log(PM_LOG_FLOW1, _("updating database"));
 		_pacman_log(PM_LOG_FLOW2, _("adding database entry '%s'"), info->name);
-		if(_pacman_db_write(db_local, info, INFRQ_ALL)) {
+		if (_pacman_localdb_write (db_local, info, INFRQ_ALL)) {
 			_pacman_log(PM_LOG_ERROR, _("could not update database entry %s-%s"),
 			          info->name, info->version);
 			pacman_logaction(NULL, _("error updating database for %s-%s!"), info->name, info->version);
@@ -1737,7 +1737,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 			}
 			_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), info->name, depinfo->name);
 			depinfo->requiredby = f_stringlist_add (_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), info->name);
-			if(_pacman_db_write(db_local, depinfo, INFRQ_DEPENDS)) {
+			if (_pacman_localdb_write (db_local, depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
 				          depinfo->name, depinfo->version);
 			}

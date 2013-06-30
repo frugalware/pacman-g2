@@ -170,7 +170,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 									m->data = strdup(new->name);
 								}
 							}
-							if(_pacman_db_write(db_local, depender, INFRQ_DEPENDS) == -1) {
+							if (_pacman_localdb_write (db_local, depender, INFRQ_DEPENDS) == -1) {
 								_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
 								          new->name, new->version);
 							}
@@ -179,7 +179,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 						}
 					}
 				}
-				if(_pacman_db_write(db_local, new, INFRQ_DEPENDS) == -1) {
+				if (_pacman_localdb_write (db_local, new, INFRQ_DEPENDS) == -1) {
 					_pacman_log(PM_LOG_ERROR, _("could not update new database entry %s-%s"),
 					          new->name, new->version);
 				}
