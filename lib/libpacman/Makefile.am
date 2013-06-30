@@ -24,7 +24,6 @@ TARGETS = \
 	cache.c \
 	conflict.c \
 	deps.c \
-	provide.c \
 	versioncmp.c \
 	file.c \
 	trans.c \

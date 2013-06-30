@@ -43,7 +43,6 @@
 #include "package.h"
 #include "db.h"
 #include "cache.h"
-#include "provide.h"
 #include "versioncmp.h"
 #include "handle.h"
 

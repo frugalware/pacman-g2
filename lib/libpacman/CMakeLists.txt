@@ -15,7 +15,6 @@ set(LIBPACMAN_SOURCES
 	md5driver.c
 	package.c
 	pacman.c
-	provide.c
 	remove.c
 	server.c
 	sha1.c

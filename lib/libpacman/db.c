@@ -186,4 +186,27 @@ pmdb_t *_pacman_db_register(const char *treename)
 
 	return(db);
 }
+
+/* return a pmlist_t of packages in "db" that provide "package"
+ */
+pmlist_t *_pacman_db_whatprovides(pmdb_t *db, const char *package)
+{
+	pmlist_t *pkgs = NULL;
+	pmlist_t *lp;
+
+	if(db == NULL || package == NULL || strlen(package) == 0) {
+		return(NULL);
+	}
+
+	for(lp = _pacman_db_get_pkgcache(db); lp; lp = lp->next) {
+		pmpkg_t *info = lp->data;
+
+		if (f_stringlist_find (_pacman_pkg_getinfo(info, PM_PKG_PROVIDES), package)) {
+			pkgs = _pacman_list_add(pkgs, info);
+		}
+	}
+
+	return(pkgs);
+}
+
 /* vim: set ts=2 sw=2 noet: */

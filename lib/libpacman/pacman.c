@@ -57,7 +57,6 @@
 #include "conflict.h"
 #include "sync.h"
 #include "handle.h"
-#include "provide.h"
 #include "server.h"
 
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))

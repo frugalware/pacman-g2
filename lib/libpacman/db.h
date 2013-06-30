@@ -68,6 +68,7 @@ int _pacman_db_remove(pmdb_t *db, pmpkg_t *info);
 int _pacman_db_getlastupdate(pmdb_t *db, char *ts);
 int _pacman_db_setlastupdate(pmdb_t *db, char *ts);
 pmdb_t *_pacman_db_register(const char *treename);
+pmlist_t *_pacman_db_whatprovides(pmdb_t *db, const char *package);
 
 #endif /* _PACMAN_DB_H */
 
