@@ -110,12 +110,13 @@ void _pacman_localdb_write_item_list (FILE *fp, const char *item_name, pmlist_t 
 	}	
 }
 
+/* FIXME: Technically only 'depends' files should contains changing fields
+ so this should be the only file we can alter, at the exception of 'reason' field */
 int _pacman_localdb_write (pmdb_t *db, pmpkg_t *info, unsigned int inforeq) {
 	FILE *fp = NULL;
 	char path[PATH_MAX];
 	mode_t oldmask;
 	int retval = 0;
-	int local = 1; /* FIXME: REMOVE */
 
 	if(db == NULL || info == NULL) {
 		return(-1);
@@ -141,7 +142,6 @@ int _pacman_localdb_write (pmdb_t *db, pmpkg_t *info, unsigned int inforeq) {
 			_pacman_localdb_write_item_list(fp, "DESC", info->desc_localized);
 		}
 		_pacman_localdb_write_item_list(fp, "GROUPS", info->groups);
-		if(local) {
 			if(info->url[0]) {
 				fprintf(fp, "%%URL%%\n"
 					"%s\n\n", info->url);
@@ -175,29 +175,12 @@ int _pacman_localdb_write (pmdb_t *db, pmpkg_t *info, unsigned int inforeq) {
 				fprintf(fp, "%%REASON%%\n"
 					"%d\n\n", info->reason);
 			}
-		} else {
-			if(info->size) {
-				fprintf(fp, "%%CSIZE%%\n"
-					"%ld\n\n", info->size);
-			}
-			if(info->usize) {
-				fprintf(fp, "%%USIZE%%\n"
-					"%ld\n\n", info->usize);
-			}
-			if(info->sha1sum) {
-				fprintf(fp, "%%SHA1SUM%%\n"
-					"%s\n\n", info->sha1sum);
-			} else if(info->md5sum) {
-				fprintf(fp, "%%MD5SUM%%\n"
-					"%s\n\n", info->md5sum);
-			}
-		}
 		fclose(fp);
 		fp = NULL;
 	}
 
 	/* FILES */
-	if(local && (inforeq & INFRQ_FILES)) {
+	if (inforeq & INFRQ_FILES) {
 		snprintf(path, PATH_MAX, "%s/%s-%s/files", db->path, info->name, info->version);
 		if((fp = fopen(path, "w")) == NULL) {
 			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/files"), db->treename);
@@ -219,22 +202,9 @@ int _pacman_localdb_write (pmdb_t *db, pmpkg_t *info, unsigned int inforeq) {
 			goto cleanup;
 		}
 		_pacman_localdb_write_item_list(fp, "DEPENDS", info->depends);
-		if (local) {
-			_pacman_localdb_write_item_list(fp, "REQUIREDBY", info->requiredby);
-		}
+		_pacman_localdb_write_item_list(fp, "REQUIREDBY", info->requiredby);
 		_pacman_localdb_write_item_list(fp, "CONFLICTS", info->conflicts);
 		_pacman_localdb_write_item_list(fp, "PROVIDES", info->provides);
-		if(!local) {
-			_pacman_localdb_write_item_list(fp, "REPLACES", info->replaces);
-			if(info->force) {
-				fprintf(fp, "%%FORCE%%\n"
-					"\n");
-			}
-			if(info->stick) {
-				fprintf(fp, "%%STICK%%\n"
-					"\n");
-			}
-		}
 		fclose(fp);
 		fp = NULL;
 	}
