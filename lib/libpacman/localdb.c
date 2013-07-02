@@ -98,6 +98,13 @@ pmlist_t *_pacman_localdb_test(pmdb_t *db) {
 }
 
 static
+void _pacman_localdb_write_item (FILE *fp, const char *item_name, const char *item) {
+	if (f_strisempty (item) != 0) {
+		fprintf(fp, "%%%s%%\n%s\n\n", item_name, item);
+	}
+}
+
+static
 void _pacman_localdb_write_item_list (FILE *fp, const char *item_name, pmlist_t *item_list) {
 	if (item_list != NULL) {
 		pmlist_t *i = item_list;
@@ -141,32 +148,14 @@ int _pacman_localdb_write (pmdb_t *db, pmpkg_t *info, unsigned int inforeq) {
 		if(info->desc[0]) {
 			_pacman_localdb_write_item_list(fp, "DESC", info->desc_localized);
 		}
-		_pacman_localdb_write_item_list(fp, "GROUPS", info->groups);
-			if(info->url[0]) {
-				fprintf(fp, "%%URL%%\n"
-					"%s\n\n", info->url);
-			}
-			_pacman_localdb_write_item_list(fp, "LICENSE", info->license);
-			if(info->arch[0]) {
-				fprintf(fp, "%%ARCH%%\n"
-					"%s\n\n", info->arch);
-			}
-			if(info->builddate[0]) {
-				fprintf(fp, "%%BUILDDATE%%\n"
-					"%s\n\n", info->builddate);
-			}
-			if(info->buildtype[0]) {
-				fprintf(fp, "%%BUILDTYPE%%\n"
-					"%s\n\n", info->buildtype);
-			}
-			if(info->installdate[0]) {
-				fprintf(fp, "%%INSTALLDATE%%\n"
-					"%s\n\n", info->installdate);
-			}
-			if(info->packager[0]) {
-				fprintf(fp, "%%PACKAGER%%\n"
-					"%s\n\n", info->packager);
-			}
+		_pacman_localdb_write_item_list (fp, "GROUPS", info->groups);
+		_pacman_localdb_write_item (fp, "URL", info->url);
+		_pacman_localdb_write_item_list (fp, "LICENSE", info->license);
+		_pacman_localdb_write_item (fp, "ARCH", info->arch);
+		_pacman_localdb_write_item (fp, "BUILDDATE", info->builddate);
+		_pacman_localdb_write_item (fp, "BUILDTYPE", info->buildtype);
+		_pacman_localdb_write_item (fp, "INSTALLDATE", info->installdate);
+		_pacman_localdb_write_item (fp, "PACKAGER", info->packager);
 			if(info->size) {
 				fprintf(fp, "%%SIZE%%\n"
 					"%ld\n\n", info->size);
