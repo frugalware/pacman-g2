@@ -143,8 +143,8 @@ int _pacman_localdb_write (pmdb_t *db, pmpkg_t *info, unsigned int inforeq) {
 			retval = 1;
 			goto cleanup;
 		}
-		fprintf(fp, "%%NAME%%\n%s\n\n"
-			"%%VERSION%%\n%s\n\n", info->name, info->version);
+		_pacman_localdb_write_item (fp, "NAME", info->name);
+		_pacman_localdb_write_item (fp, "VERSION", info->version);
 		if(info->desc[0]) {
 			_pacman_localdb_write_item_list(fp, "DESC", info->desc_localized);
 		}
