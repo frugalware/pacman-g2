@@ -51,17 +51,14 @@ unsigned int *pm_dleta_h=NULL, *pm_dleta_m=NULL, *pm_dleta_s=NULL;
 
 void _pacman_server_free(void *data)
 {
-	pmserver_t *server = data;
+	struct url *server = data;
 
 	if(server == NULL) {
 		return;
 	}
 
 	/* free memory */
-	FREE(server->protocol);
-	FREE(server->server);
-	FREE(server->path);
-	free(server);
+	fetchFreeURL(server);
 }
 
 /*
