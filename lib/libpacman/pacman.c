@@ -283,14 +283,14 @@ int pacman_db_setserver(pmdb_t *db, char *url)
 	}
 
 	if(url && strlen(url)) {
-		pmserver_t *server;
-		if((server = _pacman_server_new(url)) == NULL) {
+		struct url *server;
+		if((server = fetchParseURL(url)) == NULL) {
 			/* pm_errno is set by _pacman_server_new */
 			return(-1);
 		}
 		db->servers = _pacman_list_add(db->servers, server);
 		_pacman_log(PM_LOG_FLOW2, _("adding new server to database '%s': protocol '%s', server '%s', path '%s'"),
-				db->treename, server->protocol, server->server, server->path);
+				db->treename, server->scheme, server->host, server->doc);
 	} else {
 		FREELIST(db->servers);
 		_pacman_log(PM_LOG_FLOW2, _("serverlist flushed for '%s'"), db->treename);
