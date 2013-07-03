@@ -49,64 +49,6 @@ float *pm_dlrate=NULL;
 int *pm_dlxfered1=NULL;
 unsigned int *pm_dleta_h=NULL, *pm_dleta_m=NULL, *pm_dleta_s=NULL;
 
-pmserver_t *_pacman_server_new(char *url)
-{
-	pmserver_t *server = _pacman_zalloc(sizeof(pmserver_t));
-	char *ptr;
-
-	if(server == NULL) {
-		return(NULL);
-	}
-
-	/* parse our special url */
-	ptr = strstr(url, "://");
-	if(ptr == NULL) {
-		RET_ERR(PM_ERR_SERVER_BAD_LOCATION, NULL);
-	}
-	*ptr = '\0';
-	ptr++; ptr++; ptr++;
-	if(ptr == NULL || *ptr == '\0') {
-		RET_ERR(PM_ERR_SERVER_BAD_LOCATION, NULL);
-	}
-	server->protocol = strdup(url);
-	if(!strcmp(server->protocol, "ftp") || !strcmp(server->protocol, "http")) {
-		char *slash;
-		/* split the url into domain and path */
-		slash = strchr(ptr, '/');
-		if(slash == NULL) {
-			/* no path included, default to / */
-			server->path = strdup("/");
-		} else {
-			/* add a trailing slash if we need to */
-			if(slash[strlen(slash)-1] == '/') {
-				server->path = strdup(slash);
-			} else {
-				if((server->path = _pacman_malloc(strlen(slash)+2)) == NULL) {
-					return(NULL);
-				}
-				sprintf(server->path, "%s/", slash);
-			}
-			*slash = '\0';
-		}
-		server->server = strdup(ptr);
-	} else if(!strcmp(server->protocol, "file")){
-		/* add a trailing slash if we need to */
-		if(ptr[strlen(ptr)-1] == '/') {
-			server->path = strdup(ptr);
-		} else {
-			server->path = _pacman_malloc(strlen(ptr)+2);
-			if(server->path == NULL) {
-				return(NULL);
-			}
-			sprintf(server->path, "%s/", ptr);
-		}
-	} else {
-		RET_ERR(PM_ERR_SERVER_PROTOCOL_UNSUPPORTED, NULL);
-	}
-
-	return(server);
-}
-
 void _pacman_server_free(void *data)
 {
 	pmserver_t *server = data;
