@@ -285,7 +285,10 @@ int pacman_db_setserver(pmdb_t *db, char *url)
 	if(url && strlen(url)) {
 		struct url *server;
 		if((server = fetchParseURL(url)) == NULL) {
-			/* pm_errno is set by _pacman_server_new */
+			if(!strcmp(fetchLastErrString,"Malformed URL"))
+				pm_errno = PM_ERR_SERVER_BAD_LOCATION;
+			else if(!strcmp(fetchLastErrString,"Invalid URL scheme"))
+				pm_errno = PM_ERR_SERVER_PROTOCOL_UNSUPPORTED;
 			return(-1);
 		}
 		db->servers = _pacman_list_add(db->servers, server);
