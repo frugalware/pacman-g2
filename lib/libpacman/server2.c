@@ -92,6 +92,45 @@ int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *fi
 int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	pmlist_t *files, const char *mtime1, char *mtime2, int skip)
 {
+	int *remain = handle->dlremain;
+	int *howmany = handle->dlhowmany;
+
+	if(files == NULL) {
+		return (0);
+	}
+
+	pm_errno = 0;
+
+	if(remain) {
+		*remain = 1;
+	}
+
+	if(howmany) {
+		*howmany = _pacman_list_count(files);
+	}
+
+	unsetenv("FTP_PASSIVE_MODE");
+
+	setenv("FTP_PASSIVE_MODE",(handle->nopassiveftp) ? "no" : "yes",1);
+
+	unsetenv("HTTP_PROXY");
+
+	if(handle->proxyhost) {
+		char url[1024];
+		
+		snprintf(url,sizeof(url),
+			"http://%s:%d",
+			handle->proxyhost,
+			(handle->proxyport) ? (int) handle->proxyport : 80
+		);
+		
+		setenv("HTTP_PROXY",url,1);
+	}
+
+	unsetenv("FTP_PASSIVE_MODE");
+	
+	unsetenv("HTTP_PROXY");
+
 	return (-1);
 }
 
