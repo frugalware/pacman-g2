@@ -145,6 +145,64 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 			if(_pacman_list_is_strin(fn,complete)) {
 				continue;
 			}
+			
+			if(handle->xfercommand && strcmp(server->scheme,SCHEME_FILE)) {
+			}
+			else {
+				if(pm_dlfnm) {
+					char *s;
+					size_t k;
+				
+					snprintf(pm_dlfnm,PM_DLFNM_LEN,"%s",fn);
+					
+					for( s = pm_dlfnm ; *s ; ++s ) {
+						if(!strncmp(s,PM_EXT_DB,sizeof(PM_EXT_DB)-1)) {
+							break;
+						}
+						
+						if(!strncmp(s,PM_EXT_PKG,sizeof(PM_EXT_PKG)-1)) {
+							break;
+						}
+					}
+					
+					*s = '\0';
+					
+					for( k = strlen(pm_dlfnm) ; k < PM_DLFNM_LEN ; ++k ) {
+						pm_dlfnm[k] = ' ';
+					}
+					
+					pm_dlfnm[k] = '\0';
+				}
+			
+				if(pm_dloffset) {
+					*pm_dloffset = 0;
+				}
+				
+				if(pm_dlt0 && pm_dlt) {
+					gettimeofday(pm_dlt0,NULL);
+					*pm_dlt = *pm_dlt0;
+				}
+				
+				if(pm_dlrate) {
+					*pm_dlrate = 0;
+				}
+				
+				if(pm_dlxfered1) {
+					*pm_dlxfered1 = 0;
+				}
+				
+				if(pm_dleta_h) {
+					*pm_dleta_h = 0;
+				}
+				
+				if(pm_dleta_m) {
+					*pm_dleta_m = 0;
+				}
+				
+				if(pm_dleta_s) {
+					*pm_dleta_s = 0;
+				}
+			}
 		}
 		
 		if(_pacman_list_count(files) == pacman_list_count(complete)) {
