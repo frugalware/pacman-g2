@@ -98,6 +98,8 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	int count;
 	int done = 0;
 	struct url *server;
+	pmlist_t *lp;
+	pmlist_t *complete = NULL;
 
 	if(files == NULL) {
 		return (0);
@@ -136,6 +138,18 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 			continue;
 		
 		server = (struct url *) i->data;
+		
+		for( lp = files ; lp ; lp = lp->next ) {
+			char *fn = (char *) lp->data;
+			
+			if(_pacman_list_is_strin(fn,complete)) {
+				continue;
+			}
+		}
+		
+		if(_pacman_list_count(files) == pacman_list_count(complete)) {
+			done = 1;
+		}
 	}
 
 	unsetenv("FTP_PASSIVE_MODE");
