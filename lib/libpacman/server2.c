@@ -94,6 +94,10 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 {
 	int *remain = handle->dlremain;
 	int *howmany = handle->dlhowmany;
+	pmlist_t *i;
+	int count;
+	int done = 0;
+	struct url *server;
 
 	if(files == NULL) {
 		return (0);
@@ -125,6 +129,13 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		);
 		
 		setenv("HTTP_PROXY",url,1);
+	}
+
+	for( i = servers, count = 0 ; i && !done ; i = i->next, ++count ) {
+		if(count < skip)
+			continue;
+		
+		server = (struct url *) i->data;
 	}
 
 	unsetenv("FTP_PASSIVE_MODE");
