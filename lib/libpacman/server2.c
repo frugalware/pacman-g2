@@ -98,6 +98,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	int count;
 	int done = 0;
 	struct url *server;
+	char *serverurl;
 	pmlist_t *lp;
 	pmlist_t *complete = NULL;
 
@@ -122,7 +123,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	unsetenv("HTTP_PROXY");
 
 	if(handle->proxyhost) {
-		char url[1024];
+		char url[PATH_MAX];
 		
 		snprintf(url,sizeof(url),
 			"http://%s:%d",
@@ -139,6 +140,8 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		
 		server = (struct url *) i->data;
 		
+		serverurl = fetchStringifyURL(server);
+		
 		for( lp = files ; lp ; lp = lp->next ) {
 			char *fn = (char *) lp->data;
 			
@@ -147,8 +150,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 			}
 			
 			if(handle->xfercommand && strcmp(server->scheme,SCHEME_FILE)) {
-			}
-			else {
+			} else {
 				if(pm_dlfnm) {
 					char *s;
 					size_t k;
@@ -208,6 +210,8 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		if(_pacman_list_count(files) == pacman_list_count(complete)) {
 			done = 1;
 		}
+		
+		free(serverurl);
 	}
 
 	unsetenv("FTP_PASSIVE_MODE");
