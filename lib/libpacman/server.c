@@ -70,6 +70,15 @@ pmurl_t *_pacman_server_new(const char *url)
 	return server;
 }
 
+char *_pacman_server_to_string(pmurl_t *server)
+{
+	if(server == NULL) {
+		return NULL;
+	}
+	
+	return fetchStringifyURL(server);
+}
+
 void _pacman_server_free(void *data)
 {
 	struct url *server = data;
