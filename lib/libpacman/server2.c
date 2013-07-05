@@ -282,6 +282,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					if(pm_dlcb) {
 						if(!pm_dlcb(NULL,rbytes,&total)) {
 							_pacman_log(PM_LOG_DEBUG,_("downloadfiles: download interrupted by callback\n"));
+							pm_errno = PM_ERR_USER_ABORT;
 							break;
 						}
 					}
@@ -291,6 +292,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					
 					if(write(out,buf,xfered) != xfered) {
 						_pacman_log(PM_LOG_WARNING,_("failed to write to file %s: %s\n"),outpath,strerror(errno));
+						pm_errno = PM_ERR_DISK_FULL;
 						break;
 					}
 					
