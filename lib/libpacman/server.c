@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <sys/time.h>
+#include <fcntl.h>
 #include <ftplib.h>
 #include <errno.h>
 
@@ -92,108 +93,85 @@ int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *fi
 int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	pmlist_t *files, const char *mtime1, char *mtime2, int skip)
 {
-	int fsz;
-	netbuf *control = NULL;
-	pmlist_t *lp;
-	int done = 0;
-	pmlist_t *complete = NULL;
+	int *remain = handle->dlremain;
+	int *howmany = handle->dlhowmany;
 	pmlist_t *i;
-	pmserver_t *server;
-	int *remain = handle->dlremain, *howmany = handle->dlhowmany;
+	int count;
+	int done = 0;
+	struct url *server;
+	char *serverurl;
+	pmlist_t *lp;
+	pmlist_t *complete = NULL;
 
 	if(files == NULL) {
-		return(0);
+		return (0);
 	}
 
+	_pacman_log(PM_LOG_DEBUG,_("server check, %d\n"),servers);
+
+	/* Assert that the directory we will be writing files to exists. */
+	_pacman_makepath((char *) localpath);
+
 	pm_errno = 0;
-	if(howmany) {
-		*howmany = _pacman_list_count(files);
-	}
+
 	if(remain) {
 		*remain = 1;
 	}
 
-	_pacman_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
-	int count;
-	for(i = servers, count = 0; i && !done; i = i->next, count++) {
-		if (count < skip)
-			continue; /* the caller requested skip of this server */
-		_pacman_log(PM_LOG_DEBUG, _("server check, done? %d\n"),done);
-		server = (pmserver_t*)i->data;
-		if(!handle->xfercommand && strcmp(server->protocol, "file")) {
-			if(!strcmp(server->protocol, "ftp") && !handle->proxyhost) {
-				FtpInit();
-				_pacman_log(PM_LOG_DEBUG, _("connecting to %s:21\n"), server->server);
-				if(!FtpConnect(server->server, &control)) {
-					_pacman_log(PM_LOG_WARNING, _("cannot connect to %s\n"), server->server);
-					continue;
-				}
-				if(!FtpLogin("anonymous", "libpacman@guest", control)) {
-					_pacman_log(PM_LOG_WARNING, _("anonymous login failed\n"));
-					FtpQuit(control);
-					continue;
-				}
-				if(!FtpChdir(server->path, control)) {
-					_pacman_log(PM_LOG_WARNING, _("could not cwd to %s: %s\n"), server->path, FtpLastResponse(control));
-					FtpQuit(control);
-					continue;
-				}
-				if(!handle->nopassiveftp) {
-					if(!FtpOptions(FTPLIB_CONNMODE, FTPLIB_PASSIVE, control)) {
-					_pacman_log(PM_LOG_WARNING, _("failed to set passive mode\n"));
-					}
-				} else {
-					_pacman_log(PM_LOG_DEBUG, _("FTP passive mode not set\n"));
-				}
-			} else if(handle->proxyhost) {
-				char *host;
-				unsigned port;
-				host = (handle->proxyhost) ? handle->proxyhost : server->server;
-				port = (handle->proxyport) ? handle->proxyport : 80;
-				if(strchr(host, ':')) {
-					_pacman_log(PM_LOG_DEBUG, _("connecting to %s\n"), host);
-				} else {
-					_pacman_log(PM_LOG_DEBUG, _("connecting to %s:%u\n"), host, port);
-				}
-				if(!HttpConnect(host, port, &control)) {
-					_pacman_log(PM_LOG_WARNING, _("cannot connect to %s\n"), host);
-					continue;
-				}
-			}
+	if(howmany) {
+		*howmany = _pacman_list_count(files);
+	}
 
-			/* set up our progress bar's callback (and idle timeout) */
-			if(strcmp(server->protocol, "file") && control) {
-				if(pm_dlcb) {
-					FtpOptions(FTPLIB_CALLBACK, (long)pm_dlcb, control);
-				} else {
-					_pacman_log(PM_LOG_DEBUG, _("downloadfiles: progress bar's callback is not set\n"));
-				}
-				FtpOptions(FTPLIB_IDLETIME, (long)1000, control);
-				FtpOptions(FTPLIB_CALLBACKARG, (long)&fsz, control);
-				FtpOptions(FTPLIB_CALLBACKBYTES, (10*1024), control);
-				FtpOptions(FTPLIB_LOSTTIME, (long)5, control);
-			}
+	unsetenv("FTP_PASSIVE_MODE");
+
+	setenv("FTP_PASSIVE_MODE",(handle->nopassiveftp) ? "no" : "yes",1);
+
+	unsetenv("HTTP_PROXY");
+
+	if(handle->proxyhost) {
+		char url[PATH_MAX];
+		
+		snprintf(url,sizeof(url),
+			"http://%s:%d",
+			handle->proxyhost,
+			(handle->proxyport) ? (int) handle->proxyport : 80
+		);
+		
+		setenv("HTTP_PROXY",url,1);
+	}
+
+	for( i = servers, count = 0 ; i && !done ; i = i->next, ++count ) {
+		if(count < skip) {
+			continue;
 		}
-
-		/* get each file in the list */
-		for(lp = files; lp; lp = lp->next) {
-			char *fn = (char *)lp->data;
-
-			if(_pacman_list_is_strin(fn, complete)) {
+	
+		_pacman_log(PM_LOG_DEBUG,_("server check, done? %d\n"),done);
+		
+		server = (struct url *) i->data;
+		
+		serverurl = fetchStringifyURL(server);
+		
+		for( lp = files ; lp ; lp = lp->next ) {
+			char *fn = (char *) lp->data;
+			char url[PATH_MAX];
+			
+			if(pm_errno) {
+				break;
+			}
+			
+			if(_pacman_list_is_strin(fn,complete)) {
 				continue;
 			}
-
-			if(handle->xfercommand && strcmp(server->protocol, "file")) {
+			
+			snprintf(url,sizeof(url),"%s/%s",serverurl,fn);
+			
+			if(handle->xfercommand && strcmp(server->scheme,SCHEME_FILE)) {
 				int ret;
 				int usepart = 0;
 				char *ptr1, *ptr2;
 				char origCmd[PATH_MAX];
 				char parsedCmd[PATH_MAX] = "";
-				char url[PATH_MAX];
 				char cwd[PATH_MAX];
-				/* build the full download url */
-				snprintf(url, PATH_MAX, "%s://%s%s%s", server->protocol, server->server,
-						server->path, fn);
 				/* replace all occurrences of %o with fn.part */
 				strncpy(origCmd, handle->xfercommand, sizeof(origCmd));
 				ptr1 = origCmd;
@@ -252,7 +230,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				if(chdir(localpath)) {
 					_pacman_log(PM_LOG_WARNING, _("could not chdir to %s\n"), localpath);
 					pm_errno = PM_ERR_CONNECT_FAILED;
-					goto error;
+					continue;
 				}
 				/* execute the parsed command via /bin/sh -c */
 				_pacman_log(PM_LOG_DEBUG, _("running command: %s\n"), parsedCmd);
@@ -260,7 +238,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				if(ret == -1) {
 					_pacman_log(PM_LOG_WARNING, _("running XferCommand: fork failed!\n"));
 					pm_errno = PM_ERR_FORK_FAILED;
-					goto error;
+					continue;
 				} else if(ret != 0) {
 					/* download failed */
 					_pacman_log(PM_LOG_DEBUG, _("XferCommand command returned non-zero status code (%d)\n"), ret);
@@ -276,253 +254,218 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				}
 				chdir(cwd);
 			} else {
-				char output[PATH_MAX];
-				unsigned int j;
-				int filedone = 0;
-				char *ptr;
-				struct stat st;
-				snprintf(output, PATH_MAX, "%s/%s.part", localpath, fn);
-				if(pm_dlfnm) {
-					strncpy(pm_dlfnm, fn, PM_DLFNM_LEN);
+				struct url *dlurl;
+				struct url_stat dlurl_st;
+				char mtime[15];
+				char outpath[PATH_MAX];
+				struct stat st; 
+				off_t offset;
+				off_t size;
+				fetchIO *in;
+				int out;
+				ssize_t xfered;
+				unsigned char buf[8 * 1024];
+				char realpath[PATH_MAX];
+				
+				if((dlurl = fetchParseURL(url)) == NULL) {
+					_pacman_log(PM_LOG_WARNING,_("failed to parse url for %s"),fn);
+					pm_errno = PM_ERR_SERVER_BAD_LOCATION;
+					continue;
 				}
-				/* drop filename extension */
-				ptr = strstr(fn, PM_EXT_DB);
-				if(pm_dlfnm && ptr && (ptr-fn) < PM_DLFNM_LEN) {
-					pm_dlfnm[ptr-fn] = '\0';
+			
+				if(fetchStat(dlurl,&dlurl_st,"") == -1) {
+					_pacman_log(PM_LOG_WARNING,_("failed to get stats for %s"),fn);
+					pm_errno = PM_ERR_CONNECT_FAILED;
+					fetchFreeURL(dlurl);
+					continue;
 				}
-				ptr = strstr(fn, PM_EXT_PKG);
-				if(ptr && (ptr-fn) < PM_DLFNM_LEN) {
-					pm_dlfnm[ptr-fn] = '\0';
-				}
-				if(pm_dlfnm) {
-					for(j = strlen(pm_dlfnm); j < PM_DLFNM_LEN; j++) {
-						(pm_dlfnm)[j] = ' ';
+			
+				if(strftime(mtime,sizeof(mtime),"%Y%m%d%H%M%S",localtime(&dlurl_st.mtime)) == sizeof(mtime)-1) {
+					if(mtime1 && !strcmp(mtime1,mtime)) {
+						_pacman_log(PM_LOG_DEBUG,_("mtimes are identical, skipping %s\n"),fn);
+						complete = _pacman_list_add(complete,fn);
+						if(remain) {
+							++(*remain);
+						}
+						fetchFreeURL(dlurl);
+						continue;					
 					}
-					pm_dlfnm[PM_DLFNM_LEN] = '\0';
+				
+					if(mtime2) {
+						snprintf(mtime2,15,"%s",mtime);
+					}
 				}
-				if(pm_dloffset) {
-					*pm_dloffset = 0;
+			
+				snprintf(outpath,sizeof(outpath),"%s/%s.part",localpath,fn);
+			
+				dlurl->offset = offset = (off_t) ((!stat(outpath,&st)) ? st.st_size : 0);
+			
+				size = dlurl_st.size;
+			
+				if((in = fetchGet(dlurl,"")) == NULL) {
+					if(dlurl->offset) {
+						_pacman_log(PM_LOG_WARNING,_("failed to resume download -- restarting\n"));
+						unlink(outpath);
+						dlurl->offset = offset = 0;
+						in = fetchGet(dlurl,"");
+					}
+					
+					if(in == NULL) {
+						_pacman_log(PM_LOG_WARNING,_("\nfailed downloading %s from %s: %s\n"),fn,server->host,fetchLastErrString);
+						pm_errno = PM_ERR_CONNECT_FAILED;
+						fetchFreeURL(dlurl);
+						continue;
+					}
 				}
 
-				/* ETA setup */
-				if(pm_dlt0 && pm_dlt && pm_dlrate && pm_dlxfered1 && pm_dleta_h && pm_dleta_m && pm_dleta_s) {
-					gettimeofday(pm_dlt0, NULL);
+				if((out = open(outpath,O_WRONLY|O_APPEND|O_CREAT,0644)) == -1) {
+					_pacman_log(PM_LOG_WARNING,_("failed to open %s for writing: %s\n"),outpath,strerror(errno));
+					pm_errno = PM_ERR_INTERNAL_ERROR;
+					fetchIO_close(in);
+					fetchFreeURL(dlurl);
+					continue;
+				}
+				
+				if(pm_dlfnm) {
+					char *s;
+					size_t k;
+				
+					snprintf(pm_dlfnm,PM_DLFNM_LEN,"%s",fn);
+					
+					for( s = pm_dlfnm ; *s ; ++s ) {
+						if(!strncmp(s,PM_EXT_DB,sizeof(PM_EXT_DB)-1)) {
+							break;
+						}
+						
+						if(!strncmp(s,PM_EXT_PKG,sizeof(PM_EXT_PKG)-1)) {
+							break;
+						}
+					}
+					
+					*s = '\0';
+					
+					for( k = strlen(pm_dlfnm) ; k < PM_DLFNM_LEN ; ++k ) {
+						pm_dlfnm[k] = ' ';
+					}
+					
+					pm_dlfnm[k] = '\0';
+				}
+			
+				if(pm_dloffset) {
+					*pm_dloffset = (int) offset;
+				}
+				
+				if(pm_dlt0 && pm_dlt) {
+					gettimeofday(pm_dlt0,NULL);
 					*pm_dlt = *pm_dlt0;
+				}
+				
+				if(pm_dlrate) {
 					*pm_dlrate = 0;
+				}
+				
+				if(pm_dlxfered1) {
 					*pm_dlxfered1 = 0;
+				}
+				
+				if(pm_dleta_h) {
 					*pm_dleta_h = 0;
+				}
+				
+				if(pm_dleta_m) {
 					*pm_dleta_m = 0;
+				}
+				
+				if(pm_dleta_s) {
 					*pm_dleta_s = 0;
 				}
-
-				if(!strcmp(server->protocol, "ftp") && !handle->proxyhost) {
-					if(!FtpSize(fn, &fsz, FTPLIB_IMAGE, control)) {
-						_pacman_log(PM_LOG_WARNING, _("failed to get filesize for %s\n"), fn);
-					}
-					/* check mtimes */
-					if(mtime1) {
-						char fmtime[64];
-						if(!FtpModDate(fn, fmtime, sizeof(fmtime)-1, control)) {
-							_pacman_log(PM_LOG_WARNING, _("failed to get mtime for %s\n"), fn);
-						} else {
-							_pacman_strtrim(fmtime);
-							if(mtime1 && !strcmp(mtime1, fmtime)) {
-								/* mtimes are identical, skip this file */
-								_pacman_log(PM_LOG_DEBUG, _("mtimes are identical, skipping %s\n"), fn);
-								filedone = -1;
-								complete = _pacman_list_add(complete, fn);
-							} else {
-								if(mtime2) {
-									strncpy(mtime2, fmtime, 15); /* YYYYMMDDHHMMSS (=14b) */
-									mtime2[14] = '\0';
-								}
-							}
+				
+				while((xfered = fetchIO_read(in,buf,sizeof(buf))) > 0) {
+					int rbytes = (int) xfered;
+					int total = (int) size;
+					
+					if(pm_dlcb) {
+						if(!pm_dlcb(NULL,rbytes,&total)) {
+							_pacman_log(PM_LOG_DEBUG,_("downloadfiles: download interrupted by callback\n"));
+							pm_errno = PM_ERR_USER_ABORT;
+							break;
 						}
 					}
-					if(!filedone) {
-						if(!stat(output, &st)) {
-							if(pm_dloffset) {
-								*pm_dloffset = (int)st.st_size;
-							}
-							if(!pm_dloffset || !FtpRestart(*pm_dloffset, control)) {
-								_pacman_log(PM_LOG_WARNING, _("failed to resume download -- restarting\n"));
-								/* can't resume: */
-								/* unlink the file in order to restart download from scratch */
-								unlink(output);
-							}
-						}
-						if(!FtpGet(output, fn, FTPLIB_IMAGE, control)) {
-							_pacman_log(PM_LOG_WARNING, _("\nfailed downloading %s from %s: %s\n"),
-								fn, server->server, FtpLastResponse(control));
-							/* we leave the partially downloaded file in place so it can be resumed later */
-							if(!strncmp(FtpLastResponse(control), strerror(ETIMEDOUT), 254)) {
-								unlink(output);
-								pm_errno = PM_ERR_RETRIEVE;
-								goto error;
-							}
-
-						} else {
-							_pacman_log(PM_LOG_DEBUG, _("downloaded %s from %s\n"),
-								fn, server->server);
-							filedone = 1;
-						}
+					else {
+						_pacman_log(PM_LOG_DEBUG,_("downloadfiles: progress bar's callback is not set\n"));
 					}
-				} else if(!strcmp(server->protocol, "http") || (handle->proxyhost && strcmp(server->protocol, "file"))) {
-					char src[PATH_MAX];
-					char *host;
-					unsigned port;
-					struct tm fmtime1;
-					struct tm fmtime2;
-					memset(&fmtime1, 0, sizeof(struct tm));
-					memset(&fmtime2, 0, sizeof(struct tm));
-					if(!strcmp(server->protocol, "http") && !handle->proxyhost) {
-						/* HTTP servers hang up after each request (but not proxies), so
-						 * we have to re-connect for each file.
-						 */
-						host = (handle->proxyhost) ? handle->proxyhost : server->server;
-						port = (handle->proxyhost) ? handle->proxyport : 80;
-						if(strchr(host, ':')) {
-							_pacman_log(PM_LOG_DEBUG, _("connecting to %s\n"), host);
-						} else {
-							_pacman_log(PM_LOG_DEBUG, _("connecting to %s:%u\n"), host, port);
-						}
-						if(!HttpConnect(host, port, &control)) {
-							_pacman_log(PM_LOG_WARNING, _("cannot connect to %s\n"), host);
-							continue;
-						}
-						/* set up our progress bar's callback (and idle timeout) */
-						if(strcmp(server->protocol, "file") && control) {
-							if(pm_dlcb) {
-								FtpOptions(FTPLIB_CALLBACK, (long)pm_dlcb, control);
-							} else {
-								_pacman_log(PM_LOG_DEBUG, _("downloadfiles: progress bar's callback is not set\n"));
-							}
-							FtpOptions(FTPLIB_IDLETIME, (long)1000, control);
-							FtpOptions(FTPLIB_CALLBACKARG, (long)&fsz, control);
-							FtpOptions(FTPLIB_CALLBACKBYTES, (10*1024), control);
-							FtpOptions(FTPLIB_LOSTTIME, (long)5, control);
-						}
+					
+					if(write(out,buf,xfered) != xfered) {
+						_pacman_log(PM_LOG_WARNING,_("failed to write to file %s: %s\n"),outpath,strerror(errno));
+						pm_errno = PM_ERR_DISK_FULL;
+						break;
 					}
-
-					if(!stat(output, &st)) {
-						if (pm_dloffset) {
-								*pm_dloffset = (int)st.st_size;
-						}
-					}
-					if(!handle->proxyhost) {
-						snprintf(src, PATH_MAX, "%s%s", server->path, fn);
-					} else {
-						snprintf(src, PATH_MAX, "%s://%s%s%s", server->protocol, server->server, server->path, fn);
-					}
-					if(mtime1 && strlen(mtime1)) {
-						struct tm tmref;
-						time_t t, tref;
-						int diff;
-						/* date conversion from YYYYMMDDHHMMSS to "rfc1123-date" */
-						sscanf(mtime1, "%4d%2d%2d%2d%2d%2d",
-						       &fmtime1.tm_year, &fmtime1.tm_mon, &fmtime1.tm_mday,
-						       &fmtime1.tm_hour, &fmtime1.tm_min, &fmtime1.tm_sec);
-						fmtime1.tm_year -= 1900;
-						fmtime1.tm_mon--;
-						/* compute the week day because some web servers (like lighttpd) need them. */
-						/* we set tmref to "Thu, 01 Jan 1970 00:00:00" */
-						memset(&tmref, 0, sizeof(struct tm));
-						tmref.tm_mday = 1;
-						tref = mktime(&tmref);
-						/* then we compute the difference with mtime1 */
-						memcpy(&tmref, &fmtime1, sizeof(struct tm));
-						t = mktime(&tmref);
-						diff = ((t-tref)/3600/24)%7;
-						fmtime1.tm_wday = diff+(diff >= 3 ? -3 : 4);
-
-					}
-					fmtime2.tm_year = 0;
-					if(!HttpGet(server->server, output, src, &fsz, control, (pm_dloffset ? *pm_dloffset:0),
-					            (mtime1) ? &fmtime1 : NULL, (mtime2) ? &fmtime2 : NULL)) {
-						if(strstr(FtpLastResponse(control), "304")) {
-							_pacman_log(PM_LOG_DEBUG, _("mtimes are identical, skipping %s\n"), fn);
-							filedone = -1;
-							complete = _pacman_list_add(complete, fn);
-						} else {
-							_pacman_log(PM_LOG_WARNING, _("\nfailed downloading %s from %s: %s\n"),
-								src, server->server, FtpLastResponse(control));
-							pm_errno = PM_ERR_RETRIEVE;
-							/* we leave the partially downloaded file in place so it can be resumed later */
-							if(!strncmp(FtpLastResponse(control), strerror(ETIMEDOUT), 254)) {
-								unlink(output);
-								goto error;
-							}
-						}
-					} else {
-						if(mtime2) {
-							if(fmtime2.tm_year) {
-								/* date conversion from "rfc1123-date" to YYYYMMDDHHMMSS */
-								sprintf(mtime2, "%4d%02d%02d%02d%02d%02d",
-								        fmtime2.tm_year+1900, fmtime2.tm_mon+1, fmtime2.tm_mday,
-								        fmtime2.tm_hour, fmtime2.tm_min, fmtime2.tm_sec);
-							} else {
-								_pacman_log(PM_LOG_WARNING, _("failed to get mtime for %s\n"), fn);
-							}
-						}
-						filedone = 1;
-					}
-				} else if(!strcmp(server->protocol, "file")) {
-					char src[PATH_MAX];
-					snprintf(src, PATH_MAX, "%s%s", server->path, fn);
-					_pacman_makepath((char*)localpath);
-					_pacman_log(PM_LOG_DEBUG, _("copying %s to %s/%s\n"), src, localpath, fn);
-					/* local repository, just copy the file */
-					if(_pacman_copyfile(src, output)) {
-						_pacman_log(PM_LOG_WARNING, _("failed copying %s\n"), src);
-					} else {
-						filedone = 1;
-					}
+					
+					offset += xfered;
+				
+					*pm_dloffset = (int) offset;
 				}
+				
+				close(out);
+				
+				fetchIO_close(in);
+				
+				fetchFreeURL(dlurl);
 
-				if(filedone > 0) {
-					char completefile[PATH_MAX];
-					if(!strcmp(server->protocol, "file")) {
-						EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
-					} else if(pm_dlcb) {
-						pm_dlcb(control, fsz-*pm_dloffset, &fsz);
-					}
-					complete = _pacman_list_add(complete, fn);
-					/* rename "output.part" file to "output" file */
-					snprintf(completefile, PATH_MAX, "%s/%s", localpath, fn);
-					rename(output, completefile);
-				} else if(filedone < 0) {
-					/* 1 means here that the file is up to date, not a real error, so
-					 * don't go to error: */
-					FREELISTPTR(complete);
-					return(1);
+				if(!offset) {
+					unlink(outpath);
 				}
-			}
-			if(!strcmp(server->protocol, "http") && !handle->proxyhost) {
-				HttpQuit(control);
-				control = 0;
-			}
-			if(remain) {
-				(*remain)++;
+				
+				if(pm_errno) {
+					continue;
+				}
+				
+				if(offset != size) {
+					_pacman_log(PM_LOG_WARNING,_("\nfailed downloading %s from %s: %s\n"),fn,server->host,fetchLastErrString);
+					pm_errno = PM_ERR_RETRIEVE;
+					continue;
+				}
+			
+				_pacman_log(PM_LOG_DEBUG,_("downloaded %s from %s\n"),fn,server->host);
+			
+				if(pm_dlcb) {
+					int rbytes = (int) (size - offset);
+					int total = (int) size;
+					pm_dlcb(NULL,rbytes,&total);
+				}
+			
+				complete = _pacman_list_add(complete,fn);
+
+				if(remain) {
+					++(*remain);
+				}
+							
+				snprintf(realpath,sizeof(realpath),"%s/%s",localpath,fn);
+			
+				rename(outpath,realpath);
 			}
 		}
-		if(!handle->xfercommand) {
-			if(!strcmp(server->protocol, "ftp") && !handle->proxyhost) {
-				FtpQuit(control);
-			} else if(!strcmp(server->protocol, "http") || (handle->proxyhost && strcmp(server->protocol, "file"))) {
-				HttpQuit(control);
-			}
-		}
-
-		if(_pacman_list_count(complete) == _pacman_list_count(files)) {
+		
+		if(_pacman_list_count(files) == pacman_list_count(complete)) {
 			done = 1;
+		}
+		
+		FREE(serverurl);
+	
+		if(pm_errno) {
+			break;
 		}
 	}
 
-	_pacman_log(PM_LOG_DEBUG, _("end _pacman_downloadfiles_forreal - return %d"),!done);
+	unsetenv("FTP_PASSIVE_MODE");
+	
+	unsetenv("HTTP_PROXY");
 
-error:
 	FREELISTPTR(complete);
-	return(pm_errno == 0 ? !done : -1);
+
+	_pacman_log(PM_LOG_DEBUG,_("end _pacman_downloadfiles_forreal - return %d"),!done);
+
+	return ((!pm_errno) ? !done : -1);
 }
 
 char *_pacman_fetch_pkgurl(char *target)
