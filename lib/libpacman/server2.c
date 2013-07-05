@@ -161,6 +161,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				struct stat st; 
 				off_t offset;
 				off_t size;
+				fetchIO *in;
 			
 				if((dlurl = fetchParseURL(url)) == NULL) {
 					_pacman_log(PM_LOG_WARNING,_("failed to parse url for %s"),fn);
@@ -190,6 +191,21 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				dlurl->offset = offset = (off_t) ((!stat(outpath,&st)) ? st.st_size : 0);
 			
 				size = dlurl_st.size;
+			
+				if((in = fetchGet(dlurl,"")) == NULL) {
+					if(dlurl->offset) {
+						_pacman_log(PM_LOG_WARNING,_("failed to resume download -- restarting\n"));
+						unlink(outpath);
+						dlurl->offset = offset = 0;
+						in = fetchGet(dlurl,"");
+					}
+					
+					if(in == NULL) {
+						_pacman_log(PM_LOG_WARNING,_("\nfailed downloading %s from %s: %s\n"),fn,server->host,fetchLastErrString);
+						fetchFreeURL(dlurl);
+						continue;
+					}
+				}
 			
 				if(pm_dlfnm) {
 					char *s;
