@@ -168,11 +168,13 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				
 				if((dlurl = fetchParseURL(url)) == NULL) {
 					_pacman_log(PM_LOG_WARNING,_("failed to parse url for %s"),fn);
+					pm_errno = PM_ERR_SERVER_BAD_LOCATION;
 					continue;
 				}
 			
 				if(fetchStat(dlurl,&dlurl_st,"") == -1) {
 					_pacman_log(PM_LOG_WARNING,_("failed to get stats for %s"),fn);
+					pm_errno = PM_ERR_CONNECT_FAILED;
 					fetchFreeURL(dlurl);
 					continue;
 				}
@@ -205,6 +207,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					
 					if(in == NULL) {
 						_pacman_log(PM_LOG_WARNING,_("\nfailed downloading %s from %s: %s\n"),fn,server->host,fetchLastErrString);
+						pm_errno = PM_ERR_CONNECT_FAILED;
 						fetchFreeURL(dlurl);
 						continue;
 					}
@@ -212,6 +215,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 
 				if((out = open(outpath,O_WRONLY|O_APPEND|O_CREAT,0644)) == -1) {
 					_pacman_log(PM_LOG_WARNING,_("failed to open %s for writing: %s\n"),outpath,strerror(errno));
+					pm_errno = PM_ERR_INTERNAL_ERROR;
 					fetchIO_close(in);
 					fetchFreeURL(dlurl);
 					continue;
