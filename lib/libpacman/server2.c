@@ -144,10 +144,13 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		
 		for( lp = files ; lp ; lp = lp->next ) {
 			char *fn = (char *) lp->data;
+			char url[PATH_MAX];
 			
 			if(_pacman_list_is_strin(fn,complete)) {
 				continue;
 			}
+			
+			snprintf(url,sizeof(url),"%s/%s",serverurl,fn);
 			
 			if(handle->xfercommand && strcmp(server->scheme,SCHEME_FILE)) {
 			} else {
