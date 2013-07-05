@@ -36,12 +36,6 @@ do { \
 #define FREELISTSERVERS(p) _FREELIST(p, _pacman_server_free)
 
 /* Servers */
-typedef struct __pmserver_t {
-	char *protocol;
-	char *server;
-	char *path;
-} pmserver_t;
-
 typedef struct url pmurl_t;
 
 pmurl_t *_pacman_server_new(const char *url);
