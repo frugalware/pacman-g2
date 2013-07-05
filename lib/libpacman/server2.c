@@ -154,6 +154,33 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 			
 			if(handle->xfercommand && strcmp(server->scheme,SCHEME_FILE)) {
 			} else {
+				struct url *dlurl;
+				struct url_stat dlurl_st;
+				char mtime[15];
+			
+				if((dlurl = fetchParseURL(url)) == NULL) {
+					_pacman_log(PM_LOG_WARNING,_("failed to parse url for %s"),fn);
+					continue;
+				}
+			
+				if(fetchStat(dlurl,&dlurl_st,"") == -1) {
+					_pacman_log(PM_LOG_WARNING,_("failed to get stats for %s"),fn);
+					fetchFreeURL(dlurl);
+					continue;
+				}
+			
+				if(strftime(mtime,sizeof(mtime),"%Y%m%d%H%M%S",localtime(&dlurl_st.mtime)) == sizeof(mtime)-1) {
+					if(mtime1 && !strcmp(mtime1,mtime)) {
+						_pacman_log(PM_LOG_DEBUG,_("mtimes are identical, skipping %s\n"),fn);
+						fetchFreeURL(dlurl);
+						continue;					
+					}
+				
+					if(mtime2) {
+						snprintf(mtime2,15,"%s",mtime);
+					}
+				}
+			
 				if(pm_dlfnm) {
 					char *s;
 					size_t k;
