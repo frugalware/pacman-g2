@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <sys/time.h>
+#include <fcntl.h>
 #include <ftplib.h>
 #include <errno.h>
 
