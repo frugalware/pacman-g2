@@ -1,7 +1,6 @@
 AUTOMAKE_OPTIONS = gnu
 DEFINES = -pedantic -D_GNU_SOURCE
 AM_CFLAGS = $(DEFINES) \
-	    -I$(top_srcdir)/lib/libftp \
 	    -I$(top_srcdir)/lib/libfetch
 SUBDIRS = po
 
@@ -42,7 +41,7 @@ include_HEADERS = pacman.h
 libpacman_la_SOURCES = $(TARGETS)
 
 libpacman_la_LDFLAGS = -no-undefined -version-info $(PM_VERSION_INFO)
-libpacman_la_LIBADD = $(top_builddir)/lib/libftp/libftp.la
+libpacman_la_LIBADD = $(top_builddir)/lib/libfetch/libfetch.la
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = pacman.pc
