@@ -163,7 +163,9 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				off_t size;
 				fetchIO *in;
 				int out;
-			
+				ssize_t xfered;
+				unsigned char buf[8 * 1024];
+				
 				if((dlurl = fetchParseURL(url)) == NULL) {
 					_pacman_log(PM_LOG_WARNING,_("failed to parse url for %s"),fn);
 					continue;
@@ -209,7 +211,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				}
 
 				if((out = open(outpath,O_WRONLY|O_APPEND|O_CREAT,0644)) == -1) {
-					_pacman_log(PM_LOG_WARNING,_("\nfailed to open %s for writing: %s\n"),outpath,strerror(errno));
+					_pacman_log(PM_LOG_WARNING,_("failed to open %s for writing: %s\n"),outpath,strerror(errno));
 					fetchIO_close(in);
 					fetchFreeURL(dlurl);
 					continue;
@@ -268,6 +270,36 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				if(pm_dleta_s) {
 					*pm_dleta_s = 0;
 				}
+				
+				while((xfered = fetchIO_read(in,buf,sizeof(buf))) > 0) {
+					int rbytes = (int) xfered;
+					int total = (int) size;
+					
+					if(pm_dlcb) {
+						if(!pm_dlcb(NULL,rbytes,&total)) {
+							_pacman_log(PM_LOG_DEBUG,_("downloadfiles: download interrupted by callback\n"));
+							break;
+						}
+					}
+					else {
+						_pacman_log(PM_LOG_DEBUG,_("downloadfiles: progress bar's callback is not set\n"));
+					}
+					
+					if(write(out,buf,xfered) != xfered) {
+						_pacman_log(PM_LOG_WARNING,_("failed to write to file %s: %s\n"),outpath,strerror(errno));
+						break;
+					}
+					
+					offset += xfered;
+				
+					*pm_dloffset = (int) offset;
+				}
+				
+				close(out);
+				
+				fetchIO_close(in);
+				
+				fetchFreeURL(dlurl);
 			}
 		}
 		
