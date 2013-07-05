@@ -106,6 +106,9 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		return (0);
 	}
 
+	/* Assert that the directory we will be writing files to exists. */
+	_pacman_makepath((char *) localpath);
+
 	pm_errno = 0;
 
 	if(remain) {
@@ -307,6 +310,22 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				fetchIO_close(in);
 				
 				fetchFreeURL(dlurl);
+
+				if(!offset) {
+					unlink(outpath);
+				}
+				
+				if(pm_errno) {
+					continue;
+				}
+				
+				if(offset != size) {
+					_pacman_log(PM_LOG_WARNING,_("\nfailed downloading %s from %s: %s\n"),fn,server->host,fetchLastErrString);
+					pm_errno = PM_ERR_RETRIEVE;
+					continue;
+				}
+			
+				_pacman_log(PM_LOG_DEBUG,_("downloaded %s from %s\n"),fn,server->host);
 			}
 		}
 		
