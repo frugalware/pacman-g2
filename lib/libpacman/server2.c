@@ -165,6 +165,93 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 			snprintf(url,sizeof(url),"%s/%s",serverurl,fn);
 			
 			if(handle->xfercommand && strcmp(server->scheme,SCHEME_FILE)) {
+				int ret;
+				int usepart = 0;
+				char *ptr1, *ptr2;
+				char origCmd[PATH_MAX];
+				char parsedCmd[PATH_MAX] = "";
+				char cwd[PATH_MAX];
+				/* replace all occurrences of %o with fn.part */
+				strncpy(origCmd, handle->xfercommand, sizeof(origCmd));
+				ptr1 = origCmd;
+				while((ptr2 = strstr(ptr1, "%o"))) {
+					usepart = 1;
+					ptr2[0] = '\0';
+					strcat(parsedCmd, ptr1);
+					strcat(parsedCmd, fn);
+					strcat(parsedCmd, ".part");
+					ptr1 = ptr2 + 2;
+				}
+				strcat(parsedCmd, ptr1);
+				/* replace all occurrences of %u with the download URL */
+				strncpy(origCmd, parsedCmd, sizeof(origCmd));
+				parsedCmd[0] = '\0';
+				ptr1 = origCmd;
+				while((ptr2 = strstr(ptr1, "%u"))) {
+					ptr2[0] = '\0';
+					strcat(parsedCmd, ptr1);
+					strcat(parsedCmd, url);
+					ptr1 = ptr2 + 2;
+				}
+				strcat(parsedCmd, ptr1);
+				/* replace all occurrences of %c with the current position */
+				if (remain) {
+					strncpy(origCmd, parsedCmd, sizeof(origCmd));
+					parsedCmd[0] = '\0';
+					ptr1 = origCmd;
+					while((ptr2 = strstr(ptr1, "%c"))) {
+						char numstr[PATH_MAX];
+						ptr2[0] = '\0';
+						strcat(parsedCmd, ptr1);
+						snprintf(numstr, PATH_MAX, "%d", *remain);
+						strcat(parsedCmd, numstr);
+						ptr1 = ptr2 + 2;
+					}
+					strcat(parsedCmd, ptr1);
+				}
+				/* replace all occurrences of %t with the current position */
+				if (howmany) {
+					strncpy(origCmd, parsedCmd, sizeof(origCmd));
+					parsedCmd[0] = '\0';
+					ptr1 = origCmd;
+					while((ptr2 = strstr(ptr1, "%t"))) {
+						char numstr[PATH_MAX];
+						ptr2[0] = '\0';
+						strcat(parsedCmd, ptr1);
+						snprintf(numstr, PATH_MAX, "%d", *howmany);
+						strcat(parsedCmd, numstr);
+						ptr1 = ptr2 + 2;
+					}
+					strcat(parsedCmd, ptr1);
+				}
+				/* cwd to the download directory */
+				getcwd(cwd, PATH_MAX);
+				if(chdir(localpath)) {
+					_pacman_log(PM_LOG_WARNING, _("could not chdir to %s\n"), localpath);
+					pm_errno = PM_ERR_CONNECT_FAILED;
+					continue;
+				}
+				/* execute the parsed command via /bin/sh -c */
+				_pacman_log(PM_LOG_DEBUG, _("running command: %s\n"), parsedCmd);
+				ret = system(parsedCmd);
+				if(ret == -1) {
+					_pacman_log(PM_LOG_WARNING, _("running XferCommand: fork failed!\n"));
+					pm_errno = PM_ERR_FORK_FAILED;
+					continue;
+				} else if(ret != 0) {
+					/* download failed */
+					_pacman_log(PM_LOG_DEBUG, _("XferCommand command returned non-zero status code (%d)\n"), ret);
+				} else {
+					/* download was successful */
+					complete = _pacman_list_add(complete, fn);
+					if(usepart) {
+						char fnpart[PATH_MAX];
+						/* rename "output.part" file to "output" file */
+						snprintf(fnpart, PATH_MAX, "%s.part", fn);
+						rename(fnpart, fn);
+					}
+				}
+				chdir(cwd);
 			} else {
 				struct url *dlurl;
 				struct url_stat dlurl_st;
