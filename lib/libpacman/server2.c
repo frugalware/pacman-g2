@@ -149,6 +149,10 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 			char *fn = (char *) lp->data;
 			char url[PATH_MAX];
 			
+			if(pm_errno) {
+				break;
+			}
+			
 			if(_pacman_list_is_strin(fn,complete)) {
 				continue;
 			}
@@ -353,7 +357,11 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 			done = 1;
 		}
 		
-		free(serverurl);
+		FREE(serverurl);
+	
+		if(pm_errno) {
+			break;
+		}
 	}
 
 	unsetenv("FTP_PASSIVE_MODE");
