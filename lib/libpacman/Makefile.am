@@ -41,7 +41,7 @@ include_HEADERS = pacman.h
 libpacman_la_SOURCES = $(TARGETS)
 
 libpacman_la_LDFLAGS = -no-undefined -version-info $(PM_VERSION_INFO)
-libpacman_la_LIBADD = $(top_builddir)/lib/libfetch/libfetch.la
+libpacman_la_LIBADD = $(top_builddir)/lib/libfetch/libfetch.la -lssl -lcrypto -ldl
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = pacman.pc
