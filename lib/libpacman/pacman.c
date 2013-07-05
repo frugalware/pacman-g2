@@ -233,7 +233,7 @@ int pacman_db_unregister(pmdb_t *db)
 void *pacman_db_getinfo(PM_DB *db, unsigned char parm)
 {
 	void *data = NULL;
-	struct url *server;
+	pmurl_t *server;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
@@ -242,8 +242,8 @@ void *pacman_db_getinfo(PM_DB *db, unsigned char parm)
 	switch(parm) {
 		case PM_DB_TREENAME:   data = db->treename; break;
 		case PM_DB_FIRSTSERVER:
-			server = (struct url *)db->servers->data;
-			data = fetchStringifyURL(server);
+			server = (pmurl_t *)db->servers->data;
+			data = _pacman_server_to_string(server);
 		break;
 		default:
 			free(data);
@@ -283,17 +283,13 @@ int pacman_db_setserver(pmdb_t *db, char *url)
 	}
 
 	if(url && strlen(url)) {
-		struct url *server;
-		if((server = fetchParseURL(url)) == NULL) {
-			if(!strcmp(fetchLastErrString,"Malformed URL"))
-				pm_errno = PM_ERR_SERVER_BAD_LOCATION;
-			else if(!strcmp(fetchLastErrString,"Invalid URL scheme"))
-				pm_errno = PM_ERR_SERVER_PROTOCOL_UNSUPPORTED;
+		pmurl_t *server;
+		if((server = _pacman_server_new(url)) == NULL) {
 			return(-1);
 		}
 		db->servers = _pacman_list_add(db->servers, server);
-		_pacman_log(PM_LOG_FLOW2, _("adding new server to database '%s': protocol '%s', server '%s', path '%s'"),
-				db->treename, server->scheme, server->host, server->doc);
+		_pacman_log(PM_LOG_FLOW2, _("adding new server to database '%s': '%s'"),
+				db->treename, url);
 	} else {
 		FREELIST(db->servers);
 		_pacman_log(PM_LOG_FLOW2, _("serverlist flushed for '%s'"), db->treename);
