@@ -106,6 +106,8 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		return (0);
 	}
 
+	_pacman_log(PM_LOG_DEBUG,_("server check, %d\n"),servers);
+
 	/* Assert that the directory we will be writing files to exists. */
 	_pacman_makepath((char *) localpath);
 
@@ -138,8 +140,11 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	}
 
 	for( i = servers, count = 0 ; i && !done ; i = i->next, ++count ) {
-		if(count < skip)
+		if(count < skip) {
 			continue;
+		}
+	
+		_pacman_log(PM_LOG_DEBUG,_("server check, done? %d\n"),done);
 		
 		server = (struct url *) i->data;
 		
@@ -368,7 +373,11 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	
 	unsetenv("HTTP_PROXY");
 
-	return (-1);
+	FREELISTPTR(complete);
+
+	_pacman_log(PM_LOG_DEBUG,_("end _pacman_downloadfiles_forreal - return %d"),!done);
+
+	return ((!pm_errno) ? !done : -1);
 }
 
 char *_pacman_fetch_pkgurl(char *target)
