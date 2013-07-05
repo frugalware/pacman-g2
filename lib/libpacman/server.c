@@ -131,6 +131,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	char *serverurl;
 	pmlist_t *lp;
 	pmlist_t *complete = NULL;
+	int mtimedone = 0;
 
 	if(files == NULL) {
 		return (0);
@@ -319,6 +320,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						if(remain) {
 							++(*remain);
 						}
+						mtimedone = 1;
 						fetchFreeURL(dlurl);
 						continue;					
 					}
@@ -477,14 +479,14 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 			}
 		}
 		
-		if(_pacman_list_count(files) == pacman_list_count(complete)) {
-			done = 1;
-		}
-		
 		FREE(serverurl);
 	
-		if(pm_errno) {
+		if(pm_errno || mtimedone) {
 			break;
+		}
+		
+		if(_pacman_list_count(files) == pacman_list_count(complete)) {
+			done = 1;
 		}
 	}
 
