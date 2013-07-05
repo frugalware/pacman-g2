@@ -157,6 +157,10 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				struct url *dlurl;
 				struct url_stat dlurl_st;
 				char mtime[15];
+				char outpath[PATH_MAX];
+				struct stat st; 
+				off_t offset;
+				off_t size;
 			
 				if((dlurl = fetchParseURL(url)) == NULL) {
 					_pacman_log(PM_LOG_WARNING,_("failed to parse url for %s"),fn);
@@ -180,6 +184,12 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						snprintf(mtime2,15,"%s",mtime);
 					}
 				}
+			
+				snprintf(outpath,sizeof(outpath),"%s/%s.part",localpath,fn);
+			
+				dlurl->offset = offset = (off_t) ((!stat(outpath,&st)) ? st.st_size : 0);
+			
+				size = dlurl_st.size;
 			
 				if(pm_dlfnm) {
 					char *s;
@@ -207,7 +217,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				}
 			
 				if(pm_dloffset) {
-					*pm_dloffset = 0;
+					*pm_dloffset = (int) offset;
 				}
 				
 				if(pm_dlt0 && pm_dlt) {
