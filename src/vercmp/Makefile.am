@@ -7,5 +7,4 @@ AM_CFLAGS = \
 vercmp_SOURCES = vercmp.c
 
 vercmp_LDADD = \
-	$(top_builddir)/lib/libpacman/libpacman.la \
-	$(top_builddir)/lib/libftp/libftp.la
+	$(top_builddir)/lib/libpacman/libpacman.la
