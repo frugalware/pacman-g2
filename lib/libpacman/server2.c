@@ -182,6 +182,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				if(strftime(mtime,sizeof(mtime),"%Y%m%d%H%M%S",localtime(&dlurl_st.mtime)) == sizeof(mtime)-1) {
 					if(mtime1 && !strcmp(mtime1,mtime)) {
 						_pacman_log(PM_LOG_DEBUG,_("mtimes are identical, skipping %s\n"),fn);
+						complete = _pacman_list_add(complete,fn);
 						fetchFreeURL(dlurl);
 						continue;					
 					}
