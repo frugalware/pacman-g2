@@ -290,10 +290,13 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				struct stat st; 
 				off_t offset;
 				off_t size;
+				off_t bytes = 0;
 				fetchIO *in;
 				int out;
 				ssize_t xfered;
 				unsigned char buf[8 * 1024];
+				int curbytes;
+				int maxbytes;
 				char realpath[PATH_MAX];
 				
 				if((dlurl = fetchParseURL(url)) == NULL) {
@@ -410,11 +413,20 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				}
 				
 				while((xfered = fetchIO_read(in,buf,sizeof(buf))) > 0) {
-					int rbytes = (int) xfered;
-					int total = (int) size;
+					if(write(out,buf,xfered) != xfered) {
+						_pacman_log(PM_LOG_WARNING,_("failed to write to file %s: %s\n"),outpath,strerror(errno));
+						pm_errno = PM_ERR_DISK_FULL;
+						break;
+					}
+					
+					bytes += xfered;
+					
+					curbytes = (int) bytes;
+					
+					maxbytes = (int) size;
 					
 					if(pm_dlcb) {
-						if(!pm_dlcb(NULL,rbytes,&total)) {
+						if(!pm_dlcb(NULL,curbytes,&maxbytes)) {
 							_pacman_log(PM_LOG_DEBUG,_("downloadfiles: download interrupted by callback\n"));
 							pm_errno = PM_ERR_USER_ABORT;
 							break;
@@ -423,16 +435,6 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					else {
 						_pacman_log(PM_LOG_DEBUG,_("downloadfiles: progress bar's callback is not set\n"));
 					}
-					
-					if(write(out,buf,xfered) != xfered) {
-						_pacman_log(PM_LOG_WARNING,_("failed to write to file %s: %s\n"),outpath,strerror(errno));
-						pm_errno = PM_ERR_DISK_FULL;
-						break;
-					}
-					
-					offset += xfered;
-				
-					*pm_dloffset = (int) offset;
 				}
 				
 				close(out);
@@ -441,7 +443,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				
 				fetchFreeURL(dlurl);
 
-				if(!offset) {
+				if(offset + bytes == 0) {
 					unlink(outpath);
 				}
 				
@@ -449,7 +451,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					continue;
 				}
 				
-				if(offset != size) {
+				if(offset + bytes != size) {
 					_pacman_log(PM_LOG_WARNING,_("\nfailed downloading %s from %s: %s\n"),fn,server->host,fetchLastErrString);
 					pm_errno = PM_ERR_RETRIEVE;
 					continue;
@@ -458,9 +460,9 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				_pacman_log(PM_LOG_DEBUG,_("downloaded %s from %s\n"),fn,server->host);
 			
 				if(pm_dlcb) {
-					int rbytes = (int) (size - offset);
-					int total = (int) size;
-					pm_dlcb(NULL,rbytes,&total);
+					curbytes = (int) (size - offset);
+					maxbytes = (int) size;
+					pm_dlcb(NULL,curbytes,&maxbytes);
 				}
 			
 				complete = _pacman_list_add(complete,fn);
