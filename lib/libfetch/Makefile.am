@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = gnu
-DEFINES = -D_GNU_SOURCE -DNETBSD -DINET6 -DWITH_SSL -DFTP_COMBINE_CWDS
+DEFINES = -D_GNU_SOURCE -DNETBSD -DINET6 -DFTP_COMBINE_CWDS
 AM_CFLAGS = $(DEFINES)
 
 noinst_LTLIBRARIES = libfetch.la
@@ -20,5 +20,3 @@ libfetch_la_SOURCES = \
 	file.c \
 	ftp.c \
 	http.c
-
-libfetch_la_LIBADD = -lssl -lcrypto -ldl
