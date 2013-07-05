@@ -21,9 +21,9 @@
 #ifndef _PACMAN_SERVER_H
 #define _PACMAN_SERVER_H
 
+#include "pacman.h"
 #include "list.h"
 #include <time.h>
-#include <ftplib.h>
 #include <fetch.h>
 
 #define FREESERVER(p) \
@@ -50,7 +50,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 
 char *_pacman_fetch_pkgurl(char *target);
 
-extern FtpCallback pm_dlcb;
+extern pacman_trans_cb_download pm_dlcb;
 
 /* progress bar */
 extern char *pm_dlfnm;

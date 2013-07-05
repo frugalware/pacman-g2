@@ -29,7 +29,6 @@
 #include <time.h>
 #include <sys/time.h>
 #include <fcntl.h>
-#include <ftplib.h>
 #include <errno.h>
 
 /* pacman-g2 */
@@ -41,7 +40,7 @@
 #include "util.h"
 #include "handle.h"
 
-FtpCallback pm_dlcb = NULL;
+pacman_trans_cb_download pm_dlcb = NULL;
 /* progress bar */
 char *pm_dlfnm=NULL;
 int *pm_dloffset=NULL;
