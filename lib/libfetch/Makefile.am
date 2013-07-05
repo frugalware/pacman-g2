@@ -20,3 +20,5 @@ libfetch_la_SOURCES = \
 	file.c \
 	ftp.c \
 	http.c
+
+libfetch_la_LIBADD = -lssl -lcrypto -ldl
