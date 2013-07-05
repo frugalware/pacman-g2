@@ -30,6 +30,7 @@
 #include <sys/time.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <fetch.h>
 
 /* pacman-g2 */
 #include "config.h"
@@ -48,6 +49,26 @@ struct timeval *pm_dlt0=NULL, *pm_dlt=NULL;
 float *pm_dlrate=NULL;
 int *pm_dlxfered1=NULL;
 unsigned int *pm_dleta_h=NULL, *pm_dleta_m=NULL, *pm_dleta_s=NULL;
+
+pmurl_t *_pacman_server_new(const char *url)
+{
+	struct url *server;
+
+	if(url == NULL)
+		return NULL;
+	
+	if((server = fetchParseURL(url)) == NULL) {
+		if(!strcmp(fetchLastErrString,"Malformed URL"))
+			pm_errno = PM_ERR_SERVER_BAD_LOCATION;
+		else if(!strcmp(fetchLastErrString,"Invalid URL scheme"))
+			pm_errno = PM_ERR_SERVER_PROTOCOL_UNSUPPORTED;
+		else
+			pm_errno = PM_ERR_INTERNAL_ERROR;
+		return NULL;
+	}
+	
+	return server;
+}
 
 void _pacman_server_free(void *data)
 {
