@@ -162,6 +162,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				off_t offset;
 				off_t size;
 				fetchIO *in;
+				int out;
 			
 				if((dlurl = fetchParseURL(url)) == NULL) {
 					_pacman_log(PM_LOG_WARNING,_("failed to parse url for %s"),fn);
@@ -206,7 +207,14 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						continue;
 					}
 				}
-			
+
+				if((out = open(outpath,O_WRONLY|O_APPEND|O_CREAT,0644)) == -1) {
+					_pacman_log(PM_LOG_WARNING,_("\nfailed to open %s for writing: %s\n"),outpath,strerror(errno));
+					fetchIO_close(in);
+					fetchFreeURL(dlurl);
+					continue;
+				}
+				
 				if(pm_dlfnm) {
 					char *s;
 					size_t k;
