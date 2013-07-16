@@ -557,6 +557,13 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				} else if(filedone < 0) {
 					/* 1 means here that the file is up to date, not a real error, so
 					 * don't go to error: */
+					if(!handle->xfercommand) {
+						if(!strcmp(server->protocol, "ftp") && !handle->proxyhost) {
+							FtpQuit(control);
+						} else if(!strcmp(server->protocol, "http") || (handle->proxyhost && strcmp(server->protocol, "file"))) {
+							HttpQuit(control);
+						}
+					}
 					FREELISTPTR(complete);
 					return(1);
 				}
