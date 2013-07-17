@@ -55,7 +55,7 @@ import_pootle()
 
 cd `dirname $0`
 
-ver=`grep PACMAN_G2_VERSION CMakeLists.txt|sed 's/.*PACMAN_G2_VERSION\ \([0-9\.]*\).*/\1/'`
+ver=`grep -m1 PACMAN_G2_VERSION CMakeLists.txt|sed 's/.*PACMAN_G2_VERSION\ \([0-9\.]*\).*/\1/'`
 if [ "$1" == "--dist" ]; then
 	git archive --format=tar --prefix=pacman-g2-$ver/ HEAD | tar xf -
 	git log --no-merges |git name-rev --tags --stdin > pacman-g2-$ver/ChangeLog
