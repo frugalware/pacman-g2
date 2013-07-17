@@ -7,3 +7,6 @@ add_custom_command(TARGET ${SWIG_MODULE_pacman_java_REAL_NAME}
                    COMMAND "${Java_JAVAC_EXECUTABLE}" "*.java"
                    COMMAND "${Java_JAR_EXECUTABLE}" "-cf" "${CMAKE_CURRENT_BINARY_DIR}/pacman.jar" "*.class")
 install(TARGETS ${SWIG_MODULE_pacman_java_REAL_NAME} DESTINATION lib)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pacman.jar DESTINATION share/java)
+
+

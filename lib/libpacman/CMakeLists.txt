@@ -1,3 +1,9 @@
+#pacman.pc
+SET(prefix "/usr")
+SET(libdir "\${exec_prefix}/lib")
+SET(includedir "\${prefix}/include")
+CONFIGURE_FILE("pacman.pc.in" "pacman.pc" @ONLY)
+
 set(LIBPACMAN_SOURCES 
 	add.c
 	backup.c
@@ -64,3 +70,5 @@ endif(PACCURL_FOUND AND (NOT DISABLE_STATIC_BUILD))
 
 install(TARGETS pacman DESTINATION lib)
 install(FILES pacman.h DESTINATION include)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pacman.pc DESTINATION lib/pkgconfig)
+

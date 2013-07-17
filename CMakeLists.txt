@@ -9,8 +9,11 @@ include (CheckFunctionExists)
 
 string(TOLOWER ${CMAKE_PROJECT_NAME} CMAKE_PROJECT_NAME_LOWER)
 set (PACMAN_G2_VERSION 3.8.9)
-string(REGEX REPLACE "\\.[0-9]+$" "" PACMAN_G2_LIB_VERSION ${PACMAN_G2_VERSION})
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -D_GNU_SOURCE")
+set (PACMAN_G2_LIB_VERSION ${PACMAN_G2_VERSION})
+set (PM_VERSION_TEMP "0." ${PACMAN_G2_LIB_VERSION})
+string (REPLACE ";" "" PM_VERSION ${PM_VERSION_TEMP})
+
+set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -D_GNU_SOURCE")
 
 SET(ENABLE_NLS TRUE CACHE BOOL "Translation program messages to the user's native language ?")
 
@@ -68,7 +71,7 @@ IF(SWIG_FOUND)
   ENDIF(PYTHONINTERP_FOUND)
 
 ELSE()
-    messsage(WARNING "SWIG not found, no bindings will be built")
+    message(WARNING "SWIG not found, no bindings will be built")
 ENDIF(SWIG_FOUND)
 
 CHECK_INCLUDE_FILE(dlfcn.h HAVE_DLFCN_H)
@@ -97,6 +100,8 @@ ADD_SUBDIRECTORY(lib/libpacman)
 ADD_SUBDIRECTORY(src/versort)
 ADD_SUBDIRECTORY(src/vercmp)
 ADD_SUBDIRECTORY(src/pacman-g2)
+ADD_SUBDIRECTORY(etc)
+ADD_SUBDIRECTORY(scripts)
 if(NOT DISABLE_STATIC_BUILD)
   ADD_SUBDIRECTORY(src/pacman-g2-static)
 endif(NOT DISABLE_STATIC_BUILD)

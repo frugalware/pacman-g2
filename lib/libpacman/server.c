@@ -182,7 +182,6 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 		return(0);
 	}
 
-	pm_errno = 0;
 	if(howmany) {
 		*howmany = _pacman_list_count(files);
 	}
@@ -193,6 +192,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	_pacman_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
 	int count;
 	for(i = servers, count = 0; i && !done; i = i->next, count++) {
+        pm_errno = 0;
 		if (count < skip)
 			continue; /* the caller requested skip of this server */
 		_pacman_log(PM_LOG_DEBUG, _("server check, done? %d\n"),done);
@@ -387,7 +387,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                             }
                         }
                     }
-                    if(mtime1 && mtime2) {
+                    if(mtime1 && mtime2 && !handle->proxyhost) {
                         curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
                         curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
                         curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE , strtol(mtime1, NULL, 10));
@@ -415,6 +415,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                     retc = curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, outputFile);
                     if(retc != CURLE_OK) {
                         _pacman_log(PM_LOG_WARNING, _("error setting output file: %s\n"), output);
+                        pm_errno = PM_ERR_RETRIEVE;
                         continue;
                     }
                     char url[PATH_MAX];
@@ -424,19 +425,21 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                     retc = curl_easy_setopt(curlHandle, CURLOPT_URL, url);
                     if(retc != CURLE_OK) {
                         _pacman_log(PM_LOG_WARNING, _("error setting url: %s\n"), url);
+                        pm_errno = PM_ERR_RETRIEVE;
                         continue;
                     }
                     retc = curl_easy_perform(curlHandle);
                     if(retc != CURLE_OK) {
                         _pacman_log(PM_LOG_WARNING, _("error downloading file: %s\n"), url);
-                        goto error;
+                        pm_errno = PM_ERR_RETRIEVE;
+                        continue;
                     }
                     if(mtime1 && mtime2) {
                         long int rcCode = 0;
                         curl_easy_getinfo(curlHandle, CURLINFO_RESPONSE_CODE, &rcCode);
                         double downSize = 0;
                         curl_easy_getinfo(curlHandle, CURLINFO_SIZE_DOWNLOAD, &downSize);
-                        if(rcCode==213 || rcCode==304 || downSize == 0) {
+                        if(rcCode==213 || rcCode==304) {
                             //return codes for when timestamp was the same (FTP and HTTP)
                             //also check for download size as in some cases (proxy) ret codes won't work
                             filedone = -1;
