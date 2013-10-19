@@ -12,12 +12,12 @@
 # - FRANCE -
 # ----------
 # Fondation Free (2 GBit)
-Server = ftp://ftp7.frugalware.org/pub/frugalware/frugalware-current/frugalware-@CARCH@
+#Server = ftp://ftp7.frugalware.org/pub/frugalware/frugalware-current/frugalware-@CARCH@
 # -----------
 # - GERMANY -
 # -----------
 # Host Europe (1 GBit)
-Server = ftp://ftp2.frugalware.org/mirror/ftp.frugalware.org/pub/frugalware//frugalware-current/frugalware-@CARCH@
+#Server = ftp://ftp2.frugalware.org/mirror/ftp.frugalware.org/pub/frugalware//frugalware-current/frugalware-@CARCH@
 # ----------
 # - GREECE -
 # ----------
@@ -27,7 +27,7 @@ Server = ftp://ftp6.frugalware.org/mirrors/linux/frugalware/frugalware-current/f
 # - HUNGARY -
 # -----------
 # Schmidt Computer Ltd. (100 MBit)
-Server = ftp://ftp3.frugalware.org/mirrors/frugalware/pub/frugalware/frugalware-current/frugalware-@CARCH@
+#Server = ftp://ftp3.frugalware.org/mirrors/frugalware/pub/frugalware/frugalware-current/frugalware-@CARCH@
 # Free Software Network (100 MBit)
 Server = ftp://ftp4.frugalware.org/pub/linux/distributions/frugalware/frugalware-current/frugalware-@CARCH@
 # -----------
@@ -39,7 +39,7 @@ Server = ftp://ftp12.frugalware.org/mirrors/ftp.frugalware.org/pub/frugalware/fr
 # - TAIWAN -
 # ----------
 # National Taiwan University (Unknown bandwidth)
-Server = ftp://ftp9.frugalware.org/pub/frugalware/frugalware-current/frugalware-@CARCH@
+#Server = ftp://ftp9.frugalware.org/pub/frugalware/frugalware-current/frugalware-@CARCH@
 # -------
 # - USA -
 # -------
