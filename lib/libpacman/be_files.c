@@ -300,6 +300,17 @@ static char *_pacman_db_read_fgets(pmdb_t *db, char *line, size_t size, FILE *fp
 		return _pacman_archive_fgets(line, size, db->handle);
 }
 
+static int _pacman_db_read_lines(pmdb_t *db, pmlist_t **list, char *s, size_t size, FILE *fp)
+{
+	int lines = 0;
+
+	while(_pacman_db_read_fgets(db, s, size, fp) && !_pacman_strempty(_pacman_strtrim(s))) {
+		*list = _pacman_list_add(*list, strdup(s));
+		lines++;
+	}
+	return lines;
+}
+
 static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 {
 	FILE *fp = NULL;
@@ -323,9 +334,7 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 			}
 			_pacman_strtrim(line);
 			if(!strcmp(line, "%DESC%")) {
-				while(_pacman_db_read_fgets(db, line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
-					info->desc_localized = _pacman_list_add(info->desc_localized, strdup(line));
-				}
+				_pacman_db_read_lines(db, &info->desc_localized, line, sline, fp);
 				STRNCPY(info->desc, (char*)info->desc_localized->data, sizeof(info->desc));
 				for (i = info->desc_localized; i; i = i->next) {
 					if (!strncmp(i->data, handle->language, strlen(handle->language)) &&
@@ -335,18 +344,14 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				}
 				_pacman_strtrim(info->desc);
 			} else if(!strcmp(line, "%GROUPS%")) {
-				while(_pacman_db_read_fgets(db, line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
-					info->groups = _pacman_list_add(info->groups, strdup(line));
-				}
+				_pacman_db_read_lines(db, &info->groups, line, sline, fp);
 			} else if(!strcmp(line, "%URL%")) {
 				if(_pacman_db_read_fgets(db, info->url, sizeof(info->url), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(info->url);
 			} else if(!strcmp(line, "%LICENSE%")) {
-				while(_pacman_db_read_fgets(db, line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
-					info->license = _pacman_list_add(info->license, strdup(line));
-				}
+				_pacman_db_read_lines(db, &info->license, line, sline, fp);
 			} else if(!strcmp(line, "%ARCH%")) {
 				if(_pacman_db_read_fgets(db, info->arch, sizeof(info->arch), fp) == NULL) {
 					goto error;
@@ -419,9 +424,7 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 			} else if(!strcmp(line, "%REPLACES%")) {
 				/* the REPLACES tag is special -- it only appears in sync repositories,
 				 * not the local one. */
-				while(_pacman_db_read_fgets(db, line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
-					info->replaces = _pacman_list_add(info->replaces, strdup(line));
-				}
+				_pacman_db_read_lines(db, &info->replaces, line, sline, fp);
 			} else if(!strcmp(line, "%FORCE%")) {
 				/* FORCE tag only appears in sync repositories,
 				 * not the local one. */
@@ -468,27 +471,17 @@ static int _pacman_db_read_depends(pmdb_t *db, unsigned int inforeq, pmpkg_t *in
 			}
 			_pacman_strtrim(line);
 			if(!strcmp(line, "%DEPENDS%")) {
-				while(_pacman_db_read_fgets(db, line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
-					info->depends = _pacman_list_add(info->depends, strdup(line));
-				}
+				_pacman_db_read_lines(db, &info->depends, line, sline, fp);
 			} else if(!strcmp(line, "%REQUIREDBY%")) {
-				while(_pacman_db_read_fgets(db, line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
-					info->requiredby = _pacman_list_add(info->requiredby, strdup(line));
-				}
+				_pacman_db_read_lines(db, &info->requiredby, line, sline, fp);
 			} else if(!strcmp(line, "%CONFLICTS%")) {
-				while(_pacman_db_read_fgets(db, line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
-					info->conflicts = _pacman_list_add(info->conflicts, strdup(line));
-				}
+				_pacman_db_read_lines(db, &info->conflicts, line, sline, fp);
 			} else if(!strcmp(line, "%PROVIDES%")) {
-				while(_pacman_db_read_fgets(db, line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
-					info->provides = _pacman_list_add(info->provides, strdup(line));
-				}
+				_pacman_db_read_lines(db, info->provides, line, sline, fp);
 			} else if(!strcmp(line, "%REPLACES%")) {
 				/* the REPLACES tag is special -- it only appears in sync repositories,
 				 * not the local one. */
-				while(_pacman_db_read_fgets(db, line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
-					info->replaces = _pacman_list_add(info->replaces, strdup(line));
-				}
+				_pacman_db_read_lines(db, info->replaces, line, sline, fp);
 			} else if(!strcmp(line, "%FORCE%")) {
 				/* FORCE tag only appears in sync repositories,
 				 * not the local one. */
