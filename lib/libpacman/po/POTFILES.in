@@ -1,3 +1,6 @@
+hash/md5.c
+hash/md5driver.c
+hash/sha1.c
 add.c
 pacman.c
 backup.c
@@ -11,12 +14,9 @@ group.c
 handle.c
 list.c
 log.c
-md5.c
-md5driver.c
 package.c
 provide.c
 remove.c
-sha1.c
 sync.c
 trans.c
 util.c

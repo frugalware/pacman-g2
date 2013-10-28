@@ -39,6 +39,7 @@
 #include <limits.h>
 #include <zlib.h>
 #include <libintl.h>
+
 /* pacman-g2 */
 #include "list.h"
 #include "trans.h"
@@ -46,8 +47,6 @@
 #include "error.h"
 #include "deps.h"
 #include "versioncmp.h"
-#include "md5.h"
-#include "sha1.h"
 #include "log.h"
 #include "backup.h"
 #include "package.h"

@@ -38,7 +38,11 @@
 #include <string.h>
 #include <limits.h>
 #include <libintl.h>
+
 /* pacman-g2 */
+#include "hash/md5.h"
+#include "hash/sha1.h"
+
 #include "list.h"
 #include "trans.h"
 #include "util.h"
@@ -46,8 +50,6 @@
 #include "cache.h"
 #include "deps.h"
 #include "versioncmp.h"
-#include "md5.h"
-#include "sha1.h"
 #include "log.h"
 #include "backup.h"
 #include "package.h"

@@ -35,14 +35,16 @@
 #include <limits.h> /* PATH_MAX */
 #include <stdarg.h>
 #include <libintl.h>
+
 /* pacman-g2 */
+#include "hash/md5.h"
+#include "hash/sha1.h"
+
 #include "config.h"
 #include "log.h"
 #include "error.h"
 #include "deps.h"
 #include "versioncmp.h"
-#include "md5.h"
-#include "sha1.h"
 #include "list.h"
 #include "package.h"
 #include "group.h"

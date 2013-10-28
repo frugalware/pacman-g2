@@ -51,8 +51,6 @@
 #include "handle.h"
 #include "util.h"
 #include "pacman.h"
-#include "md5.h"
-#include "sha1.h"
 #include "handle.h"
 #include "server.h"
 

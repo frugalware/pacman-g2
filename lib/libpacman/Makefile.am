@@ -7,9 +7,13 @@ SUBDIRS = po
 localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
-TARGETS = md5driver.c \
-	md5.c \
-	sha1.c \
+HASH_TARGETS = \
+	hash/md5driver.c \
+	hash/md5.c \
+	hash/sha1.c
+
+TARGETS = \
+	$(HASH_TARGETS) \
 	util.c \
 	list.c \
 	log.c \

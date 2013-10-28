@@ -27,7 +27,7 @@
 #endif
 #include <libintl.h>
 
-#include "util.h"
+#include "../util.h"
 #include "sha1.h"
 
 #include <sys/types.h>

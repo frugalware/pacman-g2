@@ -33,7 +33,11 @@
 #endif
 #include <dirent.h>
 #include <libintl.h>
+
 /* pacman-g2 */
+#include "hash/md5.h"
+#include "hash/sha1.h"
+
 #include "log.h"
 #include "error.h"
 #include "list.h"
@@ -50,8 +54,6 @@
 #include "handle.h"
 #include "util.h"
 #include "pacman.h"
-#include "md5.h"
-#include "sha1.h"
 #include "handle.h"
 #include "server.h"
 #include "packages_transaction.h"

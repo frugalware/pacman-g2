@@ -25,7 +25,7 @@ documentation and/or software.
 #include <string.h>
 #include <libintl.h>
 #include "config.h"
-#include "util.h"
+#include "../util.h"
 #include "md5.h"
 
 /* Length of test block, number of test blocks.

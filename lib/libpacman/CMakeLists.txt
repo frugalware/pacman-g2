@@ -1,4 +1,7 @@
-set(LIBPACMAN_SOURCES 
+set(LIBPACMAN_SOURCES
+	hash/md5.c
+	hash/md5driver.c
+	hash/sha1.c
 	add.c
 	backup.c
 	be_files.c
@@ -11,14 +14,12 @@ set(LIBPACMAN_SOURCES
 	handle.c
 	list.c
 	log.c
-	md5.c
-	md5driver.c
 	package.c
+	packages_transaction.c
 	pacman.c
 	provide.c
 	remove.c
 	server.c
-	sha1.c
 	sync.c
 	trans.c
 	trans_sysupgrade.c
