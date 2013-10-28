@@ -1,0 +1,41 @@
+= libpacman-changes(3)
+
+== NAME
+
+libpacman-changes - Changelog for libpacman(3)
+
+== SYNOPSIS
+
+A attempt to have all the changes in API and behaviour of the libpacman over versions.
+
+== Changes for version XXX
+
+=== Dependency changes
+
+None.
+
+=== API changes
+
+==== Symbols changed:
+
+pacman_trans_cb_progress: Second argument (pkgname) is now a const.
+
+==== Symbols added:
+
+None.
+
+==== Symbols removed:
+
+None.
+
+=== Behaviour changes
+
+None.
+
+== AUTHORS
+
+See /usr/share/doc/pacman-g2-*/AUTHORS.
+
+== REPORTING BUGS
+
+If you find any bug, then please file a bugreport at <http://bugs.frugalware.org/>.

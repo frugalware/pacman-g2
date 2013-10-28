@@ -337,7 +337,7 @@ typedef void (*pacman_trans_cb_event)(unsigned char, void *, void *);
 typedef void (*pacman_trans_cb_conv)(unsigned char, void *, void *, void *, int *);
 
 /* Transaction Progress callback */
-typedef void (*pacman_trans_cb_progress)(unsigned char, char *, int, int, int);
+typedef void (*pacman_trans_cb_progress)(unsigned char, const char *, int, int, int);
 
 /* Download Progress callback */
 typedef int (*pacman_trans_cb_download)(PM_NETBUF *ctl, int xfered, void *arg);
