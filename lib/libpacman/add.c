@@ -310,7 +310,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 	double percent;
 	register struct archive *archive;
 	struct archive_entry *entry;
-	char expath[PATH_MAX], cwd[PATH_MAX] = "", *what;
+	char expath[PATH_MAX], cwd[PATH_MAX] = "";
 	unsigned char cb_state;
 	time_t t;
 	pmlist_t *targ, *lp;
@@ -345,10 +345,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				EVENT(trans, PM_TRANS_EVT_UPGRADE_START, info, NULL);
 				cb_state = PM_TRANS_PROGRESS_UPGRADE_START;
 				_pacman_log(PM_LOG_FLOW1, _("upgrading package %s-%s"), info->name, info->version);
-				if((what = (char *)malloc(strlen(info->name)+1)) == NULL) {
-					RET_ERR(PM_ERR_MEMORY, -1);
-				}
-				STRNCPY(what, info->name, strlen(info->name)+1);
 
 				/* we'll need to save some record for backup checks later */
 				oldpkg = _pacman_pkg_new(local->name, local->version);
@@ -402,10 +398,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 			EVENT(trans, PM_TRANS_EVT_ADD_START, info, NULL);
 			cb_state = PM_TRANS_PROGRESS_ADD_START;
 			_pacman_log(PM_LOG_FLOW1, _("adding package %s-%s"), info->name, info->version);
-			if((what = (char *)malloc(strlen(info->name)+1)) == NULL) {
-				RET_ERR(PM_ERR_MEMORY, -1);
-			}
-			STRNCPY(what, info->name, strlen(info->name)+1);
 
 			/* pre_install scriptlet */
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
@@ -452,7 +444,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				if (info->size != 0)
 		    			percent = (double)archive_position_uncompressed(archive) / info->size;
 				if (needdisp == 0) {
-					PROGRESS(trans, cb_state, what, (int)(percent * 100), howmany, (howmany - remain +1));
+					PROGRESS(trans, cb_state, info->name, (int)(percent * 100), howmany, (howmany - remain +1));
 				}
 
 				if(!strcmp(pathname, ".PKGINFO") || !strcmp(pathname, ".FILELIST")) {
@@ -734,7 +726,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				pacman_logaction(_("errors occurred while %s %s"),
 					(pmo_upgrade ? _("upgrading") : _("installing")), info->name);
 			} else {
-			PROGRESS(trans, cb_state, what, 100, howmany, howmany - remain + 1);
+			PROGRESS(trans, cb_state, info->name, 100, howmany, howmany - remain + 1);
 			}
 		}
 
@@ -816,7 +808,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 
 		needdisp = 0;
 		EVENT(trans, PM_TRANS_EVT_EXTRACT_DONE, NULL, NULL);
-		FREE(what);
 
 		/* run the post-install script if it exists  */
 		if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
