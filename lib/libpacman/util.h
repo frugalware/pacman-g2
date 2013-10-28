@@ -83,6 +83,16 @@ char* mkdtemp(char *template);
 #endif
 char *_pacman_archive_fgets(char *line, size_t size, struct archive *a);
 
+static inline int _pacman_strempty(const char *s)
+{
+	return s != NULL ? s[0] == '\0' : !0;
+}
+
+static inline size_t _pacman_strlen(const char *s)
+{
+	return s != NULL ? strlen(s) : 0;
+}
+
 static inline void *_pacman_malloc(size_t size)
 {
 	void *ptr = malloc(size);

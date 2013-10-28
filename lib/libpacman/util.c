@@ -131,7 +131,7 @@ int _pacman_makepath(char *path)
 	orig = strdup(path);
 	str = orig;
 	while((ptr = strsep(&str, "/"))) {
-		if(strlen(ptr)) {
+		if(!_pacman_strempty(ptr)) {
 			struct stat buf;
 
 			strcat(full, "/");
@@ -600,10 +600,10 @@ int _pacman_runscriptlet(char *root, char *installfn, const char *script, char *
 	}
 
 cleanup:
-	if(strlen(tmpdir) && _pacman_rmrf(tmpdir)) {
+	if(!_pacman_strempty(tmpdir) && _pacman_rmrf(tmpdir)) {
 		_pacman_log(PM_LOG_WARNING, _("could not remove tmpdir %s"), tmpdir);
 	}
-	if(strlen(cwd)) {
+	if(!_pacman_strempty(cwd)) {
 		chdir(cwd);
 	}
 
@@ -717,7 +717,7 @@ cleanup:
 		closedir(dir);
 	}
 
-	if(strlen(cwd)) {
+	if(!_pacman_strempty(cwd)) {
 		chdir(cwd);
 	}
 

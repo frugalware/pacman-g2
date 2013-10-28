@@ -194,7 +194,7 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 		fgets(line, PATH_MAX, fp);
 		linenum++;
 		_pacman_strtrim(line);
-		if(strlen(line) == 0 || line[0] == '#') {
+		if(_pacman_strempty(line) || line[0] == '#') {
 			continue;
 		}
 		if(output) {
@@ -281,7 +281,7 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 	struct utsname name;
 	pmpkg_t *info = NULL;
 
-	if(pkgfile == NULL || strlen(pkgfile) == 0) {
+	if(_pacman_strempty(pkgfile)) {
 		RET_ERR(PM_ERR_WRONG_ARGS, NULL);
 	}
 
@@ -322,7 +322,7 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 				close(fd);
 				goto error;
 			}
-			if(!strlen(info->name)) {
+			if(_pacman_strempty(info->name)) {
 				_pacman_log(PM_LOG_ERROR, _("missing package name in %s"), pkgfile);
 				pm_errno = PM_ERR_PKG_INVALID;
 				unlink(descfile);
@@ -330,7 +330,7 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 				close(fd);
 				goto error;
 			}
-			if(!strlen(info->version)) {
+			if(_pacman_strempty(info->version)) {
 				_pacman_log(PM_LOG_ERROR, _("missing package version in %s"), pkgfile);
 				pm_errno = PM_ERR_PKG_INVALID;
 				unlink(descfile);
@@ -339,7 +339,7 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 				goto error;
 			}
 			if(handle->trans && !(handle->trans->flags & PM_TRANS_FLAG_NOARCH)) {
-				if(!strlen(info->arch)) {
+				if(_pacman_strempty(info->arch)) {
 					_pacman_log(PM_LOG_ERROR, _("missing package architecture in %s"), pkgfile);
 					pm_errno = PM_ERR_PKG_INVALID;
 					unlink(descfile);

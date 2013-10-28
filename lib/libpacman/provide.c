@@ -23,11 +23,14 @@
 #include "config.h"
 #include <stdlib.h>
 #include <string.h>
+
 /* pacman-g2 */
+#include "provide.h"
+
 #include "cache.h"
 #include "list.h"
 #include "db.h"
-#include "provide.h"
+#include "util.h"
 
 /* return a pmlist_t of packages in "db" that provide "package"
  */
@@ -36,7 +39,7 @@ pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package)
 	pmlist_t *pkgs = NULL;
 	pmlist_t *lp;
 
-	if(db == NULL || package == NULL || strlen(package) == 0) {
+	if(db == NULL || _pacman_strempty(package)) {
 		return(NULL);
 	}
 

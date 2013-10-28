@@ -178,7 +178,7 @@ pmdb_t *pacman_db_register(const char *treename)
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, NULL));
-	ASSERT(treename != NULL && strlen(treename) != 0, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	ASSERT(!_pacman_strempty(treename), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 	/* Do not register a database if a transaction is on-going */
 	ASSERT(handle->trans == NULL, RET_ERR(PM_ERR_TRANS_NOT_NULL, NULL));
 
@@ -291,7 +291,7 @@ int pacman_db_setserver(pmdb_t *db, char *url)
 		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
 	}
 
-	if(url && strlen(url)) {
+	if(!_pacman_strempty(url)) {
 		pmserver_t *server;
 		if((server = _pacman_server_new(url)) == NULL) {
 			/* pm_errno is set by _pacman_server_new */
@@ -343,7 +343,7 @@ int pacman_db_update(int force, PM_DB *db)
 	if(!force) {
 		/* get the lastupdate time */
 		_pacman_db_getlastupdate(db, lastupdate);
-		if(strlen(lastupdate) == 0) {
+		if(_pacman_strempty(lastupdate)) {
 			_pacman_log(PM_LOG_DEBUG, _("failed to get lastupdate time for %s (no big deal)\n"), db->treename);
 		}
 	}
@@ -364,7 +364,7 @@ int pacman_db_update(int force, PM_DB *db)
 		status = 1;
 		goto rmlck;
 	} else {
-		if(strlen(newmtime)) {
+		if(!_pacman_strempty(newmtime)) {
 			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %s\n"), db->treename, newmtime);
 			updated = 1;
 		}
@@ -400,7 +400,7 @@ pmpkg_t *pacman_db_readpkg(pmdb_t *db, const char *name)
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
-	ASSERT(name != NULL && strlen(name) != 0, return(NULL));
+	ASSERT(!_pacman_strempty(name), return(NULL));
 
 	return(_pacman_db_get_pkgfromcache(db, name));
 }
@@ -429,7 +429,7 @@ pmlist_t *pacman_db_whatprovides(pmdb_t *db, char *name)
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
-	ASSERT(name != NULL && strlen(name) != 0, return(NULL));
+	ASSERT(!_pacman_strempty(name), return(NULL));
 
 	return(_pacman_db_whatprovides(db, name));
 }
@@ -444,7 +444,7 @@ pmgrp_t *pacman_db_readgrp(pmdb_t *db, char *name)
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
-	ASSERT(name != NULL && strlen(name) != 0, return(NULL));
+	ASSERT(!_pacman_strempty(name), return(NULL));
 
 	return(_pacman_db_get_grpfromcache(db, name));
 }
@@ -493,7 +493,7 @@ pmlist_t *pacman_pkg_getowners(char *filename)
 {
 	/* Sanity checks */
 	ASSERT(handle->db_local != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
-	ASSERT(filename != NULL && strlen(filename) != 0, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	ASSERT(!_pacman_strempty(filename), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	return(_pacman_pkg_getowners(filename));
 }
@@ -508,7 +508,7 @@ int pacman_pkg_load(char *filename, pmpkg_t **pkg)
 	_pacman_log(PM_LOG_FUNCTION, "enter pacman_pkg_load");
 
 	/* Sanity checks */
-	ASSERT(filename != NULL && strlen(filename) != 0, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(!_pacman_strempty(filename), RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	*pkg = _pacman_pkg_load(filename);
@@ -753,7 +753,7 @@ int pacman_trans_addtarget(const char *target)
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
-	ASSERT(target != NULL && strlen(target) != 0, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	trans = handle->trans;
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -1084,7 +1084,7 @@ int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *
 		return(0);
 	}
 
-	if(this_section != NULL && strlen(this_section) > 0) {
+	if(!_pacman_strempty(this_section)) {
 		strncpy(section, this_section, min(255, strlen(this_section)));
 		if(!strcmp(section, "local")) {
 			RET_ERR(PM_ERR_CONF_LOCAL, -1);

@@ -235,7 +235,7 @@ pmgrp_t *_pacman_db_get_grpfromcache(pmdb_t *db, const char *target)
 {
 	pmlist_t *i;
 
-	if(db == NULL || target == NULL || strlen(target) == 0) {
+	if(db == NULL || _pacman_strempty(target)) {
 		return(NULL);
 	}
 

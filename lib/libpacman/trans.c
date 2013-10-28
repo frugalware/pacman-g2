@@ -50,7 +50,7 @@ static int check_oldcache(void)
 	if(_pacman_db_getlastupdate(db, lastupdate) == -1) {
 		return(-1);
 	}
-	if(strlen(db->lastupdate) && strcmp(lastupdate, db->lastupdate) != 0) {
+	if(!_pacman_strempty(db->lastupdate) && strcmp(lastupdate, db->lastupdate) != 0) {
 		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is too old"), db->treename);
 		_pacman_db_free_pkgcache(db);
 	} else {

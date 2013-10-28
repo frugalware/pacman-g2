@@ -135,21 +135,21 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 			if(ph->dbpath) {
 				FREE(ph->dbpath);
 			}
-			ph->dbpath = strdup((data && strlen((char *)data) != 0) ? (char *)data : PM_DBPATH);
+			ph->dbpath = strdup(!_pacman_strempty((char *)data) ? (char *)data : PM_DBPATH);
 			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_DBPATH set to '%s'"), ph->dbpath);
 		break;
 		case PM_OPT_CACHEDIR:
 			if(ph->cachedir) {
 				FREE(ph->cachedir);
 			}
-			ph->cachedir = strdup((data && strlen((char *)data) != 0) ? (char *)data : PM_CACHEDIR);
+			ph->cachedir = strdup(!_pacman_strempty((char *)data) ? (char *)data : PM_CACHEDIR);
 			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_CACHEDIR set to '%s'"), ph->cachedir);
 		break;
 		case PM_OPT_HOOKSDIR:
 			if(ph->hooksdir) {
 				FREE(ph->hooksdir);
 			}
-			ph->hooksdir = strdup((data && strlen((char *)data) != 0) ? (char *)data : PM_HOOKSDIR);
+			ph->hooksdir = strdup(!_pacman_strempty((char *)data) ? (char *)data : PM_HOOKSDIR);
 			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_HOOKSDIR set to '%s'"), ph->hooksdir);
 		break;
 		case PM_OPT_LOGFILE:
@@ -184,7 +184,7 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_LOGFILE set to '%s'"), path);
 		break;
 		case PM_OPT_NOUPGRADE:
-			if((char *)data && strlen((char *)data) != 0) {
+			if(!_pacman_strempty((char *)data)) {
 				ph->noupgrade = _pacman_list_add(ph->noupgrade, strdup((char *)data));
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NOUPGRADE"), (char *)data);
 			} else {
@@ -193,7 +193,7 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 			}
 		break;
 		case PM_OPT_NOEXTRACT:
-			if((char *)data && strlen((char *)data) != 0) {
+			if(!_pacman_strempty((char *)data)) {
 				ph->noextract = _pacman_list_add(ph->noextract, strdup((char *)data));
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NOEXTRACT"), (char *)data);
 			} else {
@@ -202,7 +202,7 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 			}
 		break;
 		case PM_OPT_IGNOREPKG:
-			if((char *)data && strlen((char *)data) != 0) {
+			if(!_pacman_strempty((char *)data)) {
 				ph->ignorepkg = _pacman_list_add(ph->ignorepkg, strdup((char *)data));
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_IGNOREPKG"), (char *)data);
 			} else {
@@ -211,7 +211,7 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 			}
 		break;
 		case PM_OPT_HOLDPKG:
-			if((char *)data && strlen((char *)data) != 0) {
+			if(!_pacman_strempty((char *)data)) {
 				ph->holdpkg = _pacman_list_add(ph->holdpkg, strdup((char *)data));
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_HOLDPKG"), (char *)data);
 			} else {
@@ -220,7 +220,7 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 			}
 		break;
 		case PM_OPT_NEEDLES:
-			if((char *)data && strlen((char *)data) != 0) {
+			if(!_pacman_strempty((char *)data)) {
 				ph->needles = _pacman_list_add(ph->needles, strdup((char *)data));
 				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NEEDLES"), (char *)data);
 			} else {

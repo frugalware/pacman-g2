@@ -127,7 +127,7 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(name != NULL && strlen(name) != 0, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(!_pacman_strempty(name), RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	/* Check if we need to add a fake target to the transaction. */
 	if(strchr(name, '|')) {
@@ -722,7 +722,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 			if(archive_ret == ARCHIVE_FATAL) {
 				errors++;
 			}
-			if(strlen(cwd)) {
+			if(!_pacman_strempty(cwd)) {
 				chdir(cwd);
 			}
 			archive_read_finish (archive);
