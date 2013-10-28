@@ -61,7 +61,7 @@
 #include "handle.h"
 #include "packages_transaction.h"
 
-static int add_faketarget(pmtrans_t *trans, const char *name)
+static pmpkg_t *fakedb_pkg_new(pmdb_t *fakedb, const char *name)
 {
 	char *ptr, *p;
 	char *str = NULL;
@@ -69,7 +69,7 @@ static int add_faketarget(pmtrans_t *trans, const char *name)
 
 	dummy = _pacman_pkg_new(NULL, NULL);
 	if(dummy == NULL) {
-		RET_ERR(PM_ERR_MEMORY, -1);
+		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
 
 	/* Format: field1=value1|field2=value2|...
@@ -99,9 +99,17 @@ static int add_faketarget(pmtrans_t *trans, const char *name)
 	FREE(str);
 	if(dummy->name[0] == 0 || dummy->version[0] == 0) {
 		FREEPKG(dummy);
-		RET_ERR(PM_ERR_PKG_INVALID_NAME, -1);
+		RET_ERR(PM_ERR_PKG_INVALID_NAME, NULL);
 	}
+	return dummy;
+}
 
+static int add_faketarget(pmtrans_t *trans, const char *name)
+{
+	pmpkg_t *dummy = fakedb_pkg_new(NULL, name);
+
+	if (dummy == NULL)
+		return -1;
 	/* add the package to the transaction */
 	trans->packages = _pacman_list_add(trans->packages, dummy);
 
