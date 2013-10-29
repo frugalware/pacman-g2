@@ -31,7 +31,10 @@
 #include <libintl.h>
 #include <locale.h>
 #include <sys/utsname.h>
+
 /* pacman-g2 */
+#include "package.h"
+
 #include "log.h"
 #include "util.h"
 #include "error.h"
@@ -39,57 +42,23 @@
 #include "db.h"
 #include "handle.h"
 #include "cache.h"
-#include "package.h"
 #include "pacman.h"
 
 pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 {
 	pmpkg_t* pkg = NULL;
 
-	if((pkg = (pmpkg_t *)malloc(sizeof(pmpkg_t))) == NULL) {
-		RET_ERR(PM_ERR_MEMORY, (pmpkg_t *)-1);
+	if((pkg = (pmpkg_t *)_pacman_zalloc(sizeof(pmpkg_t))) == NULL) {
+		return NULL;
 	}
 
-	if(name && name[0] != 0) {
+	if(!_pacman_strempty(name)) {
 		STRNCPY(pkg->name, name, PKG_NAME_LEN);
-	} else {
-		pkg->name[0]        = '\0';
 	}
-	if(version && version[0] != 0) {
+	if(!_pacman_strempty(version)) {
 		STRNCPY(pkg->version, version, PKG_VERSION_LEN);
-	} else {
-		pkg->version[0]     = '\0';
 	}
-	pkg->desc[0]        = '\0';
-	pkg->url[0]         = '\0';
-	pkg->license        = NULL;
-	pkg->desc_localized = NULL;
-	pkg->builddate[0]   = '\0';
-	pkg->buildtype[0]   = '\0';
-	pkg->installdate[0] = '\0';
-	pkg->packager[0]    = '\0';
-	pkg->md5sum[0]      = '\0';
-	pkg->sha1sum[0]     = '\0';
-	pkg->arch[0]        = '\0';
-	pkg->size           = 0;
-	pkg->usize          = 0;
-	pkg->scriptlet      = 0;
-	pkg->force          = 0;
-	pkg->stick          = 0;
 	pkg->reason         = PM_PKG_REASON_EXPLICIT;
-	pkg->requiredby     = NULL;
-	pkg->conflicts      = NULL;
-	pkg->files          = NULL;
-	pkg->backup         = NULL;
-	pkg->depends        = NULL;
-	pkg->removes        = NULL;
-	pkg->groups         = NULL;
-	pkg->provides       = NULL;
-	pkg->replaces       = NULL;
-	/* internal */
-	pkg->origin         = 0;
-	pkg->data           = NULL;
-	pkg->infolevel      = 0;
 
 	return(pkg);
 }
