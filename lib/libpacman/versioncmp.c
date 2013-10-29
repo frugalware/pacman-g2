@@ -27,11 +27,11 @@
 #include <ctype.h>
 #include <string.h>
 #include <libintl.h>
+
 /* pacman-g2 */
-#include "config.h"
-#include "deps.h"
 #include "versioncmp.h"
-#include "log.h"
+
+#include "deps.h"
 #include "util.h"
 
 #ifndef HAVE_STRVERSCMP

@@ -35,7 +35,7 @@
 /* pacman-g2 */
 #include "package.h"
 
-#include "log.h"
+#include "util/log.h"
 #include "util.h"
 #include "error.h"
 #include "list.h"

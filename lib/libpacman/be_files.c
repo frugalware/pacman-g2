@@ -36,8 +36,10 @@
 #ifdef CYGWIN
 #include <limits.h> /* PATH_MAX */
 #endif
+
 /* pacman-g2 */
-#include "log.h"
+
+#include "util/log.h"
 #include "util.h"
 #include "db.h"
 #include "pacman.h"

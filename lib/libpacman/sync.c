@@ -35,10 +35,11 @@
 #include <libintl.h>
 
 /* pacman-g2 */
+#include "sync.h"
+
 #include "hash/md5.h"
 #include "hash/sha1.h"
-
-#include "log.h"
+#include "util/log.h"
 #include "error.h"
 #include "list.h"
 #include "package.h"

@@ -22,6 +22,7 @@
  *  USA.
  */
 
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -37,11 +38,11 @@
 #include <libintl.h>
 
 /* pacman-g2 */
+#include "pacman.h"
+
 #include "hash/md5.h"
 #include "hash/sha1.h"
-
-#include "config.h"
-#include "log.h"
+#include "util/log.h"
 #include "error.h"
 #include "deps.h"
 #include "versioncmp.h"

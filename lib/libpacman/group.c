@@ -30,7 +30,6 @@
 
 #include "util.h"
 #include "error.h"
-#include "log.h"
 #include "pacman.h"
 
 pmgrp_t *_pacman_grp_new()

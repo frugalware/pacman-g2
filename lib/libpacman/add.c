@@ -40,9 +40,11 @@
 #include <libintl.h>
 
 /* pacman-g2 */
+#include "add.h"
+
 #include "hash/md5.h"
 #include "hash/sha1.h"
-
+#include "util/log.h"
 #include "list.h"
 #include "trans.h"
 #include "util.h"
@@ -50,13 +52,11 @@
 #include "cache.h"
 #include "deps.h"
 #include "versioncmp.h"
-#include "log.h"
 #include "backup.h"
 #include "package.h"
 #include "db.h"
 #include "provide.h"
 #include "conflict.h"
-#include "add.h"
 #include "remove.h"
 #include "handle.h"
 #include "packages_transaction.h"

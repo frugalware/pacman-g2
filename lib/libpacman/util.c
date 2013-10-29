@@ -57,11 +57,12 @@
 #include <regex.h>
 
 /* pacman-g2 */
-#include "log.h"
+#include "util.h"
+
+#include "util/log.h"
 #include "list.h"
 #include "trans.h"
 #include "sync.h"
-#include "util.h"
 #include "error.h"
 #include "pacman.h"
 

@@ -23,9 +23,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <time.h>
+
 /* pacman-g2 */
-#include "pacman.h"
 #include "log.h"
+
+#include "pacman.h"
 
 /* Internal library log mechanism */
 pacman_cb_log pm_logcb     = NULL;

@@ -22,6 +22,7 @@
 #define _PACMAN_CONFLICT_H
 
 #include "db.h"
+#include "trans.h"
 
 #define CONFLICT_FILE_LEN 512
 

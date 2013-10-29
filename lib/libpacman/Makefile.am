@@ -12,11 +12,14 @@ HASH_TARGETS = \
 	hash/md5.c \
 	hash/sha1.c
 
+UTIL_TARGETS = \
+	util/log.c
+
 TARGETS = \
 	$(HASH_TARGETS) \
+	$(UTIL_TARGETS) \
 	util.c \
 	list.c \
-	log.c \
 	error.c \
 	package.c \
 	group.c \

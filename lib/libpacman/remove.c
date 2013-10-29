@@ -41,19 +41,20 @@
 #include <libintl.h>
 
 /* pacman-g2 */
+#include "remove.h"
+
+#include "util/log.h"
 #include "list.h"
 #include "trans.h"
 #include "util.h"
 #include "error.h"
 #include "deps.h"
 #include "versioncmp.h"
-#include "log.h"
 #include "backup.h"
 #include "package.h"
 #include "db.h"
 #include "cache.h"
 #include "provide.h"
-#include "remove.h"
 #include "handle.h"
 #include "pacman.h"
 #include "packages_transaction.h"

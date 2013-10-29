@@ -34,13 +34,15 @@
 #include <limits.h>
 #include <sys/stat.h>
 #include <libintl.h>
+
 /* pacman-g2 */
+#include "conflict.h"
+
+#include "util/log.h"
 #include "util.h"
 #include "error.h"
-#include "log.h"
 #include "cache.h"
 #include "deps.h"
-#include "conflict.h"
 
 /* Returns a pmlist_t* of pmdepmissing_t pointers.
  *

@@ -33,15 +33,17 @@
 #include <time.h>
 #include <ftplib.h>
 #include <locale.h>
+
 /* pacman-g2 */
+#include "handle.h"
+
+#include "util/log.h"
 #include "util.h"
-#include "log.h"
 #include "list.h"
 #include "error.h"
 #include "trans.h"
 #include "pacman.h"
 #include "server.h"
-#include "handle.h"
 
 pmhandle_t *_pacman_handle_new()
 {
