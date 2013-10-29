@@ -52,7 +52,7 @@
 #include "cache.h"
 #include "pacman.h"
 
-pmdb_t *_pacman_db_new(char *root, char* dbpath, const char *treename)
+pmdb_t *_pacman_db_new(const char *root, const char* dbpath, const char *treename)
 {
 	pmdb_t *db = _pacman_zalloc(sizeof(pmdb_t));
 
