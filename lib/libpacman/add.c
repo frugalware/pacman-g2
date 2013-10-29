@@ -450,7 +450,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				STRNCPY(pathname, archive_entry_pathname (entry), PATH_MAX);
 
 				if (info->size != 0)
-		    			percent = (double)archive_position_uncompressed(archive) / info->size;
+					percent = (double)archive_position_uncompressed(archive) / info->size;
 				if (needdisp == 0) {
 					PROGRESS(trans, cb_state, info->name, (int)(percent * 100), howmany, (howmany - remain +1));
 				}
@@ -551,40 +551,40 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 
 						if(!file) continue;
 						if(!strcmp(file, pathname)) {
-						    if(info->sha1sum != NULL && info->sha1sum != '\0') {
-							/* 32 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
-							if((fn = (char *)malloc(strlen(file)+34)) == NULL) {
-								RET_ERR(PM_ERR_MEMORY, -1);
+							if(info->sha1sum != NULL && info->sha1sum != '\0') {
+								/* 32 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
+								if((fn = (char *)malloc(strlen(file)+34)) == NULL) {
+									RET_ERR(PM_ERR_MEMORY, -1);
+								}
+								sprintf(fn, "%s\t%s", file, md5_pkg);
+								FREE(file);
+								lp->data = fn;
+							} else {
+								/* 41 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
+								if((fn = (char *)malloc(strlen(file)+43)) == NULL) {
+									RET_ERR(PM_ERR_MEMORY, -1);
+								}
+								sprintf(fn, "%s\t%s", file, sha1_pkg);
+								FREE(file);
+								lp->data = fn;
 							}
-							sprintf(fn, "%s\t%s", file, md5_pkg);
-							FREE(file);
-							lp->data = fn;
-						    } else {
-							/* 41 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
-							if((fn = (char *)malloc(strlen(file)+43)) == NULL) {
-								RET_ERR(PM_ERR_MEMORY, -1);
-							}
-							sprintf(fn, "%s\t%s", file, sha1_pkg);
-							FREE(file);
-							lp->data = fn;
-						    }
 						}
 					}
 
 					if (info->sha1sum != NULL && info->sha1sum != '\0') {
-					_pacman_log(PM_LOG_DEBUG, _("checking md5 hashes for %s"), pathname);
-					_pacman_log(PM_LOG_DEBUG, _("current:  %s"), md5_local);
-					_pacman_log(PM_LOG_DEBUG, _("new:      %s"), md5_pkg);
-					if(md5_orig) {
-						_pacman_log(PM_LOG_DEBUG, _("original: %s"), md5_orig);
-					}
-					} else {
-                                        _pacman_log(PM_LOG_DEBUG, _("checking sha1 hashes for %s"), pathname);
-					_pacman_log(PM_LOG_DEBUG, _("current:  %s"), sha1_local);
-                                        _pacman_log(PM_LOG_DEBUG, _("new:      %s"), sha1_pkg);
-                                        if(sha1_orig) {
-                                        _pacman_log(PM_LOG_DEBUG, _("original: %s"), sha1_orig);
-					}
+						_pacman_log(PM_LOG_DEBUG, _("checking md5 hashes for %s"), pathname);
+						_pacman_log(PM_LOG_DEBUG, _("current:  %s"), md5_local);
+						_pacman_log(PM_LOG_DEBUG, _("new:      %s"), md5_pkg);
+						if(md5_orig) {
+							_pacman_log(PM_LOG_DEBUG, _("original: %s"), md5_orig);
+						}
+					} else {	
+						_pacman_log(PM_LOG_DEBUG, _("checking sha1 hashes for %s"), pathname);
+						_pacman_log(PM_LOG_DEBUG, _("current:  %s"), sha1_local);
+						_pacman_log(PM_LOG_DEBUG, _("new:      %s"), sha1_pkg);
+						if(sha1_orig) {
+							_pacman_log(PM_LOG_DEBUG, _("original: %s"), sha1_orig);
+						}
 					}
 
 					if(!pmo_upgrade) {
@@ -649,7 +649,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 								_pacman_log(PM_LOG_ERROR, _("could not copy %s to %s (%s)"), temp, pathname, strerror(errno));
 								errors++;
 							}
-						    archive_entry_set_pathname (entry, expath);
+							archive_entry_set_pathname (entry, expath);
 						}
 					}
 
@@ -697,21 +697,21 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 							_pacman_log(PM_LOG_DEBUG, _("appending backup entry"));
 							snprintf(path, PATH_MAX, "%s%s", handle->root, file);
 							if (info->sha1sum != NULL && info->sha1sum != '\0') {
-							    md5 = _pacman_MDFile(path);
-							    /* 32 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
-							    if((fn = (char *)malloc(strlen(file)+34)) == NULL) {
-										RET_ERR(PM_ERR_MEMORY, -1);
-									}
-							    sprintf(fn, "%s\t%s", file, md5);
-							    FREE(md5);
+								md5 = _pacman_MDFile(path);
+								/* 32 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
+								if((fn = (char *)malloc(strlen(file)+34)) == NULL) {
+									RET_ERR(PM_ERR_MEMORY, -1);
+								}
+								sprintf(fn, "%s\t%s", file, md5);
+								FREE(md5);
 							} else {
-							    /* 41 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
-							    sha1 = _pacman_SHAFile(path);
-							    if((fn = (char *)malloc(strlen(file)+43)) == NULL) {
-										RET_ERR(PM_ERR_MEMORY, -1);
-									}
-							    sprintf(fn, "%s\t%s", file, sha1);
-							    FREE(sha1);
+								/* 41 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
+								sha1 = _pacman_SHAFile(path);
+								if((fn = (char *)malloc(strlen(file)+43)) == NULL) {
+									RET_ERR(PM_ERR_MEMORY, -1);
+								}
+								sprintf(fn, "%s\t%s", file, sha1);
+								FREE(sha1);
 							}
 							FREE(file);
 							lp->data = fn;
