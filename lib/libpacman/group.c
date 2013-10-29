@@ -24,23 +24,22 @@
 #include <stdio.h>
 #include <string.h>
 #include <libintl.h>
+
 /* pacman-g2 */
+#include "group.h"
+
 #include "util.h"
 #include "error.h"
 #include "log.h"
-#include "group.h"
 #include "pacman.h"
 
 pmgrp_t *_pacman_grp_new()
 {
-	pmgrp_t* grp = _pacman_malloc(sizeof(pmgrp_t));
+	pmgrp_t* grp = _pacman_zalloc(sizeof(pmgrp_t));
 
 	if(grp == NULL) {
 		return(NULL);
 	}
-
-	grp->name[0] = '\0';
-	grp->packages = NULL;
 
 	return(grp);
 }
