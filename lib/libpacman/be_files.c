@@ -477,11 +477,11 @@ static int _pacman_db_read_depends(pmdb_t *db, unsigned int inforeq, pmpkg_t *in
 			} else if(!strcmp(line, "%CONFLICTS%")) {
 				_pacman_db_read_lines(db, &info->conflicts, line, sline, fp);
 			} else if(!strcmp(line, "%PROVIDES%")) {
-				_pacman_db_read_lines(db, info->provides, line, sline, fp);
+				_pacman_db_read_lines(db, &info->provides, line, sline, fp);
 			} else if(!strcmp(line, "%REPLACES%")) {
 				/* the REPLACES tag is special -- it only appears in sync repositories,
 				 * not the local one. */
-				_pacman_db_read_lines(db, info->replaces, line, sline, fp);
+				_pacman_db_read_lines(db, &info->replaces, line, sline, fp);
 			} else if(!strcmp(line, "%FORCE%")) {
 				/* FORCE tag only appears in sync repositories,
 				 * not the local one. */
