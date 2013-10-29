@@ -40,19 +40,21 @@
 #ifdef CYGWIN
 #include <limits.h> /* PATH_MAX */
 #endif
+
 /* pacman-g2 */
+#include "db.h"
+
 #include "log.h"
 #include "util.h"
 #include "error.h"
 #include "server.h"
-#include "db.h"
 #include "handle.h"
 #include "cache.h"
 #include "pacman.h"
 
 pmdb_t *_pacman_db_new(char *root, char* dbpath, const char *treename)
 {
-	pmdb_t *db = _pacman_malloc(sizeof(pmdb_t));
+	pmdb_t *db = _pacman_zalloc(sizeof(pmdb_t));
 
 	if(db == NULL) {
 		return(NULL);
@@ -66,10 +68,6 @@ pmdb_t *_pacman_db_new(char *root, char* dbpath, const char *treename)
 	sprintf(db->path, "%s%s/%s", root, dbpath, treename);
 
 	STRNCPY(db->treename, treename, PATH_MAX);
-
-	db->pkgcache = NULL;
-	db->grpcache = NULL;
-	db->servers = NULL;
 
 	return(db);
 }
