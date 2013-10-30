@@ -47,6 +47,7 @@ extern "C" {
  */
 
 typedef struct __pmdb_t pmdb_t;
+typedef struct __pmgrp_t pmgrp_t;
 typedef struct __pmpkg_t pmpkg_t;
 
 /* Compatibility definitions */
@@ -159,7 +160,7 @@ pmpkg_t *pacman_db_readpkg(pmdb_t *db, const char *name);
 PM_LIST *pacman_db_getpkgcache(pmdb_t *db);
 PM_LIST *pacman_db_whatprovides(pmdb_t *db, char *name);
 
-PM_GRP *pacman_db_readgrp(pmdb_t *db, char *name);
+pmgrp_t *pacman_db_readgrp(pmdb_t *db, char *name);
 PM_LIST *pacman_db_getgrpcache(pmdb_t *db);
 PM_LIST *pacman_db_search(pmdb_t *db);
 PM_LIST *pacman_db_test(pmdb_t *db);
@@ -232,7 +233,7 @@ enum {
 	PM_GRP_PKGNAMES
 };
 
-void *pacman_grp_getinfo(PM_GRP *grp, unsigned char parm);
+void *pacman_grp_getinfo(pmgrp_t *grp, unsigned char parm);
 
 /*
  * Sync
