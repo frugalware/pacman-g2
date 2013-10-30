@@ -30,7 +30,7 @@ pmpkg_t: is now public and deprecate PM_PKG.
 
 ==== Symbols removed:
 
-None.
+PM_TRANS: Unused in the public API.
 
 === Behaviour changes
 

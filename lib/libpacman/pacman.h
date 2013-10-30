@@ -57,7 +57,6 @@ typedef struct __pmdb_t PM_DB;
 typedef struct __pmpkg_t PM_PKG;
 typedef struct __pmgrp_t PM_GRP;
 typedef struct __pmsyncpkg_t PM_SYNCPKG;
-typedef struct __pmtrans_t PM_TRANS;
 typedef struct __pmdepmissing_t PM_DEPMISS;
 typedef struct __pmconflict_t PM_CONFLICT;
 typedef struct NetBuf PM_NETBUF;
