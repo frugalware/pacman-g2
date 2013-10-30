@@ -57,15 +57,23 @@ void _pacman_vlog(unsigned char flag, const char *format, va_list ap)
 	}
 }
 
-int _pacman_logaction(unsigned char usesyslog, FILE *f, char *fmt, ...)
+int _pacman_logaction(unsigned char usesyslog, FILE *f, const char *format, ...)
+{
+	va_list ap;
+
+	va_start(ap, format);
+	_pacman_vlogaction(usesyslog, f, format, ap);
+	va_end(ap);
+
+	return(0);
+}
+
+void _pacman_vlogaction(unsigned char usesyslog, FILE *f, const char *format, va_list ap)
 {
 	char msg[1024];
 	int smsg = sizeof(msg)-1;
-	va_list args;
 
-	va_start(args, fmt);
-	vsnprintf(msg, smsg, fmt, args);
-	va_end(args);
+	vsnprintf(msg, smsg, format, ap);
 
 	if(usesyslog) {
 		syslog(LOG_WARNING, "%s", msg);
@@ -84,9 +92,6 @@ int _pacman_logaction(unsigned char usesyslog, FILE *f, char *fmt, ...)
 		        _pacman_strtrim(msg));
 		fflush(f);
 	}
-
-	return(0);
 }
-
 
 /* vim: set ts=2 sw=2 noet: */
