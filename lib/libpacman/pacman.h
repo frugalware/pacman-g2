@@ -48,6 +48,7 @@ extern "C" {
 
 typedef struct __pmconflict_t pmconflict_t;
 typedef struct __pmdb_t pmdb_t;
+typedef struct __pmdepmissing_t pmdepmissing_t;
 typedef struct __pmgrp_t pmgrp_t;
 typedef struct __pmlist_t pmlist_t;
 typedef struct __pmpkg_t pmpkg_t;
@@ -390,7 +391,7 @@ enum {
 	PM_DEP_VERSION
 };
 
-void *pacman_dep_getinfo(PM_DEPMISS *miss, unsigned char parm);
+void *pacman_dep_getinfo(pmdepmissing_t *miss, unsigned char parm);
 
 /*
  * File conflicts
