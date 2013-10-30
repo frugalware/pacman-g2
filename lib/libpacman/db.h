@@ -38,7 +38,7 @@
 #define DB_O_CREATE 0x01
 
 /* Database */
-typedef struct __pmdb_t {
+struct __pmdb_t {
 	char *path;
 	char treename[PATH_MAX];
 	void *handle;
@@ -46,7 +46,7 @@ typedef struct __pmdb_t {
 	pmlist_t *grpcache;
 	pmlist_t *servers;
 	char lastupdate[16];
-} pmdb_t;
+};
 
 pmdb_t *_pacman_db_new(const char *root, const char *dbpath, const char *treename);
 void _pacman_db_free(void *data);

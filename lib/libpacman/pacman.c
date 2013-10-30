@@ -233,7 +233,7 @@ int pacman_db_unregister(pmdb_t *db)
  * @param parm name of the info to get
  * @return a void* on success (the value), NULL on error
  */
-void *pacman_db_getinfo(PM_DB *db, unsigned char parm)
+void *pacman_db_getinfo(pmdb_t *db, unsigned char parm)
 {
 	void *data = NULL;
 	char path[PATH_MAX];
@@ -316,7 +316,7 @@ int pacman_db_setserver(pmdb_t *db, char *url)
  * @return 0 on success, -1 on error (pm_errno is set accordingly), 1 if up
  * to date
  */
-int pacman_db_update(int force, PM_DB *db)
+int pacman_db_update(int force, pmdb_t *db)
 {
 	char path[PATH_MAX], dirpath[PATH_MAX], lckpath[PATH_MAX];
 	pmlist_t *files = NULL;
@@ -1071,7 +1071,7 @@ int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *
 	char *key = NULL;
 	int linenum = 0;
 	char section[256] = "";
-	PM_DB *db = NULL;
+	pmdb_t *db = NULL;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));

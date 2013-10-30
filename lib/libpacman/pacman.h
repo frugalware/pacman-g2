@@ -46,6 +46,9 @@ extern "C" {
  * Structures (opaque)
  */
 
+typedef struct __pmdb_t pmdb_t;
+
+/* Compatibility definitions */
 typedef struct __pmlist_t PM_LIST;
 typedef struct __pmdb_t PM_DB;
 typedef struct __pmpkg_t PM_PKG;
@@ -141,24 +144,24 @@ enum {
 };
 
 /* Database registration callback */
-typedef void (*pacman_cb_db_register)(const char *, PM_DB *);
+typedef void (*pacman_cb_db_register)(const char *, pmdb_t *);
 
-PM_DB *pacman_db_register(const char *treename);
-int pacman_db_unregister(PM_DB *db);
+pmdb_t *pacman_db_register(const char *treename);
+int pacman_db_unregister(pmdb_t *db);
 
-void *pacman_db_getinfo(PM_DB *db, unsigned char parm);
-int pacman_db_setserver(PM_DB *db, char *url);
+void *pacman_db_getinfo(pmdb_t *db, unsigned char parm);
+int pacman_db_setserver(pmdb_t *db, char *url);
 
-int pacman_db_update(int level, PM_DB *db);
+int pacman_db_update(int level, pmdb_t *db);
 
-PM_PKG *pacman_db_readpkg(PM_DB *db, const char *name);
-PM_LIST *pacman_db_getpkgcache(PM_DB *db);
-PM_LIST *pacman_db_whatprovides(PM_DB *db, char *name);
+PM_PKG *pacman_db_readpkg(pmdb_t *db, const char *name);
+PM_LIST *pacman_db_getpkgcache(pmdb_t *db);
+PM_LIST *pacman_db_whatprovides(pmdb_t *db, char *name);
 
-PM_GRP *pacman_db_readgrp(PM_DB *db, char *name);
-PM_LIST *pacman_db_getgrpcache(PM_DB *db);
-PM_LIST *pacman_db_search(PM_DB *db);
-PM_LIST *pacman_db_test(PM_DB *db);
+PM_GRP *pacman_db_readgrp(pmdb_t *db, char *name);
+PM_LIST *pacman_db_getgrpcache(pmdb_t *db);
+PM_LIST *pacman_db_search(pmdb_t *db);
+PM_LIST *pacman_db_test(pmdb_t *db);
 
 /*
  * Packages
