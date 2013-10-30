@@ -32,11 +32,11 @@ typedef struct __pmdepend_t {
 	char version[PKG_VERSION_LEN];
 } pmdepend_t;
 
-typedef struct __pmdepmissing_t {
+struct __pmdepmissing_t {
 	char target[PKG_NAME_LEN];
 	unsigned char type;
 	pmdepend_t depend;
-} pmdepmissing_t;
+};
 
 typedef struct __pmgraph_t {
 	int state; /* 0: untouched, -1: entered, other: leaving time */

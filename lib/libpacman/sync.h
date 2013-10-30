@@ -27,11 +27,11 @@
 #include "package.h"
 #include "trans.h"
 
-typedef struct __pmsyncpkg_t {
+struct __pmsyncpkg_t {
 	unsigned char type;
 	pmpkg_t *pkg;
 	void *data;
-} pmsyncpkg_t;
+};
 
 #define FREESYNC(p) do { if(p) { _pacman_sync_free(p); p = NULL; } } while(0)
 

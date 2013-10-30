@@ -52,6 +52,7 @@ typedef struct __pmdepmissing_t pmdepmissing_t;
 typedef struct __pmgrp_t pmgrp_t;
 typedef struct __pmlist_t pmlist_t;
 typedef struct __pmpkg_t pmpkg_t;
+typedef struct __pmsyncpkg_t pmsyncpkg_t;
 
 /* Compatibility definitions */
 typedef struct __pmlist_t PM_LIST;
@@ -254,7 +255,7 @@ enum {
 	PM_SYNC_DATA
 };
 
-void *pacman_sync_getinfo(PM_SYNCPKG *sync, unsigned char parm);
+void *pacman_sync_getinfo(pmsyncpkg_t *sync, unsigned char parm);
 int pacman_sync_cleancache(int full);
 
 /*

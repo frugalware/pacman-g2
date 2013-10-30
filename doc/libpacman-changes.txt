@@ -29,6 +29,7 @@ pmdepmissing_t: is now public and deprecate PM_DEPMISS.
 pmgrp_t: is now public and deprecate PM_GRP.
 pmlist_t: is now public and deprecate PM_LIST.
 pmpkg_t: is now public and deprecate PM_PKG.
+pmsyncpkg_t: is now public and deprecate PM_SYNCPKG
 
 ==== Symbols removed:
 
