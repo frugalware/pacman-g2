@@ -21,17 +21,16 @@
 #ifndef _PACMAN_CONFLICT_H
 #define _PACMAN_CONFLICT_H
 
-#include "db.h"
 #include "trans.h"
 
 #define CONFLICT_FILE_LEN 512
 
-typedef struct __pmconflict_t {
+struct __pmconflict_t {
 	char target[PKG_NAME_LEN];
 	unsigned char type;
 	char file[CONFLICT_FILE_LEN];
 	char ctarget[PKG_NAME_LEN];
-} pmconflict_t;
+};
 
 pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmdb_t *db, pmlist_t *packages);
 pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pmlist_t **skip_list);

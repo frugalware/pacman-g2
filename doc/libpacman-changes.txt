@@ -23,6 +23,7 @@ pacman_trans_cb_progress: Second argument (pkgname) is now a const.
 
 ==== Symbols added:
 
+pmconflict_t: is now public and deprecate PM_CONFLICT.
 pmdb_t: is now public and deprecate PM_DB.
 pmgrp_t: is now public and deprecate PM_GRP.
 pmlist_t: is now public and deprecate PM_LIST.

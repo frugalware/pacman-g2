@@ -46,6 +46,7 @@ extern "C" {
  * Structures (opaque)
  */
 
+typedef struct __pmconflict_t pmconflict_t;
 typedef struct __pmdb_t pmdb_t;
 typedef struct __pmgrp_t pmgrp_t;
 typedef struct __pmlist_t pmlist_t;
@@ -407,7 +408,7 @@ enum {
 	PM_CONFLICT_CTARGET
 };
 
-void *pacman_conflict_getinfo(PM_CONFLICT *conflict, unsigned char parm);
+void *pacman_conflict_getinfo(pmconflict_t*conflict, unsigned char parm);
 
 /*
  * Helpers
