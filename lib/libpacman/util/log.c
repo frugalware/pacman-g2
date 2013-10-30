@@ -21,7 +21,6 @@
 
 #include "config.h"
 #include <stdio.h>
-#include <stdarg.h>
 #include <syslog.h>
 #include <time.h>
 
@@ -34,7 +33,16 @@
 pacman_cb_log pm_logcb     = NULL;
 unsigned char pm_logmask = 0;
 
-void _pacman_log(unsigned char flag, const char *fmt, ...)
+void _pacman_log(unsigned char flag, const char *format, ...)
+{
+	va_list ap;
+
+	va_start(ap, format);
+	_pacman_vlog(flag, format, ap);
+	va_end(ap);
+}
+
+void _pacman_vlog(unsigned char flag, const char *format, va_list ap)
 {
 	if(pm_logcb == NULL) {
 		return;
@@ -42,12 +50,8 @@ void _pacman_log(unsigned char flag, const char *fmt, ...)
 
 	if(flag & pm_logmask) {
 		char str[LOG_STR_LEN];
-		va_list args;
 
-		va_start(args, fmt);
-		vsnprintf(str, LOG_STR_LEN, fmt, args);
-		va_end(args);
-
+		vsnprintf(str, LOG_STR_LEN, format, ap);
 		pm_logcb(flag, str);
 		pacman_logaction(str);
 	}

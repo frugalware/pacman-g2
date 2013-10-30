@@ -23,12 +23,15 @@
 
 #include "pacman.h"
 
+#include <stdarg.h>
+
 #define LOG_STR_LEN 256
 
 extern pacman_cb_log pm_logcb;
 extern unsigned char pm_logmask;
 
-void _pacman_log(unsigned char flag, const char *fmt, ...);
+void _pacman_log(unsigned char flag, const char *format, ...);
+void _pacman_vlog(unsigned char flag, const char *format, va_list ap);
 int _pacman_logaction(unsigned char usesyslog, FILE *f, char *fmt, ...);
 
 #endif /* _PACMAN_LOG_H */
