@@ -57,17 +57,6 @@ void _pacman_vlog(unsigned char flag, const char *format, va_list ap)
 	}
 }
 
-int _pacman_logaction(unsigned char usesyslog, FILE *f, const char *format, ...)
-{
-	va_list ap;
-
-	va_start(ap, format);
-	_pacman_vlogaction(usesyslog, f, format, ap);
-	va_end(ap);
-
-	return(0);
-}
-
 void _pacman_vlogaction(unsigned char usesyslog, FILE *f, const char *format, va_list ap)
 {
 	char msg[1024];

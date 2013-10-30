@@ -32,7 +32,6 @@ extern unsigned char pm_logmask;
 
 void _pacman_log(unsigned char flag, const char *format, ...);
 void _pacman_vlog(unsigned char flag, const char *format, va_list ap);
-int _pacman_logaction(unsigned char usesyslog, FILE *f, const char *format, ...);
 void _pacman_vlogaction(unsigned char usesyslog, FILE *f, const char *format, va_list ap);
 
 #endif /* _PACMAN_LOG_H */
