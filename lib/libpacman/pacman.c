@@ -918,19 +918,18 @@ void *pacman_conflict_getinfo(pmconflict_t *conflict, unsigned char parm)
  */
 
 /** A printf-like function for logging.
- * @param fmt output format
- * @return 0 on success, -1 on error (pm_errno is set accordingly)
+ * @param format output format
  */
-int pacman_logaction(const char *fmt, ...)
+void pacman_logaction(const char *format, ...)
 {
-	va_list args;
+	va_list ap;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
-	va_start(args, fmt);
-	_pacman_vlogaction(handle->usesyslog, handle->logfd, fmt, args);
-	va_end(args);
+	va_start(ap, format);
+	_pacman_vlogaction(handle->usesyslog, handle->logfd, format, ap);
+	va_end(ap);
 
 	/* TODO
 	We should add a prefix to log strings depending on who called us.
@@ -944,8 +943,6 @@ int pacman_logaction(const char *fmt, ...)
 		...
 	It allows to share the log file between several frontends and to actually
 	know who does what */
-
-	return 0;
 }
 /** @} */
 
