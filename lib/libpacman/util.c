@@ -43,8 +43,6 @@
 #include <fcntl.h>
 #include <ctype.h>
 #include <dirent.h>
-#include <time.h>
-#include <syslog.h>
 #include <sys/wait.h>
 #include <libintl.h>
 #ifdef CYGWIN
@@ -406,37 +404,6 @@ int _pacman_rmrf(char *path)
 		}
 		return(errflag);
 	}
-	return(0);
-}
-
-int _pacman_logaction(unsigned char usesyslog, FILE *f, char *fmt, ...)
-{
-	char msg[1024];
-	int smsg = sizeof(msg)-1;
-	va_list args;
-
-	va_start(args, fmt);
-	vsnprintf(msg, smsg, fmt, args);
-	va_end(args);
-
-	if(usesyslog) {
-		syslog(LOG_WARNING, "%s", msg);
-	}
-
-	if(f) {
-		time_t t;
-		struct tm *tm;
-
-		t = time(NULL);
-		tm = localtime(&t);
-
-		fprintf(f, "[%02d/%02d/%02d %02d:%02d] %s\n",
-		        tm->tm_mon+1, tm->tm_mday, tm->tm_year-100,
-		        tm->tm_hour, tm->tm_min,
-		        _pacman_strtrim(msg));
-		fflush(f);
-	}
-
 	return(0);
 }
 

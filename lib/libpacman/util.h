@@ -67,7 +67,6 @@ int _pacman_lckmk(char *file);
 int _pacman_lckrm(char *file);
 int _pacman_unpack(const char *archive, const char *prefix, const char *fn);
 int _pacman_rmrf(char *path);
-int _pacman_logaction(unsigned char usesyslog, FILE *f, char *fmt, ...);
 int _pacman_ldconfig(char *root);
 #ifdef _PACMAN_TRANS_H
 int _pacman_runscriptlet(char *util, char *installfn, const char *script, char *ver, char *oldver, pmtrans_t *trans);
