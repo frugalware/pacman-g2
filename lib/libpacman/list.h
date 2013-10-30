@@ -21,13 +21,15 @@
 #ifndef _PACMAN_LIST_H
 #define _PACMAN_LIST_H
 
+#include "pacman.h"
+
 /* Chained list struct */
-typedef struct __pmlist_t {
+struct __pmlist_t {
 	void *data;
 	struct __pmlist_t *prev;
 	struct __pmlist_t *next;
 	struct __pmlist_t *last; /* Quick access to last item in list */
-} pmlist_t;
+};
 
 #define _FREELIST(p, f) do { if(p) { _pacman_list_free(p, f); p = NULL; } } while(0)
 #define FREELIST(p) _FREELIST(p, free)

@@ -48,6 +48,7 @@ extern "C" {
 
 typedef struct __pmdb_t pmdb_t;
 typedef struct __pmgrp_t pmgrp_t;
+typedef struct __pmlist_t pmlist_t;
 typedef struct __pmpkg_t pmpkg_t;
 
 /* Compatibility definitions */
@@ -157,13 +158,13 @@ int pacman_db_setserver(pmdb_t *db, char *url);
 int pacman_db_update(int level, pmdb_t *db);
 
 pmpkg_t *pacman_db_readpkg(pmdb_t *db, const char *name);
-PM_LIST *pacman_db_getpkgcache(pmdb_t *db);
-PM_LIST *pacman_db_whatprovides(pmdb_t *db, char *name);
+pmlist_t *pacman_db_getpkgcache(pmdb_t *db);
+pmlist_t *pacman_db_whatprovides(pmdb_t *db, char *name);
 
 pmgrp_t *pacman_db_readgrp(pmdb_t *db, char *name);
-PM_LIST *pacman_db_getgrpcache(pmdb_t *db);
-PM_LIST *pacman_db_search(pmdb_t *db);
-PM_LIST *pacman_db_test(pmdb_t *db);
+pmlist_t *pacman_db_getgrpcache(pmdb_t *db);
+pmlist_t *pacman_db_search(pmdb_t *db);
+pmlist_t *pacman_db_test(pmdb_t *db);
 
 /*
  * Packages
@@ -215,7 +216,7 @@ enum {
 #define PM_PKG_WITH_ARCH    1 /* ie, pkgname-pkgver-pkgrel-arch, used under PM_CACHEDIR */
 
 void *pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm);
-PM_LIST *pacman_pkg_getowners(char *filename);
+pmlist_t *pacman_pkg_getowners(char *filename);
 int pacman_pkg_load(char *filename, pmpkg_t **pkg);
 int pacman_pkg_free(pmpkg_t *pkg);
 char *pacman_fetch_pkgurl(char *url);
@@ -359,8 +360,8 @@ void *pacman_trans_getinfo(unsigned char parm);
 int pacman_trans_init(unsigned char type, unsigned int flags, pacman_trans_cb_event cb_event, pacman_trans_cb_conv conv, pacman_trans_cb_progress cb_progress);
 int pacman_trans_sysupgrade(void);
 int pacman_trans_addtarget(const char *target);
-int pacman_trans_prepare(PM_LIST **data);
-int pacman_trans_commit(PM_LIST **data);
+int pacman_trans_prepare(pmlist_t **data);
+int pacman_trans_commit(pmlist_t **data);
 int pacman_trans_release(void);
 
 /*
@@ -413,12 +414,12 @@ void *pacman_conflict_getinfo(PM_CONFLICT *conflict, unsigned char parm);
  * Helpers
  */
 
-/* PM_LIST */
-PM_LIST *pacman_list_first(PM_LIST *list);
-PM_LIST *pacman_list_next(PM_LIST *entry);
-void *pacman_list_getdata(PM_LIST *entry);
-int pacman_list_free(PM_LIST *entry);
-int pacman_list_count(PM_LIST *list);
+/* pmlist_t */
+pmlist_t *pacman_list_first(pmlist_t *list);
+pmlist_t *pacman_list_next(pmlist_t *entry);
+void *pacman_list_getdata(pmlist_t *entry);
+int pacman_list_free(pmlist_t *entry);
+int pacman_list_count(pmlist_t *list);
 
 /* md5sums */
 char *pacman_get_md5sum(char *name);

@@ -764,7 +764,7 @@ int pacman_trans_addtarget(const char *target)
 }
 
 /** Prepare a transaction.
- * @param data the address of a PM_LIST where detailed description
+ * @param data the address of a pmlist_t where detailed description
  * of an error can be dumped (ie. list of conflicting files)
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
@@ -781,7 +781,7 @@ int pacman_trans_prepare(pmlist_t **data)
 }
 
 /** Commit a transaction.
- * @param data the address of a PM_LIST where detailed description
+ * @param data the address of a pmlist_t where detailed description
  * of an error can be dumped (ie. list of conflicting files)
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
