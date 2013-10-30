@@ -47,6 +47,7 @@ extern "C" {
  */
 
 typedef struct __pmdb_t pmdb_t;
+typedef struct __pmpkg_t pmpkg_t;
 
 /* Compatibility definitions */
 typedef struct __pmlist_t PM_LIST;
@@ -154,7 +155,7 @@ int pacman_db_setserver(pmdb_t *db, char *url);
 
 int pacman_db_update(int level, pmdb_t *db);
 
-PM_PKG *pacman_db_readpkg(pmdb_t *db, const char *name);
+pmpkg_t *pacman_db_readpkg(pmdb_t *db, const char *name);
 PM_LIST *pacman_db_getpkgcache(pmdb_t *db);
 PM_LIST *pacman_db_whatprovides(pmdb_t *db, char *name);
 
@@ -212,10 +213,10 @@ enum {
 #define PM_PKG_WITHOUT_ARCH 0 /* pkgname-pkgver-pkgrel, used under PM_DBPATH */
 #define PM_PKG_WITH_ARCH    1 /* ie, pkgname-pkgver-pkgrel-arch, used under PM_CACHEDIR */
 
-void *pacman_pkg_getinfo(PM_PKG *pkg, unsigned char parm);
+void *pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm);
 PM_LIST *pacman_pkg_getowners(char *filename);
-int pacman_pkg_load(char *filename, PM_PKG **pkg);
-int pacman_pkg_free(PM_PKG *pkg);
+int pacman_pkg_load(char *filename, pmpkg_t **pkg);
+int pacman_pkg_free(pmpkg_t *pkg);
 char *pacman_fetch_pkgurl(char *url);
 int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *this_section);
 int pacman_pkg_vercmp(const char *ver1, const char *ver2);

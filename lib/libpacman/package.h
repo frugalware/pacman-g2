@@ -29,6 +29,7 @@
 #include <time.h>
 #endif
 #include "list.h"
+#include "pacman.h"
 
 enum {
 	PKG_FROM_CACHE = 1,
@@ -47,7 +48,7 @@ enum {
 #define PKG_SHA1SUM_LEN  41
 #define PKG_ARCH_LEN     32
 
-typedef struct __pmpkg_t {
+struct __pmpkg_t {
 	char name[PKG_NAME_LEN];
 	char version[PKG_VERSION_LEN];
 	char desc[PKG_DESC_LEN];
@@ -81,7 +82,7 @@ typedef struct __pmpkg_t {
 	unsigned char origin;
 	void *data;
 	unsigned char infolevel;
-} pmpkg_t;
+};
 
 #define FREEPKG(p) \
 do { \
