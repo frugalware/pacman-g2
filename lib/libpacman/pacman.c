@@ -923,14 +923,13 @@ void *pacman_conflict_getinfo(pmconflict_t *conflict, unsigned char parm)
  */
 int pacman_logaction(const char *fmt, ...)
 {
-	char str[LOG_STR_LEN];
 	va_list args;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
 	va_start(args, fmt);
-	vsnprintf(str, LOG_STR_LEN, fmt, args);
+	_pacman_vlogaction(handle->usesyslog, handle->logfd, fmt, args);
 	va_end(args);
 
 	/* TODO
@@ -946,7 +945,7 @@ int pacman_logaction(const char *fmt, ...)
 	It allows to share the log file between several frontends and to actually
 	know who does what */
 
-	return(_pacman_logaction(handle->usesyslog, handle->logfd, str));
+	return 0;
 }
 /** @} */
 
