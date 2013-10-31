@@ -62,9 +62,9 @@
 int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 {
 	pmpkg_t *info;
-	pmdb_t *db = trans->handle->db_local;
+	pmdb_t *db_local = trans->handle->db_local;
 
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(name != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
@@ -72,7 +72,7 @@ int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
 
-	if((info = _pacman_db_scan(db, name, INFRQ_ALL)) == NULL) {
+	if((info = _pacman_db_scan(db_local, name, INFRQ_ALL)) == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), name);
 		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 	}
@@ -95,23 +95,23 @@ int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *lp;
-	pmdb_t *db = trans->handle->db_local;
+	pmdb_t *db_local = trans->handle->db_local;
 
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	if(!(trans->flags & (PM_TRANS_FLAG_NODEPS)) && (trans->type != PM_TRANS_TYPE_UPGRADE)) {
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-		lp = _pacman_checkdeps(trans, db, trans->type, trans->packages);
+		lp = _pacman_checkdeps(trans, db_local, trans->type, trans->packages);
 		if(lp != NULL) {
 			if(trans->flags & PM_TRANS_FLAG_CASCADE) {
 				while(lp) {
 					pmlist_t *i;
 					for(i = lp; i; i = i->next) {
 						pmdepmissing_t *miss = (pmdepmissing_t *)i->data;
-						pmpkg_t *info = _pacman_db_scan(db, miss->depend.name, INFRQ_ALL);
+						pmpkg_t *info = _pacman_db_scan(db_local, miss->depend.name, INFRQ_ALL);
 						if(info) {
 							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), info->name);
 							trans->packages = _pacman_list_add(trans->packages, info);
@@ -121,7 +121,7 @@ int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
 						}
 					}
 					FREELIST(lp);
-					lp = _pacman_checkdeps(trans, db, trans->type, trans->packages);
+					lp = _pacman_checkdeps(trans, db_local, trans->type, trans->packages);
 				}
 			} else {
 				if(data) {
@@ -135,7 +135,7 @@ int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
 
 		if(trans->flags & PM_TRANS_FLAG_RECURSE) {
 			_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
-			trans->packages = _pacman_removedeps(db, trans->packages);
+			trans->packages = _pacman_removedeps(db_local, trans->packages);
 		}
 
 		/* re-order w.r.t. dependencies */
@@ -165,9 +165,9 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 	pmlist_t *targ, *lp;
 	char line[PATH_MAX+1];
 	int howmany, remain;
-	pmdb_t *db = trans->handle->db_local;
+	pmdb_t *db_local = trans->handle->db_local;
 
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	howmany = _pacman_list_count(trans->packages);
@@ -189,7 +189,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 
 			/* run the pre-remove scriptlet if it exists */
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
+				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, info->name, info->version);
 				_pacman_runscriptlet(handle->root, pm_install, "pre_remove", info->version, NULL, trans);
 			}
 		}
@@ -285,7 +285,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 				/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
 				_pacman_ldconfig(handle->root);
-				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
+				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, info->name, info->version);
 				_pacman_runscriptlet(handle->root, pm_install, "post_remove", info->version, NULL, trans);
 			}
 		}
@@ -293,10 +293,10 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 		/* remove the package from the database */
 		_pacman_log(PM_LOG_FLOW1, _("updating database"));
 		_pacman_log(PM_LOG_FLOW2, _("removing database entry '%s'"), info->name);
-		if(_pacman_db_remove(db, info) == -1) {
+		if(_pacman_db_remove(db_local, info) == -1) {
 			_pacman_log(PM_LOG_ERROR, _("could not remove database entry %s-%s"), info->name, info->version);
 		}
-		if(_pacman_db_remove_pkgfromcache(db, info) == -1) {
+		if(_pacman_db_remove_pkgfromcache(db_local, info) == -1) {
 			_pacman_log(PM_LOG_ERROR, _("could not remove entry '%s' from cache"), info->name);
 		}
 
@@ -316,16 +316,16 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 			if(_pacman_pkg_isin(depend.name, trans->packages)) {
 				continue;
 			}
-			depinfo = _pacman_db_get_pkgfromcache(db, depend.name);
+			depinfo = _pacman_db_get_pkgfromcache(db_local, depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
-				pmlist_t *provides = _pacman_db_whatprovides(db, depend.name);
+				pmlist_t *provides = _pacman_db_whatprovides(db_local, depend.name);
 				if(provides) {
 					/* TODO: should check _all_ packages listed in provides, not just
 					 *			 the first one.
 					 */
 					/* use the first one */
-					depinfo = _pacman_db_get_pkgfromcache(db, ((pmpkg_t *)provides->data)->name);
+					depinfo = _pacman_db_get_pkgfromcache(db_local, ((pmpkg_t *)provides->data)->name);
 					FREELISTPTR(provides);
 				}
 				if(depinfo == NULL) {
@@ -338,7 +338,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 			depinfo->requiredby = _pacman_list_remove(_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), info->name, str_cmp, (void **)&data);
 			FREE(data);
 			_pacman_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name);
-			if(_pacman_db_write(db, depinfo, INFRQ_DEPENDS)) {
+			if(_pacman_db_write(db_local, depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
 					depinfo->name, depinfo->version);
 			}

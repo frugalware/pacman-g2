@@ -123,10 +123,10 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 	pmlist_t *i;
 	pmpkg_t *local;
 	struct stat buf;
-	pmdb_t *db = trans->handle->db_local;
+	pmdb_t *db_local = trans->handle->db_local;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(!_pacman_strempty(name), RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	/* Check if we need to add a fake target to the transaction. */
@@ -155,14 +155,14 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 
 	if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 		/* only install this package if it is not already installed */
-		if(_pacman_db_get_pkgfromcache(db, _pacman_pkg_getinfo(info, PM_PKG_NAME))) {
+		if(_pacman_db_get_pkgfromcache(db_local, _pacman_pkg_getinfo(info, PM_PKG_NAME))) {
 			pm_errno = PM_ERR_PKG_INSTALLED;
 			goto error;
 		}
 	} else {
 		if(trans->flags & PM_TRANS_FLAG_FRESHEN) {
 			/* only upgrade/install this package if it is already installed and at a lesser version */
-			dummy = _pacman_db_get_pkgfromcache(db, _pacman_pkg_getinfo(info, PM_PKG_NAME));
+			dummy = _pacman_db_get_pkgfromcache(db_local, _pacman_pkg_getinfo(info, PM_PKG_NAME));
 			if(dummy == NULL || _pacman_versioncmp(dummy->version, info->version) >= 0) {
 				pm_errno = PM_ERR_PKG_CANT_FRESH;
 				goto error;
@@ -198,7 +198,7 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 	}
 
 	/* copy over the install reason */
-	local =  _pacman_db_get_pkgfromcache(db, info->name);
+	local =  _pacman_db_get_pkgfromcache(db_local, info->name);
 	if(local) {
 		info->reason = (long)_pacman_pkg_getinfo(local, PM_PKG_REASON);
 	}
@@ -219,10 +219,10 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 	pmlist_t *rmlist = NULL;
 	char rm_fname[PATH_MAX];
 	pmpkg_t *info = NULL;
-	pmdb_t *db = trans->handle->db_local;
+	pmdb_t *db_local = trans->handle->db_local;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	/* Check dependencies
 	 */
@@ -231,7 +231,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 
 		/* look for unsatisfied dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-		lp = _pacman_checkdeps(trans, db, trans->type, trans->packages);
+		lp = _pacman_checkdeps(trans, db_local, trans->type, trans->packages);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -243,7 +243,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 
 		/* no unsatisfied deps, so look for conflicts */
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		lp = _pacman_checkconflicts(trans, db, trans->packages);
+		lp = _pacman_checkconflicts(trans, db_local, trans->packages);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -284,7 +284,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_FILECONFLICTS_START, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for file conflicts"));
-		lp = _pacman_db_find_conflicts(db, trans, handle->root, &skiplist);
+		lp = _pacman_db_find_conflicts(db_local, trans, handle->root, &skiplist);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -322,10 +322,10 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 	unsigned char cb_state;
 	time_t t;
 	pmlist_t *targ, *lp;
-	pmdb_t *db = trans->handle->db_local;
+	pmdb_t *db_local = trans->handle->db_local;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	if(trans->packages == NULL) {
 		return(0);
@@ -348,7 +348,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 
 		/* see if this is an upgrade.  if so, remove the old package first */
 		if(pmo_upgrade) {
-			pmpkg_t *local = _pacman_db_get_pkgfromcache(db, info->name);
+			pmpkg_t *local = _pacman_db_get_pkgfromcache(db_local, info->name);
 			if(local) {
 				EVENT(trans, PM_TRANS_EVT_UPGRADE_START, info, NULL);
 				cb_state = PM_TRANS_PROGRESS_UPGRADE_START;
@@ -359,7 +359,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				if(oldpkg) {
 					if(!(local->infolevel & INFRQ_FILES)) {
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), local->name);
-						_pacman_db_read(db, INFRQ_FILES, local);
+						_pacman_db_read(db_local, INFRQ_FILES, local);
 					}
 					oldpkg->backup = _pacman_list_strdup(local->backup);
 					strncpy(oldpkg->name, local->name, PKG_NAME_LEN);
@@ -462,16 +462,16 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 
 				/*if(!strcmp(pathname, "._install") || !strcmp(pathname, ".INSTALL")) {
 				*	 the install script goes inside the db
-				*	snprintf(expath, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version); */
+				*	snprintf(expath, PATH_MAX, "%s/%s-%s/install", db_local->path, info->name, info->version); */
 				if(!strcmp(pathname, "._install") || !strcmp(pathname, ".INSTALL") ||
 					!strcmp(pathname, ".CHANGELOG")) {
 					if(!strcmp(pathname, ".CHANGELOG")) {
 						/* the changelog goes inside the db */
-						snprintf(expath, PATH_MAX, "%s/%s-%s/changelog", db->path,
+						snprintf(expath, PATH_MAX, "%s/%s-%s/changelog", db_local->path,
 							info->name, info->version);
 					} else {
 						/* the install script goes inside the db */
-						snprintf(expath, PATH_MAX, "%s/%s-%s/install", db->path,
+						snprintf(expath, PATH_MAX, "%s/%s-%s/install", db_local->path,
 							info->name, info->version);
 					}
 				} else {
@@ -743,7 +743,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 
 		/* Update the requiredby field by scanning the whole database
 		 * looking for packages depending on the package to add */
-		for(lp = _pacman_db_get_pkgcache(db); lp; lp = lp->next) {
+		for(lp = _pacman_db_get_pkgcache(db_local); lp; lp = lp->next) {
 			pmpkg_t *tmpp = lp->data;
 			pmlist_t *tmppm = NULL;
 			if(tmpp == NULL) {
@@ -768,13 +768,13 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 
 		_pacman_log(PM_LOG_FLOW1, _("updating database"));
 		_pacman_log(PM_LOG_FLOW2, _("adding database entry '%s'"), info->name);
-		if(_pacman_db_write(db, info, INFRQ_ALL)) {
+		if(_pacman_db_write(db_local, info, INFRQ_ALL)) {
 			_pacman_log(PM_LOG_ERROR, _("could not update database entry %s-%s"),
 			          info->name, info->version);
 			pacman_logaction(NULL, _("error updating database for %s-%s!"), info->name, info->version);
 			RET_ERR(PM_ERR_DB_WRITE, -1);
 		}
-		if(_pacman_db_add_pkgincache(db, info) == -1) {
+		if(_pacman_db_add_pkgincache(db_local, info) == -1) {
 			_pacman_log(PM_LOG_ERROR, _("could not add entry '%s' in cache"), info->name);
 		}
 
@@ -788,16 +788,16 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 			if(_pacman_splitdep(lp->data, &depend)) {
 				continue;
 			}
-			depinfo = _pacman_db_get_pkgfromcache(db, depend.name);
+			depinfo = _pacman_db_get_pkgfromcache(db_local, depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
-				pmlist_t *provides = _pacman_db_whatprovides(db, depend.name);
+				pmlist_t *provides = _pacman_db_whatprovides(db_local, depend.name);
 				if(provides) {
 					/* TODO: should check _all_ packages listed in provides, not just
 					 *       the first one.
 					 */
 					/* use the first one */
-					depinfo = _pacman_db_get_pkgfromcache(db, ((pmpkg_t *)provides->data)->name);
+					depinfo = _pacman_db_get_pkgfromcache(db_local, ((pmpkg_t *)provides->data)->name);
 					FREELISTPTR(provides);
 				}
 				if(depinfo == NULL) {
@@ -808,7 +808,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 			}
 			_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), info->name, depinfo->name);
 			depinfo->requiredby = _pacman_list_add(_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), strdup(info->name));
-			if(_pacman_db_write(db, depinfo, INFRQ_DEPENDS)) {
+			if(_pacman_db_write(db_local, depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
 				          depinfo->name, depinfo->version);
 			}
@@ -821,7 +821,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 		if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 			/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
 			_pacman_ldconfig(handle->root);
-			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", handle->root, handle->dbpath, db->treename, info->name, info->version);
+			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", handle->root, handle->dbpath, db_local->treename, info->name, info->version);
 			if(pmo_upgrade) {
 				_pacman_runscriptlet(handle->root, pm_install, "post_upgrade", info->version, oldpkg ? oldpkg->version : NULL, trans);
 			} else {
