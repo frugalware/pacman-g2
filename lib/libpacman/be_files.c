@@ -94,6 +94,15 @@ pmlist_t *_pacman_localdb_test(pmdb_t *db)
 }
 
 static
+int _pacman_localdb_open(pmdb_t *db)
+{
+	db->handle = opendir(db->path);
+	ASSERT(db->handle != NULL, RET_ERR(PM_ERR_DB_OPEN, -1));
+
+	return 0;
+}
+
+static
 pmlist_t *_pacman_syncdb_test(pmdb_t *db)
 {
 	/* testing sync dbs is not supported */
@@ -112,15 +121,14 @@ pmlist_t *_pacman_db_test(pmdb_t *db)
 
 int _pacman_db_open(pmdb_t *db)
 {
-	if(db == NULL) {
-		RET_ERR(PM_ERR_DB_NULL, -1);
-	}
+	int ret = 0;
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	if (islocal(db)) {
-		db->handle = opendir(db->path);
-		if(db->handle == NULL) {
-			RET_ERR(PM_ERR_DB_OPEN, -1);
-		}
+		ret = _pacman_localdb_open(db);
+		if(ret != 0)
+			return ret;
 	} else {
 		char dbpath[PATH_MAX];
 		snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
@@ -140,11 +148,11 @@ int _pacman_db_open(pmdb_t *db)
 			RET_ERR(PM_ERR_DB_OPEN, -1);
 		}
 	}
-	if(_pacman_db_getlastupdate(db, db->lastupdate) == -1) {
+	if(ret == 0 && _pacman_db_getlastupdate(db, db->lastupdate) == -1) {
 		db->lastupdate[0] = '\0';
 	}
 
-	return(0);
+	return ret;
 }
 
 void _pacman_db_close(pmdb_t *db)
