@@ -112,6 +112,16 @@ void _pacman_localdb_close(pmdb_t *db)
 }
 
 static
+void _pacman_localdb_rewind(pmdb_t *db)
+{
+	if(db->handle == NULL) {
+		return;
+	}
+
+	rewinddir(db->handle);
+}
+
+static
 pmlist_t *_pacman_syncdb_test(pmdb_t *db)
 {
 	/* testing sync dbs is not supported */
@@ -122,6 +132,23 @@ static
 void _pacman_syncdb_close(pmdb_t *db)
 {
 	if(db->handle) {
+		archive_read_finish(db->handle);
+		db->handle = NULL;
+	}
+}
+
+static
+void _pacman_syncdb_rewind(pmdb_t *db)
+{
+	char dbpath[PATH_MAX];
+
+	snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
+	if (db->handle)
+		archive_read_finish(db->handle);
+	db->handle = archive_read_new();
+	archive_read_support_compression_all(db->handle);
+	archive_read_support_format_all(db->handle);
+	if (archive_read_open_filename(db->handle, dbpath, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
 		archive_read_finish(db->handle);
 		db->handle = NULL;
 	}
@@ -187,25 +214,14 @@ void _pacman_db_close(pmdb_t *db)
 
 void _pacman_db_rewind(pmdb_t *db)
 {
-	if(db == NULL || (islocal(db) && db->handle == NULL)) {
+	if(db == NULL) {
 		return;
 	}
 
-	if (islocal(db)) {
-		rewinddir(db->handle);
-	} else {
-		char dbpath[PATH_MAX];
-		snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
-		if (db->handle)
-			archive_read_finish(db->handle);
-		db->handle = archive_read_new();
-		archive_read_support_compression_all(db->handle);
-		archive_read_support_format_all(db->handle);
-		if (archive_read_open_filename(db->handle, dbpath, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
-			archive_read_finish(db->handle);
-			db->handle = NULL;
-		}
-	}
+	if (islocal(db))
+		_pacman_localdb_rewind(db);
+	else
+		_pacman_syncdb_rewind(db);
 }
 
 pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
