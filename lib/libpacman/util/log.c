@@ -27,7 +27,7 @@
 /* pacman-g2 */
 #include "log.h"
 
-#include "pacman.h"
+#include "util.h"
 
 /* Internal library log mechanism */
 pacman_cb_log pm_logcb     = NULL;

@@ -13,9 +13,9 @@ HASH_TARGETS = \
 	hash/sha1.c
 
 UTIL_TARGETS = \
+	util/list.c \
 	util/log.c \
-	util/logger.c \
-	util/list.c
+	util/stringlist.c
 
 TARGETS = \
 	$(HASH_TARGETS) \

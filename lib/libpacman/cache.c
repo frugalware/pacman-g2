@@ -35,6 +35,7 @@
 
 #include "util/list.h"
 #include "util/log.h"
+#include "util/stringlist.h"
 #include "pacman.h"
 #include "util.h"
 #include "package.h"

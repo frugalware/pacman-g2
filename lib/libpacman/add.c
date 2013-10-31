@@ -46,6 +46,7 @@
 #include "hash/sha1.h"
 #include "util/list.h"
 #include "util/log.h"
+#include "util/stringlist.h"
 #include "trans.h"
 #include "util.h"
 #include "error.h"

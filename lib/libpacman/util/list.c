@@ -21,11 +21,12 @@
 
 #include "config.h"
 #include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
 #include <assert.h>
+
 /* pacman-g2 */
 #include "list.h"
+
 #include "util.h"
 
 pmlist_t *_pacman_list_new()
@@ -208,20 +209,6 @@ int _pacman_list_is_in(void *needle, pmlist_t *haystack)
 	return(0);
 }
 
-/* Test for existence of a string in a pmlist_t
- */
-int _pacman_list_is_strin(const char *needle, pmlist_t *haystack)
-{
-	pmlist_t *lp;
-
-	for(lp = haystack; lp; lp = lp->next) {
-		if(lp->data && !strcmp(lp->data, needle)) {
-			return(1);
-		}
-	}
-	return(0);
-}
-
 pmlist_t *_pacman_list_last(pmlist_t *list)
 {
 	if(list == NULL) {
@@ -231,24 +218,6 @@ pmlist_t *_pacman_list_last(pmlist_t *list)
 	assert(list->last != NULL);
 
 	return(list->last);
-}
-
-/* Filter out any duplicate strings in a list.
- *
- * Not the most efficient way, but simple to implement -- we assemble
- * a new list, using is_in() to check for dupes at each iteration.
- *
- */
-pmlist_t *_pacman_list_remove_dupes(pmlist_t *list)
-{
-	pmlist_t *i, *newlist = NULL;
-
-	for(i = list; i; i = i->next) {
-		if(!_pacman_list_is_strin(i->data, newlist)) {
-			newlist = _pacman_list_add(newlist, strdup(i->data));
-		}
-	}
-	return newlist;
 }
 
 /* Reverse the order of a list
@@ -265,18 +234,6 @@ pmlist_t *_pacman_list_reverse(pmlist_t *list)
 
 	for(lp = list->last; lp; lp = lp->prev) {
 		newlist = _pacman_list_add(newlist, lp->data);
-	}
-
-	return(newlist);
-}
-
-pmlist_t *_pacman_list_strdup(pmlist_t *list)
-{
-	pmlist_t *newlist = NULL;
-	pmlist_t *lp;
-
-	for(lp = list; lp; lp = lp->next) {
-		newlist = _pacman_list_add(newlist, strdup(lp->data));
 	}
 
 	return(newlist);

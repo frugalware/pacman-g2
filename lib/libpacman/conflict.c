@@ -40,6 +40,7 @@
 
 #include "util/list.h"
 #include "util/log.h"
+#include "util/stringlist.h"
 #include "util.h"
 #include "error.h"
 #include "cache.h"

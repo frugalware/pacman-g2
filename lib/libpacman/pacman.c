@@ -44,6 +44,7 @@
 #include "hash/sha1.h"
 #include "util/list.h"
 #include "util/log.h"
+#include "util/stringlist.h"
 #include "error.h"
 #include "deps.h"
 #include "versioncmp.h"
