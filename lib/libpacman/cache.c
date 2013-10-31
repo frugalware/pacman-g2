@@ -146,7 +146,7 @@ int _pacman_db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg)
 
 pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, const char *target)
 {
-	if(db == NULL) {
+	if(db == NULL || _pacman_strempty(target)) {
 		return(NULL);
 	}
 
