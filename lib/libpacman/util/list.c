@@ -57,6 +57,28 @@ void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn)
 	}
 }
 
+int _pacman_list_count(const pmlist_t *list)
+{
+	int i;
+	const pmlist_t *lp;
+
+	for(lp = list, i = 0; lp; lp = lp->next, i++);
+
+	return(i);
+}
+
+int _pacman_list_is_in(void *needle, const pmlist_t *haystack)
+{
+	const pmlist_t *lp;
+
+	for(lp = haystack; lp; lp = lp->next) {
+		if(lp->data == needle) {
+			return(1);
+		}
+	}
+	return(0);
+}
+
 pmlist_t *_pacman_list_add(pmlist_t *list, void *data)
 {
 	pmlist_t *ptr, *lp;
@@ -185,28 +207,6 @@ pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp f
 	}
 
 	return(haystack);
-}
-
-int _pacman_list_count(const pmlist_t *list)
-{
-	int i;
-	const pmlist_t *lp;
-
-	for(lp = list, i = 0; lp; lp = lp->next, i++);
-
-	return(i);
-}
-
-int _pacman_list_is_in(void *needle, const pmlist_t *haystack)
-{
-	const pmlist_t *lp;
-
-	for(lp = haystack; lp; lp = lp->next) {
-		if(lp->data == needle) {
-			return(1);
-		}
-	}
-	return(0);
 }
 
 pmlist_t *_pacman_list_last(pmlist_t *list)

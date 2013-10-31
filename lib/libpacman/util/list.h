@@ -41,11 +41,13 @@ typedef int (*_pacman_fn_cmp)(const void *, const void *);
 
 pmlist_t *_pacman_list_new(void);
 void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn);
+
+int _pacman_list_count(const pmlist_t *list);
+int _pacman_list_is_in(void *needle, const pmlist_t *haystack);
+
 pmlist_t *_pacman_list_add(pmlist_t *list, void *data);
 pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn);
 pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp fn, void **data);
-int _pacman_list_count(const pmlist_t *list);
-int _pacman_list_is_in(void *needle, const pmlist_t *haystack);
 pmlist_t *_pacman_list_last(pmlist_t *list);
 pmlist_t *_pacman_list_reverse(pmlist_t *list);
 
