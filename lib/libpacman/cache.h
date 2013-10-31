@@ -33,6 +33,7 @@ int _pacman_db_add_pkgincache(pmdb_t *db, pmpkg_t *pkg);
 int _pacman_db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg);
 pmlist_t *_pacman_db_get_pkgcache(pmdb_t *db);
 pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, const char *target);
+pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package);
 /* groups */
 int _pacman_db_load_grpcache(pmdb_t *db);
 void _pacman_db_free_grpcache(pmdb_t *db);

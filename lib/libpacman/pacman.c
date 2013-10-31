@@ -58,9 +58,7 @@
 #include "remove.h"
 #include "sync.h"
 #include "handle.h"
-#include "provide.h"
 #include "server.h"
-#include "pacman.h"
 
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 

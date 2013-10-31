@@ -54,7 +54,6 @@
 #include "package.h"
 #include "db.h"
 #include "cache.h"
-#include "provide.h"
 #include "handle.h"
 #include "pacman.h"
 #include "packages_transaction.h"

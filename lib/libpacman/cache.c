@@ -153,6 +153,28 @@ pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, const char *target)
 	return(_pacman_pkg_isin(target, _pacman_db_get_pkgcache(db)));
 }
 
+/* return a pmlist_t of packages in "db" that provide "package"
+ */
+pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package)
+{
+	pmlist_t *pkgs = NULL;
+	pmlist_t *lp;
+
+	if(db == NULL || _pacman_strempty(package)) {
+		return(NULL);
+	}
+
+	for(lp = _pacman_db_get_pkgcache(db); lp; lp = lp->next) {
+		pmpkg_t *info = lp->data;
+
+		if(_pacman_list_is_strin(package, _pacman_pkg_getinfo(info, PM_PKG_PROVIDES))) {
+			pkgs = _pacman_list_add(pkgs, info);
+		}
+	}
+
+	return(pkgs);
+}
+
 /* Returns a new group cache from db.
  */
 int _pacman_db_load_grpcache(pmdb_t *db)

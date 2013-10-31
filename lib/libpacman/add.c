@@ -55,7 +55,6 @@
 #include "backup.h"
 #include "package.h"
 #include "db.h"
-#include "provide.h"
 #include "conflict.h"
 #include "remove.h"
 #include "handle.h"
