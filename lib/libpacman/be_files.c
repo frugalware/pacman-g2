@@ -56,16 +56,13 @@ static inline int islocal(pmdb_t *db)
 		return strcmp(db->treename, "local") == 0;
 }
 
-pmlist_t *_pacman_db_test(pmdb_t *db)
+static
+pmlist_t *_pacman_localdb_test(pmdb_t *db)
 {
 	struct dirent *ent;
 	char path[PATH_MAX];
 	struct stat buf;
-	pmlist_t *ret = NULL;
-
-	/* testing sync dbs is not supported */
-	if (!islocal(db))
-		return ret;
+	pmlist_t *ret = _pacman_list_new();
 
 	while ((ent = readdir(db->handle)) != NULL) {
 		snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
@@ -92,7 +89,25 @@ pmlist_t *_pacman_db_test(pmdb_t *db)
 			ret = _pacman_list_add(ret, strdup(path));
 		}
 	}
+
 	return(ret);
+}
+
+static
+pmlist_t *_pacman_syncdb_test(pmdb_t *db)
+{
+	/* testing sync dbs is not supported */
+	return _pacman_list_new();
+}
+
+pmlist_t *_pacman_db_test(pmdb_t *db)
+{
+	ASSERT(db == NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+
+	if (islocal(db))
+		return _pacman_localdb_test(db);
+	else
+		return _pacman_syncdb_test(db);
 }
 
 int _pacman_db_open(pmdb_t *db)
