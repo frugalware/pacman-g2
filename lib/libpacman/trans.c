@@ -164,7 +164,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 		return(-1);
 	}
 
-	trans->targets = _pacman_list_add(trans->targets, strdup(target));
+	trans->targets = _pacman_stringlist_append(trans->targets, target);
 
 	return(0);
 }

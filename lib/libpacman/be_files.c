@@ -39,8 +39,8 @@
 
 /* pacman-g2 */
 
-#include "util/list.h"
 #include "util/log.h"
+#include "util/stringlist.h"
 #include "util.h"
 #include "db.h"
 #include "package.h"
@@ -74,19 +74,19 @@ pmlist_t *_pacman_localdb_test(pmdb_t *db)
 		if(stat(path, &buf))
 		{
 			snprintf(path, LOG_STR_LEN, _("%s: description file is missing"), ent->d_name);
-			ret = _pacman_list_add(ret, strdup(path));
+			ret = _pacman_stringlist_append(ret, path);
 		}
 		snprintf(path, PATH_MAX, "%s/%s/depends", db->path, ent->d_name);
 		if(stat(path, &buf))
 		{
 			snprintf(path, LOG_STR_LEN, _("%s: dependency information is missing"), ent->d_name);
-			ret = _pacman_list_add(ret, strdup(path));
+			ret = _pacman_stringlist_append(ret, path);
 		}
 		snprintf(path, PATH_MAX, "%s/%s/files", db->path, ent->d_name);
 		if(stat(path, &buf))
 		{
 			snprintf(path, LOG_STR_LEN, _("%s: file list is missing"), ent->d_name);
-			ret = _pacman_list_add(ret, strdup(path));
+			ret = _pacman_stringlist_append(ret, path);
 		}
 	}
 
@@ -362,7 +362,7 @@ static int _pacman_db_read_lines(pmdb_t *db, pmlist_t **list, char *s, size_t si
 	int lines = 0;
 
 	while(_pacman_db_read_fgets(db, s, size, fp) && !_pacman_strempty(_pacman_strtrim(s))) {
-		*list = _pacman_list_add(*list, strdup(s));
+		*list = _pacman_stringlist_append(*list, s);
 		lines++;
 	}
 	return lines;
@@ -638,11 +638,11 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 						/* just ignore the content after the pipe for now */
 						*ptr = '\0';
 					}
-					info->files = _pacman_list_add(info->files, strdup(line));
+					info->files = _pacman_stringlist_append(info->files, line);
 				}
 			} else if(!strcmp(line, "%BACKUP%")) {
 				while(fgets(line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
-					info->backup = _pacman_list_add(info->backup, strdup(line));
+					info->backup = _pacman_stringlist_append(info->backup, line);
 				}
 			}
 		}

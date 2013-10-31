@@ -56,7 +56,7 @@ pmlist_t *_pacman_list_remove_dupes(pmlist_t *list)
 
 	for(i = list; i; i = i->next) {
 		if(!_pacman_list_is_strin(i->data, newlist)) {
-			newlist = _pacman_list_add(newlist, strdup(i->data));
+			newlist = _pacman_stringlist_append(newlist, i->data);
 		}
 	}
 	return newlist;
@@ -68,10 +68,15 @@ pmlist_t *_pacman_list_strdup(pmlist_t *list)
 	pmlist_t *lp;
 
 	for(lp = list; lp; lp = lp->next) {
-		newlist = _pacman_list_add(newlist, strdup(lp->data));
+		newlist = _pacman_stringlist_append(newlist, lp->data);
 	}
 
 	return(newlist);
+}
+
+pmlist_t *_pacman_stringlist_append(pmlist_t *list, const char *s)
+{
+	return _pacman_list_add(list, strdup(s));
 }
 
 /* vim: set ts=2 sw=2 noet: */

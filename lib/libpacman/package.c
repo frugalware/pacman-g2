@@ -184,18 +184,18 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 			} else if(!strcmp(key, "PKGVER")) {
 				STRNCPY(info->version, ptr, sizeof(info->version));
 			} else if(!strcmp(key, "PKGDESC")) {
-				info->desc_localized = _pacman_list_add(info->desc_localized, strdup(ptr));
+				info->desc_localized = _pacman_stringlist_append(info->desc_localized, ptr);
 				if(_pacman_list_count(info->desc_localized) == 1) {
 					STRNCPY(info->desc, ptr, sizeof(info->desc));
 				} else if (!strncmp(ptr, handle->language, strlen(handle->language))) {
 					STRNCPY(info->desc, ptr+strlen(handle->language)+1, sizeof(info->desc));
 				}
 			} else if(!strcmp(key, "GROUP")) {
-				info->groups = _pacman_list_add(info->groups, strdup(ptr));
+				info->groups = _pacman_stringlist_append(info->groups, ptr);
 			} else if(!strcmp(key, "URL")) {
 				STRNCPY(info->url, ptr, sizeof(info->url));
 			} else if(!strcmp(key, "LICENSE")) {
-				info->license = _pacman_list_add(info->license, strdup(ptr));
+				info->license = _pacman_stringlist_append(info->license, ptr);
 			} else if(!strcmp(key, "BUILDDATE")) {
 				STRNCPY(info->builddate, ptr, sizeof(info->builddate));
 			} else if(!strcmp(key, "BUILDTYPE")) {
@@ -215,17 +215,17 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 				STRNCPY(tmp, ptr, sizeof(tmp));
 				info->usize = atol(tmp);
 			} else if(!strcmp(key, "DEPEND")) {
-				info->depends = _pacman_list_add(info->depends, strdup(ptr));
+				info->depends = _pacman_stringlist_append(info->depends, ptr);
 			} else if(!strcmp(key, "REMOVE")) {
-				info->removes = _pacman_list_add(info->removes, strdup(ptr));
+				info->removes = _pacman_stringlist_append(info->removes, ptr);
 			} else if(!strcmp(key, "CONFLICT")) {
-				info->conflicts = _pacman_list_add(info->conflicts, strdup(ptr));
+				info->conflicts = _pacman_stringlist_append(info->conflicts, ptr);
 			} else if(!strcmp(key, "REPLACES")) {
-				info->replaces = _pacman_list_add(info->replaces, strdup(ptr));
+				info->replaces = _pacman_stringlist_append(info->replaces, ptr);
 			} else if(!strcmp(key, "PROVIDES")) {
-				info->provides = _pacman_list_add(info->provides, strdup(ptr));
+				info->provides = _pacman_stringlist_append(info->provides, ptr);
 			} else if(!strcmp(key, "BACKUP")) {
-				info->backup = _pacman_list_add(info->backup, strdup(ptr));
+				info->backup = _pacman_stringlist_append(info->backup, ptr);
 			} else {
 				_pacman_log(PM_LOG_DEBUG, _("%s: syntax error in description file line %d"),
 					info->name[0] != '\0' ? info->name : "error", linenum);
@@ -360,7 +360,7 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 					continue;
 				}
 				_pacman_strtrim(str);
-				info->files = _pacman_list_add(info->files, strdup(str));
+				info->files = _pacman_stringlist_append(info->files, str);
 			}
 			FREE(str);
 			fclose(fp);

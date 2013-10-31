@@ -91,7 +91,7 @@ static pmpkg_t *fakedb_pkg_new(pmdb_t *fakedb, const char *name)
 		} else if(strncmp("version", p, q-p) == 0) {
 			STRNCPY(dummy->version, q+1, PKG_VERSION_LEN);
 		} else if(strncmp("depend", p, q-p) == 0) {
-			dummy->depends = _pacman_list_add(dummy->depends, strdup(q+1));
+			dummy->depends = _pacman_stringlist_append(dummy->depends, q+1);
 		} else {
 			_pacman_log(PM_LOG_ERROR, _("could not parse token %s"), p);
 		}
@@ -756,7 +756,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 				if(tmppm->data && (!strcmp(depend.name, info->name) || _pacman_list_is_strin(depend.name, info->provides))) {
 					_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), tmpp->name, info->name);
-					info->requiredby = _pacman_list_add(info->requiredby, strdup(tmpp->name));
+					info->requiredby = _pacman_stringlist_append(info->requiredby, tmpp->name);
 				}
 			}
 		}
@@ -807,7 +807,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 			}
 			_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), info->name, depinfo->name);
-			depinfo->requiredby = _pacman_list_add(_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), strdup(info->name));
+			depinfo->requiredby = _pacman_stringlist_append(_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), info->name);
 			if(_pacman_db_write(db_local, depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
 				          depinfo->name, depinfo->version);

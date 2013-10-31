@@ -27,6 +27,8 @@ int _pacman_list_is_strin(const char *needle, pmlist_t *haystack);
 pmlist_t *_pacman_list_remove_dupes(pmlist_t *list);
 pmlist_t *_pacman_list_strdup(pmlist_t *list);
 
+pmlist_t *_pacman_stringlist_append(pmlist_t *list, const char *s);
+
 #endif /* _PACMAN_STRINGLIST_H */
 
 /* vim: set ts=2 sw=2 noet: */

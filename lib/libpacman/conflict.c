@@ -245,7 +245,7 @@ static pmlist_t *chk_fileconflicts(pmlist_t *filesA, pmlist_t *filesB)
 				pB = pB->next;
 			} else {
 				/* item in both, record it */
-				ret = _pacman_list_add(ret, strdup(strA));
+				ret = _pacman_stringlist_append(ret, strA);
 				pA = pA->next;
 				pB = pB->next;
 			}
@@ -357,7 +357,7 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 									 * Our workaround is to scan through all "old" packages and all "new"
 									 * ones, looking for files that jump to different packages.
 									 */
-									*skip_list = _pacman_list_add(*skip_list, strdup(filestr));
+									*skip_list = _pacman_stringlist_append(*skip_list, filestr);
 								}
 							}
 						}

@@ -451,7 +451,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 					int doremove = 0;
 					if(!_pacman_list_is_strin(miss->depend.name, asked)) {
 						QUESTION(trans, PM_TRANS_CONV_CONFLICT_PKG, miss->target, miss->depend.name, NULL, &doremove);
-						asked = _pacman_list_add(asked, strdup(miss->depend.name));
+						asked = _pacman_stringlist_append(asked, miss->depend.name);
 						if(doremove) {
 							pmsyncpkg_t *rsync = find_pkginsync(miss->depend.name, trans->packages);
 							pmpkg_t *q = _pacman_pkg_new(miss->depend.name, NULL);
@@ -763,7 +763,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 								          new->name, new->version);
 							}
 							/* add the new requiredby */
-							new->requiredby = _pacman_list_add(new->requiredby, strdup(k->data));
+							new->requiredby = _pacman_stringlist_append(new->requiredby, k->data);
 						}
 					}
 				}
@@ -830,7 +830,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 					} else {
 						if(stat(lcpath, &buf)) {
 							/* file is not in the cache dir, so add it to the list */
-							files = _pacman_list_add(files, strdup(filename));
+							files = _pacman_stringlist_append(files, filename);
 						} else {
 							_pacman_log(PM_LOG_DEBUG, _("%s is already in the cache\n"), filename);
 						}
