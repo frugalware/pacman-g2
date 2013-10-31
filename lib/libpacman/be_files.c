@@ -103,10 +103,28 @@ int _pacman_localdb_open(pmdb_t *db)
 }
 
 static
+void _pacman_localdb_close(pmdb_t *db)
+{
+	if(db->handle) {
+		closedir(db->handle);
+		db->handle = NULL;
+	}
+}
+
+static
 pmlist_t *_pacman_syncdb_test(pmdb_t *db)
 {
 	/* testing sync dbs is not supported */
 	return _pacman_list_new();
+}
+
+static
+void _pacman_syncdb_close(pmdb_t *db)
+{
+	if(db->handle) {
+		archive_read_finish(db->handle);
+		db->handle = NULL;
+	}
 }
 
 pmlist_t *_pacman_db_test(pmdb_t *db)
@@ -161,13 +179,10 @@ void _pacman_db_close(pmdb_t *db)
 		return;
 	}
 
-	if(db->handle) {
-		if (islocal(db))
-			closedir(db->handle);
-		else
-			archive_read_finish(db->handle);
-		db->handle = NULL;
-	}
+	if (islocal(db))
+		_pacman_localdb_close(db);
+	else
+		_pacman_syncdb_close(db);
 }
 
 void _pacman_db_rewind(pmdb_t *db)
