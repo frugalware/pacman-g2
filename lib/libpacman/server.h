@@ -21,9 +21,10 @@
 #ifndef _PACMAN_SERVER_H
 #define _PACMAN_SERVER_H
 
-#include "list.h"
 #include <time.h>
 #include <ftplib.h>
+
+#include "pacman.h"
 
 #define FREESERVER(p) \
 do { \

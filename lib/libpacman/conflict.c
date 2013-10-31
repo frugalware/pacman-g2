@@ -38,6 +38,7 @@
 /* pacman-g2 */
 #include "conflict.h"
 
+#include "util/list.h"
 #include "util/log.h"
 #include "util.h"
 #include "error.h"

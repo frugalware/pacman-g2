@@ -13,13 +13,14 @@ HASH_TARGETS = \
 	hash/sha1.c
 
 UTIL_TARGETS = \
-	util/log.c
+	util/log.c \
+	util/logger.c \
+	util/list.c
 
 TARGETS = \
 	$(HASH_TARGETS) \
 	$(UTIL_TARGETS) \
 	util.c \
-	list.c \
 	error.c \
 	package.c \
 	group.c \

@@ -37,13 +37,13 @@
 /* pacman-g2 */
 #include "handle.h"
 
+#include "util/list.h"
 #include "util/log.h"
-#include "util.h"
-#include "list.h"
 #include "error.h"
 #include "trans.h"
 #include "pacman.h"
 #include "server.h"
+#include "util.h"
 
 pmhandle_t *_pacman_handle_new()
 {

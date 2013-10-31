@@ -21,7 +21,6 @@
 #ifndef _PACMAN_GROUP_H
 #define _PACMAN_GROUP_H
 
-#include "list.h"
 #include "pacman.h"
 
 #define GRP_NAME_LEN 256

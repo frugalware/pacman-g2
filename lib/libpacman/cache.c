@@ -33,9 +33,9 @@
 /* pacman-g2 */
 #include "cache.h"
 
+#include "util/list.h"
 #include "util/log.h"
 #include "pacman.h"
-#include "list.h"
 #include "util.h"
 #include "package.h"
 #include "group.h"

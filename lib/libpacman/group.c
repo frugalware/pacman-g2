@@ -28,6 +28,7 @@
 /* pacman-g2 */
 #include "group.h"
 
+#include "util/list.h"
 #include "util.h"
 #include "error.h"
 #include "pacman.h"

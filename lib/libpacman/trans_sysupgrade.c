@@ -38,9 +38,9 @@
 /* pacman-g2 */
 #include "trans_sysupgrade.h"
 
+#include "util/list.h"
 #include "util/log.h"
 #include "error.h"
-#include "list.h"
 #include "package.h"
 #include "db.h"
 #include "cache.h"

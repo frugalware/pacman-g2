@@ -43,8 +43,8 @@
 /* pacman-g2 */
 #include "remove.h"
 
+#include "util/list.h"
 #include "util/log.h"
-#include "list.h"
 #include "trans.h"
 #include "util.h"
 #include "error.h"

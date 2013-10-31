@@ -56,8 +56,8 @@
 /* pacman-g2 */
 #include "util.h"
 
+#include "util/list.h"
 #include "util/log.h"
-#include "list.h"
 #include "trans.h"
 #include "sync.h"
 #include "error.h"

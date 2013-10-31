@@ -39,9 +39,11 @@
 
 /* pacman-g2 */
 
+#include "util/list.h"
 #include "util/log.h"
 #include "util.h"
 #include "db.h"
+#include "package.h"
 #include "pacman.h"
 #include "error.h"
 #include "handle.h"

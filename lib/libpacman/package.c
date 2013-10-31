@@ -35,10 +35,10 @@
 /* pacman-g2 */
 #include "package.h"
 
+#include "util/list.h"
 #include "util/log.h"
 #include "util.h"
 #include "error.h"
-#include "list.h"
 #include "db.h"
 #include "handle.h"
 #include "cache.h"

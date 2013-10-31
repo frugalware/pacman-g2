@@ -31,11 +31,11 @@
 /* pacman-g2 */
 #include "trans.h"
 
+#include "util/list.h"
 #include "util/log.h"
 #include "error.h"
 #include "package.h"
 #include "util.h"
-#include "list.h"
 #include "handle.h"
 #include "add.h"
 #include "remove.h"

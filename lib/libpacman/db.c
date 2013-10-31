@@ -44,6 +44,7 @@
 /* pacman-g2 */
 #include "db.h"
 
+#include "util/list.h"
 #include "util/log.h"
 #include "util.h"
 #include "error.h"

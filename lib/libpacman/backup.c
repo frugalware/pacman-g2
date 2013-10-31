@@ -25,8 +25,11 @@
 #include "config.h"
 #include <stdlib.h>
 #include <string.h>
+
 /* pacman-g2 */
 #include "backup.h"
+
+#include "util/list.h"
 
 /* Look for a filename in a pmpkg_t.backup list.  If we find it,
  * then we return the md5 or sha1 hash (parsed from the same line)

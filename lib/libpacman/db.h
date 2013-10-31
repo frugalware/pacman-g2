@@ -24,7 +24,7 @@
 #define _PACMAN_DB_H
 
 #include <limits.h>
-#include "package.h"
+
 #include "pacman.h"
 
 /* Database entries */

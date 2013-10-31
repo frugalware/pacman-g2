@@ -21,7 +21,6 @@
 #ifndef _PACMAN_CACHE_H
 #define _PACMAN_CACHE_H
 
-#include "list.h"
 #include "package.h"
 #include "group.h"
 #include "db.h"

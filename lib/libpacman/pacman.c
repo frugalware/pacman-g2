@@ -42,11 +42,11 @@
 
 #include "hash/md5.h"
 #include "hash/sha1.h"
+#include "util/list.h"
 #include "util/log.h"
 #include "error.h"
 #include "deps.h"
 #include "versioncmp.h"
-#include "list.h"
 #include "package.h"
 #include "group.h"
 #include "util.h"

@@ -21,6 +21,7 @@
 #ifndef _PACMAN_CONFLICT_H
 #define _PACMAN_CONFLICT_H
 
+#include "package.h"
 #include "trans.h"
 
 #define CONFLICT_FILE_LEN 512

@@ -21,7 +21,7 @@
 #ifndef _PACMAN_BACKUP_H
 #define _PACMAN_BACKUP_H
 
-#include "list.h"
+#include "pacman.h"
 
 char *_pacman_needbackup(char *file, pmlist_t *backup);
 

@@ -29,7 +29,6 @@
 
 typedef struct __pmhandle_t pmhandle_t;
 
-#include "list.h"
 #include "db.h"
 #include "trans.h"
 
