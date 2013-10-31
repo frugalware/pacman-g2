@@ -187,19 +187,19 @@ pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp f
 	return(haystack);
 }
 
-int _pacman_list_count(pmlist_t *list)
+int _pacman_list_count(const pmlist_t *list)
 {
 	int i;
-	pmlist_t *lp;
+	const pmlist_t *lp;
 
 	for(lp = list, i = 0; lp; lp = lp->next, i++);
 
 	return(i);
 }
 
-int _pacman_list_is_in(void *needle, pmlist_t *haystack)
+int _pacman_list_is_in(void *needle, const pmlist_t *haystack)
 {
-	pmlist_t *lp;
+	const pmlist_t *lp;
 
 	for(lp = haystack; lp; lp = lp->next) {
 		if(lp->data == needle) {
