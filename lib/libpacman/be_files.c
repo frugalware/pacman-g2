@@ -102,7 +102,7 @@ pmlist_t *_pacman_syncdb_test(pmdb_t *db)
 
 pmlist_t *_pacman_db_test(pmdb_t *db)
 {
-	ASSERT(db == NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
 	if (islocal(db))
 		return _pacman_localdb_test(db);
