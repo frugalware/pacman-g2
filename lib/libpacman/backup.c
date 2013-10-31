@@ -30,15 +30,16 @@
 #include "backup.h"
 
 #include "util/list.h"
+#include "util.h"
 
 /* Look for a filename in a pmpkg_t.backup list.  If we find it,
  * then we return the md5 or sha1 hash (parsed from the same line)
  */
-char *_pacman_needbackup(char *file, pmlist_t *backup)
+char *_pacman_needbackup(const char *file, const pmlist_t *backup)
 {
-	pmlist_t *lp;
+	const pmlist_t *lp;
 
-	if(file == NULL || backup == NULL) {
+	if(_pacman_strempty(file) || backup == NULL) {
 		return(NULL);
 	}
 
@@ -57,9 +58,9 @@ char *_pacman_needbackup(char *file, pmlist_t *backup)
 		ptr++;
 		/* now str points to the filename and ptr points to the md5 or sha1 hash */
 		if(!strcmp(file, str)) {
-			char *md5 = strdup(ptr);
+			char *hash = strdup(ptr);
 			free(str);
-			return(md5);
+			return hash;
 		}
 		free(str);
 	}

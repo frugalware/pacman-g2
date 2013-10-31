@@ -23,7 +23,7 @@
 
 #include "pacman.h"
 
-char *_pacman_needbackup(char *file, pmlist_t *backup);
+char *_pacman_needbackup(const char *file, const pmlist_t *backup);
 
 #endif /* _PACMAN_BACKUP_H */
 
