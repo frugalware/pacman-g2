@@ -316,10 +316,75 @@ handledeps() {
 	return $missingdeps
 }
 
-usage() {
+declare -Ag _makepkg_commands
+
+makepkg_lschroot_usage() {
 	$ECHO "makepkg"
 	$ECHO
-	$ECHO "Usage: $0 [options] [variable assignations]"
+	$ECHO "Usage: $0 lschroot [OPTION]..."
+	$ECHO "List all the available chroots."
+	$ECHO
+	$ECHO "Options for chroot_enter command:"
+	$ECHO "  -h, --help             This help"
+}
+
+makepkg_lschroot() {
+	local _options_consumed
+
+	while [ $# -gt 0 ]; do
+		_options_consumed=1
+		case "$1" in
+		-h|--help)
+			makepkg_lschroot_usage
+			return 0;;
+		# special options
+		--)	shift; break ;; # End of options
+		--*|-?)	error "Invalid option: $1"
+			makepkg_lschroot_usage;
+			return 1 ;;
+		-*)	# Combined short options
+			split="$1"
+			shift
+			set -- \
+				"$(echo "$split}" | cut -c -2)" \
+				"-$(echo "${split}" | cut -c 3-)" \
+				"$@"
+				continue ;;
+		*=*)	export "$1" ;;
+		*)	break ;; # End of options
+		esac
+		if ! shift "$_options_consumed"; then
+			_options_consumed=$(($_options_consumed - 1))
+			error "Option $1 expects $_options_consumed argument(s)"
+			return 1
+		fi
+	done
+
+	if [ $# -ne 0 ]; then
+		error "Unexpected trailling arguments: $@"
+		return 1
+	fi
+
+	ls "$CHROOTDIR"
+	return 0
+}
+_makepkg_commands[lschroot]=makepkg_lschroot
+
+makepkg_init() {
+	declare -r _makepkg_commands
+}
+
+usage() {
+	local i
+
+	$ECHO "makepkg"
+	$ECHO
+	$ECHO "Usage: $0 [COMMAND] [OPTION]... [VARIABLE=VALUE]..."
+	$ECHO
+	$ECHO "Command can be any of the following:"
+	for i in "${!_makepkg_commands[@]}"; do
+	$ECHO " - $i"
+	done
 	$ECHO
 	$ECHO "Options:"
 	$ECHO "  -a, --searchdeps Search for package dependencies automatically"
@@ -637,6 +702,8 @@ install_pkg()
 	exit 0
 }
 
+makepkg_init
+
 if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
 	if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
 		USE_COLOR="n"
@@ -662,7 +729,11 @@ ARGLIST=$@
 COMPRESS_PROGRAM="$PKG_COMP"
 
 while [ "$#" -ne "0" ]; do
-	case $1 in
+	if in_array "$1" "${!_makepkg_commands[@]}"; then
+		"${_makepkg_commands[$1]}" "${@:2}"
+		exit $?
+	fi
+	case "$1" in
 # pacman-g2
 		--noconfirm)      PACMAN_OPTS="$PACMAN_OPTS --noconfirm" ;;
 		--noprogressbar)  PACMAN_OPTS="$PACMAN_OPTS --noprogressbar" ;;
