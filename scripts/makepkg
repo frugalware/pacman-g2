@@ -364,15 +364,17 @@ makepkg_chroot() {
 			return 1
 		fi
 	done
-
 	if [ $# -eq 0 ]; then
 		error "Missing expected CHROOTNAME argument."
 		return 1
 	fi
+
 	chroot "$CHROOTDIR/$1" "${@:2}"
 	return $?
 }
 _makepkg_commands[chroot]=makepkg_chroot
+
+# TODO: Add chrootadd, chrootdel.
 
 makepkg_lschroot_usage() {
 	$ECHO "Usage: $0 lschroot [OPTION]..."
@@ -413,7 +415,6 @@ makepkg_lschroot() {
 			return 1
 		fi
 	done
-
 	if [ $# -ne 0 ]; then
 		error "Unexpected trailling arguments: $@"
 		return 1
