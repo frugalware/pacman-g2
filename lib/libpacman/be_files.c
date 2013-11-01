@@ -671,6 +671,14 @@ error:
 }
 
 static
+void _pacman_db_write_bool(const char *entry, int value, FILE *stream)
+{
+	if(value != 0) {
+		fprintf(stream, "%%%s%%\n\n", entry);
+	}
+}
+
+static
 void _pacman_db_write_string(const char *entry, const char *value, FILE *stream)
 {
 	if(!_pacman_strempty(value)) {
@@ -790,14 +798,8 @@ int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 		_pacman_db_write_stringlist("PROVIDES", info->provides, fp);
 		if(!local) {
 			_pacman_db_write_stringlist("REPLACES", info->replaces, fp);
-			if(info->force) {
-				fprintf(fp, "%%FORCE%%\n"
-					"\n");
-			}
-			if(info->stick) {
-				fprintf(fp, "%%STICK%%\n"
-					"\n");
-			}
+			_pacman_db_write_bool("FORCE", info->force, fp);
+			_pacman_db_write_bool("STICK", info->stick, fp);
 		}
 		fclose(fp);
 		fp = NULL;
