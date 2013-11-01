@@ -671,6 +671,14 @@ error:
 }
 
 static
+void _pacman_db_write_string(const char *entry, const char *value, FILE *stream)
+{
+	if(!_pacman_strempty(value)) {
+		fprintf(stream, "%%%s%%\n%s\n\n", entry, value);
+	}
+}
+
+static
 void _pacman_db_write_stringlist(const char *entry, const pmlist_t *values, FILE *stream)
 {
 	const pmlist_t *lp;
@@ -714,38 +722,20 @@ int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 			retval = 1;
 			goto cleanup;
 		}
-		fprintf(fp, "%%NAME%%\n%s\n\n"
-			"%%VERSION%%\n%s\n\n", info->name, info->version);
+		_pacman_db_write_string("NAME", info->name, fp);
+		_pacman_db_write_string("VERSION", info->version, fp);
 		if(info->desc[0]) {
 			_pacman_db_write_stringlist("DESC", info->desc_localized, fp);
 		}
 		_pacman_db_write_stringlist("GROUPS", info->groups, fp);
 		if(local) {
-			if(info->url[0]) {
-				fprintf(fp, "%%URL%%\n"
-					"%s\n\n", info->url);
-			}
+			_pacman_db_write_string("URL", info->url, fp);
 			_pacman_db_write_stringlist("LICENSE", info->license, fp);
-			if(info->arch[0]) {
-				fprintf(fp, "%%ARCH%%\n"
-					"%s\n\n", info->arch);
-			}
-			if(info->builddate[0]) {
-				fprintf(fp, "%%BUILDDATE%%\n"
-					"%s\n\n", info->builddate);
-			}
-			if(info->buildtype[0]) {
-				fprintf(fp, "%%BUILDTYPE%%\n"
-					"%s\n\n", info->buildtype);
-			}
-			if(info->installdate[0]) {
-				fprintf(fp, "%%INSTALLDATE%%\n"
-					"%s\n\n", info->installdate);
-			}
-			if(info->packager[0]) {
-				fprintf(fp, "%%PACKAGER%%\n"
-					"%s\n\n", info->packager);
-			}
+			_pacman_db_write_string("ARCH", info->arch, fp);
+			_pacman_db_write_string("BUILDDATE", info->builddate, fp);
+			_pacman_db_write_string("BUILDTYPE", info->buildtype, fp);
+			_pacman_db_write_string("INSTALLDATE", info->installdate, fp);
+			_pacman_db_write_string("PACKAGER", info->packager, fp);
 			if(info->size) {
 				fprintf(fp, "%%SIZE%%\n"
 					"%ld\n\n", info->size);
@@ -763,13 +753,8 @@ int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 				fprintf(fp, "%%USIZE%%\n"
 					"%ld\n\n", info->usize);
 			}
-			if(info->sha1sum) {
-				fprintf(fp, "%%SHA1SUM%%\n"
-					"%s\n\n", info->sha1sum);
-			} else if(info->md5sum) {
-				fprintf(fp, "%%MD5SUM%%\n"
-					"%s\n\n", info->md5sum);
-			}
+			_pacman_db_write_string("SHA1SUM", info->sha1sum, fp);
+			_pacman_db_write_string("MD5SUM", info->md5sum, fp);
 		}
 		fclose(fp);
 		fp = NULL;
