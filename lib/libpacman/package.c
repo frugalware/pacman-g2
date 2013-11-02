@@ -100,6 +100,9 @@ pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 	newpkg->groups     = _pacman_list_strdup(pkg->groups);
 	newpkg->provides   = _pacman_list_strdup(pkg->provides);
 	newpkg->replaces   = _pacman_list_strdup(pkg->replaces);
+	newpkg->pretriggers = _pacman_list_strdup(pkg->pretriggers);
+	newpkg->posttriggers = _pacman_list_strdup(pkg->posttriggers);
+
 	/* internal */
 	newpkg->origin     = pkg->origin;
 	newpkg->data = (newpkg->origin == PKG_FROM_FILE) ? strdup(pkg->data) : pkg->data;
@@ -127,6 +130,8 @@ void _pacman_pkg_free(void *data)
 	FREELIST(pkg->groups);
 	FREELIST(pkg->provides);
 	FREELIST(pkg->replaces);
+	FREELIST(pkg->pretriggers);
+	FREELIST(pkg->posttriggers);
 	if(pkg->origin == PKG_FROM_FILE) {
 		FREE(pkg->data);
 	}
