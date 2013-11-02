@@ -142,11 +142,11 @@ int _pacman_pkg_cmp(const void *p1, const void *p2)
 	return(strcmp(((pmpkg_t *)p1)->name, ((pmpkg_t *)p2)->name));
 }
 
-/* Parses the package description file for the current package
+/* Parses the pkginfo package description file for the current package
  *
  * Returns: 0 on success, 1 on error
  */
-static int parse_descfile(char *descfile, pmpkg_t *info, int output)
+static int pkginfo_read(char *descfile, pmpkg_t *info, int output)
 {
 	FILE* fp = NULL;
 	char line[PATH_MAX];
@@ -322,7 +322,7 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 			fd = mkstemp(descfile);
 			archive_read_data_into_fd (archive, fd);
 			/* parse the info file */
-			if(parse_descfile(descfile, info, 0) == -1) {
+			if(pkginfo_read(descfile, info, 0) == -1) {
 				_pacman_log(PM_LOG_ERROR, _("could not parse the package description file"));
 				pm_errno = PM_ERR_PKG_INVALID;
 				unlink(descfile);
