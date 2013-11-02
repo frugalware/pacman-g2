@@ -90,8 +90,9 @@ void _pacman_trans_free(pmtrans_t *trans)
 	} else {
 		FREELISTPKGS(trans->packages);
 	}
-
 	FREELIST(trans->skiplist);
+	FREELIST(trans->pretriggers);
+	FREELIST(trans->posttriggers);
 
 	_pacman_trans_fini(trans);
 	free(trans);
@@ -188,6 +189,27 @@ int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 	trans->state = new_state;
 
 	return(0);
+}
+
+int _pacman_trans_compute_triggers(pmtrans_t *trans)
+{
+	pmlist_t *lp;
+
+	/* Sanity checks */
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+
+	/* NOTE: Not the most efficient way, but will do until we add some string hash. */
+	for(lp = trans->packages; lp; lp = lp->next) {
+		pmpkg_t *pkg = lp->data;
+
+		trans->pretriggers = _pacman_stringlist_append_stringlist(trans->pretriggers, pkg->pretriggers);
+		trans->posttriggers = _pacman_stringlist_append_stringlist(trans->posttriggers, pkg->posttriggers);
+	}
+	trans->pretriggers = _pacman_list_remove_dupes(trans->pretriggers);
+	trans->posttriggers = _pacman_list_remove_dupes(trans->posttriggers);
+	/* FIXME: Sort the triggers to have a predictable execution order */
+
+	return 0;
 }
 
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)

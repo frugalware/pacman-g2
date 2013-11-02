@@ -62,6 +62,8 @@ struct __pmtrans_t {
 	pmlist_t *targets;     /* pmlist_t of (char *) */
 	pmlist_t *packages;    /* pmlist_t of (pmpkg_t *) or (pmsyncpkg_t *) */
 	pmlist_t *skiplist;    /* pmlist_t of (char *) */
+	pmlist_t *pretriggers; /* pmlist_t of (char *) */
+	pmlist_t *posttriggers;/* pmlist_t of (char *) */
 	pmtrans_cbs_t cbs;
 };
 
@@ -105,6 +107,8 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data);
 int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data);
 
 int _pacman_trans_sysupgrade(pmtrans_t *trans);
+
+int _pacman_trans_compute_triggers(pmtrans_t *trans);
 
 #endif /* _PACMAN_TRANS_H */
 
