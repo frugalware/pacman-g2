@@ -77,6 +77,8 @@ struct __pmpkg_t {
 	pmlist_t *requiredby;
 	pmlist_t *conflicts;
 	pmlist_t *provides;
+	pmlist_t *pretriggers;
+	pmlist_t *posttriggers;
 	/* internal */
 	unsigned char origin;
 	void *data;

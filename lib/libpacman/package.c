@@ -225,6 +225,10 @@ static int parse_descfile(char *descfile, pmpkg_t *info, int output)
 				info->provides = _pacman_stringlist_append(info->provides, ptr);
 			} else if(!strcmp(key, "BACKUP")) {
 				info->backup = _pacman_stringlist_append(info->backup, ptr);
+			} else if(!strcmp(key, "PRETRIGGER")) {
+				info->pretriggers = _pacman_stringlist_append(info->pretriggers, ptr);
+			} else if(!strcmp(key, "POSTTRIGGER")) {
+				info->posttriggers = _pacman_stringlist_append(info->posttriggers, ptr);
 			} else {
 				_pacman_log(PM_LOG_DEBUG, _("%s: syntax error in description file line %d"),
 					info->name[0] != '\0' ? info->name : "error", linenum);
