@@ -28,6 +28,7 @@ pmlist_t *_pacman_list_remove_dupes(pmlist_t *list);
 pmlist_t *_pacman_list_strdup(pmlist_t *list);
 
 pmlist_t *_pacman_stringlist_append(pmlist_t *list, const char *s);
+pmlist_t *_pacman_stringlist_append_stringlist(pmlist_t *dest, const pmlist_t *src);
 
 #endif /* _PACMAN_STRINGLIST_H */
 

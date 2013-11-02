@@ -79,4 +79,14 @@ pmlist_t *_pacman_stringlist_append(pmlist_t *list, const char *s)
 	return _pacman_list_add(list, strdup(s));
 }
 
+pmlist_t *_pacman_stringlist_append_stringlist(pmlist_t *dest, const pmlist_t *src)
+{
+	const pmlist_t *lp;
+
+	for(lp = src; lp; lp = lp->next) {
+		dest = _pacman_stringlist_append(dest, lp->data);
+	}
+	return dest;
+}
+
 /* vim: set ts=2 sw=2 noet: */
