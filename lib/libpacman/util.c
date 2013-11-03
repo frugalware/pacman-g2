@@ -515,7 +515,6 @@ int _pacman_runscriptlet(char *root, char *installfn, const char *script, char *
 	char tmpdir[PATH_MAX] = "";
 	char *scriptpath;
 	struct stat buf;
-	char cwd[PATH_MAX] = "";
 	int retval = 0;
 
 	if(stat(installfn, &buf)) {
@@ -548,18 +547,6 @@ int _pacman_runscriptlet(char *root, char *installfn, const char *script, char *
 		goto cleanup;
 	}
 
-	/* save the cwd so we can restore it later */
-	if(getcwd(cwd, PATH_MAX) == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("could not get current working directory"));
-		/* in case of error, cwd content is undefined: so we set it to something */
-		cwd[0] = 0;
-	}
-
-	/* just in case our cwd was removed in the upgrade operation */
-	if(chdir(root) != 0) {
-		_pacman_log(PM_LOG_ERROR, _("could not change directory to %s (%s)"), root, strerror(errno));
-	}
-
 	_pacman_log(PM_LOG_FLOW2, _("executing %s script..."), script);
 
 	if(oldver) {
@@ -575,9 +562,6 @@ cleanup:
 	if(!_pacman_strempty(tmpdir) && _pacman_rmrf(tmpdir)) {
 		_pacman_log(PM_LOG_WARNING, _("could not remove tmpdir %s"), tmpdir);
 	}
-	if(!_pacman_strempty(cwd)) {
-		chdir(cwd);
-	}
 
 	return(retval);
 }
@@ -588,7 +572,6 @@ int _pacman_runhook(const char *hookname, pmtrans_t *trans)
 	char scriptfn[PATH_MAX];
 	char hookpath[PATH_MAX];
 	char cmdline[PATH_MAX];
-	char cwd[PATH_MAX] = "";
 	int retval = 0;
 	DIR *dir;
 	struct dirent *ent;
@@ -597,18 +580,6 @@ int _pacman_runhook(const char *hookname, pmtrans_t *trans)
 	root = trans->handle->root;
 
 	_pacman_log(PM_LOG_FLOW2, _("executing %s hooks..."), hookname);
-
-	/* save the cwd so we can restore it later */
-	if(getcwd(cwd, PATH_MAX) == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("could not get current working directory"));
-		/* in case of error, cwd content is undefined: so we set it to something */
-		cwd[0] = 0;
-	}
-
-	/* just in case our cwd was removed in the upgrade operation */
-	if(chdir(root) != 0) {
-		_pacman_log(PM_LOG_ERROR, _("could not change directory to %s (%s)"), root, strerror(errno));
-	}
 
 	snprintf(hookpath, PATH_MAX, "%s/%s", root, hookdir);
 
@@ -636,10 +607,6 @@ int _pacman_runhook(const char *hookname, pmtrans_t *trans)
 cleanup:
 	if(dir) {
 		closedir(dir);
-	}
-
-	if(!_pacman_strempty(cwd)) {
-		chdir(cwd);
 	}
 
 	return(retval);
