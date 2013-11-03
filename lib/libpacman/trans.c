@@ -91,8 +91,7 @@ void _pacman_trans_free(pmtrans_t *trans)
 		FREELISTPKGS(trans->packages);
 	}
 	FREELIST(trans->skiplist);
-	FREELIST(trans->pretriggers);
-	FREELIST(trans->posttriggers);
+	FREELIST(trans->triggers);
 
 	_pacman_trans_fini(trans);
 	free(trans);
@@ -202,11 +201,9 @@ int _pacman_trans_compute_triggers(pmtrans_t *trans)
 	for(lp = trans->packages; lp; lp = lp->next) {
 		pmpkg_t *pkg = lp->data;
 
-		trans->pretriggers = _pacman_stringlist_append_stringlist(trans->pretriggers, pkg->pretriggers);
-		trans->posttriggers = _pacman_stringlist_append_stringlist(trans->posttriggers, pkg->posttriggers);
+		trans->triggers = _pacman_stringlist_append_stringlist(trans->triggers, pkg->triggers);
 	}
-	trans->pretriggers = _pacman_list_remove_dupes(trans->pretriggers);
-	trans->posttriggers = _pacman_list_remove_dupes(trans->posttriggers);
+	trans->triggers = _pacman_list_remove_dupes(trans->triggers);
 	/* FIXME: Sort the triggers to have a predictable execution order */
 
 	return 0;

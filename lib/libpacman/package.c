@@ -100,8 +100,7 @@ pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 	newpkg->groups     = _pacman_list_strdup(pkg->groups);
 	newpkg->provides   = _pacman_list_strdup(pkg->provides);
 	newpkg->replaces   = _pacman_list_strdup(pkg->replaces);
-	newpkg->pretriggers = _pacman_list_strdup(pkg->pretriggers);
-	newpkg->posttriggers = _pacman_list_strdup(pkg->posttriggers);
+	newpkg->triggers = _pacman_list_strdup(pkg->triggers);
 
 	/* internal */
 	newpkg->origin     = pkg->origin;
@@ -130,8 +129,7 @@ void _pacman_pkg_free(void *data)
 	FREELIST(pkg->groups);
 	FREELIST(pkg->provides);
 	FREELIST(pkg->replaces);
-	FREELIST(pkg->pretriggers);
-	FREELIST(pkg->posttriggers);
+	FREELIST(pkg->triggers);
 	if(pkg->origin == PKG_FROM_FILE) {
 		FREE(pkg->data);
 	}
@@ -230,10 +228,8 @@ static int pkginfo_read(char *descfile, pmpkg_t *info, int output)
 				info->provides = _pacman_stringlist_append(info->provides, ptr);
 			} else if(!strcmp(key, "BACKUP")) {
 				info->backup = _pacman_stringlist_append(info->backup, ptr);
-			} else if(!strcmp(key, "PRETRIGGER")) {
-				info->pretriggers = _pacman_stringlist_append(info->pretriggers, ptr);
-			} else if(!strcmp(key, "POSTTRIGGER")) {
-				info->posttriggers = _pacman_stringlist_append(info->posttriggers, ptr);
+			} else if(!strcmp(key, "TRIGGER")) {
+				info->triggers = _pacman_stringlist_append(info->triggers, ptr);
 			} else {
 				_pacman_log(PM_LOG_DEBUG, _("%s: syntax error in description file line %d"),
 					info->name[0] != '\0' ? info->name : "error", linenum);

@@ -441,10 +441,8 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				}
 				_pacman_strtrim(tmp);
 				info->reason = atol(tmp);
-			} else if(!strcmp(line, "%PRETRIGGERS%")) {
-				_pacman_db_read_lines(db, &info->pretriggers, line, sline, fp);
-			} else if(!strcmp(line, "%POSTTRIGGERS%")) {
-				_pacman_db_read_lines(db, &info->posttriggers, line, sline, fp);
+			} else if(!strcmp(line, "%TRIGGERS%")) {
+				_pacman_db_read_lines(db, &info->triggers, line, sline, fp);
 			} else if(!strcmp(line, "%SIZE%") || !strcmp(line, "%CSIZE%")) {
 				/* NOTE: the CSIZE and SIZE fields both share the "size" field
 				 *       in the pkginfo_t struct.  This can be done b/c CSIZE
@@ -756,8 +754,7 @@ int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 				fprintf(fp, "%%REASON%%\n"
 					"%d\n\n", info->reason);
 			}
-			_pacman_db_write_stringlist("PRETRIGGERS", info->pretriggers, fp);
-			_pacman_db_write_stringlist("POSTTRIGGERS", info->pretriggers, fp);
+			_pacman_db_write_stringlist("TRIGGERS", info->triggers, fp);
 		} else {
 			if(info->size) {
 				fprintf(fp, "%%CSIZE%%\n"

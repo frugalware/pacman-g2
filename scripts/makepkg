@@ -619,11 +619,8 @@ create_pkg()
 	for it in ${backup[@]}; do
 		$ECHO "backup = $it" >>.PKGINFO
 	done
-	for it in ${pretriggers[@]}; do
-		$ECHO "pretrigger = $it" >>.PKGINFO
-	done
-	for it in ${posttriggers[@]}; do
-		$ECHO "posttrigger = $it" >>.PKGINFO
+	for it in ${triggers[@]}; do
+		$ECHO "trigger = $it" >>.PKGINFO
 	done
 
 	# check for an install script
@@ -957,7 +954,7 @@ if [ $CLEANCACHE -ge 1 ]; then
 fi
 
 unset pkgname pkgver pkgrel pkgdesc url license groups provides force
-unset replaces depends removes conflicts backup pretriggers posttriggers source install makedepends
+unset replaces depends removes conflicts backup triggers source install makedepends
 unset rodepends options pkdesc_localized
 for i in `set|grep ^_F_|sed 's/\(=.*\| ()\)//'`; do unset $i; done
 umask 0022
@@ -1109,10 +1106,7 @@ if [ ! -z "$subpkgs" ]; then
 	if [ "${#subbackup[@]}" != 0 -a "${#subbackup[@]}" != "${#subpkgs[@]}" ]; then
 		goodsubpkgs=0
 	fi
-	if [ "${#subpretriggers[@]}" != 0 -a "${#subpretriggers[@]}" != "${#subpkgs[@]}" ]; then
-		goodsubpkgs=0
-	fi
-	if [ "${#subposttriggers[@]}" != 0 -a "${#subposttriggers[@]}" != "${#subpkgs[@]}" ]; then
+	if [ "${#subtriggers[@]}" != 0 -a "${#subtriggers[@]}" != "${#subpkgs[@]}" ]; then
 		goodsubpkgs=0
 	fi
 	if [ "${#subinstall[@]}" != 0 -a "${#subinstall[@]}" != "${#subpkgs[@]}" ]; then
@@ -1825,7 +1819,7 @@ if [ ! -z "$subpkgs" ]; then
 	i=0
 	for subpkg in "${subpkgs[@]}"
 	do
-		unset pkgdesc license replaces groups depends rodepends removes conflicts provides backup pretriggers posttrigger install
+		unset pkgdesc license replaces groups depends rodepends removes conflicts provides backup triggers install
 		unset options pkgdesc_localized archs
 		pkgdesc="${subdescs[$i]}"
 		pkgdesc_localized="${subdescs_localized[$i]}"
@@ -1838,8 +1832,7 @@ if [ ! -z "$subpkgs" ]; then
 		conflicts="${subconflicts[$i]}"
 		provides="${subprovides[$i]}"
 		backup="${subbackup[$i]}"
-		pretriggers="${subpretriggers[$i]}"
-		posttriggers="${subposttriggers[$i]}"
+		triggers="${subtriggers[$i]}"
 		install="${subinstall[$i]}"
 		options="${suboptions[$i]}"
 		archs="${subarchs[$i]}"

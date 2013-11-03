@@ -48,7 +48,7 @@ _pacman_packages_transaction_set_state(pmtrans_t *trans, int new_state)
 
 	_pacman_log(PM_LOG_FLOW2, _("executing %s triggers..."), trigger_function);
 
-	for(lp = trans->pretriggers; lp; lp = lp->next) {
+	for(lp = trans->triggers; lp; lp = lp->next) {
 		const char *trigger = lp->data;
 		char buf[PATH_MAX];
 

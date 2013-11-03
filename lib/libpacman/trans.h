@@ -62,8 +62,7 @@ struct __pmtrans_t {
 	pmlist_t *targets;     /* pmlist_t of (char *) */
 	pmlist_t *packages;    /* pmlist_t of (pmpkg_t *) or (pmsyncpkg_t *) */
 	pmlist_t *skiplist;    /* pmlist_t of (char *) */
-	pmlist_t *pretriggers; /* pmlist_t of (char *) */
-	pmlist_t *posttriggers;/* pmlist_t of (char *) */
+	pmlist_t *triggers;    /* pmlist_t of (char *) */
 	pmtrans_cbs_t cbs;
 };
 
