@@ -85,6 +85,7 @@ void dump_pkg_full(PM_PKG *pkg, int level)
 	PM_LIST_display(_("Removes        :"), pacman_pkg_getinfo(pkg, PM_PKG_REMOVES));
 	PM_LIST_display(_("Required By    :"), pacman_pkg_getinfo(pkg, PM_PKG_REQUIREDBY));
 	PM_LIST_display(_("Conflicts With :"), pacman_pkg_getinfo(pkg, PM_PKG_CONFLICTS));
+	PM_LIST_display(_("Triggers       :"), pacman_pkg_getinfo(pkg, PM_PKG_TRIGGERS));
 
 	printf(_("Description    : "));
 	indentprint(pacman_pkg_getinfo(pkg, PM_PKG_DESC), 17);

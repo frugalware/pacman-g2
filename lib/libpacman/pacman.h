@@ -191,6 +191,7 @@ enum {
 	PM_PKG_REASON,
 	PM_PKG_MD5SUM, /* Sync DB only */
 	PM_PKG_SHA1SUM, /* Sync DB only */
+	PM_PKG_TRIGGERS,
 	/* Depends entry */
 	PM_PKG_DEPENDS,
 	PM_PKG_REMOVES,

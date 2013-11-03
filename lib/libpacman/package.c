@@ -570,6 +570,7 @@ void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 		case PM_PKG_BACKUP:      data = pkg->backup; break;
 		case PM_PKG_SCRIPLET:    data = (void *)(long)pkg->scriptlet; break;
 		case PM_PKG_DATA:        data = pkg->data; break;
+		case PM_PKG_TRIGGERS:    data = pkg->triggers; break;
 		default:
 			data = NULL;
 		break;
