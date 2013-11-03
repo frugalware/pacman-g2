@@ -451,6 +451,63 @@ static int grep(const char *fn, const char *needle)
 	return(0);
 }
 
+static
+int _pacman_chroot_system(const char *cmdline, pmtrans_t *trans)
+{
+	pid_t pid;
+
+	_pacman_log(PM_LOG_DEBUG, "%s", cmdline);
+	pid = fork();
+	if(pid == -1) {
+		_pacman_log(PM_LOG_ERROR, _("could not fork a new process (%s)"), strerror(errno));
+		return 1;
+	}
+	if(pid == 0) {
+		FILE *pp;
+		const char *root = trans->handle->root;
+
+		_pacman_log(PM_LOG_DEBUG, _("chrooting in %s"), root);
+		if(chroot(root) != 0) {
+			_pacman_log(PM_LOG_ERROR, _("could not change the root directory (%s)"), strerror(errno));
+			exit(1);
+		}
+		if(chdir("/") != 0) {
+			_pacman_log(PM_LOG_ERROR, _("could not change directory to / (%s)"), strerror(errno));
+			exit(1);
+		}
+		umask(0022);
+		_pacman_log(PM_LOG_DEBUG, _("executing \"%s\""), cmdline);
+		pp = popen(cmdline, "r");
+		if(!pp) {
+			_pacman_log(PM_LOG_ERROR, _("call to popen failed (%s)"), strerror(errno));
+			exit(1);
+		}
+		while(!feof(pp)) {
+			char line[1024];
+			int sline = sizeof(line)-1;
+			if(fgets(line, sline, pp) == NULL)
+				break;
+			/* "START <event desc>" */
+			if((strlen(line) > strlen(STARTSTR)) && !strncmp(line, STARTSTR, strlen(STARTSTR))) {
+				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_START, _pacman_strtrim(line + strlen(STARTSTR)), NULL);
+			/* "DONE <ret code>" */
+			} else if((strlen(line) > strlen(DONESTR)) && !strncmp(line, DONESTR, strlen(DONESTR))) {
+				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_DONE, (void*)atol(_pacman_strtrim(line + strlen(DONESTR))), NULL);
+			} else {
+				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_INFO, _pacman_strtrim(line), NULL);
+			}
+		}
+		pclose(pp);
+		exit(0);
+	} else {
+		if(waitpid(pid, 0, 0) == -1) {
+			_pacman_log(PM_LOG_ERROR, _("call to waitpid failed (%s)"), strerror(errno));
+			return 1;
+		}
+	}
+	return 0;
+}
+
 int _pacman_runscriptlet(char *root, char *installfn, const char *script, char *ver, char *oldver, pmtrans_t *trans)
 {
 	char scriptfn[PATH_MAX];
@@ -459,7 +516,6 @@ int _pacman_runscriptlet(char *root, char *installfn, const char *script, char *
 	char *scriptpath;
 	struct stat buf;
 	char cwd[PATH_MAX] = "";
-	pid_t pid;
 	int retval = 0;
 
 	if(stat(installfn, &buf)) {
@@ -513,58 +569,7 @@ int _pacman_runscriptlet(char *root, char *installfn, const char *script, char *
 		snprintf(cmdline, PATH_MAX, "source %s %s %s 2>&1",
 				scriptpath, script, ver);
 	}
-	_pacman_log(PM_LOG_DEBUG, "%s", cmdline);
-
-	pid = fork();
-	if(pid == -1) {
-		_pacman_log(PM_LOG_ERROR, _("could not fork a new process (%s)"), strerror(errno));
-		retval = 1;
-		goto cleanup;
-	}
-
-	if(pid == 0) {
-		FILE *pp;
-		_pacman_log(PM_LOG_DEBUG, _("chrooting in %s"), root);
-		if(chroot(root) != 0) {
-			_pacman_log(PM_LOG_ERROR, _("could not change the root directory (%s)"), strerror(errno));
-			return(1);
-		}
-		if(chdir("/") != 0) {
-			_pacman_log(PM_LOG_ERROR, _("could not change directory to / (%s)"), strerror(errno));
-			return(1);
-		}
-		umask(0022);
-		_pacman_log(PM_LOG_DEBUG, _("executing \"%s\""), cmdline);
-		pp = popen(cmdline, "r");
-		if(!pp) {
-			_pacman_log(PM_LOG_ERROR, _("call to popen failed (%s)"), strerror(errno));
-			retval = 1;
-			goto cleanup;
-		}
-		while(!feof(pp)) {
-			char line[1024];
-			int sline = sizeof(line)-1;
-			if(fgets(line, sline, pp) == NULL)
-				break;
-			/* "START <event desc>" */
-			if((strlen(line) > strlen(STARTSTR)) && !strncmp(line, STARTSTR, strlen(STARTSTR))) {
-				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_START, _pacman_strtrim(line + strlen(STARTSTR)), NULL);
-			/* "DONE <ret code>" */
-			} else if((strlen(line) > strlen(DONESTR)) && !strncmp(line, DONESTR, strlen(DONESTR))) {
-				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_DONE, (void*)atol(_pacman_strtrim(line + strlen(DONESTR))), NULL);
-			} else {
-				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_INFO, _pacman_strtrim(line), NULL);
-			}
-		}
-		pclose(pp);
-		exit(0);
-	} else {
-		if(waitpid(pid, 0, 0) == -1) {
-			_pacman_log(PM_LOG_ERROR, _("call to waitpid failed (%s)"), strerror(errno));
-			retval = 1;
-			goto cleanup;
-		}
-	}
+	retval = _pacman_chroot_system(cmdline, trans);
 
 cleanup:
 	if(!_pacman_strempty(tmpdir) && _pacman_rmrf(tmpdir)) {
@@ -584,7 +589,6 @@ int _pacman_runhook(const char *hookname, pmtrans_t *trans)
 	char hookpath[PATH_MAX];
 	char cmdline[PATH_MAX];
 	char cwd[PATH_MAX] = "";
-	pid_t pid;
 	int retval = 0;
 	DIR *dir;
 	struct dirent *ent;
@@ -626,57 +630,7 @@ int _pacman_runhook(const char *hookname, pmtrans_t *trans)
 			continue;
 		}
 		snprintf(cmdline, PATH_MAX, "source %s %s", scriptpath, hookname);
-		_pacman_log(PM_LOG_DEBUG, "%s", cmdline);
-		pid = fork();
-		if(pid == -1) {
-			_pacman_log(PM_LOG_ERROR, _("could not fork a new process (%s)"), strerror(errno));
-			retval = 1;
-			goto cleanup;
-		}
-
-		if(pid == 0) {
-			FILE *pp;
-			_pacman_log(PM_LOG_DEBUG, _("chrooting in %s"), root);
-			if(chroot(root) != 0) {
-				_pacman_log(PM_LOG_ERROR, _("could not change the root directory (%s)"), strerror(errno));
-				return(1);
-			}
-			if(chdir("/") != 0) {
-				_pacman_log(PM_LOG_ERROR, _("could not change directory to / (%s)"), strerror(errno));
-				return(1);
-			}
-			umask(0022);
-			_pacman_log(PM_LOG_DEBUG, _("executing \"%s\""), cmdline);
-			pp = popen(cmdline, "r");
-			if(!pp) {
-				_pacman_log(PM_LOG_ERROR, _("call to popen failed (%s)"), strerror(errno));
-				retval = 1;
-				goto cleanup;
-			}
-			while(!feof(pp)) {
-				char line[1024];
-				int sline = sizeof(line)-1;
-				if(fgets(line, sline, pp) == NULL)
-					break;
-				/* "START <event desc>" */
-				if((strlen(line) > strlen(STARTSTR)) && !strncmp(line, STARTSTR, strlen(STARTSTR))) {
-					EVENT(trans, PM_TRANS_EVT_SCRIPTLET_START, _pacman_strtrim(line + strlen(STARTSTR)), NULL);
-				/* "DONE <ret code>" */
-				} else if((strlen(line) > strlen(DONESTR)) && !strncmp(line, DONESTR, strlen(DONESTR))) {
-					EVENT(trans, PM_TRANS_EVT_SCRIPTLET_DONE, (void*)atol(_pacman_strtrim(line + strlen(DONESTR))), NULL);
-				} else {
-					EVENT(trans, PM_TRANS_EVT_SCRIPTLET_INFO, _pacman_strtrim(line), NULL);
-				}
-			}
-			pclose(pp);
-			exit(0);
-		} else {
-			if(waitpid(pid, 0, 0) == -1) {
-				_pacman_log(PM_LOG_ERROR, _("call to waitpid failed (%s)"), strerror(errno));
-				retval = 1;
-				goto cleanup;
-			}
-		}
+		retval = _pacman_chroot_system(cmdline, trans);
 	}
 
 cleanup:
