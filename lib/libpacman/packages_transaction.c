@@ -19,29 +19,64 @@
  *  USA.
  */
 
+#include "config.h"
+
 #include "packages_transaction.h"
 
-#include <config.h>
+#include "util/list.h"
 #include "util.h"
+
+static const char *trigger_function_table[STATE_MAX] = {
+	[STATE_COMMITED] = "triggered",
+};
 
 static int
 _pacman_packages_transaction_set_state(pmtrans_t *trans, int new_state)
 {
-	static const char *hooks[STATE_MAX] = {
-		[STATE_COMMITED] = "triggered",
-	};
+	const char *root, *triggersdir, *trigger_function;
+	const pmlist_t *lp;
+	int retval = 0;
 
-	if (new_state == STATE_COMMITED) {
-		return _pacman_runhook(hooks[new_state], trans);
+	triggersdir = trans->handle->triggersdir;
+	root = trans->handle->root;
+	trigger_function = trigger_function_table[new_state];
+
+	if(_pacman_strempty(trigger_function)) {
+		/* Nothing to do */
+		return 0;
 	}
-	return 0;
+
+	_pacman_log(PM_LOG_FLOW2, _("executing %s triggers..."), trigger_function);
+
+	for(lp = trans->pretriggers; lp; lp = lp->next) {
+		const char *trigger = lp->data;
+		char buf[PATH_MAX];
+
+		snprintf(buf, sizeof(buf), "%s/%s/%s", root, triggersdir, trigger);
+		if(access(buf, F_OK) != 0) { /* FIXME: X_OK instead ? */
+			_pacman_log(PM_LOG_WARNING, _("Skipping missing trigger file (%s)"), buf);
+			continue;
+		}
+#if 0
+		/* FIXME: do we really need this cheap optimisation ? */
+		if(!grep(buf, trigger_function)) {
+			/* trigger_function not found in trigger */
+			continue;
+		}
+#endif
+		snprintf(buf, sizeof(buf), "source %s/%s %s", triggersdir, trigger, trigger_function);
+		retval = _pacman_chroot_system(buf, trans);
+	}
+
+	return(retval);
 }
 
 int _pacman_packages_transaction_init(pmtrans_t *trans)
 {
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	trans->set_state = _pacman_packages_transaction_set_state;
+	return 0;
 }
 
 /* vim: set ts=2 sw=2 noet: */

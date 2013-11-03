@@ -451,7 +451,6 @@ static int grep(const char *fn, const char *needle)
 	return(0);
 }
 
-static
 int _pacman_chroot_system(const char *cmdline, pmtrans_t *trans)
 {
 	pid_t pid;

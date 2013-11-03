@@ -84,6 +84,7 @@ pmhandle_t *_pacman_handle_new()
 	ph->dbpath = strdup(PM_DBPATH);
 	ph->cachedir = strdup(PM_CACHEDIR);
 	ph->hooksdir = strdup(PM_HOOKSDIR);
+	ph->triggersdir = strdup(PM_TRIGGERSDIR);
 
 	ph->language = strdup(setlocale(LC_ALL, NULL));
 
