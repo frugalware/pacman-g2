@@ -185,6 +185,7 @@ int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 			return(-1);
 		}
 	}
+	_pacman_log(PM_LOG_DEBUG, _("Changing transaction state from %d to %d"), trans->state, new_state);
 	trans->state = new_state;
 
 	return(0);
@@ -223,6 +224,8 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 	if(trans->packages == NULL) {
 		return(0);
 	}
+
+	_pacman_trans_compute_triggers(trans);
 
 	if(trans->ops->prepare(trans, data) == -1) {
 		/* pm_errno is set by trans->ops->prepare() */

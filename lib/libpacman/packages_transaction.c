@@ -27,7 +27,7 @@
 #include "util.h"
 
 static const char *trigger_function_table[STATE_MAX] = {
-	[STATE_COMMITED] = "triggered",
+	[STATE_COMMITED] = "commited",
 };
 
 static int
@@ -35,19 +35,18 @@ _pacman_packages_transaction_set_state(pmtrans_t *trans, int new_state)
 {
 	const char *root, *triggersdir, *trigger_function;
 	const pmlist_t *lp;
-	int retval = 0;
 
 	triggersdir = trans->handle->triggersdir;
 	root = trans->handle->root;
 	trigger_function = trigger_function_table[new_state];
 
 	if(_pacman_strempty(trigger_function)) {
+		_pacman_log(PM_LOG_ERROR, _("Missing trigger_function for state: %d"), new_state);
 		/* Nothing to do */
 		return 0;
 	}
 
 	_pacman_log(PM_LOG_FLOW2, _("executing %s triggers..."), trigger_function);
-
 	for(lp = trans->triggers; lp; lp = lp->next) {
 		const char *trigger = lp->data;
 		char buf[PATH_MAX];
@@ -65,10 +64,10 @@ _pacman_packages_transaction_set_state(pmtrans_t *trans, int new_state)
 		}
 #endif
 		snprintf(buf, sizeof(buf), "source %s/%s %s", triggersdir, trigger, trigger_function);
-		retval = _pacman_chroot_system(buf, trans);
+		_pacman_chroot_system(buf, trans);
 	}
 
-	return(retval);
+	return 0;
 }
 
 int _pacman_packages_transaction_init(pmtrans_t *trans)
