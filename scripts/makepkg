@@ -323,12 +323,15 @@ makepkg_chroot_usage() {
 	$ECHO "Performs command on chroots."
 	$ECHO
 	$ECHO "Options for chroot command:"
-	$ECHO "  -h, --help             This help."
+	$ECHO "      --groups=G_LIST        Specify supplementary groups as g1,g2,..,gN."
+	$ECHO "  -h, --help                 This help."
+	$ECHO "      --userspec=USER:GROUP  Specify user and group (ID or name to use)."
 	$ECHO
 	$ECHO "If no command is given, run '${SHELL} -i' (default: '/bin/sh -i')."
 }
 
 makepkg_chroot() {
+	local -a _options
 	local _options_consumed
 
 	while [ $# -gt 0 ]; do
@@ -337,6 +340,18 @@ makepkg_chroot() {
 		-h|--help)
 			makepkg_chroot_usage
 			return 0 ;;
+		# assigned options
+		--groups|\
+		--userspec)
+			_options+=("${@:1:2}")
+			_options_consumed=2 ;;
+		--groups=*|\
+		--userspec=*)
+			set -- \
+				"${1%%=*}" \
+				"${1#*=}" \
+				"${@:2}"
+			continue;;
 		# special options
 		--)	shift; break ;; # End of options
 		--*|-?)	error "Invalid option: $1"
@@ -356,14 +371,14 @@ makepkg_chroot() {
 			return 1
 		fi
 	done
-	unset _options_consumed
-
 	if [ $# -eq 0 ]; then
 		error "Missing expected CHROOTNAME argument."
 		return 1
 	fi
+	set -- chroot "${_options[@]}" -- "$CHROOTDIR/$1" "${@:2}"
+	unset _options _options_consumed
 
-	chroot "$CHROOTDIR/$1" "${@:2}"
+	"$@"
 	return $?
 }
 _makepkg_commands[chroot]=makepkg_chroot
