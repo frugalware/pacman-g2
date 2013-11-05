@@ -43,6 +43,7 @@ pmlist_t *_pacman_list_new(void);
 void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn);
 
 int _pacman_list_count(const pmlist_t *list);
+int _pacman_list_empty(const pmlist_t *list);
 int _pacman_list_is_in(void *needle, const pmlist_t *haystack);
 
 pmlist_t *_pacman_list_add(pmlist_t *list, void *data);

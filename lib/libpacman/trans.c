@@ -264,7 +264,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 	*data = NULL;
 
 	/* If there's nothing to do, return without complaining */
-	if(trans->packages == NULL) {
+	if(_pacman_list_empty(trans->packages)) {
 		return(0);
 	}
 
@@ -291,7 +291,7 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 		*data = NULL;
 
 	/* If there's nothing to do, return without complaining */
-	if(trans->packages == NULL) {
+	if(_pacman_list_empty(trans->packages)) {
 		return(0);
 	}
 

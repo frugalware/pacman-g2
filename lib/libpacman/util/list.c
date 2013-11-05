@@ -67,6 +67,11 @@ int _pacman_list_count(const pmlist_t *list)
 	return(i);
 }
 
+int _pacman_list_empty(const pmlist_t *list)
+{
+	return list == NULL;
+}
+
 int _pacman_list_is_in(void *needle, const pmlist_t *haystack)
 {
 	const pmlist_t *lp;
