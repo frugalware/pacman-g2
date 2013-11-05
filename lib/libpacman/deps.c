@@ -565,14 +565,15 @@ pmlist_t *_pacman_removedeps(pmdb_t *db, pmlist_t *targs)
  *
  * make sure *list and *trail are already initialized
  */
-int _pacman_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pmlist_t *list,
-                      pmlist_t *trail, pmtrans_t *trans, pmlist_t **data)
+int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t *list,
+                      pmlist_t *trail, pmlist_t **data)
 {
 	pmlist_t *i, *j;
 	pmlist_t *targ;
 	pmlist_t *deps = NULL;
+	pmlist_t *dbs_sync = trans->handle->dbs_sync;
 
-	if(local == NULL || dbs_sync == NULL || syncpkg == NULL) {
+	if(dbs_sync == NULL || syncpkg == NULL) {
 		return(-1);
 	}
 
@@ -649,7 +650,7 @@ int _pacman_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pml
 			}
 			if(usedep) {
 				trail = _pacman_list_add(trail, ps);
-				if(_pacman_resolvedeps(local, dbs_sync, ps, list, trail, trans, data)) {
+				if(_pacman_resolvedeps(trans, ps, list, trail, data)) {
 					goto error;
 				}
 				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s (needed by %s)"),

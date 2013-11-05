@@ -284,7 +284,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 		for(i = trans->packages; i; i = i->next) {
 			pmpkg_t *spkg = ((pmsyncpkg_t *)i->data)->pkg;
-			if(_pacman_resolvedeps(db_local, dbs_sync, spkg, list, trail, trans, data) == -1) {
+			if(_pacman_resolvedeps(trans, spkg, list, trail, data) == -1) {
 				/* pm_errno is set by resolvedeps */
 				ret = -1;
 				goto cleanup;
