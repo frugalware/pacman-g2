@@ -529,7 +529,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 
 					if(archive_read_extract (archive, entry, ARCHIVE_EXTRACT_FLAGS) != ARCHIVE_OK) {
 						_pacman_log(PM_LOG_ERROR, _("could not extract %s (%s)"), pathname, strerror(errno));
-						pacman_logaction(_("could not extract %s (%s)"), pathname, strerror(errno));
 						errors++;
 						unlink(temp);
 						FREE(temp);
@@ -598,17 +597,14 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 							if(rename(expath, newpath)) {
 								archive_entry_set_pathname (entry, expath);
 								_pacman_log(PM_LOG_ERROR, _("could not rename %s (%s)"), pathname, strerror(errno));
-								pacman_logaction(_("error: could not rename %s (%s)"), expath, strerror(errno));
 							}
 							if(_pacman_copyfile(temp, expath)) {
 								archive_entry_set_pathname (entry, expath);
 								_pacman_log(PM_LOG_ERROR, _("could not copy %s to %s (%s)"), temp, pathname, strerror(errno));
-								pacman_logaction(_("error: could not copy %s to %s (%s)"), temp, expath, strerror(errno));
 								errors++;
 							} else {
 								archive_entry_set_pathname (entry, expath);
 								_pacman_log(PM_LOG_WARNING, _("%s saved as %s.pacorig"), pathname, pathname);
-								pacman_logaction(_("warning: %s saved as %s"), expath, newpath);
 							}
 						}
 					} else if(md5_orig || sha1_orig) {
@@ -636,10 +632,8 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 							snprintf(newpath, PATH_MAX, "%s.pacnew", expath);
 							if(_pacman_copyfile(temp, newpath)) {
 								_pacman_log(PM_LOG_ERROR, _("could not install %s as %s: %s"), expath, newpath, strerror(errno));
-								pacman_logaction(_("error: could not install %s as %s: %s"), expath, newpath, strerror(errno));
 							} else {
 								_pacman_log(PM_LOG_WARNING, _("%s installed as %s"), expath, newpath);
-								pacman_logaction(_("warning: %s installed as %s"), expath, newpath);
 							}
 						}
 
@@ -683,7 +677,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 					archive_entry_set_pathname (entry, expath);
 					if(archive_read_extract (archive, entry, ARCHIVE_EXTRACT_FLAGS) != ARCHIVE_OK) {
 						_pacman_log(PM_LOG_ERROR, _("could not extract %s (%s)"), expath, strerror(errno));
-						pacman_logaction(_("error: could not extract %s (%s)"), expath, strerror(errno));
 						errors++;
 					}
 					/* calculate an md5 or sha1 hash if this is in info->backup */
@@ -731,8 +724,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				ret = 1;
 				_pacman_log(PM_LOG_WARNING, _("errors occurred while %s %s"),
 					(pmo_upgrade ? _("upgrading") : _("installing")), info->name);
-				pacman_logaction(_("errors occurred while %s %s"),
-					(pmo_upgrade ? _("upgrading") : _("installing")), info->name);
 			} else {
 			PROGRESS(trans, cb_state, info->name, 100, howmany, howmany - remain + 1);
 			}
@@ -769,9 +760,8 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 		_pacman_log(PM_LOG_FLOW1, _("updating database"));
 		_pacman_log(PM_LOG_FLOW2, _("adding database entry '%s'"), info->name);
 		if(_pacman_db_write(db_local, info, INFRQ_ALL)) {
-			_pacman_log(PM_LOG_ERROR, _("could not update database entry %s-%s"),
+			_pacman_log(PM_LOG_ERROR, _("error updating database for %s-%s!"),
 			          info->name, info->version);
-			pacman_logaction(NULL, _("error updating database for %s-%s!"), info->name, info->version);
 			RET_ERR(PM_ERR_DB_WRITE, -1);
 		}
 		if(_pacman_db_add_pkgincache(db_local, info) == -1) {
