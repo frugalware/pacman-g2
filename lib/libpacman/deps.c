@@ -213,9 +213,9 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 	int found = 0;
 	pmlist_t *baddeps = NULL;
 	pmdepmissing_t *miss = NULL;
-	pmdb_t *db = trans->handle->db_local;
+	pmdb_t *db_local = trans->handle->db_local;
 
-	if(db == NULL) {
+	if(db_local == NULL) {
 		return(NULL);
 	}
 
@@ -230,14 +230,14 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				continue;
 			}
 
-			if((oldpkg = _pacman_db_get_pkgfromcache(db, tp->name)) == NULL) {
+			if((oldpkg = _pacman_db_get_pkgfromcache(db_local, tp->name)) == NULL) {
 				continue;
 			}
 			for(j = _pacman_pkg_getinfo(oldpkg, PM_PKG_REQUIREDBY); j; j = j->next) {
 				//char *ver;
 				pmpkg_t *p;
 				found = 0;
-				if((p = _pacman_db_get_pkgfromcache(db, j->data)) == NULL) {
+				if((p = _pacman_db_get_pkgfromcache(db_local, j->data)) == NULL) {
 					/* hmmm... package isn't installed.. */
 					continue;
 				}
@@ -276,7 +276,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				_pacman_splitdep((char *)j->data, &depend);
 				found = 0;
 				/* check database for literal packages */
-				for(k = _pacman_db_get_pkgcache(db); k && !found; k = k->next) {
+				for(k = _pacman_db_get_pkgcache(db_local); k && !found; k = k->next) {
 					pmpkg_t *p = (pmpkg_t *)k->data;
 					if(!strcmp(p->name, depend.name)) {
 						if(depend.mod == PM_DEP_MOD_ANY) {
@@ -307,7 +307,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
  				/* check database for provides matches */
  				if(!found) {
  					pmlist_t *m;
- 					k = _pacman_db_whatprovides(db, depend.name);
+ 					k = _pacman_db_whatprovides(db_local, depend.name);
  					for(m = k; m && !found; m = m->next) {
  						/* look for a match that isn't one of the packages we're trying
  						 * to install.  this way, if we match against a to-be-installed

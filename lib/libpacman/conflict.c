@@ -58,9 +58,9 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 	pmdepmissing_t *miss = NULL;
 	int howmany, remain;
 	double percent;
-	pmdb_t *db = trans->handle->db_local;
+	pmdb_t *db_local = trans->handle->db_local;
 
-	if(db == NULL) {
+	if(db_local == NULL) {
 		return(NULL);
 	}
 
@@ -87,7 +87,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 			}
 			/* CHECK 1: check targets against database */
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs db"), tp->name);
-			for(k = _pacman_db_get_pkgcache(db); k; k = k->next) {
+			for(k = _pacman_db_get_pkgcache(db_local); k; k = k->next) {
 				pmpkg_t *dp = (pmpkg_t *)k->data;
 				if(!strcmp(dp->name, tp->name)) {
 					/* a package cannot conflict with itself -- that's just not nice */
@@ -159,7 +159,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 		}
 		/* CHECK 3: check database against targets */
 		_pacman_log(PM_LOG_DEBUG, _("checkconflicts: db vs targ '%s'"), tp->name);
-		for(k = _pacman_db_get_pkgcache(db); k; k = k->next) {
+		for(k = _pacman_db_get_pkgcache(db_local); k; k = k->next) {
 			pmlist_t *conflicts = NULL;
 			int usenewconflicts = 0;
 
@@ -267,9 +267,9 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **ski
 	pmpkg_t *p, *dbpkg;
 	double percent;
 	int howmany, remain;
-	pmdb_t *db = trans->handle->db_local;
+	pmdb_t *db_local = trans->handle->db_local;
 
-	if(db == NULL || targets == NULL || root == NULL) {
+	if(db_local == NULL || targets == NULL || root == NULL) {
 		return(NULL);
 	}
 	howmany = _pacman_list_count(targets);
@@ -318,11 +318,11 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **ski
 					ok = 1;
 				} else {
 					if(dbpkg == NULL) {
-						dbpkg = _pacman_db_get_pkgfromcache(db, p->name);
+						dbpkg = _pacman_db_get_pkgfromcache(db_local, p->name);
 					}
 					if(dbpkg && !(dbpkg->infolevel & INFRQ_FILES)) {
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg->name);
-						_pacman_db_read(db, INFRQ_FILES, dbpkg);
+						_pacman_db_read(db_local, INFRQ_FILES, dbpkg);
 					}
 					if(dbpkg && _pacman_list_is_strin(j->data, dbpkg->files)) {
 						ok = 1;
@@ -335,10 +335,10 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **ski
 							/* As long as they're not the current package */
 							if(strcmp(p2->name, p->name)) {
 								pmpkg_t *dbpkg2 = NULL;
-								dbpkg2 = _pacman_db_get_pkgfromcache(db, p2->name);
+								dbpkg2 = _pacman_db_get_pkgfromcache(db_local, p2->name);
 								if(dbpkg2 && !(dbpkg2->infolevel & INFRQ_FILES)) {
 									_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg2->name);
-									_pacman_db_read(db, INFRQ_FILES, dbpkg2);
+									_pacman_db_read(db_local, INFRQ_FILES, dbpkg2);
 								}
 								/* If it used to exist in there, but doesn't anymore */
 								if(dbpkg2 && !_pacman_list_is_strin(filestr, p2->files) && _pacman_list_is_strin(filestr, dbpkg2->files)) {
