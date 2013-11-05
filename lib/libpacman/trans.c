@@ -237,8 +237,14 @@ int _pacman_trans_compute_triggers(pmtrans_t *trans)
 
 	/* NOTE: Not the most efficient way, but will do until we add some string hash. */
 	for(lp = trans->packages; lp; lp = lp->next) {
-		pmpkg_t *pkg = lp->data;
+		pmpkg_t *pkg;
 
+		if(trans->type != PM_TRANS_TYPE_SYNC) {
+			pkg = lp->data;
+		} else {
+			/* FIXME: might be incomplete */
+			pkg = ((pmsyncpkg_t *)lp->data)->pkg;
+		}
 		trans->triggers = _pacman_stringlist_append_stringlist(trans->triggers, pkg->triggers);
 	}
 	trans->triggers = _pacman_list_remove_dupes(trans->triggers);
