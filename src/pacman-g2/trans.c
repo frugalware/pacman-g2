@@ -283,13 +283,8 @@ void cb_trans_progress(unsigned char event, const char *pkgname, int percent, in
 	static int prevpercent=0; /* for less progressbar output */
 	int i, hash;
 	unsigned int maxpkglen, progresslen = maxcols - 57;
-	char *addstr, *upgstr, *removestr, *conflictstr, *interconflictstr, *ptr, *pkgname_short;
-	addstr = strdup(_("installing"));
-	upgstr = strdup(_("upgrading"));
-	removestr = strdup(_("removing"));
-	conflictstr = strdup(_("checking for file conflicts"));
-	interconflictstr = strdup(_("looking for inter-conflicts"));
-	pkgname_short = NULL;
+	const char *ptr;
+	char *pkgname_short = NULL;
 
 	if(config->noprogressbar) {
 		goto cleanup;
@@ -303,23 +298,23 @@ void cb_trans_progress(unsigned char event, const char *pkgname, int percent, in
 	prevpercent=percent;
 	switch (event) {
 		case PM_TRANS_PROGRESS_ADD_START:
-			ptr = addstr;
+			ptr = _("installing");
 		break;
 
 		case PM_TRANS_PROGRESS_UPGRADE_START:
-			ptr = upgstr;
+			ptr = _("upgrading");
 		break;
 
 		case PM_TRANS_PROGRESS_REMOVE_START:
-			ptr = removestr;
+			ptr = _("removing");
 		break;
 
 		case PM_TRANS_PROGRESS_INTERCONFLICTS_START:
-			ptr = interconflictstr;
+			ptr = _("looking for inter-conflicts");
 		break;
 
 		case PM_TRANS_PROGRESS_CONFLICTS_START:
-			ptr = conflictstr;
+			ptr = _("checking for file conflicts");
 		break;
 	}
 	hash=percent*progresslen/100;
@@ -371,11 +366,6 @@ void cb_trans_progress(unsigned char event, const char *pkgname, int percent, in
 cleanup:
 
 	FREE(pkgname_short);
-	FREE(addstr);
-	FREE(upgstr);
-	FREE(removestr);
-	FREE(conflictstr);
-	FREE(interconflictstr);
 }
 
 /* vim: set ts=2 sw=2 noet: */
