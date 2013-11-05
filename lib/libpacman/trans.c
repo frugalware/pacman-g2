@@ -171,8 +171,35 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 
 void _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, void *data2)
 {
+	char str[LOG_STR_LEN] = "";
+
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+
+	switch(event) {
+	case PM_TRANS_EVT_ADD_DONE:
+		snprintf(str, LOG_STR_LEN, "installed %s (%s)",
+			(char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
+			(char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
+		pacman_logaction(str);
+		break;
+	case PM_TRANS_EVT_REMOVE_DONE:
+		snprintf(str, LOG_STR_LEN, "removed %s (%s)",
+			(char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
+			(char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
+		pacman_logaction(str);
+		break;
+	case PM_TRANS_EVT_UPGRADE_DONE:
+		snprintf(str, LOG_STR_LEN, "upgraded %s (%s -> %s)",
+			(char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
+			(char *)pacman_pkg_getinfo(data2, PM_PKG_VERSION),
+			(char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
+		pacman_logaction(str);
+		break;
+	default:
+		/* Nothing to log */
+		break;
+	}
 
 	if(trans->cbs.event) {
 		trans->cbs.event(event, data1, data2);

@@ -96,10 +96,6 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			if(config->noprogressbar) {
 				MSG(CL, _("done.\n"));
 			}
-			snprintf(str, LOG_STR_LEN, "installed %s (%s)",
-			         (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
-			         (char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
-			pacman_logaction(str);
 		break;
 		case PM_TRANS_EVT_REMOVE_START:
 			if(config->noprogressbar) {
@@ -112,10 +108,6 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			} else {
 			    MSG(NL, "");
 			}
-			snprintf(str, LOG_STR_LEN, "removed %s (%s)",
-			         (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
-			         (char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
-			pacman_logaction(str);
 		break;
 		case PM_TRANS_EVT_UPGRADE_START:
 			if(config->noprogressbar) {
@@ -126,11 +118,6 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2)
 			if(config->noprogressbar) {
 				MSG(CL, _("done.\n"));
 			}
-			snprintf(str, LOG_STR_LEN, "upgraded %s (%s -> %s)",
-			         (char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
-			         (char *)pacman_pkg_getinfo(data2, PM_PKG_VERSION),
-			         (char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
-			pacman_logaction(str);
 		break;
 		case PM_TRANS_EVT_INTEGRITY_START:
 			MSG(NL, _("checking package integrity... "));
