@@ -205,7 +205,7 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
  * dependencies can include versions with depmod operators.
  *
  */
-pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmlist_t *packages)
+pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packages)
 {
 	pmdepend_t depend;
 	pmlist_t *i, *j, *k;
@@ -213,6 +213,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, pmdb_t *db, unsigned char op, pmli
 	int found = 0;
 	pmlist_t *baddeps = NULL;
 	pmdepmissing_t *miss = NULL;
+	pmdb_t *db = trans->handle->db_local;
 
 	if(db == NULL) {
 		return(NULL);
@@ -576,7 +577,7 @@ int _pacman_resolvedeps(pmdb_t *local, pmlist_t *dbs_sync, pmpkg_t *syncpkg, pml
 	}
 
 	targ = _pacman_list_add(NULL, syncpkg);
-	deps = _pacman_checkdeps(trans, local, PM_TRANS_TYPE_ADD, targ);
+	deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_ADD, targ);
 	FREELISTPTR(targ);
 
 	if(deps == NULL) {

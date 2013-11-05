@@ -335,7 +335,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for unresolvable dependencies"));
-		deps = _pacman_checkdeps(trans, db_local, PM_TRANS_TYPE_UPGRADE, list);
+		deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_UPGRADE, list);
 		if(deps) {
 			if(data) {
 				*data = deps;
@@ -354,7 +354,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_INTERCONFLICTS_START, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		deps = _pacman_checkconflicts(trans, db_local, list);
+		deps = _pacman_checkconflicts(trans, list);
 		if(deps) {
 			int errorout = 0;
 
@@ -545,7 +545,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 		}
 		if(list) {
 			_pacman_log(PM_LOG_FLOW1, _("checking dependencies of packages designated for removal"));
-			deps = _pacman_checkdeps(trans, db_local, PM_TRANS_TYPE_REMOVE, list);
+			deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_REMOVE, list);
 			if(deps) {
 				int errorout = 0;
 				for(i = deps; i; i = i->next) {

@@ -50,7 +50,7 @@
  *
  * conflicts are always name only
  */
-pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmdb_t *db, pmlist_t *packages)
+pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 {
 	pmpkg_t *info = NULL;
 	pmlist_t *i, *j, *k;
@@ -58,6 +58,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmdb_t *db, pmlist_t *package
 	pmdepmissing_t *miss = NULL;
 	int howmany, remain;
 	double percent;
+	pmdb_t *db = trans->handle->db_local;
 
 	if(db == NULL) {
 		return(NULL);
@@ -255,7 +256,7 @@ static pmlist_t *chk_fileconflicts(pmlist_t *filesA, pmlist_t *filesB)
 	return(ret);
 }
 
-pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pmlist_t **skip_list)
+pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **skip_list)
 {
 	pmlist_t *i, *j, *k;
 	char *filestr = NULL;
@@ -266,6 +267,7 @@ pmlist_t *_pacman_db_find_conflicts(pmdb_t *db, pmtrans_t *trans, char *root, pm
 	pmpkg_t *p, *dbpkg;
 	double percent;
 	int howmany, remain;
+	pmdb_t *db = trans->handle->db_local;
 
 	if(db == NULL || targets == NULL || root == NULL) {
 		return(NULL);

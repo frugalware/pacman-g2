@@ -231,7 +231,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 
 		/* look for unsatisfied dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-		lp = _pacman_checkdeps(trans, db_local, trans->type, trans->packages);
+		lp = _pacman_checkdeps(trans, trans->type, trans->packages);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -243,7 +243,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 
 		/* no unsatisfied deps, so look for conflicts */
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		lp = _pacman_checkconflicts(trans, db_local, trans->packages);
+		lp = _pacman_checkconflicts(trans, trans->packages);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -284,7 +284,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_FILECONFLICTS_START, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for file conflicts"));
-		lp = _pacman_db_find_conflicts(db_local, trans, handle->root, &skiplist);
+		lp = _pacman_db_find_conflicts(trans, handle->root, &skiplist);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
