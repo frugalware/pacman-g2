@@ -92,9 +92,7 @@ void _pacman_db_free_pkgcache(pmdb_t *db)
 
 pmlist_t *_pacman_db_get_pkgcache(pmdb_t *db)
 {
-	if(db == NULL) {
-		return(NULL);
-	}
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
 	if(db->pkgcache == NULL) {
 		_pacman_db_load_pkgcache(db);
@@ -107,7 +105,8 @@ int _pacman_db_add_pkgincache(pmdb_t *db, pmpkg_t *pkg)
 {
 	pmpkg_t *newpkg;
 
-	if(db == NULL || pkg == NULL) {
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(pkg == NULL) {
 		return(-1);
 	}
 
@@ -127,7 +126,8 @@ int _pacman_db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg)
 {
 	pmpkg_t *data;
 
-	if(db == NULL || pkg == NULL) {
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(pkg == NULL) {
 		return(-1);
 	}
 
@@ -147,8 +147,9 @@ int _pacman_db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg)
 
 pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, const char *target)
 {
-	if(db == NULL || _pacman_strempty(target)) {
-		return(NULL);
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+	if(_pacman_strempty(target)) {
+		return NULL;
 	}
 
 	return(_pacman_pkg_isin(target, _pacman_db_get_pkgcache(db)));
@@ -161,8 +162,9 @@ pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package)
 	pmlist_t *pkgs = NULL;
 	pmlist_t *lp;
 
-	if(db == NULL || _pacman_strempty(package)) {
-		return(NULL);
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+	if(_pacman_strempty(package)) {
+		return NULL;
 	}
 
 	for(lp = _pacman_db_get_pkgcache(db); lp; lp = lp->next) {
@@ -182,11 +184,9 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 {
 	pmlist_t *lp;
 
-	if(db == NULL) {
-		return(-1);
-	}
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if(db->pkgcache == NULL) {
+	if(_pacman_list_empty(db->pkgcache)) {
 		_pacman_db_load_pkgcache(db);
 	}
 
