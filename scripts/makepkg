@@ -319,16 +319,11 @@ handledeps() {
 declare -Ag _makepkg_commands
 
 makepkg_chroot_usage() {
-	$ECHO "Usage: $0 chroot [OPTION]... CHROOTNAME [COMMAND [ARG]...]"
+	$ECHO "Usage: $0 chroot [OPTION]... [--] CHROOTNAME [COMMAND [ARG]...]"
 	$ECHO "Performs command on chroots."
 	$ECHO
-	$ECHO "Command can be any of the following:"
-	for i in "${!_makepkg_chroot_commands[@]}"; do
-	$ECHO " - $i"
-	done
-	$ECHO
-	$ECHO "Options for chroot_enter command:"
-	$ECHO "  -h, --help             This help"
+	$ECHO "Options for chroot command:"
+	$ECHO "  -h, --help             This help."
 	$ECHO
 	$ECHO "If no command is given, run '${SHELL} -i' (default: '/bin/sh -i')."
 }
@@ -341,7 +336,7 @@ makepkg_chroot() {
 		case "$1" in
 		-h|--help)
 			makepkg_chroot_usage
-			return 0;;
+			return 0 ;;
 		# special options
 		--)	shift; break ;; # End of options
 		--*|-?)	error "Invalid option: $1"
@@ -355,15 +350,16 @@ makepkg_chroot() {
 				"-$(echo "${split}" | cut -c 3-)" \
 				"$@"
 				continue ;;
-		*=*)	export "$1" ;;
 		*)	break ;; # End of options
 		esac
 		if ! shift "$_options_consumed"; then
 			_options_consumed=$(($_options_consumed - 1))
-			error "Option $1 expects $_options_consumed argument(s)"
+			error "Option $1 expects $_options_consumed argument(s)."
 			return 1
 		fi
 	done
+	unset _options_consumed
+
 	if [ $# -eq 0 ]; then
 		error "Missing expected CHROOTNAME argument."
 		return 1
@@ -376,11 +372,82 @@ _makepkg_commands[chroot]=makepkg_chroot
 
 # TODO: Add chrootadd, chrootdel.
 
+makepkg_env_usage() {
+	$ECHO "Usage: $0 [OPTION]... [-] [NAME=VALUE]... [--] [COMMAND [ARG]...]"
+	$ECHO "Run a command in a modified environment."
+	$ECHO
+	$ECHO "Options for chroot_enter command:"
+	$ECHO "  -h, --help             This help."
+	$ECHO "  -u, --unset=NAME       Remove variable from environment."
+}
+
+makepkg_env() {
+	( # Protect environment with a subshell
+	local _options_consumed
+
+	while [ $# -gt 0 ]; do
+		_options_consumed=1
+		case "$1" in
+		-h|--help)
+			makepkg_env_usage
+			return 0 ;;
+		-u|--unset)
+			if ! unset -- "$2"; then
+				return 1
+			fi
+			_options_consumed=2 ;;
+		# special options
+		--)	break ;; # End of options
+		--*|-?)	error "Invalid option: $1"
+			makepkg_env_usage
+			return 1 ;;
+		-*)	# Combined short options
+			split="$1"
+			shift
+			set -- \
+				"$(echo "$split}" | cut -c -2)" \
+				"-$(echo "${split}" | cut -c 3-)" \
+				"$@"
+				continue ;;
+		*)	break ;; # End of options
+		esac
+		if ! shift "$_options_consumed"; then
+			_options_consumed=$(($_options_consumed - 1))
+			error "Option $1 expects $_options_consumed argument(s)."
+			return 1
+		fi
+	done
+	unset _options_consumed
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		# special options
+		--)	shift; break ;; # End of options
+		-*)	error "Unexpected option $1 in the environment assignations."
+			return 1;;
+		*=*)	export "$1" ;;
+		*)	break ;; # End of options
+		esac
+		shift
+	done
+
+	if [ $# -eq 0 ]; then
+		env
+	else
+		case "$1" in
+		'!')	! "${@:2}" ;;
+		*)	"$@" ;;
+		esac
+	fi
+	)
+	return $?
+}
+_makepkg_commands[env]=makepkg_env
+
 makepkg_lschroot_usage() {
 	$ECHO "Usage: $0 lschroot [OPTION]..."
 	$ECHO "List all the available chroots."
 	$ECHO
-	$ECHO "Options for chroot_enter command:"
+	$ECHO "Options for lschroot command:"
 	$ECHO "  -h, --help             This help"
 }
 
@@ -396,7 +463,7 @@ makepkg_lschroot() {
 		# special options
 		--)	shift; break ;; # End of options
 		--*|-?)	error "Invalid option: $1"
-			makepkg_lschroot_usage;
+			makepkg_lschroot_usage
 			return 1 ;;
 		-*)	# Combined short options
 			split="$1"
@@ -406,7 +473,6 @@ makepkg_lschroot() {
 				"-$(echo "${split}" | cut -c 3-)" \
 				"$@"
 				continue ;;
-		*=*)	export "$1" ;;
 		*)	break ;; # End of options
 		esac
 		if ! shift "$_options_consumed"; then
