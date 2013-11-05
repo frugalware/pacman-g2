@@ -37,7 +37,7 @@ enum {
 };
 
 /* callback to handle messages/notifications from libpacman library */
-void cb_log(unsigned short level, char *msg);
+void cb_log(unsigned short level, const char *msg);
 
 void pm_fprintf(FILE *file, unsigned short line, const char *fmt, ...);
 void vprint(char *fmt, ...);

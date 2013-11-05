@@ -42,9 +42,9 @@ int neednl; /* for cleaner message output */
 
 /* Callback to handle notifications from the library
  */
-void cb_log(unsigned short level, char *msg)
+void cb_log(unsigned short level, const char *msg)
 {
-	char str[LOG_STR_LEN] = "";
+	const char *str;
 	time_t t;
 	struct tm *tmp;
 	char timestr[10] = {0};
@@ -55,25 +55,25 @@ void cb_log(unsigned short level, char *msg)
 
 	switch(level) {
 		case PM_LOG_DEBUG:
-			sprintf(str, _("debug"));
+			str = _("debug");
 		break;
 		case PM_LOG_ERROR:
-			sprintf(str, _("error"));
+			str = _("error");
 		break;
 		case PM_LOG_WARNING:
-			sprintf(str, _("warning"));
+			str = _("warning");
 		break;
 		case PM_LOG_FLOW1:
-			sprintf(str, _("flow1"));
+			str = _("flow1");
 		break;
 		case PM_LOG_FLOW2:
-			sprintf(str, _("flow2"));
+			str = _("flow2");
 		break;
 		case PM_LOG_FUNCTION:
-			sprintf(str, _("function"));
+			str = _("function");
 		break;
 		default:
-			sprintf(str, "???");
+			str = "???";
 		break;
 	}
 
