@@ -343,13 +343,11 @@ makepkg_chroot() {
 			makepkg_chroot_usage
 			return 1 ;;
 		-*)	# Combined short options
-			split="$1"
-			shift
 			set -- \
-				"$(echo "$split}" | cut -c -2)" \
-				"-$(echo "${split}" | cut -c 3-)" \
-				"$@"
-				continue ;;
+				"$(echo "$1" | cut -c -2)" \
+				"-$(echo "$1" | cut -c 3-)" \
+				"${@:2}"
+			continue ;;
 		*)	break ;; # End of options
 		esac
 		if ! shift "$_options_consumed"; then
@@ -391,24 +389,29 @@ makepkg_env() {
 		-h|--help)
 			makepkg_env_usage
 			return 0 ;;
+		# assigned options
 		-u|--unset)
 			if ! unset -- "$2"; then
 				return 1
 			fi
 			_options_consumed=2 ;;
+		-u=*|--unset=*)
+			set -- \
+				"${1%%=*}" \
+				"${1#*=}" \
+				"${@:2}"
+			continue;;
 		# special options
 		--)	break ;; # End of options
 		--*|-?)	error "Invalid option: $1"
 			makepkg_env_usage
 			return 1 ;;
 		-*)	# Combined short options
-			split="$1"
-			shift
 			set -- \
-				"$(echo "$split}" | cut -c -2)" \
-				"-$(echo "${split}" | cut -c 3-)" \
-				"$@"
-				continue ;;
+				"$(echo "$1" | cut -c -2)" \
+				"-$(echo "$1" | cut -c 3-)" \
+				"${@:2}"
+			continue ;;
 		*)	break ;; # End of options
 		esac
 		if ! shift "$_options_consumed"; then
@@ -466,13 +469,11 @@ makepkg_lschroot() {
 			makepkg_lschroot_usage
 			return 1 ;;
 		-*)	# Combined short options
-			split="$1"
-			shift
 			set -- \
-				"$(echo "$split}" | cut -c -2)" \
-				"-$(echo "${split}" | cut -c 3-)" \
-				"$@"
-				continue ;;
+				"$(echo "$1" | cut -c -2)" \
+				"-$(echo "$1" | cut -c 3-)" \
+				"${@:2}"
+			continue ;;
 		*)	break ;; # End of options
 		esac
 		if ! shift "$_options_consumed"; then
@@ -481,6 +482,7 @@ makepkg_lschroot() {
 			return 1
 		fi
 	done
+	unset _options_consumed
 	if [ $# -ne 0 ]; then
 		error "Unexpected trailling arguments: $@"
 		return 1
