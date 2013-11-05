@@ -216,9 +216,6 @@ error:
 int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *lp;
-	pmlist_t *rmlist = NULL;
-	char rm_fname[PATH_MAX];
-	pmpkg_t *info = NULL;
 	pmdb_t *db_local = trans->handle->db_local;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -268,8 +265,12 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 	EVENT(trans, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
 	_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
 	for (lp=trans->packages; lp!=NULL; lp=lp->next) {
-		info=(pmpkg_t *)lp->data;
+		pmpkg_t *info=(pmpkg_t *)lp->data;
+		pmlist_t *rmlist;
+
 		for (rmlist=info->removes; rmlist!=NULL; rmlist=rmlist->next) {
+			char rm_fname[PATH_MAX];
+
 			snprintf(rm_fname, PATH_MAX, "%s%s", handle->root, (char *)rmlist->data);
 			remove(rm_fname);
 		}
