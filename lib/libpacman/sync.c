@@ -842,14 +842,12 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 				EVENT(trans, PM_TRANS_EVT_RETRIEVE_START, current->treename, NULL);
 				if(stat(ldir, &buf)) {
 					/* no cache directory.... try creating it */
-					_pacman_log(PM_LOG_WARNING, _("no %s cache exists.  creating...\n"), ldir);
-					pacman_logaction(_("warning: no %s cache exists.  creating..."), ldir);
+					_pacman_log(PM_LOG_WARNING, _("no %s cache exists.  creating..."), ldir);
 					if(_pacman_makepath(ldir)) {
 						/* couldn't mkdir the cache directory, so fall back to /tmp and unlink
 						 * the package afterwards.
 						 */
-						_pacman_log(PM_LOG_WARNING, _("couldn't create package cache, using /tmp instead\n"));
-						pacman_logaction(_("warning: couldn't create package cache, using /tmp instead"));
+						_pacman_log(PM_LOG_WARNING, _("couldn't create package cache, using /tmp instead"));
 						snprintf(ldir, PATH_MAX, "%s/tmp", handle->root);
 						if(_pacman_handle_set_option(handle, PM_OPT_CACHEDIR, (long)"/tmp") == -1) {
 							_pacman_log(PM_LOG_WARNING, _("failed to set option CACHEDIR (%s)\n"), pacman_strerror(pm_errno));

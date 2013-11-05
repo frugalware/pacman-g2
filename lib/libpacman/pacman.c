@@ -385,7 +385,6 @@ int pacman_db_update(int force, pmdb_t *db)
 rmlck:
 	if(_pacman_lckrm(lckpath)) {
 		_pacman_log(PM_LOG_WARNING, _("could not remove lock file %s"), path);
-		pacman_logaction(_("warning: could not remove lock file %s"), path);
 	}
 	return status;
 }
@@ -841,7 +840,6 @@ int pacman_trans_release()
 	snprintf(path, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
 	if(_pacman_lckrm(path)) {
 		_pacman_log(PM_LOG_WARNING, _("could not remove lock file %s"), path);
-		pacman_logaction(_("warning: could not remove lock file %s"), path);
 	}
 
 	return(0);

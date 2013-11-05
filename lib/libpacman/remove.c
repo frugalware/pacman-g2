@@ -257,7 +257,6 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 									snprintf(newpath, PATH_MAX, "%s.pacsave", line);
 									rename(line, newpath);
 									_pacman_log(PM_LOG_WARNING, _("%s saved as %s"), line, newpath);
-									pacman_logaction(_("%s saved as %s"), line, newpath);
 								} else {
 									_pacman_log(PM_LOG_FLOW2, _("unlinking %s"), file);
 									if(unlink(line)) {
