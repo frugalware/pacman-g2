@@ -169,6 +169,16 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 	return(0);
 }
 
+void _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, void *data2)
+{
+	/* Sanity checks */
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+
+	if(trans->cbs.event) {
+		trans->cbs.event(event, data1, data2);
+	}
+}
+
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 {
 	/* Sanity checks */

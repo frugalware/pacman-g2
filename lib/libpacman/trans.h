@@ -73,13 +73,8 @@ do { \
 		p = NULL; \
 	} \
 } while (0)
-#define EVENT(_t, e, d1, d2) \
-do { \
-	pmtrans_t *t = (_t); \
-	if(t && t->cbs.event) { \
-		t->cbs.event((e), (d1), (d2)); \
-	} \
-} while(0)
+#define EVENT(t, e, d1, d2) \
+	_pacman_trans_event((t), (e), (d1), (d2))
 #define QUESTION(_t, q, d1, d2, d3, r) \
 do { \
 	pmtrans_t *t = (_t); \
@@ -100,6 +95,7 @@ void _pacman_trans_free(pmtrans_t *trans);
 int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
 void _pacman_trans_fini(pmtrans_t *trans);
 
+void _pacman_trans_event(pmtrans_t *trans, unsigned char, void *, void *);
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state);
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target);
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data);
