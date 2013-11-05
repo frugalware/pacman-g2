@@ -40,9 +40,9 @@ enum {
 void cb_log(unsigned short level, const char *msg);
 
 void pm_fprintf(FILE *file, unsigned short line, const char *fmt, ...);
-void vprint(char *fmt, ...);
+void vprint(const char *fmt, ...);
 
-int yesno(char *fmt, ...);
+int yesno(const char *fmt, ...);
 
 #endif /* _PM_LOG_H */
 

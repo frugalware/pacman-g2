@@ -113,7 +113,7 @@ void pm_fprintf(FILE *file, unsigned short line, const char *fmt, ...)
 /* Check verbosity option and, if set, print the
  * string to stdout
  */
-void vprint(char *fmt, ...)
+void vprint(const char *fmt, ...)
 {
 
 	if(config->verbose > 0) {
@@ -129,7 +129,7 @@ void vprint(char *fmt, ...)
 
 /* presents a prompt and gets a Y/N answer
  */
-int yesno(char *fmt, ...)
+int yesno(const char *fmt, ...)
 {
 	char str[LOG_STR_LEN];
 	char response[32];
