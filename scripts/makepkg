@@ -435,7 +435,6 @@ makepkg_env() {
 			return 1
 		fi
 	done
-	unset _options_consumed
 	while [ $# -gt 0 ]; do
 		case "$1" in
 		# special options
@@ -447,15 +446,15 @@ makepkg_env() {
 		esac
 		shift
 	done
-
 	if [ $# -eq 0 ]; then
-		env
-	else
-		case "$1" in
-		'!')	! "${@:2}" ;;
-		*)	"$@" ;;
-		esac
+		set -- env
 	fi
+	unset _options_consumed
+
+	case "$1" in
+	'!')	! "${@:2}" ;;
+	*)	"$@" ;;
+	esac
 	)
 	return $?
 }
