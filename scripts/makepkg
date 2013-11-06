@@ -460,12 +460,109 @@ makepkg_env() {
 }
 _makepkg_commands[env]=makepkg_env
 
+_makepkg_lock_files() {
+	( # Protect environment with a subshell
+	local -a _locked_files
+
+	set -o noclobber # Alterate environment so '>' fails if destination exist
+	while [ $# -gt 0 ]; do
+		if echo "$$" > "$1" 2> /dev/null; then
+			_locked_files+=("$1")
+		else
+			error "Unable to aquire lock file: $1"
+			_makepkg_unlock_files "${_locked_files[@]}"
+			return 1
+		fi
+		shift
+	done
+	return 0
+	)
+}
+
+_makepkg_unlock_files() {
+	local _ret=0
+
+	while [ $# -gt 0 ]; do
+		rm "$1" 2> /dev/null
+		if [ $? -ne 0 ]; then
+			error "Unable to release lock file: $i"
+			_ret=1
+		fi
+		shift
+	done
+	return $_ret
+}
+
+makepkg_lock_usage() {
+	$ECHO "Usage: $0 lock [OPTION]... [--] LOCK_FILE MAKEPKG_ENV_OPTIONS..."
+	$ECHO "List all the available chroots."
+	$ECHO
+	$ECHO "Options for lock command:"
+	$ECHO "  -h, --help                     This help."
+	$ECHO "  -p, --parent PARENT_LOCK_FILE  Parent lock to be held until LOCK_FILE is held."
+}
+
+makepkg_lock() {
+	local -a _parents
+	local _options_consumed
+
+	while [ $# -gt 0 ]; do
+		_options_consumed=1
+		case "$1" in
+		-h|--help)
+			makepkg_lock_usage
+			return 0;;
+		# assigned options
+		-p|--parent)
+			_parents+=("$2");;
+		-p=*|--parent=*)
+			set -- \
+				"${1%%=*}" \
+				"${1#*=}" \
+				"${@:2}"
+			continue;;
+		# special options
+		--)	shift; break ;; # End of options
+		--*|-?)	error "Invalid option: $1"
+			makepkg_lock_usage
+			return 1 ;;
+		-*)	# Combined short options
+			set -- \
+				"$(echo "$1" | cut -c -2)" \
+				"-$(echo "$1" | cut -c 3-)" \
+				"${@:2}"
+			continue ;;
+		*)	break ;; # End of options
+		esac
+		if ! shift "$_options_consumed"; then
+			_options_consumed=$(($_options_consumed - 1))
+			error "Option $1 expects $_options_consumed argument(s)"
+			return 1
+		fi
+	done
+	if [ $# -eq 0 ]; then
+		error "Missing expected LOCK_FILE argument."
+		return 1
+	fi
+	if ! _makepkg_lock_files "${parents[@]}" "$1" ||
+		! _makepkg_lock_files "${parents[@]}"; then
+		return 1
+	fi
+	unset _parents _options_consumed
+
+	makepkg_env "${@:2}"
+	local _ret=$?
+	_makepkg_unlock_files "$1"
+	return $_ret
+}
+_makepkg_commands[lock]=makepkg_lock
+
 makepkg_lschroot_usage() {
 	$ECHO "Usage: $0 lschroot [OPTION]..."
 	$ECHO "List all the available chroots."
 	$ECHO
 	$ECHO "Options for lschroot command:"
-	$ECHO "  -h, --help             This help"
+	$ECHO "  -h, --help             This help."
 }
 
 makepkg_lschroot() {
@@ -496,11 +593,11 @@ makepkg_lschroot() {
 			return 1
 		fi
 	done
-	unset _options_consumed
 	if [ $# -ne 0 ]; then
 		error "Unexpected trailling arguments: $@"
 		return 1
 	fi
+	unset _options_consumed
 
 	ls "$CHROOTDIR"
 	return 0
