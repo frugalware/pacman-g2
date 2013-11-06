@@ -386,21 +386,24 @@ _makepkg_commands[chroot]=makepkg_chroot
 # TODO: Add chrootadd, chrootdel.
 
 makepkg_env_usage() {
-	$ECHO "Usage: $0 [OPTION]... [-] [NAME=VALUE]... [--] [COMMAND [ARG]...]"
-	$ECHO "Run a command in a modified environment."
+	$ECHO "Usage: $0 env [OPTION]... [-] [NAME=VALUE]... [--] [COMMAND [ARG]...]"
+	$ECHO "Run a command in a modified environment or display the environment if no command is given."
 	$ECHO
 	$ECHO "Options for chroot_enter command:"
-	$ECHO "  -h, --help             This help."
-	$ECHO "  -u, --unset=NAME       Remove variable from environment."
+	$ECHO "  -i, --interactive  Instead of displaying the environment, run '${SHELL} -i' (default: '/bin/sh -i')."
+	$ECHO "  -h, --help         This help."
+	$ECHO "  -u, --unset=NAME   Remove variable from environment."
 }
 
 makepkg_env() {
 	( # Protect environment with a subshell
-	local _options_consumed
+	local _interactive=0 _options_consumed
 
 	while [ $# -gt 0 ]; do
 		_options_consumed=1
 		case "$1" in
+		-i|--interactive)
+			_interactive=1;;
 		-h|--help)
 			makepkg_env_usage
 			return 0 ;;
@@ -447,9 +450,14 @@ makepkg_env() {
 		shift
 	done
 	if [ $# -eq 0 ]; then
-		set -- env
+		if [ $_interactive -eq 0 ]; then
+			set -- env
+		else
+			: ${SHELL='/bin/sh'}
+			set -- "${SHELL}" -i
+		fi
 	fi
-	unset _options_consumed
+	unset _interactive _options_consumed
 
 	case "$1" in
 	'!')	! "${@:2}" ;;
