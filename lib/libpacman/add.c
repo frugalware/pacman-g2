@@ -78,7 +78,6 @@ pmpkg_t *_pacman_filedb_load(pmdb_t *db, const char *name)
 int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 {
 	pmpkg_t *info = NULL;
-	pmpkg_t *dummy;
 	pmlist_t *i;
 	pmpkg_t *local;
 	pmdb_t *db_local = trans->handle->db_local;
@@ -98,17 +97,17 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 		goto error;
 	}
 
+	local = _pacman_db_get_pkgfromcache(db_local, info->name);
 	if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 		/* only install this package if it is not already installed */
-		if(_pacman_db_get_pkgfromcache(db_local, _pacman_pkg_getinfo(info, PM_PKG_NAME))) {
+		if(local != NULL) {
 			pm_errno = PM_ERR_PKG_INSTALLED;
 			goto error;
 		}
 	} else {
 		if(trans->flags & PM_TRANS_FLAG_FRESHEN) {
 			/* only upgrade/install this package if it is already installed and at a lesser version */
-			dummy = _pacman_db_get_pkgfromcache(db_local, _pacman_pkg_getinfo(info, PM_PKG_NAME));
-			if(dummy == NULL || _pacman_versioncmp(dummy->version, info->version) >= 0) {
+			if(local == NULL || _pacman_versioncmp(local->version, info->version) >= 0) {
 				pm_errno = PM_ERR_PKG_CANT_FRESH;
 				goto error;
 			}
@@ -119,7 +118,7 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 	 * if so, replace it in the list */
 	for(i = trans->packages; i; i = i->next) {
 		pmpkg_t *pkg = i->data;
-		if(strcmp(pkg->name, _pacman_pkg_getinfo(info, PM_PKG_NAME)) == 0) {
+		if(strcmp(pkg->name, info->name) == 0) {
 			if(_pacman_versioncmp(pkg->version, info->version) < 0) {
 				_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
 				          pkg->name, pkg->version, info->version);
@@ -138,7 +137,6 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 	}
 
 	/* copy over the install reason */
-	local =  _pacman_db_get_pkgfromcache(db_local, info->name);
 	if(local) {
 		info->reason = (long)_pacman_pkg_getinfo(local, PM_PKG_REASON);
 	}
