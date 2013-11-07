@@ -89,71 +89,58 @@ int _pacman_db_cmp(const void *db1, const void *db2)
 	return(strcmp(((pmdb_t *)db1)->treename, ((pmdb_t *)db2)->treename));
 }
 
+static
+int _pacman_reg_match_or_substring(const char *string, const char *pattern)
+{
+	int retval = _pacman_reg_match(string, pattern);
+
+	if(retval < 0) {
+		/* bad regexp */
+		return -1;
+	} else if(retval) {
+		return 1;
+	} else if (strstr(string, pattern) != NULL) {
+		return 1;
+	}
+	return 0;
+}
+
 pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 {
 	pmlist_t *i, *j, *k, *ret = NULL;
 
 	for(i = needles; i; i = i->next) {
-		char *targ;
-		int retval;
+		const char *targ;
 
 		if(i->data == NULL) {
 			continue;
 		}
-		targ = strdup(i->data);
+		targ = i->data;
 		_pacman_log(PM_LOG_DEBUG, "searching for target '%s'\n", targ);
 
 		for(j = _pacman_db_get_pkgcache(db); j; j = j->next) {
 			pmpkg_t *pkg = j->data;
-			char *haystack, *ptr;
 			int match = 0;
 
 			/* check name */
-			haystack = strdup(pkg->name);
-			retval = _pacman_reg_match(haystack, targ);
-			if(retval < 0) {
-				/* bad regexp */
-				FREE(haystack);
-				return(NULL);
-			} else if(retval) {
-				_pacman_log(PM_LOG_DEBUG, "    search target '%s' matched '%s'", targ, haystack);
-				match = 1;
-			} else if (!match && (ptr = strstr(haystack, targ))) {
+			if(_pacman_reg_match_or_substring(pkg->name, targ) == 1) {
+				_pacman_log(PM_LOG_DEBUG, "    search target '%s' matched '%s'", targ, pkg->name);
 				match = 1;
 			}
-			FREE(haystack);
 
 			/* check description */
 			if(!match) {
-				haystack = strdup(_pacman_pkg_getinfo(pkg, PM_PKG_DESC));
-				retval = _pacman_reg_match(haystack, targ);
-				if(retval < 0) {
-					/* bad regexp */
-					FREE(haystack);
-					return(NULL);
-				} else if(retval) {
-					match = 1;
-				} else if (!match && (ptr = strstr(haystack, targ))) {
+				if(_pacman_reg_match_or_substring(_pacman_pkg_getinfo(pkg, PM_PKG_DESC), targ) == 1) {
 					match = 1;
 				}
-				FREE(haystack);
 			}
 
 			/* check provides */
 			if(!match) {
 				for(k = _pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES); k; k = k->next) {
-					haystack = strdup(k->data);
-					retval = _pacman_reg_match(haystack, targ);
-					if(retval < 0) {
-						/* bad regexp */
-						FREE(haystack);
-						return(NULL);
-					} else if(retval) {
-						match = 1;
-					} else if (!match && (ptr = strstr(haystack, targ))) {
+					if(_pacman_reg_match_or_substring(k->data, targ) == 1) {
 						match = 1;
 					}
-					FREE(haystack);
 				}
 			}
 
@@ -161,8 +148,6 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 				ret = _pacman_list_add(ret, pkg);
 			}
 		}
-
-		FREE(targ);
 	}
 
 	return(ret);
