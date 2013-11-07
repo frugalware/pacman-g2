@@ -111,6 +111,13 @@ static inline void *_pacman_zalloc(size_t size)
 	return ptr;
 }
 
+static inline void _pacman_ptrswap(void **ptr1, void **ptr2)
+{
+	void *tmp = *ptr2;
+	*ptr2 = *ptr1;
+	*ptr1 = tmp;
+}
+
 #endif /* _PACMAN_UTIL_H */
 
 /* vim: set ts=2 sw=2 noet: */

@@ -122,19 +122,14 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 		pmpkg_t *pkg = i->data;
 		if(strcmp(pkg->name, _pacman_pkg_getinfo(info, PM_PKG_NAME)) == 0) {
 			if(_pacman_versioncmp(pkg->version, info->version) < 0) {
-				pmpkg_t *newpkg;
 				_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
 				          pkg->name, pkg->version, info->version);
-				if((newpkg = _pacman_pkg_load(name)) == NULL) {
-					/* pm_errno is already set by pkg_load() */
-					goto error;
-				}
-				FREEPKG(i->data);
-				i->data = newpkg;
+				_pacman_ptrswap(&i->data, &info);
 			} else {
 				_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
 				          pkg->name, pkg->version, info->version);
 			}
+			FREEPKG(info);
 			return(0);
 		}
 	}
