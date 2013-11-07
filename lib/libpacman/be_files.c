@@ -57,39 +57,6 @@ static inline int islocal(pmdb_t *db)
 		return strcmp(db->treename, "local") == 0;
 }
 
-static
-pmlist_t *_pacman_syncdb_test(pmdb_t *db)
-{
-	/* testing sync dbs is not supported */
-	return _pacman_list_new();
-}
-
-static
-void _pacman_syncdb_close(pmdb_t *db)
-{
-	if(db->handle) {
-		archive_read_finish(db->handle);
-		db->handle = NULL;
-	}
-}
-
-static
-void _pacman_syncdb_rewind(pmdb_t *db)
-{
-	char dbpath[PATH_MAX];
-
-	snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
-	if (db->handle)
-		archive_read_finish(db->handle);
-	db->handle = archive_read_new();
-	archive_read_support_compression_all(db->handle);
-	archive_read_support_format_all(db->handle);
-	if (archive_read_open_filename(db->handle, dbpath, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
-		archive_read_finish(db->handle);
-		db->handle = NULL;
-	}
-}
-
 pmlist_t *_pacman_db_test(pmdb_t *db)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
@@ -111,23 +78,9 @@ int _pacman_db_open(pmdb_t *db)
 		if(ret != 0)
 			return ret;
 	} else {
-		char dbpath[PATH_MAX];
-		snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
-		struct stat buf;
-		if(stat(dbpath, &buf) != 0) {
-			// db is not there, we'll open it later
-			db->handle = NULL;
-			return 0;
-		}
-		if((db->handle = archive_read_new()) == NULL) {
-			RET_ERR(PM_ERR_DB_OPEN, -1);
-		}
-		archive_read_support_compression_all(db->handle);
-		archive_read_support_format_all(db->handle);
-		if(archive_read_open_filename(db->handle, dbpath, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
-			archive_read_finish(db->handle);
-			RET_ERR(PM_ERR_DB_OPEN, -1);
-		}
+		ret = _pacman_syncdb_open(db);
+		if(ret != 0)
+			return ret;
 	}
 	if(ret == 0 && _pacman_db_getlastupdate(db, db->lastupdate) == -1) {
 		db->lastupdate[0] = '\0';

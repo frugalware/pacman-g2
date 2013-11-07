@@ -9,7 +9,8 @@ DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
 DB_TARGETS = \
 	db/fakedb.c \
-	db/localdb.c
+	db/localdb.c \
+	db/syncdb.c
 
 HASH_TARGETS = \
 	hash/md5driver.c \
