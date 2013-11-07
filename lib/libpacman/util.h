@@ -76,7 +76,7 @@ int _pacman_runhook(const char *hookname, pmtrans_t *trans);
 int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data);
 #endif
 #endif
-int _pacman_reg_match(char *string, char *pattern);
+int _pacman_reg_match(const char *string, const char *pattern);
 #ifdef __sun__
 char* strsep(char** str, const char* delims);
 char* mkdtemp(char *template);
