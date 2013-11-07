@@ -8,7 +8,8 @@ localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
 DB_TARGETS = \
-	db/fakedb.c
+	db/fakedb.c \
+	db/localdb.c
 
 HASH_TARGETS = \
 	hash/md5driver.c \
