@@ -40,6 +40,7 @@
 /* pacman-g2 */
 
 #include "db/localdb.h"
+#include "db/syncdb.h"
 #include "util/log.h"
 #include "util/stringlist.h"
 #include "util.h"

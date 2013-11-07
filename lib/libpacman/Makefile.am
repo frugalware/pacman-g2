@@ -17,6 +17,9 @@ HASH_TARGETS = \
 	hash/md5.c \
 	hash/sha1.c
 
+PACKAGE_TARGETS = \
+	package/pkginfo.c
+
 UTIL_TARGETS = \
 	util/list.c \
 	util/log.c \
@@ -25,6 +28,7 @@ UTIL_TARGETS = \
 TARGETS = \
 	$(DB_TARGETS) \
 	$(HASH_TARGETS) \
+	$(PACKAGE_TARGETS) \
 	$(UTIL_TARGETS) \
 	util.c \
 	error.c \

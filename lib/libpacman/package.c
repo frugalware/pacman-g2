@@ -145,104 +145,6 @@ int _pacman_pkg_cmp(const void *p1, const void *p2)
 	return(strcmp(((pmpkg_t *)p1)->name, ((pmpkg_t *)p2)->name));
 }
 
-/* Parses the pkginfo package description file for the current package
- *
- * Returns: 0 on success, 1 on error
- */
-static int pkginfo_read(char *descfile, pmpkg_t *info, int output)
-{
-	FILE* fp = NULL;
-	char line[PATH_MAX];
-	char* ptr = NULL;
-	char* key = NULL;
-	int linenum = 0;
-
-	if((fp = fopen(descfile, "r")) == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("could not open file %s"), descfile);
-		return(-1);
-	}
-
-	while(!feof(fp)) {
-		fgets(line, PATH_MAX, fp);
-		linenum++;
-		_pacman_strtrim(line);
-		if(_pacman_strempty(line) || line[0] == '#') {
-			continue;
-		}
-		if(output) {
-			_pacman_log(PM_LOG_DEBUG, "%s", line);
-		}
-		ptr = line;
-		key = strsep(&ptr, "=");
-		if(key == NULL || ptr == NULL) {
-			_pacman_log(PM_LOG_DEBUG, _("%s: syntax error in description file line %d"),
-				info->name[0] != '\0' ? info->name : "error", linenum);
-		} else {
-			_pacman_strtrim(key);
-			key = _pacman_strtoupper(key);
-			_pacman_strtrim(ptr);
-			if(!strcmp(key, "PKGNAME")) {
-				STRNCPY(info->name, ptr, sizeof(info->name));
-			} else if(!strcmp(key, "PKGVER")) {
-				STRNCPY(info->version, ptr, sizeof(info->version));
-			} else if(!strcmp(key, "PKGDESC")) {
-				info->desc_localized = _pacman_stringlist_append(info->desc_localized, ptr);
-				if(_pacman_list_count(info->desc_localized) == 1) {
-					STRNCPY(info->desc, ptr, sizeof(info->desc));
-				} else if (!strncmp(ptr, handle->language, strlen(handle->language))) {
-					STRNCPY(info->desc, ptr+strlen(handle->language)+1, sizeof(info->desc));
-				}
-			} else if(!strcmp(key, "GROUP")) {
-				info->groups = _pacman_stringlist_append(info->groups, ptr);
-			} else if(!strcmp(key, "URL")) {
-				STRNCPY(info->url, ptr, sizeof(info->url));
-			} else if(!strcmp(key, "LICENSE")) {
-				info->license = _pacman_stringlist_append(info->license, ptr);
-			} else if(!strcmp(key, "BUILDDATE")) {
-				STRNCPY(info->builddate, ptr, sizeof(info->builddate));
-			} else if(!strcmp(key, "BUILDTYPE")) {
-				STRNCPY(info->buildtype, ptr, sizeof(info->buildtype));
-			} else if(!strcmp(key, "INSTALLDATE")) {
-				STRNCPY(info->installdate, ptr, sizeof(info->installdate));
-			} else if(!strcmp(key, "PACKAGER")) {
-				STRNCPY(info->packager, ptr, sizeof(info->packager));
-			} else if(!strcmp(key, "ARCH")) {
-				STRNCPY(info->arch, ptr, sizeof(info->arch));
-			} else if(!strcmp(key, "SIZE")) {
-				char tmp[32];
-				STRNCPY(tmp, ptr, sizeof(tmp));
-				info->size = atol(tmp);
-			} else if(!strcmp(key, "USIZE")) {
-				char tmp[32];
-				STRNCPY(tmp, ptr, sizeof(tmp));
-				info->usize = atol(tmp);
-			} else if(!strcmp(key, "DEPEND")) {
-				info->depends = _pacman_stringlist_append(info->depends, ptr);
-			} else if(!strcmp(key, "REMOVE")) {
-				info->removes = _pacman_stringlist_append(info->removes, ptr);
-			} else if(!strcmp(key, "CONFLICT")) {
-				info->conflicts = _pacman_stringlist_append(info->conflicts, ptr);
-			} else if(!strcmp(key, "REPLACES")) {
-				info->replaces = _pacman_stringlist_append(info->replaces, ptr);
-			} else if(!strcmp(key, "PROVIDES")) {
-				info->provides = _pacman_stringlist_append(info->provides, ptr);
-			} else if(!strcmp(key, "BACKUP")) {
-				info->backup = _pacman_stringlist_append(info->backup, ptr);
-			} else if(!strcmp(key, "TRIGGER")) {
-				info->triggers = _pacman_stringlist_append(info->triggers, ptr);
-			} else {
-				_pacman_log(PM_LOG_DEBUG, _("%s: syntax error in description file line %d"),
-					info->name[0] != '\0' ? info->name : "error", linenum);
-			}
-		}
-		line[0] = '\0';
-	}
-	fclose(fp);
-	unlink(descfile);
-
-	return(0);
-}
-
 static
 int _pacman_pkg_is_valid(const pmpkg_t *pkg, const pmtrans_t *trans, const char *pkgfile)
 {
@@ -323,7 +225,7 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 			fd = mkstemp(descfile);
 			archive_read_data_into_fd (archive, fd);
 			/* parse the info file */
-			if(pkginfo_read(descfile, info, 0) == -1) {
+			if(_pacman_pkginfo_read(descfile, info, 0) == -1) {
 				_pacman_log(PM_LOG_ERROR, _("could not parse the package description file"));
 				pm_errno = PM_ERR_PKG_INVALID;
 				unlink(descfile);
