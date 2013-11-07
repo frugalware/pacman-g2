@@ -145,7 +145,6 @@ int _pacman_pkg_cmp(const void *p1, const void *p2)
 	return(strcmp(((pmpkg_t *)p1)->name, ((pmpkg_t *)p2)->name));
 }
 
-static
 int _pacman_pkg_is_valid(const pmpkg_t *pkg, const pmtrans_t *trans, const char *pkgfile)
 {
 	struct utsname name;
@@ -157,6 +156,10 @@ int _pacman_pkg_is_valid(const pmpkg_t *pkg, const pmtrans_t *trans, const char 
 	if(_pacman_strempty(pkg->version)) {
 		_pacman_log(PM_LOG_ERROR, _("missing package version in %s"), pkgfile);
 		goto pkg_error;
+	}
+	if(strchr(pkg->version, '-') != strrchr(pkg->version, '-')) {
+		_pacman_log(PM_LOG_ERROR, _("version contains additional hyphens in %s"), pkgfile);
+		goto invalid_name_error;
 	}
 	if (trans != NULL && !(trans->flags & PM_TRANS_FLAG_NOARCH)) {
 		if(_pacman_strempty(pkg->arch)) {
@@ -171,6 +174,10 @@ int _pacman_pkg_is_valid(const pmpkg_t *pkg, const pmtrans_t *trans, const char 
 		}
 	}
 	return 0;
+
+invalid_name_error:
+	pm_errno = PM_ERR_PKG_INVALID_NAME;
+	return -1;
 
 arch_error:
 	pm_errno = PM_ERR_WRONG_ARCH;

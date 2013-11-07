@@ -93,15 +93,8 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 	}
 
 	info = _pacman_filedb_load(NULL, name);
-	if(info == NULL) {
+	if(info == NULL || _pacman_pkg_is_valid(info, trans, name) != 0) {
 		/* pm_errno is already set by _pacman_filedb_load() */
-		goto error;
-	}
-
-	/* no additional hyphens in version strings */
-	if(strchr(_pacman_pkg_getinfo(info, PM_PKG_VERSION), '-') !=
-			strrchr(_pacman_pkg_getinfo(info, PM_PKG_VERSION), '-')) {
-		pm_errno = PM_ERR_PKG_INVALID_NAME;
 		goto error;
 	}
 
