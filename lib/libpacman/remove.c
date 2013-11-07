@@ -61,7 +61,7 @@
 
 int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 {
-	pmpkg_t *info;
+	pmpkg_t *pkg_local;
 	pmdb_t *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -72,22 +72,22 @@ int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
 
-	if((info = _pacman_db_scan(db_local, name, INFRQ_ALL)) == NULL) {
+	if((pkg_local = _pacman_db_scan(db_local, name, INFRQ_ALL)) == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), name);
 		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 	}
 
 	/* ignore holdpkgs on upgrade */
-	if((trans == handle->trans) && _pacman_list_is_strin(info->name, handle->holdpkg)) {
+	if((trans == handle->trans) && _pacman_list_is_strin(pkg_local->name, handle->holdpkg)) {
 		int resp = 0;
-		QUESTION(trans, PM_TRANS_CONV_REMOVE_HOLDPKG, info, NULL, NULL, &resp);
+		QUESTION(trans, PM_TRANS_CONV_REMOVE_HOLDPKG, pkg_local, NULL, NULL, &resp);
 		if(!resp) {
 			RET_ERR(PM_ERR_PKG_HOLD, -1);
 		}
 	}
 
-	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), info->name);
-	trans->packages = _pacman_list_add(trans->packages, info);
+	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), pkg_local->name);
+	trans->packages = _pacman_list_add(trans->packages, pkg_local);
 
 	return(0);
 }

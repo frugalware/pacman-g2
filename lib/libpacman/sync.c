@@ -113,7 +113,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	char targline[PKG_FULLNAME_LEN];
 	char *targ;
 	pmlist_t *j;
-	pmpkg_t *local;
+	pmpkg_t *pkg_local;
 	pmpkg_t *spkg = NULL;
 	pmsyncpkg_t *ps;
 	int cmp;
@@ -171,23 +171,23 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 	}
 
-	local = _pacman_db_get_pkgfromcache(db_local, spkg->name);
-	if(local) {
-		cmp = _pacman_versioncmp(local->version, spkg->version);
+	pkg_local = _pacman_db_get_pkgfromcache(db_local, spkg->name);
+	if(pkg_local) {
+		cmp = _pacman_versioncmp(pkg_local->version, spkg->version);
 		if(cmp > 0) {
-			/* local version is newer -- get confirmation before adding */
+			/* pkg_local version is newer -- get confirmation before adding */
 			int resp = 0;
-			QUESTION(trans, PM_TRANS_CONV_LOCAL_NEWER, local, NULL, NULL, &resp);
+			QUESTION(trans, PM_TRANS_CONV_LOCAL_NEWER, pkg_local, NULL, NULL, &resp);
 			if(!resp) {
-				_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), local->name, local->version);
+				_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), pkg_local->name, pkg_local->version);
 				return(0);
 			}
 		} else if(cmp == 0) {
 			/* versions are identical -- get confirmation before adding */
 			int resp = 0;
-			QUESTION(trans, PM_TRANS_CONV_LOCAL_UPTODATE, local, NULL, NULL, &resp);
+			QUESTION(trans, PM_TRANS_CONV_LOCAL_UPTODATE, pkg_local, NULL, NULL, &resp);
 			if(!resp) {
-				_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), local->name, local->version);
+				_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), pkg_local->name, pkg_local->version);
 				return(0);
 			}
 		}
@@ -196,8 +196,8 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	/* add the package to the transaction */
 	if(!find_pkginsync(spkg->name, trans->packages)) {
 		pmpkg_t *dummy = NULL;
-		if(local) {
-			dummy = _pacman_pkg_new(local->name, local->version);
+		if(pkg_local) {
+			dummy = _pacman_pkg_new(pkg_local->name, pkg_local->version);
 			if(dummy == NULL) {
 				RET_ERR(PM_ERR_MEMORY, -1);
 			}
