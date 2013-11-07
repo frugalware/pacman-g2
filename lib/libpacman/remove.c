@@ -111,10 +111,10 @@ int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
 					pmlist_t *i;
 					for(i = lp; i; i = i->next) {
 						pmdepmissing_t *miss = (pmdepmissing_t *)i->data;
-						pmpkg_t *info = _pacman_db_scan(db_local, miss->depend.name, INFRQ_ALL);
-						if(info) {
-							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), info->name);
-							trans->packages = _pacman_list_add(trans->packages, info);
+						pmpkg_t *pkg_local = _pacman_db_scan(db_local, miss->depend.name, INFRQ_ALL);
+						if(pkg_local) {
+							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), pkg_local->name);
+							trans->packages = _pacman_list_add(trans->packages, pkg_local);
 						} else {
 							_pacman_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
 								miss->depend.name);
@@ -160,7 +160,7 @@ static int str_cmp(const void *s1, const void *s2)
 
 int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 {
-	pmpkg_t *info;
+	pmpkg_t *pkg_local;
 	struct stat buf;
 	pmlist_t *targ, *lp;
 	char line[PATH_MAX+1];
@@ -175,7 +175,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 	for(targ = trans->packages; targ; targ = targ->next) {
 		int position = 0;
 		char pm_install[PATH_MAX];
-		info = (pmpkg_t*)targ->data;
+		pkg_local = (pmpkg_t*)targ->data;
 
 		if(handle->trans->state == STATE_INTERRUPTED) {
 			break;
@@ -184,27 +184,27 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 		remain = _pacman_list_count(targ);
 
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
-			EVENT(trans, PM_TRANS_EVT_REMOVE_START, info, NULL);
-			_pacman_log(PM_LOG_FLOW1, _("removing package %s-%s"), info->name, info->version);
+			EVENT(trans, PM_TRANS_EVT_REMOVE_START, pkg_local, NULL);
+			_pacman_log(PM_LOG_FLOW1, _("removing package %s-%s"), pkg_local->name, pkg_local->version);
 
 			/* run the pre-remove scriptlet if it exists */
-			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, info->name, info->version);
-				_pacman_runscriptlet(handle->root, pm_install, "pre_remove", info->version, NULL, trans);
+			if(pkg_local->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
+				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, pkg_local->name, pkg_local->version);
+				_pacman_runscriptlet(handle->root, pm_install, "pre_remove", pkg_local->version, NULL, trans);
 			}
 		}
 
 		if(!(trans->flags & PM_TRANS_FLAG_DBONLY)) {
-			int filenum = _pacman_list_count(info->files);
+			int filenum = _pacman_list_count(pkg_local->files);
 			_pacman_log(PM_LOG_FLOW1, _("removing files"));
 
 			/* iterate through the list backwards, unlinking files */
-			for(lp = _pacman_list_last(info->files); lp; lp = lp->prev) {
+			for(lp = _pacman_list_last(pkg_local->files); lp; lp = lp->prev) {
 				int nb = 0;
 				double percent;
 				char *file = lp->data;
-				char *md5 =_pacman_needbackup(file, info->backup);
-				char *sha1 =_pacman_needbackup(file, info->backup);
+				char *md5 =_pacman_needbackup(file, pkg_local->backup);
+				char *sha1 =_pacman_needbackup(file, pkg_local->backup);
 
 				if (position != 0) {
 				percent = (double)position / filenum;
@@ -267,7 +267,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 						} else {
 							_pacman_log(PM_LOG_FLOW2, _("unlinking %s"), file);
 							/* Need at here because we count only real unlinked files ? */
-							PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, (int)(percent * 100), howmany, howmany - remain + 1);
+							PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, pkg_local->name, (int)(percent * 100), howmany, howmany - remain + 1);
 							position++;
 							if(unlink(line)) {
 								_pacman_log(PM_LOG_ERROR, _("cannot remove file %s"), file);
@@ -278,30 +278,30 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 			}
 		}
 
-		PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, info->name, 100, howmany, howmany - remain + 1);
+		PROGRESS(trans, PM_TRANS_PROGRESS_REMOVE_START, pkg_local->name, 100, howmany, howmany - remain + 1);
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			/* run the post-remove script if it exists */
-			if(info->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
+			if(pkg_local->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 				/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
 				_pacman_ldconfig(handle->root);
-				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, info->name, info->version);
-				_pacman_runscriptlet(handle->root, pm_install, "post_remove", info->version, NULL, trans);
+				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, pkg_local->name, pkg_local->version);
+				_pacman_runscriptlet(handle->root, pm_install, "post_remove", pkg_local->version, NULL, trans);
 			}
 		}
 
 		/* remove the package from the database */
 		_pacman_log(PM_LOG_FLOW1, _("updating database"));
-		_pacman_log(PM_LOG_FLOW2, _("removing database entry '%s'"), info->name);
-		if(_pacman_db_remove(db_local, info) == -1) {
-			_pacman_log(PM_LOG_ERROR, _("could not remove database entry %s-%s"), info->name, info->version);
+		_pacman_log(PM_LOG_FLOW2, _("removing database entry '%s'"), pkg_local->name);
+		if(_pacman_db_remove(db_local, pkg_local) == -1) {
+			_pacman_log(PM_LOG_ERROR, _("could not remove database entry %s-%s"), pkg_local->name, pkg_local->version);
 		}
-		if(_pacman_db_remove_pkgfromcache(db_local, info) == -1) {
-			_pacman_log(PM_LOG_ERROR, _("could not remove entry '%s' from cache"), info->name);
+		if(_pacman_db_remove_pkgfromcache(db_local, pkg_local) == -1) {
+			_pacman_log(PM_LOG_ERROR, _("could not remove entry '%s' from cache"), pkg_local->name);
 		}
 
 		/* update dependency packages' REQUIREDBY fields */
 		_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
-		for(lp = info->depends; lp; lp = lp->next) {
+		for(lp = pkg_local->depends; lp; lp = lp->next) {
 			pmpkg_t *depinfo = NULL;
 			pmdepend_t depend;
 			char *data;
@@ -334,7 +334,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 			}
 			/* splice out this entry from requiredby */
-			depinfo->requiredby = _pacman_list_remove(_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), info->name, str_cmp, (void **)&data);
+			depinfo->requiredby = _pacman_list_remove(_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), pkg_local->name, str_cmp, (void **)&data);
 			FREE(data);
 			_pacman_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name);
 			if(_pacman_db_write(db_local, depinfo, INFRQ_DEPENDS)) {
@@ -344,7 +344,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 		}
 
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
-			EVENT(trans, PM_TRANS_EVT_REMOVE_DONE, info, NULL);
+			EVENT(trans, PM_TRANS_EVT_REMOVE_DONE, pkg_local, NULL);
 		}
 	}
 
