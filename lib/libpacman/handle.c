@@ -127,6 +127,14 @@ int _pacman_handle_free(pmhandle_t *ph)
 }
 
 static
+void _pacman_handle_set_option_string(const char *option, char **string, const char *value, const char *default_value)
+{
+	free(*string);
+	*string = strdup(!_pacman_strempty(value) ? value : default_value);
+	_pacman_log(PM_LOG_FLOW2, _("%s set to '%s'"), option, *string);
+}
+
+static
 void _pacman_handle_set_option_stringlist(const char *option, pmlist_t **stringlist, const char *value)
 {
 	if(!_pacman_strempty(value)) {
@@ -148,25 +156,13 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 
 	switch(val) {
 		case PM_OPT_DBPATH:
-			if(ph->dbpath) {
-				FREE(ph->dbpath);
-			}
-			ph->dbpath = strdup(!_pacman_strempty((char *)data) ? (char *)data : PM_DBPATH);
-			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_DBPATH set to '%s'"), ph->dbpath);
+			_pacman_handle_set_option_string("PM_OPT_DBPATH", &ph->dbpath, (const char *)data, PM_DBPATH);
 		break;
 		case PM_OPT_CACHEDIR:
-			if(ph->cachedir) {
-				FREE(ph->cachedir);
-			}
-			ph->cachedir = strdup(!_pacman_strempty((char *)data) ? (char *)data : PM_CACHEDIR);
-			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_CACHEDIR set to '%s'"), ph->cachedir);
+			_pacman_handle_set_option_string("PM_OPT_CACHEDIR", &ph->cachedir, (const char *)data, PM_CACHEDIR);
 		break;
 		case PM_OPT_HOOKSDIR:
-			if(ph->hooksdir) {
-				FREE(ph->hooksdir);
-			}
-			ph->hooksdir = strdup(!_pacman_strempty((char *)data) ? (char *)data : PM_HOOKSDIR);
-			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_HOOKSDIR set to '%s'"), ph->hooksdir);
+			_pacman_handle_set_option_string("PM_OPT_HOOKSDIR", &ph->hooksdir, (const char *)data, PM_HOOKSDIR);
 		break;
 		case PM_OPT_LOGFILE:
 			if((char *)data == NULL || ph->uid != 0) {
