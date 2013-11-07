@@ -126,6 +126,18 @@ int _pacman_handle_free(pmhandle_t *ph)
 	return(0);
 }
 
+static
+void _pacman_handle_set_option_stringlist(const char *option, pmlist_t **stringlist, const char *value)
+{
+	if(!_pacman_strempty(value)) {
+		*stringlist = _pacman_stringlist_append(*stringlist, value);
+		_pacman_log(PM_LOG_FLOW2, _("'%s' added to %s"), value, option);
+	} else {
+		FREELIST(*stringlist);
+		_pacman_log(PM_LOG_FLOW2, _("%s flushed"), option);
+	}
+}
+
 int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long data)
 {
 
@@ -188,49 +200,19 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_LOGFILE set to '%s'"), path);
 		break;
 		case PM_OPT_NOUPGRADE:
-			if(!_pacman_strempty((char *)data)) {
-				ph->noupgrade = _pacman_stringlist_append(ph->noupgrade, (char *)data);
-				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NOUPGRADE"), (char *)data);
-			} else {
-				FREELIST(ph->noupgrade);
-				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_NOUPGRADE flushed"));
-			}
+			_pacman_handle_set_option_stringlist("PM_OPT_NOUPGRADE", &ph->noupgrade, (const char *)data);
 		break;
 		case PM_OPT_NOEXTRACT:
-			if(!_pacman_strempty((char *)data)) {
-				ph->noextract = _pacman_stringlist_append(ph->noextract, (char *)data);
-				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NOEXTRACT"), (char *)data);
-			} else {
-				FREELIST(ph->noextract);
-				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_NOEXTRACT flushed"));
-			}
+			_pacman_handle_set_option_stringlist("PM_OPT_NOEXTRACT", &ph->noextract, (const char *)data);
 		break;
 		case PM_OPT_IGNOREPKG:
-			if(!_pacman_strempty((char *)data)) {
-				ph->ignorepkg = _pacman_stringlist_append(ph->ignorepkg, (char *)data);
-				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_IGNOREPKG"), (char *)data);
-			} else {
-				FREELIST(ph->ignorepkg);
-				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_IGNOREPKG flushed"));
-			}
+			_pacman_handle_set_option_stringlist("PM_OPT_IGNOREPKG", &ph->ignorepkg, (const char *)data);
 		break;
 		case PM_OPT_HOLDPKG:
-			if(!_pacman_strempty((char *)data)) {
-				ph->holdpkg = _pacman_stringlist_append(ph->holdpkg, (char *)data);
-				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_HOLDPKG"), (char *)data);
-			} else {
-				FREELIST(ph->holdpkg);
-				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_HOLDPKG flushed"));
-			}
+			_pacman_handle_set_option_stringlist("PM_OPT_HOLDPKG", &ph->holdpkg, (const char *)data);
 		break;
 		case PM_OPT_NEEDLES:
-			if(!_pacman_strempty((char *)data)) {
-				ph->needles = _pacman_stringlist_append(ph->needles, (char *)data);
-				_pacman_log(PM_LOG_FLOW2, _("'%s' added to PM_OPT_NEEDLES"), (char *)data);
-			} else {
-				FREELIST(ph->needles);
-				_pacman_log(PM_LOG_FLOW2, _("PM_OPT_NEEDLES flushed"));
-			}
+			_pacman_handle_set_option_stringlist("PM_OPT_NEEDLES", &ph->needles, (const char *)data);
 		break;
 		case PM_OPT_USESYSLOG:
 			if(data != 0 && data != 1) {
