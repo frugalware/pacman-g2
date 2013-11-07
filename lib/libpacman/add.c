@@ -42,6 +42,7 @@
 /* pacman-g2 */
 #include "add.h"
 
+#include "db/fakedb.h"
 #include "hash/md5.h"
 #include "hash/sha1.h"
 #include "util/list.h"
@@ -61,61 +62,6 @@
 #include "handle.h"
 #include "packages_transaction.h"
 
-static pmpkg_t *fakedb_pkg_new(pmdb_t *fakedb, const char *name)
-{
-	char *ptr, *p;
-	char *str = NULL;
-	pmpkg_t *dummy = NULL;
-
-	dummy = _pacman_pkg_new(NULL, NULL);
-	if(dummy == NULL) {
-		RET_ERR(PM_ERR_MEMORY, NULL);
-	}
-
-	/* Format: field1=value1|field2=value2|...
-	 * Valid fields are "name", "version" and "depend"
-	 */
-	str = strdup(name);
-	ptr = str;
-	while((p = strsep(&ptr, "|")) != NULL) {
-		char *q;
-		if(p[0] == 0) {
-			continue;
-		}
-		q = strchr(p, '=');
-		if(q == NULL) { /* not a valid token */
-			continue;
-		}
-		if(strncmp("name", p, q-p) == 0) {
-			STRNCPY(dummy->name, q+1, PKG_NAME_LEN);
-		} else if(strncmp("version", p, q-p) == 0) {
-			STRNCPY(dummy->version, q+1, PKG_VERSION_LEN);
-		} else if(strncmp("depend", p, q-p) == 0) {
-			dummy->depends = _pacman_stringlist_append(dummy->depends, q+1);
-		} else {
-			_pacman_log(PM_LOG_ERROR, _("could not parse token %s"), p);
-		}
-	}
-	FREE(str);
-	if(dummy->name[0] == 0 || dummy->version[0] == 0) {
-		FREEPKG(dummy);
-		RET_ERR(PM_ERR_PKG_INVALID_NAME, NULL);
-	}
-	return dummy;
-}
-
-static int add_faketarget(pmtrans_t *trans, const char *name)
-{
-	pmpkg_t *dummy = fakedb_pkg_new(NULL, name);
-
-	if (dummy == NULL)
-		return -1;
-	/* add the package to the transaction */
-	trans->packages = _pacman_list_add(trans->packages, dummy);
-
-	return(0);
-}
-
 int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 {
 	pmpkg_t *info = NULL;
@@ -131,7 +77,7 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 
 	/* Check if we need to add a fake target to the transaction. */
 	if(strchr(name, '|')) {
-		return(add_faketarget(trans, name));
+		return(_pacman_fakedb_addtarget(trans, name));
 	}
 
 	if(stat(name, &buf)) {

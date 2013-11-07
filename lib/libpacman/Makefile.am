@@ -7,6 +7,9 @@ SUBDIRS = po
 localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
+DB_TARGETS = \
+	db/fakedb.c
+
 HASH_TARGETS = \
 	hash/md5driver.c \
 	hash/md5.c \
@@ -18,6 +21,7 @@ UTIL_TARGETS = \
 	util/stringlist.c
 
 TARGETS = \
+	$(DB_TARGETS) \
 	$(HASH_TARGETS) \
 	$(UTIL_TARGETS) \
 	util.c \
