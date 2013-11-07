@@ -62,13 +62,25 @@
 #include "handle.h"
 #include "packages_transaction.h"
 
+pmpkg_t *_pacman_filedb_load(pmdb_t *db, const char *name)
+{
+	struct stat buf;
+
+	if(stat(name, &buf)) {
+		pm_errno = PM_ERR_NOT_A_FILE;
+		return NULL;
+	}
+
+	_pacman_log(PM_LOG_FLOW2, _("loading target '%s'"), name);
+	return _pacman_pkg_load(name);
+}
+
 int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 {
 	pmpkg_t *info = NULL;
 	pmpkg_t *dummy;
 	pmlist_t *i;
 	pmpkg_t *local;
-	struct stat buf;
 	pmdb_t *db_local = trans->handle->db_local;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -80,15 +92,9 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 		return(_pacman_fakedb_addtarget(trans, name));
 	}
 
-	if(stat(name, &buf)) {
-		pm_errno = PM_ERR_NOT_A_FILE;
-		goto error;
-	}
-
-	_pacman_log(PM_LOG_FLOW2, _("loading target '%s'"), name);
-	info = _pacman_pkg_load(name);
+	info = _pacman_filedb_load(NULL, name);
 	if(info == NULL) {
-		/* pm_errno is already set by pkg_load() */
+		/* pm_errno is already set by _pacman_filedb_load() */
 		goto error;
 	}
 
