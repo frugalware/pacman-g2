@@ -81,7 +81,6 @@ int _pacman_reg_match(const char *string, const char *pattern);
 char* strsep(char** str, const char* delims);
 char* mkdtemp(char *template);
 #endif
-char *_pacman_archive_fgets(char *line, size_t size, struct archive *a);
 
 static inline int _pacman_strempty(const char *s)
 {

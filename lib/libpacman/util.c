@@ -696,35 +696,6 @@ int _pacman_reg_match(const char *string, const char *pattern)
 	return(!(result));
 }
 
-char *_pacman_archive_fgets(char *line, size_t size, struct archive *a)
-{
-	/* for now, just read one char at a time until we get to a
-	 * '\n' char. we can optimize this later with an internal
-	 * buffer. */
-	/* leave room for zero terminator */
-	char *last = line + size - 1;
-	char *i;
-
-	for(i = line; i < last; i++) {
-		int ret = archive_read_data(a, i, 1);
-		/* special check for first read- if null, return null,
-		 * this indicates EOF */
-		if(i == line && (ret <= 0 || *i == '\0')) {
-			return(NULL);
-		}
-		/* check if read value was null or newline */
-		if(ret <= 0 || *i == '\0' || *i == '\n') {
-			last = i + 1;
-			break;
-		}
-	}
-
-	/* always null terminate the buffer */
-	*last = '\0';
-
-	return(line);
-}
-
 #endif
 
 /* vim: set ts=2 sw=2 noet: */
