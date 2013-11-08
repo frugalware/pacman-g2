@@ -477,9 +477,7 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 	int sline = sizeof(line)-1;
 	char *ptr;
 
-	if(db == NULL) {
-		RET_ERR(PM_ERR_DB_NULL, -1);
-	}
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	if(info == NULL || info->name[0] == 0 || info->version[0] == 0) {
 		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_db_read"));
@@ -604,7 +602,8 @@ int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 	int retval = 0;
 	int local = 0;
 
-	if(db == NULL || info == NULL) {
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(info == NULL) {
 		return(-1);
 	}
 
@@ -719,7 +718,8 @@ int _pacman_db_remove(pmdb_t *db, pmpkg_t *info)
 {
 	char path[PATH_MAX];
 
-	if(db == NULL || info == NULL) {
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(info == NULL) {
 		RET_ERR(PM_ERR_DB_NULL, -1);
 	}
 
@@ -742,7 +742,8 @@ int _pacman_db_getlastupdate(pmdb_t *db, char *ts)
 	FILE *fp;
 	char file[PATH_MAX];
 
-	if(db == NULL || ts == NULL) {
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(ts == NULL) {
 		return(-1);
 	}
 
