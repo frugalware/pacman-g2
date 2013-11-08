@@ -251,7 +251,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 
 int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 {
-	int i, ret = 0, errors = 0, needdisp = 0;
+	int i, ret = 0, errors = 0;
 	int remain, howmany, archive_ret;
 	double percent;
 	register struct archive *archive;
@@ -389,9 +389,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 
 				if (pkg_new->size != 0)
 					percent = (double)archive_position_uncompressed(archive) / pkg_new->size;
-				if (needdisp == 0) {
-					PROGRESS(trans, cb_state, pkg_new->name, (int)(percent * 100), howmany, (howmany - remain +1));
-				}
+				PROGRESS(trans, cb_state, pkg_new->name, (int)(percent * 100), howmany, (howmany - remain +1));
 
 				if(!strcmp(pathname, ".PKGINFO") || !strcmp(pathname, ".FILELIST")) {
 					archive_read_data_skip (archive);
@@ -742,7 +740,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 			}
 		}
 
-		needdisp = 0;
 		EVENT(trans, PM_TRANS_EVT_EXTRACT_DONE, NULL, NULL);
 
 		/* run the post-install script if it exists  */
