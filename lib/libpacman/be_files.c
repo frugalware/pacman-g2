@@ -258,23 +258,13 @@ static int _pacman_db_read_lines(pmdb_t *db, pmlist_t **list, char *s, size_t si
 	return lines;
 }
 
-static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
+static
+int _pacman_db_desc_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp, pmdb_t *db)
 {
-	FILE *fp = NULL;
-	char path[PATH_MAX];
 	char line[512];
 	int sline = sizeof(line)-1;
 	pmlist_t *i;
 
-	if(inforeq & INFRQ_DESC) {
-		if (islocal(db)) {
-			snprintf(path, PATH_MAX, "%s/%s-%s/desc", db->path, info->name, info->version);
-			fp = fopen(path, "r");
-			if(fp == NULL) {
-				_pacman_log(PM_LOG_DEBUG, "%s (%s)", path, strerror(errno));
-				goto error;
-			}
-		}
 		while(!islocal(db) || !feof(fp)) {
 			if(_pacman_db_read_fgets(db, line, 256, fp) == NULL) {
 				break;
@@ -384,36 +374,41 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				info->stick = 1;
 			}
 		}
-		if (fp)
-			fclose(fp);
-		fp = NULL;
-	}
-
-	return(0);
+	return 0;
 
 error:
-	if(fp) {
-		fclose(fp);
-	}
-	return(-1);
+	return -1;
 }
 
-static int _pacman_db_read_depends(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
+static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 {
-	FILE *fp = NULL;
-	char path[PATH_MAX];
+	int ret = 0;
+
+	if(inforeq & INFRQ_DESC) {
+		FILE *fp = NULL;
+		char path[PATH_MAX];
+
+		if (islocal(db)) {
+			snprintf(path, PATH_MAX, "%s/%s-%s/desc", db->path, info->name, info->version);
+			fp = fopen(path, "r");
+			if(fp == NULL) {
+				_pacman_log(PM_LOG_DEBUG, "%s (%s)", path, strerror(errno));
+				return -1;
+			}
+		}
+		ret = _pacman_db_desc_fread(info, inforeq, fp, db);
+		if (fp)
+			fclose(fp);
+	}
+	return ret;
+}
+
+static
+int _pacman_db_depends_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp, pmdb_t *db)
+{
 	char line[512];
 	int sline = sizeof(line)-1;
 
-	if(inforeq & INFRQ_DEPENDS) {
-		if (islocal(db)) {
-			snprintf(path, PATH_MAX, "%s/%s-%s/depends", db->path, info->name, info->version);
-			fp = fopen(path, "r");
-			if(fp == NULL) {
-				_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
-				goto error;
-			}
-		}
 		while(!islocal(db) || !feof(fp)) {
 			if(_pacman_db_read_fgets(db, line, 256, fp) == NULL) {
 				break;
@@ -441,18 +436,30 @@ static int _pacman_db_read_depends(pmdb_t *db, unsigned int inforeq, pmpkg_t *in
 				info->stick = 1;
 			}
 		}
+	return 0;
+}
+
+static int _pacman_db_read_depends(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
+{
+	int ret = 0;
+
+	if(inforeq & INFRQ_DEPENDS) {
+		FILE *fp = NULL;
+		char path[PATH_MAX];
+
+		if (islocal(db)) {
+			snprintf(path, PATH_MAX, "%s/%s-%s/depends", db->path, info->name, info->version);
+			fp = fopen(path, "r");
+			if(fp == NULL) {
+				_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
+				return -1;
+			}
+		}
+		ret = _pacman_db_depends_fread(info, inforeq, fp, db);
 		if (fp)
 			fclose(fp);
-		fp = NULL;
 	}
-
-	return(0);
-
-error:
-	if(fp) {
-		fclose(fp);
-	}
-	return(-1);
+	return ret;
 }
 
 static int suffixcmp(const char *str, const char *suffix)
