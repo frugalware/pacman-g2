@@ -767,12 +767,13 @@ int _pacman_db_getlastupdate(pmdb_t *db, char *ts)
 
 /* writes the dbpath/.lastupdate with the contents of *ts
  */
-int _pacman_db_setlastupdate(pmdb_t *db, char *ts)
+int _pacman_db_setlastupdate(pmdb_t *db, const char *ts)
 {
 	FILE *fp;
 	char file[PATH_MAX];
 
-	if(db == NULL || _pacman_strempty(ts)) {
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(_pacman_strempty(ts)) {
 		return(-1);
 	}
 
