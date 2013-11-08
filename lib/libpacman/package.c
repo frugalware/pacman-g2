@@ -35,6 +35,8 @@
 /* pacman-g2 */
 #include "package.h"
 
+#include "io/archive.h"
+#include "package/pkginfo.h"
 #include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
@@ -224,64 +226,42 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 			break;
 		}
 		if(!strcmp(archive_entry_pathname (entry), ".PKGINFO")) {
-			char *descfile;
-			int fd;
+			FILE *pkginfo = _pacman_archive_read_fropen(archive);
 
-			/* extract this file into /tmp. it has info for us */
-			descfile = strdup("/tmp/pacman_XXXXXX");
-			fd = mkstemp(descfile);
-			archive_read_data_into_fd (archive, fd);
 			/* parse the info file */
-			if(_pacman_pkginfo_read(descfile, info, 0) == -1) {
+			if(_pacman_pkginfo_fread(pkginfo, info, 0) == -1) {
 				_pacman_log(PM_LOG_ERROR, _("could not parse the package description file"));
 				pm_errno = PM_ERR_PKG_INVALID;
-				unlink(descfile);
-				FREE(descfile);
-				close(fd);
+				fclose(pkginfo);
 				goto error;
 			}
+			fclose(pkginfo);
 			if(_pacman_pkg_is_valid(info, handle->trans, pkgfile) != 0) {
-				unlink(descfile);
-				FREE(descfile);
-				close(fd);
 				goto error;
 			}
 			config = 1;
-			unlink(descfile);
-			FREE(descfile);
-			close(fd);
 			continue;
 		} else if(!strcmp(archive_entry_pathname (entry), "._install") || !strcmp(archive_entry_pathname (entry),  ".INSTALL")) {
 			info->scriptlet = 1;
 			scriptcheck = 1;
 		} else if(!strcmp(archive_entry_pathname (entry), ".FILELIST")) {
 			/* Build info->files from the filelist */
-			FILE *fp;
-			char *fn;
+			FILE *filelist;
 			char *str;
-			int fd;
 
 			if((str = (char *)malloc(PATH_MAX)) == NULL) {
 				RET_ERR(PM_ERR_MEMORY, (pmpkg_t *)-1);
 			}
-			fn = strdup("/tmp/pacman_XXXXXX");
-			fd = mkstemp(fn);
-			archive_read_data_into_fd (archive,fd);
-			fp = fopen(fn, "r");
-			while(!feof(fp)) {
-				if(fgets(str, PATH_MAX, fp) == NULL) {
+			filelist = _pacman_archive_read_fropen(archive);
+			while(!feof(filelist)) {
+				if(fgets(str, PATH_MAX, filelist) == NULL) {
 					continue;
 				}
 				_pacman_strtrim(str);
 				info->files = _pacman_stringlist_append(info->files, str);
 			}
 			FREE(str);
-			fclose(fp);
-			if(unlink(fn)) {
-				_pacman_log(PM_LOG_WARNING, _("could not remove tempfile %s"), fn);
-			}
-			FREE(fn);
-			close(fd);
+			fclose(filelist);
 			filelist = 1;
 			continue;
 		} else {
