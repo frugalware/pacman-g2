@@ -41,6 +41,7 @@
 
 #include "db/localdb.h"
 #include "db/syncdb.h"
+#include "io/archive.h"
 #include "util/log.h"
 #include "util/stringlist.h"
 #include "util.h"
@@ -239,19 +240,11 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	return(pkg);
 }
 
-static char *_pacman_db_read_fgets(pmdb_t *db, char *line, size_t size, FILE *fp)
-{
-	if (islocal(db))
-		return fgets(line, size, fp);
-	else
-		return _pacman_archive_fgets(line, size, db->handle);
-}
-
-static int _pacman_db_read_lines(pmdb_t *db, pmlist_t **list, char *s, size_t size, FILE *fp)
+static int _pacman_db_read_lines(pmlist_t **list, char *s, size_t size, FILE *fp)
 {
 	int lines = 0;
 
-	while(_pacman_db_read_fgets(db, s, size, fp) && !_pacman_strempty(_pacman_strtrim(s))) {
+	while(fgets(s, size, fp) && !_pacman_strempty(_pacman_strtrim(s))) {
 		*list = _pacman_stringlist_append(*list, s);
 		lines++;
 	}
@@ -259,19 +252,19 @@ static int _pacman_db_read_lines(pmdb_t *db, pmlist_t **list, char *s, size_t si
 }
 
 static
-int _pacman_db_desc_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp, pmdb_t *db)
+int _pacman_db_desc_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp)
 {
 	char line[512];
 	int sline = sizeof(line)-1;
 	pmlist_t *i;
 
-		while(!islocal(db) || !feof(fp)) {
-			if(_pacman_db_read_fgets(db, line, 256, fp) == NULL) {
+	while(!feof(fp)) {
+			if(fgets(line, 256, fp) == NULL) {
 				break;
 			}
 			_pacman_strtrim(line);
 			if(!strcmp(line, "%DESC%")) {
-				_pacman_db_read_lines(db, &info->desc_localized, line, sline, fp);
+				_pacman_db_read_lines(&info->desc_localized, line, sline, fp);
 				STRNCPY(info->desc, (char*)info->desc_localized->data, sizeof(info->desc));
 				for (i = info->desc_localized; i; i = i->next) {
 					if (!strncmp(i->data, handle->language, strlen(handle->language)) &&
@@ -281,48 +274,48 @@ int _pacman_db_desc_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp, pmdb_t 
 				}
 				_pacman_strtrim(info->desc);
 			} else if(!strcmp(line, "%GROUPS%")) {
-				_pacman_db_read_lines(db, &info->groups, line, sline, fp);
+				_pacman_db_read_lines(&info->groups, line, sline, fp);
 			} else if(!strcmp(line, "%URL%")) {
-				if(_pacman_db_read_fgets(db, info->url, sizeof(info->url), fp) == NULL) {
+				if(fgets(info->url, sizeof(info->url), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(info->url);
 			} else if(!strcmp(line, "%LICENSE%")) {
-				_pacman_db_read_lines(db, &info->license, line, sline, fp);
+				_pacman_db_read_lines(&info->license, line, sline, fp);
 			} else if(!strcmp(line, "%ARCH%")) {
-				if(_pacman_db_read_fgets(db, info->arch, sizeof(info->arch), fp) == NULL) {
+				if(fgets(info->arch, sizeof(info->arch), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(info->arch);
 			} else if(!strcmp(line, "%BUILDDATE%")) {
-				if(_pacman_db_read_fgets(db, info->builddate, sizeof(info->builddate), fp) == NULL) {
+				if(fgets(info->builddate, sizeof(info->builddate), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(info->builddate);
 			} else if(!strcmp(line, "%BUILDTYPE%")) {
-				if(_pacman_db_read_fgets(db, info->buildtype, sizeof(info->buildtype), fp) == NULL) {
+				if(fgets(info->buildtype, sizeof(info->buildtype), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(info->buildtype);
 			} else if(!strcmp(line, "%INSTALLDATE%")) {
-				if(_pacman_db_read_fgets(db, info->installdate, sizeof(info->installdate), fp) == NULL) {
+				if(fgets(info->installdate, sizeof(info->installdate), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(info->installdate);
 			} else if(!strcmp(line, "%PACKAGER%")) {
-				if(_pacman_db_read_fgets(db, info->packager, sizeof(info->packager), fp) == NULL) {
+				if(fgets(info->packager, sizeof(info->packager), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(info->packager);
 			} else if(!strcmp(line, "%REASON%")) {
 				char tmp[32];
-				if(_pacman_db_read_fgets(db, tmp, sizeof(tmp), fp) == NULL) {
+				if(fgets(tmp, sizeof(tmp), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(tmp);
 				info->reason = atol(tmp);
 			} else if(!strcmp(line, "%TRIGGERS%")) {
-				_pacman_db_read_lines(db, &info->triggers, line, sline, fp);
+				_pacman_db_read_lines(&info->triggers, line, sline, fp);
 			} else if(!strcmp(line, "%SIZE%") || !strcmp(line, "%CSIZE%")) {
 				/* NOTE: the CSIZE and SIZE fields both share the "size" field
 				 *       in the pkginfo_t struct.  This can be done b/c CSIZE
@@ -330,7 +323,7 @@ int _pacman_db_desc_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp, pmdb_t 
 				 *       only used in local databases.
 				 */
 				char tmp[32];
-				if(_pacman_db_read_fgets(db, tmp, sizeof(tmp), fp) == NULL) {
+				if(fgets(tmp, sizeof(tmp), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(tmp);
@@ -339,7 +332,7 @@ int _pacman_db_desc_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp, pmdb_t 
 				/* USIZE (uncompressed size) tag only appears in sync repositories,
 				 * not the local one. */
 				char tmp[32];
-				if(_pacman_db_read_fgets(db, tmp, sizeof(tmp), fp) == NULL) {
+				if(fgets(tmp, sizeof(tmp), fp) == NULL) {
 					goto error;
 				}
 				_pacman_strtrim(tmp);
@@ -347,13 +340,13 @@ int _pacman_db_desc_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp, pmdb_t 
 			} else if(!strcmp(line, "%SHA1SUM%")) {
 				/* SHA1SUM tag only appears in sync repositories,
 				 * not the local one. */
-				if(_pacman_db_read_fgets(db, info->sha1sum, sizeof(info->sha1sum), fp) == NULL) {
+				if(fgets(info->sha1sum, sizeof(info->sha1sum), fp) == NULL) {
 					goto error;
 				}
 			} else if(!strcmp(line, "%MD5SUM%")) {
 				/* MD5SUM tag only appears in sync repositories,
 				 * not the local one. */
-				if(_pacman_db_read_fgets(db, info->md5sum, sizeof(info->md5sum), fp) == NULL) {
+				if(fgets(info->md5sum, sizeof(info->md5sum), fp) == NULL) {
 					goto error;
 				}
 			/* XXX: these are only here as backwards-compatibility for pacman
@@ -363,7 +356,7 @@ int _pacman_db_desc_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp, pmdb_t 
 			} else if(!strcmp(line, "%REPLACES%")) {
 				/* the REPLACES tag is special -- it only appears in sync repositories,
 				 * not the local one. */
-				_pacman_db_read_lines(db, &info->replaces, line, sline, fp);
+				_pacman_db_read_lines(&info->replaces, line, sline, fp);
 			} else if(!strcmp(line, "%FORCE%")) {
 				/* FORCE tag only appears in sync repositories,
 				 * not the local one. */
@@ -395,8 +388,10 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				_pacman_log(PM_LOG_DEBUG, "%s (%s)", path, strerror(errno));
 				return -1;
 			}
+		} else {
+			fp = _pacman_archive_read_fropen(db->handle);
 		}
-		ret = _pacman_db_desc_fread(info, inforeq, fp, db);
+		ret = _pacman_db_desc_fread(info, inforeq, fp);
 		if (fp)
 			fclose(fp);
 	}
@@ -404,28 +399,28 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 }
 
 static
-int _pacman_db_depends_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp, pmdb_t *db)
+int _pacman_db_depends_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp)
 {
 	char line[512];
 	int sline = sizeof(line)-1;
 
-		while(!islocal(db) || !feof(fp)) {
-			if(_pacman_db_read_fgets(db, line, 256, fp) == NULL) {
+	while(!feof(fp)) {
+			if(fgets(line, 256, fp) == NULL) {
 				break;
 			}
 			_pacman_strtrim(line);
 			if(!strcmp(line, "%DEPENDS%")) {
-				_pacman_db_read_lines(db, &info->depends, line, sline, fp);
+				_pacman_db_read_lines(&info->depends, line, sline, fp);
 			} else if(!strcmp(line, "%REQUIREDBY%")) {
-				_pacman_db_read_lines(db, &info->requiredby, line, sline, fp);
+				_pacman_db_read_lines(&info->requiredby, line, sline, fp);
 			} else if(!strcmp(line, "%CONFLICTS%")) {
-				_pacman_db_read_lines(db, &info->conflicts, line, sline, fp);
+				_pacman_db_read_lines(&info->conflicts, line, sline, fp);
 			} else if(!strcmp(line, "%PROVIDES%")) {
-				_pacman_db_read_lines(db, &info->provides, line, sline, fp);
+				_pacman_db_read_lines(&info->provides, line, sline, fp);
 			} else if(!strcmp(line, "%REPLACES%")) {
 				/* the REPLACES tag is special -- it only appears in sync repositories,
 				 * not the local one. */
-				_pacman_db_read_lines(db, &info->replaces, line, sline, fp);
+				_pacman_db_read_lines(&info->replaces, line, sline, fp);
 			} else if(!strcmp(line, "%FORCE%")) {
 				/* FORCE tag only appears in sync repositories,
 				 * not the local one. */
@@ -454,8 +449,10 @@ static int _pacman_db_read_depends(pmdb_t *db, unsigned int inforeq, pmpkg_t *in
 				_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
 				return -1;
 			}
+		} else {
+			fp = _pacman_archive_read_fropen(db->handle);
 		}
-		ret = _pacman_db_depends_fread(info, inforeq, fp, db);
+		ret = _pacman_db_depends_fread(info, inforeq, fp);
 		if (fp)
 			fclose(fp);
 	}
