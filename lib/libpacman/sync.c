@@ -262,7 +262,6 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 	pmlist_t *i, *j, *k, *l, *m;
 	int ret = 0;
 	pmdb_t *db_local = trans->handle->db_local;
-	pmlist_t *dbs_sync = trans->handle->dbs_sync;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -793,7 +792,6 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 	int doremove, retval, tries = 0;
 	int varcache = 1;
 
-//	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	trans->state = STATE_DOWNLOADING;

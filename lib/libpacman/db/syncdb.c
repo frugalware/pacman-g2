@@ -74,6 +74,7 @@ int _pacman_syncdb_open(pmdb_t *db)
 		archive_read_finish(db->handle);
 		RET_ERR(PM_ERR_DB_OPEN, -1);
 	}
+	return 0;
 }
 
 void _pacman_syncdb_close(pmdb_t *db)
