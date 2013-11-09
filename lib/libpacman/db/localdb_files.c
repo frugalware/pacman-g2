@@ -219,4 +219,33 @@ int _pacman_localdb_depends_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp)
 	return 0;
 }
 
+int _pacman_localdb_files_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp)
+{
+	char line[512];
+	int sline = sizeof(line)-1;
+
+	while(!feof(fp)) {
+		if(fgets(line, 256, fp) == NULL) {
+			break;
+		}
+		_pacman_strtrim(line);
+		if(!strcmp(line, "%FILES%")) {
+			while(fgets(line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
+				char *ptr;
+
+				if((ptr = strchr(line, '|'))) {
+					/* just ignore the content after the pipe for now */
+					*ptr = '\0';
+				}
+				info->files = _pacman_stringlist_append(info->files, line);
+			}
+		} else if(!strcmp(line, "%BACKUP%")) {
+			while(fgets(line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
+				info->backup = _pacman_stringlist_append(info->backup, line);
+			}
+		}
+	}
+	return 0;
+}
+
 /* vim: set ts=2 sw=2 noet: */

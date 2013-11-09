@@ -40,6 +40,7 @@
 /* pacman-g2 */
 
 #include "db/localdb.h"
+#include "db/localdb_files.h"
 #include "db/syncdb.h"
 #include "io/archive.h"
 #include "util/log.h"
@@ -234,6 +235,27 @@ static int _pacman_db_read_depends(pmdb_t *db, unsigned int inforeq, pmpkg_t *in
 	return ret;
 }
 
+static int _pacman_db_read_files(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
+{
+	int ret = 0;
+
+	if(inforeq & INFRQ_FILES) {
+		FILE *fp = NULL;
+		char path[PATH_MAX];
+
+		snprintf(path, PATH_MAX, "%s/%s-%s/files", db->path, info->name, info->version);
+		fp = fopen(path, "r");
+		if(fp == NULL) {
+			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
+			return -1;
+		}
+		if(_pacman_localdb_files_fread(info, inforeq, fp) == -1)
+			return -1;
+		fclose(fp);
+	}
+	return ret;
+}
+
 static int suffixcmp(const char *str, const char *suffix)
 {
 	int len = strlen(str), suflen = strlen(suffix);
@@ -245,12 +267,8 @@ static int suffixcmp(const char *str, const char *suffix)
 
 int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 {
-	FILE *fp = NULL;
 	struct stat buf;
 	char path[PATH_MAX];
-	char line[512];
-	int sline = sizeof(line)-1;
-	char *ptr;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
@@ -292,32 +310,8 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 	}
 
 	/* FILES */
-	if(inforeq & INFRQ_FILES) {
-		snprintf(path, PATH_MAX, "%s/%s-%s/files", db->path, info->name, info->version);
-		fp = fopen(path, "r");
-		if(fp == NULL) {
-			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
-			goto error;
-		}
-		while(fgets(line, 256, fp)) {
-			_pacman_strtrim(line);
-			if(!strcmp(line, "%FILES%")) {
-				while(fgets(line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
-					if((ptr = strchr(line, '|'))) {
-						/* just ignore the content after the pipe for now */
-						*ptr = '\0';
-					}
-					info->files = _pacman_stringlist_append(info->files, line);
-				}
-			} else if(!strcmp(line, "%BACKUP%")) {
-				while(fgets(line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
-					info->backup = _pacman_stringlist_append(info->backup, line);
-				}
-			}
-		}
-		fclose(fp);
-		fp = NULL;
-	}
+	if (_pacman_db_read_files(db, inforeq, info) == -1)
+		return -1;
 
 	/* INSTALL */
 	if(inforeq & INFRQ_SCRIPLET) {
@@ -331,12 +325,6 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 	info->infolevel |= inforeq;
 
 	return(0);
-
-error:
-	if(fp) {
-		fclose(fp);
-	}
-	return(-1);
 }
 
 /* reads dbpath/.lastupdate and populates *ts with the contents.
