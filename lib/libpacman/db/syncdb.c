@@ -121,7 +121,7 @@ int _pacman_syncdb_rewind(pmdb_t *db)
 }
 
 static
-int _pacman_syncdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq, unsigned int inforeq_masq, int (*reader)(pmpkg_t *, unsigned int, FILE *))
+int _pacman_syncdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq, unsigned int inforeq_masq, int (*reader)(pmpkg_t *, FILE *))
 {
 	int ret = 0;
 
@@ -129,7 +129,7 @@ int _pacman_syncdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq, 
 		FILE *fp = _pacman_archive_read_fropen(db->handle);
 
 		ASSERT(fp != NULL, RET_ERR(PM_ERR_MEMORY, -1));
-		ret = reader(info, inforeq, fp);
+		ret = reader(info, fp);
 		fclose(fp);
 	}
 	return ret;

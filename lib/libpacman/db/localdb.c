@@ -119,7 +119,7 @@ int _pacman_localdb_rewind(pmdb_t *db)
 }
 
 static
-int _pacman_localdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq, unsigned int inforeq_masq, const char *file, int (*reader)(pmpkg_t *, unsigned int, FILE *))
+int _pacman_localdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq, unsigned int inforeq_masq, const char *file, int (*reader)(pmpkg_t *, FILE *))
 {
 	int ret = 0;
 
@@ -133,7 +133,7 @@ int _pacman_localdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq,
 			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
 			return -1;
 		}
-		if(reader(info, inforeq, fp) == -1)
+		if(reader(info, fp) == -1)
 			return -1;
 		fclose(fp);
 	}

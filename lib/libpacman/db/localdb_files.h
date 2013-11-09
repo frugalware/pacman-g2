@@ -27,9 +27,9 @@
 
 #include "pacman.h"
 
-int _pacman_localdb_desc_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp);
-int _pacman_localdb_depends_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp);
-int _pacman_localdb_files_fread(pmpkg_t *info, unsigned int inforeq, FILE *fp);
+int _pacman_localdb_desc_fread(pmpkg_t *info, FILE *fp);
+int _pacman_localdb_depends_fread(pmpkg_t *info, FILE *fp);
+int _pacman_localdb_files_fread(pmpkg_t *info, FILE *fp);
 
 #endif /* _PACMAN_LOCALDB_FILES_H */
 
