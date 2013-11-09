@@ -154,9 +154,7 @@ int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 	int retval = 0;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	if(info == NULL) {
-		return(-1);
-	}
+	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 
 	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name, info->version);
 	oldmask = umask(0000);
@@ -241,12 +239,28 @@ cleanup:
 	return(retval);
 }
 
+int _pacman_localdb_remove(pmdb_t *db, pmpkg_t *info)
+{
+	char path[PATH_MAX];
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
+
+	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name, info->version);
+	if(_pacman_rmrf(path) == -1) {
+		return(-1);
+	}
+
+	return(0);
+}
+
 const pmdb_ops_t _pacman_localdb_ops = {
 	.test = _pacman_localdb_test,
 	.open = _pacman_localdb_open,
 	.close = _pacman_localdb_close,
 	.rewind = _pacman_localdb_rewind,
 	.write = _pacman_localdb_write,
+	.remove = _pacman_localdb_remove,
 };
 
 /* vim: set ts=2 sw=2 noet: */

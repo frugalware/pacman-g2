@@ -518,24 +518,18 @@ int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 	} else {
 		RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
 	}
-
 }
 
 int _pacman_db_remove(pmdb_t *db, pmpkg_t *info)
 {
-	char path[PATH_MAX];
-
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	if(info == NULL) {
-		RET_ERR(PM_ERR_DB_NULL, -1);
-	}
+	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 
-	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name, info->version);
-	if(_pacman_rmrf(path) == -1) {
-		return(-1);
+	if(db->ops->remove != NULL) {
+		return db->ops->remove(db, info);
+	} else {
+		RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
 	}
-
-	return(0);
 }
 
 /* reads dbpath/.lastupdate and populates *ts with the contents.
