@@ -40,7 +40,7 @@
 typedef struct __pmdb_ops_t pmdb_ops_t;
 
 struct __pmdb_ops_t {
-	int (*test)(pmdb_t *db);
+	pmlist_t *(*test)(pmdb_t *db);
 	int (*open)(pmdb_t *db);
 	int (*close)(pmdb_t *db);
 
