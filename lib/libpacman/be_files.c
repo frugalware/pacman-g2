@@ -597,7 +597,6 @@ int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 	char path[PATH_MAX];
 	mode_t oldmask;
 	int retval = 0;
-	int local = 0;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	if(info == NULL) {
@@ -609,10 +608,6 @@ int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 	mkdir(path, 0755);
 	/* make sure we have a sane umask */
 	umask(0022);
-
-	if(islocal(db)) {
-		local = 1;
-	}
 
 	/* DESC */
 	if(inforeq & INFRQ_DESC) {
@@ -628,7 +623,6 @@ int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 			_pacman_db_write_stringlist("DESC", info->desc_localized, fp);
 		}
 		_pacman_db_write_stringlist("GROUPS", info->groups, fp);
-		if(local) {
 			_pacman_db_write_string("URL", info->url, fp);
 			_pacman_db_write_stringlist("LICENSE", info->license, fp);
 			_pacman_db_write_string("ARCH", info->arch, fp);
@@ -645,24 +639,12 @@ int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 					"%d\n\n", info->reason);
 			}
 			_pacman_db_write_stringlist("TRIGGERS", info->triggers, fp);
-		} else {
-			if(info->size) {
-				fprintf(fp, "%%CSIZE%%\n"
-					"%ld\n\n", info->size);
-			}
-			if(info->usize) {
-				fprintf(fp, "%%USIZE%%\n"
-					"%ld\n\n", info->usize);
-			}
-			_pacman_db_write_string("SHA1SUM", info->sha1sum, fp);
-			_pacman_db_write_string("MD5SUM", info->md5sum, fp);
-		}
 		fclose(fp);
 		fp = NULL;
 	}
 
 	/* FILES */
-	if(local && (inforeq & INFRQ_FILES)) {
+	if(inforeq & INFRQ_FILES) {
 		snprintf(path, PATH_MAX, "%s/%s-%s/files", db->path, info->name, info->version);
 		if((fp = fopen(path, "w")) == NULL) {
 			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/files"), db->treename);
@@ -684,16 +666,9 @@ int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 			goto cleanup;
 		}
 		_pacman_db_write_stringlist("DEPENDS", info->depends, fp);
-		if(local) {
 			_pacman_db_write_stringlist("REQUIREDBY", info->requiredby, fp);
-		}
 		_pacman_db_write_stringlist("CONFLICTS", info->conflicts, fp);
 		_pacman_db_write_stringlist("PROVIDES", info->provides, fp);
-		if(!local) {
-			_pacman_db_write_stringlist("REPLACES", info->replaces, fp);
-			_pacman_db_write_bool("FORCE", info->force, fp);
-			_pacman_db_write_bool("STICK", info->stick, fp);
-		}
 		fclose(fp);
 		fp = NULL;
 	}
