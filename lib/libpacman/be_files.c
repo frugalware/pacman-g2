@@ -135,8 +135,8 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	struct archive_entry *entry = NULL;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-	if(target != NULL) {
 		// Search from start
 		_pacman_db_rewind(db);
 
@@ -187,9 +187,6 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 		if(!found) {
 			return(NULL);
 		}
-	} else {
-		return _pacman_db_readpkg(db, inforeq);
-	}
 
 	pkg = _pacman_pkg_new(NULL, NULL);
 	if(pkg == NULL) {
