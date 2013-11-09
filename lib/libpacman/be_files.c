@@ -60,6 +60,69 @@ static inline int islocal(pmdb_t *db)
 		return strcmp(db->treename, "local") == 0;
 }
 
+pmpkg_t *_pacman_db_readpkg(pmdb_t *db, unsigned int inforeq)
+{
+	struct dirent *ent = NULL;
+	struct stat sbuf;
+	char path[PATH_MAX];
+	pmpkg_t *pkg;
+	struct archive_entry *entry = NULL;
+	int isdir = 0;
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+
+	while(!isdir) {
+		if (islocal(db)) {
+			ent = readdir(db->handle);
+			if(ent == NULL) {
+				return(NULL);
+			}
+			if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
+				isdir = 0;
+				continue;
+			}
+			/* stat the entry, make sure it's a directory */
+			snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
+			if(!stat(path, &sbuf) && S_ISDIR(sbuf.st_mode)) {
+				isdir = 1;
+			}
+		} else {
+			if (!db->handle)
+				_pacman_db_rewind(db);
+			if (!db->handle || archive_read_next_header(db->handle, &entry) != ARCHIVE_OK) {
+				return NULL;
+			}
+			// make sure it's a directory
+			const char *pathname = archive_entry_pathname(entry);
+			if (pathname[strlen(pathname)-1] == '/')
+				isdir = 1;
+		}
+	}
+
+	pkg = _pacman_pkg_new(NULL, NULL);
+	if(pkg == NULL) {
+		return(NULL);
+	}
+	char *dname;
+	if (islocal(db)) {
+		dname = strdup(ent->d_name);
+	} else {
+		dname = strdup(archive_entry_pathname(entry));
+		dname[strlen(dname)-1] = '\0'; // drop trailing slash
+	}
+	if(_pacman_pkg_splitname(dname, pkg->name, pkg->version, 0) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
+		FREE(dname);
+		return(NULL);
+	}
+	FREE(dname);
+	if(_pacman_db_read(db, inforeq, pkg) == -1) {
+		FREEPKG(pkg);
+	}
+
+	return(pkg);
+}
+
 pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 {
 	struct dirent *ent = NULL;
@@ -69,14 +132,9 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	char *ptr = NULL;
 	int found = 0;
 	pmpkg_t *pkg;
-
-	char dbpath[PATH_MAX];
-	snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
 	struct archive_entry *entry = NULL;
 
-	if(db == NULL) {
-		RET_ERR(PM_ERR_DB_NULL, NULL);
-	}
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
 	if(target != NULL) {
 		// Search from start
@@ -130,35 +188,7 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 			return(NULL);
 		}
 	} else {
-		/* normal iteration */
-		int isdir = 0;
-		while(!isdir) {
-			if (islocal(db)) {
-				ent = readdir(db->handle);
-				if(ent == NULL) {
-					return(NULL);
-				}
-				if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
-					isdir = 0;
-					continue;
-				}
-				/* stat the entry, make sure it's a directory */
-				snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
-				if(!stat(path, &sbuf) && S_ISDIR(sbuf.st_mode)) {
-					isdir = 1;
-				}
-			} else {
-				if (!db->handle)
-					_pacman_db_rewind(db);
-				if (!db->handle || archive_read_next_header(db->handle, &entry) != ARCHIVE_OK) {
-					return NULL;
-				}
-				// make sure it's a directory
-				const char *pathname = archive_entry_pathname(entry);
-				if (pathname[strlen(pathname)-1] == '/')
-					isdir = 1;
-			}
-		}
+		return _pacman_db_readpkg(db, inforeq);
 	}
 
 	pkg = _pacman_pkg_new(NULL, NULL);

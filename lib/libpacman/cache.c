@@ -64,7 +64,7 @@ int _pacman_db_load_pkgcache(pmdb_t *db)
 	                        inforeq, db->treename);
 
 	_pacman_db_rewind(db);
-	while((info = _pacman_db_scan(db, NULL, inforeq)) != NULL) {
+	while((info = _pacman_db_readpkg(db, inforeq)) != NULL) {
 		info->origin = PKG_FROM_CACHE;
 		info->data = db;
 		/* add to the collective */
