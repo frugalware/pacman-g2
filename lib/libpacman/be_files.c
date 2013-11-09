@@ -137,56 +137,56 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-		// Search from start
-		_pacman_db_rewind(db);
+	// Search from start
+	_pacman_db_rewind(db);
 
-		/* search for a specific package (by name only) */
-		if (islocal(db)) {
-			while(!found && (ent = readdir(db->handle)) != NULL) {
-				if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
-					continue;
-				}
-				/* stat the entry, make sure it's a directory */
-				snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
-				if(stat(path, &sbuf) || !S_ISDIR(sbuf.st_mode)) {
-					continue;
-				}
-				STRNCPY(name, ent->d_name, PKG_FULLNAME_LEN);
-				/* truncate the string at the second-to-last hyphen, */
-				/* which will give us the package name */
-				if((ptr = rindex(name, '-'))) {
-					*ptr = '\0';
-				}
-				if((ptr = rindex(name, '-'))) {
-					*ptr = '\0';
-				}
-				if(!strcmp(name, target)) {
-					found = 1;
-				}
+	/* search for a specific package (by name only) */
+	if (islocal(db)) {
+		while(!found && (ent = readdir(db->handle)) != NULL) {
+			if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
+				continue;
 			}
-		} else {
-			while (!found && archive_read_next_header(db->handle, &entry) == ARCHIVE_OK) {
-				// make sure it's a directory
-				const char *pathname = archive_entry_pathname(entry);
-				if (pathname[strlen(pathname)-1] != '/')
-					continue;
-				STRNCPY(name, pathname, PKG_FULLNAME_LEN);
-				// truncate the string at the second-to-last hyphen,
-				// which will give us the package name
-				if((ptr = rindex(name, '-'))) {
-					*ptr = '\0';
-				}
-				if((ptr = rindex(name, '-'))) {
-					*ptr = '\0';
-				}
-				if(!strcmp(name, target)) {
-					found = 1;
-				}
+			/* stat the entry, make sure it's a directory */
+			snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
+			if(stat(path, &sbuf) || !S_ISDIR(sbuf.st_mode)) {
+				continue;
+			}
+			STRNCPY(name, ent->d_name, PKG_FULLNAME_LEN);
+			/* truncate the string at the second-to-last hyphen, */
+			/* which will give us the package name */
+			if((ptr = rindex(name, '-'))) {
+				*ptr = '\0';
+			}
+			if((ptr = rindex(name, '-'))) {
+				*ptr = '\0';
+			}
+			if(!strcmp(name, target)) {
+				found = 1;
 			}
 		}
-		if(!found) {
-			return(NULL);
+	} else {
+		while (!found && archive_read_next_header(db->handle, &entry) == ARCHIVE_OK) {
+			// make sure it's a directory
+			const char *pathname = archive_entry_pathname(entry);
+			if (pathname[strlen(pathname)-1] != '/')
+				continue;
+			STRNCPY(name, pathname, PKG_FULLNAME_LEN);
+			// truncate the string at the second-to-last hyphen,
+			// which will give us the package name
+			if((ptr = rindex(name, '-'))) {
+				*ptr = '\0';
+			}
+			if((ptr = rindex(name, '-'))) {
+				*ptr = '\0';
+			}
+			if(!strcmp(name, target)) {
+				found = 1;
+			}
 		}
+	}
+	if(!found) {
+		return(NULL);
+	}
 
 	pkg = _pacman_pkg_new(NULL, NULL);
 	if(pkg == NULL) {
