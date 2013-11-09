@@ -201,19 +201,9 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 	struct archive_entry *entry;
 	pmpkg_t *info = NULL;
 
-	if(_pacman_strempty(pkgfile)) {
-		RET_ERR(PM_ERR_WRONG_ARGS, NULL);
-	}
-
-	if ((archive = archive_read_new ()) == NULL)
-		RET_ERR(PM_ERR_LIBARCHIVE_ERROR, NULL);
-
-	archive_read_support_compression_all (archive);
-	archive_read_support_format_all (archive);
-
-	if ((ret = archive_read_open_file (archive, pkgfile, PM_DEFAULT_BYTES_PER_BLOCK)) != ARCHIVE_OK)
+	if((archive = _pacman_archive_read_open_all_file(pkgfile)) == NULL) {
 		RET_ERR(PM_ERR_PKG_OPEN, NULL);
-
+	}
 	info = _pacman_pkg_new(NULL, NULL);
 	if(info == NULL) {
 		archive_read_finish (archive);

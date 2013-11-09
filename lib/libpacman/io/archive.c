@@ -31,6 +31,25 @@
 
 #include "util.h"
 
+struct archive *_pacman_archive_read_open_all_file(const char *file)
+{
+	struct archive *archive;
+
+	ASSERT(!_pacman_strempty(file), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	if((archive = archive_read_new ()) == NULL)
+		RET_ERR(PM_ERR_LIBARCHIVE_ERROR, NULL);
+
+	archive_read_support_compression_all (archive);
+	archive_read_support_format_all (archive);
+
+	if(archive_read_open_file(archive, file, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
+		archive_read_finish(archive);
+		RET_ERR(PM_ERR_PKG_OPEN, NULL);
+	}
+	return archive;
+}
+
 static const
 cookie_io_functions_t _pacman_archive_io_functions =
 {

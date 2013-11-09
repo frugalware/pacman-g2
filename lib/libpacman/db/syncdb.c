@@ -72,21 +72,16 @@ pmlist_t *_pacman_syncdb_test(pmdb_t *db)
 static
 int _pacman_syncdb_open(pmdb_t *db)
 {
-	char dbpath[PATH_MAX];
-	snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
 	struct stat buf;
+	char dbpath[PATH_MAX];
+
+	snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
 	if(stat(dbpath, &buf) != 0) {
 		// db is not there, we'll open it later
 		db->handle = NULL;
 		return 0;
 	}
-	if((db->handle = archive_read_new()) == NULL) {
-		RET_ERR(PM_ERR_DB_OPEN, -1);
-	}
-	archive_read_support_compression_all(db->handle);
-	archive_read_support_format_all(db->handle);
-	if(archive_read_open_filename(db->handle, dbpath, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
-		archive_read_finish(db->handle);
+	if((db->handle = _pacman_archive_read_open_all_file(dbpath)) == NULL) {
 		RET_ERR(PM_ERR_DB_OPEN, -1);
 	}
 	return 0;
@@ -105,19 +100,8 @@ int _pacman_syncdb_close(pmdb_t *db)
 static
 int _pacman_syncdb_rewind(pmdb_t *db)
 {
-	char dbpath[PATH_MAX];
-
-	snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
-	if (db->handle)
-		archive_read_finish(db->handle);
-	db->handle = archive_read_new();
-	archive_read_support_compression_all(db->handle);
-	archive_read_support_format_all(db->handle);
-	if (archive_read_open_filename(db->handle, dbpath, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK) {
-		archive_read_finish(db->handle);
-		db->handle = NULL;
-	}
-	return 0;
+	_pacman_syncdb_close(db);
+	return _pacman_syncdb_open(db);
 }
 
 static

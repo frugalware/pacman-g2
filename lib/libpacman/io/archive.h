@@ -23,6 +23,7 @@
 
 #include <archive.h>
 
+struct archive *_pacman_archive_read_open_all_file(const char *file);
 FILE *_pacman_archive_read_fropen(struct archive *a);
 
 #endif /* _PACMAN_UTIL_H */

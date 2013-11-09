@@ -319,15 +319,9 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 	closedir(handle);
 
 	/* now extract the new entries */
-	if ((_archive = archive_read_new ()) == NULL)
-		RET_ERR(PM_ERR_LIBARCHIVE_ERROR, -1);
-
-	archive_read_support_compression_all(_archive);
-	archive_read_support_format_all (_archive);
-
-	if (archive_read_open_file (_archive, archive, PM_DEFAULT_BYTES_PER_BLOCK) != ARCHIVE_OK)
+	if((_archive = _pacman_archive_read_open_all_file(archive)) == NULL) {
 		RET_ERR(PM_ERR_PKG_OPEN, -1);
-
+	}
 	while (archive_read_next_header (_archive, &entry) == ARCHIVE_OK) {
 		if (fn && strcmp (fn, archive_entry_pathname (entry))) {
 			if (archive_read_data_skip (_archive) != ARCHIVE_OK)
