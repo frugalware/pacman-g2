@@ -590,7 +590,8 @@ void _pacman_db_write_stringlist(const char *entry, const pmlist_t *values, FILE
 	}
 }
 
-int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
+static
+int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 {
 	FILE *fp = NULL;
 	char path[PATH_MAX];
@@ -708,6 +709,21 @@ cleanup:
 	}
 
 	return(retval);
+}
+
+int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
+{
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(info == NULL) {
+		return(-1);
+	}
+
+	if(islocal(db)) {
+		return _pacman_localdb_write(db, info, inforeq);
+	} else {
+		RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported anymore
+	}
+
 }
 
 int _pacman_db_remove(pmdb_t *db, pmpkg_t *info)
