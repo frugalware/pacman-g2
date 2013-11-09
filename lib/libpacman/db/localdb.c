@@ -39,7 +39,9 @@
 #endif
 
 /* pacman-g2 */
+#include "db/localdb.h"
 
+#include "db/localdb_files.h"
 #include "util/log.h"
 #include "util/stringlist.h"
 #include "util.h"
@@ -113,6 +115,63 @@ int _pacman_localdb_rewind(pmdb_t *db)
 	}
 
 	rewinddir(db->handle);
+	return 0;
+}
+
+static
+int _pacman_localdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq, unsigned int inforeq_masq, const char *file, int (*reader)(pmpkg_t *, unsigned int, FILE *))
+{
+	int ret = 0;
+
+	if(inforeq & inforeq_masq) {
+		FILE *fp = NULL;
+		char path[PATH_MAX];
+
+		snprintf(path, PATH_MAX, "%s/%s-%s/%s", db->path, info->name, info->version, file);
+		fp = fopen(path, "r");
+		if(fp == NULL) {
+			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
+			return -1;
+		}
+		if(reader(info, inforeq, fp) == -1)
+			return -1;
+		fclose(fp);
+	}
+	return ret;
+}
+
+static
+int _pacman_localdb_read(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
+{
+	struct stat buf;
+	char path[PATH_MAX];
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(info == NULL || info->name[0] == 0 || info->version[0] == 0) {
+		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_localdb_read"));
+		return(-1);
+	}
+
+	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name, info->version);
+	if(stat(path, &buf)) {
+		/* directory doesn't exist or can't be opened */
+		return(-1);
+	}
+
+	if (_pacman_localdb_file_reader(db, info, inforeq, INFRQ_DESC, "desc", _pacman_localdb_desc_fread) == -1)
+		return -1;
+	if (_pacman_localdb_file_reader(db, info, inforeq, INFRQ_DEPENDS, "depends", _pacman_localdb_depends_fread) == -1)
+		return -1;
+	if (_pacman_localdb_file_reader(db, info, inforeq, INFRQ_FILES, "files", _pacman_localdb_files_fread) == -1)
+		return -1;
+
+	/* INSTALL */
+	if(inforeq & INFRQ_SCRIPLET) {
+		snprintf(path, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
+		if(!stat(path, &buf)) {
+			info->scriptlet = 1;
+		}
+	}
 	return 0;
 }
 
@@ -259,6 +318,7 @@ const pmdb_ops_t _pacman_localdb_ops = {
 	.open = _pacman_localdb_open,
 	.close = _pacman_localdb_close,
 	.rewind = _pacman_localdb_rewind,
+	.read = _pacman_localdb_read,
 	.write = _pacman_localdb_write,
 	.remove = _pacman_localdb_remove,
 };

@@ -185,110 +185,20 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	return(pkg);
 }
 
-static int _pacman_localdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq, unsigned int inforeq_masq, const char *file, int (*reader)(pmpkg_t *, unsigned int, FILE *))
-{
-	int ret = 0;
-
-	if(inforeq & inforeq_masq) {
-		FILE *fp = NULL;
-		char path[PATH_MAX];
-
-		snprintf(path, PATH_MAX, "%s/%s-%s/%s", db->path, info->name, info->version, file);
-		fp = fopen(path, "r");
-		if(fp == NULL) {
-			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
-			return -1;
-		}
-		if(reader(info, inforeq, fp) == -1)
-			return -1;
-		fclose(fp);
-	}
-	return ret;
-}
-
-static int _pacman_syncdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq, unsigned int inforeq_masq, int (*reader)(pmpkg_t *, unsigned int, FILE *))
-{
-	int ret = 0;
-
-	if(inforeq & inforeq_masq) {
-		FILE *fp = _pacman_archive_read_fropen(db->handle);
-
-		ASSERT(fp != NULL, RET_ERR(PM_ERR_MEMORY, -1));
-		ret = reader(info, inforeq, fp);
-		fclose(fp);
-	}
-	return ret;
-}
-
-static int suffixcmp(const char *str, const char *suffix)
-{
-	int len = strlen(str), suflen = strlen(suffix);
-	if (len < suflen)
-		return -1;
-	else
-		return strcmp(str + len - suflen, suffix);
-}
-
 int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 {
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	int ret;
 
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	if(info == NULL || info->name[0] == 0 || info->version[0] == 0) {
 		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_db_read"));
 		return(-1);
 	}
 
-	if (islocal(db)) {
-		struct stat buf;
-		char path[PATH_MAX];
-
-		snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name, info->version);
-		if(stat(path, &buf)) {
-			/* directory doesn't exist or can't be opened */
-			return(-1);
-		}
-
-		if (_pacman_localdb_file_reader(db, info, inforeq, INFRQ_DESC, "desc", _pacman_localdb_desc_fread) == -1)
-			return -1;
-
-		if (_pacman_localdb_file_reader(db, info, inforeq, INFRQ_DEPENDS, "depends", _pacman_localdb_depends_fread) == -1)
-			return -1;
-
-		/* FILES */
-		if (_pacman_localdb_file_reader(db, info, inforeq, INFRQ_FILES, "files", _pacman_localdb_files_fread) == -1)
-			return -1;
-
-		/* INSTALL */
-		if(inforeq & INFRQ_SCRIPLET) {
-			snprintf(path, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
-			if(!stat(path, &buf)) {
-				info->scriptlet = 1;
-			}
-		}
-	} else {
-		int descdone = 0, depsdone = 0;
-		while (!descdone || !depsdone) {
-			struct archive_entry *entry = NULL;
-			if (archive_read_next_header(db->handle, &entry) != ARCHIVE_OK)
-				return -1;
-			const char *pathname = archive_entry_pathname(entry);
-			if (!suffixcmp(pathname, "/desc")) {
-				if(_pacman_syncdb_file_reader(db, info, inforeq, INFRQ_DESC, _pacman_localdb_desc_fread) == -1)
-					return -1;
-				descdone = 1;
-			}
-			if (!suffixcmp(pathname, "/depends")) {
-				if(_pacman_syncdb_file_reader(db, info, inforeq, INFRQ_DEPENDS, _pacman_localdb_depends_fread) == -1)
-					return -1;
-				depsdone = 1;
-			}
-		}
+	if((ret = db->ops->read(db, info, inforeq)) == 0) {
+		info->infolevel |= inforeq;
 	}
-
-	/* internal */
-	info->infolevel |= inforeq;
-
-	return(0);
+	return ret;
 }
 
 /* reads dbpath/.lastupdate and populates *ts with the contents.
