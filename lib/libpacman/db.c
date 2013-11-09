@@ -155,6 +155,41 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 	return(ret);
 }
 
+pmlist_t *_pacman_db_test(pmdb_t *db)
+{
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+
+	return db->ops->test(db);
+}
+
+int _pacman_db_open(pmdb_t *db)
+{
+	int ret = 0;
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+
+	ret = db->ops->open(db);
+	if(ret == 0 && _pacman_db_getlastupdate(db, db->lastupdate) == -1) {
+		db->lastupdate[0] = '\0';
+	}
+
+	return ret;
+}
+
+int _pacman_db_close(pmdb_t *db)
+{
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+
+	return db->ops->close(db);
+}
+
+int _pacman_db_rewind(pmdb_t *db)
+{
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+
+	return db->ops->rewind(db);
+}
+
 pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback)
 {
 	struct stat buf;
