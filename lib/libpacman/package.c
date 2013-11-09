@@ -523,16 +523,15 @@ int _pacman_pkg_filename(char *str, size_t size, const pmpkg_t *pkg)
 /* Look for a filename in a pmpkg_t.backup list.  If we find it,
  * then we return the md5 or sha1 hash (parsed from the same line)
  */
-char *_pacman_needbackup(const char *file, const pmlist_t *backup)
+char *_pacman_pkg_fileneedbackup(const pmpkg_t *pkg, const char *file)
 {
 	const pmlist_t *lp;
 
-	if(_pacman_strempty(file) || backup == NULL) {
-		return(NULL);
-	}
+	ASSERT(pkg != NULL, RET_ERR(PM_ERR_PKG_INVALID, NULL)); // Should be PM_ERR_PKG_NULL
+	ASSERT(!_pacman_strempty(file), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	/* run through the backup list and parse out the md5 or sha1 hash for our file */
-	for(lp = backup; lp; lp = lp->next) {
+	for(lp = pkg->backup; lp; lp = lp->next) {
 		char *str = strdup(lp->data);
 		char *ptr;
 

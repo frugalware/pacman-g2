@@ -202,8 +202,8 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 				int nb = 0;
 				double percent;
 				char *file = lp->data;
-				char *md5 =_pacman_needbackup(file, pkg_local->backup);
-				char *sha1 =_pacman_needbackup(file, pkg_local->backup);
+				char *md5 =_pacman_pkg_fileneedbackup(pkg_local, file);
+				char *sha1 =_pacman_pkg_fileneedbackup(pkg_local, file);
 
 				if (position != 0) {
 				percent = (double)position / filenum;

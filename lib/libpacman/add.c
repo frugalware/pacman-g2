@@ -440,8 +440,8 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 								nb = _pacman_list_is_strin(pathname, pkg_new->backup);
 							} else {
 								/* op == PM_TRANS_TYPE_UPGRADE */
-								md5_orig = _pacman_needbackup(pathname, oldpkg->backup);
-								sha1_orig = _pacman_needbackup(pathname, oldpkg->backup);
+								md5_orig = _pacman_pkg_fileneedbackup(oldpkg, pathname);
+								sha1_orig = _pacman_pkg_fileneedbackup(oldpkg, pathname);
 								if(md5_orig || sha1_orig) {
 									nb = 1;
 								}
