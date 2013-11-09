@@ -185,63 +185,21 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	return(pkg);
 }
 
-static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
+static int _pacman_localdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq, unsigned int inforeq_masq, const char *file, int (*reader)(pmpkg_t *, unsigned int, FILE *))
 {
 	int ret = 0;
 
-	if(inforeq & INFRQ_DESC) {
+	if(inforeq & inforeq_masq) {
 		FILE *fp = NULL;
 		char path[PATH_MAX];
 
-			snprintf(path, PATH_MAX, "%s/%s-%s/desc", db->path, info->name, info->version);
-			fp = fopen(path, "r");
-			if(fp == NULL) {
-				_pacman_log(PM_LOG_DEBUG, "%s (%s)", path, strerror(errno));
-				return -1;
-			}
-		ret = _pacman_localdb_desc_fread(info, inforeq, fp);
-		if (fp)
-			fclose(fp);
-	}
-	return ret;
-}
-
-static int _pacman_db_read_depends(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
-{
-	int ret = 0;
-
-	if(inforeq & INFRQ_DEPENDS) {
-		FILE *fp = NULL;
-		char path[PATH_MAX];
-
-			snprintf(path, PATH_MAX, "%s/%s-%s/depends", db->path, info->name, info->version);
-			fp = fopen(path, "r");
-			if(fp == NULL) {
-				_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
-				return -1;
-			}
-		ret = _pacman_localdb_depends_fread(info, inforeq, fp);
-		if (fp)
-			fclose(fp);
-	}
-	return ret;
-}
-
-static int _pacman_db_read_files(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
-{
-	int ret = 0;
-
-	if(inforeq & INFRQ_FILES) {
-		FILE *fp = NULL;
-		char path[PATH_MAX];
-
-		snprintf(path, PATH_MAX, "%s/%s-%s/files", db->path, info->name, info->version);
+		snprintf(path, PATH_MAX, "%s/%s-%s/%s", db->path, info->name, info->version, file);
 		fp = fopen(path, "r");
 		if(fp == NULL) {
 			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
 			return -1;
 		}
-		if(_pacman_localdb_files_fread(info, inforeq, fp) == -1)
+		if(reader(info, inforeq, fp) == -1)
 			return -1;
 		fclose(fp);
 	}
@@ -290,14 +248,14 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 			return(-1);
 		}
 
-		if (_pacman_db_read_desc(db, inforeq, info) == -1)
+		if (_pacman_localdb_file_reader(db, info, inforeq, INFRQ_DESC, "desc", _pacman_localdb_desc_fread) == -1)
 			return -1;
 
-		if (_pacman_db_read_depends(db, inforeq, info) == -1)
+		if (_pacman_localdb_file_reader(db, info, inforeq, INFRQ_DEPENDS, "depends", _pacman_localdb_depends_fread) == -1)
 			return -1;
 
 		/* FILES */
-		if (_pacman_db_read_files(db, inforeq, info) == -1)
+		if (_pacman_localdb_file_reader(db, info, inforeq, INFRQ_FILES, "files", _pacman_localdb_files_fread) == -1)
 			return -1;
 
 		/* INSTALL */
