@@ -267,8 +267,6 @@ static int suffixcmp(const char *str, const char *suffix)
 
 int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 {
-	struct stat buf;
-	char path[PATH_MAX];
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
@@ -277,18 +275,33 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 		return(-1);
 	}
 
-	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name, info->version);
-	if(islocal(db) && stat(path, &buf)) {
-		/* directory doesn't exist or can't be opened */
-		return(-1);
-	}
-
 	if (islocal(db)) {
+		struct stat buf;
+		char path[PATH_MAX];
+
+		snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name, info->version);
+		if(stat(path, &buf)) {
+			/* directory doesn't exist or can't be opened */
+			return(-1);
+		}
+
 		if (_pacman_db_read_desc(db, inforeq, info) == -1)
 			return -1;
 
 		if (_pacman_db_read_depends(db, inforeq, info) == -1)
 			return -1;
+
+		/* FILES */
+		if (_pacman_db_read_files(db, inforeq, info) == -1)
+			return -1;
+
+		/* INSTALL */
+		if(inforeq & INFRQ_SCRIPLET) {
+			snprintf(path, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
+			if(!stat(path, &buf)) {
+				info->scriptlet = 1;
+			}
+		}
 	} else {
 		int descdone = 0, depsdone = 0;
 		while (!descdone || !depsdone) {
@@ -306,18 +319,6 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 					return -1;
 				depsdone = 1;
 			}
-		}
-	}
-
-	/* FILES */
-	if (_pacman_db_read_files(db, inforeq, info) == -1)
-		return -1;
-
-	/* INSTALL */
-	if(inforeq & INFRQ_SCRIPLET) {
-		snprintf(path, PATH_MAX, "%s/%s-%s/install", db->path, info->name, info->version);
-		if(!stat(path, &buf)) {
-			info->scriptlet = 1;
 		}
 	}
 
