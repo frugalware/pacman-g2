@@ -202,17 +202,15 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 				int nb = 0;
 				double percent;
 				char *file = lp->data;
-				char *md5 =_pacman_pkg_fileneedbackup(pkg_local, file);
-				char *sha1 =_pacman_pkg_fileneedbackup(pkg_local, file);
+				char *hash_orig = _pacman_pkg_fileneedbackup(pkg_local, file);
 
 				if (position != 0) {
 				percent = (double)position / filenum;
 				}
-				if(md5 && sha1) {
+				if(!_pacman_strempty(hash_orig)) {
 					nb = 1;
-					FREE(md5);
-					FREE(sha1);
 				}
+				FREE(hash_orig);
 				if(!nb && trans->type == PM_TRANS_TYPE_UPGRADE) {
 					/* check noupgrade */
 					if(_pacman_list_is_strin(file, handle->noupgrade)) {

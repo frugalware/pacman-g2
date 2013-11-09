@@ -379,8 +379,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 			for(i = 0; (archive_ret = archive_read_next_header (archive, &entry)) == ARCHIVE_OK; i++) {
 				int nb = 0;
 				int notouch = 0;
-				char *md5_orig = NULL;
-				char *sha1_orig = NULL;
+				char *hash_orig = NULL;
 				char pathname[PATH_MAX];
 				struct stat buf;
 
@@ -440,9 +439,8 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 								nb = _pacman_list_is_strin(pathname, pkg_new->backup);
 							} else {
 								/* op == PM_TRANS_TYPE_UPGRADE */
-								md5_orig = _pacman_pkg_fileneedbackup(oldpkg, pathname);
-								sha1_orig = _pacman_pkg_fileneedbackup(oldpkg, pathname);
-								if(md5_orig || sha1_orig) {
+								hash_orig = _pacman_pkg_fileneedbackup(oldpkg, pathname);
+								if(!_pacman_strempty(hash_orig)) {
 									nb = 1;
 								}
 							}
@@ -467,8 +465,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 						errors++;
 						unlink(temp);
 						FREE(temp);
-						FREE(md5_orig);
-						FREE(sha1_orig);
+						FREE(hash_orig);
 						close(fd);
 						continue;
 					}
@@ -509,16 +506,13 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 						_pacman_log(PM_LOG_DEBUG, _("checking md5 hashes for %s"), pathname);
 						_pacman_log(PM_LOG_DEBUG, _("current:  %s"), md5_local);
 						_pacman_log(PM_LOG_DEBUG, _("new:      %s"), md5_pkg);
-						if(md5_orig) {
-							_pacman_log(PM_LOG_DEBUG, _("original: %s"), md5_orig);
-						}
 					} else {	
 						_pacman_log(PM_LOG_DEBUG, _("checking sha1 hashes for %s"), pathname);
 						_pacman_log(PM_LOG_DEBUG, _("current:  %s"), sha1_local);
 						_pacman_log(PM_LOG_DEBUG, _("new:      %s"), sha1_pkg);
-						if(sha1_orig) {
-							_pacman_log(PM_LOG_DEBUG, _("original: %s"), sha1_orig);
-						}
+					}
+					if(!_pacman_strempty(hash_orig)) {
+						_pacman_log(PM_LOG_DEBUG, _("original: %s"), hash_orig);
 					}
 
 					if(!pmo_upgrade) {
@@ -542,12 +536,12 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 								_pacman_log(PM_LOG_WARNING, _("%s saved as %s.pacorig"), pathname, pathname);
 							}
 						}
-					} else if(md5_orig || sha1_orig) {
+					} else if(!_pacman_strempty(hash_orig)) {
 						/* PM_UPGRADE */
 						int installnew = 0;
 
 						/* the fun part */
-						if(!strcmp(md5_orig, md5_local)|| !strcmp(sha1_orig, sha1_local)) {
+						if(!strcmp(hash_orig, md5_local) || !strcmp(hash_orig, sha1_local)) {
 							if(!strcmp(md5_local, md5_pkg) || !strcmp(sha1_local, sha1_pkg)) {
 								_pacman_log(PM_LOG_DEBUG, _("action: installing new file"));
 								installnew = 1;
@@ -555,7 +549,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 								_pacman_log(PM_LOG_DEBUG, _("action: installing new file"));
 								installnew = 1;
 							}
-						} else if(!strcmp(md5_orig, md5_pkg) || !strcmp(sha1_orig, sha1_pkg)) {
+						} else if(!strcmp(hash_orig, md5_pkg) || !strcmp(hash_orig, sha1_pkg)) {
 							_pacman_log(PM_LOG_DEBUG, _("action: leaving existing file in place"));
 						} else if(!strcmp(md5_local, md5_pkg) || !strcmp(sha1_local, sha1_pkg)) {
 							_pacman_log(PM_LOG_DEBUG, _("action: installing new file"));
@@ -584,10 +578,9 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 
 					FREE(md5_local);
 					FREE(md5_pkg);
-					FREE(md5_orig);
 					FREE(sha1_local);
 					FREE(sha1_pkg);
-					FREE(sha1_orig);
+					FREE(hash_orig);
 					unlink(temp);
 					FREE(temp);
 					close(fd);
