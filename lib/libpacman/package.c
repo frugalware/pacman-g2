@@ -520,4 +520,40 @@ int _pacman_pkg_filename(char *str, size_t size, const pmpkg_t *pkg)
 			pkg->name, pkg->version, pkg->arch, PM_EXT_PKG);
 }
 
+/* Look for a filename in a pmpkg_t.backup list.  If we find it,
+ * then we return the md5 or sha1 hash (parsed from the same line)
+ */
+char *_pacman_needbackup(const char *file, const pmlist_t *backup)
+{
+	const pmlist_t *lp;
+
+	if(_pacman_strempty(file) || backup == NULL) {
+		return(NULL);
+	}
+
+	/* run through the backup list and parse out the md5 or sha1 hash for our file */
+	for(lp = backup; lp; lp = lp->next) {
+		char *str = strdup(lp->data);
+		char *ptr;
+
+		/* tab delimiter */
+		ptr = strchr(str, '\t');
+		if(ptr == NULL) {
+			free(str);
+			continue;
+		}
+		*ptr = '\0';
+		ptr++;
+		/* now str points to the filename and ptr points to the md5 or sha1 hash */
+		if(!strcmp(file, str)) {
+			char *hash = strdup(ptr);
+			free(str);
+			return hash;
+		}
+		free(str);
+	}
+
+	return(NULL);
+}
+
 /* vim: set ts=2 sw=2 noet: */

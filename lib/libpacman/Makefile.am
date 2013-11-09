@@ -43,7 +43,6 @@ TARGETS = \
 	conflict.c \
 	deps.c \
 	versioncmp.c \
-	backup.c \
 	packages_transaction.c \
 	trans.c \
 	trans_sysupgrade.c \

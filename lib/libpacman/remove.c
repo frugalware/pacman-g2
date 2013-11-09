@@ -51,7 +51,6 @@
 #include "error.h"
 #include "deps.h"
 #include "versioncmp.h"
-#include "backup.h"
 #include "package.h"
 #include "db.h"
 #include "cache.h"

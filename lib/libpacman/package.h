@@ -108,6 +108,7 @@ void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm);
 pmlist_t *_pacman_pkg_getowners(char *filename);
 
 int _pacman_pkg_filename(char *str, size_t size, const pmpkg_t *pkg);
+char *_pacman_needbackup(const char *file, const pmlist_t *backup);
 
 #endif /* _PACMAN_PACKAGE_H */
 
