@@ -25,8 +25,8 @@
 
 pmlist_t *_pacman_syncdb_test(pmdb_t *db);
 int _pacman_syncdb_open(pmdb_t *db);
-void _pacman_syncdb_close(pmdb_t *db);
-void _pacman_syncdb_rewind(pmdb_t *db);
+int _pacman_syncdb_close(pmdb_t *db);
+int _pacman_syncdb_rewind(pmdb_t *db);
 
 #endif /* _PACMAN_SYNCDB_H */
 

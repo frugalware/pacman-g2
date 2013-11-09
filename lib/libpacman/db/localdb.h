@@ -25,8 +25,8 @@
 
 pmlist_t *_pacman_localdb_test(pmdb_t *db);
 int _pacman_localdb_open(pmdb_t *db);
-void _pacman_localdb_close(pmdb_t *db);
-void _pacman_localdb_rewind(pmdb_t *db);
+int _pacman_localdb_close(pmdb_t *db);
+int _pacman_localdb_rewind(pmdb_t *db);
 
 #endif /* _PACMAN_LOCALDB_H */
 

@@ -93,21 +93,23 @@ int _pacman_localdb_open(pmdb_t *db)
 	return 0;
 }
 
-void _pacman_localdb_close(pmdb_t *db)
+int _pacman_localdb_close(pmdb_t *db)
 {
 	if(db->handle) {
 		closedir(db->handle);
 		db->handle = NULL;
 	}
+	return 0;
 }
 
-void _pacman_localdb_rewind(pmdb_t *db)
+int _pacman_localdb_rewind(pmdb_t *db)
 {
 	if(db->handle == NULL) {
 		return;
 	}
 
 	rewinddir(db->handle);
+	return 0;
 }
 
 /* vim: set ts=2 sw=2 noet: */

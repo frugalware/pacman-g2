@@ -77,15 +77,16 @@ int _pacman_syncdb_open(pmdb_t *db)
 	return 0;
 }
 
-void _pacman_syncdb_close(pmdb_t *db)
+int _pacman_syncdb_close(pmdb_t *db)
 {
 	if(db->handle) {
 		archive_read_finish(db->handle);
 		db->handle = NULL;
 	}
+	return 0;
 }
 
-void _pacman_syncdb_rewind(pmdb_t *db)
+int _pacman_syncdb_rewind(pmdb_t *db)
 {
 	char dbpath[PATH_MAX];
 
@@ -99,6 +100,7 @@ void _pacman_syncdb_rewind(pmdb_t *db)
 		archive_read_finish(db->handle);
 		db->handle = NULL;
 	}
+	return 0;
 }
 
 /* vim: set ts=2 sw=2 noet: */

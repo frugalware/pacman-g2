@@ -91,28 +91,24 @@ int _pacman_db_open(pmdb_t *db)
 	return ret;
 }
 
-void _pacman_db_close(pmdb_t *db)
+int _pacman_db_close(pmdb_t *db)
 {
-	if(db == NULL) {
-		return;
-	}
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	if (islocal(db))
-		_pacman_localdb_close(db);
+		return _pacman_localdb_close(db);
 	else
-		_pacman_syncdb_close(db);
+		return _pacman_syncdb_close(db);
 }
 
-void _pacman_db_rewind(pmdb_t *db)
+int _pacman_db_rewind(pmdb_t *db)
 {
-	if(db == NULL) {
-		return;
-	}
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	if (islocal(db))
-		_pacman_localdb_rewind(db);
+		return _pacman_localdb_rewind(db);
 	else
-		_pacman_syncdb_rewind(db);
+		return _pacman_syncdb_rewind(db);
 }
 
 pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
