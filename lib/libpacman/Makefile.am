@@ -10,6 +10,7 @@ DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 DB_TARGETS = \
 	db/fakedb.c \
 	db/localdb.c \
+	db/localdb_files.c \
 	db/syncdb.c
 
 HASH_TARGETS = \
