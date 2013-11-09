@@ -193,16 +193,12 @@ static int _pacman_db_read_desc(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 		FILE *fp = NULL;
 		char path[PATH_MAX];
 
-		if (islocal(db)) {
 			snprintf(path, PATH_MAX, "%s/%s-%s/desc", db->path, info->name, info->version);
 			fp = fopen(path, "r");
 			if(fp == NULL) {
 				_pacman_log(PM_LOG_DEBUG, "%s (%s)", path, strerror(errno));
 				return -1;
 			}
-		} else {
-			fp = _pacman_archive_read_fropen(db->handle);
-		}
 		ret = _pacman_localdb_desc_fread(info, inforeq, fp);
 		if (fp)
 			fclose(fp);
@@ -218,16 +214,12 @@ static int _pacman_db_read_depends(pmdb_t *db, unsigned int inforeq, pmpkg_t *in
 		FILE *fp = NULL;
 		char path[PATH_MAX];
 
-		if (islocal(db)) {
 			snprintf(path, PATH_MAX, "%s/%s-%s/depends", db->path, info->name, info->version);
 			fp = fopen(path, "r");
 			if(fp == NULL) {
 				_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
 				return -1;
 			}
-		} else {
-			fp = _pacman_archive_read_fropen(db->handle);
-		}
 		ret = _pacman_localdb_depends_fread(info, inforeq, fp);
 		if (fp)
 			fclose(fp);
@@ -256,6 +248,20 @@ static int _pacman_db_read_files(pmdb_t *db, unsigned int inforeq, pmpkg_t *info
 	return ret;
 }
 
+static int _pacman_syncdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq, unsigned int inforeq_masq, int (*reader)(pmpkg_t *, unsigned int, FILE *))
+{
+	int ret = 0;
+
+	if(inforeq & inforeq_masq) {
+		FILE *fp = _pacman_archive_read_fropen(db->handle);
+
+		ASSERT(fp != NULL, RET_ERR(PM_ERR_MEMORY, -1));
+		ret = reader(info, inforeq, fp);
+		fclose(fp);
+	}
+	return ret;
+}
+
 static int suffixcmp(const char *str, const char *suffix)
 {
 	int len = strlen(str), suflen = strlen(suffix);
@@ -267,7 +273,6 @@ static int suffixcmp(const char *str, const char *suffix)
 
 int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 {
-
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	if(info == NULL || info->name[0] == 0 || info->version[0] == 0) {
@@ -310,12 +315,12 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 				return -1;
 			const char *pathname = archive_entry_pathname(entry);
 			if (!suffixcmp(pathname, "/desc")) {
-				if (_pacman_db_read_desc(db, inforeq, info) == -1)
+				if(_pacman_syncdb_file_reader(db, info, inforeq, INFRQ_DESC, _pacman_localdb_desc_fread) == -1)
 					return -1;
 				descdone = 1;
 			}
 			if (!suffixcmp(pathname, "/depends")) {
-				if (_pacman_db_read_depends(db, inforeq, info) == -1)
+				if(_pacman_syncdb_file_reader(db, info, inforeq, INFRQ_DEPENDS, _pacman_localdb_depends_fread) == -1)
 					return -1;
 				depsdone = 1;
 			}
