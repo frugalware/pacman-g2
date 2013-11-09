@@ -66,25 +66,22 @@ pmpkg_t *_pacman_localdb_readpkg(pmdb_t *db, unsigned int inforeq)
 	struct stat sbuf;
 	char path[PATH_MAX];
 	pmpkg_t *pkg;
-	int isdir = 0;
 	char *dname;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
-	while(!isdir) {
-		ent = readdir(db->handle);
-		if(ent == NULL) {
-			return(NULL);
-		}
+	while((ent = readdir(db->handle)) != NULL) {
 		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
-			isdir = 0;
 			continue;
 		}
 		/* stat the entry, make sure it's a directory */
 		snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
 		if(!stat(path, &sbuf) && S_ISDIR(sbuf.st_mode)) {
-			isdir = 1;
+			break;
 		}
+	}
+	if(ent == NULL) {
+		return(NULL);
 	}
 
 	pkg = _pacman_pkg_new(NULL, NULL);
@@ -109,21 +106,26 @@ pmpkg_t *_pacman_syncdb_readpkg(pmdb_t *db, unsigned int inforeq)
 {
 	pmpkg_t *pkg;
 	struct archive_entry *entry = NULL;
-	int isdir = 0;
 	char *dname;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
-	while(!isdir) {
-		if (!db->handle)
-			_pacman_db_rewind(db);
-		if (!db->handle || archive_read_next_header(db->handle, &entry) != ARCHIVE_OK) {
+	if(!db->handle) {
+		_pacman_db_rewind(db);
+	}
+	if(!db->handle) {
+		return NULL;
+	}
+
+	for(;;) {
+		if(archive_read_next_header(db->handle, &entry) != ARCHIVE_OK) {
 			return NULL;
 		}
 		// make sure it's a directory
 		const char *pathname = archive_entry_pathname(entry);
-		if (pathname[strlen(pathname)-1] == '/')
-			isdir = 1;
+		if (pathname[strlen(pathname)-1] == '/') {
+			break;
+		}
 	}
 
 	pkg = _pacman_pkg_new(NULL, NULL);
