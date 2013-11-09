@@ -304,7 +304,7 @@ int _pacman_sync_cleancache(int level)
 
 		for(i = cache; i; i = i->next) {
 			char *str = i->data;
-			char name[256], version[64];
+			char name[PKG_NAME_LEN], version[PKG_VERSION_LEN];
 
 			if(strstr(str, PM_EXT_PKG) == NULL) {
 				clean = _pacman_stringlist_append(clean, str);
@@ -320,7 +320,7 @@ int _pacman_sync_cleancache(int level)
 			}
 			for(j = i->next; j; j = j->next) {
 				char *s = j->data;
-				char n[256], v[64];
+				char n[PKG_NAME_LEN], v[PKG_VERSION_LEN];
 
 				if(strstr(s, PM_EXT_PKG) == NULL) {
 					continue;
