@@ -185,22 +185,6 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	return(pkg);
 }
 
-int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
-{
-	int ret;
-
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	if(info == NULL || info->name[0] == 0 || info->version[0] == 0) {
-		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_db_read"));
-		return(-1);
-	}
-
-	if((ret = db->ops->read(db, info, inforeq)) == 0) {
-		info->infolevel |= inforeq;
-	}
-	return ret;
-}
-
 /* reads dbpath/.lastupdate and populates *ts with the contents.
  * *ts should be malloc'ed and should be at least 15 bytes.
  *

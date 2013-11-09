@@ -190,6 +190,22 @@ int _pacman_db_rewind(pmdb_t *db)
 	return db->ops->rewind(db);
 }
 
+int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
+{
+	int ret;
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(info == NULL || info->name[0] == 0 || info->version[0] == 0) {
+		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_db_read"));
+		return(-1);
+	}
+
+	if((ret = db->ops->read(db, info, inforeq)) == 0) {
+		info->infolevel |= inforeq;
+	}
+	return ret;
+}
+
 int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
