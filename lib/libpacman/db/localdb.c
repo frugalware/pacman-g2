@@ -113,7 +113,7 @@ int _pacman_localdb_rewind(pmdb_t *db)
 }
 
 static
-void _pacman_db_write_bool(const char *entry, int value, FILE *stream)
+void _pacman_localdb_write_bool(const char *entry, int value, FILE *stream)
 {
 	if(value != 0) {
 		fprintf(stream, "%%%s%%\n\n", entry);
@@ -121,7 +121,7 @@ void _pacman_db_write_bool(const char *entry, int value, FILE *stream)
 }
 
 static
-void _pacman_db_write_string(const char *entry, const char *value, FILE *stream)
+void _pacman_localdb_write_string(const char *entry, const char *value, FILE *stream)
 {
 	if(!_pacman_strempty(value)) {
 		fprintf(stream, "%%%s%%\n%s\n\n", entry, value);
@@ -129,7 +129,7 @@ void _pacman_db_write_string(const char *entry, const char *value, FILE *stream)
 }
 
 static
-void _pacman_db_write_stringlist(const char *entry, const pmlist_t *values, FILE *stream)
+void _pacman_localdb_write_stringlist(const char *entry, const pmlist_t *values, FILE *stream)
 {
 	const pmlist_t *lp;
 
@@ -168,19 +168,19 @@ int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 			retval = 1;
 			goto cleanup;
 		}
-		_pacman_db_write_string("NAME", info->name, fp);
-		_pacman_db_write_string("VERSION", info->version, fp);
+		_pacman_localdb_write_string("NAME", info->name, fp);
+		_pacman_localdb_write_string("VERSION", info->version, fp);
 		if(info->desc[0]) {
-			_pacman_db_write_stringlist("DESC", info->desc_localized, fp);
+			_pacman_localdb_write_stringlist("DESC", info->desc_localized, fp);
 		}
-		_pacman_db_write_stringlist("GROUPS", info->groups, fp);
-		_pacman_db_write_string("URL", info->url, fp);
-		_pacman_db_write_stringlist("LICENSE", info->license, fp);
-		_pacman_db_write_string("ARCH", info->arch, fp);
-		_pacman_db_write_string("BUILDDATE", info->builddate, fp);
-		_pacman_db_write_string("BUILDTYPE", info->buildtype, fp);
-		_pacman_db_write_string("INSTALLDATE", info->installdate, fp);
-		_pacman_db_write_string("PACKAGER", info->packager, fp);
+		_pacman_localdb_write_stringlist("GROUPS", info->groups, fp);
+		_pacman_localdb_write_string("URL", info->url, fp);
+		_pacman_localdb_write_stringlist("LICENSE", info->license, fp);
+		_pacman_localdb_write_string("ARCH", info->arch, fp);
+		_pacman_localdb_write_string("BUILDDATE", info->builddate, fp);
+		_pacman_localdb_write_string("BUILDTYPE", info->buildtype, fp);
+		_pacman_localdb_write_string("INSTALLDATE", info->installdate, fp);
+		_pacman_localdb_write_string("PACKAGER", info->packager, fp);
 		if(info->size) {
 			fprintf(fp, "%%SIZE%%\n"
 				"%ld\n\n", info->size);
@@ -189,7 +189,7 @@ int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 			fprintf(fp, "%%REASON%%\n"
 				"%d\n\n", info->reason);
 		}
-		_pacman_db_write_stringlist("TRIGGERS", info->triggers, fp);
+		_pacman_localdb_write_stringlist("TRIGGERS", info->triggers, fp);
 		fclose(fp);
 		fp = NULL;
 	}
@@ -202,8 +202,8 @@ int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 			retval = -1;
 			goto cleanup;
 		}
-		_pacman_db_write_stringlist("FILES", info->files, fp);
-		_pacman_db_write_stringlist("BACKUP", info->backup, fp);
+		_pacman_localdb_write_stringlist("FILES", info->files, fp);
+		_pacman_localdb_write_stringlist("BACKUP", info->backup, fp);
 		fclose(fp);
 		fp = NULL;
 	}
@@ -216,10 +216,10 @@ int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 			retval = -1;
 			goto cleanup;
 		}
-		_pacman_db_write_stringlist("DEPENDS", info->depends, fp);
-		_pacman_db_write_stringlist("REQUIREDBY", info->requiredby, fp);
-		_pacman_db_write_stringlist("CONFLICTS", info->conflicts, fp);
-		_pacman_db_write_stringlist("PROVIDES", info->provides, fp);
+		_pacman_localdb_write_stringlist("DEPENDS", info->depends, fp);
+		_pacman_localdb_write_stringlist("REQUIREDBY", info->requiredby, fp);
+		_pacman_localdb_write_stringlist("CONFLICTS", info->conflicts, fp);
+		_pacman_localdb_write_stringlist("PROVIDES", info->provides, fp);
 		fclose(fp);
 		fp = NULL;
 	}
