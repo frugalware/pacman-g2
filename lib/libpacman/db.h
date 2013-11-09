@@ -37,8 +37,20 @@
 
 #define DB_O_CREATE 0x01
 
+typedef struct __pmdb_ops_t pmdb_ops_t;
+
+struct __pmdb_ops_t {
+	int (*test)(pmdb_t *db);
+	int (*open)(pmdb_t *db);
+	int (*close)(pmdb_t *db);
+
+	/* Package iterator */
+	int (*rewind)(pmdb_t *db);
+};
+
 /* Database */
 struct __pmdb_t {
+	const pmdb_ops_t *ops;
 	char *path;
 	char treename[PATH_MAX];
 	void *handle;

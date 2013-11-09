@@ -23,10 +23,7 @@
 
 #include "db.h"
 
-pmlist_t *_pacman_syncdb_test(pmdb_t *db);
-int _pacman_syncdb_open(pmdb_t *db);
-int _pacman_syncdb_close(pmdb_t *db);
-int _pacman_syncdb_rewind(pmdb_t *db);
+const pmdb_ops_t _pacman_syncdb_ops;
 
 #endif /* _PACMAN_SYNCDB_H */
 

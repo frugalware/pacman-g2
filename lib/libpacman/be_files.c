@@ -63,10 +63,7 @@ pmlist_t *_pacman_db_test(pmdb_t *db)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
-	if (islocal(db))
-		return _pacman_localdb_test(db);
-	else
-		return _pacman_syncdb_test(db);
+	return db->ops->test(db);
 }
 
 int _pacman_db_open(pmdb_t *db)
@@ -75,11 +72,7 @@ int _pacman_db_open(pmdb_t *db)
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if (islocal(db)) {
-		ret = _pacman_localdb_open(db);
-	} else {
-		ret = _pacman_syncdb_open(db);
-	}
+	ret = db->ops->open(db);
 	if(ret == 0 && _pacman_db_getlastupdate(db, db->lastupdate) == -1) {
 		db->lastupdate[0] = '\0';
 	}
@@ -91,20 +84,14 @@ int _pacman_db_close(pmdb_t *db)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if (islocal(db))
-		return _pacman_localdb_close(db);
-	else
-		return _pacman_syncdb_close(db);
+	return db->ops->close(db);
 }
 
 int _pacman_db_rewind(pmdb_t *db)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if (islocal(db))
-		return _pacman_localdb_rewind(db);
-	else
-		return _pacman_syncdb_rewind(db);
+	return db->ops->rewind(db);
 }
 
 pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)

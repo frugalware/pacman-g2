@@ -44,6 +44,8 @@
 /* pacman-g2 */
 #include "db.h"
 
+#include "db/localdb.h"
+#include "db/syncdb.h"
 #include "util/list.h"
 #include "util/log.h"
 #include "util.h"
@@ -189,6 +191,11 @@ pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback
 	db = _pacman_db_new(handle->root, handle->dbpath, treename);
 	if(db == NULL) {
 		RET_ERR(PM_ERR_DB_CREATE, NULL);
+	}
+	if(strcmp(treename, "local") == 0) {
+		db->ops = &_pacman_localdb_ops;
+	} else {
+		db->ops = &_pacman_syncdb_ops;
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("opening database '%s'"), db->treename);

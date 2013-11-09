@@ -49,12 +49,14 @@
 #include "error.h"
 #include "handle.h"
 
+static
 pmlist_t *_pacman_syncdb_test(pmdb_t *db)
 {
 	/* testing sync dbs is not supported */
 	return _pacman_list_new();
 }
 
+static
 int _pacman_syncdb_open(pmdb_t *db)
 {
 	char dbpath[PATH_MAX];
@@ -77,6 +79,7 @@ int _pacman_syncdb_open(pmdb_t *db)
 	return 0;
 }
 
+static
 int _pacman_syncdb_close(pmdb_t *db)
 {
 	if(db->handle) {
@@ -86,6 +89,7 @@ int _pacman_syncdb_close(pmdb_t *db)
 	return 0;
 }
 
+static
 int _pacman_syncdb_rewind(pmdb_t *db)
 {
 	char dbpath[PATH_MAX];
@@ -102,5 +106,12 @@ int _pacman_syncdb_rewind(pmdb_t *db)
 	}
 	return 0;
 }
+
+const pmdb_ops_t _pacman_syncdb_ops = {
+	.test = _pacman_syncdb_test,
+	.open = _pacman_syncdb_open,
+	.close = _pacman_syncdb_close,
+	.rewind = _pacman_syncdb_rewind,
+};
 
 /* vim: set ts=2 sw=2 noet: */
