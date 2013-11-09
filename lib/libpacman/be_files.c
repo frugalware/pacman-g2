@@ -508,30 +508,6 @@ error:
 	return(-1);
 }
 
-int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
-{
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
-
-	if(db->ops->write != NULL) {
-		return db->ops->write(db, info, inforeq);
-	} else {
-		RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
-	}
-}
-
-int _pacman_db_remove(pmdb_t *db, pmpkg_t *info)
-{
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
-
-	if(db->ops->remove != NULL) {
-		return db->ops->remove(db, info);
-	} else {
-		RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
-	}
-}
-
 /* reads dbpath/.lastupdate and populates *ts with the contents.
  * *ts should be malloc'ed and should be at least 15 bytes.
  *
