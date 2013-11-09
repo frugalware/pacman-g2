@@ -262,7 +262,6 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 			}
 			FREE(str);
 			fclose(filelist);
-			filelist = 1;
 			continue;
 		} else {
 			scriptcheck = 1;
