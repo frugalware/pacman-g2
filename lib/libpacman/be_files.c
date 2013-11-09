@@ -623,22 +623,22 @@ int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 			_pacman_db_write_stringlist("DESC", info->desc_localized, fp);
 		}
 		_pacman_db_write_stringlist("GROUPS", info->groups, fp);
-			_pacman_db_write_string("URL", info->url, fp);
-			_pacman_db_write_stringlist("LICENSE", info->license, fp);
-			_pacman_db_write_string("ARCH", info->arch, fp);
-			_pacman_db_write_string("BUILDDATE", info->builddate, fp);
-			_pacman_db_write_string("BUILDTYPE", info->buildtype, fp);
-			_pacman_db_write_string("INSTALLDATE", info->installdate, fp);
-			_pacman_db_write_string("PACKAGER", info->packager, fp);
-			if(info->size) {
-				fprintf(fp, "%%SIZE%%\n"
-					"%ld\n\n", info->size);
-			}
-			if(info->reason) {
-				fprintf(fp, "%%REASON%%\n"
-					"%d\n\n", info->reason);
-			}
-			_pacman_db_write_stringlist("TRIGGERS", info->triggers, fp);
+		_pacman_db_write_string("URL", info->url, fp);
+		_pacman_db_write_stringlist("LICENSE", info->license, fp);
+		_pacman_db_write_string("ARCH", info->arch, fp);
+		_pacman_db_write_string("BUILDDATE", info->builddate, fp);
+		_pacman_db_write_string("BUILDTYPE", info->buildtype, fp);
+		_pacman_db_write_string("INSTALLDATE", info->installdate, fp);
+		_pacman_db_write_string("PACKAGER", info->packager, fp);
+		if(info->size) {
+			fprintf(fp, "%%SIZE%%\n"
+				"%ld\n\n", info->size);
+		}
+		if(info->reason) {
+			fprintf(fp, "%%REASON%%\n"
+				"%d\n\n", info->reason);
+		}
+		_pacman_db_write_stringlist("TRIGGERS", info->triggers, fp);
 		fclose(fp);
 		fp = NULL;
 	}
@@ -666,7 +666,7 @@ int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 			goto cleanup;
 		}
 		_pacman_db_write_stringlist("DEPENDS", info->depends, fp);
-			_pacman_db_write_stringlist("REQUIREDBY", info->requiredby, fp);
+		_pacman_db_write_stringlist("REQUIREDBY", info->requiredby, fp);
 		_pacman_db_write_stringlist("CONFLICTS", info->conflicts, fp);
 		_pacman_db_write_stringlist("PROVIDES", info->provides, fp);
 		fclose(fp);
