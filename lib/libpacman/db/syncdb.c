@@ -112,6 +112,7 @@ const pmdb_ops_t _pacman_syncdb_ops = {
 	.open = _pacman_syncdb_open,
 	.close = _pacman_syncdb_close,
 	.rewind = _pacman_syncdb_rewind,
+	.write = NULL,
 };
 
 /* vim: set ts=2 sw=2 noet: */

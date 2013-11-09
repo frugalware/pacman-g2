@@ -246,6 +246,7 @@ const pmdb_ops_t _pacman_localdb_ops = {
 	.open = _pacman_localdb_open,
 	.close = _pacman_localdb_close,
 	.rewind = _pacman_localdb_rewind,
+	.write = _pacman_localdb_write,
 };
 
 /* vim: set ts=2 sw=2 noet: */

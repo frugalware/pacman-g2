@@ -511,14 +511,12 @@ error:
 int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	if(info == NULL) {
-		return(-1);
-	}
+	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 
-	if(islocal(db)) {
-		return _pacman_localdb_write(db, info, inforeq);
+	if(db->ops->write != NULL) {
+		return db->ops->write(db, info, inforeq);
 	} else {
-		RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported anymore
+		RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
 	}
 
 }

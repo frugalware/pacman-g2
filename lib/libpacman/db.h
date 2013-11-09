@@ -46,6 +46,8 @@ struct __pmdb_ops_t {
 
 	/* Package iterator */
 	int (*rewind)(pmdb_t *db);
+
+	int (*write)(pmdb_t *db, pmpkg_t *info, unsigned int inforeq); /* Optional */
 };
 
 /* Database */

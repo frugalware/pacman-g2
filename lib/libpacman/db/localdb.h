@@ -23,8 +23,6 @@
 
 #include "db.h"
 
-int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
-
 const pmdb_ops_t _pacman_localdb_ops;
 
 #endif /* _PACMAN_LOCALDB_H */
