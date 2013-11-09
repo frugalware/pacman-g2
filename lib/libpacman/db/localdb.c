@@ -105,7 +105,7 @@ int _pacman_localdb_close(pmdb_t *db)
 int _pacman_localdb_rewind(pmdb_t *db)
 {
 	if(db->handle == NULL) {
-		return;
+		return -1;
 	}
 
 	rewinddir(db->handle);
