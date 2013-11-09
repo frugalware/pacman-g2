@@ -77,12 +77,8 @@ int _pacman_db_open(pmdb_t *db)
 
 	if (islocal(db)) {
 		ret = _pacman_localdb_open(db);
-		if(ret != 0)
-			return ret;
 	} else {
 		ret = _pacman_syncdb_open(db);
-		if(ret != 0)
-			return ret;
 	}
 	if(ret == 0 && _pacman_db_getlastupdate(db, db->lastupdate) == -1) {
 		db->lastupdate[0] = '\0';
