@@ -66,7 +66,7 @@ pmpkg_t *_pacman_localdb_readpkg(pmdb_t *db, unsigned int inforeq)
 	struct stat sbuf;
 	char path[PATH_MAX];
 	pmpkg_t *pkg;
-	char *dname;
+	const char *dname;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
@@ -83,18 +83,16 @@ pmpkg_t *_pacman_localdb_readpkg(pmdb_t *db, unsigned int inforeq)
 	if(ent == NULL) {
 		return(NULL);
 	}
+	dname = ent->d_name;
 
 	pkg = _pacman_pkg_new(NULL, NULL);
 	if(pkg == NULL) {
 		return(NULL);
 	}
-	dname = strdup(ent->d_name);
 	if(_pacman_pkg_splitname(dname, pkg->name, pkg->version, 0) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
-		FREE(dname);
 		return(NULL);
 	}
-	FREE(dname);
 	if(_pacman_db_read(db, inforeq, pkg) == -1) {
 		FREEPKG(pkg);
 	}
@@ -106,7 +104,7 @@ pmpkg_t *_pacman_syncdb_readpkg(pmdb_t *db, unsigned int inforeq)
 {
 	pmpkg_t *pkg;
 	struct archive_entry *entry = NULL;
-	char *dname;
+	const char *dname;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
@@ -127,19 +125,16 @@ pmpkg_t *_pacman_syncdb_readpkg(pmdb_t *db, unsigned int inforeq)
 			break;
 		}
 	}
+	dname = archive_entry_pathname(entry);
 
 	pkg = _pacman_pkg_new(NULL, NULL);
 	if(pkg == NULL) {
 		return(NULL);
 	}
-	dname = strdup(archive_entry_pathname(entry));
-	dname[strlen(dname)-1] = '\0'; // drop trailing slash
 	if(_pacman_pkg_splitname(dname, pkg->name, pkg->version, 0) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
-		FREE(dname);
 		return(NULL);
 	}
-	FREE(dname);
 	if(_pacman_db_read(db, inforeq, pkg) == -1) {
 		FREEPKG(pkg);
 	}
