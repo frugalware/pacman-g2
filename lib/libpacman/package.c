@@ -314,22 +314,14 @@ pmpkg_t *_pacman_pkg_isin(const char *needle, pmlist_t *haystack)
 	return(NULL);
 }
 
-int _pacman_pkg_splitname(char *target, char *name, char *version, int witharch)
+int _pacman_pkg_splitname(const char *target, char *name, char *version, int witharch)
 {
-	char tmp[PKG_FULLNAME_LEN+7];
+	char *tmp;
 	char *p, *q;
 
-	if(target == NULL) {
-		return(-1);
+	if ((tmp = _pacman_basename(target)) == NULL) {
+		return -1;
 	}
-
-	/* trim path name (if any) */
-	if((p = strrchr(target, '/')) == NULL) {
-		p = target;
-	} else {
-		p++;
-	}
-	STRNCPY(tmp, p, PKG_FULLNAME_LEN+7);
 	/* trim file extension (if any) */
 	if((p = strstr(tmp, PM_EXT_PKG))) {
 		*p = 0;

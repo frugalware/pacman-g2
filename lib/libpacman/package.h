@@ -103,7 +103,7 @@ int _pacman_pkg_cmp(const void *p1, const void *p2);
 int _pacman_pkg_is_valid(const pmpkg_t *pkg, const pmtrans_t *trans, const char *pkgfile);
 pmpkg_t *_pacman_pkg_load(const char *pkgfile);
 pmpkg_t *_pacman_pkg_isin(const char *needle, pmlist_t *haystack);
-int _pacman_pkg_splitname(char *target, char *name, char *version, int witharch);
+int _pacman_pkg_splitname(const char *target, char *name, char *version, int witharch);
 void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm);
 pmlist_t *_pacman_pkg_getowners(char *filename);
 
