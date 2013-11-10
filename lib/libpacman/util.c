@@ -31,6 +31,8 @@
 #endif
 
 #include "config.h"
+
+#include <libgen.h> /* basename (MUST be before string.h to import the posix version instead of the GNU) */
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef __sun__
@@ -116,6 +118,16 @@ char * mkdtemp(char *template)
 	}
 }
 #endif
+
+char *_pacman_basename(const char *path)
+{
+	static char buffer[PATH_MAX];
+
+	ASSERT(!_pacman_strempty(path), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	STRNCPY(buffer, path, sizeof(buffer));
+	return basename(buffer);
+}
 
 /* does the same thing as 'mkdir -p' */
 int _pacman_makepath(char *path)

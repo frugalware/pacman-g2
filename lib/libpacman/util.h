@@ -59,6 +59,7 @@
 #define STARTSTR "START "
 #define DONESTR "DONE "
 
+char *_pacman_basename(const char *path);
 int _pacman_makepath(char *path);
 int _pacman_copyfile(char *src, char *dest);
 char *_pacman_strtoupper(char *str);
