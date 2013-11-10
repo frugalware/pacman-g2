@@ -61,7 +61,7 @@ pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 	if(!_pacman_strempty(version)) {
 		STRNCPY(pkg->version, version, PKG_VERSION_LEN);
 	}
-	pkg->reason         = PM_PKG_REASON_EXPLICIT;
+	pkg->reason = PM_PKG_REASON_EXPLICIT;
 
 	return(pkg);
 }

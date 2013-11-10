@@ -701,7 +701,6 @@ int _pacman_reg_match(const char *string, const char *pattern)
 	regfree(&reg);
 	return(!(result));
 }
-
 #endif
 
 /* vim: set ts=2 sw=2 noet: */
