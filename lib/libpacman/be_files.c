@@ -84,20 +84,12 @@ pmpkg_t *_pacman_localdb_readpkg(pmdb_t *db, unsigned int inforeq)
 		return(NULL);
 	}
 	dname = ent->d_name;
-
-	pkg = _pacman_pkg_new(NULL, NULL);
-	if(pkg == NULL) {
-		return(NULL);
-	}
-	if(_pacman_pkg_splitname(dname, pkg->name, pkg->version, 0) == -1) {
+	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
+		_pacman_db_read(db, inforeq, pkg) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
-		return(NULL);
-	}
-	if(_pacman_db_read(db, inforeq, pkg) == -1) {
 		FREEPKG(pkg);
 	}
-
-	return(pkg);
+	return pkg;
 }
 
 pmpkg_t *_pacman_syncdb_readpkg(pmdb_t *db, unsigned int inforeq)
@@ -126,20 +118,12 @@ pmpkg_t *_pacman_syncdb_readpkg(pmdb_t *db, unsigned int inforeq)
 		}
 	}
 	dname = archive_entry_pathname(entry);
-
-	pkg = _pacman_pkg_new(NULL, NULL);
-	if(pkg == NULL) {
-		return(NULL);
-	}
-	if(_pacman_pkg_splitname(dname, pkg->name, pkg->version, 0) == -1) {
+	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
+		_pacman_db_read(db, inforeq, pkg) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
-		return(NULL);
-	}
-	if(_pacman_db_read(db, inforeq, pkg) == -1) {
 		FREEPKG(pkg);
 	}
-
-	return(pkg);
+	return pkg;
 }
 
 pmpkg_t *_pacman_db_readpkg(pmdb_t *db, unsigned int inforeq)
@@ -163,6 +147,7 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	int found = 0;
 	pmpkg_t *pkg;
 	struct archive_entry *entry = NULL;
+	char *dname;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
@@ -217,29 +202,18 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	if(!found) {
 		return(NULL);
 	}
-
-	pkg = _pacman_pkg_new(NULL, NULL);
-	if(pkg == NULL) {
-		return(NULL);
-	}
-	char *dname;
 	if (islocal(db)) {
 		dname = strdup(ent->d_name);
 	} else {
 		dname = strdup(archive_entry_pathname(entry));
 		dname[strlen(dname)-1] = '\0'; // drop trailing slash
 	}
-	if(_pacman_pkg_splitname(dname, pkg->name, pkg->version, 0) == -1) {
+	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
+		_pacman_db_read(db, inforeq, pkg) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
-		FREE(dname);
-		return(NULL);
-	}
-	FREE(dname);
-	if(_pacman_db_read(db, inforeq, pkg) == -1) {
 		FREEPKG(pkg);
 	}
-
-	return(pkg);
+	return pkg;
 }
 
 /* reads dbpath/.lastupdate and populates *ts with the contents.

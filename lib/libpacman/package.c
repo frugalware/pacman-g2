@@ -66,6 +66,19 @@ pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 	return(pkg);
 }
 
+pmpkg_t *_pacman_pkg_new_from_filename(const char *filename, int witharch)
+{
+	pmpkg_t *pkg;
+	
+	ASSERT(pkg = _pacman_pkg_new(NULL, NULL), return NULL);
+
+	if(_pacman_pkg_splitname(filename, pkg->name, pkg->version, witharch) == -1) {
+		_pacman_pkg_free(pkg);
+		pkg = NULL;
+	}
+	return pkg;
+}
+
 pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 {
 	pmpkg_t* newpkg = _pacman_malloc(sizeof(pmpkg_t));
@@ -136,8 +149,6 @@ void _pacman_pkg_free(void *data)
 		FREE(pkg->data);
 	}
 	free(pkg);
-
-	return;
 }
 
 /* Helper function for comparing packages
