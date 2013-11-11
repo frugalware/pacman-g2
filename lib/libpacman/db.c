@@ -244,6 +244,68 @@ int _pacman_db_remove(pmdb_t *db, pmpkg_t *info)
 	}
 }
 
+/* Reads dbpath/treename.lastupdate and populates *ts with the contents.
+ * *ts should be malloc'ed and should be at least 15 bytes.
+ *
+ * Returns 0 on success, -1 on error.
+ */
+int _pacman_db_getlastupdate(pmdb_t *db, char *ts)
+{
+	FILE *fp;
+	char file[PATH_MAX];
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(ts == NULL) {
+		return(-1);
+	}
+
+	snprintf(file, PATH_MAX, "%s%s/%s.lastupdate", handle->root, handle->dbpath, db->treename);
+
+	/* get the last update time, if it's there */
+	if((fp = fopen(file, "r")) == NULL) {
+		return(-1);
+	} else {
+		char line[256];
+		if(fgets(line, sizeof(line), fp)) {
+			STRNCPY(ts, line, 15); /* YYYYMMDDHHMMSS */
+			ts[14] = '\0';
+		} else {
+			fclose(fp);
+			return(-1);
+		}
+	}
+	fclose(fp);
+	return(0);
+}
+
+/* Writes the dbpath/treename.lastupdate with the contents of *ts
+ *
+ * Returns 0 on success, -1 on error.
+ */
+int _pacman_db_setlastupdate(pmdb_t *db, const char *ts)
+{
+	FILE *fp;
+	char file[PATH_MAX];
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(_pacman_strempty(ts)) {
+		return(-1);
+	}
+
+	snprintf(file, PATH_MAX, "%s%s/%s.lastupdate", handle->root, handle->dbpath, db->treename);
+
+	if((fp = fopen(file, "w")) == NULL) {
+		return(-1);
+	}
+	if(fputs(ts, fp) <= 0) {
+		fclose(fp);
+		return(-1);
+	}
+	fclose(fp);
+
+	return(0);
+}
+
 pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback)
 {
 	struct stat buf;

@@ -52,8 +52,7 @@ TARGETS = \
 	sync.c \
 	handle.c \
 	server.c \
-	pacman.c \
-	be_files.c
+	pacman.c
 
 lib_LTLIBRARIES = libpacman.la
 
