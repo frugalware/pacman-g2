@@ -154,7 +154,7 @@ pmpkg_t *_pacman_db_readpkg(pmdb_t *db, unsigned int inforeq)
 	}
 }
 
-pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
+pmpkg_t *_pacman_localdb_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 {
 	struct dirent *ent = NULL;
 	struct stat sbuf;
@@ -163,7 +163,6 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	char *ptr = NULL;
 	int found = 0;
 	pmpkg_t *pkg;
-	struct archive_entry *entry = NULL;
 	char *dname;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
@@ -173,7 +172,6 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	_pacman_db_rewind(db);
 
 	/* search for a specific package (by name only) */
-	if (islocal(db)) {
 		while(!found && (ent = readdir(db->handle)) != NULL) {
 			if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
 				continue;
@@ -196,7 +194,34 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 				found = 1;
 			}
 		}
-	} else {
+	if(!found) {
+		return(NULL);
+	}
+		dname = strdup(ent->d_name);
+	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
+		_pacman_db_read(db, inforeq, pkg) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
+		FREEPKG(pkg);
+	}
+	return pkg;
+}
+
+pmpkg_t *_pacman_syncdb_scan(pmdb_t *db, const char *target, unsigned int inforeq)
+{
+	char name[PKG_FULLNAME_LEN];
+	char *ptr = NULL;
+	int found = 0;
+	pmpkg_t *pkg;
+	struct archive_entry *entry = NULL;
+	char *dname;
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	// Search from start
+	_pacman_db_rewind(db);
+
+	/* search for a specific package (by name only) */
 		while (!found && archive_read_next_header(db->handle, &entry) == ARCHIVE_OK) {
 			// make sure it's a directory
 			const char *pathname = archive_entry_pathname(entry);
@@ -215,22 +240,27 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 				found = 1;
 			}
 		}
-	}
 	if(!found) {
 		return(NULL);
 	}
-	if (islocal(db)) {
-		dname = strdup(ent->d_name);
-	} else {
 		dname = strdup(archive_entry_pathname(entry));
-		dname[strlen(dname)-1] = '\0'; // drop trailing slash
-	}
 	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
 		_pacman_db_read(db, inforeq, pkg) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
 		FREEPKG(pkg);
 	}
 	return pkg;
+}
+
+pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
+{
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+
+	if(islocal(db)) {
+		return _pacman_localdb_scan(db, target, inforeq);
+	} else {
+		return _pacman_syncdb_scan(db, target, inforeq);
+	}
 }
 
 /* reads dbpath/.lastupdate and populates *ts with the contents.
