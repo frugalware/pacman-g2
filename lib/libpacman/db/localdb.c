@@ -52,6 +52,24 @@
 #include "handle.h"
 
 static
+pmpkg_t *_pacman_localdb_pkg_new(pmdb_t *db, const struct dirent *dirent, unsigned int inforeq)
+{
+	pmpkg_t *pkg;
+	const char *dname;
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+	ASSERT(dirent != NULL, return NULL);
+
+	dname = dirent->d_name;
+	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
+		_pacman_db_read(db, inforeq, pkg) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
+		FREEPKG(pkg);
+	}
+	return pkg;
+}
+
+static
 pmlist_t *_pacman_localdb_test(pmdb_t *db)
 {
 	struct dirent *ent;
@@ -116,6 +134,69 @@ int _pacman_localdb_rewind(pmdb_t *db)
 
 	rewinddir(db->handle);
 	return 0;
+}
+
+static
+pmpkg_t *_pacman_localdb_readpkg(pmdb_t *db, unsigned int inforeq)
+{
+	struct dirent *ent = NULL;
+	struct stat sbuf;
+	char path[PATH_MAX];
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+
+	while((ent = readdir(db->handle)) != NULL) {
+		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
+			continue;
+		}
+		/* stat the entry, make sure it's a directory */
+		snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
+		if(!stat(path, &sbuf) && S_ISDIR(sbuf.st_mode)) {
+			return _pacman_localdb_pkg_new(db, ent, inforeq);
+		}
+	}
+	return NULL;
+}
+
+static
+pmpkg_t *_pacman_localdb_scan(pmdb_t *db, const char *target, unsigned int inforeq)
+{
+	struct dirent *ent = NULL;
+	struct stat sbuf;
+	char path[PATH_MAX];
+	char name[PKG_FULLNAME_LEN];
+	char *ptr = NULL;
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	// Search from start
+	_pacman_db_rewind(db);
+
+	/* search for a specific package (by name only) */
+	while((ent = readdir(db->handle)) != NULL) {
+		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
+			continue;
+		}
+		/* stat the entry, make sure it's a directory */
+		snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
+		if(stat(path, &sbuf) || !S_ISDIR(sbuf.st_mode)) {
+			continue;
+		}
+		STRNCPY(name, ent->d_name, PKG_FULLNAME_LEN);
+		/* truncate the string at the second-to-last hyphen, */
+		/* which will give us the package name */
+		if((ptr = rindex(name, '-'))) {
+			*ptr = '\0';
+		}
+		if((ptr = rindex(name, '-'))) {
+			*ptr = '\0';
+		}
+		if(!strcmp(name, target)) {
+			return _pacman_localdb_pkg_new(db, ent, inforeq);
+		}
+	}
+	return(NULL);
 }
 
 static
@@ -318,6 +399,8 @@ const pmdb_ops_t _pacman_localdb_ops = {
 	.open = _pacman_localdb_open,
 	.close = _pacman_localdb_close,
 	.rewind = _pacman_localdb_rewind,
+	.readpkg = _pacman_localdb_readpkg,
+	.scan = _pacman_localdb_scan,
 	.read = _pacman_localdb_read,
 	.write = _pacman_localdb_write,
 	.remove = _pacman_localdb_remove,

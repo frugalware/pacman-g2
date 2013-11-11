@@ -63,6 +63,24 @@ int suffixcmp(const char *str, const char *suffix)
 }
 
 static
+pmpkg_t *_pacman_syncdb_pkg_new(pmdb_t *db, const struct archive_entry *entry, unsigned int inforeq)
+{
+	pmpkg_t *pkg;
+	const char *dname;
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+	ASSERT(entry != NULL, return NULL);
+
+	dname = archive_entry_pathname(entry);
+	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
+		_pacman_db_read(db, inforeq, pkg) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
+		FREEPKG(pkg);
+	}
+	return pkg;
+}
+
+static
 pmlist_t *_pacman_syncdb_test(pmdb_t *db)
 {
 	/* testing sync dbs is not supported */
@@ -102,6 +120,68 @@ int _pacman_syncdb_rewind(pmdb_t *db)
 {
 	_pacman_syncdb_close(db);
 	return _pacman_syncdb_open(db);
+}
+
+static
+pmpkg_t *_pacman_syncdb_readpkg(pmdb_t *db, unsigned int inforeq)
+{
+	struct archive_entry *entry = NULL;
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+
+	if(!db->handle) {
+		_pacman_db_rewind(db);
+	}
+	if(!db->handle) {
+		return NULL;
+	}
+
+	for(;;) {
+		if(archive_read_next_header(db->handle, &entry) != ARCHIVE_OK) {
+			return NULL;
+		}
+		// make sure it's a directory
+		const char *pathname = archive_entry_pathname(entry);
+		if (pathname[strlen(pathname)-1] == '/') {
+			return _pacman_syncdb_pkg_new(db, entry, inforeq);
+		}
+	}
+	return NULL;
+}
+
+static
+pmpkg_t *_pacman_syncdb_scan(pmdb_t *db, const char *target, unsigned int inforeq)
+{
+	char name[PKG_FULLNAME_LEN];
+	char *ptr = NULL;
+	struct archive_entry *entry = NULL;
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	// Search from start
+	_pacman_db_rewind(db);
+
+	/* search for a specific package (by name only) */
+	while (archive_read_next_header(db->handle, &entry) == ARCHIVE_OK) {
+		// make sure it's a directory
+		const char *pathname = archive_entry_pathname(entry);
+		if (pathname[strlen(pathname)-1] != '/')
+			continue;
+		STRNCPY(name, pathname, PKG_FULLNAME_LEN);
+		// truncate the string at the second-to-last hyphen,
+		// which will give us the package name
+		if((ptr = rindex(name, '-'))) {
+			*ptr = '\0';
+		}
+		if((ptr = rindex(name, '-'))) {
+			*ptr = '\0';
+		}
+		if(!strcmp(name, target)) {
+			return _pacman_syncdb_pkg_new(db, entry, inforeq);
+		}
+	}
+	return(NULL);
 }
 
 static
@@ -154,6 +234,8 @@ const pmdb_ops_t _pacman_syncdb_ops = {
 	.open = _pacman_syncdb_open,
 	.close = _pacman_syncdb_close,
 	.rewind = _pacman_syncdb_rewind,
+	.readpkg = _pacman_syncdb_readpkg,
+	.scan = _pacman_syncdb_scan,
 	.read = _pacman_syncdb_read,
 	.write = NULL,
 	.remove = NULL,
