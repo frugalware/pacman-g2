@@ -52,20 +52,6 @@
 #include "error.h"
 #include "handle.h"
 
-pmpkg_t *_pacman_db_readpkg(pmdb_t *db, unsigned int inforeq)
-{
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
-
-	return db->ops->readpkg(db, inforeq);
-}
-
-pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
-{
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
-
-	return db->ops->scan(db, target, inforeq);
-}
-
 /* reads dbpath/.lastupdate and populates *ts with the contents.
  * *ts should be malloc'ed and should be at least 15 bytes.
  *

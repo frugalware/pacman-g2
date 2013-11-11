@@ -190,6 +190,20 @@ int _pacman_db_rewind(pmdb_t *db)
 	return db->ops->rewind(db);
 }
 
+pmpkg_t *_pacman_db_readpkg(pmdb_t *db, unsigned int inforeq)
+{
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+
+	return db->ops->readpkg(db, inforeq);
+}
+
+pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
+{
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+
+	return db->ops->scan(db, target, inforeq);
+}
+
 int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 {
 	int ret;
