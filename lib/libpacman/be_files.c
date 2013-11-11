@@ -61,15 +61,15 @@ static inline int islocal(pmdb_t *db)
 }
 
 static
-pmpkg_t *_pacman_localdb_pkg_new(pmdb_t *db, struct dirent *ent, unsigned int inforeq)
+pmpkg_t *_pacman_localdb_pkg_new(pmdb_t *db, const struct dirent *dirent, unsigned int inforeq)
 {
 	pmpkg_t *pkg;
 	const char *dname;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
-	ASSERT(ent != NULL, return NULL);
+	ASSERT(dirent != NULL, return NULL);
 
-	dname = ent->d_name;
+	dname = dirent->d_name;
 	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
 		_pacman_db_read(db, inforeq, pkg) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
