@@ -99,11 +99,27 @@ pmpkg_t *_pacman_localdb_readpkg(pmdb_t *db, unsigned int inforeq)
 	return NULL;
 }
 
-pmpkg_t *_pacman_syncdb_readpkg(pmdb_t *db, unsigned int inforeq)
+static
+pmpkg_t *_pacman_syncdb_pkg_new(pmdb_t *db, const struct archive_entry *entry, unsigned int inforeq)
 {
 	pmpkg_t *pkg;
-	struct archive_entry *entry = NULL;
 	const char *dname;
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+	ASSERT(entry != NULL, return NULL);
+
+	dname = archive_entry_pathname(entry);
+	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
+		_pacman_db_read(db, inforeq, pkg) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
+		FREEPKG(pkg);
+	}
+	return pkg;
+}
+
+pmpkg_t *_pacman_syncdb_readpkg(pmdb_t *db, unsigned int inforeq)
+{
+	struct archive_entry *entry = NULL;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
@@ -121,16 +137,10 @@ pmpkg_t *_pacman_syncdb_readpkg(pmdb_t *db, unsigned int inforeq)
 		// make sure it's a directory
 		const char *pathname = archive_entry_pathname(entry);
 		if (pathname[strlen(pathname)-1] == '/') {
-			break;
+			return _pacman_syncdb_pkg_new(db, entry, inforeq);
 		}
 	}
-	dname = archive_entry_pathname(entry);
-	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
-		_pacman_db_read(db, inforeq, pkg) == -1) {
-		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
-		FREEPKG(pkg);
-	}
-	return pkg;
+	return NULL;
 }
 
 pmpkg_t *_pacman_db_readpkg(pmdb_t *db, unsigned int inforeq)
