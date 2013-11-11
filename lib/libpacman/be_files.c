@@ -172,32 +172,32 @@ pmpkg_t *_pacman_localdb_scan(pmdb_t *db, const char *target, unsigned int infor
 	_pacman_db_rewind(db);
 
 	/* search for a specific package (by name only) */
-		while(!found && (ent = readdir(db->handle)) != NULL) {
-			if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
-				continue;
-			}
-			/* stat the entry, make sure it's a directory */
-			snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
-			if(stat(path, &sbuf) || !S_ISDIR(sbuf.st_mode)) {
-				continue;
-			}
-			STRNCPY(name, ent->d_name, PKG_FULLNAME_LEN);
-			/* truncate the string at the second-to-last hyphen, */
-			/* which will give us the package name */
-			if((ptr = rindex(name, '-'))) {
-				*ptr = '\0';
-			}
-			if((ptr = rindex(name, '-'))) {
-				*ptr = '\0';
-			}
-			if(!strcmp(name, target)) {
-				found = 1;
-			}
+	while(!found && (ent = readdir(db->handle)) != NULL) {
+		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
+			continue;
 		}
+		/* stat the entry, make sure it's a directory */
+		snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
+		if(stat(path, &sbuf) || !S_ISDIR(sbuf.st_mode)) {
+			continue;
+		}
+		STRNCPY(name, ent->d_name, PKG_FULLNAME_LEN);
+		/* truncate the string at the second-to-last hyphen, */
+		/* which will give us the package name */
+		if((ptr = rindex(name, '-'))) {
+			*ptr = '\0';
+		}
+		if((ptr = rindex(name, '-'))) {
+			*ptr = '\0';
+		}
+		if(!strcmp(name, target)) {
+			found = 1;
+		}
+	}
 	if(!found) {
 		return(NULL);
 	}
-		dname = strdup(ent->d_name);
+	dname = strdup(ent->d_name);
 	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
 		_pacman_db_read(db, inforeq, pkg) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
@@ -222,28 +222,28 @@ pmpkg_t *_pacman_syncdb_scan(pmdb_t *db, const char *target, unsigned int infore
 	_pacman_db_rewind(db);
 
 	/* search for a specific package (by name only) */
-		while (!found && archive_read_next_header(db->handle, &entry) == ARCHIVE_OK) {
-			// make sure it's a directory
-			const char *pathname = archive_entry_pathname(entry);
-			if (pathname[strlen(pathname)-1] != '/')
-				continue;
-			STRNCPY(name, pathname, PKG_FULLNAME_LEN);
-			// truncate the string at the second-to-last hyphen,
-			// which will give us the package name
-			if((ptr = rindex(name, '-'))) {
-				*ptr = '\0';
-			}
-			if((ptr = rindex(name, '-'))) {
-				*ptr = '\0';
-			}
-			if(!strcmp(name, target)) {
-				found = 1;
-			}
+	while (!found && archive_read_next_header(db->handle, &entry) == ARCHIVE_OK) {
+		// make sure it's a directory
+		const char *pathname = archive_entry_pathname(entry);
+		if (pathname[strlen(pathname)-1] != '/')
+			continue;
+		STRNCPY(name, pathname, PKG_FULLNAME_LEN);
+		// truncate the string at the second-to-last hyphen,
+		// which will give us the package name
+		if((ptr = rindex(name, '-'))) {
+			*ptr = '\0';
 		}
+		if((ptr = rindex(name, '-'))) {
+			*ptr = '\0';
+		}
+		if(!strcmp(name, target)) {
+			found = 1;
+		}
+	}
 	if(!found) {
 		return(NULL);
 	}
-		dname = strdup(archive_entry_pathname(entry));
+	dname = strdup(archive_entry_pathname(entry));
 	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
 		_pacman_db_read(db, inforeq, pkg) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
