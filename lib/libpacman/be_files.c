@@ -52,14 +52,6 @@
 #include "error.h"
 #include "handle.h"
 
-static inline int islocal(pmdb_t *db)
-{
-	if (handle->db_local)
-		return db == handle->db_local;
-	else
-		return strcmp(db->treename, "local") == 0;
-}
-
 pmpkg_t *_pacman_db_readpkg(pmdb_t *db, unsigned int inforeq)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
