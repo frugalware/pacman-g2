@@ -88,7 +88,7 @@ pmlist_t *_pacman_syncdb_test(pmdb_t *db)
 }
 
 static
-int _pacman_syncdb_open(pmdb_t *db)
+int _pacman_syncdb_open(pmdb_t *db, struct tm *timestamp)
 {
 	struct stat buf;
 	char dbpath[PATH_MAX];
@@ -102,6 +102,7 @@ int _pacman_syncdb_open(pmdb_t *db)
 	if((db->handle = _pacman_archive_read_open_all_file(dbpath)) == NULL) {
 		RET_ERR(PM_ERR_DB_OPEN, -1);
 	}
+	_pacman_db_gettimestamp(db, timestamp);
 	return 0;
 }
 
@@ -119,7 +120,7 @@ static
 int _pacman_syncdb_rewind(pmdb_t *db)
 {
 	_pacman_syncdb_close(db);
-	return _pacman_syncdb_open(db);
+	return _pacman_syncdb_open(db, NULL);
 }
 
 static

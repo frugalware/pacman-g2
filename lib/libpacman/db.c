@@ -168,7 +168,7 @@ int _pacman_db_open(pmdb_t *db)
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	ret = db->ops->open(db);
+	ret = db->ops->open(db, &db->cache_timestamp);
 	if(ret == 0 && _pacman_db_getlastupdate(db, db->lastupdate) == -1) {
 		db->lastupdate[0] = '\0';
 	}
