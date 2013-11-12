@@ -186,6 +186,7 @@ int _pacman_db_close(pmdb_t *db)
 int _pacman_db_gettimestamp(pmdb_t *db, struct tm *timestamp)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(timestamp != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	if(db->ops->gettimestamp) {
 		return db->ops->gettimestamp(db, timestamp);
@@ -329,7 +330,6 @@ int _pacman_db_setlastupdate(pmdb_t *db, const char *ts)
 		return(-1);
 	}
 	fclose(fp);
-
 	return(0);
 }
 
@@ -390,7 +390,6 @@ pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback
 	} else {
 		handle->dbs_sync = _pacman_list_add(handle->dbs_sync, db);
 	}
-
 	return(db);
 }
 /* vim: set ts=2 sw=2 noet: */

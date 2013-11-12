@@ -51,9 +51,7 @@ int _pacman_db_load_pkgcache(pmdb_t *db)
 {
 	pmpkg_t *info;
 
-	if(db == NULL) {
-		return(-1);
-	}
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	_pacman_db_free_pkgcache(db);
 
@@ -76,7 +74,8 @@ int _pacman_db_load_pkgcache(pmdb_t *db)
 
 void _pacman_db_free_pkgcache(pmdb_t *db)
 {
-	if(db == NULL || db->pkgcache == NULL) {
+	ASSERT(db != NULL, pm_errno = PM_ERR_DB_NULL; return);
+	if(db->pkgcache == NULL) {
 		return;
 	}
 
