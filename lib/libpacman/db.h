@@ -24,6 +24,7 @@
 #define _PACMAN_DB_H
 
 #include <limits.h>
+#include <time.h>
 
 #include "pacman.h"
 
@@ -44,6 +45,8 @@ struct __pmdb_ops_t {
 	int (*open)(pmdb_t *db);
 	int (*close)(pmdb_t *db);
 
+	int (*gettimestamp)(pmdb_t *db, struct tm *timestamp);
+
 	/* Package iterator */
 	int (*rewind)(pmdb_t *db);
 	pmpkg_t *(*readpkg)(pmdb_t *db, unsigned int inforeq);
@@ -60,6 +63,7 @@ struct __pmdb_t {
 	char *path;
 	char treename[PATH_MAX];
 	void *handle;
+	struct tm cache_timestamp;
 	pmlist_t *pkgcache;
 	pmlist_t *grpcache;
 	pmlist_t *servers;
@@ -75,6 +79,8 @@ pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles);
 pmlist_t *_pacman_db_test(pmdb_t *db);
 int _pacman_db_open(pmdb_t *db);
 int _pacman_db_close(pmdb_t *db);
+int _pacman_db_gettimestamp(pmdb_t *db, struct tm *timestamp);
+int _pacman_db_settimestamp(pmdb_t *db, const struct tm *timestamp);
 int _pacman_db_rewind(pmdb_t *db);
 pmpkg_t *_pacman_db_readpkg(pmdb_t *db, unsigned int inforeq);
 pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq);

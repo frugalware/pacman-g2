@@ -183,6 +183,33 @@ int _pacman_db_close(pmdb_t *db)
 	return db->ops->close(db);
 }
 
+int _pacman_db_gettimestamp(pmdb_t *db, struct tm *timestamp)
+{
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+
+	if(db->ops->gettimestamp) {
+		return db->ops->gettimestamp(db, timestamp);
+	} else {
+		int ret;
+		char buffer[16];
+
+		if((ret = _pacman_db_getlastupdate(db, buffer)) == 0) {
+			strptime(buffer, "%Y%m%d%H%M%S", timestamp);
+		}
+		return ret;
+	}
+}
+
+int _pacman_db_settimestamp(pmdb_t *db, const struct tm *timestamp)
+{
+	char buffer[16];
+
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+
+	strftime(buffer, sizeof(buffer), "%Y%m%d%H%M%S", timestamp);
+	return _pacman_db_setlastupdate(db, buffer);
+}
+
 int _pacman_db_rewind(pmdb_t *db)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
