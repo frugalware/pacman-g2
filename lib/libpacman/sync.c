@@ -240,7 +240,7 @@ static int check_olddelay(void)
 		if(_pacman_db_gettimestamp(db, &tm) == -1) {
 			continue;
 		}
-		if((time(NULL)-mktime(&tm)) > handle->olddelay) {
+		if(difftime(time(NULL), mktime(&tm)) > handle->olddelay) {
 			_pacman_log(PM_LOG_WARNING, _("local copy of '%s' repo is too old"), db->treename);
 		}
 	}
