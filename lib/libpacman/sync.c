@@ -229,21 +229,15 @@ static int pkg_cmp(const void *p1, const void *p2)
 static int check_olddelay(void)
 {
 	pmlist_t *i;
-	char lastupdate[16] = "";
 	struct tm tm;
 
 	if(!handle->olddelay) {
 		return(0);
 	}
 
-	memset(&tm,0,sizeof(struct tm));
-
 	for(i = handle->dbs_sync; i; i= i->next) {
 		pmdb_t *db = i->data;
-		if(_pacman_db_getlastupdate(db, lastupdate) == -1) {
-			continue;
-		}
-		if(strptime(lastupdate, "%Y%m%d%H%M%S", &tm) == NULL) {
+		if(_pacman_db_gettimestamp(db, &tm) == -1) {
 			continue;
 		}
 		if((time(NULL)-mktime(&tm)) > handle->olddelay) {
