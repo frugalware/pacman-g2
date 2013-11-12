@@ -49,12 +49,12 @@
 static int check_oldcache(void)
 {
 	pmdb_t *db = handle->db_local;
-	char lastupdate[16] = "";
+	struct tm timestamp;
 
-	if(_pacman_db_getlastupdate(db, lastupdate) == -1) {
+	if(_pacman_db_gettimestamp(db, &timestamp) == -1) {
 		return(-1);
 	}
-	if(!_pacman_strempty(db->lastupdate) && strcmp(lastupdate, db->lastupdate) != 0) {
+	if(difftime(mktime(&timestamp), mktime(&db->cache_timestamp)) != 0) {
 		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is too old"), db->treename);
 		_pacman_db_free_pkgcache(db);
 	} else {
