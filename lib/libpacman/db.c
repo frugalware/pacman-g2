@@ -195,6 +195,7 @@ int _pacman_db_gettimestamp(pmdb_t *db, struct tm *timestamp)
 		char buffer[16];
 
 		if((ret = _pacman_db_getlastupdate(db, buffer)) == 0) {
+			memset(timestamp, 0, sizeof(struct tm));
 			strptime(buffer, "%Y%m%d%H%M%S", timestamp);
 		}
 		return ret;
