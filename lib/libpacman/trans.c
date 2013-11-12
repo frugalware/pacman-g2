@@ -134,9 +134,6 @@ int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags,
 
 void _pacman_trans_fini(pmtrans_t *trans)
 {
-	if(trans !=NULL && trans->ops != NULL && trans->ops->fini != NULL) {
-		trans->ops->fini(trans);
-	}
 }
 
 int _pacman_trans_sysupgrade(pmtrans_t *trans)
