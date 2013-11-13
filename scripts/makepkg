@@ -675,6 +675,7 @@ chroot_umount() {
     msg "Attempting to umount chroot directories..."
     umount $CHROOTDIR/proc >/dev/null
     umount $CHROOTDIR/sys >/dev/null
+    umount $CHROOTDIR/dev/shm >/dev/null
     umount $CHROOTDIR/dev >/dev/null
     umount $CHROOTDIR/var/cache/pacman-g2 >/dev/null
     umount $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
@@ -690,6 +691,7 @@ chroot_mount() {
     mount -t proc none $CHROOTDIR/proc >/dev/null
     mount -t sysfs none $CHROOTDIR/sys >/dev/null
     mount -t devtmpfs none $CHROOTDIR/dev >/dev/null
+    mount -t tmpfs none $CHROOTDIR/dev/shm >/dev/null
     mount -o bind /var/cache/pacman-g2 $CHROOTDIR/var/cache/pacman-g2 >/dev/null
     mount -o bind $CCACHE_BASEDIR/$pkgname \
     $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
