@@ -793,7 +793,6 @@ int pacman_trans_commit(pmlist_t **data)
 int pacman_trans_release()
 {
 	pmtrans_t *trans;
-	char lastupdate[15] = "";
 	time_t t;
 
 	/* Sanity checks */
@@ -818,8 +817,7 @@ int pacman_trans_release()
 	FREETRANS(handle->trans);
 
 	t = time(NULL);
-	strftime(lastupdate, 15, "%Y%m%d%H%M%S", localtime(&t));
-	_pacman_db_setlastupdate(handle->db_local, lastupdate);
+	_pacman_db_settimestamp(handle->db_local, localtime(&t));
 
 	if(_pacman_handle_unlock(handle) != 0) {
 		return -1;
