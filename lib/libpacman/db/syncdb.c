@@ -94,7 +94,7 @@ int _pacman_syncdb_update(pmdb_t *db, int force)
 {
 	char path[PATH_MAX], dirpath[PATH_MAX];
 	pmlist_t *files = NULL;
-	char newmtime[16] = "";
+	time_t newmtime = (time_t) -1;
 	char lastupdate[16] = "";
 	int ret, updated=0;
 
@@ -112,7 +112,7 @@ int _pacman_syncdb_update(pmdb_t *db, int force)
 
 	snprintf(path, PATH_MAX, "%s%s", handle->root, handle->dbpath);
 
-	ret = _pacman_downloadfiles_forreal(db->servers, path, files, lastupdate, newmtime, 0);
+	ret = _pacman_downloadfiles_forreal(db->servers, path, files, lastupdate, &newmtime, 0);
 	FREELIST(files);
 	if(ret != 0) {
 		if(ret == -1) {
@@ -121,7 +121,7 @@ int _pacman_syncdb_update(pmdb_t *db, int force)
 		}
 		return 1; /* Means up2date */
 	} else {
-		if(!_pacman_strempty(newmtime)) {
+		if(newmtime != ((time_t) -1)) {
 			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %s\n"), db->treename, newmtime);
 			updated = 1;
 		}
@@ -135,7 +135,7 @@ int _pacman_syncdb_update(pmdb_t *db, int force)
 		_pacman_db_free_pkgcache(db);
 
 		if(updated) {
-			_pacman_db_setlastupdate(db, newmtime);
+			_pacman_db_settimestamp(db, &newmtime);
 		}
 	}
 	return 0;

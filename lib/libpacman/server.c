@@ -35,6 +35,7 @@
 /* pacman-g2 */
 #include "server.h"
 
+#include "io/ftp.h"
 #include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
@@ -154,7 +155,7 @@ int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *fi
  *         -1 on error
  */
 int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
-	pmlist_t *files, const char *mtime1, char *mtime2, int skip)
+	pmlist_t *files, const char *mtime1, time_t *mtime2, int skip)
 {
 	int fsz;
 	netbuf *control = NULL;
@@ -398,8 +399,10 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 								complete = _pacman_list_add(complete, fn);
 							} else {
 								if(mtime2) {
-									strncpy(mtime2, fmtime, 15); /* YYYYMMDDHHMMSS (=14b) */
-									mtime2[14] = '\0';
+									if(_pacman_ftp_strpmdtm(fmtime, mtime2) == NULL) {
+										_pacman_log(PM_LOG_WARNING, _("failed to get mtime for %s\n"), fn);
+										*mtime2 = (time_t) -1;
+									}
 								}
 							}
 						}
@@ -501,7 +504,6 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						fmtime1.tm_wday = diff+(diff >= 3 ? -3 : 4);
 
 					}
-					fmtime2.tm_year = 0;
 					if(!HttpGet(server->server, output, src, &fsz, control, (pm_dloffset ? *pm_dloffset:0),
 					            (mtime1) ? &fmtime1 : NULL, (mtime2) ? &fmtime2 : NULL)) {
 						if(strstr(FtpLastResponse(control), "304")) {
@@ -520,12 +522,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						}
 					} else {
 						if(mtime2) {
-							if(fmtime2.tm_year) {
-								/* date conversion from "rfc1123-date" to YYYYMMDDHHMMSS */
-								sprintf(mtime2, "%4d%02d%02d%02d%02d%02d",
-								        fmtime2.tm_year+1900, fmtime2.tm_mon+1, fmtime2.tm_mday,
-								        fmtime2.tm_hour, fmtime2.tm_min, fmtime2.tm_sec);
-							} else {
+							if((*mtime2 = mktime(&fmtime2)) == ((time_t) -1)) {
 								_pacman_log(PM_LOG_WARNING, _("failed to get mtime for %s\n"), fn);
 							}
 						}
