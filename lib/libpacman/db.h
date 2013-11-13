@@ -36,8 +36,6 @@
 #define INFRQ_SCRIPLET 0x08
 #define INFRQ_ALL      0xFF
 
-#define DB_O_CREATE 0x01
-
 typedef struct __pmdb_ops_t pmdb_ops_t;
 
 struct __pmdb_ops_t {
