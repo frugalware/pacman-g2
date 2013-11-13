@@ -25,6 +25,8 @@
 
 const pmdb_ops_t _pacman_syncdb_ops;
 
+int _pacman_syncdb_update(pmdb_t *db, int force);
+
 #endif /* _PACMAN_SYNCDB_H */
 
 /* vim: set ts=2 sw=2 noet: */

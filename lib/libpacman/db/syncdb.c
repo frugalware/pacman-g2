@@ -42,15 +42,18 @@
 #include "db/syncdb.h"
 
 #include "db/localdb_files.h"
+#include "db/syncdb.h"
 #include "io/archive.h"
 #include "util/log.h"
 #include "util/stringlist.h"
 #include "util.h"
+#include "cache.h"
 #include "db.h"
 #include "package.h"
 #include "pacman.h"
 #include "error.h"
 #include "handle.h"
+#include "server.h"
 
 static
 int suffixcmp(const char *str, const char *suffix)
@@ -85,6 +88,57 @@ pmlist_t *_pacman_syncdb_test(pmdb_t *db)
 {
 	/* testing sync dbs is not supported */
 	return _pacman_list_new();
+}
+
+int _pacman_syncdb_update(pmdb_t *db, int force)
+{
+	char path[PATH_MAX], dirpath[PATH_MAX];
+	pmlist_t *files = NULL;
+	char newmtime[16] = "";
+	char lastupdate[16] = "";
+	int ret, updated=0;
+
+	if(!force) {
+		/* get the lastupdate time */
+		_pacman_db_getlastupdate(db, lastupdate);
+		if(_pacman_strempty(lastupdate)) {
+			_pacman_log(PM_LOG_DEBUG, _("failed to get lastupdate time for %s (no big deal)\n"), db->treename);
+		}
+	}
+
+	/* build a one-element list */
+	snprintf(path, PATH_MAX, "%s" PM_EXT_DB, db->treename);
+	files = _pacman_stringlist_append(files, path);
+
+	snprintf(path, PATH_MAX, "%s%s", handle->root, handle->dbpath);
+
+	ret = _pacman_downloadfiles_forreal(db->servers, path, files, lastupdate, newmtime, 0);
+	FREELIST(files);
+	if(ret != 0) {
+		if(ret == -1) {
+			_pacman_log(PM_LOG_DEBUG, _("failed to sync db: %s [%d]\n"),  pacman_strerror(ret), ret);
+			pm_errno = PM_ERR_DB_SYNC;
+		}
+		return 1; /* Means up2date */
+	} else {
+		if(!_pacman_strempty(newmtime)) {
+			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %s\n"), db->treename, newmtime);
+			updated = 1;
+		}
+		snprintf(dirpath, PATH_MAX, "%s%s/%s", handle->root, handle->dbpath, db->treename);
+		snprintf(path, PATH_MAX, "%s%s/%s" PM_EXT_DB, handle->root, handle->dbpath, db->treename);
+
+		/* remove the old dir */
+		_pacman_rmrf(dirpath);
+
+		/* Cache needs to be rebuild */
+		_pacman_db_free_pkgcache(db);
+
+		if(updated) {
+			_pacman_db_setlastupdate(db, newmtime);
+		}
+	}
+	return 0;
 }
 
 static
