@@ -19,7 +19,8 @@ HASH_TARGETS = \
 	hash/sha1.c
 
 IO_TARGETS = \
-	io/archive.c
+	io/archive.c \
+	io/ftp.c
 
 PACKAGE_TARGETS = \
 	package/pkginfo.c

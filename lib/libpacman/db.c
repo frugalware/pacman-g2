@@ -46,6 +46,7 @@
 
 #include "db/localdb.h"
 #include "db/syncdb.h"
+#include "io/ftp.h"
 #include "util/list.h"
 #include "util/log.h"
 #include "util/time.h"
@@ -195,13 +196,9 @@ int _pacman_db_gettimestamp(pmdb_t *db, time_t *timestamp)
 	} else {
 		char buffer[16];
 
-		if(_pacman_db_getlastupdate(db, buffer) == 0) {
-			struct tm ptimestamp = { 0 };
-
-			if(strptime(buffer, "%Y%m%d%H%M%S", &ptimestamp) != NULL) {
-				*timestamp = mktime(&ptimestamp);
-				return 0;
-			}
+		if(_pacman_db_getlastupdate(db, buffer) == 0 &&
+			_pacman_ftp_strpmdtm(buffer, timestamp) != NULL) {
+			return 0;
 		}
 		return -1;
 	}
@@ -215,7 +212,7 @@ int _pacman_db_settimestamp(pmdb_t *db, const time_t *timestamp)
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	strftime(buffer, sizeof(buffer), "%Y%m%d%H%M%S", _pacman_localtime(timestamp));
+	_pacman_ftp_strfmdtm(buffer, sizeof(buffer), timestamp);
 	return _pacman_db_setlastupdate(db, buffer);
 }
 
