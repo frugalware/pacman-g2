@@ -162,13 +162,14 @@ pmlist_t *_pacman_db_test(pmdb_t *db)
 	return db->ops->test(db);
 }
 
-int _pacman_db_open(pmdb_t *db)
+int _pacman_db_open(pmdb_t *db, int flags)
 {
 	int ret = 0;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(flags == 0, RET_ERR(PM_ERR_DB_OPEN, -1)); /* No flags are supported for now */
 
-	ret = db->ops->open(db, &db->cache_timestamp);
+	ret = db->ops->open(db, flags, &db->cache_timestamp);
 	if(ret == 0 && _pacman_db_getlastupdate(db, db->lastupdate) == -1) {
 		db->lastupdate[0] = '\0';
 	}
@@ -378,7 +379,7 @@ pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("opening database '%s'"), db->treename);
-	if(_pacman_db_open(db) == -1) {
+	if(_pacman_db_open(db, 0) == -1) {
 		_pacman_db_free(db);
 		RET_ERR(PM_ERR_DB_OPEN, NULL);
 	}

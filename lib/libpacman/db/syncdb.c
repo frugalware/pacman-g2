@@ -88,7 +88,7 @@ pmlist_t *_pacman_syncdb_test(pmdb_t *db)
 }
 
 static
-int _pacman_syncdb_open(pmdb_t *db, struct tm *timestamp)
+int _pacman_syncdb_open(pmdb_t *db, int flags, struct tm *timestamp)
 {
 	struct stat buf;
 	char dbpath[PATH_MAX];
@@ -120,7 +120,7 @@ static
 int _pacman_syncdb_rewind(pmdb_t *db)
 {
 	_pacman_syncdb_close(db);
-	return _pacman_syncdb_open(db, NULL);
+	return _pacman_syncdb_open(db, 0, NULL);
 }
 
 static

@@ -107,7 +107,7 @@ pmlist_t *_pacman_localdb_test(pmdb_t *db)
 }
 
 static
-int _pacman_localdb_open(pmdb_t *db, struct tm *timestamp)
+int _pacman_localdb_open(pmdb_t *db, int flags, struct tm *timestamp)
 {
 	db->handle = opendir(db->path);
 	ASSERT(db->handle != NULL, RET_ERR(PM_ERR_DB_OPEN, -1));
