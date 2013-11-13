@@ -23,6 +23,8 @@
 
 #include <time.h>
 
+#define PM_FMT_MDTM_MAX 64
+
 size_t _pacman_ftp_strfmdtm(char *s, size_t max, const time_t *time);
 char *_pacman_ftp_strpmdtm(const char *s, time_t *time);
 

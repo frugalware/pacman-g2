@@ -194,7 +194,7 @@ int _pacman_db_gettimestamp(pmdb_t *db, time_t *timestamp)
 	if(db->ops->gettimestamp) {
 		return db->ops->gettimestamp(db, timestamp);
 	} else {
-		char buffer[16];
+		char buffer[PM_FMT_MDTM_MAX];
 
 		if(_pacman_db_getlastupdate(db, buffer) == 0 &&
 			_pacman_ftp_strpmdtm(buffer, timestamp) != NULL) {
@@ -208,7 +208,7 @@ int _pacman_db_gettimestamp(pmdb_t *db, time_t *timestamp)
  */
 int _pacman_db_settimestamp(pmdb_t *db, const time_t *timestamp)
 {
-	char buffer[16];
+	char buffer[PM_FMT_MDTM_MAX];
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 

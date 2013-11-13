@@ -385,7 +385,8 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					}
 					/* check mtimes */
 					if(mtime1) {
-						char fmtime[64];
+						char fmtime[PM_FMT_MDTM_MAX];
+
 						if(!FtpModDate(fn, fmtime, sizeof(fmtime)-1, control)) {
 							_pacman_log(PM_LOG_WARNING, _("failed to get mtime for %s\n"), fn);
 						} else {
