@@ -27,7 +27,8 @@ PACKAGE_TARGETS = \
 UTIL_TARGETS = \
 	util/list.c \
 	util/log.c \
-	util/stringlist.c
+	util/stringlist.c \
+	util/time.c
 
 TARGETS = \
 	$(DB_TARGETS) \
