@@ -81,6 +81,8 @@ pmhandle_t *_pacman_handle_new(void);
 int _pacman_handle_free(pmhandle_t *handle);
 int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long data);
 int _pacman_handle_get_option(pmhandle_t *handle, unsigned char val, long *data);
+int _pacman_handle_lock(pmhandle_t *handle);
+int _pacman_handle_unlock(pmhandle_t *handle);
 
 #endif /* _PACMAN_HANDLE_H */
 

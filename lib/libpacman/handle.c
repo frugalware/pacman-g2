@@ -376,4 +376,35 @@ int _pacman_handle_get_option(pmhandle_t *ph, unsigned char val, long *data)
 	return(0);
 }
 
+int _pacman_handle_lock(pmhandle_t *handle)
+{
+	char lckpath[PATH_MAX];
+
+	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
+
+	snprintf(lckpath, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
+	handle->lckfd = _pacman_lckmk(lckpath);
+	if(handle->lckfd == -1) {
+		RET_ERR(PM_ERR_HANDLE_LOCK, -1);
+	}
+	return 0;
+}
+
+int _pacman_handle_unlock(pmhandle_t *handle)
+{
+	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
+
+	if(handle->lckfd != -1) {
+		char lckpath[PATH_MAX];
+
+		close(handle->lckfd);
+		handle->lckfd = -1;
+		snprintf(lckpath, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
+		if(_pacman_lckrm(lckpath)) {
+			_pacman_log(PM_LOG_WARNING, _("could not remove lock file %s"), lckpath);
+		}
+	}
+	return 0;
+}
+
 /* vim: set ts=2 sw=2 noet: */

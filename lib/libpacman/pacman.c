@@ -102,7 +102,6 @@ int pacman_initialize(const char *root)
  */
 int pacman_release(void)
 {
-	char path[PATH_MAX];
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
 	/* free the transaction if there is any */
@@ -121,9 +120,9 @@ int pacman_release(void)
 		pacman_db_unregister(handle->dbs_sync->data);
 	}
 
-	/* unlock the db */
-	snprintf(path, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
-	_pacman_lckrm(path);
+	if(_pacman_handle_unlock(handle) != 0) {
+		return -1;
+	}
 
 	FREEHANDLE(handle);
 
@@ -316,7 +315,7 @@ int pacman_db_setserver(pmdb_t *db, char *url)
  */
 int pacman_db_update(int force, pmdb_t *db)
 {
-	char path[PATH_MAX], dirpath[PATH_MAX], lckpath[PATH_MAX];
+	char path[PATH_MAX], dirpath[PATH_MAX];
 	pmlist_t *files = NULL;
 	char newmtime[16] = "";
 	char lastupdate[16] = "";
@@ -328,11 +327,8 @@ int pacman_db_update(int force, pmdb_t *db)
 	/* Do not update a database if a transaction is on-going */
 	ASSERT(handle->trans == NULL, RET_ERR(PM_ERR_TRANS_NOT_NULL, -1));
 
-	/* lock db */
-	snprintf(lckpath, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
-	handle->lckfd = _pacman_lckmk(lckpath);
-	if(handle->lckfd == -1) {
-		RET_ERR(PM_ERR_HANDLE_LOCK, -1);
+	if(_pacman_handle_lock(handle) != 0) {
+		return -1;
 	}
 
 	if(!_pacman_list_is_in(db, handle->dbs_sync)) {
@@ -382,8 +378,8 @@ int pacman_db_update(int force, pmdb_t *db)
 	}
 
 rmlck:
-	if(_pacman_lckrm(lckpath)) {
-		_pacman_log(PM_LOG_WARNING, _("could not remove lock file %s"), path);
+	if(_pacman_handle_unlock(handle) != 0) {
+		return -1;
 	}
 	return status;
 }
@@ -694,18 +690,12 @@ void *pacman_trans_getinfo(unsigned char parm)
  */
 int pacman_trans_init(unsigned char type, unsigned int flags, pacman_trans_cb_event event, pacman_trans_cb_conv conv, pacman_trans_cb_progress progress)
 {
-	char path[PATH_MAX];
-
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
-
 	ASSERT(handle->trans == NULL, RET_ERR(PM_ERR_TRANS_NOT_NULL, -1));
 
-	/* lock db */
-	snprintf(path, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
-	handle->lckfd = _pacman_lckmk(path);
-	if(handle->lckfd == -1) {
-		RET_ERR(PM_ERR_HANDLE_LOCK, -1);
+	if(_pacman_handle_lock(handle) != 0) {
+		return -1;
 	}
 
 	handle->trans = _pacman_trans_new();
@@ -803,7 +793,7 @@ int pacman_trans_commit(pmlist_t **data)
 int pacman_trans_release()
 {
 	pmtrans_t *trans;
-	char path[PATH_MAX], lastupdate[15] = "";
+	char lastupdate[15] = "";
 	time_t t;
 
 	/* Sanity checks */
@@ -831,16 +821,9 @@ int pacman_trans_release()
 	strftime(lastupdate, 15, "%Y%m%d%H%M%S", localtime(&t));
 	_pacman_db_setlastupdate(handle->db_local, lastupdate);
 
-	/* unlock db */
-	if(handle->lckfd != -1) {
-		close(handle->lckfd);
-		handle->lckfd = -1;
+	if(_pacman_handle_unlock(handle) != 0) {
+		return -1;
 	}
-	snprintf(path, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
-	if(_pacman_lckrm(path)) {
-		_pacman_log(PM_LOG_WARNING, _("could not remove lock file %s"), path);
-	}
-
 	return(0);
 }
 /** @} */
