@@ -142,7 +142,7 @@ int _pacman_syncdb_update(pmdb_t *db, int force)
 }
 
 static
-int _pacman_syncdb_open(pmdb_t *db, int flags, struct tm *timestamp)
+int _pacman_syncdb_open(pmdb_t *db, int flags, time_t *timestamp)
 {
 	struct stat buf;
 	char dbpath[PATH_MAX];

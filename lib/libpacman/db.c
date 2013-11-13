@@ -48,6 +48,7 @@
 #include "db/syncdb.h"
 #include "util/list.h"
 #include "util/log.h"
+#include "util/time.h"
 #include "util.h"
 #include "error.h"
 #include "server.h"
@@ -184,7 +185,7 @@ int _pacman_db_close(pmdb_t *db)
 	return db->ops->close(db);
 }
 
-int _pacman_db_gettimestamp(pmdb_t *db, struct tm *timestamp)
+int _pacman_db_gettimestamp(pmdb_t *db, time_t *timestamp)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(timestamp != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
@@ -192,24 +193,29 @@ int _pacman_db_gettimestamp(pmdb_t *db, struct tm *timestamp)
 	if(db->ops->gettimestamp) {
 		return db->ops->gettimestamp(db, timestamp);
 	} else {
-		int ret;
 		char buffer[16];
 
-		if((ret = _pacman_db_getlastupdate(db, buffer)) == 0) {
-			memset(timestamp, 0, sizeof(struct tm));
-			strptime(buffer, "%Y%m%d%H%M%S", timestamp);
+		if(_pacman_db_getlastupdate(db, buffer) == 0) {
+			struct tm ptimestamp = { 0 };
+
+			if(strptime(buffer, "%Y%m%d%H%M%S", &ptimestamp) != NULL) {
+				*timestamp = mktime(&ptimestamp);
+				return 0;
+			}
 		}
-		return ret;
+		return -1;
 	}
 }
 
-int _pacman_db_settimestamp(pmdb_t *db, const struct tm *timestamp)
+/* A NULL timestamp means now per _pacman_localtime definition.
+ */
+int _pacman_db_settimestamp(pmdb_t *db, const time_t *timestamp)
 {
 	char buffer[16];
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	strftime(buffer, sizeof(buffer), "%Y%m%d%H%M%S", timestamp);
+	strftime(buffer, sizeof(buffer), "%Y%m%d%H%M%S", _pacman_localtime(timestamp));
 	return _pacman_db_setlastupdate(db, buffer);
 }
 

@@ -40,6 +40,7 @@
 /* pacman-g2 */
 #include "pacman.h"
 
+#include "db/syncdb.h"
 #include "hash/md5.h"
 #include "hash/sha1.h"
 #include "util/list.h"
@@ -748,7 +749,6 @@ int pacman_trans_commit(pmlist_t **data)
 int pacman_trans_release()
 {
 	pmtrans_t *trans;
-	time_t t;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -771,8 +771,7 @@ int pacman_trans_release()
 
 	FREETRANS(handle->trans);
 
-	t = time(NULL);
-	_pacman_db_settimestamp(handle->db_local, localtime(&t));
+	_pacman_db_settimestamp(handle->db_local, NULL);
 
 	if(_pacman_handle_unlock(handle) != 0) {
 		return -1;
