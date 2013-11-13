@@ -80,19 +80,6 @@ void _pacman_trans_free(pmtrans_t *trans)
 		return;
 	}
 
-	FREELIST(trans->targets);
-	if(trans->type == PM_TRANS_TYPE_SYNC) {
-		pmlist_t *i;
-		for(i = trans->packages; i; i = i->next) {
-			FREESYNC(i->data);
-		}
-		FREELIST(trans->packages);
-	} else {
-		FREELISTPKGS(trans->packages);
-	}
-	FREELIST(trans->skiplist);
-	FREELIST(trans->triggers);
-
 	_pacman_trans_fini(trans);
 	free(trans);
 }
@@ -134,6 +121,24 @@ int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags,
 
 void _pacman_trans_fini(pmtrans_t *trans)
 {
+	/* Sanity checks */
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+
+	FREELIST(trans->targets);
+	if(trans->type == PM_TRANS_TYPE_SYNC) {
+		pmlist_t *i;
+		for(i = trans->packages; i; i = i->next) {
+			FREESYNC(i->data);
+		}
+		FREELIST(trans->packages);
+	} else {
+		FREELISTPKGS(trans->packages);
+	}
+	FREELIST(trans->skiplist);
+	FREELIST(trans->triggers);
+
+	memset(trans, 0, sizeof(*trans));
+	trans->state = STATE_IDLE;
 }
 
 int _pacman_trans_sysupgrade(pmtrans_t *trans)
