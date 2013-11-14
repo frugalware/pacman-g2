@@ -242,7 +242,8 @@ int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
 	int ret;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	if(info == NULL || info->name[0] == 0 || info->version[0] == 0) {
+	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
+	if(_pacman_strempty(info->name) || _pacman_strempty(info->version)) {
 		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_db_read"));
 		return(-1);
 	}
