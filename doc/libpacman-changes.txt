@@ -19,20 +19,31 @@ None.
 ==== Symbols changed:
 
 pacman_cb_log: Make 'message' argument a constant.
+
 pacman_logaction: Now returns a void instead of a int to reflect success. Logging should allways success and not be intrusive.
+
 pacman_parse_config: Make 'file' argument a constant. Remove 'this_section' argument, it is internal and should not have been exposed publicly.
+
 pacman_reg_match: Make arguments constants.
+
 pacman_trans_cb_progress: Make 'pkgname' argument a constant.
 
 ==== Symbols added:
 
 pmconflict_t: is now public and deprecate PM_CONFLICT.
+
 pmdb_t: is now public and deprecate PM_DB.
+
 pmdepmissing_t: is now public and deprecate PM_DEPMISS.
+
 pmgrp_t: is now public and deprecate PM_GRP.
+
 pmlist_t: is now public and deprecate PM_LIST.
+
 pmpkg_t: is now public and deprecate PM_PKG.
+
 pmsyncpkg_t: is now public and deprecate PM_SYNCPKG.
+
 PM_PKG_TRIGGERS: Access to package triggers list.
 
 ==== Symbols removed:
