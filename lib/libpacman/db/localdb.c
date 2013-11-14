@@ -379,6 +379,7 @@ cleanup:
 	return(retval);
 }
 
+static
 int _pacman_localdb_remove(pmdb_t *db, pmpkg_t *info)
 {
 	char path[PATH_MAX];
