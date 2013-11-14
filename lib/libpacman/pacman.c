@@ -326,13 +326,11 @@ int pacman_db_update(int force, pmdb_t *db)
 	if(_pacman_handle_lock(handle) != 0) {
 		return -1;
 	}
-
 	if(!_pacman_list_is_in(db, handle->dbs_sync)) {
 		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
 	}
 
 	status = _pacman_syncdb_update(db, force);
-rmlck:
 	if(_pacman_handle_unlock(handle) != 0) {
 		return -1;
 	}
@@ -984,6 +982,7 @@ int pacman_reg_match(const char *string, const char *pattern)
 {
 	ASSERT(string != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT(pattern != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
 	return(_pacman_reg_match(string, pattern));
 }
 
