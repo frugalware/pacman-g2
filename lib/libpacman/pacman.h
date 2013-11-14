@@ -84,7 +84,7 @@ int pacman_release(void);
 #define PM_LOG_FUNCTION 0x20
 
 /* Log callback */
-typedef void (*pacman_cb_log)(unsigned short, char *);
+typedef void (*pacman_cb_log)(unsigned short, const char *msg);
 
 void pacman_logaction(const char *format, ...);
 
