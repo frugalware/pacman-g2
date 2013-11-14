@@ -38,6 +38,7 @@ TARGETS = \
 	$(PACKAGE_TARGETS) \
 	$(UTIL_TARGETS) \
 	util.c \
+	config_parser.c \
 	error.c \
 	package.c \
 	group.c \
