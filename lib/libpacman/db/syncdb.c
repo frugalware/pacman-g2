@@ -100,10 +100,9 @@ int _pacman_syncdb_update(pmdb_t *db, int force)
 	int ret, updated=0;
 
 	if(!force) {
-		/* get the lastupdate time */
 		_pacman_db_gettimestamp(db, &timestamp);
 		if(timestamp == PM_TIME_INVALID) {
-			_pacman_log(PM_LOG_DEBUG, _("failed to get lastupdate time for %s (no big deal)\n"), db->treename);
+			_pacman_log(PM_LOG_DEBUG, _("failed to get timestamp for %s (no big deal)\n"), db->treename);
 		}
 	}
 
