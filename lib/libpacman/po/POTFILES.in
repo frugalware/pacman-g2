@@ -5,8 +5,6 @@ util/log.c
 util/list.c
 add.c
 pacman.c
-backup.c
-be_files.c
 cache.c
 conflict.c
 db.c
