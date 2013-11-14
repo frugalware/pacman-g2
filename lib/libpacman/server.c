@@ -155,7 +155,7 @@ int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *fi
  *         -1 on error
  */
 int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
-	pmlist_t *files, const char *mtime1, time_t *mtime2, int skip)
+	pmlist_t *files, const time_t *mtime1, time_t *mtime2, int skip)
 {
 	int fsz;
 	netbuf *control = NULL;
@@ -391,19 +391,21 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						if(!FtpModDate(fn, fmtime, sizeof(fmtime)-1, control)) {
 							_pacman_log(PM_LOG_WARNING, _("failed to get mtime for %s\n"), fn);
 						} else {
+							time_t mdtm;
+
 							_pacman_strtrim(fmtime);
-							if(mtime1 && !strcmp(mtime1, fmtime)) {
-								/* mtimes are identical, skip this file */
-								_pacman_log(PM_LOG_DEBUG, _("mtimes are identical, skipping %s\n"), fn);
-								filedone = -1;
-								complete = _pacman_list_add(complete, fn);
-							} else {
-								if(mtime2) {
-									if(_pacman_ftp_strpmdtm(fmtime, mtime2) == NULL) {
-										_pacman_log(PM_LOG_WARNING, _("failed to get mtime for %s\n"), fn);
-										*mtime2 = (time_t) -1;
+							if(_pacman_ftp_strpmdtm(fmtime, &mdtm) != NULL) {
+								if(mtime1 && difftime(mdtm, mtime1) == 0) {
+									_pacman_log(PM_LOG_DEBUG, _("mtimes are identical, skipping %s\n"), fn);
+									filedone = -1;
+									complete = _pacman_list_add(complete, fn);
+								} else {
+									if(mtime2) {
+										*mtime2 = mdtm;
 									}
 								}
+							} else {
+								_pacman_log(PM_LOG_WARNING, _("failed to get mtime for %s\n"), fn);
 							}
 						}
 					}
@@ -482,27 +484,8 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					} else {
 						snprintf(src, PATH_MAX, "%s://%s%s%s", server->protocol, server->server, server->path, fn);
 					}
-					if(mtime1 && strlen(mtime1)) {
-						struct tm tmref;
-						time_t t, tref;
-						int diff;
-						/* date conversion from YYYYMMDDHHMMSS to "rfc1123-date" */
-						sscanf(mtime1, "%4d%2d%2d%2d%2d%2d",
-						       &fmtime1.tm_year, &fmtime1.tm_mon, &fmtime1.tm_mday,
-						       &fmtime1.tm_hour, &fmtime1.tm_min, &fmtime1.tm_sec);
-						fmtime1.tm_year -= 1900;
-						fmtime1.tm_mon--;
-						/* compute the week day because some web servers (like lighttpd) need them. */
-						/* we set tmref to "Thu, 01 Jan 1970 00:00:00" */
-						memset(&tmref, 0, sizeof(struct tm));
-						tmref.tm_mday = 1;
-						tref = mktime(&tmref);
-						/* then we compute the difference with mtime1 */
-						memcpy(&tmref, &fmtime1, sizeof(struct tm));
-						t = mktime(&tmref);
-						diff = ((t-tref)/3600/24)%7;
-						fmtime1.tm_wday = diff+(diff >= 3 ? -3 : 4);
-
+					if(mtime1 && *mtime1 != ((time_t) -1)) {
+						fmtime1 = *gmtime(mtime1);
 					}
 					if(!HttpGet(server->server, output, src, &fsz, control, (pm_dloffset ? *pm_dloffset:0),
 					            (mtime1) ? &fmtime1 : NULL, (mtime2) ? &fmtime2 : NULL)) {

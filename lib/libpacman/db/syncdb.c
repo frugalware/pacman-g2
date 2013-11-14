@@ -94,14 +94,14 @@ int _pacman_syncdb_update(pmdb_t *db, int force)
 {
 	char path[PATH_MAX], dirpath[PATH_MAX];
 	pmlist_t *files = NULL;
-	time_t newmtime = (time_t) -1;
-	char lastupdate[16] = "";
+	time_t newmtime = ((time_t) -1);
+	time_t timestamp = ((time_t) -1);
 	int ret, updated=0;
 
 	if(!force) {
 		/* get the lastupdate time */
-		_pacman_db_getlastupdate(db, lastupdate);
-		if(_pacman_strempty(lastupdate)) {
+		_pacman_db_gettimestamp(db, &timestamp);
+		if(timestamp == ((time_t) -1)) {
 			_pacman_log(PM_LOG_DEBUG, _("failed to get lastupdate time for %s (no big deal)\n"), db->treename);
 		}
 	}
@@ -112,7 +112,7 @@ int _pacman_syncdb_update(pmdb_t *db, int force)
 
 	snprintf(path, PATH_MAX, "%s%s", handle->root, handle->dbpath);
 
-	ret = _pacman_downloadfiles_forreal(db->servers, path, files, lastupdate, &newmtime, 0);
+	ret = _pacman_downloadfiles_forreal(db->servers, path, files, &timestamp, &newmtime, 0);
 	FREELIST(files);
 	if(ret != 0) {
 		if(ret == -1) {
