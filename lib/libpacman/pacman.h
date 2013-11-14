@@ -223,7 +223,7 @@ pmlist_t *pacman_pkg_getowners(char *filename);
 int pacman_pkg_load(char *filename, pmpkg_t **pkg);
 int pacman_pkg_free(pmpkg_t *pkg);
 char *pacman_fetch_pkgurl(char *url);
-int pacman_parse_config(char *file, pacman_cb_db_register callback);
+int pacman_parse_config(const char *file, pacman_cb_db_register callback);
 int pacman_pkg_vercmp(const char *ver1, const char *ver2);
 int pacman_reg_match(const char *string, const char *pattern);
 

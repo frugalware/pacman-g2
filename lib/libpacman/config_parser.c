@@ -63,7 +63,7 @@
 
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 
-int _pacman_parse_config(char *file, pacman_cb_db_register callback, const char *this_section)
+int _pacman_parse_config(const char *file, pacman_cb_db_register callback, const char *this_section)
 {
 	FILE *fp = NULL;
 	char line[PATH_MAX+1];

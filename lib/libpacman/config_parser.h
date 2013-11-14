@@ -26,7 +26,7 @@
 
 #include "pacman.h"
 
-int _pacman_parse_config(char *file, pacman_cb_db_register callback, const char *this_section);
+int _pacman_parse_config(const char *file, pacman_cb_db_register callback, const char *this_section);
 
 #endif /* _PACMAN_CONFIG_PARSER_H */
 
