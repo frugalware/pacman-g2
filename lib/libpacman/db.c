@@ -57,6 +57,15 @@
 #include "cache.h"
 #include "pacman.h"
 
+static
+FILE *_pacman_db_fopen_lastupdate(const pmdb_t *db, const char *mode)
+{
+	char path[PATH_MAX];
+
+	snprintf(path, sizeof(path), "%s%s/%s.lastupdate", handle->root, handle->dbpath, db->treename);
+	return fopen(path, mode);
+}
+
 pmdb_t *_pacman_db_new(const char *root, const char* dbpath, const char *treename)
 {
 	pmdb_t *db = _pacman_zalloc(sizeof(pmdb_t));
@@ -286,17 +295,14 @@ int _pacman_db_remove(pmdb_t *db, pmpkg_t *info)
 int _pacman_db_getlastupdate(pmdb_t *db, char *ts)
 {
 	FILE *fp;
-	char file[PATH_MAX];
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	if(ts == NULL) {
 		return(-1);
 	}
 
-	snprintf(file, PATH_MAX, "%s%s/%s.lastupdate", handle->root, handle->dbpath, db->treename);
-
 	/* get the last update time, if it's there */
-	if((fp = fopen(file, "r")) == NULL) {
+	if((fp = _pacman_db_fopen_lastupdate(db, "r")) == NULL) {
 		return(-1);
 	} else {
 		char line[256];
@@ -319,16 +325,13 @@ int _pacman_db_getlastupdate(pmdb_t *db, char *ts)
 int _pacman_db_setlastupdate(pmdb_t *db, const char *ts)
 {
 	FILE *fp;
-	char file[PATH_MAX];
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	if(_pacman_strempty(ts)) {
 		return(-1);
 	}
 
-	snprintf(file, PATH_MAX, "%s%s/%s.lastupdate", handle->root, handle->dbpath, db->treename);
-
-	if((fp = fopen(file, "w")) == NULL) {
+	if((fp = _pacman_db_fopen_lastupdate(db, "w")) == NULL) {
 		return(-1);
 	}
 	if(fputs(ts, fp) <= 0) {
