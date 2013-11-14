@@ -396,7 +396,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 
 							_pacman_strtrim(fmtime);
 							if(_pacman_ftp_strpmdtm(fmtime, &mdtm) != NULL) {
-								if(mtime1 && difftime(mdtm, mtime1) == 0) {
+								if(mtime1 && difftime(mdtm, *mtime1) == 0) {
 									_pacman_log(PM_LOG_DEBUG, _("mtimes are identical, skipping %s\n"), fn);
 									filedone = -1;
 									complete = _pacman_list_add(complete, fn);
