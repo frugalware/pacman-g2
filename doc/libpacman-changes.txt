@@ -20,6 +20,7 @@ None.
 
 pacman_cb_log: Make char * message argument a constant.
 pacman_logaction: Now returns a void instead of a int to reflect success. Logging should allways success and not be intrusive.
+pacman_parse_config: Remove this_section argument, it is internal and should not have been exposed publicly.
 pacman_reg_match: Make arguments const.
 pacman_trans_cb_progress: Second argument (pkgname) is now a const.
 

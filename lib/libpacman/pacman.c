@@ -993,11 +993,11 @@ int pacman_reg_match(const char *string, const char *pattern)
  * @param this_section the config current section being parsed
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int pacman_parse_config(char *file, pacman_cb_db_register callback, const char *this_section)
+int pacman_parse_config(char *file, pacman_cb_db_register callback)
 {
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
-	return _pacman_parse_config(file, callback, this_section);
+	return _pacman_parse_config(file, callback, NULL);
 }
 
 /* @} */
