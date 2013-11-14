@@ -45,7 +45,7 @@ char *_pacman_ftp_strpmdtm(const char *s, time_t *time)
 	if((ret = strptime(s, PM_FTP_MDTM_FORMAT, &ptimestamp)) != NULL) {
 		time_t tmp;
 		
-		if((tmp = mktime(&ptimestamp)) != ((time_t) -1)) {
+		if((tmp = mktime(&ptimestamp)) != PM_TIME_INVALID) {
 			*time = tmp;
 		} else {
 			ret = NULL;

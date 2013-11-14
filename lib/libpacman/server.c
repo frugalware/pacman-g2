@@ -39,6 +39,7 @@
 #include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
+#include "util/time.h"
 #include "error.h"
 #include "pacman.h"
 #include "util.h"
@@ -484,7 +485,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					} else {
 						snprintf(src, PATH_MAX, "%s://%s%s%s", server->protocol, server->server, server->path, fn);
 					}
-					if(mtime1 && *mtime1 != ((time_t) -1)) {
+					if(mtime1 && *mtime1 != PM_TIME_INVALID) {
 						fmtime1 = *gmtime(mtime1);
 					}
 					if(!HttpGet(server->server, output, src, &fsz, control, (pm_dloffset ? *pm_dloffset:0),
@@ -505,7 +506,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						}
 					} else {
 						if(mtime2) {
-							if((*mtime2 = mktime(&fmtime2)) == ((time_t) -1)) {
+							if((*mtime2 = mktime(&fmtime2)) == PM_TIME_INVALID) {
 								_pacman_log(PM_LOG_WARNING, _("failed to get mtime for %s\n"), fn);
 							}
 						}

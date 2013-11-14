@@ -51,7 +51,7 @@ struct tm *_pacman_localtime(const time_t *timep)
 	time_t now;
 
 	if(timep == NULL &&
-		(now = time(NULL)) != ((time_t) -1)) {
+		(now = time(NULL)) != PM_TIME_INVALID) {
 		timep = &now;
 	}
 	return localtime(timep);

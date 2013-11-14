@@ -26,6 +26,6 @@
 struct archive *_pacman_archive_read_open_all_file(const char *file);
 FILE *_pacman_archive_read_fropen(struct archive *a);
 
-#endif /* _PACMAN_UTIL_H */
+#endif /* _PACMAN_ARCHIVE_FILE_H */
 
 /* vim: set ts=2 sw=2 noet: */

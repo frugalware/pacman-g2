@@ -23,6 +23,8 @@
 
 #include <time.h>
 
+#define PM_TIME_INVALID ((time_t) -1)
+
 /* Return the localtime for timep. If timep is NULL, return the conversion for time(NULL) (libc returns NULL instead).
  */
 struct tm *_pacman_localtime(const time_t *timep);
