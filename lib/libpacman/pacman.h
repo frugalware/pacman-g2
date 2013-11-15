@@ -24,6 +24,8 @@
 #ifndef _PACMAN_H
 #define _PACMAN_H
 
+#include <sys/types.h> // off_t
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -167,6 +169,12 @@ pmgrp_t *pacman_db_readgrp(pmdb_t *db, char *name);
 pmlist_t *pacman_db_getgrpcache(pmdb_t *db);
 pmlist_t *pacman_db_search(pmdb_t *db);
 pmlist_t *pacman_db_test(pmdb_t *db);
+
+/*
+ * Download states
+ */
+
+off_t pacman_download_state_size(const pmdownload_state_t *download_state);
 
 /*
  * Packages

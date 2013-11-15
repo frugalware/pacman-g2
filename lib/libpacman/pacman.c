@@ -412,6 +412,24 @@ pmlist_t *pacman_db_getgrpcache(pmdb_t *db)
 
 /** @} */
 
+/** @defgroup pacman_download_state Download States Functions
+ * @brief Functions to informations from libpacman downloads
+ * @{
+ */
+
+/** Get the final size of the download
+ * @param download_state pointer to the download state to get the informations from.
+ * @return the size of the file or ((off_t) -1) in case of error.
+ */
+off_t pacman_download_state_size(const pmdownload_state_t *download_state)
+{
+	ASSERT(download_state != NULL, return((off_t) -1));
+
+	return download_state->dst_size;
+}
+
+/** @} */
+
 /** @defgroup pacman_packages Package Functions
  * @brief Functions to manipulate libpacman packages
  * @{

@@ -53,9 +53,9 @@ extern config_t *config;
 extern unsigned int maxcols;
 
 /* FIXME: log10() want float */
-int log_progress(pmdownload_state_t *download_state, int xfered, void *arg)
+int log_progress(const pmdownload_state_t *download_state, int xfered, void *arg)
 {
-	int fsz = *(int*)arg;
+	int fsz = pacman_download_state_size(download_state);
 	int pct = ((float)(xfered+offset) / fsz) * 100;
 	static int lastpct=0;
 	unsigned int i, cur;

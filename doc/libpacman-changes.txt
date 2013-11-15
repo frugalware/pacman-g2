@@ -36,6 +36,8 @@ pmconflict_t: is now public and deprecate PM_CONFLICT.
 
 pmdb_t: is now public and deprecate PM_DB.
 
+pacman_download_state_size: Access to a download final size.
+
 pmdepmissing_t: is now public and deprecate PM_DEPMISS.
 
 pmgrp_t: is now public and deprecate PM_GRP.
