@@ -142,6 +142,12 @@ int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *fi
 	}
 }
 
+static
+int _pacman_ftplib_download_cb(netbuf *control, int xfered, void *arg)
+{
+	return pm_dlcb(control, xfered, arg);
+}
+
 /*
  * This is the real downloadfiles, used directly by sync_synctree() to check
  * modtimes on remote files.
@@ -230,7 +236,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 			/* set up our progress bar's callback (and idle timeout) */
 			if(strcmp(server->protocol, "file") && control) {
 				if(pm_dlcb) {
-					FtpOptions(FTPLIB_CALLBACK, (long)pm_dlcb, control);
+					FtpOptions(FTPLIB_CALLBACK, (long)_pacman_ftplib_download_cb, control);
 				} else {
 					_pacman_log(PM_LOG_DEBUG, _("downloadfiles: progress bar's callback is not set\n"));
 				}
