@@ -109,6 +109,15 @@ pmlist_t *_pacman_localdb_test(pmdb_t *db)
 static
 int _pacman_localdb_open(pmdb_t *db, int flags, time_t *timestamp)
 {
+	struct stat buf;
+
+	/* make sure the database directory exists */
+	if(stat(db->path, &buf) != 0 || !S_ISDIR(buf.st_mode)) {
+		_pacman_log(PM_LOG_FLOW1, _("database directory '%s' does not exist -- try creating it"), db->path);
+		if(_pacman_makepath(db->path) != 0) {
+			RET_ERR(PM_ERR_SYSTEM, -1);
+		}
+	}
 	db->handle = opendir(db->path);
 	ASSERT(db->handle != NULL, RET_ERR(PM_ERR_DB_OPEN, -1));
 	_pacman_db_gettimestamp(db, timestamp);

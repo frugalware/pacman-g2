@@ -344,9 +344,7 @@ int _pacman_db_setlastupdate(pmdb_t *db, const char *ts)
 
 pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback)
 {
-	struct stat buf;
 	pmdb_t *db;
-	char path[PATH_MAX];
 
 	if(strcmp(treename, "local") == 0) {
 		if(handle->db_local != NULL) {
@@ -365,15 +363,6 @@ pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback
 	}
 
 	_pacman_log(PM_LOG_FLOW1, _("registering database '%s'"), treename);
-
-	/* make sure the database directory exists */
-	snprintf(path, PATH_MAX, "%s%s/%s", handle->root, handle->dbpath, treename);
-	if(!strcmp(treename, "local") && (stat(path, &buf) != 0 || !S_ISDIR(buf.st_mode))) {
-		_pacman_log(PM_LOG_FLOW1, _("database directory '%s' does not exist -- try creating it"), path);
-		if(_pacman_makepath(path) != 0) {
-			RET_ERR(PM_ERR_SYSTEM, NULL);
-		}
-	}
 
 	db = _pacman_db_new(handle->root, handle->dbpath, treename);
 	if(db == NULL) {
