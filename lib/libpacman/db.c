@@ -180,12 +180,7 @@ int _pacman_db_open(pmdb_t *db, int flags)
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(flags == 0, RET_ERR(PM_ERR_DB_OPEN, -1)); /* No flags are supported for now */
 
-	ret = db->ops->open(db, flags, &db->cache_timestamp);
-	if(ret == 0 && _pacman_db_getlastupdate(db, db->lastupdate) == -1) {
-		db->lastupdate[0] = '\0';
-	}
-
-	return ret;
+	return db->ops->open(db, flags, &db->cache_timestamp);
 }
 
 int _pacman_db_close(pmdb_t *db)

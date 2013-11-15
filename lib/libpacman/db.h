@@ -65,7 +65,6 @@ struct __pmdb_t {
 	pmlist_t *pkgcache;
 	pmlist_t *grpcache;
 	pmlist_t *servers;
-	char lastupdate[16];
 };
 
 pmdb_t *_pacman_db_new(pmhandle_t *handle, const char *treename);
