@@ -175,6 +175,8 @@ pmlist_t *pacman_db_test(pmdb_t *db);
 
 off_t pacman_downloadstate_resume(const pmdownloadstate_t *downloadstate);
 off_t pacman_downloadstate_size(const pmdownloadstate_t *downloadstate);
+off_t pacman_downloadstate_tell(const pmdownloadstate_t *downloadstate);
+off_t pacman_downloadstate_xfered(const pmdownloadstate_t *downloadstate);
 
 /*
  * Packages
@@ -357,7 +359,7 @@ typedef void (*pacman_trans_cb_conv)(unsigned char, void *, void *, void *, int 
 typedef void (*pacman_trans_cb_progress)(unsigned char, const char *, int, int, int);
 
 /* Download Progress callback */
-typedef int (*pacman_trans_cb_download)(const pmdownloadstate_t *downloadstates, int xfered);
+typedef int (*pacman_trans_cb_download)(const pmdownloadstate_t *downloadstates);
 
 /* Info parameters */
 enum {

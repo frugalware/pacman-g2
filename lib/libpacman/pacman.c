@@ -439,6 +439,28 @@ off_t pacman_downloadstate_size(const pmdownloadstate_t *downloadstate)
 	return downloadstate->dst_size;
 }
 
+/** Get the current size of the download
+ * @param downloadstate pointer to the download state to get the informations from.
+ * @return the current size of the file or ((off_t) -1) in case of error.
+ */
+off_t pacman_downloadstate_tell(const pmdownloadstate_t *downloadstate)
+{
+	ASSERT(downloadstate != NULL, return((off_t) -1));
+
+	return downloadstate->dst_tell;
+}
+
+/** Get the xfered size of the download
+ * @param downloadstate pointer to the download state to get the informations from.
+ * @return the xfered size of the file or ((off_t) -1) in case of error.
+ */
+off_t pacman_downloadstate_xfered(const pmdownloadstate_t *downloadstate)
+{
+	ASSERT(downloadstate != NULL, return((off_t) -1));
+
+	return downloadstate->dst_tell - downloadstate->dst_resume;
+}
+
 /** @} */
 
 /** @defgroup pacman_packages Package Functions

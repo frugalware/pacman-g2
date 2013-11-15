@@ -47,6 +47,7 @@ struct __pmdownloadstate_t {
 	// FIXME: change int to off_t when the download backend will permit that.
 	int dst_resume;
 	int dst_size;
+	int dst_tell;
 };
 
 pmserver_t *_pacman_server_new(char *url);

@@ -146,7 +146,8 @@ int _pacman_ftplib_download_cb(netbuf *control, int xfered, void *arg)
 {
 	pmdownloadstate_t *downloadstate = arg;
 
-	return pm_dlcb(downloadstate, xfered);
+	downloadstate->dst_tell = downloadstate->dst_resume + xfered;
+	return pm_dlcb(downloadstate);
 }
 
 /*
@@ -531,7 +532,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					if(!strcmp(server->protocol, "file")) {
 						EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
 					} else if(pm_dlcb) {
-						pm_dlcb(&downloadstate, downloadstate.dst_size - downloadstate.dst_resume);
+						pm_dlcb(&downloadstate);
 					}
 					complete = _pacman_list_add(complete, fn);
 					/* rename "output.part" file to "output" file */
