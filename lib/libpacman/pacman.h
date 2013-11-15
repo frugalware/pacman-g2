@@ -357,7 +357,7 @@ typedef void (*pacman_trans_cb_conv)(unsigned char, void *, void *, void *, int 
 typedef void (*pacman_trans_cb_progress)(unsigned char, const char *, int, int, int);
 
 /* Download Progress callback */
-typedef int (*pacman_trans_cb_download)(const pmdownloadstate_t *downloadstates, int xfered, void *arg);
+typedef int (*pacman_trans_cb_download)(const pmdownloadstate_t *downloadstates, int xfered);
 
 /* Info parameters */
 enum {

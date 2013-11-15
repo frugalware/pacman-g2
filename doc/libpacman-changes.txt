@@ -26,9 +26,13 @@ pacman_parse_config: Make 'file' argument a constant. Remove 'this_section' argu
 
 pacman_reg_match: Make arguments constants.
 
-pacman_trans_cb_progress: Make 'pkgname' argument a constant.
+pacman_trans_cb_download:
 
-pacman_trans_cb_download: Changed the not usable PM_NETBUF *ctl to a const pmdownloadstate_t *downloadstates (thougt only one supported for now).
+* Changed the not usable PM_NETBUF *ctl to a const pmdownloadstate_t *downloadstates (thougt only one supported for now).
+
+* Removed the old abused 'arg' parameter.
+
+pacman_trans_cb_progress: Make 'pkgname' argument a constant.
 
 ==== Symbols added:
 
