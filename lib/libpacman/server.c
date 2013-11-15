@@ -418,7 +418,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					if(!filedone) {
 						if(!stat(output, &st)) {
 							downloadstate.dst_resume = st.st_size;
-							if(!FtpRestart(&downloadstate.dst_resume, control)) {
+							if(!FtpRestart(downloadstate.dst_resume, control)) {
 								_pacman_log(PM_LOG_WARNING, _("failed to resume download -- restarting\n"));
 								/* can't resume: */
 								/* unlink the file in order to restart download from scratch */
@@ -489,7 +489,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					if(mtime1 && *mtime1 != PM_TIME_INVALID) {
 						fmtime1 = *gmtime(mtime1);
 					}
-					if(!HttpGet(server->server, output, src, &downloadstate.dst_size, control, &downloadstate.dst_resume,
+					if(!HttpGet(server->server, output, src, &downloadstate.dst_size, control, downloadstate.dst_resume,
 					            (mtime1) ? &fmtime1 : NULL, (mtime2) ? &fmtime2 : NULL)) {
 						if(strstr(FtpLastResponse(control), "304")) {
 							_pacman_log(PM_LOG_DEBUG, _("mtimes are identical, skipping %s\n"), fn);
