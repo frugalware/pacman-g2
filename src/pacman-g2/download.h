@@ -30,7 +30,7 @@ extern float rate;
 extern int xfered1;
 extern unsigned int eta_h, eta_m, eta_s, remain, howmany;
 
-int log_progress(PM_NETBUF *ctl, int xfered, void *arg);
+int log_progress(pmdownload_state_t *download_state, int xfered, void *arg);
 
 #endif /* _PM_DOWNLOAD_H */
 

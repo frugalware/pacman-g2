@@ -49,6 +49,7 @@ extern "C" {
 typedef struct __pmconflict_t pmconflict_t;
 typedef struct __pmdb_t pmdb_t;
 typedef struct __pmdepmissing_t pmdepmissing_t;
+typedef struct __pmdownload_state_t pmdownload_state_t;
 typedef struct __pmgrp_t pmgrp_t;
 typedef struct __pmlist_t pmlist_t;
 typedef struct __pmpkg_t pmpkg_t;
@@ -62,7 +63,7 @@ typedef struct __pmgrp_t PM_GRP;
 typedef struct __pmsyncpkg_t PM_SYNCPKG;
 typedef struct __pmdepmissing_t PM_DEPMISS;
 typedef struct __pmconflict_t PM_CONFLICT;
-typedef struct NetBuf PM_NETBUF;
+typedef struct __pmdownload_state_t PM_NETBUF;
 
 /*
  * Library
@@ -349,7 +350,7 @@ typedef void (*pacman_trans_cb_conv)(unsigned char, void *, void *, void *, int 
 typedef void (*pacman_trans_cb_progress)(unsigned char, const char *, int, int, int);
 
 /* Download Progress callback */
-typedef int (*pacman_trans_cb_download)(PM_NETBUF *ctl, int xfered, void *arg);
+typedef int (*pacman_trans_cb_download)(const pmdownload_state_t *download_states, int xfered, void *arg);
 
 /* Info parameters */
 enum {

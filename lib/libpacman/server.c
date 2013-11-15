@@ -45,6 +45,9 @@
 #include "util.h"
 #include "handle.h"
 
+struct __pmdownload_state_t {
+};
+
 FtpCallback pm_dlcb = NULL;
 /* progress bar */
 char *pm_dlfnm=NULL;

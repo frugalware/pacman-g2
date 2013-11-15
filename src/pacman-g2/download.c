@@ -53,7 +53,7 @@ extern config_t *config;
 extern unsigned int maxcols;
 
 /* FIXME: log10() want float */
-int log_progress(PM_NETBUF *ctl, int xfered, void *arg)
+int log_progress(pmdownload_state_t *download_state, int xfered, void *arg)
 {
 	int fsz = *(int*)arg;
 	int pct = ((float)(xfered+offset) / fsz) * 100;
@@ -74,9 +74,6 @@ int log_progress(PM_NETBUF *ctl, int xfered, void *arg)
 		printf("\n");
 		return 0;
 	}
-
-	/* we don't need that parameter */
-	ctl=NULL;
 
 	if(strcmp(prev_fnm, sync_fnm) && lastpct == 100) {
 		lastpct = 0;
