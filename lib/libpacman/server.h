@@ -44,6 +44,8 @@ typedef struct __pmserver_t {
 } pmserver_t;
 
 struct __pmdownload_state_t {
+	// FIXME: change int to off_t when the download backend will permit that.
+	int dst_size;
 };
 
 pmserver_t *_pacman_server_new(char *url);
@@ -54,7 +56,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 
 char *_pacman_fetch_pkgurl(char *target);
 
-extern FtpCallback pm_dlcb;
+extern pacman_trans_cb_download pm_dlcb;
 
 /* progress bar */
 extern char *pm_dlfnm;

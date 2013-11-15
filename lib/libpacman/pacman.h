@@ -63,7 +63,6 @@ typedef struct __pmgrp_t PM_GRP;
 typedef struct __pmsyncpkg_t PM_SYNCPKG;
 typedef struct __pmdepmissing_t PM_DEPMISS;
 typedef struct __pmconflict_t PM_CONFLICT;
-typedef struct __pmdownload_state_t PM_NETBUF;
 
 /*
  * Library
