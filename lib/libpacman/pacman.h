@@ -51,7 +51,7 @@ extern "C" {
 typedef struct __pmconflict_t pmconflict_t;
 typedef struct __pmdb_t pmdb_t;
 typedef struct __pmdepmissing_t pmdepmissing_t;
-typedef struct __pmdownload_state_t pmdownload_state_t;
+typedef struct __pmdownloadstate_t pmdownloadstate_t;
 typedef struct __pmgrp_t pmgrp_t;
 typedef struct __pmlist_t pmlist_t;
 typedef struct __pmpkg_t pmpkg_t;
@@ -174,7 +174,7 @@ pmlist_t *pacman_db_test(pmdb_t *db);
  * Download states
  */
 
-off_t pacman_download_state_size(const pmdownload_state_t *download_state);
+off_t pacman_downloadstate_size(const pmdownloadstate_t *downloadstate);
 
 /*
  * Packages
@@ -357,7 +357,7 @@ typedef void (*pacman_trans_cb_conv)(unsigned char, void *, void *, void *, int 
 typedef void (*pacman_trans_cb_progress)(unsigned char, const char *, int, int, int);
 
 /* Download Progress callback */
-typedef int (*pacman_trans_cb_download)(const pmdownload_state_t *download_states, int xfered, void *arg);
+typedef int (*pacman_trans_cb_download)(const pmdownloadstate_t *downloadstates, int xfered, void *arg);
 
 /* Info parameters */
 enum {

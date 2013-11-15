@@ -145,9 +145,9 @@ int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *fi
 static
 int _pacman_ftplib_download_cb(netbuf *control, int xfered, void *arg)
 {
-	pmdownload_state_t *download_state = arg;
+	pmdownloadstate_t *downloadstate = arg;
 
-	return pm_dlcb(download_state, xfered, &download_state->dst_size);
+	return pm_dlcb(downloadstate, xfered, &downloadstate->dst_size);
 }
 
 /*
@@ -166,7 +166,7 @@ int _pacman_ftplib_download_cb(netbuf *control, int xfered, void *arg)
 int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	pmlist_t *files, const time_t *mtime1, time_t *mtime2, int skip)
 {
-	pmdownload_state_t download_state = { 0 };
+	pmdownloadstate_t downloadstate = { 0 };
 	netbuf *control = NULL;
 	pmlist_t *lp;
 	int done = 0;
@@ -243,7 +243,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					_pacman_log(PM_LOG_DEBUG, _("downloadfiles: progress bar's callback is not set\n"));
 				}
 				FtpOptions(FTPLIB_IDLETIME, (long)1000, control);
-				FtpOptions(FTPLIB_CALLBACKARG, (long)&download_state, control);
+				FtpOptions(FTPLIB_CALLBACKARG, (long)&downloadstate, control);
 				FtpOptions(FTPLIB_CALLBACKBYTES, (10*1024), control);
 				FtpOptions(FTPLIB_LOSTTIME, (long)5, control);
 			}
@@ -390,7 +390,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				}
 
 				if(!strcmp(server->protocol, "ftp") && !handle->proxyhost) {
-					if(!FtpSize(fn, &download_state.dst_size, FTPLIB_IMAGE, control)) {
+					if(!FtpSize(fn, &downloadstate.dst_size, FTPLIB_IMAGE, control)) {
 						_pacman_log(PM_LOG_WARNING, _("failed to get filesize for %s\n"), fn);
 					}
 					/* check mtimes */
@@ -477,7 +477,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 								_pacman_log(PM_LOG_DEBUG, _("downloadfiles: progress bar's callback is not set\n"));
 							}
 							FtpOptions(FTPLIB_IDLETIME, (long)1000, control);
-							FtpOptions(FTPLIB_CALLBACKARG, (long)&download_state, control);
+							FtpOptions(FTPLIB_CALLBACKARG, (long)&downloadstate, control);
 							FtpOptions(FTPLIB_CALLBACKBYTES, (10*1024), control);
 							FtpOptions(FTPLIB_LOSTTIME, (long)5, control);
 						}
@@ -496,7 +496,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					if(mtime1 && *mtime1 != PM_TIME_INVALID) {
 						fmtime1 = *gmtime(mtime1);
 					}
-					if(!HttpGet(server->server, output, src, &download_state.dst_size, control, (pm_dloffset ? *pm_dloffset:0),
+					if(!HttpGet(server->server, output, src, &downloadstate.dst_size, control, (pm_dloffset ? *pm_dloffset:0),
 					            (mtime1) ? &fmtime1 : NULL, (mtime2) ? &fmtime2 : NULL)) {
 						if(strstr(FtpLastResponse(control), "304")) {
 							_pacman_log(PM_LOG_DEBUG, _("mtimes are identical, skipping %s\n"), fn);
@@ -538,7 +538,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					if(!strcmp(server->protocol, "file")) {
 						EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
 					} else if(pm_dlcb) {
-						pm_dlcb(&download_state, download_state.dst_size-*pm_dloffset, &download_state.dst_size);
+						pm_dlcb(&downloadstate, downloadstate.dst_size-*pm_dloffset, &downloadstate.dst_size);
 					}
 					complete = _pacman_list_add(complete, fn);
 					/* rename "output.part" file to "output" file */

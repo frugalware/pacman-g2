@@ -28,7 +28,7 @@ pacman_reg_match: Make arguments constants.
 
 pacman_trans_cb_progress: Make 'pkgname' argument a constant.
 
-pacman_trans_cb_download: Changed the not usable PM_NETBUF *ctl to a const pmdownload_state_t *download_states (thougt only one supported for now).
+pacman_trans_cb_download: Changed the not usable PM_NETBUF *ctl to a const pmdownloadstate_t *downloadstates (thougt only one supported for now).
 
 ==== Symbols added:
 
@@ -36,7 +36,7 @@ pmconflict_t: is now public and deprecate PM_CONFLICT.
 
 pmdb_t: is now public and deprecate PM_DB.
 
-pacman_download_state_size: Access to a download final size.
+pacman_downloadstate_size: Access to a download final size.
 
 pmdepmissing_t: is now public and deprecate PM_DEPMISS.
 
