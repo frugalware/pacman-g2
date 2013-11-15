@@ -229,7 +229,7 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 			pm_logcb = (pacman_cb_log)data;
 		break;
 		case PM_OPT_DLCB:
-			pm_dlcb = (FtpCallback)data;
+			pm_dlcb = (pacman_trans_cb_download)data;
 		break;
 		case PM_OPT_DLFNM:
 			pm_dlfnm = (char *)data;
