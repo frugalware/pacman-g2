@@ -57,6 +57,9 @@
 #include "cache.h"
 #include "pacman.h"
 
+static int _pacman_db_getlastupdate(pmdb_t *db, char *ts);
+static int _pacman_db_setlastupdate(pmdb_t *db, const char *ts);
+
 static
 FILE *_pacman_db_fopen_lastupdate(const pmdb_t *db, const char *mode)
 {
