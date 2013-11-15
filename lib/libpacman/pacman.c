@@ -417,6 +417,17 @@ pmlist_t *pacman_db_getgrpcache(pmdb_t *db)
  * @{
  */
 
+/** Get the size at the start of the download resume
+ * @param downloadstate pointer to the download state to get the informations from.
+ * @return the size of the file at the start of download resume of the file or ((off_t) -1) in case of error.
+ */
+off_t pacman_downloadstate_resume(const pmdownloadstate_t *downloadstate)
+{
+	ASSERT(downloadstate != NULL, return((off_t) -1));
+
+	return downloadstate->dst_resume;
+}
+
 /** Get the final size of the download
  * @param downloadstate pointer to the download state to get the informations from.
  * @return the size of the file or ((off_t) -1) in case of error.

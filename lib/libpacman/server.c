@@ -48,7 +48,6 @@
 pacman_trans_cb_download pm_dlcb = NULL;
 /* progress bar */
 char *pm_dlfnm=NULL;
-int *pm_dloffset=NULL;
 struct timeval *pm_dlt0=NULL, *pm_dlt=NULL;
 float *pm_dlrate=NULL;
 int *pm_dlxfered1=NULL;
@@ -374,9 +373,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					}
 					pm_dlfnm[PM_DLFNM_LEN] = '\0';
 				}
-				if(pm_dloffset) {
-					*pm_dloffset = 0;
-				}
+				downloadstate.dst_resume = 0;
 
 				/* ETA setup */
 				if(pm_dlt0 && pm_dlt && pm_dlrate && pm_dlxfered1 && pm_dleta_h && pm_dleta_m && pm_dleta_s) {
@@ -420,10 +417,8 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					}
 					if(!filedone) {
 						if(!stat(output, &st)) {
-							if(pm_dloffset) {
-								*pm_dloffset = (int)st.st_size;
-							}
-							if(!pm_dloffset || !FtpRestart(*pm_dloffset, control)) {
+							downloadstate.dst_resume = st.st_size;
+							if(!FtpRestart(&downloadstate.dst_resume, control)) {
 								_pacman_log(PM_LOG_WARNING, _("failed to resume download -- restarting\n"));
 								/* can't resume: */
 								/* unlink the file in order to restart download from scratch */
@@ -484,9 +479,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					}
 
 					if(!stat(output, &st)) {
-						if (pm_dloffset) {
-								*pm_dloffset = (int)st.st_size;
-						}
+						downloadstate.dst_resume = st.st_size;
 					}
 					if(!handle->proxyhost) {
 						snprintf(src, PATH_MAX, "%s%s", server->path, fn);
@@ -496,7 +489,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					if(mtime1 && *mtime1 != PM_TIME_INVALID) {
 						fmtime1 = *gmtime(mtime1);
 					}
-					if(!HttpGet(server->server, output, src, &downloadstate.dst_size, control, (pm_dloffset ? *pm_dloffset:0),
+					if(!HttpGet(server->server, output, src, &downloadstate.dst_size, control, &downloadstate.dst_resume,
 					            (mtime1) ? &fmtime1 : NULL, (mtime2) ? &fmtime2 : NULL)) {
 						if(strstr(FtpLastResponse(control), "304")) {
 							_pacman_log(PM_LOG_DEBUG, _("mtimes are identical, skipping %s\n"), fn);
@@ -538,7 +531,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					if(!strcmp(server->protocol, "file")) {
 						EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
 					} else if(pm_dlcb) {
-						pm_dlcb(&downloadstate, downloadstate.dst_size-*pm_dloffset);
+						pm_dlcb(&downloadstate, downloadstate.dst_size - downloadstate.dst_resume);
 					}
 					complete = _pacman_list_add(complete, fn);
 					/* rename "output.part" file to "output" file */

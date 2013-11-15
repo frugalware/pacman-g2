@@ -20,6 +20,8 @@ None.
 
 pacman_cb_log: Make 'message' argument a constant.
 
+pacman_downloadstate_resume, pacman_downloadstate_size: Access to the various pmdownloadstate_t data.
+
 pacman_logaction: Now returns a void instead of a int to reflect success. Logging should allways success and not be intrusive.
 
 pacman_parse_config: Make 'file' argument a constant. Remove 'this_section' argument, it is internal and should not have been exposed publicly.
@@ -56,7 +58,7 @@ PM_PKG_TRIGGERS: Access to package triggers list.
 
 ==== Symbols removed:
 
-PM_NETBUF: Remove due to code refactor so public API does not try to hide that it use libftp internal callback. See pacman_trans_cb_download changes.
+PM_NETBUF, PM_OPT_DLOFFSET: Remove due to code refactor so public API does not try to hide that it use libftp internal callback. See pacman_trans_cb_download changes.
 
 PM_TRANS: Unused in the public API.
 

@@ -118,7 +118,6 @@ enum {
 	PM_OPT_NOPASSIVEFTP,
 	PM_OPT_DLCB,
 	PM_OPT_DLFNM,
-	PM_OPT_DLOFFSET,
 	PM_OPT_DLT0,
 	PM_OPT_DLT,
 	PM_OPT_DLRATE,
@@ -174,6 +173,7 @@ pmlist_t *pacman_db_test(pmdb_t *db);
  * Download states
  */
 
+off_t pacman_downloadstate_resume(const pmdownloadstate_t *downloadstate);
 off_t pacman_downloadstate_size(const pmdownloadstate_t *downloadstate);
 
 /*

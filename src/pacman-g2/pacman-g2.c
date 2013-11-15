@@ -575,10 +575,6 @@ int main(int argc, char *argv[])
 		ERR(NL, _("failed to set option DLFNM (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(pacman_set_option(PM_OPT_DLOFFSET, (long)&offset) == -1) {
-		ERR(NL, _("failed to set option DLOFFSET (%s)\n"), pacman_strerror(pm_errno));
-		cleanup(1);
-	}
 	if(pacman_set_option(PM_OPT_DLT0, (long)&t0) == -1) {
 		ERR(NL, _("failed to set option DLT0 (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
