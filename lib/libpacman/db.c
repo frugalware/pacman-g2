@@ -66,7 +66,7 @@ FILE *_pacman_db_fopen_lastupdate(const pmdb_t *db, const char *mode)
 	return fopen(path, mode);
 }
 
-pmdb_t *_pacman_db_new(const char *root, const char* dbpath, const char *treename)
+pmdb_t *_pacman_db_new(pmhandle_t *handle, const char *treename)
 {
 	pmdb_t *db = _pacman_zalloc(sizeof(pmdb_t));
 
@@ -74,12 +74,12 @@ pmdb_t *_pacman_db_new(const char *root, const char* dbpath, const char *treenam
 		return(NULL);
 	}
 
-	db->path = _pacman_malloc(strlen(root)+strlen(dbpath)+strlen(treename)+2);
+	db->path = _pacman_malloc(strlen(handle->root)+strlen(handle->dbpath)+strlen(treename)+2);
 	if(db->path == NULL) {
 		FREE(db);
 		return(NULL);
 	}
-	sprintf(db->path, "%s%s/%s", root, dbpath, treename);
+	sprintf(db->path, "%s%s/%s", handle->root, handle->dbpath, treename);
 
 	STRNCPY(db->treename, treename, PATH_MAX);
 
@@ -364,7 +364,7 @@ pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback
 
 	_pacman_log(PM_LOG_FLOW1, _("registering database '%s'"), treename);
 
-	db = _pacman_db_new(handle->root, handle->dbpath, treename);
+	db = _pacman_db_new(handle, treename);
 	if(db == NULL) {
 		RET_ERR(PM_ERR_DB_CREATE, NULL);
 	}

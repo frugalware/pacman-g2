@@ -26,7 +26,7 @@
 #include <limits.h>
 #include <time.h>
 
-#include "pacman.h"
+#include "handle.h"
 
 /* Database entries */
 #define INFRQ_NONE     0x00
@@ -68,7 +68,7 @@ struct __pmdb_t {
 	char lastupdate[16];
 };
 
-pmdb_t *_pacman_db_new(const char *root, const char *dbpath, const char *treename);
+pmdb_t *_pacman_db_new(pmhandle_t *handle, const char *treename);
 void _pacman_db_free(void *data);
 int _pacman_db_cmp(const void *db1, const void *db2);
 pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles);
