@@ -44,10 +44,10 @@ pmlist_t *_pacman_list_new()
 	return(list);
 }
 
-int f_list_contains(const pmlist_t *list, flist_compar_t compar, const void *compar_data)
+int f_list_contains(const pmlist_t *list, FListItemComparatorFunc comparator, const void *comparator_data)
 {
 	for(; list != NULL; list = list->next) {
-		if(compar(list, compar_data) == 0) {
+		if(comparator(list, comparator_data) == 0) {
 			return 1;
 		}
 	}
