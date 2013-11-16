@@ -59,6 +59,9 @@
 #define STARTSTR "START "
 #define DONESTR "DONE "
 
+#include "fstdlib.h"
+#include "fstring.h"
+
 char *_pacman_basename(const char *path);
 int _pacman_makepath(char *path);
 int _pacman_copyfile(char *src, char *dest);
@@ -83,40 +86,11 @@ char* strsep(char** str, const char* delims);
 char* mkdtemp(char *template);
 #endif
 
-static inline int _pacman_strempty(const char *s)
-{
-	return s != NULL ? s[0] == '\0' : !0;
-}
-
-static inline size_t _pacman_strlen(const char *s)
-{
-	return s != NULL ? strlen(s) : 0;
-}
-
-static inline void *_pacman_malloc(size_t size)
-{
-	void *ptr = malloc(size);
-	if(ptr == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), size);
-		RET_ERR(PM_ERR_MEMORY, NULL);
-	}
-	return ptr;
-}
-
-static inline void *_pacman_zalloc(size_t size)
-{
-	void *ptr = _pacman_malloc(size);
-	if(ptr != NULL)
-		memset(ptr, 0, size);
-	return ptr;
-}
-
-static inline void _pacman_ptrswap(void **ptr1, void **ptr2)
-{
-	void *tmp = *ptr2;
-	*ptr2 = *ptr1;
-	*ptr1 = tmp;
-}
+#define _pacman_strempty f_strempty
+#define _pacman_strlen f_strlen
+#define _pacman_malloc f_malloc
+#define _pacman_zalloc f_zalloc
+#define _pacman_ptrswap f_ptrswap
 
 #endif /* _PACMAN_UTIL_H */
 

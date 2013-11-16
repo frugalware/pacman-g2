@@ -1,5 +1,5 @@
 /*
- *  fstdlib.h
+ *  fstring.h
  *
  *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
  *
@@ -18,48 +18,23 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef _F_STDLIB_H
-#define _F_STDLIB_H
+#ifndef _F_STRING_H
+#define _F_STRING_H
 
-#include <stdint.h>
-#include <stdlib.h>
-
-#include "util/log.h"
-#include "util.h"
+#include <string.h>
 
 static inline
-void *f_malloc(size_t size)
+int f_strempty(const char *s)
 {
-	void *ptr = malloc(size);
-	if(ptr == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("malloc failure: could not allocate %d bytes"), size);
-		RET_ERR(PM_ERR_MEMORY, NULL);
-	}
-	return ptr;
+	return s != NULL ? s[0] == '\0' : !0;
 }
 
 static inline
-void *f_zalloc(size_t size)
+size_t f_strlen(const char *s)
 {
-	void *ptr = f_malloc(size);
-	if(ptr != NULL)
-		memset(ptr, 0, size);
-	return ptr;
+	return s != NULL ? strlen(s) : 0;
 }
 
-static inline
-int f_ptrcmp(const void *ptr1, const void *ptr2) {
-	return (uintptr_t)ptr1 - (uintptr_t)ptr2;
-}
-
-static inline
-void f_ptrswap(void **ptr1, void **ptr2)
-{
-	void *tmp = *ptr2;
-	*ptr2 = *ptr1;
-	*ptr1 = tmp;
-}
-
-#endif /* _F_STDLIB_H */
+#endif /* _F_STRING_H */
 
 /* vim: set ts=2 sw=2 noet: */
