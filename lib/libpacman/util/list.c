@@ -30,9 +30,9 @@
 #include "fstdlib.h"
 #include "util.h"
 
-pmlist_t *_pacman_list_new()
+FList *_pacman_list_new()
 {
-	pmlist_t *list = _pacman_malloc(sizeof(pmlist_t));
+	FList *list = _pacman_malloc(sizeof(*list));
 
 	if(list == NULL) {
 		return(NULL);
@@ -44,7 +44,7 @@ pmlist_t *_pacman_list_new()
 	return(list);
 }
 
-int f_list_contains(const pmlist_t *list, FListItemComparatorFunc comparator, const void *comparator_data)
+int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
 {
 	for(; list != NULL; list = list->next) {
 		if(comparator(list, comparator_data) == 0) {
@@ -54,30 +54,29 @@ int f_list_contains(const pmlist_t *list, FListItemComparatorFunc comparator, co
 	return 0;
 }
 
-int _pacman_list_count(const pmlist_t *list)
+int _pacman_list_count(const FList *list)
 {
 	int i;
-	const pmlist_t *lp;
 
-	for(lp = list, i = 0; lp; lp = lp->next, i++);
+	for(i = 0; list; list = list->next, i++);
 
 	return(i);
 }
 
-int _pacman_list_empty(const pmlist_t *list)
+int _pacman_list_empty(const FList *list)
 {
 	return list == NULL;
 }
 
-void f_list_foreach(const pmlist_t *list, FListItemVisitorFunc visitor, void *visitor_data)
+void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data)
 {
 	for(; list != NULL; list = list->next) {
-		visitor((pmlist_t *)list, visitor_data);
+		visitor((FListItem *)list, visitor_data);
 	}
 }
 
 static
-int _pacman_ptrlistitem_ptrcmp(const pmlist_t *item, const void *ptr) {
+int _pacman_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr) {
 	return f_ptrcmp(item->data, ptr);
 }
 
@@ -246,14 +245,14 @@ pmlist_t *_pacman_list_reverse(pmlist_t *list)
 	return(newlist);
 }
 
-void f_ptrlist_free(pmlist_t *list, FVisitorFunc visitor, void *visitor_data)
+void f_ptrlist_free(FPtrList *list, FVisitorFunc visitor, void *visitor_data)
 {
 	f_ptrlist_clear(list, visitor, visitor_data);
 }
 
-void f_ptrlist_clear(pmlist_t *list, FVisitorFunc visitor, void *visitor_data)
+void f_ptrlist_clear(FPtrList *list, FVisitorFunc visitor, void *visitor_data)
 {
-	pmlist_t *next;
+	FPtrList *next;
 
 	while(list != NULL) {
 		next = list->next;

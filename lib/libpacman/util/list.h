@@ -26,8 +26,11 @@
 typedef int (*FComparatorFunc)(const void *ptr, const void *visitor_data);
 typedef void (*FVisitorFunc)(void *ptr, void *visitor_data);
 
-typedef int (*FListItemComparatorFunc)(const pmlist_t *item, const void *comparator_data);
-typedef void (*FListItemVisitorFunc)(pmlist_t *item, void *visitor_data);
+typedef struct __pmlist_t FList;
+typedef struct __pmlist_t FListItem;
+
+typedef int (*FListItemComparatorFunc)(const FListItem *item, const void *comparator_data);
+typedef void (*FListItemVisitorFunc)(FListItem *item, void *visitor_data);
 
 /* Chained list struct */
 struct __pmlist_t {
@@ -44,13 +47,13 @@ struct __pmlist_t {
 /* Sort comparison callback function declaration */
 typedef int (*_pacman_fn_cmp)(const void *, const void *);
 
-pmlist_t *_pacman_list_new(void);
+FList *_pacman_list_new(void);
 
-int f_list_contains(const pmlist_t *list, FListItemComparatorFunc comparator, const void *comparator_data);
-int _pacman_list_count(const pmlist_t *list);
-int _pacman_list_empty(const pmlist_t *list);
+int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
+int _pacman_list_count(const FList *list);
+int _pacman_list_empty(const FList *list);
 int _pacman_list_is_in(void *needle, const pmlist_t *haystack);
-void f_list_foreach(const pmlist_t *list, FListItemVisitorFunc visitor, void *visitor_data);
+void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data);
 
 pmlist_t *_pacman_list_add(pmlist_t *list, void *data);
 pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn);
@@ -58,9 +61,12 @@ pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp f
 pmlist_t *_pacman_list_last(pmlist_t *list);
 pmlist_t *_pacman_list_reverse(pmlist_t *list);
 
-void f_ptrlist_free(pmlist_t *list, FVisitorFunc visitor, void *visitor_data);
+typedef struct __pmlist_t FPtrList;
+typedef struct __pmlist_t FPtrListItem;
 
-void f_ptrlist_clear(pmlist_t *list, FVisitorFunc visitor, void *visitor_data);
+void f_ptrlist_free(FPtrList *list, FVisitorFunc visitor, void *visitor_data);
+
+void f_ptrlist_clear(FPtrList *list, FVisitorFunc visitor, void *visitor_data);
 
 #endif /* _PACMAN_LIST_H */
 
