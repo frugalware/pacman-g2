@@ -434,6 +434,7 @@ int pacman_downloadstate_begin(const pmdownloadstate_t *downloadstate, struct ti
  * Calling this method before pacman_downloadstate_tell give the same value as pacman_downloadstate_size
  * has no meaning and can give any value.
  * @param downloadstate pointer to the download state to get the informations from.
+ * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
 int pacman_downloadstate_end(const pmdownloadstate_t *downloadstate, struct timeval *timeval)
@@ -445,7 +446,20 @@ int pacman_downloadstate_end(const pmdownloadstate_t *downloadstate, struct time
 	return 0;
 }
 
-/** Get the size at the start of the download resume
+/** Get the estimate time to arrival of the download (in seconds).
+ * @param downloadstate pointer to the download state to get the informations from.
+ * @param offset pointer to the value to be written.
+ * @return return 0 in case of success, !0 otherwise.
+ */
+int pacman_downloadstate_eta(const pmdownloadstate_t *downloadstate, double *eta)
+{
+	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(eta != NULL, return -1);
+
+	*eta = downloadstate->eta;
+}
+
+/** Get the size at the start of the download resume.
  * @param downloadstate pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
