@@ -417,6 +417,19 @@ pmlist_t *pacman_db_getgrpcache(pmdb_t *db)
  * @{
  */
 
+/** Get the download start time
+ * @param downloadstate pointer to the download state to get the informations from.
+ * @return the size of the file at the start of download resume of the file or ((off_t) -1) in case of error.
+ */
+int pacman_downloadstate_begin(const pmdownloadstate_t *downloadstate, struct timeval *timeval)
+{
+	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(timeval != NULL, return -1);
+
+	*timeval = downloadstate->dst_begin;
+	return 0;
+}
+
 /** Get the size at the start of the download resume
  * @param downloadstate pointer to the download state to get the informations from.
  * @return the size of the file at the start of download resume of the file or ((off_t) -1) in case of error.

@@ -44,6 +44,8 @@ pmconflict_t: is now public and deprecate PM_CONFLICT.
 
 pmdb_t: is now public and deprecate PM_DB.
 
+pacman_downloadstate_begin: Access to download start time.
+
 pacman_downloadstate_resume: Access to resume download size.
 
 pacman_downloadstate_size: Access to final download size.

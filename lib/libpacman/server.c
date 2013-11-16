@@ -48,7 +48,7 @@
 pacman_trans_cb_download pm_dlcb = NULL;
 /* progress bar */
 char *pm_dlfnm=NULL;
-struct timeval *pm_dlt0=NULL, *pm_dlt=NULL;
+struct timeval *pm_dlt=NULL;
 float *pm_dlrate=NULL;
 int *pm_dlxfered1=NULL;
 unsigned int *pm_dleta_h=NULL, *pm_dleta_m=NULL, *pm_dleta_s=NULL;
@@ -377,9 +377,9 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				downloadstate.dst_resume = 0;
 
 				/* ETA setup */
-				if(pm_dlt0 && pm_dlt && pm_dlrate && pm_dlxfered1 && pm_dleta_h && pm_dleta_m && pm_dleta_s) {
-					gettimeofday(pm_dlt0, NULL);
-					*pm_dlt = *pm_dlt0;
+				gettimeofday(&downloadstate.dst_begin, NULL);
+				if(pm_dlt && pm_dlrate && pm_dlxfered1 && pm_dleta_h && pm_dleta_m && pm_dleta_s) {
+					*pm_dlt = downloadstate.dst_begin;
 					*pm_dlrate = 0;
 					*pm_dlxfered1 = 0;
 					*pm_dleta_h = 0;

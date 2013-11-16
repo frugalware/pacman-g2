@@ -41,7 +41,7 @@
 
 /* progress bar */
 char sync_fnm[PM_DLFNM_LEN+1];
-struct timeval t0, t;
+struct timeval t;
 float rate;
 int xfered1;
 unsigned int eta_h, eta_m, eta_s, remain, howmany;
@@ -88,7 +88,7 @@ int log_progress(const pmdownloadstate_t *downloadstate)
 
 	gettimeofday(&t1, NULL);
 	if(xfered+offset == fsz) {
-		t = t0;
+		pacman_downloadstate_begin(downloadstate, &t);
 	}
 	timediff = t1.tv_sec-t.tv_sec + (float)(t1.tv_usec-t.tv_usec) / 1000000;
 

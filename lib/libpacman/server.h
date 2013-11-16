@@ -45,6 +45,7 @@ typedef struct __pmserver_t {
 
 struct __pmdownloadstate_t {
 	// FIXME: change int to off_t when the download backend will permit that.
+	struct timeval dst_begin;
 	int dst_resume;
 	int dst_size;
 	int dst_tell;
@@ -62,7 +63,7 @@ extern pacman_trans_cb_download pm_dlcb;
 
 /* progress bar */
 extern char *pm_dlfnm;
-extern struct timeval *pm_dlt0, *pm_dlt;
+extern struct timeval *pm_dlt;
 extern float *pm_dlrate;
 extern int *pm_dlxfered1;
 extern unsigned int *pm_dleta_h, *pm_dleta_m, *pm_dleta_s;
