@@ -456,7 +456,7 @@ int pacman_downloadstate_eta(const pmdownloadstate_t *downloadstate, double *eta
 	ASSERT(downloadstate != NULL, return -1);
 	ASSERT(eta != NULL, return -1);
 
-	*eta = downloadstate->eta;
+	*eta = downloadstate->dst_eta;
 }
 
 /** Get the size at the start of the download resume.
@@ -497,7 +497,7 @@ int pacman_downloadstate_tell(const pmdownloadstate_t *downloadstate, off_t *off
 	ASSERT(downloadstate != NULL, return -1);
 	ASSERT(offset != NULL, return -1);
 
-	downloadstate->dst_tell;
+	*offset = downloadstate->dst_tell;
 	return 0;
 }
 
