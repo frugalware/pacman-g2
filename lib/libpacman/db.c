@@ -178,8 +178,6 @@ pmlist_t *_pacman_db_test(pmdb_t *db)
 
 int _pacman_db_open(pmdb_t *db, int flags)
 {
-	int ret = 0;
-
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(flags == 0, RET_ERR(PM_ERR_DB_OPEN, -1)); /* No flags are supported for now */
 
