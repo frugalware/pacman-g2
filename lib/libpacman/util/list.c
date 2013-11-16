@@ -69,10 +69,10 @@ int _pacman_list_empty(const pmlist_t *list)
 	return list == NULL;
 }
 
-void f_list_foreach(const pmlist_t *list, flist_visitor_t visitor, void *visitor_data)
+void f_list_foreach(const pmlist_t *list, FListItemVisitorFunc visitor, void *visitor_data)
 {
 	for(; list != NULL; list = list->next) {
-		visitor(list, visitor_data);
+		visitor((pmlist_t *)list, visitor_data);
 	}
 }
 
