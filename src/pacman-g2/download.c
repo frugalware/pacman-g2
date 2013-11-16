@@ -54,10 +54,8 @@ extern unsigned int maxcols;
 /* FIXME: log10() want float */
 int log_progress(const pmdownloadstate_t *downloadstate)
 {
-	int offset = pacman_downloadstate_resume(downloadstate);
-	int fsz = pacman_downloadstate_size(downloadstate);
-	int xfered = pacman_downloadstate_xfered(downloadstate);
-	int pct = ((float)(xfered+offset) / fsz) * 100;
+	off_t offset, fsz, xfered;
+	int pct;
 	static int lastpct=0;
 	unsigned int i, cur;
 	struct timeval t1;
@@ -70,6 +68,12 @@ int log_progress(const pmdownloadstate_t *downloadstate)
 	static unsigned int   lastcur = 0;
 	unsigned int maxpkglen;
 	static char prev_fnm[DLFNM_PROGRESS_LEN+1]="";
+
+	pacman_downloadstate_resume(downloadstate, &offset);
+	pacman_downloadstate_size(downloadstate, &fsz);
+	pacman_downloadstate_xfered(downloadstate, &xfered);
+
+	pct = ((float)(xfered+offset) / fsz) * 100;
 
 	if(config->dl_interrupted) {
 		printf("\n");

@@ -432,46 +432,58 @@ int pacman_downloadstate_begin(const pmdownloadstate_t *downloadstate, struct ti
 
 /** Get the size at the start of the download resume
  * @param downloadstate pointer to the download state to get the informations from.
- * @return the size of the file at the start of download resume of the file or ((off_t) -1) in case of error.
+ * @param offset pointer to the value to be written.
+ * @return return 0 in case of success, not 0 otherwise.
  */
-off_t pacman_downloadstate_resume(const pmdownloadstate_t *downloadstate)
+int pacman_downloadstate_resume(const pmdownloadstate_t *downloadstate, off_t *offset)
 {
-	ASSERT(downloadstate != NULL, return((off_t) -1));
+	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(offset != NULL, return -1);
 
-	return downloadstate->dst_resume;
+	*offset = downloadstate->dst_resume;
+	return 0;
 }
 
 /** Get the final size of the download
  * @param downloadstate pointer to the download state to get the informations from.
- * @return the size of the file or ((off_t) -1) in case of error.
+ * @param offset pointer to the value to be written.
+ * @return return 0 in case of success, not 0 otherwise.
  */
-off_t pacman_downloadstate_size(const pmdownloadstate_t *downloadstate)
+int pacman_downloadstate_size(const pmdownloadstate_t *downloadstate, off_t *offset)
 {
-	ASSERT(downloadstate != NULL, return((off_t) -1));
+	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(offset != NULL, return -1);
 
-	return downloadstate->dst_size;
+	*offset = downloadstate->dst_size;
+	return 0;
 }
 
 /** Get the current size of the download
  * @param downloadstate pointer to the download state to get the informations from.
- * @return the current size of the file or ((off_t) -1) in case of error.
+ * @param offset pointer to the value to be written.
+ * @return return 0 in case of success, not 0 otherwise.
  */
-off_t pacman_downloadstate_tell(const pmdownloadstate_t *downloadstate)
+int pacman_downloadstate_tell(const pmdownloadstate_t *downloadstate, off_t *offset)
 {
-	ASSERT(downloadstate != NULL, return((off_t) -1));
+	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(offset != NULL, return -1);
 
-	return downloadstate->dst_tell;
+	downloadstate->dst_tell;
+	return 0;
 }
 
 /** Get the xfered size of the download
  * @param downloadstate pointer to the download state to get the informations from.
- * @return the xfered size of the file or ((off_t) -1) in case of error.
+ * @param offset pointer to the value to be written.
+ * @return return 0 in case of success, not 0 otherwise.
  */
-off_t pacman_downloadstate_xfered(const pmdownloadstate_t *downloadstate)
+int pacman_downloadstate_xfered(const pmdownloadstate_t *downloadstate, off_t *offset)
 {
-	ASSERT(downloadstate != NULL, return((off_t) -1));
+	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(offset != NULL, return -1);
 
-	return downloadstate->dst_tell - downloadstate->dst_resume;
+	*offset = downloadstate->dst_tell - downloadstate->dst_resume;
+	return 0;
 }
 
 /** @} */

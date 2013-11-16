@@ -173,10 +173,10 @@ pmlist_t *pacman_db_test(pmdb_t *db);
  */
 
 int pacman_downloadstate_begin(const pmdownloadstate_t *downloadstate, struct timeval *timeval);
-off_t pacman_downloadstate_resume(const pmdownloadstate_t *downloadstate);
-off_t pacman_downloadstate_size(const pmdownloadstate_t *downloadstate);
-off_t pacman_downloadstate_tell(const pmdownloadstate_t *downloadstate);
-off_t pacman_downloadstate_xfered(const pmdownloadstate_t *downloadstate);
+int pacman_downloadstate_resume(const pmdownloadstate_t *downloadstate, off_t *offset);
+int pacman_downloadstate_size(const pmdownloadstate_t *downloadstate, off_t *offset);
+int pacman_downloadstate_tell(const pmdownloadstate_t *downloadstate, off_t *offset);
+int pacman_downloadstate_xfered(const pmdownloadstate_t *downloadstate, off_t *offset);
 
 /*
  * Packages
