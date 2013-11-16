@@ -245,6 +245,16 @@ pmlist_t *_pacman_list_reverse(pmlist_t *list)
 	return(newlist);
 }
 
+FPtrListItem *f_ptrlistitem_new(void *ptr)
+{
+	FPtrListItem *item = f_zalloc(sizeof(*item));
+
+	if(item != NULL) {
+		item->data = ptr;
+	}
+	return item;
+}
+
 void f_ptrlist_free(FPtrList *list, FVisitorFunc visitor, void *visitor_data)
 {
 	f_ptrlist_clear(list, visitor, visitor_data);

@@ -64,6 +64,8 @@ pmlist_t *_pacman_list_reverse(pmlist_t *list);
 typedef struct __pmlist_t FPtrList;
 typedef struct __pmlist_t FPtrListItem;
 
+FPtrListItem *f_ptrlistitem_new(void *ptr);
+
 void f_ptrlist_free(FPtrList *list, FVisitorFunc visitor, void *visitor_data);
 
 void f_ptrlist_clear(FPtrList *list, FVisitorFunc visitor, void *visitor_data);
