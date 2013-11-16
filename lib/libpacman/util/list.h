@@ -24,7 +24,7 @@
 #include "pacman.h"
 
 typedef int (*flist_compar_t)(const pmlist_t *item, const void *compar_data);
-typedef int (*flist_visitor_t)(const pmlist_t *item, void *visitor_data);
+typedef int (*flist_visitor_t)(pmlist_t *item, void *visitor_data);
 
 /* Chained list struct */
 struct __pmlist_t {
