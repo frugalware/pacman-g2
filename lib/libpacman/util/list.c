@@ -58,10 +58,10 @@ void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn)
 	}
 }
 
-int f_list_contains(const pmlist_t *list, flist_compar_t compar, const void *ptr)
+int f_list_contains(const pmlist_t *list, flist_compar_t compar, const void *compar_data)
 {
 	for(; list != NULL; list = list->next) {
-		if(compar(list, ptr) == 0) {
+		if(compar(list, compar_data) == 0) {
 			return 1;
 		}
 	}

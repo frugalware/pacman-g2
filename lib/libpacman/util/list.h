@@ -23,7 +23,7 @@
 
 #include "pacman.h"
 
-typedef int (*flist_compar_t)(const pmlist_t *item, const void *ptr);
+typedef int (*flist_compar_t)(const pmlist_t *item, const void *compar_data);
 typedef int (*flist_visitor_t)(const pmlist_t *item, void *visitor_data);
 
 /* Chained list struct */
@@ -45,7 +45,7 @@ typedef int (*_pacman_fn_cmp)(const void *, const void *);
 pmlist_t *_pacman_list_new(void);
 void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn);
 
-int f_list_contains(const pmlist_t *list, flist_compar_t compar, const void *ptr);
+int f_list_contains(const pmlist_t *list, flist_compar_t compar, const void *compar_data);
 int _pacman_list_count(const pmlist_t *list);
 int _pacman_list_empty(const pmlist_t *list);
 int _pacman_list_is_in(void *needle, const pmlist_t *haystack);
