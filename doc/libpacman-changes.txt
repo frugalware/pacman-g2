@@ -68,7 +68,7 @@ PM_PKG_TRIGGERS: Access to package triggers list.
 
 ==== Symbols removed:
 
-PM_NETBUF, PM_OPT_DLOFFSET: Remove due to code refactor so public API does not try to hide that it use libftp internal callback. See pacman_trans_cb_download changes.
+PM_NETBUF, PM_OPT_DLOFFSET, PM_OPT_DLT0: Remove due to code refactor so public API does not try to hide that it use libftp internal callback. See pacman_trans_cb_download changes.
 
 PM_TRANS: Unused in the public API.
 
