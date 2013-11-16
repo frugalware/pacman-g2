@@ -27,6 +27,7 @@
 /* pacman-g2 */
 #include "list.h"
 
+#include "fstdlib.h"
 #include "util.h"
 
 pmlist_t *_pacman_list_new()
@@ -57,6 +58,16 @@ void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn)
 	}
 }
 
+int f_list_contains(const pmlist_t *list, flist_compar_t compar, const void *ptr)
+{
+	for(; list != NULL; list = list->next) {
+		if(compar(list, ptr) == 0) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 int _pacman_list_count(const pmlist_t *list)
 {
 	int i;
@@ -72,16 +83,14 @@ int _pacman_list_empty(const pmlist_t *list)
 	return list == NULL;
 }
 
+static
+int _pacman_ptrlistitem_ptrcmp(const pmlist_t *item, const void *ptr) {
+	return f_ptrcmp(item->data, ptr);
+}
+
 int _pacman_list_is_in(void *needle, const pmlist_t *haystack)
 {
-	const pmlist_t *lp;
-
-	for(lp = haystack; lp; lp = lp->next) {
-		if(lp->data == needle) {
-			return(1);
-		}
-	}
-	return(0);
+	return f_list_contains(haystack, _pacman_ptrlistitem_ptrcmp, needle);
 }
 
 pmlist_t *_pacman_list_add(pmlist_t *list, void *data)
