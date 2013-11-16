@@ -173,6 +173,7 @@ pmlist_t *pacman_db_test(pmdb_t *db);
  */
 
 int pacman_downloadstate_begin(const pmdownloadstate_t *downloadstate, struct timeval *timeval);
+int pacman_downloadstate_end(const pmdownloadstate_t *downloadstate, struct timeval *timeval);
 int pacman_downloadstate_resume(const pmdownloadstate_t *downloadstate, off_t *offset);
 int pacman_downloadstate_size(const pmdownloadstate_t *downloadstate, off_t *offset);
 int pacman_downloadstate_tell(const pmdownloadstate_t *downloadstate, off_t *offset);

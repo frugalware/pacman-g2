@@ -419,7 +419,7 @@ pmlist_t *pacman_db_getgrpcache(pmdb_t *db)
 
 /** Get the download start time
  * @param downloadstate pointer to the download state to get the informations from.
- * @return the size of the file at the start of download resume of the file or ((off_t) -1) in case of error.
+ * @return return 0 in case of success, !0 otherwise.
  */
 int pacman_downloadstate_begin(const pmdownloadstate_t *downloadstate, struct timeval *timeval)
 {
@@ -430,10 +430,25 @@ int pacman_downloadstate_begin(const pmdownloadstate_t *downloadstate, struct ti
 	return 0;
 }
 
+/** Get the download end time.
+ * Calling this method before pacman_downloadstate_tell give the same value as pacman_downloadstate_size
+ * has no meaning and can give any value.
+ * @param downloadstate pointer to the download state to get the informations from.
+ * @return return 0 in case of success, !0 otherwise.
+ */
+int pacman_downloadstate_end(const pmdownloadstate_t *downloadstate, struct timeval *timeval)
+{
+	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(timeval != NULL, return -1);
+
+	*timeval = downloadstate->dst_end;
+	return 0;
+}
+
 /** Get the size at the start of the download resume
  * @param downloadstate pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.
- * @return return 0 in case of success, not 0 otherwise.
+ * @return return 0 in case of success, !0 otherwise.
  */
 int pacman_downloadstate_resume(const pmdownloadstate_t *downloadstate, off_t *offset)
 {
@@ -447,7 +462,7 @@ int pacman_downloadstate_resume(const pmdownloadstate_t *downloadstate, off_t *o
 /** Get the final size of the download
  * @param downloadstate pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.
- * @return return 0 in case of success, not 0 otherwise.
+ * @return return 0 in case of success, !0 otherwise.
  */
 int pacman_downloadstate_size(const pmdownloadstate_t *downloadstate, off_t *offset)
 {
@@ -461,7 +476,7 @@ int pacman_downloadstate_size(const pmdownloadstate_t *downloadstate, off_t *off
 /** Get the current size of the download
  * @param downloadstate pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.
- * @return return 0 in case of success, not 0 otherwise.
+ * @return return 0 in case of success, !0 otherwise.
  */
 int pacman_downloadstate_tell(const pmdownloadstate_t *downloadstate, off_t *offset)
 {
@@ -475,7 +490,7 @@ int pacman_downloadstate_tell(const pmdownloadstate_t *downloadstate, off_t *off
 /** Get the xfered size of the download
  * @param downloadstate pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.
- * @return return 0 in case of success, not 0 otherwise.
+ * @return return 0 in case of success, !0 otherwise.
  */
 int pacman_downloadstate_xfered(const pmdownloadstate_t *downloadstate, off_t *offset)
 {

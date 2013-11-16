@@ -46,6 +46,7 @@ typedef struct __pmserver_t {
 struct __pmdownloadstate_t {
 	// FIXME: change int to off_t when the download backend will permit that.
 	struct timeval dst_begin;
+	struct timeval dst_end;
 	int dst_resume;
 	int dst_size;
 	int dst_tell;
