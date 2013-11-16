@@ -44,20 +44,6 @@ pmlist_t *_pacman_list_new()
 	return(list);
 }
 
-void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn)
-{
-	pmlist_t *ptr, *it = list;
-
-	while(it) {
-		ptr = it->next;
-		if(fn) {
-			fn(it->data);
-		}
-		free(it);
-		it = ptr;
-	}
-}
-
 int f_list_contains(const pmlist_t *list, flist_compar_t compar, const void *compar_data)
 {
 	for(; list != NULL; list = list->next) {
@@ -258,6 +244,25 @@ pmlist_t *_pacman_list_reverse(pmlist_t *list)
 	}
 
 	return(newlist);
+}
+
+void f_ptrlist_free(pmlist_t *list, FVisitorFunc visitor, void *visitor_data)
+{
+	f_ptrlist_clear(list, visitor, visitor_data);
+}
+
+void f_ptrlist_clear(pmlist_t *list, FVisitorFunc visitor, void *visitor_data)
+{
+	pmlist_t *next;
+
+	while(list != NULL) {
+		next = list->next;
+		if(visitor != NULL) {
+			visitor(list->data, visitor_data);
+		}
+		free(list);
+		list = next;
+	}
 }
 
 /* vim: set ts=2 sw=2 noet: */

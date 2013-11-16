@@ -23,6 +23,8 @@
 
 #include "pacman.h"
 
+typedef int (*FVisitorFunc)(void *ptr, void *visitor_data);
+
 typedef int (*flist_compar_t)(const pmlist_t *item, const void *compar_data);
 typedef int (*flist_visitor_t)(pmlist_t *item, void *visitor_data);
 
@@ -34,16 +36,14 @@ struct __pmlist_t {
 	struct __pmlist_t *last; /* Quick access to last item in list */
 };
 
-#define _FREELIST(p, f) do { if(p) { _pacman_list_free(p, f); p = NULL; } } while(0)
+#define _FREELIST(p, f) do { if(p) { f_ptrlist_free(p, (FVisitorFunc)f, NULL); p = NULL; } } while(0)
 #define FREELIST(p) _FREELIST(p, free)
 #define FREELISTPTR(p) _FREELIST(p, NULL)
 
-typedef void (*_pacman_fn_free)(void *);
 /* Sort comparison callback function declaration */
 typedef int (*_pacman_fn_cmp)(const void *, const void *);
 
 pmlist_t *_pacman_list_new(void);
-void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn);
 
 int f_list_contains(const pmlist_t *list, flist_compar_t compar, const void *compar_data);
 int _pacman_list_count(const pmlist_t *list);
@@ -56,6 +56,10 @@ pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn)
 pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 pmlist_t *_pacman_list_last(pmlist_t *list);
 pmlist_t *_pacman_list_reverse(pmlist_t *list);
+
+void f_ptrlist_free(pmlist_t *list, FVisitorFunc visitor, void *visitor_data);
+
+void f_ptrlist_clear(pmlist_t *list, FVisitorFunc visitor, void *visitor_data);
 
 #endif /* _PACMAN_LIST_H */
 
