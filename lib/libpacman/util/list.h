@@ -47,7 +47,7 @@ struct __pmlist_t {
 /* Sort comparison callback function declaration */
 typedef int (*_pacman_fn_cmp)(const void *, const void *);
 
-FList *_pacman_list_new(void);
+#define _pacman_list_new f_ptrlist_new
 
 int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
 int _pacman_list_count(const FList *list);
@@ -66,6 +66,7 @@ typedef struct __pmlist_t FPtrListItem;
 
 FPtrListItem *f_ptrlistitem_new(void *ptr);
 
+FPtrList *f_ptrlist_new(void);
 void f_ptrlist_free(FPtrList *list, FVisitorFunc visitor, void *visitor_data);
 
 void f_ptrlist_clear(FPtrList *list, FVisitorFunc visitor, void *visitor_data);

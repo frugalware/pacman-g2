@@ -30,20 +30,6 @@
 #include "fstdlib.h"
 #include "util.h"
 
-FList *_pacman_list_new()
-{
-	FList *list = _pacman_malloc(sizeof(*list));
-
-	if(list == NULL) {
-		return(NULL);
-	}
-	list->data = NULL;
-	list->prev = NULL;
-	list->next = NULL;
-	list->last = list;
-	return(list);
-}
-
 int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
 {
 	for(; list != NULL; list = list->next) {
@@ -253,6 +239,13 @@ FPtrListItem *f_ptrlistitem_new(void *ptr)
 		item->data = ptr;
 	}
 	return item;
+}
+
+FPtrList *f_ptrlist_new(void)
+{
+	FPtrListItem *item = f_ptrlistitem_new(NULL);
+	item->last = item;
+	return (FPtrList *)item;
 }
 
 void f_ptrlist_free(FPtrList *list, FVisitorFunc visitor, void *visitor_data)
