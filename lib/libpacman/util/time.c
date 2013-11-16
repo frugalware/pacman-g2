@@ -46,6 +46,12 @@ locale_t _pacman_locale_c(void)
 	return locale_c;
 }
 
+double _pacman_difftimeval(struct timeval timeval1, struct timeval timeval2)
+{
+	return difftime(timeval1.tv_sec , timeval2.tv_sec) +
+		((double)(timeval1.tv_usec - timeval2.tv_usec) / 1000000);
+}
+
 struct tm *_pacman_localtime(const time_t *timep)
 {
 	time_t now;
