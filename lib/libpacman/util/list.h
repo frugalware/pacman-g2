@@ -23,8 +23,7 @@
 
 #include "pacman.h"
 
-typedef int (*FComparatorFunc)(const void *ptr, const void *visitor_data);
-typedef void (*FVisitorFunc)(void *ptr, void *visitor_data);
+#include "util/fcallback.h"
 
 typedef struct __pmlist_t FList;
 typedef struct __pmlist_t FListItem;
@@ -52,6 +51,9 @@ typedef int (*_pacman_fn_cmp)(const void *, const void *);
 #define _pacman_list_count f_ptrlist_count
 #define _pacman_list_empty f_ptrlist_empty
 
+void f_listitem_delete(FListItem *item, FListItemVisitorFunc visitor_fn, void *visitor_data);
+void f_listitem_delete_visit(FListItem *item, FVisitor *visitor);
+
 int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
 int f_list_count(const FList *list);
 int f_list_empty(const FList *list);
@@ -68,6 +70,8 @@ typedef struct __pmlist_t FPtrList;
 typedef struct __pmlist_t FPtrListItem;
 
 FPtrListItem *f_ptrlistitem_new(void *ptr);
+void f_ptrlistitem_delete(FListItem *item, FVisitorFunc visitor_fn, void *visitor_data);
+void f_ptrlistitem_delete_visit(FListItem *item, FVisitor *visitor);
 
 FPtrList *f_ptrlist_new(void);
 void f_ptrlist_free(FPtrList *list, FVisitorFunc visitor, void *visitor_data);

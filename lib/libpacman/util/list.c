@@ -30,6 +30,26 @@
 #include "fstdlib.h"
 #include "util.h"
 
+void f_listitem_delete(FListItem *item, FListItemVisitorFunc visitor_fn, void *visitor_data)
+{
+	FVisitor visitor = {
+		.fn = (FVisitorFunc)visitor_fn,
+		.data = visitor_data,
+	};
+
+	ASSERT(item != NULL, return);
+	
+	f_listitem_delete_visit(item, &visitor);
+}
+
+void f_listitem_delete_visit(FListItem *item, FVisitor *visitor)
+{
+	ASSERT(item != NULL, return);
+
+	f_visit(item, visitor);
+	free(item);
+}
+
 int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
 {
 	for(; list != NULL; list = list->next) {
@@ -245,6 +265,25 @@ FPtrList *f_ptrlist_new(void)
 	FPtrListItem *item = f_ptrlistitem_new(NULL);
 	item->last = item;
 	return (FPtrList *)item;
+}
+
+void f_ptrlistitem_delete(FListItem *item, FVisitorFunc visitor_fn, void *visitor_data)
+{
+	FVisitor visitor = {
+		.fn = visitor_fn,
+		.data = visitor_data,
+	};
+
+	ASSERT(item != NULL, return);
+
+	f_ptrlistitem_delete_visit(item, &visitor);
+}
+
+void f_ptrlistitem_delete_visit(FListItem *item, FVisitor *visitor)
+{
+	ASSERT(item != NULL, return);
+
+	f_listitem_delete_visit(item, visitor);
 }
 
 void f_ptrlist_free(FPtrList *list, FVisitorFunc visitor, void *visitor_data)
