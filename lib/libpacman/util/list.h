@@ -49,9 +49,12 @@ typedef int (*_pacman_fn_cmp)(const void *, const void *);
 
 #define _pacman_list_new f_ptrlist_new
 
+#define _pacman_list_count f_ptrlist_count
+#define _pacman_list_empty f_ptrlist_empty
+
 int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
-int _pacman_list_count(const FList *list);
-int _pacman_list_empty(const FList *list);
+int f_list_count(const FList *list);
+int f_list_empty(const FList *list);
 int _pacman_list_is_in(void *needle, const pmlist_t *haystack);
 void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data);
 
@@ -70,6 +73,8 @@ FPtrList *f_ptrlist_new(void);
 void f_ptrlist_free(FPtrList *list, FVisitorFunc visitor, void *visitor_data);
 
 void f_ptrlist_clear(FPtrList *list, FVisitorFunc visitor, void *visitor_data);
+#define f_ptrlist_count f_list_count
+#define f_ptrlist_empty f_list_empty
 
 #endif /* _PACMAN_LIST_H */
 

@@ -40,16 +40,15 @@ int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const
 	return 0;
 }
 
-int _pacman_list_count(const FList *list)
+int f_list_count(const FList *list)
 {
 	int i;
 
 	for(i = 0; list; list = list->next, i++);
-
-	return(i);
+	return i;
 }
 
-int _pacman_list_empty(const FList *list)
+int f_list_empty(const FList *list)
 {
 	return list == NULL;
 }
