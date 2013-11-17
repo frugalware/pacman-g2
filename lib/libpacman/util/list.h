@@ -34,9 +34,9 @@ typedef void (*FListItemVisitorFunc)(FListItem *item, void *visitor_data);
 
 /* Chained list struct */
 struct __pmlist_t {
-	void *data;
 	struct __pmlist_t *prev;
 	struct __pmlist_t *next;
+	void *data;
 	struct __pmlist_t *last; /* Quick access to last item in list */
 };
 
