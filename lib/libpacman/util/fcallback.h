@@ -26,12 +26,26 @@
 typedef int (*FComparatorFunc)(const void *ptr, const void *visitor_data);
 typedef void (*FVisitorFunc)(void *ptr, void *visitor_data);
 
+typedef struct __FComparator FComparator;
 typedef struct __FVisitor FVisitor;
+
+struct __FComparator {
+	FComparatorFunc fn;
+	void *data;
+};
 
 struct __FVisitor {
 	FVisitorFunc fn;
 	void *data;
 };
+
+static inline
+void f_compare(void *ptr, const FComparator *comparator) {
+	ASSERT(comparator != NULL, return);
+	ASSERT(comparator->fn != NULL, return);
+
+	comparator->fn(ptr, comparator->data);
+}
 
 static inline
 void f_visit(void *ptr, const FVisitor *visitor) {
