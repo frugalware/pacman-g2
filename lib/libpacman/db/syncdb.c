@@ -156,7 +156,9 @@ int _pacman_syncdb_open(pmdb_t *db, int flags, time_t *timestamp)
 	if((db->handle = _pacman_archive_read_open_all_file(dbpath)) == NULL) {
 		RET_ERR(PM_ERR_DB_OPEN, -1);
 	}
-	_pacman_db_gettimestamp(db, timestamp);
+	if(timestamp != NULL) {
+		_pacman_db_gettimestamp(db, timestamp);
+	}
 	return 0;
 }
 
