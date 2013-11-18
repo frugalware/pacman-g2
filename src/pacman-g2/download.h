@@ -20,6 +20,7 @@
  */
 #ifndef _PM_DOWNLOAD_H
 #define _PM_DOWNLOAD_H
+
 #include "server.h"
 
 #define DLFNM_PROGRESS_LEN 22

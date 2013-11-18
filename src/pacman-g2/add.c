@@ -19,12 +19,15 @@
  *  USA.
  */
 
+#include "config.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <libintl.h>
 
 #include <pacman.h>
+
 /* pacman-g2 */
 #include "log.h"
 #include "list.h"
