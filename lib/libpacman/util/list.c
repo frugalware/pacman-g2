@@ -40,12 +40,7 @@ void f_listitem_delete(FListItem *item, FVisitor *visitor)
 
 int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
 {
-	for(; list != NULL; list = list->next) {
-		if(comparator(list, comparator_data) == 0) {
-			return 1;
-		}
-	}
-	return 0;
+	return f_list_find(list, comparator, comparator_data) != NULL;
 }
 
 int f_list_count(const FList *list)
@@ -76,6 +71,16 @@ int _pacman_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr) {
 int _pacman_list_is_in(void *needle, const pmlist_t *haystack)
 {
 	return f_list_contains(haystack, _pacman_ptrlistitem_ptrcmp, needle);
+}
+
+FListItem *f_list_find(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
+{
+	for(; list != NULL; list = list->next) {
+		if(comparator(list, comparator_data) == 0) {
+			break;
+		}
+	}
+	return (FListItem *)list;
 }
 
 pmlist_t *_pacman_list_add(pmlist_t *list, void *data)

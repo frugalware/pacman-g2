@@ -56,6 +56,7 @@ void f_listitem_delete(FListItem *item, FVisitor *visitor);
 int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
 int f_list_count(const FList *list);
 int f_list_empty(const FList *list);
+FListItem *f_list_find(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
 int _pacman_list_is_in(void *needle, const pmlist_t *haystack);
 void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data);
 
