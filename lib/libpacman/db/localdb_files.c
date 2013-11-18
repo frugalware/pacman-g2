@@ -52,7 +52,7 @@
 #include "handle.h"
 
 static
-int _pacman_db_read_lines(pmlist_t **list, char *s, size_t size, FILE *fp)
+int _pacman_db_read_lines(FStringList **list, char *s, size_t size, FILE *fp)
 {
 	int lines = 0;
 
