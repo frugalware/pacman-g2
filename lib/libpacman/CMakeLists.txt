@@ -5,19 +5,20 @@ SET(includedir "\${prefix}/include")
 CONFIGURE_FILE("pacman.pc.in" "pacman.pc" @ONLY)
 
 set(LIBPACMAN_SOURCES 
+	db/fakedb.c
+	db/localdb.c
+	db/localdb_files.c
+	db/syncdb.c
 	hash/md5.c
 	hash/md5driver.c
 	hash/sha1.c
-	util/time.c
+	io/archive.c
+	io/ftp.c
+	package/pkginfo.c
 	util/list.c
 	util/log.c
 	util/stringlist.c
-	io/ftp.c
-	io/archive.c
-	db/syncdb.c
-	db/localdb_files.c
-	db/fakedb.c
-	package/pkginfo.c
+	util/time.c
 	add.c
 	be_files.c
 	cache.c
