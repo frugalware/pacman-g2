@@ -63,14 +63,9 @@ void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visit
 	}
 }
 
-static
-int _pacman_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr) {
-	return f_ptrcmp(item->data, ptr);
-}
-
 int _pacman_list_is_in(void *needle, const pmlist_t *haystack)
 {
-	return f_list_contains(haystack, _pacman_ptrlistitem_ptrcmp, needle);
+	return f_list_contains(haystack, f_ptrlistitem_ptrcmp, needle);
 }
 
 FListItem *f_list_find(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
@@ -265,6 +260,10 @@ void f_ptrlistitem_delete(FListItem *item, FVisitor *visitor)
 	ASSERT(item != NULL, return);
 
 	f_listitem_delete(item, visitor);
+}
+
+int f_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr) {
+	return f_ptrcmp(item->data, ptr);
 }
 
 void f_ptrlist_free(FPtrList *list, FVisitor *visitor)

@@ -72,6 +72,8 @@ typedef struct __pmlist_t FPtrListItem;
 FPtrListItem *f_ptrlistitem_new(void *ptr);
 void f_ptrlistitem_delete(FListItem *item, FVisitor *visitor);
 
+int f_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr);
+
 FPtrList *f_ptrlist_new(void);
 void f_ptrlist_free(FPtrList *list, FVisitor *visitor);
 
