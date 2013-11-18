@@ -111,3 +111,5 @@
 /* Version number of package */
 #define VERSION "@PACMAN_G2_VERSION@"
 
+/* Define fakeroot protection */
+#cmakedefine FAKEROOT_PROOF 1

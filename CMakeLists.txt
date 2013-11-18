@@ -16,6 +16,7 @@ string (REPLACE ";" "" PM_VERSION ${PM_VERSION_TEMP})
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -D_GNU_SOURCE")
 
 option(DISABLE_BINDING "disables all libpacman bindings" OFF)
+option(FAKEROOT_PROOF "enable fakeroot proof protection" OFF)
 
 SET(ENABLE_NLS TRUE CACHE BOOL "Translation program messages to the user's native language ?")
 

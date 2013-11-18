@@ -59,7 +59,7 @@ pmhandle_t *_pacman_handle_new()
 #ifndef CYGWIN
 	/* see if we're root or not */
 	ph->uid = geteuid();
-#ifndef FAKEROOT
+#ifdef FAKEROOT_PROOF
 	if(!ph->uid && getenv("FAKEROOTKEY")) {
 		/* fakeroot doesn't count, we're non-root */
 		ph->uid = 99;
@@ -67,7 +67,7 @@ pmhandle_t *_pacman_handle_new()
 #endif
 
 	/* see if we're root or not (fakeroot does not count) */
-#ifndef FAKEROOT
+#ifdef FAKEROOT_PROOF
 	if(ph->uid == 0 && !getenv("FAKEROOTKEY")) {
 #else
 	if(ph->uid == 0) {
