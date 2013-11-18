@@ -1,3 +1,4 @@
+include_directories (${PACMAN-G2_SOURCE_DIR}/lib/libpacman/)
 SWIG_ADD_MODULE(pacman_python python ../pacman.i)
 SET_SOURCE_FILES_PROPERTIES(pacman.i PROPERTIES SWIG_FLAGS "-includeall")
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})

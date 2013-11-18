@@ -1,3 +1,4 @@
+include_directories (${PACMAN-G2_SOURCE_DIR}/lib/libpacman/)
 SWIG_ADD_MODULE(pacman_csharp csharp ../pacman.i)
 SET_SOURCE_FILES_PROPERTIES(pacman.i PROPERTIES SWIG_FLAGS "-includeall")
 SWIG_LINK_LIBRARIES(pacman_csharp pacman)
