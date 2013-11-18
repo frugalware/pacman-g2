@@ -126,6 +126,7 @@ void _pacman_trans_fini(pmtrans_t *trans)
 
 	FREELIST(trans->targets);
 	FREELISTPKGS(trans->packages);
+#if 0
 	{
 		pmlist_t *i;
 		for(i = trans->syncpkgs; i; i = i->next) {
@@ -133,6 +134,7 @@ void _pacman_trans_fini(pmtrans_t *trans)
 		}
 		FREELIST(trans->syncpkgs);
 	}
+#endif
 	FREELIST(trans->skiplist);
 	FREELIST(trans->triggers);
 

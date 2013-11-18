@@ -642,7 +642,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		if(ps->type == PM_SYNC_TYPE_REPLACE) {
 			for(j = ps->data; j; j = j->next) {
 				pmpkg_t *pkg = j->data;
-				if(!_pacman_pkg_isin(pkg->name, tr->syncpkgs)) {
+				if(!_pacman_pkg_isin(pkg->name, tr->packages)) {
 					if(_pacman_trans_addtarget(tr, pkg->name) == -1) {
 						goto error;
 					}
