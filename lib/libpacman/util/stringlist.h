@@ -26,11 +26,13 @@
 typedef struct __pmlist_t FStringList;
 typedef struct __pmlist_t FStringListItem;
 
+#define _pacman_stringlist_append f_stringlist_append
+
 int _pacman_list_is_strin(const char *needle, FStringList *haystack);
 FStringList *_pacman_list_remove_dupes(FStringList *list);
 FStringList *_pacman_list_strdup(FStringList *list);
 
-FStringList *_pacman_stringlist_append(FStringList *list, const char *s);
+FStringList *f_stringlist_append(FStringList *list, const char *s);
 FStringList *f_stringlist_append_stringlist(FStringList *dest, const FStringList *src);
 
 #endif /* _PACMAN_STRINGLIST_H */

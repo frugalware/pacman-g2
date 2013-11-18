@@ -74,7 +74,7 @@ FStringList *_pacman_list_strdup(FStringList *list)
 	return(newlist);
 }
 
-FStringList *_pacman_stringlist_append(FStringList *list, const char *s)
+FStringList *f_stringlist_append(FStringList *list, const char *s)
 {
 	return _pacman_list_add(list, strdup(s));
 }
