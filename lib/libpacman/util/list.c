@@ -63,11 +63,6 @@ void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visit
 	}
 }
 
-int _pacman_list_is_in(void *needle, const pmlist_t *haystack)
-{
-	return f_list_contains(haystack, f_ptrlistitem_ptrcmp, needle);
-}
-
 FListItem *f_list_find(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
 {
 	for(; list != NULL; list = list->next) {
