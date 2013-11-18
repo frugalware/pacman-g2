@@ -39,7 +39,7 @@ struct __pmlist_t {
 	struct __pmlist_t *last; /* Quick access to last item in list */
 };
 
-#define _FREELIST(p, f) do { if(p) { f_ptrlist_free(p, (FVisitorFunc)f, NULL); p = NULL; } } while(0)
+#define _FREELIST(p, f) do { if(p) { FVisitor visitor = { .fn = (FVisitorFunc)f, .data = NULL, }; f_ptrlist_free(p, &visitor); p = NULL; } } while(0)
 #define FREELIST(p) _FREELIST(p, free)
 #define FREELISTPTR(p) _FREELIST(p, NULL)
 
@@ -51,8 +51,7 @@ typedef int (*_pacman_fn_cmp)(const void *, const void *);
 #define _pacman_list_count f_ptrlist_count
 #define _pacman_list_empty f_ptrlist_empty
 
-void f_listitem_delete(FListItem *item, FListItemVisitorFunc visitor_fn, void *visitor_data);
-void f_listitem_delete_visit(FListItem *item, FVisitor *visitor);
+void f_listitem_delete(FListItem *item, FVisitor *visitor);
 
 int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
 int f_list_count(const FList *list);
@@ -70,13 +69,12 @@ typedef struct __pmlist_t FPtrList;
 typedef struct __pmlist_t FPtrListItem;
 
 FPtrListItem *f_ptrlistitem_new(void *ptr);
-void f_ptrlistitem_delete(FListItem *item, FVisitorFunc visitor_fn, void *visitor_data);
-void f_ptrlistitem_delete_visit(FListItem *item, FVisitor *visitor);
+void f_ptrlistitem_delete(FListItem *item, FVisitor *visitor);
 
 FPtrList *f_ptrlist_new(void);
-void f_ptrlist_free(FPtrList *list, FVisitorFunc visitor, void *visitor_data);
+void f_ptrlist_free(FPtrList *list, FVisitor *visitor);
 
-void f_ptrlist_clear(FPtrList *list, FVisitorFunc visitor, void *visitor_data);
+void f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
 #define f_ptrlist_count f_list_count
 #define f_ptrlist_empty f_list_empty
 

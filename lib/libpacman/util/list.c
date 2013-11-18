@@ -30,19 +30,7 @@
 #include "fstdlib.h"
 #include "util.h"
 
-void f_listitem_delete(FListItem *item, FListItemVisitorFunc visitor_fn, void *visitor_data)
-{
-	FVisitor visitor = {
-		.fn = (FVisitorFunc)visitor_fn,
-		.data = visitor_data,
-	};
-
-	ASSERT(item != NULL, return);
-	
-	f_listitem_delete_visit(item, &visitor);
-}
-
-void f_listitem_delete_visit(FListItem *item, FVisitor *visitor)
+void f_listitem_delete(FListItem *item, FVisitor *visitor)
 {
 	ASSERT(item != NULL, return);
 
@@ -267,38 +255,26 @@ FPtrList *f_ptrlist_new(void)
 	return (FPtrList *)item;
 }
 
-void f_ptrlistitem_delete(FListItem *item, FVisitorFunc visitor_fn, void *visitor_data)
-{
-	FVisitor visitor = {
-		.fn = visitor_fn,
-		.data = visitor_data,
-	};
-
-	ASSERT(item != NULL, return);
-
-	f_ptrlistitem_delete_visit(item, &visitor);
-}
-
-void f_ptrlistitem_delete_visit(FListItem *item, FVisitor *visitor)
+void f_ptrlistitem_delete(FListItem *item, FVisitor *visitor)
 {
 	ASSERT(item != NULL, return);
 
-	f_listitem_delete_visit(item, visitor);
+	f_listitem_delete(item, visitor);
 }
 
-void f_ptrlist_free(FPtrList *list, FVisitorFunc visitor, void *visitor_data)
+void f_ptrlist_free(FPtrList *list, FVisitor *visitor)
 {
-	f_ptrlist_clear(list, visitor, visitor_data);
+	f_ptrlist_clear(list, visitor);
 }
 
-void f_ptrlist_clear(FPtrList *list, FVisitorFunc visitor, void *visitor_data)
+void f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 {
 	FPtrList *next;
 
 	while(list != NULL) {
 		next = list->next;
 		if(visitor != NULL) {
-			visitor(list->data, visitor_data);
+			f_visit(list->data, visitor);
 		}
 		free(list);
 		list = next;
