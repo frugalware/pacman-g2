@@ -68,6 +68,7 @@ pmsyncpkg_t *_pacman_sync_new(int type, pmpkg_t *spkg, void *data)
 	}
 
 	ps->type = type;
+	ps->pkg_name = spkg->name;
 	ps->pkg = spkg;
 	ps->data = data;
 
@@ -100,7 +101,7 @@ pmsyncpkg_t *find_pkginsync(char *needle, pmlist_t *haystack)
 
 	for(i = haystack; i != NULL ; i = i->next) {
 		ps = i->data;
-		if(ps && !strcmp(ps->pkg->name, needle)) {
+		if(ps && !strcmp(ps->pkg_name, needle)) {
 			return(ps);
 		}
 	}
@@ -728,7 +729,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		for(i = trans->packages; i; i = i->next) {
 			pmsyncpkg_t *ps = i->data;
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				pmpkg_t *new = _pacman_db_get_pkgfromcache(db_local, ps->pkg->name);
+				pmpkg_t *new = _pacman_db_get_pkgfromcache(db_local, ps->pkg_name);
 				for(j = ps->data; j; j = j->next) {
 					pmlist_t *k;
 					pmpkg_t *old = j->data;

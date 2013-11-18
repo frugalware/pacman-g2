@@ -29,6 +29,7 @@
 
 struct __pmsyncpkg_t {
 	unsigned char type;
+	const char *pkg_name;
 	pmpkg_t *pkg;
 	void *data;
 };
