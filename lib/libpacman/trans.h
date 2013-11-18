@@ -28,6 +28,8 @@ typedef struct __pmtrans_t pmtrans_t;
 
 #include "handle.h"
 
+#include "util/stringlist.h"
+
 enum {
 	STATE_IDLE = 0,
 	STATE_INITIALIZED,
@@ -58,10 +60,10 @@ struct __pmtrans_t {
 	pmtranstype_t type;
 	unsigned int flags;
 	unsigned char state;
-	pmlist_t *targets;     /* pmlist_t of (char *) */
+	FStringList *targets;
 	pmlist_t *packages;    /* pmlist_t of (pmpkg_t *) or (pmsyncpkg_t *) */
-	pmlist_t *skiplist;    /* pmlist_t of (char *) */
-	pmlist_t *triggers;    /* pmlist_t of (char *) */
+	FStringList *skiplist;
+	FStringList *triggers;
 	pmtrans_cbs_t cbs;
 };
 
