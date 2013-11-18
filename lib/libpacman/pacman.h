@@ -368,7 +368,8 @@ enum {
 	PM_TRANS_TYPE = 1,
 	PM_TRANS_FLAGS,
 	PM_TRANS_TARGETS,
-	PM_TRANS_PACKAGES
+	PM_TRANS_PACKAGES,
+	PM_TRANS_SYNCPKGS
 };
 
 void *pacman_trans_getinfo(unsigned char parm);

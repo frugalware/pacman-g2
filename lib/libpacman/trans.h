@@ -62,6 +62,7 @@ struct __pmtrans_t {
 	unsigned char state;
 	FStringList *targets;
 	pmlist_t *packages;    /* pmlist_t of (pmpkg_t *) or (pmsyncpkg_t *) */
+	FPtrList *syncpkgs; /* FPtrList of (pmsyncpkg_t *) */
 	FStringList *skiplist;
 	FStringList *triggers;
 	pmtrans_cbs_t cbs;
