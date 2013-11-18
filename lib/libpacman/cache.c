@@ -93,7 +93,7 @@ pmlist_t *_pacman_db_get_pkgcache(pmdb_t *db)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
-	if(db->pkgcache == NULL) {
+	if(f_ptrlist_empty(db->pkgcache)) {
 		_pacman_db_load_pkgcache(db);
 	}
 
@@ -185,13 +185,11 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if(_pacman_list_empty(db->pkgcache)) {
-		_pacman_db_load_pkgcache(db);
-	}
+	lp = _pacman_db_get_pkgcache(db);
 
 	_pacman_log(PM_LOG_DEBUG, _("loading group cache for repository '%s'"), db->treename);
 
-	for(lp = db->pkgcache; lp; lp = lp->next) {
+	for(; lp; lp = lp->next) {
 		pmlist_t *i;
 		pmpkg_t *pkg = lp->data;
 
