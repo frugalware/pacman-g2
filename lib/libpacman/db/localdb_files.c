@@ -57,7 +57,7 @@ int _pacman_db_read_lines(pmlist_t **list, char *s, size_t size, FILE *fp)
 	int lines = 0;
 
 	while(fgets(s, size, fp) && !_pacman_strempty(_pacman_strtrim(s))) {
-		*list = _pacman_stringlist_append(*list, s);
+		*list = f_stringlist_append(*list, s);
 		lines++;
 	}
 	return lines;
@@ -237,11 +237,11 @@ int _pacman_localdb_files_fread(pmpkg_t *info, FILE *fp)
 					/* just ignore the content after the pipe for now */
 					*ptr = '\0';
 				}
-				info->files = _pacman_stringlist_append(info->files, line);
+				info->files = f_stringlist_append(info->files, line);
 			}
 		} else if(!strcmp(line, "%BACKUP%")) {
 			while(fgets(line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
-				info->backup = _pacman_stringlist_append(info->backup, line);
+				info->backup = f_stringlist_append(info->backup, line);
 			}
 		}
 	}
