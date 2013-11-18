@@ -208,6 +208,25 @@ void _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, voi
 	}
 }
 
+/* Test for existence of a package in a pmlist_t* of pmsyncpkg_t*
+ * If found, return a pointer to the respective pmsyncpkg_t*
+ */
+pmsyncpkg_t *_pacman_trans_find(const pmtrans_t *trans, const char *pkgname)
+{
+	pmlist_t *i;
+
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
+
+	for(i = trans->packages; i != NULL ; i = i->next) {
+		pmsyncpkg_t *ps = i->data;
+
+		if(ps && !strcmp(ps->pkg->name, pkgname)) {
+			break;
+		}
+	}
+	return NULL;
+}
+
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 {
 	/* Sanity checks */

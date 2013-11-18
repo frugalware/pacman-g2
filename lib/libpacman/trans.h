@@ -97,6 +97,7 @@ int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags,
 void _pacman_trans_fini(pmtrans_t *trans);
 
 void _pacman_trans_event(pmtrans_t *trans, unsigned char, void *, void *);
+pmsyncpkg_t *_pacman_trans_find(const pmtrans_t *trans, const char *pkgname);
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state);
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target);
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data);
