@@ -54,8 +54,6 @@ void _pacman_grp_free(void *data)
 
 	FREELIST(grp->packages);
 	free(grp);
-
-	return;
 }
 
 /* Helper function for sorting groups
