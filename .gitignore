@@ -1,6 +1,7 @@
 *.cmake
 *.o
 *.gmo
+*.pc
 *.po
 *.pot
 *.pyc
