@@ -247,7 +247,7 @@ int _pacman_trans_compute_triggers(pmtrans_t *trans)
 			/* FIXME: might be incomplete */
 			pkg = ((pmsyncpkg_t *)lp->data)->pkg;
 		}
-		trans->triggers = _pacman_stringlist_append_stringlist(trans->triggers, pkg->triggers);
+		trans->triggers = f_stringlist_append_stringlist(trans->triggers, pkg->triggers);
 	}
 	trans->triggers = _pacman_list_remove_dupes(trans->triggers);
 	/* FIXME: Sort the triggers to have a predictable execution order */

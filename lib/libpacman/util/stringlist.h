@@ -31,7 +31,7 @@ FStringList *_pacman_list_remove_dupes(FStringList *list);
 FStringList *_pacman_list_strdup(FStringList *list);
 
 FStringList *_pacman_stringlist_append(FStringList *list, const char *s);
-FStringList *_pacman_stringlist_append_stringlist(FStringList *dest, const FStringList *src);
+FStringList *f_stringlist_append_stringlist(FStringList *dest, const FStringList *src);
 
 #endif /* _PACMAN_STRINGLIST_H */
 
