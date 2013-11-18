@@ -10,6 +10,7 @@
 .libs
 *.conf
 *.tar.gz
+*.user
 config.*
 Makefile.in
 Makefile
@@ -27,5 +28,7 @@ libtool
 ltmain.sh
 m4
 build
+.project
+.cproject
 *~
 

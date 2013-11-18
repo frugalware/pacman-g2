@@ -17,11 +17,13 @@ set(PACMAN_SOURCES
 )
 
 include_directories (${PACMAN-G2_SOURCE_DIR})
-
+include_directories (${PACMAN-G2_SOURCE_DIR}/lib/libpacman/)
 find_library(M_LIB m)
+add_executable(${CMAKE_PROJECT_NAME_LOWER} ${PACMAN_SOURCES})
+target_link_libraries(${CMAKE_PROJECT_NAME_LOWER} pacman ${M_LIB})
 
-add_executable(pacman-g2 ${PACMAN_SOURCES})
+execute_process(COMMAND ln -sf ./${CMAKE_PROJECT_NAME_LOWER} ./pacman
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries(pacman-g2 pacman ${M_LIB})
-
-install(TARGETS pacman-g2 DESTINATION bin)
+install(TARGETS "${CMAKE_PROJECT_NAME_LOWER}"  DESTINATION bin)
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/pacman DESTINATION bin)

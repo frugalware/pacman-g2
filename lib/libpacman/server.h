@@ -22,7 +22,6 @@
 #define _PACMAN_SERVER_H
 
 #include <time.h>
-#include <ftplib.h>
 
 #include "pacman.h"
 

@@ -190,13 +190,11 @@ class pmtest:
 		else:
 			cmd = ["fakeroot"]
 		if pacman["gdb"]:
-			cmd.append("libtool --mode=execute gdb --args")
+			cmd.append("gdb --args")
 		if pacman["valgrind"]:
-			cmd.append("libtool --mode=execute valgrind --tool=memcheck --leak-check=full --show-reachable=yes")
-
+			cmd.append("valgrind --tool=memcheck --leak-check=full --show-reachable=yes")
 		cmd.append("%s --noconfirm --config=%s --root=%s" \
 		           % (pacman["bin"], os.path.join(self.root, PACCONF), self.root))
-
 		if pacman["debug"]:
 			cmd.append("--debug=%s" % pacman["debug"])
 		cmd.append("%s" % self.args)

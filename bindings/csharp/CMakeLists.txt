@@ -6,3 +6,4 @@ add_custom_command(TARGET ${SWIG_MODULE_pacman_csharp_REAL_NAME}
                    COMMAND "${SN_EXECUTABLE}" "-quiet" "-k" "1024" "pacman-csharp.snk"
                    COMMAND "${MCS_EXECUTABLE}" "/unsafe" "/out:pacman-csharp.dll" "/target:library" "/keyfile:pacman-csharp.snk" "*.cs")
 install(TARGETS ${SWIG_MODULE_pacman_csharp_REAL_NAME} DESTINATION lib)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pacman-csharp.dll DESTINATION lib/mono/pacman-csharp)
