@@ -410,13 +410,16 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				if(!_pacman_list_is_strin((char *)j->data, packages)) {
 					/* check if a package in trans->packages provides this package */
 					for(k=trans->packages; !found && k; k=k->next) {
-						pmpkg_t *spkg = NULL;
-					if(trans->type == PM_TRANS_TYPE_SYNC) {
-						pmsyncpkg_t *ps = k->data;
-						spkg = ps->pkg;
-					} else {
-						spkg = k->data;
+						pmpkg_t *spkg = k->data;
+
+						if(spkg && _pacman_list_is_strin(tp->name, _pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES))) {
+							found=1;
+						}
 					}
+					for(k=trans->syncpkgs; !found && k; k=k->next) {
+						pmsyncpkg_t *ps = k->data;
+						pmpkg_t *spkg = ps->pkg;
+
 						if(spkg && _pacman_list_is_strin(tp->name, _pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES))) {
 							found=1;
 						}

@@ -730,7 +730,7 @@ void *pacman_trans_getinfo(unsigned char parm)
 		case PM_TRANS_TYPE:     data = (void *)(long)trans->type; break;
 		case PM_TRANS_FLAGS:    data = (void *)(long)trans->flags; break;
 		case PM_TRANS_TARGETS:  data = trans->targets; break;
-		case PM_TRANS_PACKAGES: data = trans->packages; break;
+		case PM_TRANS_PACKAGES: data = trans->packages ? trans->packages : trans->syncpkgs; break;
 		case PM_TRANS_SYNCPKGS: data = trans->syncpkgs; break;
 		default:
 			data = NULL;

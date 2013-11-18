@@ -119,7 +119,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sy
 										goto error;
 									}
 									ps->data = _pacman_list_add(NULL, dummy);
-									trans->packages = _pacman_list_add(trans->packages, ps);
+									trans->syncpkgs = _pacman_list_add(trans->syncpkgs, ps);
 								}
 								_pacman_log(PM_LOG_FLOW2, _("%s-%s elected for upgrade (to be replaced by %s-%s)"),
 								          lpkg->name, lpkg->version, spkg->name, spkg->version);
@@ -150,7 +150,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sy
 		}
 
 		/* we don't care about a to-be-replaced package's newer version */
-		for(j = trans->packages; j && !replace; j=j->next) {
+		for(j = trans->syncpkgs; j && !replace; j=j->next) {
 			ps = j->data;
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
 				if(_pacman_pkg_isin(spkg->name, ps->data)) {
@@ -197,7 +197,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sy
 					FREEPKG(dummy);
 					goto error;
 				}
-				trans->packages = _pacman_list_add(trans->packages, ps);
+				trans->syncpkgs = _pacman_list_add(trans->syncpkgs, ps);
 			} else {
 				/* spkg->name is already in the packages list -- just ignore it */
 			}

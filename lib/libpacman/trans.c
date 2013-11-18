@@ -125,14 +125,13 @@ void _pacman_trans_fini(pmtrans_t *trans)
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	FREELIST(trans->targets);
-	if(trans->type == PM_TRANS_TYPE_SYNC) {
+	FREELISTPKGS(trans->packages);
+	{
 		pmlist_t *i;
-		for(i = trans->packages; i; i = i->next) {
+		for(i = trans->syncpkgs; i; i = i->next) {
 			FREESYNC(i->data);
 		}
-		FREELIST(trans->packages);
-	} else {
-		FREELISTPKGS(trans->packages);
+		FREELIST(trans->syncpkgs);
 	}
 	FREELIST(trans->skiplist);
 	FREELIST(trans->triggers);
@@ -258,14 +257,14 @@ int _pacman_trans_compute_triggers(pmtrans_t *trans)
 
 	/* NOTE: Not the most efficient way, but will do until we add some string hash. */
 	for(lp = trans->packages; lp; lp = lp->next) {
-		pmpkg_t *pkg;
+		pmpkg_t *pkg = lp->data;
 
-		if(trans->type != PM_TRANS_TYPE_SYNC) {
-			pkg = lp->data;
-		} else {
-			/* FIXME: might be incomplete */
-			pkg = ((pmsyncpkg_t *)lp->data)->pkg;
-		}
+		trans->triggers = f_stringlist_append_stringlist(trans->triggers, pkg->triggers);
+	}
+	for(lp = trans->syncpkgs; lp; lp = lp->next) {
+		pmpkg_t *pkg = ((pmsyncpkg_t *)lp->data)->pkg;
+
+		/* FIXME: might be incomplete */
 		trans->triggers = f_stringlist_append_stringlist(trans->triggers, pkg->triggers);
 	}
 	trans->triggers = _pacman_list_remove_dupes(trans->triggers);
