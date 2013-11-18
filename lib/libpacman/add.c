@@ -265,10 +265,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if(_pacman_list_empty(trans->packages)) {
-		return(0);
-	}
-
 	for(targ = trans->packages; targ; targ = targ->next) {
 		unsigned short pmo_upgrade;
 		char pm_install[PATH_MAX];

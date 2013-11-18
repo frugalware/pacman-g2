@@ -284,7 +284,8 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 	*data = NULL;
 
 	/* If there's nothing to do, return without complaining */
-	if(_pacman_list_empty(trans->packages)) {
+	if(_pacman_list_empty(trans->packages) &&
+		_pacman_list_empty(trans->syncpkgs)) {
 		return(0);
 	}
 
@@ -311,7 +312,8 @@ int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
 		*data = NULL;
 
 	/* If there's nothing to do, return without complaining */
-	if(_pacman_list_empty(trans->packages)) {
+	if(_pacman_list_empty(trans->packages) &&
+		_pacman_list_empty(trans->syncpkgs)) {
 		return(0);
 	}
 
