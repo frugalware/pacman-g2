@@ -78,6 +78,8 @@ FPtrList *f_ptrlist_new(void);
 void f_ptrlist_free(FPtrList *list, FVisitor *visitor);
 
 void f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
+#define f_ptrlist_contains f_list_contains
+int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
 #define f_ptrlist_count f_list_count
 #define f_ptrlist_empty f_list_empty
 

@@ -285,4 +285,9 @@ void f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 	}
 }
 
+int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr)
+{
+	return f_ptrlist_contains(list, f_ptrlistitem_ptrcmp, ptr);
+}
+
 /* vim: set ts=2 sw=2 noet: */
