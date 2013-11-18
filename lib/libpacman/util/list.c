@@ -27,61 +27,67 @@
 /* pacman-g2 */
 #include "list.h"
 
+#include "fstdlib.h"
 #include "util.h"
 
-pmlist_t *_pacman_list_new()
+void f_listitem_delete(FListItem *item, FListItemVisitorFunc visitor_fn, void *visitor_data)
 {
-	pmlist_t *list = _pacman_malloc(sizeof(pmlist_t));
+	FVisitor visitor = {
+		.fn = (FVisitorFunc)visitor_fn,
+		.data = visitor_data,
+	};
 
-	if(list == NULL) {
-		return(NULL);
-	}
-	list->data = NULL;
-	list->prev = NULL;
-	list->next = NULL;
-	list->last = list;
-	return(list);
+	ASSERT(item != NULL, return);
+	
+	f_listitem_delete_visit(item, &visitor);
 }
 
-void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn)
+void f_listitem_delete_visit(FListItem *item, FVisitor *visitor)
 {
-	pmlist_t *ptr, *it = list;
+	ASSERT(item != NULL, return);
 
-	while(it) {
-		ptr = it->next;
-		if(fn) {
-			fn(it->data);
+	f_visit(item, visitor);
+	free(item);
+}
+
+int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
+{
+	for(; list != NULL; list = list->next) {
+		if(comparator(list, comparator_data) == 0) {
+			return 1;
 		}
-		free(it);
-		it = ptr;
 	}
+	return 0;
 }
 
-int _pacman_list_count(const pmlist_t *list)
+int f_list_count(const FList *list)
 {
 	int i;
-	const pmlist_t *lp;
 
-	for(lp = list, i = 0; lp; lp = lp->next, i++);
-
-	return(i);
+	for(i = 0; list; list = list->next, i++);
+	return i;
 }
 
-int _pacman_list_empty(const pmlist_t *list)
+int f_list_empty(const FList *list)
 {
 	return list == NULL;
 }
 
+void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data)
+{
+	for(; list != NULL; list = list->next) {
+		visitor((FListItem *)list, visitor_data);
+	}
+}
+
+static
+int _pacman_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr) {
+	return f_ptrcmp(item->data, ptr);
+}
+
 int _pacman_list_is_in(void *needle, const pmlist_t *haystack)
 {
-	const pmlist_t *lp;
-
-	for(lp = haystack; lp; lp = lp->next) {
-		if(lp->data == needle) {
-			return(1);
-		}
-	}
-	return(0);
+	return f_list_contains(haystack, _pacman_ptrlistitem_ptrcmp, needle);
 }
 
 pmlist_t *_pacman_list_add(pmlist_t *list, void *data)
@@ -242,6 +248,61 @@ pmlist_t *_pacman_list_reverse(pmlist_t *list)
 	}
 
 	return(newlist);
+}
+
+FPtrListItem *f_ptrlistitem_new(void *ptr)
+{
+	FPtrListItem *item = f_zalloc(sizeof(*item));
+
+	if(item != NULL) {
+		item->data = ptr;
+	}
+	return item;
+}
+
+FPtrList *f_ptrlist_new(void)
+{
+	FPtrListItem *item = f_ptrlistitem_new(NULL);
+	item->last = item;
+	return (FPtrList *)item;
+}
+
+void f_ptrlistitem_delete(FListItem *item, FVisitorFunc visitor_fn, void *visitor_data)
+{
+	FVisitor visitor = {
+		.fn = visitor_fn,
+		.data = visitor_data,
+	};
+
+	ASSERT(item != NULL, return);
+
+	f_ptrlistitem_delete_visit(item, &visitor);
+}
+
+void f_ptrlistitem_delete_visit(FListItem *item, FVisitor *visitor)
+{
+	ASSERT(item != NULL, return);
+
+	f_listitem_delete_visit(item, visitor);
+}
+
+void f_ptrlist_free(FPtrList *list, FVisitorFunc visitor, void *visitor_data)
+{
+	f_ptrlist_clear(list, visitor, visitor_data);
+}
+
+void f_ptrlist_clear(FPtrList *list, FVisitorFunc visitor, void *visitor_data)
+{
+	FPtrList *next;
+
+	while(list != NULL) {
+		next = list->next;
+		if(visitor != NULL) {
+			visitor(list->data, visitor_data);
+		}
+		free(list);
+		list = next;
+	}
 }
 
 /* vim: set ts=2 sw=2 noet: */

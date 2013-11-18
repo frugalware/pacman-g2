@@ -23,34 +23,62 @@
 
 #include "pacman.h"
 
+#include "util/fcallback.h"
+
+typedef struct __pmlist_t FList;
+typedef struct __pmlist_t FListItem;
+
+typedef int (*FListItemComparatorFunc)(const FListItem *item, const void *comparator_data);
+typedef void (*FListItemVisitorFunc)(FListItem *item, void *visitor_data);
+
 /* Chained list struct */
 struct __pmlist_t {
-	void *data;
 	struct __pmlist_t *prev;
 	struct __pmlist_t *next;
+	void *data;
 	struct __pmlist_t *last; /* Quick access to last item in list */
 };
 
-#define _FREELIST(p, f) do { if(p) { _pacman_list_free(p, f); p = NULL; } } while(0)
+#define _FREELIST(p, f) do { if(p) { f_ptrlist_free(p, (FVisitorFunc)f, NULL); p = NULL; } } while(0)
 #define FREELIST(p) _FREELIST(p, free)
 #define FREELISTPTR(p) _FREELIST(p, NULL)
 
-typedef void (*_pacman_fn_free)(void *);
 /* Sort comparison callback function declaration */
 typedef int (*_pacman_fn_cmp)(const void *, const void *);
 
-pmlist_t *_pacman_list_new(void);
-void _pacman_list_free(pmlist_t *list, _pacman_fn_free fn);
+#define _pacman_list_new f_ptrlist_new
 
-int _pacman_list_count(const pmlist_t *list);
-int _pacman_list_empty(const pmlist_t *list);
+#define _pacman_list_count f_ptrlist_count
+#define _pacman_list_empty f_ptrlist_empty
+
+void f_listitem_delete(FListItem *item, FListItemVisitorFunc visitor_fn, void *visitor_data);
+void f_listitem_delete_visit(FListItem *item, FVisitor *visitor);
+
+int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
+int f_list_count(const FList *list);
+int f_list_empty(const FList *list);
 int _pacman_list_is_in(void *needle, const pmlist_t *haystack);
+void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data);
 
 pmlist_t *_pacman_list_add(pmlist_t *list, void *data);
 pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn);
 pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 pmlist_t *_pacman_list_last(pmlist_t *list);
 pmlist_t *_pacman_list_reverse(pmlist_t *list);
+
+typedef struct __pmlist_t FPtrList;
+typedef struct __pmlist_t FPtrListItem;
+
+FPtrListItem *f_ptrlistitem_new(void *ptr);
+void f_ptrlistitem_delete(FListItem *item, FVisitorFunc visitor_fn, void *visitor_data);
+void f_ptrlistitem_delete_visit(FListItem *item, FVisitor *visitor);
+
+FPtrList *f_ptrlist_new(void);
+void f_ptrlist_free(FPtrList *list, FVisitorFunc visitor, void *visitor_data);
+
+void f_ptrlist_clear(FPtrList *list, FVisitorFunc visitor, void *visitor_data);
+#define f_ptrlist_count f_list_count
+#define f_ptrlist_empty f_list_empty
 
 #endif /* _PACMAN_LIST_H */
 
