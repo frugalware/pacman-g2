@@ -128,7 +128,8 @@ void _pacman_server_free(void *data)
 /*
  * Progress callback used by libcurl, we then pass our own progress function
  */
-int curlProgress(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow) {
+static
+int _pacman_curl_progresscb(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow) {
     if(dltotal > 0 && dlnow > 0) {
         pmdownloadstate_t *downloadstate = clientp;
         downloadstate->dst_tell = downloadstate->dst_resume + dlnow;
@@ -363,7 +364,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
                                 _pacman_log(PM_LOG_DEBUG, _("error passing our debug function pointer to progress callback\n"));
                                 continue;
                             }
-                            retc = curl_easy_setopt(curlHandle,CURLOPT_PROGRESSFUNCTION, curlProgress);
+                            retc = curl_easy_setopt(curlHandle, CURLOPT_PROGRESSFUNCTION, _pacman_curl_progresscb);
                             if(retc != CURLE_OK) {
                                 _pacman_log(PM_LOG_DEBUG, _("error setting progress bar\n"));
                                 continue;
