@@ -23,12 +23,15 @@
 
 #include "list.h"
 
-int _pacman_list_is_strin(const char *needle, pmlist_t *haystack);
-pmlist_t *_pacman_list_remove_dupes(pmlist_t *list);
-pmlist_t *_pacman_list_strdup(pmlist_t *list);
+typedef struct __pmlist_t FStringList;
+typedef struct __pmlist_t FStringListItem;
 
-pmlist_t *_pacman_stringlist_append(pmlist_t *list, const char *s);
-pmlist_t *_pacman_stringlist_append_stringlist(pmlist_t *dest, const pmlist_t *src);
+int _pacman_list_is_strin(const char *needle, FStringList *haystack);
+FStringList *_pacman_list_remove_dupes(FStringList *list);
+FStringList *_pacman_list_strdup(FStringList *list);
+
+FStringList *_pacman_stringlist_append(FStringList *list, const char *s);
+FStringList *_pacman_stringlist_append_stringlist(FStringList *dest, const FStringList *src);
 
 #endif /* _PACMAN_STRINGLIST_H */
 

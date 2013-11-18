@@ -30,11 +30,11 @@
 
 #include "util.h"
 
-/* Test for existence of a string in a pmlist_t
+/* Test for existence of a string in a FStringList
  */
-int _pacman_list_is_strin(const char *needle, pmlist_t *haystack)
+int _pacman_list_is_strin(const char *needle, FStringList *haystack)
 {
-	pmlist_t *lp;
+	FStringList *lp;
 
 	for(lp = haystack; lp; lp = lp->next) {
 		if(lp->data && !strcmp(lp->data, needle)) {
@@ -50,9 +50,9 @@ int _pacman_list_is_strin(const char *needle, pmlist_t *haystack)
  * a new list, using is_in() to check for dupes at each iteration.
  *
  */
-pmlist_t *_pacman_list_remove_dupes(pmlist_t *list)
+FStringList *_pacman_list_remove_dupes(FStringList *list)
 {
-	pmlist_t *i, *newlist = NULL;
+	FStringList *i, *newlist = NULL;
 
 	for(i = list; i; i = i->next) {
 		if(!_pacman_list_is_strin(i->data, newlist)) {
@@ -62,10 +62,10 @@ pmlist_t *_pacman_list_remove_dupes(pmlist_t *list)
 	return newlist;
 }
 
-pmlist_t *_pacman_list_strdup(pmlist_t *list)
+FStringList *_pacman_list_strdup(FStringList *list)
 {
-	pmlist_t *newlist = NULL;
-	pmlist_t *lp;
+	FStringList *newlist = NULL;
+	FStringList *lp;
 
 	for(lp = list; lp; lp = lp->next) {
 		newlist = _pacman_stringlist_append(newlist, lp->data);
@@ -74,14 +74,14 @@ pmlist_t *_pacman_list_strdup(pmlist_t *list)
 	return(newlist);
 }
 
-pmlist_t *_pacman_stringlist_append(pmlist_t *list, const char *s)
+FStringList *_pacman_stringlist_append(FStringList *list, const char *s)
 {
 	return _pacman_list_add(list, strdup(s));
 }
 
-pmlist_t *_pacman_stringlist_append_stringlist(pmlist_t *dest, const pmlist_t *src)
+FStringList *_pacman_stringlist_append_stringlist(FStringList *dest, const FStringList *src)
 {
-	const pmlist_t *lp;
+	const FStringList *lp;
 
 	for(lp = src; lp; lp = lp->next) {
 		dest = _pacman_stringlist_append(dest, lp->data);
