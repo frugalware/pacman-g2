@@ -218,11 +218,11 @@ pmsyncpkg_t *_pacman_trans_find(const pmtrans_t *trans, const char *pkgname)
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
 
-	for(i = trans->packages; i != NULL ; i = i->next) {
+	for(i = trans->syncpkgs; i != NULL ; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
 
 		if(ps && !strcmp(ps->pkg->name, pkgname)) {
-			break;
+			return ps;
 		}
 	}
 	return NULL;
