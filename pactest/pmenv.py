@@ -110,6 +110,7 @@ class pmenv:
 			print "PASSED = %3u (%6.2f%%)" % (passed, float(passed)*100/total)
 			print "FAILED = %3u (%6.2f%%)" % (failed, float(failed)*100/total)
 		print
+		return {'passed': passed, 'failed': failed, 'total': total}
 
 
 if __name__ == "__main__":
