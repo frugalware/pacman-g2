@@ -75,7 +75,7 @@ int _pacman_db_load_pkgcache(pmdb_t *db)
 void _pacman_db_free_pkgcache(pmdb_t *db)
 {
 	ASSERT(db != NULL, pm_errno = PM_ERR_DB_NULL; return);
-	if(db->pkgcache == NULL) {
+	if(f_ptrlist_empty(db->pkgcache)) {
 		return;
 	}
 
@@ -84,9 +84,7 @@ void _pacman_db_free_pkgcache(pmdb_t *db)
 
 	FREELISTPKGS(db->pkgcache);
 
-	if(db->grpcache) {
-		_pacman_db_free_grpcache(db);
-	}
+	_pacman_db_free_grpcache(db);
 }
 
 pmlist_t *_pacman_db_get_pkgcache(pmdb_t *db)
@@ -227,7 +225,8 @@ void _pacman_db_free_grpcache(pmdb_t *db)
 {
 	pmlist_t *lg;
 
-	if(db == NULL || db->grpcache == NULL) {
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(f_ptrlist_empty(db->grpcache)) {
 		return;
 	}
 
@@ -242,9 +241,7 @@ void _pacman_db_free_grpcache(pmdb_t *db)
 
 pmlist_t *_pacman_db_get_grpcache(pmdb_t *db)
 {
-	if(db == NULL) {
-		return(NULL);
-	}
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
 	if(db->grpcache == NULL) {
 		_pacman_db_load_grpcache(db);
@@ -257,7 +254,8 @@ pmgrp_t *_pacman_db_get_grpfromcache(pmdb_t *db, const char *target)
 {
 	pmlist_t *i;
 
-	if(db == NULL || _pacman_strempty(target)) {
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
+	if(_pacman_strempty(target)) {
 		return(NULL);
 	}
 

@@ -313,10 +313,9 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for unresolvable dependencies"));
 		deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_UPGRADE, list);
-		if(deps) {
+		if(!f_ptrlist_empty(deps)) {
 			if(data) {
 				*data = deps;
-				deps = NULL;
 			}
 			pm_errno = PM_ERR_UNSATISFIED_DEPS;
 			ret = -1;
@@ -332,7 +331,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
 		deps = _pacman_checkconflicts(trans, list);
-		if(deps) {
+		if(!f_ptrlist_empty(deps)) {
 			int errorout = 0;
 
 			for(i = deps; i && !errorout; i = i->next) {
