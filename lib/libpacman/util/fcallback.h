@@ -40,11 +40,11 @@ struct __FVisitor {
 };
 
 static inline
-void f_compare(void *ptr, const FComparator *comparator) {
-	ASSERT(comparator != NULL, return);
-	ASSERT(comparator->fn != NULL, return);
+int f_compare(void *ptr, const FComparator *comparator) {
+	ASSERT(comparator != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(comparator->fn != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	comparator->fn(ptr, comparator->data);
+	return comparator->fn(ptr, comparator->data);
 }
 
 static inline
