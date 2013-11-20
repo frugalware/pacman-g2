@@ -7,6 +7,8 @@ include (CheckIncludeFile)
 include (CheckIncludeFiles)
 include (CheckFunctionExists)
 
+enable_testing()
+
 string(TOLOWER ${CMAKE_PROJECT_NAME} CMAKE_PROJECT_NAME_LOWER)
 set (PACMAN_G2_VERSION 3.8.9)
 set (PACMAN_G2_LIB_VERSION ${PACMAN_G2_VERSION})
@@ -111,8 +113,5 @@ ADD_SUBDIRECTORY(scripts)
 if(NOT DISABLE_STATIC_BUILD)
   ADD_SUBDIRECTORY(src/pacman-g2-static)
 endif(NOT DISABLE_STATIC_BUILD)
-if(ENABLE_TESTS)
-  ADD_SUBDIRECTORY(pactest)
-endif(ENABLE_TESTS)
-
+ADD_SUBDIRECTORY(pactest)
 

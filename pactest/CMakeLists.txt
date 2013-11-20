@@ -1,25 +1,11 @@
-get_property(pacman-g2-location TARGET ${CMAKE_PROJECT_NAME_LOWER} PROPERTY LOCATION)
 
-if(PYTHONINTERP_FOUND AND (EXISTS  ${pacman-g2-location}))
-  message("running tests on: ${pacman-g2-location}")
-  set(TEST_PARAMS "-v;--test=./tests/*.py;-p ${pacman-g2-location}")
-  if(TESTS_GDB)
-    set(TEST_PARAMS "${TEST_PARAMS} --gdb")
-  endif(TESTS_GDB)
-  if(TESTS_VALGRIND)
-    set(TEST_PARAMS "${TEST_PARAMS} --valgrind")
-  endif(TESTS_VALGRIND)
-  if(TESTS_ADDITIONAL_ARGS)
-    set(TEST_PARAMS "${TEST_PARAMS} ${TESTS_ADDITIONAL_ARGS}")
-  endif(TESTS_ADDITIONAL_ARGS)
-  execute_process(COMMAND python ./pactest.py ${TEST_PARAMS}
-		  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-		  OUTPUT_VARIABLE outTest
-		  RESULT_VARIABLE resTest
-		  ERROR_VARIABLE  errTest)
-  message("test output: ${outTest}")
-  #message("res output: ${resTest}")
-  #message("err output: ${errTest}")
+if(PYTHONINTERP_FOUND)
+  FILE(GLOB PACMAN_G2_TEST_FILES tests/*.py)
+  foreach(PACMAN_G2_TEST_FILE ${PACMAN_G2_TEST_FILES})
+    GET_FILENAME_COMPONENT(PACMAN_G2_TEST_NAME ${PACMAN_G2_TEST_FILE} NAME_WE)
+    add_test(${PACMAN_G2_TEST_NAME} python ${CMAKE_CURRENT_SOURCE_DIR}/pactest.py --test=${PACMAN_G2_TEST_FILE} -p ${CMAKE_BINARY_DIR}/src/pacman-g2/pacman-g2 --debug=-1)
+  endforeach(PACMAN_G2_TEST_FILE)
 else()
-  message(FATAL_ERROR "Running the tests requires python and a successful build")
-endif(PYTHONINTERP_FOUND AND (EXISTS  ${pacman-g2-location}))
+  message(WARNING "Running the tests requires python and a successful build")
+endif(PYTHONINTERP_FOUND)
+
