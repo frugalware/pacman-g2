@@ -302,7 +302,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 			} else {
 				char output[PATH_MAX];
 				unsigned int j;
-				int filedone = 0;
+				int filedone = 1;
 				char *ptr;
 				struct stat st;
 				snprintf(output, PATH_MAX, "%s/%s.part", localpath, fn);
@@ -386,7 +386,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 							}
 						}
 					}
-					if(mtime1 && mtime2 && !handle->proxyhost) {
+					if(mtime1 && *mtime1 != PM_TIME_INVALID && mtime2 && !handle->proxyhost) {
 						curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
 						curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
 						curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE , mtime1);
@@ -433,7 +433,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						pm_errno = PM_ERR_RETRIEVE;
 						continue;
 					}
-					if(mtime1 && mtime2) {
+					if(mtime1 && *mtime1 != PM_TIME_INVALID && mtime2) {
 						long int rcCode = 0;
 						curl_easy_getinfo(curlHandle, CURLINFO_RESPONSE_CODE, &rcCode);
 						double downSize = 0;
