@@ -23,6 +23,11 @@ import time
 
 import pmtest
 
+class pmresults:
+	def __init__(self, passed, total):
+		self.passed = passed
+		self.total = total
+		self.failed = total - passed
 
 class pmenv:
 	"""Environment object
@@ -103,14 +108,13 @@ class pmenv:
 			print "Rules:",
 			print "OK = %2u KO = %2u SKIP = %2u" % (ok, ko, rules-(ok+ko))
 		print "----------"*8
-		total = len(self.testcases)
-		failed = total - passed
-		print "TOTAL  = %3u" % total
-		if total:
-			print "PASSED = %3u (%6.2f%%)" % (passed, float(passed)*100/total)
-			print "FAILED = %3u (%6.2f%%)" % (failed, float(failed)*100/total)
+		results = pmresults(passed, len(self.testcases))
+		print "TOTAL  = %3u" % results.total
+		if results.total:
+			print "PASSED = %3u (%6.2f%%)" % (results.passed, float(results.passed)*100/results.total)
+			print "FAILED = %3u (%6.2f%%)" % (results.failed, float(results.failed)*100/results.total)
 		print
-		return {'passed': passed, 'failed': failed, 'total': total}
+		return results
 
 
 if __name__ == "__main__":
