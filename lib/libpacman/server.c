@@ -130,13 +130,13 @@ void _pacman_server_free(void *data)
  */
 static
 int _pacman_curl_progresscb(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow) {
-    if(dltotal > 0 && dlnow > 0) {
-        pmdownloadstate_t *downloadstate = clientp;
-        downloadstate->dst_tell = downloadstate->dst_resume + dlnow;
-        downloadstate->dst_size = dltotal + downloadstate->dst_resume;
-        pm_dlcb(downloadstate);
-    }
-    return 0;
+	if(dltotal > 0 && dlnow > 0) {
+		pmdownloadstate_t *downloadstate = clientp;
+		downloadstate->dst_tell = downloadstate->dst_resume + dlnow;
+		downloadstate->dst_size = dltotal + downloadstate->dst_resume;
+		pm_dlcb(downloadstate);
+	}
+	return 0;
 }
 
 /*
@@ -168,7 +168,7 @@ int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *fi
  *         -1 on error
  */
 int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
-	pmlist_t *files, const time_t *mtime1, time_t *mtime2, int skip)
+																	pmlist_t *files, const time_t *mtime1, time_t *mtime2, int skip)
 {
 	pmdownloadstate_t downloadstate = { 0 };
 	pmlist_t *lp;
@@ -176,7 +176,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	pmlist_t *complete = NULL;
 	pmlist_t *i;
 	pmserver_t *server;
-    CURL * curlHandle = NULL;
+	CURL * curlHandle = NULL;
 	int *remain = handle->dlremain, *howmany = handle->dlhowmany;
 
 	if(files == NULL) {
@@ -193,7 +193,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	_pacman_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
 	int count;
 	for(i = servers, count = 0; i && !done; i = i->next, count++) {
-        pm_errno = 0;
+		pm_errno = 0;
 		if (count < skip)
 			continue; /* the caller requested skip of this server */
 		_pacman_log(PM_LOG_DEBUG, _("server check, done? %d\n"),done);
@@ -217,7 +217,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				char cwd[PATH_MAX];
 				/* build the full download url */
 				snprintf(url, PATH_MAX, "%s://%s%s%s", server->protocol, server->server,
-						server->path, fn);
+								 server->path, fn);
 				/* replace all occurrences of %o with fn.part */
 				strncpy(origCmd, handle->xfercommand, sizeof(origCmd));
 				ptr1 = origCmd;
@@ -331,162 +331,162 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					*pm_dleta_s = 0;
 				}
 
-                if(!strcmp(server->protocol, "file")) {
-                    char src[PATH_MAX];
-                    snprintf(src, PATH_MAX, "%s%s", server->path, fn);
-                    _pacman_makepath((char*)localpath);
-                    _pacman_log(PM_LOG_DEBUG, _("copying %s to %s/%s\n"), src, localpath, fn);
-                    /* local repository, just copy the file */
-                    if(_pacman_copyfile(src, output)) {
-                        _pacman_log(PM_LOG_WARNING, _("failed copying %s\n"), src);
-                        filedone = 0;
-                    }
-                } else {
-                    //download files using libcurl
-                    FILE * outputFile = NULL;
-                    CURLcode retc = CURLE_OK;
-                    if(!curlHandle) {
-                        retc =  curl_global_init(CURL_GLOBAL_DEFAULT);
-                        curlHandle = curl_easy_init();
-                        if(!curlHandle) {
-                            _pacman_log(PM_LOG_WARNING, _("fatal error initializing libcurl\n"));
-                            pm_errno = PM_ERR_CONNECT_FAILED;
-                            goto error;
-                        }
-                        else {
-                            retc = curl_easy_setopt(curlHandle,CURLOPT_NOPROGRESS , 0);
-                            if(retc != CURLE_OK) {
-                                _pacman_log(PM_LOG_DEBUG, _("error setting noprogress off\n"));
-                                continue;
-                            }
-                            retc = curl_easy_setopt(curlHandle,CURLOPT_PROGRESSDATA , (void *)&downloadstate);
-                            if(retc != CURLE_OK) {
-                                _pacman_log(PM_LOG_DEBUG, _("error passing our debug function pointer to progress callback\n"));
-                                continue;
-                            }
-                            retc = curl_easy_setopt(curlHandle, CURLOPT_PROGRESSFUNCTION, _pacman_curl_progresscb);
-                            if(retc != CURLE_OK) {
-                                _pacman_log(PM_LOG_DEBUG, _("error setting progress bar\n"));
-                                continue;
-                            }
-                            if(handle->proxyhost) {
-                                if(!handle->proxyport) {
-                                    _pacman_log(PM_LOG_WARNING, _("pacman proxy setting needs a port specified url:port\n"));
-                                    pm_errno = PM_ERR_CONNECT_FAILED;
-                                    goto error;
-                                }
-                                char pacmanProxy[PATH_MAX];
-                                sprintf(pacmanProxy, "%s:%d", handle->proxyhost, handle->proxyport);
-                                retc = curl_easy_setopt(curlHandle,CURLOPT_PROXY, pacmanProxy);
-                                if(retc != CURLE_OK) {
-                                    _pacman_log(PM_LOG_WARNING, _("error setting proxy\n"));
-                                    pm_errno = PM_ERR_CONNECT_FAILED;
-                                    goto error;
-                                }
-                            }
-                        }
-                    }
-                    if(mtime1 && mtime2 && !handle->proxyhost) {
-                        curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
-                        curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
-                        curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE , mtime1);
-                        outputFile = fopen(output,"wb");
-                    }
-                    else {
-                        curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 0);
-                        curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_NONE);
-                        if(!stat(output, &st)) {
-                                downloadstate.dst_resume = st.st_size;
-                                curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, downloadstate.dst_resume);
-                                outputFile = fopen(output,"ab");
-                        }
-                        else {
-                             curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, 0);
-                             outputFile = fopen(output,"wb");
-                        }
-                    }
-                    if(!outputFile){
-                        _pacman_log(PM_LOG_WARNING, _("error opening output file: %s\n"), output);
-                        pm_errno = PM_ERR_BADPERMS;
-                        goto error;
-                    }
-                    //set libcurl options
-                    retc = curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, outputFile);
-                    if(retc != CURLE_OK) {
-                        _pacman_log(PM_LOG_WARNING, _("error setting output file: %s\n"), output);
-                        pm_errno = PM_ERR_RETRIEVE;
-                        continue;
-                    }
-                    char url[PATH_MAX];
-                    /* build the full download url */
-                    snprintf(url, PATH_MAX, "%s://%s%s%s", server->protocol, server->server,
-                            server->path, fn);
-                    retc = curl_easy_setopt(curlHandle, CURLOPT_URL, url);
-                    if(retc != CURLE_OK) {
-                        _pacman_log(PM_LOG_WARNING, _("error setting url: %s\n"), url);
-                        pm_errno = PM_ERR_RETRIEVE;
-                        continue;
-                    }
-                    retc = curl_easy_perform(curlHandle);
-                    if(retc != CURLE_OK) {
-                        _pacman_log(PM_LOG_WARNING, _("error downloading file: %s\n"), url);
-                        pm_errno = PM_ERR_RETRIEVE;
-                        continue;
-                    }
-                    if(mtime1 && mtime2) {
-                        long int rcCode = 0;
-                        curl_easy_getinfo(curlHandle, CURLINFO_RESPONSE_CODE, &rcCode);
-                        double downSize = 0;
-                        curl_easy_getinfo(curlHandle, CURLINFO_SIZE_DOWNLOAD, &downSize);
-                        if(rcCode==213 || rcCode==304) {
-                            //return codes for when timestamp was the same (FTP and HTTP)
-                            //also check for download size as in some cases (proxy) ret codes won't work
-                            filedone = -1;
-                        }
-                        else {
-                            time_t fileTime = 0;
-                            retc = curl_easy_getinfo(curlHandle, CURLINFO_FILETIME,  &fileTime);
-                            *mtime2 = fileTime;
-                        }
-                    }
-                    fclose(outputFile);
-                    if(filedone > 0) {
-                        char completefile[PATH_MAX];
-                        if(!strcmp(server->protocol, "file")) {
-                            EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
-                        } else if(pm_dlcb) {
-                            pm_dlcb(&downloadstate);
-                        }
-                        complete = _pacman_list_add(complete, fn);
-                        /* rename "output.part" file to "output" file */
-                        snprintf(completefile, PATH_MAX, "%s/%s", localpath, fn);
-                        rename(output, completefile);
-                    } else if(filedone < 0) {
-                        /* -1 means here that the file is up to date, not a real error, so
-                     * don't go to error: */
-                        remove(output);
-                        FREELISTPTR(complete);
-                        return(1);
-                    }
-                }
-            }
-            if(remain) {
-                (*remain)++;
-            }
-        }
+				if(!strcmp(server->protocol, "file")) {
+					char src[PATH_MAX];
+					snprintf(src, PATH_MAX, "%s%s", server->path, fn);
+					_pacman_makepath((char*)localpath);
+					_pacman_log(PM_LOG_DEBUG, _("copying %s to %s/%s\n"), src, localpath, fn);
+					/* local repository, just copy the file */
+					if(_pacman_copyfile(src, output)) {
+						_pacman_log(PM_LOG_WARNING, _("failed copying %s\n"), src);
+						filedone = 0;
+					}
+				} else {
+					//download files using libcurl
+					FILE * outputFile = NULL;
+					CURLcode retc = CURLE_OK;
+					if(!curlHandle) {
+						retc =  curl_global_init(CURL_GLOBAL_DEFAULT);
+						curlHandle = curl_easy_init();
+						if(!curlHandle) {
+							_pacman_log(PM_LOG_WARNING, _("fatal error initializing libcurl\n"));
+							pm_errno = PM_ERR_CONNECT_FAILED;
+							goto error;
+						}
+						else {
+							retc = curl_easy_setopt(curlHandle,CURLOPT_NOPROGRESS , 0);
+							if(retc != CURLE_OK) {
+								_pacman_log(PM_LOG_DEBUG, _("error setting noprogress off\n"));
+								continue;
+							}
+							retc = curl_easy_setopt(curlHandle,CURLOPT_PROGRESSDATA , (void *)&downloadstate);
+							if(retc != CURLE_OK) {
+								_pacman_log(PM_LOG_DEBUG, _("error passing our debug function pointer to progress callback\n"));
+								continue;
+							}
+							retc = curl_easy_setopt(curlHandle, CURLOPT_PROGRESSFUNCTION, _pacman_curl_progresscb);
+							if(retc != CURLE_OK) {
+								_pacman_log(PM_LOG_DEBUG, _("error setting progress bar\n"));
+								continue;
+							}
+							if(handle->proxyhost) {
+								if(!handle->proxyport) {
+									_pacman_log(PM_LOG_WARNING, _("pacman proxy setting needs a port specified url:port\n"));
+									pm_errno = PM_ERR_CONNECT_FAILED;
+									goto error;
+								}
+								char pacmanProxy[PATH_MAX];
+								sprintf(pacmanProxy, "%s:%d", handle->proxyhost, handle->proxyport);
+								retc = curl_easy_setopt(curlHandle,CURLOPT_PROXY, pacmanProxy);
+								if(retc != CURLE_OK) {
+									_pacman_log(PM_LOG_WARNING, _("error setting proxy\n"));
+									pm_errno = PM_ERR_CONNECT_FAILED;
+									goto error;
+								}
+							}
+						}
+					}
+					if(mtime1 && mtime2 && !handle->proxyhost) {
+						curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
+						curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
+						curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE , mtime1);
+						outputFile = fopen(output,"wb");
+					}
+					else {
+						curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 0);
+						curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_NONE);
+						if(!stat(output, &st)) {
+							downloadstate.dst_resume = st.st_size;
+							curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, downloadstate.dst_resume);
+							outputFile = fopen(output,"ab");
+						}
+						else {
+							curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, 0);
+							outputFile = fopen(output,"wb");
+						}
+					}
+					if(!outputFile){
+						_pacman_log(PM_LOG_WARNING, _("error opening output file: %s\n"), output);
+						pm_errno = PM_ERR_BADPERMS;
+						goto error;
+					}
+					//set libcurl options
+					retc = curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, outputFile);
+					if(retc != CURLE_OK) {
+						_pacman_log(PM_LOG_WARNING, _("error setting output file: %s\n"), output);
+						pm_errno = PM_ERR_RETRIEVE;
+						continue;
+					}
+					char url[PATH_MAX];
+					/* build the full download url */
+					snprintf(url, PATH_MAX, "%s://%s%s%s", server->protocol, server->server,
+									 server->path, fn);
+					retc = curl_easy_setopt(curlHandle, CURLOPT_URL, url);
+					if(retc != CURLE_OK) {
+						_pacman_log(PM_LOG_WARNING, _("error setting url: %s\n"), url);
+						pm_errno = PM_ERR_RETRIEVE;
+						continue;
+					}
+					retc = curl_easy_perform(curlHandle);
+					if(retc != CURLE_OK) {
+						_pacman_log(PM_LOG_WARNING, _("error downloading file: %s\n"), url);
+						pm_errno = PM_ERR_RETRIEVE;
+						continue;
+					}
+					if(mtime1 && mtime2) {
+						long int rcCode = 0;
+						curl_easy_getinfo(curlHandle, CURLINFO_RESPONSE_CODE, &rcCode);
+						double downSize = 0;
+						curl_easy_getinfo(curlHandle, CURLINFO_SIZE_DOWNLOAD, &downSize);
+						if(rcCode==213 || rcCode==304) {
+							//return codes for when timestamp was the same (FTP and HTTP)
+							//also check for download size as in some cases (proxy) ret codes won't work
+							filedone = -1;
+						}
+						else {
+							time_t fileTime = 0;
+							retc = curl_easy_getinfo(curlHandle, CURLINFO_FILETIME,  &fileTime);
+							*mtime2 = fileTime;
+						}
+					}
+					fclose(outputFile);
+					if(filedone > 0) {
+						char completefile[PATH_MAX];
+						if(!strcmp(server->protocol, "file")) {
+							EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
+						} else if(pm_dlcb) {
+							pm_dlcb(&downloadstate);
+						}
+						complete = _pacman_list_add(complete, fn);
+						/* rename "output.part" file to "output" file */
+						snprintf(completefile, PATH_MAX, "%s/%s", localpath, fn);
+						rename(output, completefile);
+					} else if(filedone < 0) {
+						/* -1 means here that the file is up to date, not a real error, so
+										 * don't go to error: */
+						remove(output);
+						FREELISTPTR(complete);
+						return(1);
+					}
+				}
+			}
+			if(remain) {
+				(*remain)++;
+			}
+		}
 
 		if(_pacman_list_count(complete) == _pacman_list_count(files)) {
 			done = 1;
 		}
-    }
+	}
 	_pacman_log(PM_LOG_DEBUG, _("end _pacman_downloadfiles_forreal - return %d"),!done);
 
 error:
 	FREELISTPTR(complete);
-    if(curlHandle) {
-       curl_easy_cleanup(curlHandle);
-       curlHandle = NULL;
-    }
+	if(curlHandle) {
+		curl_easy_cleanup(curlHandle);
+		curlHandle = NULL;
+	}
 	return(pm_errno == 0 ? !done : -1);
 }
 
