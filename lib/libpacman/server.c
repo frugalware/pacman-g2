@@ -168,7 +168,7 @@ int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *fi
  *         -1 on error
  */
 int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
-																	pmlist_t *files, const time_t *mtime1, time_t *mtime2, int skip)
+	pmlist_t *files, const time_t *mtime1, time_t *mtime2, int skip)
 {
 	pmdownloadstate_t downloadstate = { 0 };
 	pmlist_t *lp;
@@ -188,6 +188,10 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	}
 	if(remain) {
 		*remain = 1;
+	}
+
+	if(mtime1 && *mtime1 == PM_TIME_INVALID) {
+		mtime1 = NULL;
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
@@ -386,7 +390,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 							}
 						}
 					}
-					if(mtime1 && *mtime1 != PM_TIME_INVALID && mtime2 && !handle->proxyhost) {
+					if(mtime1 && mtime2 && !handle->proxyhost) {
 						curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
 						curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
 						curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE , mtime1);
@@ -433,7 +437,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						pm_errno = PM_ERR_RETRIEVE;
 						continue;
 					}
-					if(mtime1 && *mtime1 != PM_TIME_INVALID && mtime2) {
+					if(mtime2) {
 						long int rcCode = 0;
 						curl_easy_getinfo(curlHandle, CURLINFO_RESPONSE_CODE, &rcCode);
 						double downSize = 0;
@@ -444,9 +448,8 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 							filedone = -1;
 						}
 						else {
-							time_t fileTime = 0;
-							retc = curl_easy_getinfo(curlHandle, CURLINFO_FILETIME,  &fileTime);
-							*mtime2 = fileTime;
+							*mtime2 = PM_TIME_INVALID;
+							retc = curl_easy_getinfo(curlHandle, CURLINFO_FILETIME,  mtime2);
 						}
 					}
 					fclose(outputFile);
