@@ -125,13 +125,21 @@ void _pacman_server_free(void *data)
 	free(server);
 }
 
+typedef struct __pmcurldownloader_t pmcurldownloader_t;
+
+struct __pmcurldownloader_t {
+	CURL *curl;
+	pmdownloadstate_t downloadstate;
+};
+
 /*
  * Progress callback used by libcurl, we then pass our own progress function
  */
 static
 int _pacman_curl_progresscb(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow) {
 	if(dltotal > 0 && dlnow > 0) {
-		pmdownloadstate_t *downloadstate = clientp;
+		pmcurldownloader_t *curldownloader = clientp;
+		pmdownloadstate_t *downloadstate = &curldownloader->downloadstate;
 
 		downloadstate->dst_tell = downloadstate->dst_resume + dlnow;
 		downloadstate->dst_size = downloadstate->dst_resume + dltotal;
@@ -338,12 +346,12 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					//download files using libcurl
 					FILE * outputFile = NULL;
 					CURLcode retc = CURLE_OK;
-					pmdownloadstate_t downloadstate = { 0 };
+					pmcurldownloader_t curldownloader = { 0 };
 
 					/* ETA setup */
-					gettimeofday(&downloadstate.dst_begin, NULL);
+					gettimeofday(&curldownloader.downloadstate.dst_begin, NULL);
 					if(pm_dlt && pm_dlrate && pm_dlxfered1 && pm_dleta_h && pm_dleta_m && pm_dleta_s) {
-						*pm_dlt = downloadstate.dst_begin;
+						*pm_dlt = curldownloader.downloadstate.dst_begin;
 						*pm_dlrate = 0;
 						*pm_dlxfered1 = 0;
 						*pm_dleta_h = 0;
@@ -365,7 +373,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 								_pacman_log(PM_LOG_DEBUG, _("error setting noprogress off\n"));
 								continue;
 							}
-							retc = curl_easy_setopt(curlHandle,CURLOPT_PROGRESSDATA , (void *)&downloadstate);
+							retc = curl_easy_setopt(curlHandle,CURLOPT_PROGRESSDATA , (void *)&curldownloader);
 							if(retc != CURLE_OK) {
 								_pacman_log(PM_LOG_DEBUG, _("error passing our debug function pointer to progress callback\n"));
 								continue;
@@ -392,6 +400,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 							}
 						}
 					}
+					curldownloader.curl = curlHandle;
 					if(mtime1 && mtime2 && !handle->proxyhost) {
 						curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
 						curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
@@ -402,8 +411,8 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 0);
 						curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_NONE);
 						if(!stat(output, &st)) {
-							downloadstate.dst_resume = st.st_size;
-							curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, downloadstate.dst_resume);
+							curldownloader.downloadstate.dst_resume = st.st_size;
+							curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, curldownloader.downloadstate.dst_resume);
 							outputFile = fopen(output,"ab");
 						}
 						else {
@@ -460,7 +469,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						if(!strcmp(server->protocol, "file")) {
 							EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
 						} else if(pm_dlcb) {
-							pm_dlcb(&downloadstate);
+							pm_dlcb(&curldownloader.downloadstate);
 						}
 						complete = _pacman_list_add(complete, fn);
 						/* rename "output.part" file to "output" file */
