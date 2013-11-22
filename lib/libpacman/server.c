@@ -132,8 +132,9 @@ static
 int _pacman_curl_progresscb(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow) {
 	if(dltotal > 0 && dlnow > 0) {
 		pmdownloadstate_t *downloadstate = clientp;
+
 		downloadstate->dst_tell = downloadstate->dst_resume + dlnow;
-		downloadstate->dst_size = dltotal + downloadstate->dst_resume;
+		downloadstate->dst_size = downloadstate->dst_resume + dltotal;
 		pm_dlcb(downloadstate);
 	}
 	return 0;
@@ -170,7 +171,6 @@ int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *fi
 int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	pmlist_t *files, const time_t *mtime1, time_t *mtime2, int skip)
 {
-	pmdownloadstate_t downloadstate = { 0 };
 	pmlist_t *lp;
 	int done = 0;
 	pmlist_t *complete = NULL;
@@ -309,6 +309,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				int filedone = 1;
 				char *ptr;
 				struct stat st;
+
 				snprintf(output, PATH_MAX, "%s/%s.part", localpath, fn);
 				if(pm_dlfnm) {
 					strncpy(pm_dlfnm, fn, PM_DLFNM_LEN);
@@ -321,18 +322,6 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				ptr = strstr(fn, PM_EXT_PKG);
 				if(ptr && (ptr-fn) < PM_DLFNM_LEN) {
 					pm_dlfnm[ptr-fn] = '\0';
-				}
-				downloadstate.dst_resume = 0;
-
-				/* ETA setup */
-				gettimeofday(&downloadstate.dst_begin, NULL);
-				if(pm_dlt && pm_dlrate && pm_dlxfered1 && pm_dleta_h && pm_dleta_m && pm_dleta_s) {
-					*pm_dlt = downloadstate.dst_begin;
-					*pm_dlrate = 0;
-					*pm_dlxfered1 = 0;
-					*pm_dleta_h = 0;
-					*pm_dleta_m = 0;
-					*pm_dleta_s = 0;
 				}
 
 				if(!strcmp(server->protocol, "file")) {
@@ -349,6 +338,19 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					//download files using libcurl
 					FILE * outputFile = NULL;
 					CURLcode retc = CURLE_OK;
+					pmdownloadstate_t downloadstate = { 0 };
+
+					/* ETA setup */
+					gettimeofday(&downloadstate.dst_begin, NULL);
+					if(pm_dlt && pm_dlrate && pm_dlxfered1 && pm_dleta_h && pm_dleta_m && pm_dleta_s) {
+						*pm_dlt = downloadstate.dst_begin;
+						*pm_dlrate = 0;
+						*pm_dlxfered1 = 0;
+						*pm_dleta_h = 0;
+						*pm_dleta_m = 0;
+						*pm_dleta_s = 0;
+					}
+
 					if(!curlHandle) {
 						retc =  curl_global_init(CURL_GLOBAL_DEFAULT);
 						curlHandle = curl_easy_init();
