@@ -157,6 +157,59 @@ int _pacman_curl_progresscb(void *clientp, double dltotal, double dlnow, double 
 }
 
 static
+int _pacman_curl_init(pmcurldownloader_t *curldownloader) {
+	CURL *curlHandle = NULL;
+	CURLcode retc = CURLE_OK;
+
+	ASSERT(curldownloader, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	retc =  curl_global_init(CURL_GLOBAL_DEFAULT);
+	curlHandle = curl_easy_init();
+	if(!curlHandle) {
+		_pacman_log(PM_LOG_WARNING, _("fatal error initializing libcurl\n"));
+		pm_errno = PM_ERR_CONNECT_FAILED;
+		goto error;
+	} else {
+		retc = curl_easy_setopt(curlHandle,CURLOPT_NOPROGRESS , 0);
+		if(retc != CURLE_OK) {
+			_pacman_log(PM_LOG_DEBUG, _("error setting noprogress off\n"));
+			goto error;
+		}
+		retc = curl_easy_setopt(curlHandle,CURLOPT_PROGRESSDATA , (void *)&curldownloader);
+		if(retc != CURLE_OK) {
+			_pacman_log(PM_LOG_DEBUG, _("error passing our debug function pointer to progress callback\n"));
+			goto error;
+		}
+		retc = curl_easy_setopt(curlHandle, CURLOPT_PROGRESSFUNCTION, _pacman_curl_progresscb);
+		if(retc != CURLE_OK) {
+			_pacman_log(PM_LOG_DEBUG, _("error setting progress bar\n"));
+			goto error;
+		}
+		if(handle->proxyhost) {
+			if(!handle->proxyport) {
+				_pacman_log(PM_LOG_WARNING, _("pacman proxy setting needs a port specified url:port\n"));
+				pm_errno = PM_ERR_CONNECT_FAILED;
+				goto error;
+			}
+			char pacmanProxy[PATH_MAX];
+			sprintf(pacmanProxy, "%s:%d", handle->proxyhost, handle->proxyport);
+			retc = curl_easy_setopt(curlHandle,CURLOPT_PROXY, pacmanProxy);
+			if(retc != CURLE_OK) {
+				_pacman_log(PM_LOG_WARNING, _("error setting proxy\n"));
+				pm_errno = PM_ERR_CONNECT_FAILED;
+				goto error;
+			}
+		}
+	}
+	curldownloader->curl = curlHandle;
+	return 0;
+
+error:
+	curl_easy_cleanup(curlHandle);
+	return -1;
+}
+
+static
 pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, const char *url,
 		const time_t *mtime1, time_t *mtime2, const char *output)
 {
@@ -437,53 +490,13 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					//download files using libcurl
 					CURLcode retc = CURLE_OK;
 					pmcurldownloader_t curldownloader = { 0 };
-
-					if(!curlHandle) {
-						retc =  curl_global_init(CURL_GLOBAL_DEFAULT);
-						curlHandle = curl_easy_init();
-						if(!curlHandle) {
-							_pacman_log(PM_LOG_WARNING, _("fatal error initializing libcurl\n"));
-							pm_errno = PM_ERR_CONNECT_FAILED;
-							goto error;
-						}
-						else {
-							retc = curl_easy_setopt(curlHandle,CURLOPT_NOPROGRESS , 0);
-							if(retc != CURLE_OK) {
-								_pacman_log(PM_LOG_DEBUG, _("error setting noprogress off\n"));
-								continue;
-							}
-							retc = curl_easy_setopt(curlHandle,CURLOPT_PROGRESSDATA , (void *)&curldownloader);
-							if(retc != CURLE_OK) {
-								_pacman_log(PM_LOG_DEBUG, _("error passing our debug function pointer to progress callback\n"));
-								continue;
-							}
-							retc = curl_easy_setopt(curlHandle, CURLOPT_PROGRESSFUNCTION, _pacman_curl_progresscb);
-							if(retc != CURLE_OK) {
-								_pacman_log(PM_LOG_DEBUG, _("error setting progress bar\n"));
-								continue;
-							}
-							if(handle->proxyhost) {
-								if(!handle->proxyport) {
-									_pacman_log(PM_LOG_WARNING, _("pacman proxy setting needs a port specified url:port\n"));
-									pm_errno = PM_ERR_CONNECT_FAILED;
-									goto error;
-								}
-								char pacmanProxy[PATH_MAX];
-								sprintf(pacmanProxy, "%s:%d", handle->proxyhost, handle->proxyport);
-								retc = curl_easy_setopt(curlHandle,CURLOPT_PROXY, pacmanProxy);
-								if(retc != CURLE_OK) {
-									_pacman_log(PM_LOG_WARNING, _("error setting proxy\n"));
-									pm_errno = PM_ERR_CONNECT_FAILED;
-									goto error;
-								}
-							}
-						}
-					}
-					curldownloader.curl = curlHandle;
 					char url[PATH_MAX];
+
 					/* build the full download url */
 					snprintf(url, PATH_MAX, "%s://%s%s%s", server->protocol, server->server,
 									 server->path, fn);
+
+					_pacman_curl_init(&curldownloader);
 					switch(_pacman_curl_download(&curldownloader, url, mtime1, mtime2, output)) {
 					case PM_DOWNLOAD_ERROR:
 						goto error;
