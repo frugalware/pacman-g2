@@ -170,29 +170,28 @@ int _pacman_curl_progresscb(void *clientp, double dltotal, double dlnow, double 
 static
 int _pacman_curl_init(pmcurldownloader_t *curldownloader) {
 	CURL *curlHandle = NULL;
-	CURLcode retc = CURLE_OK;
 
 	ASSERT(curldownloader, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	retc =  curl_global_init(CURL_GLOBAL_DEFAULT);
+	if (curl_global_init(CURL_GLOBAL_DEFAULT) != CURLE_OK) {
+		_pacman_log(PM_LOG_WARNING, _("fatal error initializing libcurl\n"));
+		goto error;
+	}
 	curlHandle = curl_easy_init();
 	if(!curlHandle) {
 		_pacman_log(PM_LOG_WARNING, _("fatal error initializing libcurl\n"));
 		pm_errno = PM_ERR_CONNECT_FAILED;
 		goto error;
 	} else {
-		retc = curl_easy_setopt(curlHandle,CURLOPT_NOPROGRESS , 0);
-		if(retc != CURLE_OK) {
+		if(curl_easy_setopt(curlHandle,CURLOPT_NOPROGRESS , 0) != CURLE_OK) {
 			_pacman_log(PM_LOG_DEBUG, _("error setting noprogress off\n"));
 			goto error;
 		}
-		retc = curl_easy_setopt(curlHandle,CURLOPT_PROGRESSDATA , (void *)&curldownloader);
-		if(retc != CURLE_OK) {
+		if(curl_easy_setopt(curlHandle,CURLOPT_PROGRESSDATA , (void *)&curldownloader) != CURLE_OK) {
 			_pacman_log(PM_LOG_DEBUG, _("error passing our debug function pointer to progress callback\n"));
 			goto error;
 		}
-		retc = curl_easy_setopt(curlHandle, CURLOPT_PROGRESSFUNCTION, _pacman_curl_progresscb);
-		if(retc != CURLE_OK) {
+		if(curl_easy_setopt(curlHandle, CURLOPT_PROGRESSFUNCTION, _pacman_curl_progresscb) != CURLE_OK) {
 			_pacman_log(PM_LOG_DEBUG, _("error setting progress bar\n"));
 			goto error;
 		}
@@ -204,8 +203,7 @@ int _pacman_curl_init(pmcurldownloader_t *curldownloader) {
 			}
 			char pacmanProxy[PATH_MAX];
 			sprintf(pacmanProxy, "%s:%d", handle->proxyhost, handle->proxyport);
-			retc = curl_easy_setopt(curlHandle,CURLOPT_PROXY, pacmanProxy);
-			if(retc != CURLE_OK) {
+			if(curl_easy_setopt(curlHandle,CURLOPT_PROXY, pacmanProxy) != CURLE_OK) {
 				_pacman_log(PM_LOG_WARNING, _("error setting proxy\n"));
 				pm_errno = PM_ERR_CONNECT_FAILED;
 				goto error;
