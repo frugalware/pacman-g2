@@ -100,10 +100,6 @@ int log_progress(const pmdownload_t *download)
 		pacman_download_avg(download, &rate);
 		/* total download time */
 		eta_s = (int)timediff;
-		eta_h = eta_s / 3600;
-		eta_s -= eta_h * 3600;
-		eta_m = eta_s / 60;
-		eta_s -= eta_m * 60;
 	} else if(timediff > 1) {
 		/* we avoid computing the rate & ETA on too small periods of time, so that
 		   results are more significant */
@@ -111,12 +107,12 @@ int log_progress(const pmdownload_t *download)
 		xfered1 = xfered;
 		gettimeofday(&t, NULL);
 		eta_s = (fsz-(xfered+offset)) / (rate * 1024);
-		eta_h = eta_s / 3600;
-		eta_s -= eta_h * 3600;
-		eta_m = eta_s / 60;
-		eta_s -= eta_m * 60;
 	}
 	rate /= 1024; /* convert to KB/s */
+	eta_h = eta_s / 3600;
+	eta_s -= eta_h * 3600;
+	eta_m = eta_s / 60;
+	eta_s -= eta_m * 60;
 
 	// if the package name is too long, then slice the ending
 	maxpkglen=DLFNM_PROGRESS_LEN-(3+2*(int)log10(howmany));
