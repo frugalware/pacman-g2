@@ -25,7 +25,7 @@
 
 #define PM_TIME_INVALID ((time_t) -1)
 
-static
+static inline
 double f_difftimeval(struct timeval timeval1, struct timeval timeval2)
 {
 	return difftime(timeval1.tv_sec , timeval2.tv_sec) +
