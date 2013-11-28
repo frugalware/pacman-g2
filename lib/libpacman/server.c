@@ -223,7 +223,6 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 {
 	CURL *curlHandle = curldownloader->curl;
 	FILE *outputFile;
-	CURLcode retc = CURLE_OK;
 	pmdownloadsuccess_t ret = PM_DOWNLOAD_OK;
 
 	/* ETA setup */
@@ -258,20 +257,17 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 		goto error;
 	}
 	//set libcurl options
-	retc = curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, outputFile);
-	if(retc != CURLE_OK) {
+	if(curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, outputFile) != CURLE_OK) {
 		_pacman_log(PM_LOG_WARNING, _("error setting output file: %s\n"), output);
 		pm_errno = PM_ERR_RETRIEVE;
 		goto error;
 	}
-	retc = curl_easy_setopt(curlHandle, CURLOPT_URL, url);
-	if(retc != CURLE_OK) {
+	if(curl_easy_setopt(curlHandle, CURLOPT_URL, url) != CURLE_OK) {
 		_pacman_log(PM_LOG_WARNING, _("error setting url: %s\n"), url);
 		pm_errno = PM_ERR_RETRIEVE;
 		goto error;
 	}
-	retc = curl_easy_perform(curlHandle);
-	if(retc != CURLE_OK) {
+	if(curl_easy_perform(curlHandle) != CURLE_OK) {
 		_pacman_log(PM_LOG_WARNING, _("error downloading file: %s\n"), url);
 		pm_errno = PM_ERR_RETRIEVE;
 		goto error;
@@ -286,8 +282,9 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 			//also check for download size as in some cases (proxy) ret codes won't work
 			ret = PM_DOWNLOAD_OK_CACHE;
 		} else {
-			*mtime2 = PM_TIME_INVALID;
-			retc = curl_easy_getinfo(curlHandle, CURLINFO_FILETIME,  mtime2);
+			if(curl_easy_getinfo(curlHandle, CURLINFO_FILETIME,  mtime2) != CURLE_OK) {
+				*mtime2 = PM_TIME_INVALID;				
+			}
 		}
 	}
 	fclose(outputFile);
