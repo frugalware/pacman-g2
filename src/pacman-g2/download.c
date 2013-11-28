@@ -97,7 +97,7 @@ int log_progress(const pmdownload_t *download)
 		pacman_download_avg(download, &rate);
 		pacman_download_begin(download, &begin);
 		/* total download time */
-		eta = difftime(begin.tv_sec, now);
+		eta = difftime(now, begin.tv_sec);
 	}
 	rate /= 1024; /* convert to KB/s */
 	eta_s = eta;
