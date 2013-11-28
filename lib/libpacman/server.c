@@ -159,6 +159,7 @@ int _pacman_curl_progresscb(void *clientp, double dltotal, double dlnow, double 
 		if((time_delta = f_difftimeval(curldownloader->previous_update, now)) > 1) {
 			curldownloader->download.dst_avg = dltotal / f_difftimeval(curldownloader->download.dst_begin, now);
 			curldownloader->download.dst_rate = (curldownloader->previous_update_dltotal - dltotal) / time_delta;
+			curldownloader->download.dst_eta = (download->dst_tell - download->dst_size) / curldownloader->download.dst_rate;
 			curldownloader->previous_update = now;
 			curldownloader->previous_update_dltotal = dltotal;
 		}
