@@ -114,10 +114,11 @@ int log_progress(const pmdownload_t *download)
 	putchar('(');
 	for(i=0;i<(int)log10(howmany)-(int)log10(remain);i++)
 		putchar(' ');
-	printf("%d/%d) %s [", remain, howmany, sync_fnm);
+	printf("%d/%d) %s ", remain, howmany, sync_fnm);
 	if (strlen(sync_fnm)<maxpkglen)
 		for (i=maxpkglen-strlen(sync_fnm)-1; i>0; i--)
 			putchar(' ');
+	putchar('[');
 	cur = (int)((maxcols-64)*pct/100);
 	for(i = 0; i < maxcols-64; i++) {
 		if(chomp) {
