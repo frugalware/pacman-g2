@@ -42,7 +42,6 @@
 /* progress bar */
 char sync_fnm[PM_DLFNM_LEN+1];
 struct timeval t;
-float rate;
 int xfered1;
 unsigned int eta_h, eta_m, eta_s, remain, howmany;
 
@@ -60,6 +59,7 @@ int log_progress(const pmdownload_t *download)
 	unsigned int i, cur;
 	struct timeval t1;
 	float timediff;
+	double rate;
 	/* a little hard to conceal easter eggs in open-source software, but
 	 * they're still fun.  ;)
 	 */
@@ -97,8 +97,7 @@ int log_progress(const pmdownload_t *download)
 	timediff = t1.tv_sec-t.tv_sec + (float)(t1.tv_usec-t.tv_usec) / 1000000;
 
 	if(xfered+offset == fsz) {
-		/* average download rate */
-		rate = xfered / (timediff * 1024);
+		pacman_download_avg(download, &rate);
 		/* total download time */
 		eta_s = (int)timediff;
 		eta_h = eta_s / 3600;
@@ -108,7 +107,7 @@ int log_progress(const pmdownload_t *download)
 	} else if(timediff > 1) {
 		/* we avoid computing the rate & ETA on too small periods of time, so that
 		   results are more significant */
-		rate = (xfered-xfered1) / (timediff * 1024);
+		pacman_download_rate(download, &rate);
 		xfered1 = xfered;
 		gettimeofday(&t, NULL);
 		eta_s = (fsz-(xfered+offset)) / (rate * 1024);
@@ -117,6 +116,7 @@ int log_progress(const pmdownload_t *download)
 		eta_m = eta_s / 60;
 		eta_s -= eta_m * 60;
 	}
+	rate /= 1024; /* convert to KB/s */
 
 	// if the package name is too long, then slice the ending
 	maxpkglen=DLFNM_PROGRESS_LEN-(3+2*(int)log10(howmany));

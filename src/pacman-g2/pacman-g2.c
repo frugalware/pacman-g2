@@ -577,10 +577,6 @@ int main(int argc, char *argv[])
 		ERR(NL, _("failed to set option DLT (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(pacman_set_option(PM_OPT_DLRATE, (long)&rate) == -1) {
-		ERR(NL, _("failed to set option DLRATE (%s)\n"), pacman_strerror(pm_errno));
-		cleanup(1);
-	}
 	if(pacman_set_option(PM_OPT_DLXFERED1, (long)&xfered1) == -1) {
 		ERR(NL, _("failed to set option DLXFERED1 (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
