@@ -23,7 +23,8 @@
 
 #include "pacman.h"
 
-#include <stdarg.h>
+#include <stdarg.h> /* for va_list */
+#include <stdio.h> /* for FILE */
 
 #define LOG_STR_LEN 256
 

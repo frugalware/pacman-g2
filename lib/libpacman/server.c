@@ -489,7 +489,6 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					}
 				} else {
 					//download files using libcurl
-					CURLcode retc = CURLE_OK;
 					pmcurldownloader_t curldownloader = { 0 };
 					char url[PATH_MAX];
 

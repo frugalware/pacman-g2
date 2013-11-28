@@ -28,7 +28,6 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data);
 
 const pmtrans_ops_t _pacman_remove_pmtrans_opts;
 
-
 #endif /* _PACMAN_REMOVE_H */
 
 /* vim: set ts=2 sw=2 noet: */

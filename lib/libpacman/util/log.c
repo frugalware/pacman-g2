@@ -20,6 +20,7 @@
  */
 
 #include "config.h"
+
 #include <stdio.h>
 #include <syslog.h>
 #include <time.h>
