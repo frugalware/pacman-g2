@@ -15,7 +15,7 @@ set (PACMAN_G2_LIB_VERSION ${PACMAN_G2_VERSION})
 set (PM_VERSION_TEMP "0." ${PACMAN_G2_LIB_VERSION})
 string (REPLACE ";" "" PM_VERSION ${PM_VERSION_TEMP})
 
-set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -D_GNU_SOURCE")
+set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -std=c99 -Wall -D_GNU_SOURCE")
 
 option(DISABLE_BINDINGS "disables all libpacman bindings" OFF)
 option(FAKEROOT_PROOF "enable fakeroot proof protection" OFF)
