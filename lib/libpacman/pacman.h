@@ -119,7 +119,6 @@ enum {
 	PM_OPT_DLCB,
 	PM_OPT_DLFNM,
 	PM_OPT_DLT,
-	PM_OPT_DLXFERED1,
 	/* End of download */
 	PM_OPT_HOLDPKG,
 	PM_OPT_CHOMP,

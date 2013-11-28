@@ -28,7 +28,6 @@
 extern char sync_fnm[PM_DLFNM_LEN+1];
 extern int offset;
 extern struct timeval t;
-extern int xfered1;
 extern unsigned int eta_h, eta_m, eta_s, remain, howmany;
 
 int log_progress(const pmdownload_t *download);

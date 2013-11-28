@@ -105,7 +105,6 @@ int log_progress(const pmdownload_t *download)
 		/* we avoid computing the rate & ETA on too small periods of time, so that
 		   results are more significant */
 		pacman_download_rate(download, &rate);
-		xfered1 = xfered;
 		gettimeofday(&t, NULL);
 		pacman_download_eta(download, &eta);
 	}

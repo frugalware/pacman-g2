@@ -48,7 +48,6 @@ pacman_trans_cb_download pm_dlcb = NULL;
 /* progress bar */
 char *pm_dlfnm=NULL;
 struct timeval *pm_dlt=NULL;
-int *pm_dlxfered1=NULL;
 
 pmserver_t *_pacman_server_new(char *url)
 {
@@ -227,9 +226,8 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 
 	/* ETA setup */
 	gettimeofday(&curldownloader->download.dst_begin, NULL);
-	if(pm_dlt && pm_dlxfered1) {
+	if(pm_dlt) {
 		*pm_dlt = curldownloader->download.dst_begin;
-		*pm_dlxfered1 = 0;
 	}
 
 	if(mtime1 && mtime2 && !handle->proxyhost) {
