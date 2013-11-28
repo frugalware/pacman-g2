@@ -460,9 +460,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				chdir(cwd);
 			} else {
 				char output[PATH_MAX];
-				unsigned int j;
 				char *ptr;
-				struct stat st;
 
 				snprintf(output, PATH_MAX, "%s/%s.part", localpath, fn);
 				if(pm_dlfnm) {
