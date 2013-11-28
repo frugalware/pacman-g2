@@ -149,11 +149,21 @@ int _pacman_curl_progresscb(void *clientp, double dltotal, double dlnow, double 
 {
 	if(dltotal > 0 && dlnow > 0) {
 		pmcurldownloader_t *curldownloader = clientp;
-		pmdownloadstate_t *downloadstate = &curldownloader->downloadstate;
+		pmdownload_t *download = &curldownloader->download;
+		struct timeval now;
+		double time_delta;
 
-		downloadstate->dst_tell = downloadstate->dst_resume + dlnow;
-		downloadstate->dst_size = downloadstate->dst_resume + dltotal;
-		pm_dlcb(downloadstate);
+		gettimeofday(&now, NULL);
+		download->dst_tell = download->dst_resume + dlnow;
+		download->dst_size = download->dst_resume + dltotal;
+		if((time_delta = f_difftimeval(curldownloader->previous_update, now)) > 1) {
+			curldownloader->download.dst_avg = dltotal / f_difftimeval(curldownloader->download.dst_begin, now);
+			curldownloader->download.dst_rate = (curldownloader->previous_update_dltotal - dltotal) / time_delta;
+			curldownloader->previous_update = now;
+			curldownloader->previous_update_dltotal = dltotal;
+		}
+
+		pm_dlcb(download);
 	}
 	return 0;
 }
