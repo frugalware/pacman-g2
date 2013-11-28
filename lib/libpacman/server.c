@@ -153,14 +153,13 @@ int _pacman_curl_progresscb(void *clientp, double dltotal, double dlnow, double 
 		gettimeofday(&now, NULL);
 		download->dst_tell = download->dst_resume + dlnow;
 		download->dst_size = download->dst_resume + dltotal;
-		if((time_delta = f_difftimeval(curldownloader->previous_update, now)) > 1) {
-			curldownloader->download.dst_avg = dltotal / f_difftimeval(curldownloader->download.dst_begin, now);
+		if((time_delta = f_difftimeval(now, curldownloader->previous_update)) > 1) {
+			curldownloader->download.dst_avg = dltotal / f_difftimeval(now, curldownloader->download.dst_begin);
 			curldownloader->download.dst_rate = (dltotal - curldownloader->previous_update_dltotal) / time_delta;
 			curldownloader->download.dst_eta = (download->dst_size - download->dst_tell) / curldownloader->download.dst_rate;
 			curldownloader->previous_update = now;
 			curldownloader->previous_update_dltotal = dltotal;
 		}
-
 		pm_dlcb(download);
 	}
 	return 0;
@@ -224,8 +223,9 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 	FILE *outputFile;
 	pmdownloadsuccess_t ret = PM_DOWNLOAD_OK;
 
-	/* ETA setup */
+	curldownloader->download.dst_resume = 0;
 	gettimeofday(&curldownloader->download.dst_begin, NULL);
+	curldownloader->previous_update = curldownloader->download.dst_begin;
 	if(pm_dlt) {
 		*pm_dlt = curldownloader->download.dst_begin;
 	}
