@@ -44,13 +44,15 @@ pmconflict_t: is now public and deprecate PM_CONFLICT.
 
 pmdb_t: is now public and deprecate PM_DB.
 
+pacman_downloadstate_avg: Access to global download rate.
+
 pacman_downloadstate_begin: Access to download start time.
 
 pacman_downloadstate_end: Access to download end time.
 
 pacman_downloadstate_eta: Access to download eta time.
 
-pacman_downloadstate_rate: Access to download rate time.
+pacman_downloadstate_rate: Access to instant download rate.
 
 pacman_downloadstate_resume: Access to resume download size.
 

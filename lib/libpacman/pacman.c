@@ -417,6 +417,20 @@ pmlist_t *pacman_db_getgrpcache(pmdb_t *db)
  * @{
  */
 
+/** Get the average download speed (in bytes per seconds).
+ * @param downloadstate pointer to the download state to get the informations from.
+ * @param offset pointer to the value to be written.
+ * @return return 0 in case of success, !0 otherwise.
+ */
+int pacman_downloadstate_avg(const pmdownloadstate_t *downloadstate, double *avg)
+{
+	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(avg != NULL, return -1);
+
+	*avg = downloadstate->dst_avg;
+	return 0;
+}
+
 /** Get the download start time
  * @param downloadstate pointer to the download state to get the informations from.
  * @return return 0 in case of success, !0 otherwise.
@@ -460,7 +474,7 @@ int pacman_downloadstate_eta(const pmdownloadstate_t *downloadstate, double *eta
 	return 0;
 }
 
-/** Get the current download rate (in byte per second).
+/** Get the current download rate (in bytes per second).
  * @param downloadstate pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.

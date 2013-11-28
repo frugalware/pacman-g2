@@ -46,6 +46,7 @@ struct __pmdownloadstate_t {
 	// FIXME: change int to off_t when the download backend will permit that.
 	struct timeval dst_begin;
 	struct timeval dst_end;
+	double dst_avg;
 	double dst_eta;
 	double dst_rate;
 	int dst_resume;
