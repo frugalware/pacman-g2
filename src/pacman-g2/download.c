@@ -43,7 +43,7 @@
 char sync_fnm[PM_DLFNM_LEN+1];
 struct timeval t;
 int xfered1;
-unsigned int eta_h, eta_m, eta_s, remain, howmany;
+unsigned int remain, howmany;
 
 /* pacman options */
 extern config_t *config;
@@ -59,7 +59,8 @@ int log_progress(const pmdownload_t *download)
 	unsigned int i, cur;
 	struct timeval t1;
 	float timediff;
-	double rate;
+	double eta, rate;
+	unsigned int eta_h, eta_m, eta_s;
 	/* a little hard to conceal easter eggs in open-source software, but
 	 * they're still fun.  ;)
 	 */
@@ -99,16 +100,17 @@ int log_progress(const pmdownload_t *download)
 	if(xfered+offset == fsz) {
 		pacman_download_avg(download, &rate);
 		/* total download time */
-		eta_s = (int)timediff;
+		eta = (int)timediff;
 	} else if(timediff > 1) {
 		/* we avoid computing the rate & ETA on too small periods of time, so that
 		   results are more significant */
 		pacman_download_rate(download, &rate);
 		xfered1 = xfered;
 		gettimeofday(&t, NULL);
-		eta_s = (fsz-(xfered+offset)) / (rate * 1024);
+		pacman_download_eta(download, &eta);
 	}
 	rate /= 1024; /* convert to KB/s */
+	eta_s = eta;
 	eta_h = eta_s / 3600;
 	eta_s -= eta_h * 3600;
 	eta_m = eta_s / 60;

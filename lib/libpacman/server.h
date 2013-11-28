@@ -68,7 +68,6 @@ extern pacman_trans_cb_download pm_dlcb;
 extern char *pm_dlfnm;
 extern struct timeval *pm_dlt;
 extern int *pm_dlxfered1;
-extern unsigned int *pm_dleta_h, *pm_dleta_m, *pm_dleta_s;
 
 #endif /* _PACMAN_SERVER_H */
 
