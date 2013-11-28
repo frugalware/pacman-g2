@@ -182,32 +182,31 @@ int _pacman_curl_init(pmcurldownloader_t *curldownloader) {
 		_pacman_log(PM_LOG_WARNING, _("fatal error initializing libcurl\n"));
 		pm_errno = PM_ERR_CONNECT_FAILED;
 		goto error;
-	} else {
-		if(curl_easy_setopt(curlHandle,CURLOPT_NOPROGRESS , 0) != CURLE_OK) {
-			_pacman_log(PM_LOG_DEBUG, _("error setting noprogress off\n"));
+	}
+	if(curl_easy_setopt(curlHandle,CURLOPT_NOPROGRESS , 0) != CURLE_OK) {
+		_pacman_log(PM_LOG_DEBUG, _("error setting noprogress off\n"));
+		goto error;
+	}
+	if(curl_easy_setopt(curlHandle,CURLOPT_PROGRESSDATA , (void *)&curldownloader) != CURLE_OK) {
+		_pacman_log(PM_LOG_DEBUG, _("error passing our debug function pointer to progress callback\n"));
+		goto error;
+	}
+	if(curl_easy_setopt(curlHandle, CURLOPT_PROGRESSFUNCTION, _pacman_curl_progresscb) != CURLE_OK) {
+		_pacman_log(PM_LOG_DEBUG, _("error setting progress bar\n"));
+		goto error;
+	}
+	if(handle->proxyhost) {
+		if(!handle->proxyport) {
+			_pacman_log(PM_LOG_WARNING, _("pacman proxy setting needs a port specified url:port\n"));
+			pm_errno = PM_ERR_CONNECT_FAILED;
 			goto error;
 		}
-		if(curl_easy_setopt(curlHandle,CURLOPT_PROGRESSDATA , (void *)&curldownloader) != CURLE_OK) {
-			_pacman_log(PM_LOG_DEBUG, _("error passing our debug function pointer to progress callback\n"));
+		char pacmanProxy[PATH_MAX];
+		sprintf(pacmanProxy, "%s:%d", handle->proxyhost, handle->proxyport);
+		if(curl_easy_setopt(curlHandle,CURLOPT_PROXY, pacmanProxy) != CURLE_OK) {
+			_pacman_log(PM_LOG_WARNING, _("error setting proxy\n"));
+			pm_errno = PM_ERR_CONNECT_FAILED;
 			goto error;
-		}
-		if(curl_easy_setopt(curlHandle, CURLOPT_PROGRESSFUNCTION, _pacman_curl_progresscb) != CURLE_OK) {
-			_pacman_log(PM_LOG_DEBUG, _("error setting progress bar\n"));
-			goto error;
-		}
-		if(handle->proxyhost) {
-			if(!handle->proxyport) {
-				_pacman_log(PM_LOG_WARNING, _("pacman proxy setting needs a port specified url:port\n"));
-				pm_errno = PM_ERR_CONNECT_FAILED;
-				goto error;
-			}
-			char pacmanProxy[PATH_MAX];
-			sprintf(pacmanProxy, "%s:%d", handle->proxyhost, handle->proxyport);
-			if(curl_easy_setopt(curlHandle,CURLOPT_PROXY, pacmanProxy) != CURLE_OK) {
-				_pacman_log(PM_LOG_WARNING, _("error setting proxy\n"));
-				pm_errno = PM_ERR_CONNECT_FAILED;
-				goto error;
-			}
 		}
 	}
 	curldownloader->curl = curlHandle;
