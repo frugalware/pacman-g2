@@ -500,8 +500,6 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						char completefile[PATH_MAX];
 						if(!strcmp(server->protocol, "file")) {
 							EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
-						} else if(pm_dlcb) {
-							pm_dlcb(&curldownloader.download);
 						}
 						complete = _pacman_list_add(complete, fn);
 						/* rename "output.part" file to "output" file */
