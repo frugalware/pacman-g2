@@ -412,135 +412,135 @@ pmlist_t *pacman_db_getgrpcache(pmdb_t *db)
 
 /** @} */
 
-/** @defgroup pacman_downloadstate Download States Functions
+/** @defgroup pacman_download Download States Functions
  * @brief Functions to informations from libpacman downloads
  * @{
  */
 
 /** Get the average download speed (in bytes per seconds).
- * @param downloadstate pointer to the download state to get the informations from.
+ * @param download pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
-int pacman_downloadstate_avg(const pmdownloadstate_t *downloadstate, double *avg)
+int pacman_download_avg(const pmdownload_t *download, double *avg)
 {
-	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(download != NULL, return -1);
 	ASSERT(avg != NULL, return -1);
 
-	*avg = downloadstate->dst_avg;
+	*avg = download->dst_avg;
 	return 0;
 }
 
 /** Get the download start time
- * @param downloadstate pointer to the download state to get the informations from.
+ * @param download pointer to the download state to get the informations from.
  * @return return 0 in case of success, !0 otherwise.
  */
-int pacman_downloadstate_begin(const pmdownloadstate_t *downloadstate, struct timeval *timeval)
+int pacman_download_begin(const pmdownload_t *download, struct timeval *timeval)
 {
-	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(download != NULL, return -1);
 	ASSERT(timeval != NULL, return -1);
 
-	*timeval = downloadstate->dst_begin;
+	*timeval = download->dst_begin;
 	return 0;
 }
 
 /** Get the download end time.
- * Calling this method before pacman_downloadstate_tell give the same value as pacman_downloadstate_size
+ * Calling this method before pacman_download_tell give the same value as pacman_download_size
  * has no meaning and can give any value.
- * @param downloadstate pointer to the download state to get the informations from.
+ * @param download pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
-int pacman_downloadstate_end(const pmdownloadstate_t *downloadstate, struct timeval *timeval)
+int pacman_download_end(const pmdownload_t *download, struct timeval *timeval)
 {
-	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(download != NULL, return -1);
 	ASSERT(timeval != NULL, return -1);
 
-	*timeval = downloadstate->dst_end;
+	*timeval = download->dst_end;
 	return 0;
 }
 
 /** Get the estimate time to arrival of the download (in seconds).
- * @param downloadstate pointer to the download state to get the informations from.
+ * @param download pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
-int pacman_downloadstate_eta(const pmdownloadstate_t *downloadstate, double *eta)
+int pacman_download_eta(const pmdownload_t *download, double *eta)
 {
-	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(download != NULL, return -1);
 	ASSERT(eta != NULL, return -1);
 
-	*eta = downloadstate->dst_eta;
+	*eta = download->dst_eta;
 	return 0;
 }
 
 /** Get the current download rate (in bytes per second).
- * @param downloadstate pointer to the download state to get the informations from.
+ * @param download pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
-int pacman_downloadstate_rate(const pmdownloadstate_t *downloadstate, double *rate)
+int pacman_download_rate(const pmdownload_t *download, double *rate)
 {
-	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(download != NULL, return -1);
 	ASSERT(rate != NULL, return -1);
 
-	*rate = downloadstate->dst_rate;
+	*rate = download->dst_rate;
 	return 0;
 }
 
 /** Get the size at the start of the download resume.
- * @param downloadstate pointer to the download state to get the informations from.
+ * @param download pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
-int pacman_downloadstate_resume(const pmdownloadstate_t *downloadstate, off_t *offset)
+int pacman_download_resume(const pmdownload_t *download, off_t *offset)
 {
-	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(download != NULL, return -1);
 	ASSERT(offset != NULL, return -1);
 
-	*offset = downloadstate->dst_resume;
+	*offset = download->dst_resume;
 	return 0;
 }
 
 /** Get the final size of the download
- * @param downloadstate pointer to the download state to get the informations from.
+ * @param download pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
-int pacman_downloadstate_size(const pmdownloadstate_t *downloadstate, off_t *offset)
+int pacman_download_size(const pmdownload_t *download, off_t *offset)
 {
-	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(download != NULL, return -1);
 	ASSERT(offset != NULL, return -1);
 
-	*offset = downloadstate->dst_size;
+	*offset = download->dst_size;
 	return 0;
 }
 
 /** Get the current size of the download
- * @param downloadstate pointer to the download state to get the informations from.
+ * @param download pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
-int pacman_downloadstate_tell(const pmdownloadstate_t *downloadstate, off_t *offset)
+int pacman_download_tell(const pmdownload_t *download, off_t *offset)
 {
-	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(download != NULL, return -1);
 	ASSERT(offset != NULL, return -1);
 
-	*offset = downloadstate->dst_tell;
+	*offset = download->dst_tell;
 	return 0;
 }
 
 /** Get the xfered size of the download
- * @param downloadstate pointer to the download state to get the informations from.
+ * @param download pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
-int pacman_downloadstate_xfered(const pmdownloadstate_t *downloadstate, off_t *offset)
+int pacman_download_xfered(const pmdownload_t *download, off_t *offset)
 {
-	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(download != NULL, return -1);
 	ASSERT(offset != NULL, return -1);
 
-	*offset = downloadstate->dst_tell - downloadstate->dst_resume;
+	*offset = download->dst_tell - download->dst_resume;
 	return 0;
 }
 

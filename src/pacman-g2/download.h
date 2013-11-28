@@ -32,7 +32,7 @@ extern float rate;
 extern int xfered1;
 extern unsigned int eta_h, eta_m, eta_s, remain, howmany;
 
-int log_progress(const pmdownloadstate_t *downloadstate);
+int log_progress(const pmdownload_t *download);
 
 #endif /* _PM_DOWNLOAD_H */
 

@@ -51,7 +51,7 @@ extern "C" {
 typedef struct __pmconflict_t pmconflict_t;
 typedef struct __pmdb_t pmdb_t;
 typedef struct __pmdepmissing_t pmdepmissing_t;
-typedef struct __pmdownloadstate_t pmdownloadstate_t;
+typedef struct __pmdownload_t pmdownload_t;
 typedef struct __pmgrp_t pmgrp_t;
 typedef struct __pmlist_t pmlist_t;
 typedef struct __pmpkg_t pmpkg_t;
@@ -169,18 +169,18 @@ pmlist_t *pacman_db_search(pmdb_t *db);
 pmlist_t *pacman_db_test(pmdb_t *db);
 
 /*
- * Download states
+ * Downloads
  */
 
-int pacman_downloadstate_avg(const pmdownloadstate_t *downloadstate, double *avg);
-int pacman_downloadstate_begin(const pmdownloadstate_t *downloadstate, struct timeval *timeval);
-int pacman_downloadstate_end(const pmdownloadstate_t *downloadstate, struct timeval *timeval);
-int pacman_downloadstate_eta(const pmdownloadstate_t *downloadstate, double *eta);
-int pacman_downloadstate_rate(const pmdownloadstate_t *downloadstate, double *rate);
-int pacman_downloadstate_resume(const pmdownloadstate_t *downloadstate, off_t *offset);
-int pacman_downloadstate_size(const pmdownloadstate_t *downloadstate, off_t *offset);
-int pacman_downloadstate_tell(const pmdownloadstate_t *downloadstate, off_t *offset);
-int pacman_downloadstate_xfered(const pmdownloadstate_t *downloadstate, off_t *offset);
+int pacman_download_avg(const pmdownload_t *download, double *avg);
+int pacman_download_begin(const pmdownload_t *download, struct timeval *timeval);
+int pacman_download_end(const pmdownload_t *download, struct timeval *timeval);
+int pacman_download_eta(const pmdownload_t *download, double *eta);
+int pacman_download_rate(const pmdownload_t *download, double *rate);
+int pacman_download_resume(const pmdownload_t *download, off_t *offset);
+int pacman_download_size(const pmdownload_t *download, off_t *offset);
+int pacman_download_tell(const pmdownload_t *download, off_t *offset);
+int pacman_download_xfered(const pmdownload_t *download, off_t *offset);
 
 /*
  * Packages
@@ -363,7 +363,7 @@ typedef void (*pacman_trans_cb_conv)(unsigned char, void *, void *, void *, int 
 typedef void (*pacman_trans_cb_progress)(unsigned char, const char *, int, int, int);
 
 /* Download Progress callback */
-typedef int (*pacman_trans_cb_download)(const pmdownloadstate_t *downloadstates);
+typedef int (*pacman_trans_cb_download)(const pmdownload_t *downloads);
 
 /* Info parameters */
 enum {

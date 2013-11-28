@@ -69,9 +69,9 @@ int log_progress(const pmdownloadstate_t *downloadstate)
 	unsigned int maxpkglen;
 	static char prev_fnm[DLFNM_PROGRESS_LEN+1]="";
 
-	pacman_downloadstate_resume(downloadstate, &offset);
-	pacman_downloadstate_size(downloadstate, &fsz);
-	pacman_downloadstate_xfered(downloadstate, &xfered);
+	pacman_download_resume(download, &offset);
+	pacman_download_size(download, &fsz);
+	pacman_download_xfered(download, &xfered);
 
 	pct = ((float)(xfered+offset) / fsz) * 100;
 
@@ -92,7 +92,7 @@ int log_progress(const pmdownloadstate_t *downloadstate)
 
 	gettimeofday(&t1, NULL);
 	if(xfered+offset == fsz) {
-		pacman_downloadstate_begin(downloadstate, &t);
+		pacman_download_begin(download, &t);
 	}
 	timediff = t1.tv_sec-t.tv_sec + (float)(t1.tv_usec-t.tv_usec) / 1000000;
 

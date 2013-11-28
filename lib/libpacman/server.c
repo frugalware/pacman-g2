@@ -130,7 +130,9 @@ typedef enum __pmdownloadsuccess_t pmdownloadsuccess_t;
 
 struct __pmcurldownloader_t {
 	CURL *curl;
-	pmdownloadstate_t downloadstate;
+	struct timeval previous_update;
+	size_t previous_update_dltotal;
+	pmdownload_t download;
 };
 
 enum __pmdownloadsuccess_t {
@@ -219,9 +221,9 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 	pmdownloadsuccess_t ret = PM_DOWNLOAD_OK;
 
 	/* ETA setup */
-	gettimeofday(&curldownloader->downloadstate.dst_begin, NULL);
+	gettimeofday(&curldownloader->download.dst_begin, NULL);
 	if(pm_dlt && pm_dlrate && pm_dlxfered1 && pm_dleta_h && pm_dleta_m && pm_dleta_s) {
-		*pm_dlt = curldownloader->downloadstate.dst_begin;
+		*pm_dlt = curldownloader->download.dst_begin;
 		*pm_dlrate = 0;
 		*pm_dlxfered1 = 0;
 		*pm_dleta_h = 0;
@@ -240,8 +242,8 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 		curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 0);
 		curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_NONE);
 		if(!stat(output, &st)) {
-			curldownloader->downloadstate.dst_resume = st.st_size;
-			curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, curldownloader->downloadstate.dst_resume);
+			curldownloader->download.dst_resume = st.st_size;
+			curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, curldownloader->download.dst_resume);
 			outputFile = fopen(output,"ab");
 		} else {
 			curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, 0);
@@ -505,7 +507,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 						if(!strcmp(server->protocol, "file")) {
 							EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
 						} else if(pm_dlcb) {
-							pm_dlcb(&curldownloader.downloadstate);
+							pm_dlcb(&curldownloader.download);
 						}
 						complete = _pacman_list_add(complete, fn);
 						/* rename "output.part" file to "output" file */

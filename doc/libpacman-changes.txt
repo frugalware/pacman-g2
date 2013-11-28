@@ -20,8 +20,6 @@ None.
 
 pacman_cb_log: Make 'message' argument a constant.
 
-pacman_downloadstate_resume, pacman_downloadstate_size: Access to the various pmdownloadstate_t data.
-
 pacman_logaction: Now returns a void instead of a int to reflect success. Logging should allways success and not be intrusive.
 
 pacman_parse_config: Make 'file' argument a constant. Remove 'this_section' argument, it is internal and should not have been exposed publicly.
@@ -30,9 +28,9 @@ pacman_reg_match: Make arguments constants.
 
 pacman_trans_cb_download:
 
-* Changed the not usable PM_NETBUF *ctl to a const pmdownloadstate_t *downloadstates (thougt only one supported for now).
+* Changed the not usable PM_NETBUF *ctl to a const pmdownload_t *downloads (thougt only one supported for now).
 
-* Removed the 'xfered' parameter in favor of pacman_downloadstate_xfered.
+* Removed the 'xfered' parameter in favor of pacman_download_xfered.
 
 * Removed the old abused 'arg' parameter.
 
@@ -44,23 +42,23 @@ pmconflict_t: is now public and deprecate PM_CONFLICT.
 
 pmdb_t: is now public and deprecate PM_DB.
 
-pacman_downloadstate_avg: Access to global download rate.
+pacman_download_avg: Access to global download rate.
 
-pacman_downloadstate_begin: Access to download start time.
+pacman_download_begin: Access to download start time.
 
-pacman_downloadstate_end: Access to download end time.
+pacman_download_end: Access to download end time.
 
-pacman_downloadstate_eta: Access to download eta time.
+pacman_download_eta: Access to download eta time.
 
-pacman_downloadstate_rate: Access to instant download rate.
+pacman_download_rate: Access to instant download rate.
 
-pacman_downloadstate_resume: Access to resume download size.
+pacman_download_resume: Access to resume download size.
 
-pacman_downloadstate_size: Access to final download size.
+pacman_download_size: Access to final download size.
 
-pacman_downloadstate_tell: Access to current download size.
+pacman_download_tell: Access to current download size.
 
-pacman_downloadstate_xfered: Access to a xfered download size.
+pacman_download_xfered: Access to a xfered download size.
 
 pmdepmissing_t: is now public and deprecate PM_DEPMISS.
 

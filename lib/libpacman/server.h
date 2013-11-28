@@ -42,7 +42,7 @@ typedef struct __pmserver_t {
 	char *path;
 } pmserver_t;
 
-struct __pmdownloadstate_t {
+struct __pmdownload_t {
 	// FIXME: change int to off_t when the download backend will permit that.
 	struct timeval dst_begin;
 	struct timeval dst_end;
