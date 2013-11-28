@@ -56,8 +56,6 @@ int log_progress(const pmdownload_t *download)
 	int pct;
 	static int lastpct=0;
 	unsigned int i, cur;
-	struct timeval t1;
-	float timediff;
 	double eta, rate;
 	unsigned int eta_h, eta_m, eta_s;
 	/* a little hard to conceal easter eggs in open-source software, but
@@ -69,6 +67,8 @@ int log_progress(const pmdownload_t *download)
 	unsigned int maxpkglen;
 	static char prev_fnm[DLFNM_PROGRESS_LEN+1]="";
 
+	pacman_download_eta(download, &eta);
+	pacman_download_rate(download, &rate);
 	pacman_download_resume(download, &offset);
 	pacman_download_size(download, &fsz);
 	pacman_download_xfered(download, &xfered);
@@ -90,22 +90,14 @@ int log_progress(const pmdownload_t *download)
 
 	pacman_get_option(PM_OPT_CHOMP, (long *)&chomp);
 
-	gettimeofday(&t1, NULL);
 	if(xfered+offset == fsz) {
-		pacman_download_begin(download, &t);
-	}
-	timediff = t1.tv_sec-t.tv_sec + (float)(t1.tv_usec-t.tv_usec) / 1000000;
+		time_t now = time(NULL);
+		struct timeval begin;
 
-	if(xfered+offset == fsz) {
 		pacman_download_avg(download, &rate);
+		pacman_download_begin(download, &begin);
 		/* total download time */
-		eta = (int)timediff;
-	} else if(timediff > 1) {
-		/* we avoid computing the rate & ETA on too small periods of time, so that
-		   results are more significant */
-		pacman_download_rate(download, &rate);
-		gettimeofday(&t, NULL);
-		pacman_download_eta(download, &eta);
+		eta = difftime(begin.tv_sec, now);
 	}
 	rate /= 1024; /* convert to KB/s */
 	eta_s = eta;
