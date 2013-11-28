@@ -47,6 +47,7 @@ struct __pmdownloadstate_t {
 	struct timeval dst_begin;
 	struct timeval dst_end;
 	double dst_eta;
+	double dst_rate;
 	int dst_resume;
 	int dst_size;
 	int dst_tell;

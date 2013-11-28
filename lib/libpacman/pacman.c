@@ -460,6 +460,20 @@ int pacman_downloadstate_eta(const pmdownloadstate_t *downloadstate, double *eta
 	return 0;
 }
 
+/** Get the current download rate (in byte per second).
+ * @param downloadstate pointer to the download state to get the informations from.
+ * @param offset pointer to the value to be written.
+ * @return return 0 in case of success, !0 otherwise.
+ */
+int pacman_downloadstate_rate(const pmdownloadstate_t *downloadstate, double *rate)
+{
+	ASSERT(downloadstate != NULL, return -1);
+	ASSERT(rate != NULL, return -1);
+
+	*rate = downloadstate->dst_rate;
+	return 0;
+}
+
 /** Get the size at the start of the download resume.
  * @param downloadstate pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.

@@ -50,6 +50,8 @@ pacman_downloadstate_end: Access to download end time.
 
 pacman_downloadstate_eta: Access to download eta time.
 
+pacman_downloadstate_rate: Access to download rate time.
+
 pacman_downloadstate_resume: Access to resume download size.
 
 pacman_downloadstate_size: Access to final download size.
