@@ -186,7 +186,7 @@ int _pacman_curl_init(pmcurldownloader_t *curldownloader) {
 		_pacman_log(PM_LOG_DEBUG, _("error setting noprogress off\n"));
 		goto error;
 	}
-	if(curl_easy_setopt(curlHandle,CURLOPT_PROGRESSDATA , (void *)&curldownloader) != CURLE_OK) {
+	if(curl_easy_setopt(curlHandle, CURLOPT_PROGRESSDATA, curldownloader) != CURLE_OK) {
 		_pacman_log(PM_LOG_DEBUG, _("error passing our debug function pointer to progress callback\n"));
 		goto error;
 	}
