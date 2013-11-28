@@ -25,7 +25,12 @@
 
 #define PM_TIME_INVALID ((time_t) -1)
 
-double _pacman_difftimeval(struct timeval timeval1, struct timeval timeval2);
+static
+double f_difftimeval(struct timeval timeval1, struct timeval timeval2)
+{
+	return difftime(timeval1.tv_sec , timeval2.tv_sec) +
+		((double)(timeval1.tv_usec - timeval2.tv_usec) / 1000000);
+}
 
 /* Return the localtime for timep. If timep is NULL, return the conversion for time(NULL) (libc returns NULL instead).
  */
