@@ -52,7 +52,7 @@ extern unsigned int maxcols;
 /* FIXME: log10() want float */
 int log_progress(const pmdownload_t *download)
 {
-	off_t offset, fsz, xfered;
+	off_t offset, fsz, tell;
 	int pct;
 	static int lastpct=0;
 	unsigned int i, cur;
@@ -71,9 +71,9 @@ int log_progress(const pmdownload_t *download)
 	pacman_download_rate(download, &rate);
 	pacman_download_resume(download, &offset);
 	pacman_download_size(download, &fsz);
-	pacman_download_xfered(download, &xfered);
+	pacman_download_tell(download, &tell);
 
-	pct = ((float)(xfered+offset) / fsz) * 100;
+	pct = ((float)(tell) / fsz) * 100;
 
 	if(config->dl_interrupted) {
 		printf("\n");
@@ -90,7 +90,7 @@ int log_progress(const pmdownload_t *download)
 
 	pacman_get_option(PM_OPT_CHOMP, (long *)&chomp);
 
-	if(xfered+offset == fsz) {
+	if(tell == fsz) {
 		time_t now = time(NULL);
 		struct timeval begin;
 
@@ -149,9 +149,9 @@ int log_progress(const pmdownload_t *download)
 		}
 	}
 	if(rate > 1000) {
-		printf("] %3d%%  %6dK  %6.0fK/s  %02d:%02d:%02d\r", pct, ((xfered+offset) / 1024), rate, eta_h, eta_m, eta_s);
+		printf("] %3d%%  %6dK  %6.0fK/s  %02d:%02d:%02d\r", pct, (tell / 1024), rate, eta_h, eta_m, eta_s);
 	} else {
-		printf("] %3d%%  %6dK  %6.1fK/s  %02d:%02d:%02d\r", pct, ((xfered+offset) / 1024), rate, eta_h, eta_m, eta_s);
+		printf("] %3d%%  %6dK  %6.1fK/s  %02d:%02d:%02d\r", pct, (tell / 1024), rate, eta_h, eta_m, eta_s);
 	}
 	if(lastpct != 100 && pct == 100) {
 		printf("\n");
