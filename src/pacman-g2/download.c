@@ -42,7 +42,6 @@
 /* progress bar */
 char sync_fnm[PM_DLFNM_LEN+1];
 struct timeval t;
-int xfered1;
 unsigned int remain, howmany;
 
 /* pacman options */
