@@ -27,6 +27,19 @@
 
 #include "fstdlib.h"
 
+/* Convert a string to uppercase
+ */
+char *f_strtoupper(char *str)
+{
+	char *ptr = str;
+
+	while(*ptr) {
+		(*ptr) = toupper(*ptr);
+		ptr++;
+	}
+	return str;
+}
+
 /* Trim whitespace and newlines from a string
  */
 char *f_strtrim(char *str)

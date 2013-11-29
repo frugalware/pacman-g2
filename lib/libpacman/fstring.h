@@ -23,6 +23,7 @@
 
 #include <string.h>
 
+#define _pacman_strtoupper f_strtoupper
 #define _pacman_strtrim f_strtrim
 
 static inline
@@ -37,6 +38,7 @@ size_t f_strlen(const char *s)
 	return s != NULL ? strlen(s) : 0;
 }
 
+char *f_strtoupper(char *str);
 char *f_strtrim(char *str);
 
 #endif /* _F_STRING_H */
