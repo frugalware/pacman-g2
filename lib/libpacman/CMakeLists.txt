@@ -19,6 +19,7 @@ set(LIBPACMAN_SOURCES
 	util/log.c
 	util/stringlist.c
 	util/time.c
+	fstring.c
 	add.c
 	be_files.c
 	cache.c

@@ -1,7 +1,7 @@
 /*
- *  fstring.h
+ *  fstring.c
  *
- *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
+ *  Copyright (c) 2013 by Michel Hermier <jvinet@zeroflux.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,27 +18,45 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef _F_STRING_H
-#define _F_STRING_H
 
-#include <string.h>
+#include "config.h"
 
-#define _pacman_strtrim f_strtrim
+#include <ctype.h>
 
-static inline
-int f_strempty(const char *s)
+#include "fstring.h"
+
+#include "fstdlib.h"
+
+/* Trim whitespace and newlines from a string
+ */
+char *f_strtrim(char *str)
 {
-	return s != NULL ? s[0] == '\0' : !0;
+	char *pch = str;
+
+	if(f_strempty(str)) {
+		/* string is empty, so we're done. */
+		return(str);
+	}
+
+	while(isspace((int)*pch)) {
+		pch++;
+	}
+	if(pch != str) {
+		memmove(str, pch, (strlen(pch) + 1));
+	}
+
+	/* check if there wasn't anything but whitespace in the string. */
+	if(f_strempty(str)) {
+		return(str);
+	}
+
+	pch = (char *)(str + (strlen(str) - 1));
+	while(isspace((int)*pch)) {
+		pch--;
+	}
+	*++pch = '\0';
+
+	return(str);
 }
-
-static inline
-size_t f_strlen(const char *s)
-{
-	return s != NULL ? strlen(s) : 0;
-}
-
-char *f_strtrim(char *str);
-
-#endif /* _F_STRING_H */
 
 /* vim: set ts=2 sw=2 noet: */
