@@ -205,7 +205,7 @@ char *_pacman_strtrim(char *str)
 {
 	char *pch = str;
 
-	if(*str == '\0') {
+	if(f_strempty(str)) {
 		/* string is empty, so we're done. */
 		return(str);
 	}
@@ -218,7 +218,7 @@ char *_pacman_strtrim(char *str)
 	}
 
 	/* check if there wasn't anything but whitespace in the string. */
-	if(*str == '\0') {
+	if(f_strempty(str)) {
 		return(str);
 	}
 
