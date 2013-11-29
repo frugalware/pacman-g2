@@ -150,6 +150,10 @@ int _pacman_curl_progresscb(void *clientp, double dltotal, double dlnow, double 
 		struct timeval now;
 		double time_delta;
 
+		if(download->dst_tell == download->dst_resume + dlnow) {
+			/* Avoid spurus events from curl */
+			return 0;
+		}
 		gettimeofday(&now, NULL);
 		download->dst_tell = download->dst_resume + dlnow;
 		download->dst_size = download->dst_resume + dltotal;
@@ -227,6 +231,7 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 	pmdownloadsuccess_t ret = PM_DOWNLOAD_OK;
 
 	curldownloader->download.dst_resume = 0;
+	curldownloader->download.dst_tell = -1; // To not miss potential curl event at 0.
 	gettimeofday(&curldownloader->download.dst_begin, NULL);
 	curldownloader->previous_update = curldownloader->download.dst_begin;
 	if(pm_dlt) {
