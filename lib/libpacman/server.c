@@ -173,7 +173,8 @@ int _pacman_curl_progresscb(void *clientp, double dltotal, double dlnow, double 
 }
 
 static
-int _pacman_curl_init(pmcurldownloader_t *curldownloader) {
+int _pacman_curl_init(pmcurldownloader_t *curldownloader)
+{
 	CURL *curlHandle = NULL;
 
 	ASSERT(curldownloader, RET_ERR(PM_ERR_WRONG_ARGS, -1));
@@ -289,7 +290,7 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 			ret = PM_DOWNLOAD_OK_CACHE;
 		} else {
 			if(curl_easy_getinfo(curlHandle, CURLINFO_FILETIME,  mtime2) != CURLE_OK) {
-				*mtime2 = PM_TIME_INVALID;				
+				*mtime2 = PM_TIME_INVALID;
 			}
 		}
 	}

@@ -28,7 +28,7 @@
 static inline
 double f_difftimeval(struct timeval timeval1, struct timeval timeval2)
 {
-	return difftime(timeval1.tv_sec , timeval2.tv_sec) +
+	return difftime(timeval1.tv_sec, timeval2.tv_sec) +
 		((double)(timeval1.tv_usec - timeval2.tv_usec) / 1000000);
 }
 
