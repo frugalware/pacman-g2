@@ -46,6 +46,7 @@
 #include "util/stringlist.h"
 #include "util.h"
 #include "db.h"
+#include "fstring.h"
 #include "package.h"
 #include "pacman.h"
 #include "error.h"
@@ -56,7 +57,7 @@ int _pacman_db_read_lines(FStringList **list, char *s, size_t size, FILE *fp)
 {
 	int lines = 0;
 
-	while(fgets(s, size, fp) && !_pacman_strempty(_pacman_strtrim(s))) {
+	while(fgets(s, size, fp) && !_pacman_strempty(f_strtrim(s))) {
 		*list = f_stringlist_append(*list, s);
 		lines++;
 	}
@@ -73,7 +74,7 @@ int _pacman_localdb_desc_fread(pmpkg_t *info, FILE *fp)
 		if(fgets(line, 256, fp) == NULL) {
 			break;
 		}
-		_pacman_strtrim(line);
+		f_strtrim(line);
 		if(!strcmp(line, "%DESC%")) {
 			_pacman_db_read_lines(&info->desc_localized, line, sline, fp);
 			STRNCPY(info->desc, (char*)info->desc_localized->data, sizeof(info->desc));
@@ -83,47 +84,47 @@ int _pacman_localdb_desc_fread(pmpkg_t *info, FILE *fp)
 					STRNCPY(info->desc, (char*)i->data+strlen(handle->language)+1, sizeof(info->desc));
 				}
 			}
-			_pacman_strtrim(info->desc);
+			f_strtrim(info->desc);
 		} else if(!strcmp(line, "%GROUPS%")) {
 			_pacman_db_read_lines(&info->groups, line, sline, fp);
 		} else if(!strcmp(line, "%URL%")) {
 			if(fgets(info->url, sizeof(info->url), fp) == NULL) {
 				goto error;
 			}
-			_pacman_strtrim(info->url);
+			f_strtrim(info->url);
 		} else if(!strcmp(line, "%LICENSE%")) {
 			_pacman_db_read_lines(&info->license, line, sline, fp);
 		} else if(!strcmp(line, "%ARCH%")) {
 			if(fgets(info->arch, sizeof(info->arch), fp) == NULL) {
 				goto error;
 			}
-			_pacman_strtrim(info->arch);
+			f_strtrim(info->arch);
 		} else if(!strcmp(line, "%BUILDDATE%")) {
 			if(fgets(info->builddate, sizeof(info->builddate), fp) == NULL) {
 				goto error;
 			}
-			_pacman_strtrim(info->builddate);
+			f_strtrim(info->builddate);
 		} else if(!strcmp(line, "%BUILDTYPE%")) {
 			if(fgets(info->buildtype, sizeof(info->buildtype), fp) == NULL) {
 				goto error;
 			}
-			_pacman_strtrim(info->buildtype);
+			f_strtrim(info->buildtype);
 		} else if(!strcmp(line, "%INSTALLDATE%")) {
 			if(fgets(info->installdate, sizeof(info->installdate), fp) == NULL) {
 				goto error;
 			}
-			_pacman_strtrim(info->installdate);
+			f_strtrim(info->installdate);
 		} else if(!strcmp(line, "%PACKAGER%")) {
 			if(fgets(info->packager, sizeof(info->packager), fp) == NULL) {
 				goto error;
 			}
-			_pacman_strtrim(info->packager);
+			f_strtrim(info->packager);
 		} else if(!strcmp(line, "%REASON%")) {
 			char tmp[32];
 			if(fgets(tmp, sizeof(tmp), fp) == NULL) {
 				goto error;
 			}
-			_pacman_strtrim(tmp);
+			f_strtrim(tmp);
 			info->reason = atol(tmp);
 		} else if(!strcmp(line, "%TRIGGERS%")) {
 			_pacman_db_read_lines(&info->triggers, line, sline, fp);
@@ -137,7 +138,7 @@ int _pacman_localdb_desc_fread(pmpkg_t *info, FILE *fp)
 			if(fgets(tmp, sizeof(tmp), fp) == NULL) {
 				goto error;
 			}
-			_pacman_strtrim(tmp);
+			f_strtrim(tmp);
 			info->size = atol(tmp);
 		} else if(!strcmp(line, "%USIZE%")) {
 			/* USIZE (uncompressed size) tag only appears in sync repositories,
@@ -146,7 +147,7 @@ int _pacman_localdb_desc_fread(pmpkg_t *info, FILE *fp)
 			if(fgets(tmp, sizeof(tmp), fp) == NULL) {
 				goto error;
 			}
-			_pacman_strtrim(tmp);
+			f_strtrim(tmp);
 			info->usize = atol(tmp);
 		} else if(!strcmp(line, "%SHA1SUM%")) {
 			/* SHA1SUM tag only appears in sync repositories,
@@ -193,7 +194,7 @@ int _pacman_localdb_depends_fread(pmpkg_t *info, FILE *fp)
 		if(fgets(line, 256, fp) == NULL) {
 			break;
 		}
-		_pacman_strtrim(line);
+		f_strtrim(line);
 		if(!strcmp(line, "%DEPENDS%")) {
 			_pacman_db_read_lines(&info->depends, line, sline, fp);
 		} else if(!strcmp(line, "%REQUIREDBY%")) {
@@ -228,9 +229,9 @@ int _pacman_localdb_files_fread(pmpkg_t *info, FILE *fp)
 		if(fgets(line, 256, fp) == NULL) {
 			break;
 		}
-		_pacman_strtrim(line);
+		f_strtrim(line);
 		if(!strcmp(line, "%FILES%")) {
-			while(fgets(line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
+			while(fgets(line, sline, fp) && !_pacman_strempty(f_strtrim(line))) {
 				char *ptr;
 
 				if((ptr = strchr(line, '|'))) {
@@ -240,7 +241,7 @@ int _pacman_localdb_files_fread(pmpkg_t *info, FILE *fp)
 				info->files = f_stringlist_append(info->files, line);
 			}
 		} else if(!strcmp(line, "%BACKUP%")) {
-			while(fgets(line, sline, fp) && !_pacman_strempty(_pacman_strtrim(line))) {
+			while(fgets(line, sline, fp) && !_pacman_strempty(f_strtrim(line))) {
 				info->backup = f_stringlist_append(info->backup, line);
 			}
 		}

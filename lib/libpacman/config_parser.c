@@ -96,7 +96,7 @@ int _pacman_parse_config(const char *file, pacman_cb_db_register callback, const
 
 	while(fgets(line, PATH_MAX, fp)) {
 		linenum++;
-		_pacman_strtrim(line);
+		f_strtrim(line);
 		if(line[0] == '\0' || line[0] == '#') {
 			continue;
 		}
@@ -130,8 +130,8 @@ int _pacman_parse_config(const char *file, pacman_cb_db_register callback, const
 			if(key == NULL) {
 				RET_ERR(PM_ERR_CONF_BAD_SYNTAX, -1);
 			}
-			_pacman_strtrim(key);
-			key = _pacman_strtoupper(key);
+			f_strtrim(key);
+			key = f_strtoupper(key);
 			if(!strlen(section) && strcmp(key, "INCLUDE")) {
 				RET_ERR(PM_ERR_CONF_DIRECTIVE_OUTSIDE_SECTION, -1);
 			}
@@ -147,7 +147,7 @@ int _pacman_parse_config(const char *file, pacman_cb_db_register callback, const
 					RET_ERR(PM_ERR_CONF_BAD_SYNTAX, -1);
 				}
 			} else {
-				_pacman_strtrim(ptr);
+				f_strtrim(ptr);
 				if(!strcmp(key, "INCLUDE")) {
 					char conf[PATH_MAX];
 					strncpy(conf, ptr, PATH_MAX);

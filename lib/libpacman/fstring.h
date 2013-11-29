@@ -23,9 +23,6 @@
 
 #include <string.h>
 
-#define _pacman_strtoupper f_strtoupper
-#define _pacman_strtrim f_strtrim
-
 static inline
 int f_strempty(const char *s)
 {

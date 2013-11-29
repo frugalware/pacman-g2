@@ -69,7 +69,7 @@ pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 pmpkg_t *_pacman_pkg_new_from_filename(const char *filename, int witharch)
 {
 	pmpkg_t *pkg;
-	
+
 	ASSERT(pkg = _pacman_pkg_new(NULL, NULL), return NULL);
 
 	if(_pacman_pkg_splitname(filename, pkg->name, pkg->version, witharch) == -1) {
@@ -258,7 +258,7 @@ pmpkg_t *_pacman_pkg_load(const char *pkgfile)
 				if(fgets(str, PATH_MAX, filelist) == NULL) {
 					continue;
 				}
-				_pacman_strtrim(str);
+				f_strtrim(str);
 				info->files = _pacman_stringlist_append(info->files, str);
 			}
 			FREE(str);

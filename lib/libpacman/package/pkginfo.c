@@ -59,7 +59,7 @@ int _pacman_pkginfo_fread(FILE *descfile, pmpkg_t *info, int output)
 	while(!feof(descfile)) {
 		fgets(line, PATH_MAX, descfile);
 		linenum++;
-		_pacman_strtrim(line);
+		f_strtrim(line);
 		if(_pacman_strempty(line) || line[0] == '#') {
 			continue;
 		}
@@ -72,9 +72,9 @@ int _pacman_pkginfo_fread(FILE *descfile, pmpkg_t *info, int output)
 			_pacman_log(PM_LOG_DEBUG, _("%s: syntax error in description file line %d"),
 				info->name[0] != '\0' ? info->name : "error", linenum);
 		} else {
-			_pacman_strtrim(key);
-			key = _pacman_strtoupper(key);
-			_pacman_strtrim(ptr);
+			f_strtrim(key);
+			key = f_strtoupper(key);
+			f_strtrim(ptr);
 			if(!strcmp(key, "PKGNAME")) {
 				STRNCPY(info->name, ptr, sizeof(info->name));
 			} else if(!strcmp(key, "PKGVER")) {

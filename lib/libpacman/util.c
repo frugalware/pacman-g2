@@ -186,51 +186,6 @@ int _pacman_copyfile(char *src, char *dest)
 	return(0);
 }
 
-/* Convert a string to uppercase
- */
-char *_pacman_strtoupper(char *str)
-{
-	char *ptr = str;
-
-	while(*ptr) {
-		(*ptr) = toupper(*ptr);
-		ptr++;
-	}
-	return str;
-}
-
-/* Trim whitespace and newlines from a string
- */
-char *_pacman_strtrim(char *str)
-{
-	char *pch = str;
-
-	if(f_strempty(str)) {
-		/* string is empty, so we're done. */
-		return(str);
-	}
-
-	while(isspace((int)*pch)) {
-		pch++;
-	}
-	if(pch != str) {
-		memmove(str, pch, (strlen(pch) + 1));
-	}
-
-	/* check if there wasn't anything but whitespace in the string. */
-	if(f_strempty(str)) {
-		return(str);
-	}
-
-	pch = (char *)(str + (strlen(str) - 1));
-	while(isspace((int)*pch)) {
-		pch--;
-	}
-	*++pch = '\0';
-
-	return(str);
-}
-
 /* Create a lock file
  */
 int _pacman_lckmk(char *file)
@@ -495,12 +450,12 @@ int _pacman_chroot_system(const char *cmdline, pmtrans_t *trans)
 				break;
 			/* "START <event desc>" */
 			if((strlen(line) > strlen(STARTSTR)) && !strncmp(line, STARTSTR, strlen(STARTSTR))) {
-				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_START, _pacman_strtrim(line + strlen(STARTSTR)), NULL);
+				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_START, f_strtrim(line + strlen(STARTSTR)), NULL);
 			/* "DONE <ret code>" */
 			} else if((strlen(line) > strlen(DONESTR)) && !strncmp(line, DONESTR, strlen(DONESTR))) {
-				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_DONE, (void*)atol(_pacman_strtrim(line + strlen(DONESTR))), NULL);
+				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_DONE, (void*)atol(f_strtrim(line + strlen(DONESTR))), NULL);
 			} else {
-				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_INFO, _pacman_strtrim(line), NULL);
+				EVENT(trans, PM_TRANS_EVT_SCRIPTLET_INFO, f_strtrim(line), NULL);
 			}
 		}
 		pclose(pp);
@@ -574,7 +529,7 @@ cleanup:
 
 int _pacman_runhook(const char *hookname, pmtrans_t *trans)
 {
-	char *hookdir, *root, *scriptpath; 
+	char *hookdir, *root, *scriptpath;
 	char scriptfn[PATH_MAX];
 	char hookpath[PATH_MAX];
 	char cmdline[PATH_MAX];
