@@ -124,6 +124,7 @@ void _pacman_server_free(void *data)
 
 typedef struct __pmcurldownloader_t pmcurldownloader_t;
 typedef enum __pmdownloadsuccess_t pmdownloadsuccess_t;
+typedef enum __pmfiletype_t pmfiletype_t;
 
 struct __pmcurldownloader_t {
 	CURL *curl;
@@ -136,6 +137,12 @@ enum __pmdownloadsuccess_t {
 	PM_DOWNLOAD_ERROR = -1,
 	PM_DOWNLOAD_OK = 0,
 	PM_DOWNLOAD_OK_CACHE = 1,
+};
+
+enum __pmfiletype_t {
+	PM_FILE_UNKNOWN = -1,
+	PM_FILE_DB = 0,
+	PM_FILE_PKG = 1,
 };
 
 /*
@@ -225,7 +232,7 @@ error:
 
 static
 pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, const char *url,
-		const time_t *mtime1, time_t *mtime2, const char *output)
+		const time_t *mtime1, time_t *mtime2, const char *output, pmfiletype_t dlFileType)
 {
 	CURL *curlHandle = curldownloader->curl;
 	FILE *outputFile;
@@ -249,7 +256,7 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 
 		curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 0);
 		curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_NONE);
-		if(!stat(output, &st)) {
+		if(dlFileType != PM_FILE_DB && !stat(output, &st)) {
 			curldownloader->download.dst_resume = st.st_size;
 			curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, curldownloader->download.dst_resume);
 			outputFile = fopen(output,"ab");
@@ -473,14 +480,17 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 				if(pm_dlfnm) {
 					strncpy(pm_dlfnm, fn, PM_DLFNM_LEN);
 				}
+				pmfiletype_t dlFileType = PM_FILE_UNKNOWN;
 				/* drop filename extension */
 				ptr = strstr(fn, PM_EXT_DB);
 				if(pm_dlfnm && ptr && (ptr-fn) < PM_DLFNM_LEN) {
 					pm_dlfnm[ptr-fn] = '\0';
+					dlFileType = PM_FILE_DB;
 				}
 				ptr = strstr(fn, PM_EXT_PKG);
 				if(ptr && (ptr-fn) < PM_DLFNM_LEN) {
 					pm_dlfnm[ptr-fn] = '\0';
+					dlFileType = PM_FILE_PKG;
 				}
 
 				if(!strcmp(server->protocol, "file")) {
@@ -502,7 +512,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 									 server->path, fn);
 
 					_pacman_curl_init(&curldownloader);
-					switch(_pacman_curl_download(&curldownloader, url, mtime1, mtime2, output)) {
+					switch(_pacman_curl_download(&curldownloader, url, mtime1, mtime2, output, dlFileType)) {
 					case PM_DOWNLOAD_ERROR:
 						goto error;
 					case PM_DOWNLOAD_OK: {
