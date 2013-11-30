@@ -233,9 +233,6 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 		case PM_OPT_DLFNM:
 			pm_dlfnm = (char *)data;
 		break;
-		case PM_OPT_DLT:
-			pm_dlt = (struct timeval *)data;
-		break;
 		case PM_OPT_DLREMAIN:
 			ph->dlremain = (int *)data;
 		break;
@@ -330,7 +327,6 @@ int _pacman_handle_get_option(pmhandle_t *ph, unsigned char val, long *data)
 		case PM_OPT_OLDDELAY:  *data = (long)ph->olddelay; break;
 		case PM_OPT_LOGMASK:   *data = pm_logmask; break;
 		case PM_OPT_DLFNM:     *data = (long)pm_dlfnm; break;
-		case PM_OPT_DLT:       *data = (long)pm_dlt; break;
 		case PM_OPT_DLREMAIN:  *data = (long)ph->dlremain; break;
 		case PM_OPT_DLHOWMANY: *data = (long)ph->dlhowmany; break;
 		case PM_OPT_PROXYHOST: *data = (long)ph->proxyhost; break;

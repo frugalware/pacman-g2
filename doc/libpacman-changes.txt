@@ -76,7 +76,7 @@ PM_TRANS_SYNCPKGS: Access to transaction syncpkgs list.
 
 ==== Symbols removed:
 
-PM_NETBUF, PM_OPT_DLETA_H, PM_OPT_DLETA_M, PM_OPT_DLETA_H, PM_OPT_DLOFFSET, PM_OPT_DLRATE, PM_OPT_DLT0, PM_OPT_DLXFERED1: Removed due to code refactor so public API does not try to hide that it use libftp internal callback. See pacman_trans_cb_download changes.
+PM_NETBUF, PM_OPT_DLETA_H, PM_OPT_DLETA_M, PM_OPT_DLETA_H, PM_OPT_DLOFFSET, PM_OPT_DLRATE, PM_OPT_DLT, PM_OPT_DLT0, PM_OPT_DLXFERED1: Removed due to code refactor so public API does not try to hide that it use libftp internal callback. See pacman_trans_cb_download changes.
 
 PM_TRANS: Unused in the public API.
 

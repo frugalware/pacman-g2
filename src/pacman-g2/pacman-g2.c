@@ -573,10 +573,6 @@ int main(int argc, char *argv[])
 		ERR(NL, _("failed to set option DLFNM (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
-	if(pacman_set_option(PM_OPT_DLT, (long)&t) == -1) {
-		ERR(NL, _("failed to set option DLT (%s)\n"), pacman_strerror(pm_errno));
-		cleanup(1);
-	}
 	if(pacman_set_option(PM_OPT_DLREMAIN, (long)&remain) == -1) {
 		ERR(NL, _("failed to set option DLREMAIN (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);

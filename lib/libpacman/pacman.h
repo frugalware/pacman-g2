@@ -118,7 +118,6 @@ enum {
 	PM_OPT_NOPASSIVEFTP,
 	PM_OPT_DLCB,
 	PM_OPT_DLFNM,
-	PM_OPT_DLT,
 	/* End of download */
 	PM_OPT_HOLDPKG,
 	PM_OPT_CHOMP,

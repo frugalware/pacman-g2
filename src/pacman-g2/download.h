@@ -26,7 +26,6 @@
 #define DLFNM_PROGRESS_LEN 22
 
 extern char sync_fnm[PM_DLFNM_LEN+1];
-extern struct timeval t;
 extern unsigned int remain, howmany;
 
 int log_progress(const pmdownload_t *download);
