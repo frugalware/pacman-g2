@@ -149,7 +149,7 @@ enum __pmfiletype_t {
  * Progress callback used by libcurl, we then pass our own progress function
  */
 static
-int _pacman_curl_progresscb(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
+int _pacman_curl_progresscb(void *clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
 {
 	if(dltotal > 0 && dlnow > 0) {
 		pmcurldownloader_t *curldownloader = clientp;
@@ -204,7 +204,7 @@ int _pacman_curl_init(pmcurldownloader_t *curldownloader)
 		_pacman_log(PM_LOG_DEBUG, _("error passing our debug function pointer to progress callback\n"));
 		goto error;
 	}
-	if(curl_easy_setopt(curlHandle, CURLOPT_PROGRESSFUNCTION, _pacman_curl_progresscb) != CURLE_OK) {
+	if(curl_easy_setopt(curlHandle, CURLOPT_XFERINFOFUNCTION, _pacman_curl_progresscb) != CURLE_OK) {
 		_pacman_log(PM_LOG_DEBUG, _("error setting progress bar\n"));
 		goto error;
 	}
