@@ -231,6 +231,16 @@ error:
 }
 
 static
+int _pacman_curl_fini(pmcurldownloader_t *curldownloader)
+{
+	ASSERT(curldownloader, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	curl_easy_cleanup(curldownloader->curl);
+	curldownloader->curl = NULL;
+	return 0;
+}
+
+static
 pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, const char *url,
 		const time_t *mtime1, time_t *mtime2, const char *output, pmfiletype_t dlFileType)
 {
@@ -345,7 +355,6 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 	pmlist_t *complete = NULL;
 	pmlist_t *i;
 	pmserver_t *server;
-	CURL * curlHandle = NULL;
 	int *remain = handle->dlremain, *howmany = handle->dlhowmany;
 
 	if(files == NULL) {
@@ -506,17 +515,21 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					//download files using libcurl
 					pmcurldownloader_t curldownloader = { 0 };
 					char url[PATH_MAX];
+					pmdownloadsuccess_t success;
 
 					/* build the full download url */
 					snprintf(url, PATH_MAX, "%s://%s%s%s", server->protocol, server->server,
 									 server->path, fn);
 
 					_pacman_curl_init(&curldownloader);
-					switch(_pacman_curl_download(&curldownloader, url, mtime1, mtime2, output, dlFileType)) {
+					success = _pacman_curl_download(&curldownloader, url, mtime1, mtime2, output, dlFileType);
+					_pacman_curl_fini(&curldownloader);
+					switch(success) {
 					case PM_DOWNLOAD_ERROR:
 						goto error;
 					case PM_DOWNLOAD_OK: {
 						char completefile[PATH_MAX];
+
 						if(!strcmp(server->protocol, "file")) {
 							EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
 						}
@@ -548,10 +561,6 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 
 error:
 	FREELISTPTR(complete);
-	if(curlHandle) {
-		curl_easy_cleanup(curlHandle);
-		curlHandle = NULL;
-	}
 	return(pm_errno == 0 ? !done : -1);
 }
 
