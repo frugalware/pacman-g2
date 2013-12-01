@@ -122,10 +122,6 @@ void _pacman_server_free(void *data)
 	free(server);
 }
 
-typedef struct __pmcurldownloader_t pmcurldownloader_t;
-typedef enum __pmdownloadsuccess_t pmdownloadsuccess_t;
-typedef enum __pmfiletype_t pmfiletype_t;
-
 struct __pmcurldownloader_t {
 	CURL *curl;
 	struct timeval previous_update;
@@ -144,6 +140,10 @@ enum __pmfiletype_t {
 	PM_FILE_DB = 0,
 	PM_FILE_PKG = 1,
 };
+
+typedef struct __pmcurldownloader_t pmcurldownloader_t;
+typedef enum __pmdownloadsuccess_t pmdownloadsuccess_t;
+typedef enum __pmfiletype_t pmfiletype_t;
 
 /*
  * Progress callback used by libcurl, we then pass our own progress function

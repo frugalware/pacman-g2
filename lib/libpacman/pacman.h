@@ -171,10 +171,10 @@ int pacman_download_begin(const pmdownload_t *download, struct timeval *timeval)
 int pacman_download_end(const pmdownload_t *download, struct timeval *timeval);
 int pacman_download_eta(const pmdownload_t *download, double *eta);
 int pacman_download_rate(const pmdownload_t *download, double *rate);
-int pacman_download_resume(const pmdownload_t *download, off_t *offset);
-int pacman_download_size(const pmdownload_t *download, off_t *offset);
-int pacman_download_tell(const pmdownload_t *download, off_t *offset);
-int pacman_download_xfered(const pmdownload_t *download, off_t *offset);
+int pacman_download_resume(const pmdownload_t *download, off64_t *offset);
+int pacman_download_size(const pmdownload_t *download, off64_t *offset);
+int pacman_download_tell(const pmdownload_t *download, off64_t *offset);
+int pacman_download_xfered(const pmdownload_t *download, off64_t *offset);
 
 /*
  * Packages

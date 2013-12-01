@@ -49,9 +49,9 @@ struct __pmdownload_t {
 	double dst_avg;
 	double dst_eta;
 	double dst_rate;
-	int dst_resume;
-	int dst_size;
-	int dst_tell;
+	off64_t dst_resume;
+	off64_t dst_size;
+	off64_t dst_tell;
 };
 
 pmserver_t *_pacman_server_new(char *url);

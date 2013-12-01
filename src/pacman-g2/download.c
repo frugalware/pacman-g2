@@ -51,7 +51,7 @@ extern unsigned int maxcols;
 /* FIXME: log10() want float */
 int log_progress(const pmdownload_t *download)
 {
-	off_t offset, fsz, tell;
+	off64_t offset, fsz, tell;
 	int pct;
 	static int lastpct=0;
 	unsigned int i, cur;
@@ -148,9 +148,9 @@ int log_progress(const pmdownload_t *download)
 		}
 	}
 	if(rate > 1000) {
-		printf("] %3d%%  %6dK  %6.0fK/s  %02d:%02d:%02d\r", pct, (tell / 1024), rate, eta_h, eta_m, eta_s);
+		printf("] %3d%%  %6lldK  %6.0fK/s  %02d:%02d:%02d\r", pct, (long long)(tell / 1024), rate, eta_h, eta_m, eta_s);
 	} else {
-		printf("] %3d%%  %6dK  %6.1fK/s  %02d:%02d:%02d\r", pct, (tell / 1024), rate, eta_h, eta_m, eta_s);
+		printf("] %3d%%  %6lldK  %6.1fK/s  %02d:%02d:%02d\r", pct, (long long)(tell / 1024), rate, eta_h, eta_m, eta_s);
 	}
 	if(lastpct != 100 && pct == 100) {
 		printf("\n");

@@ -493,7 +493,7 @@ int pacman_download_rate(const pmdownload_t *download, double *rate)
  * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
-int pacman_download_resume(const pmdownload_t *download, off_t *offset)
+int pacman_download_resume(const pmdownload_t *download, off64_t *offset)
 {
 	ASSERT(download != NULL, return -1);
 	ASSERT(offset != NULL, return -1);
@@ -507,7 +507,7 @@ int pacman_download_resume(const pmdownload_t *download, off_t *offset)
  * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
-int pacman_download_size(const pmdownload_t *download, off_t *offset)
+int pacman_download_size(const pmdownload_t *download, off64_t *offset)
 {
 	ASSERT(download != NULL, return -1);
 	ASSERT(offset != NULL, return -1);
@@ -521,7 +521,7 @@ int pacman_download_size(const pmdownload_t *download, off_t *offset)
  * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
-int pacman_download_tell(const pmdownload_t *download, off_t *offset)
+int pacman_download_tell(const pmdownload_t *download, off64_t *offset)
 {
 	ASSERT(download != NULL, return -1);
 	ASSERT(offset != NULL, return -1);
@@ -535,7 +535,7 @@ int pacman_download_tell(const pmdownload_t *download, off_t *offset)
  * @param offset pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
-int pacman_download_xfered(const pmdownload_t *download, off_t *offset)
+int pacman_download_xfered(const pmdownload_t *download, off64_t *offset)
 {
 	ASSERT(download != NULL, return -1);
 	ASSERT(offset != NULL, return -1);
