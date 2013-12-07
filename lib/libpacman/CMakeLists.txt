@@ -4,23 +4,27 @@ SET(libdir "\${exec_prefix}/lib")
 SET(includedir "\${prefix}/include")
 CONFIGURE_FILE("pacman.pc.in" "pacman.pc" @ONLY)
 
-set(LIBPACMAN_SOURCES 
-	db/fakedb.c
-	db/localdb.c
-	db/localdb_files.c
-	db/syncdb.c
+set(FLIB_SOURCES
 	fstdlib/canonicalize.c
 	hash/md5.c
 	hash/md5driver.c
 	hash/sha1.c
 	io/archive.c
 	io/ftp.c
-	package/pkginfo.c
 	util/list.c
 	util/log.c
 	util/stringlist.c
 	util/time.c
 	fstring.c
+)
+
+set(LIBPACMAN_SOURCES 
+	${FLIB_SOURCES}
+	db/fakedb.c
+	db/localdb.c
+	db/localdb_files.c
+	db/syncdb.c
+	package/pkginfo.c
 	add.c
 	be_files.c
 	cache.c
