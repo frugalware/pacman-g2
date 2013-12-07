@@ -9,6 +9,7 @@ set(LIBPACMAN_SOURCES
 	db/localdb.c
 	db/localdb_files.c
 	db/syncdb.c
+	fstdlib/canonicalize.c
 	hash/md5.c
 	hash/md5driver.c
 	hash/sha1.c

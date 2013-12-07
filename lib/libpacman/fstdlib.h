@@ -68,6 +68,12 @@ void f_ptrswap(void **ptr1, void **ptr2)
 	*ptr1 = tmp;
 }
 
+#define F_PATH_NOCHECK  (1<<0)
+#define F_PATH_RELATIVE (1<<1)
+
+char *f_canonicalize_path(const char *name, char *resolved, size_t size, int flags);
+char *f_canonicalize_file_name(const char *name, int flags);
+
 #endif /* _F_STDLIB_H */
 
 /* vim: set ts=2 sw=2 noet: */
