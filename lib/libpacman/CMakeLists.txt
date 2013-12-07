@@ -10,6 +10,7 @@ set(FLIB_SOURCES
 	hash/md5driver.c
 	hash/sha1.c
 	io/archive.c
+	io/ffilelock.c
 	io/ftp.c
 	util/list.c
 	util/log.c
