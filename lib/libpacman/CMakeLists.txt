@@ -51,25 +51,15 @@ set(LIBPACMAN_SOURCES
 include_directories (${PACMAN-G2_SOURCE_DIR})
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
-find_package(LibArchive REQUIRED)
-find_package(PacCURL)
-if(NOT PACCURL_FOUND)
-  find_package(CURL REQUIRED)
-  include_directories("${CURL_INCLUDE_DIRS}/curl")
-  message(WARNING "libpaccurl not found")
-else()
-  include_directories("${CURL_INCLUDE_DIRS}/paccurl")
-endif(NOT PACCURL_FOUND)
-
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_LARGEFILE64_SOURCE")
 
-add_library(pacman SHARED ${LIBPACMAN_SOURCES})
-set_target_properties(pacman PROPERTIES SOVERSION 0.${PACMAN_G2_LIB_VERSION})
-target_link_libraries(pacman ${LibArchive_LIBRARIES} ${CURL_LIBRARIES})
-
+add_library(pacman ${BUILD_TYPE} ${LIBPACMAN_SOURCES})
+target_link_libraries(pacman ${LIBPACMAN_LIBRARIES})
 if(ENABLE_STATIC)
   set_target_properties(pacman PROPERTIES LINK_SEARCH_START_STATIC ON)
   set_target_properties(pacman PROPERTIES LINK_SEARCH_END_STATIC ON)
+else(ENABLE_STATIC)
+  set_target_properties(pacman PROPERTIES SOVERSION 0.${PACMAN_G2_LIB_VERSION})
 endif(ENABLE_STATIC)
 
 #static build
