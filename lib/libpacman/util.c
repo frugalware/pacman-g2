@@ -205,7 +205,7 @@ int _pacman_lckmk(char *file)
 	while((fd = open(file, O_WRONLY | O_CREAT | O_EXCL, 0000)) == -1 && errno == EACCES) {
 		if(++count < 1) {
 			sleep(1);
-		}	else {
+		} else {
 			close(fd);
 			return(-1);
 		}

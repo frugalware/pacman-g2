@@ -1,7 +1,7 @@
 /*
  *  fstring.c
  *
- *  Copyright (c) 2013 by Michel Hermier <jvinet@zeroflux.org>
+ *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
