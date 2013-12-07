@@ -67,6 +67,10 @@ add_library(pacman SHARED ${LIBPACMAN_SOURCES})
 set_target_properties(pacman PROPERTIES SOVERSION 0.${PACMAN_G2_LIB_VERSION})
 target_link_libraries(pacman ${LibArchive_LIBRARIES} ${CURL_LIBRARIES})
 
+if(ENABLE_STATIC)
+  set_target_properties(pacman PROPERTIES LINK_SEARCH_START_STATIC ON)
+  set_target_properties(pacman PROPERTIES LINK_SEARCH_END_STATIC ON)
+endif(ENABLE_STATIC)
 
 #static build
 if(PACCURL_FOUND AND (NOT DISABLE_STATIC_BUILD))

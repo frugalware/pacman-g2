@@ -18,9 +18,21 @@ string (REPLACE ";" "" PM_VERSION ${PM_VERSION_TEMP})
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -std=c99 -Wall -D_GNU_SOURCE")
 
 option(DISABLE_BINDINGS "disables all libpacman bindings" OFF)
+set(ENABLE_NLS TRUE CACHE BOOL "Translation program messages to the user's native language ?")
+option(ENABLE_STATIC "make a static build" OFF)
 option(FAKEROOT_PROOF "enable fakeroot proof protection" OFF)
 
-SET(ENABLE_NLS TRUE CACHE BOOL "Translation program messages to the user's native language ?")
+if(ENABLE_STATIC)
+  set(CMAKE_PROJECT_NAME_LOWER ${CMAKE_PROJECT_NAME_LOWER}.static)
+
+  set(BUILD_SHARED_LIBS OFF)
+  set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -pthread")
+#  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
+#  set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)       # remove -Wl,-Bdynamic)
+#  set(CMAKE_SHARED_LIBRARY_C_FLAGS)         # remove -fPIC
+#  set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)    # remove -rdynamic
+endif(ENABLE_STATIC)
 
 FIND_PACKAGE(Doxygen)
 IF(DOXYGEN_FOUND)
