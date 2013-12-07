@@ -251,11 +251,9 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 
 int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 {
-	int i, ret = 0, errors = 0;
+	int i, ret = 0;
 	int remain, howmany, archive_ret;
 	double percent;
-	register struct archive *archive;
-	struct archive_entry *entry;
 	char expath[PATH_MAX], cwd[PATH_MAX] = "";
 	unsigned char cb_state;
 	time_t t;
@@ -265,14 +263,13 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
+	howmany = _pacman_list_count(trans->packages);
 	for(targ = trans->packages; targ; targ = targ->next) {
 		unsigned short pmo_upgrade;
 		char pm_install[PATH_MAX];
 		pmpkg_t *pkg_new = (pmpkg_t *)targ->data;
 		pmpkg_t *oldpkg = NULL;
-		errors = 0;
 		remain = _pacman_list_count(targ);
-		howmany = _pacman_list_count(trans->packages);
 
 		if(handle->trans->state == STATE_INTERRUPTED) {
 			break;
@@ -350,6 +347,10 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 		}
 
 		if(!(trans->flags & PM_TRANS_FLAG_DBONLY)) {
+			int errors = 0;
+			register struct archive *archive;
+			struct archive_entry *entry;
+
 			_pacman_log(PM_LOG_FLOW1, _("extracting files"));
 
 			/* Extract the package */
@@ -368,11 +369,10 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 			chdir(handle->root);
 
 			for(i = 0; (archive_ret = archive_read_next_header (archive, &entry)) == ARCHIVE_OK; i++) {
-				int nb = 0;
-				int notouch = 0;
+				int nb = 0, notouch = 0;
 				char *hash_orig = NULL;
-				char pathname[PATH_MAX];
 				struct stat buf;
+				char pathname[PATH_MAX];
 
 				STRNCPY(pathname, archive_entry_pathname (entry), PATH_MAX);
 
