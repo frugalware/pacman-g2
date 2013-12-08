@@ -624,6 +624,75 @@ makepkg_lschroot() {
 }
 _makepkg_commands[lschroot]=makepkg_lschroot
 
+makepkg_mount_usage() {
+	$ECHO "Usage: $0 mount [OPTION]... [--] DEVICE DIR MAKEPKG_ENV_OPTIONS..."
+	$ECHO "Mount a device to execute MAKEPKG_ENV_OPTIONS."
+	$ECHO
+	$ECHO "Options for mount command:"
+	$ECHO "  -h, --help             This help."
+}
+
+makepkg_mount() {
+	local -a _mount_args
+	local _options_consumed
+
+	while [ $# -gt 0 ]; do
+		_options_consumed=1
+		case "$1" in
+		-h|--help)
+			makepkg_mount_usage
+			return 0;;
+		# assigned options
+		-o|--options|\
+		-t|--types)
+			_mount_args+=("${@:1:2}")
+			_options_consumed=2 ;;
+		-o=*|--options=*|\
+		-t=*|--types=*)
+			set -- \
+				"${1%%=*}" \
+				"${1#*=}" \
+				"${@:2}"
+			continue;;
+		# special options
+		--)	shift; break ;; # End of options
+		--*|-?)	error "Invalid option: $1"
+			makepkg_mount_usage
+			return 1 ;;
+		-*)	# Combined short options
+			set -- \
+				"$(echo "$1" | cut -c -2)" \
+				"-$(echo "$1" | cut -c 3-)" \
+				"${@:2}"
+			continue ;;
+		*)	break ;; # End of options
+		esac
+		if ! shift "$_options_consumed"; then
+			_options_consumed=$(($_options_consumed - 1))
+			error "Option $1 expects $_options_consumed argument(s)"
+			return 1
+		fi
+	done
+	if [ $# -lt 2 ]; then
+		error "Unexpected trailling arguments: $@"
+		return 1
+	fi
+
+	if ! mount "${_mount_args[@]}" "${@:1:2}"; then
+		error "Failed to mount $2"
+		return 1
+	fi
+	unset _mount_args _options_consumed
+	makepkg_env "${@:3}"
+	local _ret=$?
+	if ! umount "$2"; then
+		error "Failed to umount $2"
+		return 2
+	fi
+	return $_ret
+}
+_makepkg_commands[mount]=makepkg_mount
+
 makepkg_init() {
 	declare -r _makepkg_commands
 }
