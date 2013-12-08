@@ -514,7 +514,7 @@ _makepkg_unlock_files() {
 
 makepkg_lock_usage() {
 	$ECHO "Usage: $0 lock [OPTION]... [--] LOCK_FILE MAKEPKG_ENV_OPTIONS..."
-	$ECHO "List all the available chroots."
+	$ECHO "Try to aquire LOCK_FILE and perform command MAKEPKG_ENV_OPTIONS."
 	$ECHO
 	$ECHO "Options for lock command:"
 	$ECHO "  -h, --help                     This help."
