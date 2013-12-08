@@ -325,12 +325,16 @@ makepkg_chroot_usage() {
 	$ECHO "Options for chroot command:"
 	$ECHO "      --groups=G_LIST        Specify supplementary groups as g1,g2,..,gN."
 	$ECHO "  -h, --help                 This help."
+	$ECHO "      --locked               Enter the chroot with its lock held. (Default)"
+	$ECHO "      --unlocked             Enter the chroot with its lock unheld."
 	$ECHO "      --userspec=USER:GROUP  Specify user and group (ID or name to use)."
 	$ECHO
 	$ECHO "If no command is given, run '${SHELL} -i' (default: '/bin/sh -i')."
 }
 
 makepkg_chroot() {
+	local -a _cmdline
+	local _locked=1
 	local -a _options
 	local _options_consumed
 
@@ -340,6 +344,10 @@ makepkg_chroot() {
 		-h|--help)
 			makepkg_chroot_usage
 			return 0 ;;
+		--locked)
+			_locked=1 ;;
+		--unlocked)
+			_locked=0 ;;
 		# assigned options
 		--groups|\
 		--userspec)
@@ -375,8 +383,11 @@ makepkg_chroot() {
 		error "Missing expected CHROOTNAME argument."
 		return 1
 	fi
-	set -- chroot "${_options[@]}" -- "$CHROOTDIR/$1" "${@:2}"
-	unset _options _options_consumed
+	if [ $_locked -eq 1 ]; then
+		_cmdline+=(makepkg_lock -p "$CHROOTDIR/lock" -- "$CHROOTDIR/$1/var/tmp/fst/lock")
+	fi
+	set -- "${_cmdline[@]}" chroot "${_options[@]}" -- "$CHROOTDIR/$1" "${@:2}"
+	unset _cmdline _locked _options _options_consumed
 
 	"$@"
 	return $?
