@@ -522,7 +522,8 @@ makepkg_lock() {
 			return 0;;
 		# assigned options
 		-p|--parent)
-			_parents+=("$2");;
+			_parents+=("$2")
+			_options_consumed=2 ;;
 		-p=*|--parent=*)
 			set -- \
 				"${1%%=*}" \
