@@ -261,7 +261,7 @@ int f_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr) {
 	return f_ptrcmp(item->data, ptr);
 }
 
-void f_ptrlist_free(FPtrList *list, FVisitor *visitor)
+void f_ptrlist_delete(FPtrList *list, FVisitor *visitor)
 {
 	f_ptrlist_clear(list, visitor);
 }

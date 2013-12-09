@@ -39,7 +39,7 @@ struct __pmlist_t {
 	struct __pmlist_t *last; /* Quick access to last item in list */
 };
 
-#define _FREELIST(p, f) do { if(p) { FVisitor visitor = { .fn = (FVisitorFunc)f, .data = NULL, }; f_ptrlist_free(p, &visitor); p = NULL; } } while(0)
+#define _FREELIST(p, f) do { if(p) { FVisitor visitor = { .fn = (FVisitorFunc)f, .data = NULL, }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
 #define FREELIST(p) _FREELIST(p, free)
 #define FREELISTPTR(p) _FREELIST(p, NULL)
 
@@ -74,7 +74,7 @@ void f_ptrlistitem_delete(FListItem *item, FVisitor *visitor);
 int f_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr);
 
 FPtrList *f_ptrlist_new(void);
-void f_ptrlist_free(FPtrList *list, FVisitor *visitor);
+void f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
 
 void f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
 #define f_ptrlist_contains f_list_contains
