@@ -45,7 +45,7 @@
 #include "error.h"
 
 static
-void _pacman_db_free_grpcache(pmdb_t *db);
+void _pacman_db_clear_grpcache(pmdb_t *db);
 
 /* Returns a new package cache from db.
  * It frees the cache if it already exists.
@@ -87,7 +87,7 @@ void _pacman_db_free_pkgcache(pmdb_t *db)
 
 	FREELISTPKGS(db->pkgcache);
 
-	_pacman_db_free_grpcache(db);
+	_pacman_db_clear_grpcache(db);
 }
 
 pmlist_t *_pacman_db_get_pkgcache(pmdb_t *db)
@@ -117,7 +117,7 @@ int _pacman_db_add_pkgincache(pmdb_t *db, pmpkg_t *pkg)
 	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), newpkg->name, db->treename);
 	db->pkgcache = _pacman_list_add_sorted(db->pkgcache, newpkg, _pacman_pkg_cmp);
 
-	_pacman_db_free_grpcache(db);
+	_pacman_db_clear_grpcache(db);
 
 	return(0);
 }
@@ -140,7 +140,7 @@ int _pacman_db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg)
 	_pacman_log(PM_LOG_DEBUG, _("removing entry '%s' from '%s' cache"), pkg->name, db->treename);
 	FREEPKG(data);
 
-	_pacman_db_free_grpcache(db);
+	_pacman_db_clear_grpcache(db);
 
 	return(0);
 }
@@ -224,7 +224,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 	return(0);
 }
 
-void _pacman_db_free_grpcache(pmdb_t *db)
+void _pacman_db_clear_grpcache(pmdb_t *db)
 {
 	FVisitor visitor = {
 		.fn = (FVisitorFunc)_pacman_grp_delete,
