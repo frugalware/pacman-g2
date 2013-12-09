@@ -47,6 +47,9 @@
 static
 void _pacman_db_clear_grpcache(pmdb_t *db);
 
+static
+int _pacman_db_load_grpcache(pmdb_t *db);
+
 /* Returns a new package cache from db.
  * It frees the cache if it already exists.
  */
