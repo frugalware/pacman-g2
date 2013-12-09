@@ -391,7 +391,7 @@ void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 			case PM_PKG_FORCE:
 				if(!(pkg->infolevel & INFRQ_DESC)) {
 					_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), pkg->name);
-					_pacman_db_read(pkg->data, INFRQ_DESC, pkg);
+					_pacman_db_read(pkg->data, pkg, INFRQ_DESC);
 				}
 			break;
 			/* Depends entry */
@@ -401,7 +401,7 @@ void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 			case PM_PKG_PROVIDES:
 				if(!(pkg->infolevel & INFRQ_DEPENDS)) {
 					_pacman_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", pkg->name);
-					_pacman_db_read(pkg->data, INFRQ_DEPENDS, pkg);
+					_pacman_db_read(pkg->data, pkg, INFRQ_DEPENDS);
 				}
 			break;
 			/* Files entry */
@@ -409,14 +409,14 @@ void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 			case PM_PKG_BACKUP:
 				if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_FILES)) {
 					_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg->name);
-					_pacman_db_read(pkg->data, INFRQ_FILES, pkg);
+					_pacman_db_read(pkg->data, pkg, INFRQ_FILES);
 				}
 			break;
 			/* Scriptlet */
 			case PM_PKG_SCRIPLET:
 				if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_SCRIPLET)) {
 					_pacman_log(PM_LOG_DEBUG, _("loading SCRIPLET info for '%s'"), pkg->name);
-					_pacman_db_read(pkg->data, INFRQ_SCRIPLET, pkg);
+					_pacman_db_read(pkg->data, pkg, INFRQ_SCRIPLET);
 				}
 			break;
 		}

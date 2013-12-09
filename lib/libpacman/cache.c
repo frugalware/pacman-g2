@@ -198,7 +198,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 		pmpkg_t *pkg = lp->data;
 
 		if(!(pkg->infolevel & INFRQ_DESC)) {
-			_pacman_db_read(pkg->data, INFRQ_DESC, pkg);
+			_pacman_db_read(pkg->data, pkg, INFRQ_DESC);
 		}
 
 		for(i = pkg->groups; i; i = i->next) {

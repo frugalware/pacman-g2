@@ -77,7 +77,7 @@ pmpkg_t *_pacman_syncdb_pkg_new(pmdb_t *db, const struct archive_entry *entry, u
 
 	dname = archive_entry_pathname((struct archive_entry *)entry);
 	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
-		_pacman_db_read(db, inforeq, pkg) == -1) {
+		_pacman_db_read(db, pkg, inforeq) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
 		FREEPKG(pkg);
 	}

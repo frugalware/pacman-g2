@@ -81,7 +81,7 @@ int _pacman_db_settimestamp(pmdb_t *db, const time_t *timestamp);
 int _pacman_db_rewind(pmdb_t *db);
 pmpkg_t *_pacman_db_readpkg(pmdb_t *db, unsigned int inforeq);
 pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq);
-int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info);
+int _pacman_db_read(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
 int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
 int _pacman_db_remove(pmdb_t *db, pmpkg_t *info);
 pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback);

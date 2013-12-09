@@ -242,7 +242,7 @@ pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq)
 	return db->ops->scan(db, target, inforeq);
 }
 
-int _pacman_db_read(pmdb_t *db, unsigned int inforeq, pmpkg_t *info)
+int _pacman_db_read(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 {
 	int ret;
 
