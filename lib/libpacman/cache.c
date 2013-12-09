@@ -234,7 +234,8 @@ void _pacman_db_free_grpcache(pmdb_t *db)
 		pmgrp_t *grp = lg->data;
 
 		FREELISTPTR(grp->packages);
-		FREEGRP(lg->data);
+		_pacman_grp_delete(grp);
+		lg->data = NULL;
 	}
 	FREELIST(db->grpcache);
 }

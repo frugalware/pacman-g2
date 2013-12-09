@@ -44,10 +44,8 @@ pmgrp_t *_pacman_grp_new()
 	return(grp);
 }
 
-void _pacman_grp_free(void *data)
+void _pacman_grp_delete(pmgrp_t *grp)
 {
-	pmgrp_t *grp = data;
-
 	if(grp == NULL) {
 		return;
 	}

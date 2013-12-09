@@ -31,12 +31,8 @@ struct __pmgrp_t {
 	pmlist_t *packages; /* List of strings */
 };
 
-#define FREEGRP(p) do { if(p) { _pacman_grp_free(p); p = NULL; } } while(0)
-
-#define FREELISTGRPS(p) _FREELIST(p, _pacman_grp_free)
-
 pmgrp_t *_pacman_grp_new(void);
-void _pacman_grp_free(void *data);
+void _pacman_grp_delete(pmgrp_t *group);
 int _pacman_grp_cmp(const void *g1, const void *g2);
 
 #endif /* _PACMAN_GROUP_H */
