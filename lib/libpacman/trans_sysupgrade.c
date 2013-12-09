@@ -112,7 +112,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sy
 									ps->data = _pacman_list_add(ps->data, dummy);
 								} else {
 									/* none found -- enter pkg into the final sync list */
-									ps = _pacman_sync_new(PM_SYNC_TYPE_REPLACE, spkg, NULL);
+									ps = _pacman_syncpkg_new(PM_SYNC_TYPE_REPLACE, spkg, NULL);
 									if(ps == NULL) {
 										FREEPKG(dummy);
 										pm_errno = PM_ERR_MEMORY;
@@ -192,7 +192,7 @@ int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sy
 				if(dummy == NULL) {
 					goto error;
 				}
-				ps = _pacman_sync_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
+				ps = _pacman_syncpkg_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
 				if(ps == NULL) {
 					FREEPKG(dummy);
 					goto error;

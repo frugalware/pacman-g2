@@ -191,7 +191,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 				RET_ERR(PM_ERR_MEMORY, -1);
 			}
 		}
-		ps = _pacman_sync_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
+		ps = _pacman_syncpkg_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
 		if(ps == NULL) {
 			FREEPKG(dummy);
 			RET_ERR(PM_ERR_MEMORY, -1);
@@ -271,7 +271,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 			/* add the dependencies found by resolvedeps to the transaction set */
 			pmpkg_t *spkg = i->data;
 			if(!_pacman_trans_find(trans, spkg->name)) {
-				pmsyncpkg_t *ps = _pacman_sync_new(PM_SYNC_TYPE_DEPEND, spkg, NULL);
+				pmsyncpkg_t *ps = _pacman_syncpkg_new(PM_SYNC_TYPE_DEPEND, spkg, NULL);
 				if(ps == NULL) {
 					ret = -1;
 					goto cleanup;
