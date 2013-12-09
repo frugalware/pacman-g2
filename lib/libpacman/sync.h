@@ -34,8 +34,6 @@ struct __pmsyncpkg_t {
 	void *data;
 };
 
-#define FREESYNC(p) do { if(p) { _pacman_syncpkg_delete(p); p = NULL; } } while(0)
-
 pmsyncpkg_t *_pacman_syncpkg_new(int type, pmpkg_t *spkg, void *data);
 void _pacman_syncpkg_delete(pmsyncpkg_t *syncpkg);
 

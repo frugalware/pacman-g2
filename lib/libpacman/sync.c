@@ -412,9 +412,10 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 						if(rmpkg) {
 							pmsyncpkg_t *rsync = _pacman_trans_find(trans, rmpkg);
 							pmsyncpkg_t *spkg = NULL;
+
 							_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
 							trans->syncpkgs = _pacman_list_remove(trans->syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
-							FREESYNC(spkg);
+							_pacman_syncpkg_delete(spkg);
 							continue;
 						}
 					}
@@ -449,9 +450,10 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 							if(rsync) {
 								/* remove it from the target list */
 								pmsyncpkg_t *spkg = NULL;
+
 								_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), miss->depend.name);
 								trans->syncpkgs = _pacman_list_remove(trans->syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
-								FREESYNC(spkg);
+								_pacman_syncpkg_delete(spkg);
 							}
 						} else {
 							/* abort */

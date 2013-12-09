@@ -128,11 +128,12 @@ void _pacman_trans_fini(pmtrans_t *trans)
 	FREELISTPKGS(trans->packages);
 #if 0
 	{
-		pmlist_t *i;
-		for(i = trans->syncpkgs; i; i = i->next) {
-			FREESYNC(i->data);
-		}
-		FREELIST(trans->syncpkgs);
+		FVisitor visitor = {
+			.fn = _pacman_syncpkg_delete,
+			.data = NULL,
+		};
+		
+		f_ptrlist_delete(trans->syncpkgs, &visitor);
 	}
 #endif
 	FREELIST(trans->skiplist);
