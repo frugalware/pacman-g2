@@ -28,7 +28,7 @@
 /* Groups structure */
 struct __pmgrp_t {
 	char name[GRP_NAME_LEN];
-	pmlist_t *packages; /* List of strings */
+	pmlist_t *packages; /* List of unowned strings */
 };
 
 pmgrp_t *_pacman_grp_new(void);

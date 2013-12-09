@@ -213,7 +213,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 
 					if(strcmp(grp->name, i->data) == 0) {
 						if(!_pacman_list_is_strin(pkg->name, grp->packages)) {
-							grp->packages = _pacman_list_add_sorted(grp->packages, (char *)pkg->name, _pacman_grp_cmp);
+							grp->packages = _pacman_list_add_sorted(grp->packages, pkg->name, _pacman_grp_cmp);
 						}
 					}
 				}

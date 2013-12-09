@@ -50,7 +50,7 @@ void _pacman_grp_delete(pmgrp_t *grp)
 		return;
 	}
 
-	FREELIST(grp->packages);
+	f_ptrlist_delete(grp->packages, NULL);
 	free(grp);
 }
 
