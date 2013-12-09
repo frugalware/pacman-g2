@@ -223,21 +223,15 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 
 void _pacman_db_free_grpcache(pmdb_t *db)
 {
-	pmlist_t *lg;
+	FVisitor visitor = {
+		.fn = (FVisitorFunc)_pacman_grp_delete,
+		.data = NULL,
+	};
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	if(f_ptrlist_empty(db->grpcache)) {
-		return;
-	}
 
-	for(lg = db->grpcache; lg; lg = lg->next) {
-		pmgrp_t *grp = lg->data;
-
-		FREELISTPTR(grp->packages);
-		_pacman_grp_delete(grp);
-		lg->data = NULL;
-	}
-	FREELIST(db->grpcache);
+	f_ptrlist_clear(db->grpcache, &visitor);
+	db->grpcache = NULL;
 }
 
 pmlist_t *_pacman_db_get_grpcache(pmdb_t *db)
