@@ -123,9 +123,8 @@ int pacman_release(void)
 	if(_pacman_handle_unlock(handle) != 0) {
 		return -1;
 	}
-
-	FREEHANDLE(handle);
-
+	_pacman_handle_free(handle);
+	handle = NULL;
 	return(0);
 }
 /** @} */
