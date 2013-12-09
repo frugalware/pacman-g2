@@ -91,6 +91,14 @@ void _pacman_sync_free(void *data)
 	free(ps);
 }
 
+/* Helper functions for _pacman_list_remove
+ */
+static
+int _pacman_syncpkg_cmp(const void *s1, const void *s2)
+{
+	return(strcmp(((pmsyncpkg_t *)s1)->pkg->name, ((pmsyncpkg_t *)s2)->pkg->name));
+}
+
 int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 {
 	char targline[PKG_FULLNAME_LEN];
@@ -195,13 +203,6 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	}
 
 	return(0);
-}
-
-/* Helper functions for _pacman_list_remove
- */
-static int ptr_cmp(const void *s1, const void *s2)
-{
-	return(strcmp(((pmsyncpkg_t *)s1)->pkg->name, ((pmsyncpkg_t *)s2)->pkg->name));
 }
 
 static int pkg_cmp(const void *p1, const void *p2)
@@ -414,7 +415,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 							pmsyncpkg_t *rsync = _pacman_trans_find(trans, rmpkg);
 							pmsyncpkg_t *spkg = NULL;
 							_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
-							trans->syncpkgs = _pacman_list_remove(trans->syncpkgs, rsync, ptr_cmp, (void **)&spkg);
+							trans->syncpkgs = _pacman_list_remove(trans->syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
 							FREESYNC(spkg);
 							continue;
 						}
@@ -451,7 +452,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 								/* remove it from the target list */
 								pmsyncpkg_t *spkg = NULL;
 								_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), miss->depend.name);
-								trans->syncpkgs = _pacman_list_remove(trans->syncpkgs, rsync, ptr_cmp, (void **)&spkg);
+								trans->syncpkgs = _pacman_list_remove(trans->syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
 								FREESYNC(spkg);
 							}
 						} else {
