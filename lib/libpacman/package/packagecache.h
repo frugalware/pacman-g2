@@ -21,7 +21,7 @@
 #ifndef _PACMAN_PACKAGECACHE_H
 #define _PACMAN_PACKAGECACHE_H
 
-int _pacman_sync_cleancache(int level);
+int _pacman_packagecache_clean(int level);
 
 #endif /* _PACMAN_PACKAGECACHE_H */
 

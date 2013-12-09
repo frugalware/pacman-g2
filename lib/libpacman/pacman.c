@@ -694,7 +694,7 @@ void *pacman_sync_getinfo(pmsyncpkg_t *ps, unsigned char parm)
  * @param full 0: only old packages, 1: all packages
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int pacman_sync_cleancache(int full)
+int _pacman_packagecache_clean(int full)
 {
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 

@@ -31,7 +31,7 @@
 #include "package.h"
 #include "handle.h"
 
-int _pacman_sync_cleancache(int level)
+int _pacman_packagecache_clean(int level)
 {
 	char dirpath[PATH_MAX];
 
