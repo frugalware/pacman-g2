@@ -59,7 +59,7 @@
 #include "server.h"
 #include "packages_transaction.h"
 
-pmsyncpkg_t *_pacman_sync_new(int type, pmpkg_t *spkg, void *data)
+pmsyncpkg_t *_pacman_syncpkg_new(int type, pmpkg_t *spkg, void *data)
 {
 	pmsyncpkg_t *ps = _pacman_malloc(sizeof(pmsyncpkg_t));
 
@@ -75,10 +75,8 @@ pmsyncpkg_t *_pacman_sync_new(int type, pmpkg_t *spkg, void *data)
 	return(ps);
 }
 
-void _pacman_sync_free(void *data)
+void _pacman_syncpkg_delete(pmsyncpkg_t *ps)
 {
-	pmsyncpkg_t *ps = data;
-
 	if(ps == NULL) {
 		return;
 	}
