@@ -44,6 +44,9 @@
 #include "handle.h"
 #include "error.h"
 
+static
+void _pacman_db_free_grpcache(pmdb_t *db);
+
 /* Returns a new package cache from db.
  * It frees the cache if it already exists.
  */

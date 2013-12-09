@@ -35,7 +35,6 @@ pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, const char *target);
 pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package);
 /* groups */
 int _pacman_db_load_grpcache(pmdb_t *db);
-void _pacman_db_free_grpcache(pmdb_t *db);
 pmlist_t *_pacman_db_get_grpcache(pmdb_t *db);
 pmgrp_t *_pacman_db_get_grpfromcache(pmdb_t *db, const char *target);
 int _pacman_sync_cleancache(int level);
