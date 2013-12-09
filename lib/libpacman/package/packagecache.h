@@ -1,5 +1,5 @@
 /*
- *  cache.h
+ *  package/packagecache.h
  *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *
@@ -18,25 +18,11 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef _PACMAN_CACHE_H
-#define _PACMAN_CACHE_H
+#ifndef _PACMAN_PACKAGECACHE_H
+#define _PACMAN_PACKAGECACHE_H
 
-#include "package.h"
-#include "group.h"
-#include "db.h"
+int _pacman_sync_cleancache(int level);
 
-/* packages */
-int _pacman_db_load_pkgcache(pmdb_t *db);
-void _pacman_db_free_pkgcache(pmdb_t *db);
-int _pacman_db_add_pkgincache(pmdb_t *db, pmpkg_t *pkg);
-int _pacman_db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg);
-pmlist_t *_pacman_db_get_pkgcache(pmdb_t *db);
-pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, const char *target);
-pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package);
-/* groups */
-pmlist_t *_pacman_db_get_grpcache(pmdb_t *db);
-pmgrp_t *_pacman_db_get_grpfromcache(pmdb_t *db, const char *target);
-
-#endif /* _PACMAN_CACHE_H */
+#endif /* _PACMAN_PACKAGECACHE_H */
 
 /* vim: set ts=2 sw=2 noet: */

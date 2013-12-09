@@ -25,6 +25,7 @@ set(LIBPACMAN_SOURCES
 	db/localdb.c
 	db/localdb_files.c
 	db/syncdb.c
+	package/packagecache.c
 	package/pkginfo.c
 	add.c
 	be_files.c
