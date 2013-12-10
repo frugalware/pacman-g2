@@ -85,10 +85,8 @@ char* mkdtemp(char *template);
 #endif
 
 #define _pacman_strempty f_strempty
-#define _pacman_strlen f_strlen
 #define _pacman_malloc f_malloc
 #define _pacman_zalloc f_zalloc
-#define _pacman_ptrswap f_ptrswap
 
 #endif /* _PACMAN_UTIL_H */
 

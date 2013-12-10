@@ -121,7 +121,7 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 			if(_pacman_versioncmp(pkg->version, pkg_new->version) < 0) {
 				_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
 				          pkg->name, pkg->version, pkg_new->version);
-				_pacman_ptrswap(&i->data, (void **)&pkg_new);
+				f_ptrswap(&i->data, (void **)&pkg_new);
 			} else {
 				_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
 				          pkg->name, pkg->version, pkg_new->version);
