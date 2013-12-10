@@ -34,15 +34,15 @@ double f_difftimeval(struct timeval timeval1, struct timeval timeval2)
 
 /* Return the localtime for timep. If timep is NULL, return the conversion for time(NULL) (libc returns NULL instead).
  */
-struct tm *_pacman_localtime(const time_t *timep);
+struct tm *f_localtime(const time_t *timep);
 
 /* _lc means localised C */
-size_t _pacman_strftime_lc(char *s, size_t max, const char *format, const struct tm *tm);
-char *_pacman_strptime_lc(const char *s, const char *format, struct tm *tm);
+size_t f_strftime_lc(char *s, size_t max, const char *format, const struct tm *tm);
+char *f_strptime_lc(const char *s, const char *format, struct tm *tm);
 
-#define PM_RFC1123_FORMAT "%a, %d %b %Y %H:%M:%S %z"
-#define _pacman_strftime_rfc1123_lc(s, max, tm) _pacman_strftime_lc((s), (max), PM_RFC1123_FORMAT, (tm))
-#define _pacman_strptime_rfc1123_lc(s, tm) _pacman_strptime_lc((s), PM_RFC1123_FORMAT, (tm))
+#define F_RFC1123_FORMAT "%a, %d %b %Y %H:%M:%S %z"
+#define f_strftime_rfc1123_lc(s, max, tm) f_strftime_lc((s), (max), F_RFC1123_FORMAT, (tm))
+#define f_strptime_rfc1123_lc(s, tm) f_strptime_lc((s), F_RFC1123_FORMAT, (tm))
 
 #endif /* _PACMAN_TIME_H */
 

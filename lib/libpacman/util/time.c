@@ -35,7 +35,7 @@
 /* Return the C locale
  */
 static
-locale_t _pacman_locale_c(void)
+locale_t f_locale_c(void)
 {
 	static locale_t locale_c = NULL;
 	
@@ -46,7 +46,7 @@ locale_t _pacman_locale_c(void)
 	return locale_c;
 }
 
-struct tm *_pacman_localtime(const time_t *timep)
+struct tm *f_localtime(const time_t *timep)
 {
 	time_t now;
 
@@ -57,14 +57,14 @@ struct tm *_pacman_localtime(const time_t *timep)
 	return localtime(timep);
 }
 
-size_t _pacman_strftime_lc(char *s, size_t max, const char *format, const struct tm *tm)
+size_t f_strftime_lc(char *s, size_t max, const char *format, const struct tm *tm)
 {
-	return strftime_l(s, max, format, tm, _pacman_locale_c());
+	return strftime_l(s, max, format, tm, f_locale_c());
 }
 
-char *_pacman_strptime_lc(const char *s, const char *format, struct tm *tm)
+char *f_strptime_lc(const char *s, const char *format, struct tm *tm)
 {
-	return strptime_l(s, format, tm, _pacman_locale_c());
+	return strptime_l(s, format, tm, f_locale_c());
 }
 
 /* vim: set ts=2 sw=2 noet: */

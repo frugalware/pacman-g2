@@ -209,7 +209,7 @@ int _pacman_db_gettimestamp(pmdb_t *db, time_t *timestamp)
 	}
 }
 
-/* A NULL timestamp means now per _pacman_localtime definition.
+/* A NULL timestamp means now per f_localtime definition.
  */
 int _pacman_db_settimestamp(pmdb_t *db, const time_t *timestamp)
 {

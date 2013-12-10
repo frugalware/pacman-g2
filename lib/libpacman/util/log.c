@@ -73,7 +73,7 @@ void _pacman_vlogaction(unsigned char usesyslog, FILE *f, const char *format, va
 	if(f) {
 		struct tm *tm;
 
-		tm = _pacman_localtime(NULL);
+		tm = f_localtime(NULL);
 		fprintf(f, "[%02d/%02d/%02d %02d:%02d] %s\n",
 				tm->tm_mon+1, tm->tm_mday, tm->tm_year-100,
 				tm->tm_hour, tm->tm_min,

@@ -32,7 +32,7 @@
 
 size_t _pacman_ftp_strfmdtm(char *s, size_t max, const time_t *time)
 {
-	return strftime(s, max, PM_FTP_MDTM_FORMAT, _pacman_localtime(time));
+	return strftime(s, max, PM_FTP_MDTM_FORMAT, f_localtime(time));
 }
 
 char *_pacman_ftp_strpmdtm(const char *s, time_t *time)
