@@ -21,23 +21,18 @@
  */
 
 #include "config.h"
+
+#include <sys/stat.h>
+#include <errno.h>
+#include <dirent.h>
+#include <limits.h> /* PATH_MAX */
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <string.h>
-#ifdef __sun__
-#include <strings.h>
-#endif
-#include <sys/stat.h>
-#include <dirent.h>
-#include <libintl.h>
-#include <locale.h>
-#ifdef CYGWIN
-#include <limits.h> /* PATH_MAX */
-#endif
 
 /* pacman-g2 */
+#include "db/localdb_files.h"
 
 #include "db/localdb.h"
 #include "db/syncdb.h"
