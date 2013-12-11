@@ -22,13 +22,10 @@
  */
 
 #include "config.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef __sun__
-#include <strings.h>
-#endif
-#include <libintl.h>
 
 /* pacman-g2 */
 #include "deps.h"

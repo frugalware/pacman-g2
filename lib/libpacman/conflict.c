@@ -23,17 +23,13 @@
  *  USA.
  */
 
-#if defined(__APPLE__) || defined(__OpenBSD__)
-#include <sys/syslimits.h>
-#endif
-
 #include "config.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <limits.h>
+
 #include <sys/stat.h>
-#include <libintl.h>
+#include <limits.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 /* pacman-g2 */
 #include "conflict.h"

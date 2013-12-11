@@ -23,14 +23,13 @@
  */
 
 #include "config.h"
+
+#include <sys/utsname.h>
+#include <fcntl.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
-#include <fcntl.h>
 #include <string.h>
-#include <libintl.h>
-#include <locale.h>
-#include <sys/utsname.h>
 
 /* pacman-g2 */
 #include "package.h"
