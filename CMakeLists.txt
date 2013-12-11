@@ -3,9 +3,10 @@ project (PACMAN-G2)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/")
 
-include (CheckIncludeFile)
-include (CheckIncludeFiles)
-include (CheckFunctionExists)
+INCLUDE (CheckIncludeFile)
+INCLUDE (CheckIncludeFiles)
+INCLUDE (CheckFunctionExists)
+INCLUDE (FindPkgConfig)
 
 enable_testing()
 
@@ -44,22 +45,21 @@ else(BUILD_SHARED_LIBS)
   set(CMAKE_EXECUTABLE_SUFFIX ".static")
 endif(BUILD_SHARED_LIBS)
 
-INCLUDE(FindPkgConfig)
 PKG_SEARCH_MODULE(LIBARCHIVE REQUIRED libarchive)
-PKG_SEARCH_MODULE(LIBCURL libpaccurl)
-if(NOT LIBCURL_FOUND)
-  PKG_SEARCH_MODULE(LIBCURL REQUIRED libcurl)
-  include_directories("${LIBCURL_INCLUDEDIR}/curl")
+PKG_SEARCH_MODULE(LIBPACCURL libpaccurl)
+if(NOT LIBPACCURL_FOUND)
+  PKG_SEARCH_MODULE(LIBPACCURL REQUIRED libcurl)
+  include_directories("${LIBPACCURL_INCLUDEDIR}/curl")
   message(WARNING "libpaccurl not found")
 else()
-  set(LIBCURL_STATIC_LIBRARIES ${LIBCURL_STATIC_LIBRARIES} cares idn ssh2 z) # Temporary fixes till paccurl is fixed
-  include_directories("${LIBCURL_INCLUDEDIR}/paccurl")
-endif(NOT PACCURL_FOUND)
+  set(LIBPACCURL_STATIC_LIBRARIES ${LIBPACCURL_STATIC_LIBRARIES} cares idn ssh2 z) # Temporary fixes till paccurl is fixed
+  include_directories("${LIBPACCURL_INCLUDEDIR}/paccurl")
+endif(NOT LIBPACCURL_FOUND)
 
 if(BUILD_SHARED_LIBS)
-  set(LIBPACMAN_LIBRARIES ${LIBARCHIVE_LIBRARIES} ${LIBCURL_LIBRARIES})
+  set(LIBPACMAN_LIBRARIES ${LIBARCHIVE_LIBRARIES} ${LIBPACCURL_LIBRARIES})
 else(BUILD_SHARED_LIBS)
-  set(LIBPACMAN_LIBRARIES ${LIBARCHIVE_STATIC_LIBRARIES} ${LIBCURL_STATIC_LIBRARIES})
+  set(LIBPACMAN_LIBRARIES ${LIBARCHIVE_STATIC_LIBRARIES} ${LIBPACCURL_STATIC_LIBRARIES})
 endif(BUILD_SHARED_LIBS)
 message(STATUS "LIBPACMAN_LIBRARIES: ${LIBPACMAN_LIBRARIES}")
 
