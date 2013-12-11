@@ -45,7 +45,6 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <sys/wait.h>
-#include <libintl.h>
 #ifdef CYGWIN
 #include <limits.h> /* PATH_MAX */
 #endif

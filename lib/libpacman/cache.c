@@ -21,14 +21,14 @@
  */
 
 #include "config.h"
-#include <unistd.h>
+
+#include <sys/stat.h>
+#include <dirent.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <libintl.h>
-#include <dirent.h>
+#include <unistd.h>
 
 /* pacman-g2 */
 #include "cache.h"

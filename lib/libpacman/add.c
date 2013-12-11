@@ -23,21 +23,14 @@
  *  USA.
  */
 
-#if defined(__APPLE__) || defined(__OpenBSD__)
-#include <sys/syslimits.h>
-#endif
-#if defined(__APPLE__) || defined(__OpenBSD__) || defined(__sun__)
-#include <sys/stat.h>
-#endif
-
 #include "config.h"
-#include <stdlib.h>
+
 #include <errno.h>
-#include <time.h>
 #include <fcntl.h>
-#include <string.h>
 #include <limits.h>
-#include <libintl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 /* pacman-g2 */
 #include "add.h"

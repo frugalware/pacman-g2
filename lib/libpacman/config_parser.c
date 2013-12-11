@@ -23,6 +23,8 @@
  */
 
 #include "config.h"
+
+#include <limits.h> /* PATH_MAX */
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -33,9 +35,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <syslog.h>
-#include <limits.h> /* PATH_MAX */
 #include <stdarg.h>
-#include <libintl.h>
 
 /* pacman-g2 */
 #include "pacman.h"
