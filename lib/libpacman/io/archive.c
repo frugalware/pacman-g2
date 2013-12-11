@@ -29,6 +29,7 @@
 
 #include "archive.h"
 
+#include "fstring.h"
 #include "util.h"
 
 struct archive *_pacman_archive_read_open_all_file(const char *file)

@@ -23,27 +23,27 @@
 
 #include "config.h"
 
-#include <sys/types.h>
-#include <limits.h>
-#include <locale.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-#include <syslog.h>
-#include <time.h>
-#include <unistd.h>
-
-/* pacman-g2 */
 #include "handle.h"
 
-#include "util/list.h"
-#include "util/log.h"
-#include "util/stringlist.h"
 #include "error.h"
 #include "trans.h"
 #include "pacman.h"
 #include "server.h"
 #include "util.h"
+
+#include "util/list.h"
+#include "util/log.h"
+#include "util/stringlist.h"
+#include "fstdlib.h"
+#include "fstring.h"
+
+#include <sys/types.h>
+#include <limits.h>
+#include <locale.h>
+#include <stdarg.h>
+#include <syslog.h>
+#include <time.h>
+#include <unistd.h>
 
 pmhandle_t *_pacman_handle_new()
 {

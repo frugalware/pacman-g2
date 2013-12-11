@@ -25,19 +25,9 @@
 
 #include "config.h"
 
-#include <sys/stat.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <stdlib.h>
-#include <string.h>
-
 /* pacman-g2 */
 #include "remove.h"
 
-#include "util/list.h"
-#include "util/log.h"
-#include "util/stringlist.h"
 #include "trans.h"
 #include "util.h"
 #include "error.h"
@@ -49,6 +39,17 @@
 #include "handle.h"
 #include "pacman.h"
 #include "packages_transaction.h"
+
+#include "util/list.h"
+#include "util/log.h"
+#include "util/stringlist.h"
+#include "fstring.h"
+
+#include <sys/stat.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdlib.h>
 
 int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 {

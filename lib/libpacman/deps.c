@@ -33,6 +33,8 @@
 #include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
+#include "fstdlib.h"
+#include "fstring.h"
 #include "util.h"
 #include "error.h"
 #include "package.h"

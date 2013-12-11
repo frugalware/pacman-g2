@@ -23,8 +23,10 @@
 
 #include "packages_transaction.h"
 
-#include "util/list.h"
 #include "util.h"
+
+#include "util/list.h"
+#include "fstring.h"
 
 static const char *trigger_function_table[STATE_MAX] = {
 	[STATE_COMMITED] = "commited",

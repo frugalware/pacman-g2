@@ -21,29 +21,30 @@
 
 #include "config.h"
 
-#include <sys/stat.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <time.h>
-
-#include <curl.h>
-
 /* pacman-g2 */
 #include "server.h"
+
+#include "error.h"
+#include "pacman.h"
+#include "util.h"
+#include "handle.h"
 
 #include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
 #include "util/time.h"
-#include "error.h"
-#include "pacman.h"
-#include "util.h"
-#include "handle.h"
+#include "fstdlib.h"
+#include "fstring.h"
+
+#include <curl.h>
+
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <errno.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <time.h>
 
 pacman_trans_cb_download pm_dlcb = NULL;
 /* progress bar */

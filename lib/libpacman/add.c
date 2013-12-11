@@ -42,7 +42,8 @@
 #include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
-#include "trans.h"
+#include "fstdlib.h"
+#include "fstring.h"
 #include "util.h"
 #include "error.h"
 #include "cache.h"
@@ -54,6 +55,7 @@
 #include "remove.h"
 #include "handle.h"
 #include "packages_transaction.h"
+#include "trans.h"
 
 pmpkg_t *_pacman_filedb_load(pmdb_t *db, const char *name)
 {

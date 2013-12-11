@@ -24,27 +24,9 @@
 
 #include "config.h"
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h> /* PATH_MAX */
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
 /* pacman-g2 */
 #include "pacman.h"
 
-#include "db/syncdb.h"
-#include "hash/md5.h"
-#include "hash/sha1.h"
-#include "package/packagecache.h"
-#include "util/list.h"
-#include "util/log.h"
-#include "util/stringlist.h"
 #include "config_parser.h"
 #include "error.h"
 #include "deps.h"
@@ -60,6 +42,25 @@
 #include "sync.h"
 #include "handle.h"
 #include "server.h"
+
+#include "db/syncdb.h"
+#include "hash/md5.h"
+#include "hash/sha1.h"
+#include "package/packagecache.h"
+#include "util/list.h"
+#include "util/log.h"
+#include "util/stringlist.h"
+#include "fstring.h"
+
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h> /* PATH_MAX */
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 /* Globals */
 pmhandle_t *handle = NULL;

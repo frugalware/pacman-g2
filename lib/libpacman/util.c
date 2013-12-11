@@ -60,6 +60,8 @@
 #include "io/archive.h"
 #include "util/list.h"
 #include "util/log.h"
+#include "fstdlib.h"
+#include "fstring.h"
 #include "trans.h"
 #include "sync.h"
 #include "error.h"

@@ -31,6 +31,7 @@
 #include "io/ffilelock.h"
 
 #include "fstdlib.h"
+#include "fstring.h"
 #include "util.h"
 
 struct FFileLock {

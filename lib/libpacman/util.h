@@ -52,9 +52,6 @@
 #define STARTSTR "START "
 #define DONESTR "DONE "
 
-#include "fstdlib.h"
-#include "fstring.h"
-
 char *_pacman_basename(const char *path);
 int _pacman_makepath(char *path);
 int _pacman_copyfile(char *src, char *dest);

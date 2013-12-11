@@ -29,6 +29,7 @@
 #include "util/log.h"
 
 #include "util/time.h"
+#include "fstring.h"
 #include "util.h"
 
 /* Internal library log mechanism */

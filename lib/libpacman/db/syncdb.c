@@ -39,6 +39,7 @@
 #include "util/log.h"
 #include "util/stringlist.h"
 #include "util/time.h"
+#include "fstring.h"
 #include "util.h"
 #include "cache.h"
 #include "db.h"

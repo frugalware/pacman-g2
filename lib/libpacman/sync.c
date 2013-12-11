@@ -24,22 +24,9 @@
 
 #include "config.h"
 
-#include <dirent.h>
-#include <fcntl.h>
-#include <limits.h> /* PATH_MAX */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
 /* pacman-g2 */
 #include "sync.h"
 
-#include "hash/md5.h"
-#include "hash/sha1.h"
-#include "util/list.h"
-#include "util/log.h"
-#include "util/stringlist.h"
 #include "error.h"
 #include "package.h"
 #include "db.h"
@@ -56,6 +43,21 @@
 #include "handle.h"
 #include "server.h"
 #include "packages_transaction.h"
+
+#include "hash/md5.h"
+#include "hash/sha1.h"
+#include "util/list.h"
+#include "util/log.h"
+#include "util/stringlist.h"
+#include "fstdlib.h"
+#include "fstring.h"
+
+#include <sys/stat.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <limits.h> /* PATH_MAX */
+#include <stdio.h>
+#include <time.h>
 
 pmsyncpkg_t *_pacman_syncpkg_new(int type, pmpkg_t *spkg, void *data)
 {

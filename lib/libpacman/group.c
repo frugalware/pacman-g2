@@ -21,17 +21,14 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-/* pacman-g2 */
 #include "group.h"
 
-#include "util/list.h"
-#include "util.h"
-#include "error.h"
 #include "pacman.h"
+
+#include "util/list.h"
+#include "fstdlib.h"
+
+#include <string.h>
 
 pmgrp_t *_pacman_grp_new()
 {

@@ -24,27 +24,28 @@
 
 #include "config.h"
 
-#include <sys/utsname.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 /* pacman-g2 */
 #include "package.h"
 
-#include "io/archive.h"
-#include "package/pkginfo.h"
-#include "util/list.h"
-#include "util/log.h"
-#include "util/stringlist.h"
 #include "util.h"
 #include "error.h"
 #include "db.h"
 #include "handle.h"
 #include "cache.h"
 #include "pacman.h"
+
+#include "io/archive.h"
+#include "package/pkginfo.h"
+#include "util/list.h"
+#include "util/log.h"
+#include "util/stringlist.h"
+#include "fstdlib.h"
+#include "fstring.h"
+
+#include <sys/utsname.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdio.h>
 
 pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 {

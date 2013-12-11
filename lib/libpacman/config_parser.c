@@ -46,6 +46,7 @@
 #include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
+#include "fstring.h"
 #include "error.h"
 #include "deps.h"
 #include "versioncmp.h"

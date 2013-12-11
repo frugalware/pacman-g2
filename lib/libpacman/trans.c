@@ -34,6 +34,7 @@
 #include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
+#include "fstdlib.h"
 #include "error.h"
 #include "package.h"
 #include "util.h"
