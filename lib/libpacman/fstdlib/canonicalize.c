@@ -21,9 +21,11 @@
 
 #include "config.h"
 
+#include <sys/stat.h>
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
+#include <stddef.h>
 #include <unistd.h>
 
 #include "fstdlib.h"

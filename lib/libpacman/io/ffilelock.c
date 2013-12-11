@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <unistd.h>
 
 #include "io/ffilelock.h"
 

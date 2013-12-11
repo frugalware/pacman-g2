@@ -28,13 +28,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if defined(__OpenBSD__)
-#include "/usr/local/include/archive.h"
-#include "/usr/local/include/archive_entry.h"
-#else
-#include <archive.h>
-#include <archive_entry.h>
-#endif
 #include <libintl.h>
 
 #include "error.h"
