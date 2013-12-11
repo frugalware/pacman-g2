@@ -26,14 +26,11 @@
 #include "config.h"
 
 #include <sys/stat.h>
-#include <stdlib.h>
 #include <errno.h>
-#include <time.h>
 #include <fcntl.h>
-#include <string.h>
 #include <limits.h>
-#include <zlib.h>
-#include <libintl.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* pacman-g2 */
 #include "remove.h"

@@ -24,16 +24,13 @@
 
 #include "config.h"
 
+#include <dirent.h>
+#include <limits.h> /* PATH_MAX */
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
 #include <time.h>
-#ifdef CYGWIN
-#include <limits.h> /* PATH_MAX */
-#endif
-#include <dirent.h>
-#include <libintl.h>
 
 /* pacman-g2 */
 #include "trans_sysupgrade.h"

@@ -23,16 +23,14 @@
  */
 
 #include "config.h"
-#include <stdlib.h>
-#include <stdio.h>
+
+#include <dirent.h>
 #include <fcntl.h>
+#include <limits.h> /* PATH_MAX */
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#ifdef CYGWIN
-#include <limits.h> /* PATH_MAX */
-#endif
-#include <dirent.h>
-#include <libintl.h>
 
 /* pacman-g2 */
 #include "sync.h"
