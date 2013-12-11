@@ -23,28 +23,94 @@
 
 #include "util.h"
 
-typedef int (*FComparatorFunc)(const void *ptr, const void *visitor_data);
+typedef int (*FComparatorFunc)(const void *ptr, const void *comparator_data);
+typedef int (*FMatcherFunc)(const void *ptr, const void *matcher_data);
 typedef void (*FVisitorFunc)(void *ptr, void *visitor_data);
 
-typedef struct __FComparator FComparator;
-typedef struct __FVisitor FVisitor;
+typedef struct FComparator FComparator;
+typedef struct FMatcher FMatcher;
+typedef struct FVisitor FVisitor;
 
-struct __FComparator {
+struct FComparator {
 	FComparatorFunc fn;
 	void *data;
 };
 
-struct __FVisitor {
+struct FMatcher {
+	FMatcherFunc fn;
+	void *data;
+};
+
+struct FVisitor {
 	FVisitorFunc fn;
 	void *data;
 };
 
 static inline
-int f_compare(void *ptr, const FComparator *comparator) {
+int f_compare(const void *ptr, const FComparator *comparator) {
 	ASSERT(comparator != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT(comparator->fn != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	return comparator->fn(ptr, comparator->data);
+}
+
+static inline
+int f_compare_all(const void *ptr, const FComparator **comparators) {
+	ASSERT(comparators != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	while(*comparators != NULL) {
+		int match;
+
+		if((match = f_compare(ptr, *comparators)) != 0) {
+			return match;
+		}
+		comparators++;
+	}
+	return 0;
+}
+
+static inline
+int f_match(const void *ptr, const FMatcher *matcher) {
+	ASSERT(matcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(matcher->fn != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	return matcher->fn(ptr, matcher->data);
+}
+
+static inline
+int f_match_all(const void *ptr, const FMatcher **matchers) {
+	ASSERT(matchers != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	while(*matchers != NULL) {
+		int match;
+
+		if((match = f_match(ptr, *matchers)) != 0) {
+			return match;
+		}
+		matchers++;
+	}
+	return 0;
+}
+
+static inline
+int f_match_any(const void *ptr, const FMatcher **matchers) {
+	ASSERT(matchers != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	while(*matchers != NULL) {
+		if(f_match(ptr, *matchers) == 0) {
+			return 1;
+		}
+		matchers++;
+	}
+	return 0;
+}
+
+static inline
+int f_match_comparator(const void *ptr, const FComparator *comparator) {
+	ASSERT(comparator != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(comparator->fn != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	return comparator->fn(ptr, comparator->data) == 0;
 }
 
 static inline
