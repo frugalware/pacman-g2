@@ -22,16 +22,16 @@
  */
 
 #include "config.h"
+
+#include <sys/types.h>
+#include <limits.h>
+#include <locale.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <limits.h>
-#include <sys/types.h>
-#include <stdarg.h>
 #include <syslog.h>
-#include <libintl.h>
 #include <time.h>
-#include <locale.h>
+#include <unistd.h>
 
 /* pacman-g2 */
 #include "handle.h"

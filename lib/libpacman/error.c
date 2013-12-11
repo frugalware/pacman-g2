@@ -22,8 +22,10 @@
  *  USA.
  */
 
-#include <libintl.h>
 #include "config.h"
+
+#include "error.h"
+
 #include "util.h"
 #include "pacman.h"
 
