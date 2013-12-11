@@ -28,7 +28,6 @@ set(LIBPACMAN_SOURCES
 	package/packagecache.c
 	package/pkginfo.c
 	add.c
-	be_files.c
 	cache.c
 	config_parser.c
 	conflict.c
