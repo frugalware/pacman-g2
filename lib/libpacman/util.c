@@ -132,7 +132,7 @@ char *_pacman_basename(const char *path)
 }
 
 /* does the same thing as 'mkdir -p' */
-int _pacman_makepath(char *path)
+int _pacman_makepath(const char *path)
 {
 	char *orig, *str, *ptr;
 	char full[PATH_MAX] = "";

@@ -53,7 +53,7 @@
 #define DONESTR "DONE "
 
 char *_pacman_basename(const char *path);
-int _pacman_makepath(char *path);
+int _pacman_makepath(const char *path);
 int _pacman_copyfile(char *src, char *dest);
 int _pacman_lckmk(char *file);
 int _pacman_lckrm(char *file);
