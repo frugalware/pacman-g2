@@ -22,28 +22,28 @@
 
 #include "config.h"
 
-#include <sys/stat.h>
-#include <dirent.h>
-#include <errno.h>
-#include <limits.h> /* PATH_MAX */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
 /* pacman-g2 */
 #include "db/localdb.h"
 
-#include "db/localdb_files.h"
-#include "util/log.h"
-#include "util/stringlist.h"
-#include "fstring.h"
 #include "util.h"
 #include "db.h"
 #include "package.h"
 #include "pacman.h"
 #include "error.h"
 #include "handle.h"
+
+#include "db/localdb_files.h"
+#include "util/log.h"
+#include "util/stringlist.h"
+#include "fstring.h"
+
+#include <sys/stat.h>
+#include <dirent.h>
+#include <errno.h>
+#include <limits.h> /* PATH_MAX */
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 static
 pmpkg_t *_pacman_localdb_pkg_new(pmdb_t *db, const struct dirent *dirent, unsigned int inforeq)

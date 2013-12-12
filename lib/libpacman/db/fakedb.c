@@ -25,15 +25,16 @@
 
 #include "config.h"
 
-#include <time.h>
-
 /* pacman-g2 */
 #include "fakedb.h"
 
-#include "util/list.h"
-#include "util/stringlist.h"
 #include "package.h"
 #include "util.h"
+
+#include "util/list.h"
+#include "util/stringlist.h"
+
+#include <time.h>
 
 static pmpkg_t *_pacman_fakedb_pkg_new(pmdb_t *fakedb, const char *name)
 {

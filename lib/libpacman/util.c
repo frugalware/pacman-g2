@@ -23,36 +23,7 @@
  *  USA.
  */
 
-#if defined(__APPLE__) || defined(__OpenBSD__)
-#include <sys/syslimits.h>
-#endif
-#if defined(__APPLE__) || defined(__OpenBSD__) || defined(__sun__)
-#include <sys/stat.h>
-#endif
-
 #include "config.h"
-
-#include <libgen.h> /* basename (MUST be before string.h to import the posix version instead of the GNU) */
-#include <stdio.h>
-#include <stdlib.h>
-#ifdef __sun__
-#include <alloca.h>
-#endif
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <ctype.h>
-#include <dirent.h>
-#include <sys/wait.h>
-#ifdef CYGWIN
-#include <limits.h> /* PATH_MAX */
-#endif
-#include <sys/statvfs.h>
-#ifndef __sun__
-#include <mntent.h>
-#endif
-#include <regex.h>
 
 /* pacman-g2 */
 #include "util.h"
@@ -66,6 +37,20 @@
 #include "sync.h"
 #include "error.h"
 #include "pacman.h"
+
+#include <sys/wait.h>
+#include <sys/statvfs.h>
+#include <alloca.h>
+#include <ctype.h>
+#include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h> /* PATH_MAX */
+#include <mntent.h>
+#include <regex.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #ifdef __sun__
 /* This is a replacement for strsep which is not portable (missing on Solaris).

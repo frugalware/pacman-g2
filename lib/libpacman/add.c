@@ -25,25 +25,9 @@
 
 #include "config.h"
 
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
 /* pacman-g2 */
 #include "add.h"
 
-#include "db/fakedb.h"
-#include "hash/md5.h"
-#include "hash/sha1.h"
-#include "io/archive.h"
-#include "util/list.h"
-#include "util/log.h"
-#include "util/stringlist.h"
-#include "fstdlib.h"
-#include "fstring.h"
 #include "util.h"
 #include "error.h"
 #include "cache.h"
@@ -56,6 +40,21 @@
 #include "handle.h"
 #include "packages_transaction.h"
 #include "trans.h"
+
+#include "db/fakedb.h"
+#include "hash/md5.h"
+#include "hash/sha1.h"
+#include "io/archive.h"
+#include "util/list.h"
+#include "util/log.h"
+#include "util/stringlist.h"
+#include "fstdlib.h"
+#include "fstring.h"
+
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <time.h>
 
 pmpkg_t *_pacman_filedb_load(pmdb_t *db, const char *name)
 {

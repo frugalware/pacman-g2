@@ -24,17 +24,9 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 /* pacman-g2 */
 #include "trans.h"
 
-#include "util/list.h"
-#include "util/log.h"
-#include "util/stringlist.h"
-#include "fstdlib.h"
 #include "error.h"
 #include "package.h"
 #include "util.h"
@@ -46,6 +38,15 @@
 #include "pacman.h"
 
 #include "trans_sysupgrade.h"
+
+#include "util/list.h"
+#include "util/log.h"
+#include "util/stringlist.h"
+#include "fstdlib.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static int check_oldcache(void)
 {

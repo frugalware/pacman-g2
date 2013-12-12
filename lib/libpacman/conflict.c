@@ -25,23 +25,23 @@
 
 #include "config.h"
 
-#include <sys/stat.h>
-#include <limits.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
 /* pacman-g2 */
 #include "conflict.h"
+
+#include "util.h"
+#include "error.h"
+#include "cache.h"
+#include "deps.h"
 
 #include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
 #include "fstdlib.h"
-#include "util.h"
-#include "error.h"
-#include "cache.h"
-#include "deps.h"
+
+#include <sys/stat.h>
+#include <limits.h>
+#include <string.h>
+#include <unistd.h>
 
 /* Returns a pmlist_t* of pmdepmissing_t pointers.
  *

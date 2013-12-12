@@ -25,17 +25,15 @@
 
 #include "config.h"
 
-#include <sys/stat.h>
-#include <dirent.h>
-#include <errno.h>
-#include <limits.h> /* PATH_MAX */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
 /* pacman-g2 */
 #include "db.h"
+
+#include "util.h"
+#include "error.h"
+#include "server.h"
+#include "handle.h"
+#include "cache.h"
+#include "pacman.h"
 
 #include "db/localdb.h"
 #include "db/syncdb.h"
@@ -45,12 +43,15 @@
 #include "util/time.h"
 #include "fstdlib.h"
 #include "fstring.h"
-#include "util.h"
-#include "error.h"
-#include "server.h"
-#include "handle.h"
-#include "cache.h"
-#include "pacman.h"
+
+#include <sys/stat.h>
+#include <dirent.h>
+#include <errno.h>
+#include <limits.h> /* PATH_MAX */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 static int _pacman_db_getlastupdate(pmdb_t *db, char *ts);
 static int _pacman_db_setlastupdate(pmdb_t *db, const char *ts);
