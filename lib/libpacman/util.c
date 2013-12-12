@@ -52,60 +52,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#ifdef __sun__
-/* This is a replacement for strsep which is not portable (missing on Solaris).
- * Copyright (c) 2001 by François Gouget <fgouget_at_codeweavers.com> */
-char* strsep(char** str, const char* delims)
-{
-	char* token;
-
-	if (*str==NULL) {
-		/* No more tokens */
-		return NULL;
-	}
-
-	token=*str;
-	while (**str!='\0') {
-		if (strchr(delims,**str)!=NULL) {
-			**str='\0';
-			(*str)++;
-			return token;
-		}
-		(*str)++;
-	}
-	/* There is no other token */
-	*str=NULL;
-	return token;
-}
-
-/* Backported from Solaris Express 4/06
- * Copyright (c) 2006 Sun Microsystems, Inc. */
-char * mkdtemp(char *template)
-{
-	char *t = alloca(strlen(template) + 1);
-	char *r;
-
-	/* Save template */
-	(void) strcpy(t, template);
-	for (; ; ) {
-		r = mktemp(template);
-
-		if (*r == '\0')
-			return (NULL);
-
-		if (mkdir(template, 0700) == 0)
-			return (r);
-
-		/* Other errors indicate persistent conditions. */
-		if (errno != EEXIST)
-			return (NULL);
-
-		/* Reset template */
-		(void) strcpy(template, t);
-	}
-}
-#endif
-
 /* does the same thing as 'mkdir -p' */
 int _pacman_makepath(const char *path)
 {
@@ -549,7 +495,6 @@ cleanup:
 	return(retval);
 }
 
-#ifndef __sun__
 static long long get_freespace(void)
 {
 	struct mntent *mnt;
@@ -630,6 +575,5 @@ int _pacman_reg_match(const char *string, const char *pattern)
 	regfree(&reg);
 	return(!(result));
 }
-#endif
 
 /* vim: set ts=2 sw=2 noet: */
