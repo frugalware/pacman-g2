@@ -25,6 +25,9 @@
 
 #include "util/fcallback.h"
 
+char *f_basename(const char *path);
+char *f_dirname(const char *path);
+
 static inline
 int f_strempty(const char *s)
 {
