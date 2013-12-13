@@ -531,7 +531,9 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					snprintf(url, PATH_MAX, "%s://%s%s%s", server->protocol, server->server,
 									 server->path, fn);
 
-					_pacman_curl_init(&curldownloader);
+					if(_pacman_curl_init(&curldownloader)) {
+							goto error;
+					}
 					success = _pacman_curl_download(&curldownloader, url, mtime1, mtime2, output, dlFileType);
 					_pacman_curl_fini(&curldownloader);
 					switch(success) {
