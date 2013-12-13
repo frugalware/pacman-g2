@@ -121,7 +121,7 @@ int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags,
 	return(0);
 }
 
-void _pacman_trans_fini(pmtrans_t *trans)
+int _pacman_trans_fini(pmtrans_t *trans)
 {
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -143,6 +143,7 @@ void _pacman_trans_fini(pmtrans_t *trans)
 
 	memset(trans, 0, sizeof(*trans));
 	trans->state = STATE_IDLE;
+	return 0;
 }
 
 int _pacman_trans_sysupgrade(pmtrans_t *trans)
@@ -175,7 +176,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 	return(0);
 }
 
-void _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, void *data2)
+int _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, void *data2)
 {
 	char str[LOG_STR_LEN] = "";
 
@@ -210,6 +211,7 @@ void _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, voi
 	if(trans->cbs.event) {
 		trans->cbs.event(event, data1, data2);
 	}
+	return 0;
 }
 
 /* Test for existence of a package in a pmlist_t* of pmsyncpkg_t*

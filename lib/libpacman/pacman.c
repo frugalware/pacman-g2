@@ -42,6 +42,7 @@
 #include "sync.h"
 #include "handle.h"
 #include "server.h"
+#include "packages_transaction.h"
 
 #include "db/syncdb.h"
 #include "hash/md5.h"
@@ -982,7 +983,7 @@ void *pacman_conflict_getinfo(pmconflict_t *conflict, unsigned char parm)
 /** A printf-like function for logging.
  * @param format output format
  */
-void pacman_logaction(const char *format, ...)
+int pacman_logaction(const char *format, ...)
 {
 	va_list ap;
 
@@ -992,6 +993,7 @@ void pacman_logaction(const char *format, ...)
 	va_start(ap, format);
 	_pacman_vlogaction(handle->usesyslog, handle->logfd, format, ap);
 	va_end(ap);
+	return 0;
 
 	/* TODO
 	We should add a prefix to log strings depending on who called us.

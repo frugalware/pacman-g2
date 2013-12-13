@@ -259,6 +259,7 @@ int _pacman_localdb_read(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 	return 0;
 }
 
+/*
 static
 void _pacman_localdb_write_bool(const char *entry, int value, FILE *stream)
 {
@@ -266,6 +267,7 @@ void _pacman_localdb_write_bool(const char *entry, int value, FILE *stream)
 		fprintf(stream, "%%%s%%\n\n", entry);
 	}
 }
+*/
 
 static
 void _pacman_localdb_write_string(const char *entry, const char *value, FILE *stream)

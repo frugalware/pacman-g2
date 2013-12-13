@@ -46,7 +46,7 @@
 #include "error.h"
 
 static
-void _pacman_db_clear_grpcache(pmdb_t *db);
+int _pacman_db_clear_grpcache(pmdb_t *db);
 
 static
 int _pacman_db_load_grpcache(pmdb_t *db);
@@ -228,7 +228,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 	return(0);
 }
 
-void _pacman_db_clear_grpcache(pmdb_t *db)
+int _pacman_db_clear_grpcache(pmdb_t *db)
 {
 	FVisitor visitor = {
 		.fn = (FVisitorFunc)_pacman_grp_delete,
@@ -239,6 +239,7 @@ void _pacman_db_clear_grpcache(pmdb_t *db)
 
 	f_ptrlist_clear(db->grpcache, &visitor);
 	db->grpcache = NULL;
+	return 0;
 }
 
 pmlist_t *_pacman_db_get_grpcache(pmdb_t *db)

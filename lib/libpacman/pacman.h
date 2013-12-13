@@ -88,7 +88,7 @@ int pacman_release(void);
 /* Log callback */
 typedef void (*pacman_cb_log)(unsigned short, const char *msg);
 
-void pacman_logaction(const char *format, ...);
+int pacman_logaction(const char *format, ...);
 
 /*
  * Options

@@ -95,9 +95,9 @@ do { \
 pmtrans_t *_pacman_trans_new(void);
 void _pacman_trans_free(pmtrans_t *trans);
 int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
-void _pacman_trans_fini(pmtrans_t *trans);
+int _pacman_trans_fini(pmtrans_t *trans);
 
-void _pacman_trans_event(pmtrans_t *trans, unsigned char, void *, void *);
+int _pacman_trans_event(pmtrans_t *trans, unsigned char, void *, void *);
 pmsyncpkg_t *_pacman_trans_find(const pmtrans_t *trans, const char *pkgname);
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state);
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target);

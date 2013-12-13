@@ -72,10 +72,14 @@ int f_filelock_release(FFileLock *filelock)
 	ASSERT(filelock != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	if(filelock->flags & F_FILELOCK_UNLINK_ON_CLOSE) {
-		unlink(filelock->pathname);
+		if(unlink(filelock->pathname)) {
+				goto error;
+		}
 	}
 	if(filelock->fd != -1) {
-		close(filelock->fd);
+		if(close(filelock->fd)) {
+				goto error;
+		}
 	}
 	free(filelock);
 	return 0;
