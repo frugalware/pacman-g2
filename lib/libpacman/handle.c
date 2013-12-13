@@ -53,7 +53,6 @@ pmhandle_t *_pacman_handle_new()
 		return(NULL);
 	}
 
-	ph->lckfd = -1;
 	ph->maxtries = 1;
 
 #ifndef CYGWIN
@@ -350,28 +349,20 @@ int _pacman_handle_lock(pmhandle_t *handle)
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
 	snprintf(lckpath, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
-	handle->lckfd = _pacman_lckmk(lckpath);
-	if(handle->lckfd == -1) {
-		RET_ERR(PM_ERR_HANDLE_LOCK, -1);
-	}
-	return 0;
+	return (handle->filelock = f_filelock_aquire(lckpath, F_FILELOCK_CREATE_HOLD_DIR | F_FILELOCK_EXCLUSIVE | F_FILELOCK_UNLINK_ON_CLOSE)) != NULL ? 0: -1;
 }
 
 int _pacman_handle_unlock(pmhandle_t *handle)
 {
+	int ret = 0;
+
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
-	if(handle->lckfd != -1) {
-		char lckpath[PATH_MAX];
-
-		close(handle->lckfd);
-		handle->lckfd = -1;
-		snprintf(lckpath, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
-		if(_pacman_lckrm(lckpath)) {
-			_pacman_log(PM_LOG_WARNING, _("could not remove lock file %s"), lckpath);
-		}
+	if(handle->filelock != NULL) {
+		ret = f_filelock_release(handle->filelock);
+		handle->filelock = NULL;
 	}
-	return 0;
+	return ret;
 }
 
 /* vim: set ts=2 sw=2 noet: */

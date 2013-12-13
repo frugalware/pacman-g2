@@ -29,6 +29,7 @@
 
 typedef struct __pmhandle_t pmhandle_t;
 
+#include "io/ffilelock.h"
 #include "db.h"
 #include "trans.h"
 
@@ -43,7 +44,7 @@ struct __pmhandle_t {
 	pmdb_t *db_local;
 	pmlist_t *dbs_sync; /* List of (pmdb_t *) */
 	FILE *logfd;
-	int lckfd;
+	FFileLock *filelock;
 	pmtrans_t *trans;
 	/* parameters */
 	char *root;
