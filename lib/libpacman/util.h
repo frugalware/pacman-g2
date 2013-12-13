@@ -55,8 +55,6 @@
 #define _pacman_basename f_basename
 int _pacman_makepath(const char *path);
 int _pacman_copyfile(char *src, char *dest);
-int _pacman_lckmk(char *file);
-int _pacman_lckrm(char *file);
 int _pacman_unpack(const char *archive, const char *prefix, const char *fn);
 int _pacman_rmrf(char *path);
 int _pacman_ldconfig(char *root);

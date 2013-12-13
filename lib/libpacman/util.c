@@ -108,44 +108,6 @@ int _pacman_copyfile(char *src, char *dest)
 	return(0);
 }
 
-/* Create a lock file
- */
-int _pacman_lckmk(char *file)
-{
-	int fd, count = 0;
-	char *dir, *ptr;
-
-	/* create the dir of the lockfile first */
-	dir = strdup(file);
-	ptr = strrchr(dir, '/');
-	if(ptr) {
-		*ptr = '\0';
-	}
-	_pacman_makepath(dir);
-	FREE(dir);
-
-	while((fd = open(file, O_WRONLY | O_CREAT | O_EXCL, 0000)) == -1 && errno == EACCES) {
-		if(++count < 1) {
-			sleep(1);
-		} else {
-			close(fd);
-			return(-1);
-		}
-	}
-
-	return(fd > 0 ? fd : -1);
-}
-
-/* Remove a lock file
- */
-int _pacman_lckrm(char *file)
-{
-	if(unlink(file) == -1 && errno != ENOENT) {
-		return(-1);
-	}
-	return(0);
-}
-
 /* Compression functions
  */
 
