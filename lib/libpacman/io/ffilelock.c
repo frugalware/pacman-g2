@@ -48,6 +48,10 @@ FFileLock *f_filelock_aquire(const char *pathname, int flags)
 
 	filelock->flags = flags;
 	f_canonicalize_path(pathname, filelock->pathname, PATH_MAX, F_PATH_NOCHECK);
+	if((flags & F_FILELOCK_CREATE_HOLD_DIR) && 
+			_pacman_makepath(f_dirname(filelock->pathname)) != 0) {
+		goto error;
+	}
 	if((filelock->fd = open(pathname, O_CREAT | O_RDWR, 0)) == -1) {
 		goto error;
 	}

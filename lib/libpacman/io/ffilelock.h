@@ -23,8 +23,9 @@
 
 typedef struct FFileLock FFileLock;
 
-#define F_FILELOCK_EXCLUSIVE       (1<<0)
-#define F_FILELOCK_UNLINK_ON_CLOSE (1<<1)
+#define F_FILELOCK_CREATE_HOLD_DIR (1<<0)
+#define F_FILELOCK_EXCLUSIVE       (1<<1)
+#define F_FILELOCK_UNLINK_ON_CLOSE (1<<2)
 
 FFileLock *f_filelock_aquire(const char *pathname, int flags);
 int f_filelock_release(FFileLock *filelock);
