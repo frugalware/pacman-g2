@@ -49,7 +49,6 @@
 pacman_trans_cb_download pm_dlcb = NULL;
 /* progress bar */
 char *pm_dlfnm=NULL;
-struct timeval *pm_dlt=NULL;
 
 pmserver_t *_pacman_server_new(char *url)
 {
@@ -254,9 +253,6 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 	curldownloader->download.dst_tell = -1; // To not miss potential curl event at 0.
 	gettimeofday(&curldownloader->download.dst_begin, NULL);
 	curldownloader->previous_update = curldownloader->download.dst_begin;
-	if(pm_dlt) {
-		*pm_dlt = curldownloader->download.dst_begin;
-	}
 
 	if(mtime1 && mtime2 && !handle->proxyhost) {
 		curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);

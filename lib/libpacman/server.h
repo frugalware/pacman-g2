@@ -66,7 +66,6 @@ extern pacman_trans_cb_download pm_dlcb;
 
 /* progress bar */
 extern char *pm_dlfnm;
-extern struct timeval *pm_dlt;
 extern int *pm_dlxfered1;
 
 #endif /* _PACMAN_SERVER_H */
