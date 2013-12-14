@@ -87,6 +87,7 @@ void f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
 int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
 #define f_ptrlist_count f_list_count
 #define f_ptrlist_empty f_list_empty
+FPtrList *f_ptrlist_filter(const FPtrList *list, const FMatcher *matcher);
 
 #endif /* _PACMAN_LIST_H */
 

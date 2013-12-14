@@ -337,4 +337,16 @@ int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr)
 	return f_ptrlist_contains(list, f_ptrlistitem_ptrcmp, ptr);
 }
 
+FPtrList *f_ptrlist_filter(const FPtrList *list, const FMatcher *matcher)
+{
+	FPtrList *retlist = f_ptrlist_new();
+
+	for(; list != NULL; list = list->next) {
+		if(f_match(list->data, matcher)) {
+			retlist = f_ptrlist_append(retlist, list->data);
+		}
+	}
+	return retlist;
+}
+
 /* vim: set ts=2 sw=2 noet: */
