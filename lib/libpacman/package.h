@@ -25,10 +25,12 @@
 #ifndef _PACMAN_PACKAGE_H
 #define _PACMAN_PACKAGE_H
 
-#if defined(__APPLE__) || defined(__sun__)
 #include <time.h>
-#endif
+
+#include "util/stringlist.h"
+
 #include "pacman.h"
+
 #include "trans.h"
 
 enum {
@@ -110,6 +112,31 @@ pmlist_t *_pacman_pkg_getowners(char *filename);
 
 int _pacman_pkg_filename(char *str, size_t size, const pmpkg_t *pkg);
 char *_pacman_pkg_fileneedbackup(const pmpkg_t *pkg, const char *file);
+
+#define F_PACKAGEMATCHER_NAME                  (1<< 0)
+#define F_PACKAGEMATCHER_VERSION               (1<< 1)
+#define F_PACKAGEMATCHER_DESCRIPTION           (1<< 2)
+#define F_PACKAGEMATCHER_URL                   (1<< 3)
+#define F_PACKAGEMATCHER_BUILDDATE             (1<< 4)
+#define F_PACKAGEMATCHER_BUILDTYPE             (1<< 5)
+#define F_PACKAGEMATCHER_INSTALLDATE           (1<< 6)
+//#define F_PACKAGEMATCHER_HASH                (1<< 7)
+#define F_PACKAGEMATCHER_ARCH                  (1<< 8)
+#define F_PACKAGEMATCHER_LOCALISED_DESCRIPTION (1<< 9)
+#define F_PACKAGEMATCHER_LICENSE               (1<<10)
+#define F_PACKAGEMATCHER_REPLACES              (1<<11)
+#define F_PACKAGEMATCHER_GROUPS                (1<<12)
+#define F_PACKAGEMATCHER_FILES                 (1<<13)
+#define F_PACKAGEMATCHER_BACKUP                (1<<14)
+#define F_PACKAGEMATCHER_DEPENDS               (1<<15)
+#define F_PACKAGEMATCHER_REMOVES               (1<<16)
+#define F_PACKAGEMATCHER_REQUIREDBY            (1<<17)
+#define F_PACKAGEMATCHER_CONFLITS              (1<<18)
+#define F_PACKAGEMATCHER_PROVIDES              (1<<19)
+#define F_PACKAGEMATCHER_TRIGGERS              (1<<20)
+
+int f_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatcher, int flags);
+int f_packagestrmatcher_fini(FMatcher *matcher);
 
 #endif /* _PACMAN_PACKAGE_H */
 

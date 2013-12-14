@@ -547,4 +547,71 @@ char *_pacman_pkg_fileneedbackup(const pmpkg_t *pkg, const char *file)
 	return(NULL);
 }
 
+typedef struct FPackageStrMatcher FPackageStrMatcher;
+
+struct FPackageStrMatcher
+{
+	int flags;
+	const FStrMatcher *strmatcher;
+};
+
+static
+int f_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
+	const pmpkg_t *pkg = ptr;
+	const FPackageStrMatcher *data = matcher_data;
+	const int flags = data->flags;
+	const FStrMatcher *strmatcher = data->strmatcher;
+
+	if(((flags & F_PACKAGEMATCHER_NAME) && f_str_match(pkg->name, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_VERSION) && f_str_match(pkg->version, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_DESCRIPTION) && f_str_match(pkg->desc, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_BUILDDATE) && f_str_match(pkg->builddate, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_BUILDTYPE) && f_str_match(pkg->buildtype, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_INSTALLDATE) && f_str_match(pkg->installdate, strmatcher)) ||
+//			((flags & F_PACKAGEMATCHER_HASH) && ) ||
+			((flags & F_PACKAGEMATCHER_ARCH) && f_str_match(pkg->arch, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_LOCALISED_DESCRIPTION) && f_stringlist_any_match(pkg->desc_localized, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_LICENSE) && f_stringlist_any_match(pkg->license, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_REPLACES) && f_stringlist_any_match(pkg->replaces, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_GROUPS) && f_stringlist_any_match(pkg->groups, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_FILES) && f_stringlist_any_match(pkg->files, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_BACKUP) && f_stringlist_any_match(pkg->backup, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_DEPENDS) && f_stringlist_any_match(pkg->depends, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_REMOVES) && f_stringlist_any_match(pkg->removes, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_REQUIREDBY) && f_stringlist_any_match(pkg->requiredby, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_CONFLITS) && f_stringlist_any_match(pkg->conflicts, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_PROVIDES) && f_stringlist_any_match(pkg->provides, strmatcher)) ||
+			((flags & F_PACKAGEMATCHER_TRIGGERS) && f_stringlist_any_match(pkg->triggers, strmatcher))) {
+		return 1;
+	}
+	return 0;
+}
+
+int f_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatcher, int flags)
+{
+	FPackageStrMatcher *data = NULL;
+
+	ASSERT(matcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(strmatcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT((data = f_zalloc(sizeof(*data))) != NULL, return -1);
+
+	matcher->fn = f_packagestrmatcher_match;
+	matcher->data = data;
+	data->flags = flags;
+	data->strmatcher = strmatcher;
+	return 0;
+}
+
+int f_packagestrmatcher_fini(FMatcher *matcher)
+{
+	FPackageStrMatcher *data = NULL;
+
+	ASSERT(matcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(matcher->fn != f_packagestrmatcher_match, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT((data = matcher->data) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	free(data);
+	return 0;
+}
+
 /* vim: set ts=2 sw=2 noet: */
