@@ -67,38 +67,38 @@ struct FStrVisitor {
 };
 
 static inline
-int f_str_compare(const char *str, const FStrComparator *str_comparator) {
-	return f_compare(str, (const FComparator *)str_comparator);
+int f_str_compare(const char *str, const FStrComparator *strcomparator) {
+	return f_compare(str, (const FComparator *)strcomparator);
 }
 
 static inline
-int f_str_compare_all(const char *str, const FStrComparator **str_comparators) {
-	return f_compare_all(str, (const FComparator **)str_comparators);
+int f_str_compare_all(const char *str, const FStrComparator **strcomparators) {
+	return f_compare_all(str, (const FComparator **)strcomparators);
 }
 
 static inline
-int f_str_match(const char *str, const FStrMatcher *str_matcher) {
-	return f_match(str, (const FMatcher *)str_matcher);
+int f_str_match(const char *str, const FStrMatcher *strmatcher) {
+	return f_match(str, (const FMatcher *)strmatcher);
 }
 
 static inline
-int f_str_match_all(const char *str, const FStrMatcher **str_matchers) {
-	return f_match_all(str, (const FMatcher **)str_matchers);
+int f_str_match_all(const char *str, const FStrMatcher **strmatchers) {
+	return f_match_all(str, (const FMatcher **)strmatchers);
 }
 
 static inline
-int f_str_match_any(const char *str, const FStrMatcher **str_matchers) {
-	return f_match_any(str, (const FMatcher **)str_matchers);
+int f_str_match_any(const char *str, const FStrMatcher **strmatchers) {
+	return f_match_any(str, (const FMatcher **)strmatchers);
 }
 
 static inline
-int f_str_match_comparator(const char *str, const FStrComparator *str_comparator) {
-	return f_match_comparator(str, (const FComparator *)str_comparator);
+int f_str_match_comparator(const char *str, const FStrComparator *strcomparator) {
+	return f_match_comparator(str, (const FComparator *)strcomparator);
 }
 
 static inline
-void f_str_visit(char *str, FStrVisitor *str_visitor) {
-	f_visit(str, (FVisitor *)str_visitor);
+void f_str_visit(char *str, FStrVisitor *strvisitor) {
+	f_visit(str, (FVisitor *)strvisitor);
 }
 
 #define F_STRMATCHER_IGNORE_CASE (1<<0)
@@ -106,8 +106,8 @@ void f_str_visit(char *str, FStrVisitor *str_visitor) {
 #define F_STRMATCHER_REGEXP      (1<<2)
 #define F_STRMATCHER_SUBSTRING   (1<<3)
 
-int f_strmatcher_init(FStrMatcher *str_matcher, const char *pattern, int flags);
-int f_strmatcher_fini(FStrMatcher *str_matcher);
+int f_strmatcher_init(FStrMatcher *strmatcher, const char *pattern, int flags);
+int f_strmatcher_fini(FStrMatcher *strmatcher);
 
 #endif /* F_STRING_H */
 
