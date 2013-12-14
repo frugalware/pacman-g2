@@ -150,6 +150,34 @@ pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn)
 	return(list);
 }
 
+int f_list_all_match(const FList *list, const FMatcher *matcher)
+{
+	const FListItem *it;
+
+	if(f_list_empty(list)) {
+		return 0;
+	}
+
+	for(it = list; it != NULL; it = it->next) {
+		if(f_match(it, matcher) == 0) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+int f_list_any_match(const FList *list, const FMatcher *matcher)
+{
+	const FListItem *it;
+
+	for(it = list; it != NULL; it = it->next) {
+		if(f_match(it, matcher) != 0) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 /* Remove an item in a list. Use the given comparison function to find the
  * item.
  * If the item is found, 'data' is pointing to the removed element.
@@ -257,6 +285,10 @@ void f_ptrlistitem_delete(FListItem *item, FVisitor *visitor)
 	f_listitem_delete(item, visitor);
 }
 
+int f_ptrlistitem_match(const FListItem *item, const FMatcher *matcher) {
+	return f_match(item->data, matcher);
+}
+
 int f_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr) {
 	return f_ptrcmp(item->data, ptr);
 }
@@ -264,6 +296,26 @@ int f_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr) {
 void f_ptrlist_delete(FPtrList *list, FVisitor *visitor)
 {
 	f_ptrlist_clear(list, visitor);
+}
+
+int f_ptrlist_all_match(const FPtrList *list, const FMatcher *matcher)
+{
+	FMatcher itemmatcher = {
+		.fn = (FComparatorFunc)f_ptrlistitem_match,
+		.data = matcher,
+	};
+
+	return f_list_all_match(list, &itemmatcher);
+}
+
+int f_ptrlist_any_match(const FPtrList *list, const FMatcher *matcher)
+{
+	FMatcher itemmatcher = {
+		.fn = (FComparatorFunc)f_ptrlistitem_match,
+		.data = matcher,
+	};
+
+	return f_list_any_match(list, &itemmatcher);
 }
 
 void f_ptrlist_clear(FPtrList *list, FVisitor *visitor)

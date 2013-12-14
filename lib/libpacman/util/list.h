@@ -61,6 +61,8 @@ void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visit
 
 pmlist_t *_pacman_list_add(pmlist_t *list, void *data);
 pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn);
+int f_list_all_match(const FList *list, const FMatcher *matcher);
+int f_list_any_match(const FList *list, const FMatcher *matcher);
 pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 pmlist_t *_pacman_list_last(pmlist_t *list);
 pmlist_t *_pacman_list_reverse(pmlist_t *list);
@@ -71,11 +73,14 @@ typedef struct __pmlist_t FPtrListItem;
 FPtrListItem *f_ptrlistitem_new(void *ptr);
 void f_ptrlistitem_delete(FListItem *item, FVisitor *visitor);
 
+int f_ptrlistitem_match(const FListItem *item, const FMatcher *matcher);
 int f_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr);
 
 FPtrList *f_ptrlist_new(void);
 void f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
 
+int f_ptrlist_all_match(const FPtrList *list, const FMatcher *matcher);
+int f_ptrlist_any_match(const FPtrList *list, const FMatcher *matcher);
 void f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
 #define f_ptrlist_contains f_list_contains
 int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
