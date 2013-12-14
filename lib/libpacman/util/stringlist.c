@@ -76,30 +76,12 @@ FStringList *_pacman_list_strdup(FStringList *list)
 
 int f_stringlist_all_match(const FStringList *list, const FStrMatcher *matcher)
 {
-	const FStringListItem *it;
-
-	if(f_list_empty(list)) {
-		return 0;
-	}
-
-	for(it = list; it != NULL; it = it->next) {
-		if(f_str_match(list->data, matcher) == 0) {
-			return 0;
-		}
-	}
-	return 1;
+	return f_ptrlist_all_match(list, (const FMatcher *)matcher);
 }
 
 int f_stringlist_any_match(const FStringList *list, const FStrMatcher *matcher)
 {
-	const FStringListItem *it;
-
-	for(it = list; it != NULL; it = it->next) {
-		if(f_str_match(list->data, matcher) != 0) {
-			return 1;
-		}
-	}
-	return 0;
+	return f_ptrlist_any_match(list, (const FMatcher *)matcher);
 }
 
 FStringList *f_stringlist_append(FStringList *list, const char *s)
