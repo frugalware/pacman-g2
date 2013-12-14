@@ -21,7 +21,8 @@
 #ifndef _PACMAN_STRINGLIST_H
 #define _PACMAN_STRINGLIST_H
 
-#include "list.h"
+#include "util/list.h"
+#include "fstring.h"
 
 typedef struct __pmlist_t FStringList;
 typedef struct __pmlist_t FStringListItem;
@@ -32,6 +33,8 @@ int _pacman_list_is_strin(const char *needle, FStringList *haystack);
 FStringList *_pacman_list_remove_dupes(FStringList *list);
 FStringList *_pacman_list_strdup(FStringList *list);
 
+int f_stringlist_all_match(const FStringList *list, const FStrMatcher *matcher);
+int f_stringlist_any_match(const FStringList *list, const FStrMatcher *matcher);
 FStringList *f_stringlist_append(FStringList *list, const char *s);
 FStringList *f_stringlist_append_stringlist(FStringList *dest, const FStringList *src);
 
