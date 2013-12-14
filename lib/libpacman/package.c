@@ -608,7 +608,7 @@ int f_packagestrmatcher_fini(FMatcher *matcher)
 
 	ASSERT(matcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT(matcher->fn != f_packagestrmatcher_match, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT((data = matcher->data) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT((data = (FPackageStrMatcher *)matcher->data) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	free(data);
 	return 0;

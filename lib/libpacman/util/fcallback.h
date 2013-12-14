@@ -33,12 +33,12 @@ typedef struct FVisitor FVisitor;
 
 struct FComparator {
 	FComparatorFunc fn;
-	void *data;
+	const void *data;
 };
 
 struct FMatcher {
 	FMatcherFunc fn;
-	void *data;
+	const void *data;
 };
 
 struct FVisitor {
