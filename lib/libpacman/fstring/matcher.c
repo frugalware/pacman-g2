@@ -60,7 +60,7 @@ int f_strmatcher_init(FStrMatcher *strmatcher, const char *pattern, int flags)
 
 	ASSERT(strmatcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT(!f_strempty(pattern), RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT((data = f_zalloc(sizeof(FStrMatcherData))) != NULL, return -1);
+	ASSERT((data = f_zalloc(sizeof(*data))) != NULL, return -1);
 
 	strmatcher->fn = f_strmatcher_match;
 	strmatcher->data = data;
