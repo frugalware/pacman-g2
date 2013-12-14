@@ -101,6 +101,14 @@ void f_str_visit(char *str, FStrVisitor *str_visitor) {
 	f_visit(str, (FVisitor *)str_visitor);
 }
 
+#define F_STRMATCHER_IGNORE_CASE (1<<0)
+#define F_STRMATCHER_EQUAL       (1<<1)
+#define F_STRMATCHER_REGEXP      (1<<2)
+#define F_STRMATCHER_SUBSTRING   (1<<3)
+
+int f_strmatcher_init(FStrMatcher *str_matcher, const char *pattern, int flags);
+int f_strmatcher_fini(FStrMatcher *str_matcher);
+
 #endif /* F_STRING_H */
 
 /* vim: set ts=2 sw=2 noet: */
