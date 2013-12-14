@@ -48,6 +48,7 @@ typedef int (*_pacman_fn_cmp)(const void *, const void *);
 
 #define _pacman_list_new f_ptrlist_new
 
+#define _pacman_list_add f_ptrlist_append
 #define _pacman_list_count f_ptrlist_count
 #define _pacman_list_empty f_ptrlist_empty
 
@@ -59,7 +60,7 @@ int f_list_empty(const FList *list);
 FListItem *f_list_find(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
 void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data);
 
-pmlist_t *_pacman_list_add(pmlist_t *list, void *data);
+pmlist_t *f_ptrlist_append(pmlist_t *list, void *data);
 pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn);
 int f_list_all_match(const FList *list, const FMatcher *matcher);
 int f_list_any_match(const FList *list, const FMatcher *matcher);

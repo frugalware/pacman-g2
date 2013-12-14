@@ -73,7 +73,7 @@ FListItem *f_list_find(const FList *list, FListItemComparatorFunc comparator, co
 	return (FListItem *)list;
 }
 
-pmlist_t *_pacman_list_add(pmlist_t *list, void *data)
+pmlist_t *f_ptrlist_append(pmlist_t *list, void *data)
 {
 	pmlist_t *ptr, *lp;
 
