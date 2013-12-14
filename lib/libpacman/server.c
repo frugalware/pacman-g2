@@ -249,6 +249,7 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 	FILE *outputFile;
 	pmdownloadsuccess_t ret = PM_DOWNLOAD_OK;
 
+	curldownloader->download.source = url;
 	curldownloader->download.dst_resume = 0;
 	curldownloader->download.dst_tell = -1; // To not miss potential curl event at 0.
 	gettimeofday(&curldownloader->download.dst_begin, NULL);

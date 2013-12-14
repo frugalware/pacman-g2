@@ -417,6 +417,21 @@ pmlist_t *pacman_db_getgrpcache(pmdb_t *db)
  * @{
  */
 
+/** Get the download source url as a string.
+ * @param download pointer to the download state to get the informations from.
+ * @param str pointer to the value to be written.
+ * @param size the size of the str buffer
+ * @return return the size of the download url converted to string even if bigger then size,
+ *         or -1 in case of error.
+ */
+size_t pacman_download_source_tostr(const pmdownload_t *download, char *str, size_t size)
+{
+	ASSERT(download != NULL, return -1);
+	ASSERT(str != NULL, return -1);
+
+	return snprintf(str, size, "%s", download->source);
+}
+
 /** Get the average download speed (in bytes per seconds).
  * @param download pointer to the download state to get the informations from.
  * @param offset pointer to the value to be written.

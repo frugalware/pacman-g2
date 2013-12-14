@@ -166,6 +166,7 @@ pmlist_t *pacman_db_test(pmdb_t *db);
  * Downloads
  */
 
+size_t pacman_download_sourceurl_tostr(const pmdownload_t *download, char *str, size_t size);
 int pacman_download_avg(const pmdownload_t *download, double *avg);
 int pacman_download_begin(const pmdownload_t *download, struct timeval *timeval);
 int pacman_download_end(const pmdownload_t *download, struct timeval *timeval);
