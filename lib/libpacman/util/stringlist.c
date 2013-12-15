@@ -86,7 +86,7 @@ int f_stringlist_any_match(const FStringList *list, const FStrMatcher *matcher)
 
 FStringList *f_stringlist_append(FStringList *list, const char *s)
 {
-	return _pacman_list_add(list, strdup(s));
+	return f_ptrlist_append(list, f_strdup(s));
 }
 
 FStringList *f_stringlist_append_stringlist(FStringList *dest, const FStringList *src)

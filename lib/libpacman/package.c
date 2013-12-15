@@ -556,38 +556,60 @@ struct FPackageStrMatcher
 };
 
 static
-int f_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
+int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 	const pmpkg_t *pkg = ptr;
 	const FPackageStrMatcher *data = matcher_data;
 	const int flags = data->flags;
 	const FStrMatcher *strmatcher = data->strmatcher;
 
-	if(((flags & F_PACKAGEMATCHER_NAME) && f_str_match(pkg->name, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_VERSION) && f_str_match(pkg->version, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_DESCRIPTION) && f_str_match(pkg->desc, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_BUILDDATE) && f_str_match(pkg->builddate, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_BUILDTYPE) && f_str_match(pkg->buildtype, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_INSTALLDATE) && f_str_match(pkg->installdate, strmatcher)) ||
-//			((flags & F_PACKAGEMATCHER_HASH) && ) ||
-			((flags & F_PACKAGEMATCHER_ARCH) && f_str_match(pkg->arch, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_LOCALISED_DESCRIPTION) && f_stringlist_any_match(pkg->desc_localized, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_LICENSE) && f_stringlist_any_match(pkg->license, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_REPLACES) && f_stringlist_any_match(pkg->replaces, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_GROUPS) && f_stringlist_any_match(pkg->groups, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_FILES) && f_stringlist_any_match(pkg->files, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_BACKUP) && f_stringlist_any_match(pkg->backup, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_DEPENDS) && f_stringlist_any_match(pkg->depends, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_REMOVES) && f_stringlist_any_match(pkg->removes, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_REQUIREDBY) && f_stringlist_any_match(pkg->requiredby, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_CONFLITS) && f_stringlist_any_match(pkg->conflicts, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_PROVIDES) && f_stringlist_any_match(pkg->provides, strmatcher)) ||
-			((flags & F_PACKAGEMATCHER_TRIGGERS) && f_stringlist_any_match(pkg->triggers, strmatcher))) {
+#if 0
+	/* Update the cache package entry if needed */
+	if(pkg->origin == PKG_FROM_CACHE) {
+		if(!(pkg->infolevel & INFRQ_DESC)) {
+			_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), pkg->name);
+			_pacman_db_read(pkg->data, (pmpkg_t *)pkg, INFRQ_DESC);
+		}
+		if(!(pkg->infolevel & INFRQ_DEPENDS)) {
+			_pacman_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", pkg->name);
+			_pacman_db_read(pkg->data, (pmpkg_t *)pkg, INFRQ_DEPENDS);
+		}
+		if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_FILES)) {
+			_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg->name);
+			_pacman_db_read(pkg->data, (pmpkg_t *)pkg, INFRQ_FILES);
+		}
+		if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_SCRIPLET)) {
+			_pacman_log(PM_LOG_DEBUG, _("loading SCRIPLET info for '%s'"), pkg->name);
+			_pacman_db_read(pkg->data, (pmpkg_t *)pkg, INFRQ_SCRIPLET);
+		}
+	}
+#endif
+
+	if(((flags & PM_PACKAGEMATCHER_NAME) && f_str_match(pkg->name, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_VERSION) && f_str_match(pkg->version, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_DESCRIPTION) && f_str_match(pkg->desc, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_BUILDDATE) && f_str_match(pkg->builddate, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_BUILDTYPE) && f_str_match(pkg->buildtype, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_INSTALLDATE) && f_str_match(pkg->installdate, strmatcher)) ||
+//			((flags & PM_PACKAGEMATCHER_HASH) && ) ||
+			((flags & PM_PACKAGEMATCHER_ARCH) && f_str_match(pkg->arch, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_LOCALISED_DESCRIPTION) && f_stringlist_any_match(pkg->desc_localized, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_LICENSE) && f_stringlist_any_match(pkg->license, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_REPLACES) && f_stringlist_any_match(pkg->replaces, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_GROUPS) && f_stringlist_any_match(pkg->groups, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_FILES) && f_stringlist_any_match(pkg->files, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_BACKUP) && f_stringlist_any_match(pkg->backup, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_DEPENDS) && f_stringlist_any_match(pkg->depends, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_REMOVES) && f_stringlist_any_match(pkg->removes, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_REQUIREDBY) && f_stringlist_any_match(pkg->requiredby, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_CONFLITS) && f_stringlist_any_match(pkg->conflicts, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_PROVIDES) && f_stringlist_any_match(pkg->provides, strmatcher)) ||
+			((flags & PM_PACKAGEMATCHER_TRIGGERS) && f_stringlist_any_match(pkg->triggers, strmatcher))) {
 		return 1;
 	}
 	return 0;
 }
 
-int f_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatcher, int flags)
+int _pacman_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatcher, int flags)
 {
 	FPackageStrMatcher *data = NULL;
 
@@ -595,19 +617,19 @@ int f_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatcher, i
 	ASSERT(strmatcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT((data = f_zalloc(sizeof(*data))) != NULL, return -1);
 
-	matcher->fn = f_packagestrmatcher_match;
+	matcher->fn = _pacman_packagestrmatcher_match;
 	matcher->data = data;
 	data->flags = flags;
 	data->strmatcher = strmatcher;
 	return 0;
 }
 
-int f_packagestrmatcher_fini(FMatcher *matcher)
+int _pacman_packagestrmatcher_fini(FMatcher *matcher)
 {
 	FPackageStrMatcher *data = NULL;
 
 	ASSERT(matcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(matcher->fn != f_packagestrmatcher_match, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(matcher->fn == _pacman_packagestrmatcher_match, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT((data = (FPackageStrMatcher *)matcher->data) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	free(data);

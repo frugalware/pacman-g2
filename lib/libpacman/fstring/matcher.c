@@ -62,8 +62,6 @@ int f_strmatcher_init(FStrMatcher *strmatcher, const char *pattern, int flags)
 	ASSERT(!f_strempty(pattern), RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT((data = f_zalloc(sizeof(*data))) != NULL, return -1);
 
-	strmatcher->fn = f_strmatcher_match;
-	strmatcher->data = data;
 	if(flags & (F_STRMATCHER_EQUAL | F_STRMATCHER_SUBSTRING)) {
 		if((data->str = strdup(pattern)) != NULL) {
 			if(flags & F_STRMATCHER_IGNORE_CASE) {
@@ -81,12 +79,13 @@ int f_strmatcher_init(FStrMatcher *strmatcher, const char *pattern, int flags)
 			flags |= ~F_STRMATCHER_REGEXP;
 		}
 	}
+	strmatcher->fn = f_strmatcher_match;
+	strmatcher->data = data;
 	data->flags = flags;
 	if((flags & ~F_STRMATCHER_IGNORE_CASE) == 0) {
 		f_strmatcher_fini(strmatcher);
 		RET_ERR(PM_ERR_WRONG_ARGS, -1);
 	}
-	data->flags = flags;
 	return 0;
 }
 
@@ -95,7 +94,7 @@ int f_strmatcher_fini(FStrMatcher *strmatcher)
 	FStrMatcherData *data = NULL;
 
 	ASSERT(strmatcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(strmatcher->fn != f_strmatcher_match, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(strmatcher->fn == f_strmatcher_match, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT((data = strmatcher->data) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	free(data->str);
@@ -103,6 +102,8 @@ int f_strmatcher_fini(FStrMatcher *strmatcher)
 		regfree(&data->regex);
 	}
 	free(data);
+	strmatcher->fn = NULL;
+	strmatcher->data = NULL;
 	return 0;
 }
 

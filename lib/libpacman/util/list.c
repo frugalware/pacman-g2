@@ -301,7 +301,7 @@ void f_ptrlist_delete(FPtrList *list, FVisitor *visitor)
 int f_ptrlist_all_match(const FPtrList *list, const FMatcher *matcher)
 {
 	FMatcher itemmatcher = {
-		.fn = (FComparatorFunc)f_ptrlistitem_match,
+		.fn = (FMatcherFunc)f_ptrlistitem_match,
 		.data = matcher,
 	};
 
@@ -311,7 +311,7 @@ int f_ptrlist_all_match(const FPtrList *list, const FMatcher *matcher)
 int f_ptrlist_any_match(const FPtrList *list, const FMatcher *matcher)
 {
 	FMatcher itemmatcher = {
-		.fn = (FComparatorFunc)f_ptrlistitem_match,
+		.fn = (FMatcherFunc)f_ptrlistitem_match,
 		.data = matcher,
 	};
 
@@ -339,7 +339,7 @@ int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr)
 
 FPtrList *f_ptrlist_filter(const FPtrList *list, const FMatcher *matcher)
 {
-	FPtrList *retlist = f_ptrlist_new();
+	FPtrList *retlist = NULL;
 
 	for(; list != NULL; list = list->next) {
 		if(f_match(list->data, matcher)) {
