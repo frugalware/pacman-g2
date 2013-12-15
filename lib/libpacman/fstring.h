@@ -29,6 +29,12 @@ char *f_basename(const char *path);
 char *f_dirname(const char *path);
 
 static inline
+char *f_strdup(const char *s)
+{
+	return s != NULL ? strdup(s) : NULL;
+}
+
+static inline
 int f_strempty(const char *s)
 {
 	return s != NULL ? s[0] == '\0' : !0;
