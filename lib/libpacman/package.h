@@ -50,7 +50,20 @@ enum {
 #define PKG_SHA1SUM_LEN  41
 #define PKG_ARCH_LEN     32
 
+typedef struct pmpkg_ops_t pmpkg_ops_t;
+
+struct pmpkg_ops_t {
+	int (*destroy)(pmpkg_t *pkg);
+
+	int (*read)(pmpkg_t *pkg, unsigned int inforeq);
+	int (*write)(pmpkg_t *pkg, unsigned int inforeq); /* Optional */
+	int (*remove)(pmpkg_t *pkg); /* Optional */
+};
+
 struct __pmpkg_t {
+	const pmpkg_ops_t *operations;
+	pmdb_t *database;
+
 	char name[PKG_NAME_LEN];
 	char version[PKG_VERSION_LEN];
 	char desc[PKG_DESC_LEN];
