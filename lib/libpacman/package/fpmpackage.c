@@ -1,5 +1,5 @@
 /*
- *  package.c
+ *  fpmpackage.c
  *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *  Copyright (c) 2005 by Aurelien Foret <orelien@chez.com>
@@ -25,7 +25,7 @@
 #include "config.h"
 
 /* pacman-g2 */
-#include "package.h"
+#include "fpmpackage.h"
 
 #include "util.h"
 #include "error.h"

@@ -1,5 +1,5 @@
 /*
- *  pkginfo.h
+ *  fpmpackage.h
  *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *  Copyright (c) 2005 by Aurelien Foret <orelien@chez.com>
@@ -22,16 +22,18 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef _PACMAN_PKGINFO_H
-#define _PACMAN_PKGINFO_H
+#ifndef _PACMAN_FPMPACKAGE_H
+#define _PACMAN_FPMPACKAGE_H
 
 #include "pacman.h"
+
+#include <stdio.h>
 
 int _pacman_pkginfo_fread(FILE *descfile, pmpkg_t *info, int output);
 int _pacman_pkginfo_read(char *descfile, pmpkg_t *info, int output);
 
 pmpkg_t *_pacman_pkg_load(const char *pkgfile);
 
-#endif /* _PACMAN_PKGINFO_H */
+#endif /* _PACMAN_FPMPACKAGE_H */
 
 /* vim: set ts=2 sw=2 noet: */

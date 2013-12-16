@@ -35,8 +35,8 @@ set(LIBPACMAN_SOURCES
 	db/localdb.c
 	db/localdb_files.c
 	db/syncdb.c
+	package/fpmpackage.c
 	package/packagecache.c
-	package/pkginfo.c
 	add.c
 	cache.c
 	config_parser.c
