@@ -537,6 +537,7 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 			((flags & PM_PACKAGE_FLAG_BUILDDATE) && f_str_match(pkg->builddate, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BUILDTYPE) && f_str_match(pkg->buildtype, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_INSTALLDATE) && f_str_match(pkg->installdate, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_PACKAGER) && f_str_match(pkg->packager, strmatcher)) ||
 //			((flags & PM_PACKAGE_FLAG_HASH) && ) ||
 			((flags & PM_PACKAGE_FLAG_ARCH) && f_str_match(pkg->arch, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_LOCALISED_DESCRIPTION) && f_stringlist_any_match(pkg->desc_localized, strmatcher)) ||
