@@ -460,7 +460,7 @@ void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 	return(data);
 }
 
-pmlist_t *_pacman_pkg_getowners(char *filename)
+pmlist_t *_pacman_pkg_getowners(const char *filename)
 {
 	struct stat buf;
 	int gotcha = 0;

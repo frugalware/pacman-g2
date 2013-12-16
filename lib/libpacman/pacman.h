@@ -228,7 +228,7 @@ enum {
 #define PM_PKG_WITH_ARCH    1 /* ie, pkgname-pkgver-pkgrel-arch, used under PM_CACHEDIR */
 
 void *pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm);
-pmlist_t *pacman_pkg_getowners(char *filename);
+pmlist_t *pacman_pkg_getowners(const char *filename);
 int pacman_pkg_load(char *filename, pmpkg_t **pkg);
 int pacman_pkg_free(pmpkg_t *pkg);
 char *pacman_fetch_pkgurl(char *url);

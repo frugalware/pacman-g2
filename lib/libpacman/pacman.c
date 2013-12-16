@@ -585,7 +585,7 @@ void *pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
  * @return the list of packages on success, NULL on error. The returned
  * list is an internally cached list and shouldn't be freed.
  */
-pmlist_t *pacman_pkg_getowners(char *filename)
+pmlist_t *pacman_pkg_getowners(const char *filename)
 {
 	/* Sanity checks */
 	ASSERT(handle->db_local != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
