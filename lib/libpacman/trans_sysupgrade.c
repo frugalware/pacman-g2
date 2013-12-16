@@ -33,7 +33,7 @@
 #include <time.h>
 
 /* pacman-g2 */
-#include "trans_sysupgrade.h"
+#include "trans.h"
 
 #include "util/list.h"
 #include "util/log.h"
@@ -65,9 +65,18 @@ static int istoonew(pmpkg_t *pkg)
 	return((pkg->date + handle->upgradedelay) > t);
 }
 
-int _pacman_sync_sysupgrade(pmtrans_t *trans, pmdb_t *db_local, pmlist_t *dbs_sync)
+int _pacman_trans_sysupgrade(pmtrans_t *trans)
 {
 	pmlist_t *i, *j, *k;
+	pmhandle_t *handle;
+	pmdb_t *db_local;
+	pmlist_t *dbs_sync;
+
+	/* Sanity checks */
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT((handle = trans->handle) != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT((db_local = handle->db_local) != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT((dbs_sync = handle->dbs_sync) != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	/* this is a sysupgrade, so that install reasons are not touched */
 	handle->sysupgrade = 1;

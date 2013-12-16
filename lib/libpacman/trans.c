@@ -37,8 +37,6 @@
 #include "cache.h"
 #include "pacman.h"
 
-#include "trans_sysupgrade.h"
-
 #include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
@@ -144,14 +142,6 @@ int _pacman_trans_fini(pmtrans_t *trans)
 	memset(trans, 0, sizeof(*trans));
 	trans->state = STATE_IDLE;
 	return 0;
-}
-
-int _pacman_trans_sysupgrade(pmtrans_t *trans)
-{
-	/* Sanity checks */
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-
-	return(_pacman_sync_sysupgrade(trans, handle->db_local, handle->dbs_sync));
 }
 
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
