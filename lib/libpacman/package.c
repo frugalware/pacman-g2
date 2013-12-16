@@ -480,26 +480,26 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 	}
 #endif
 
-	if(((flags & PM_PACKAGEMATCHER_NAME) && f_str_match(pkg->name, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_VERSION) && f_str_match(pkg->version, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_DESCRIPTION) && f_str_match(pkg->desc, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_BUILDDATE) && f_str_match(pkg->builddate, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_BUILDTYPE) && f_str_match(pkg->buildtype, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_INSTALLDATE) && f_str_match(pkg->installdate, strmatcher)) ||
-//			((flags & PM_PACKAGEMATCHER_HASH) && ) ||
-			((flags & PM_PACKAGEMATCHER_ARCH) && f_str_match(pkg->arch, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_LOCALISED_DESCRIPTION) && f_stringlist_any_match(pkg->desc_localized, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_LICENSE) && f_stringlist_any_match(pkg->license, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_REPLACES) && f_stringlist_any_match(pkg->replaces, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_GROUPS) && f_stringlist_any_match(pkg->groups, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_FILES) && f_stringlist_any_match(pkg->files, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_BACKUP) && f_stringlist_any_match(pkg->backup, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_DEPENDS) && f_stringlist_any_match(pkg->depends, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_REMOVES) && f_stringlist_any_match(pkg->removes, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_REQUIREDBY) && f_stringlist_any_match(pkg->requiredby, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_CONFLITS) && f_stringlist_any_match(pkg->conflicts, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_PROVIDES) && f_stringlist_any_match(pkg->provides, strmatcher)) ||
-			((flags & PM_PACKAGEMATCHER_TRIGGERS) && f_stringlist_any_match(pkg->triggers, strmatcher))) {
+	if(((flags & PM_PACKAGE_NAME) && f_str_match(pkg->name, strmatcher)) ||
+			((flags & PM_PACKAGE_VERSION) && f_str_match(pkg->version, strmatcher)) ||
+			((flags & PM_PACKAGE_DESCRIPTION) && f_str_match(pkg->desc, strmatcher)) ||
+			((flags & PM_PACKAGE_BUILDDATE) && f_str_match(pkg->builddate, strmatcher)) ||
+			((flags & PM_PACKAGE_BUILDTYPE) && f_str_match(pkg->buildtype, strmatcher)) ||
+			((flags & PM_PACKAGE_INSTALLDATE) && f_str_match(pkg->installdate, strmatcher)) ||
+//			((flags & PM_PACKAGE_HASH) && ) ||
+			((flags & PM_PACKAGE_ARCH) && f_str_match(pkg->arch, strmatcher)) ||
+			((flags & PM_PACKAGE_LOCALISED_DESCRIPTION) && f_stringlist_any_match(pkg->desc_localized, strmatcher)) ||
+			((flags & PM_PACKAGE_LICENSE) && f_stringlist_any_match(pkg->license, strmatcher)) ||
+			((flags & PM_PACKAGE_REPLACES) && f_stringlist_any_match(pkg->replaces, strmatcher)) ||
+			((flags & PM_PACKAGE_GROUPS) && f_stringlist_any_match(pkg->groups, strmatcher)) ||
+			((flags & PM_PACKAGE_FILES) && f_stringlist_any_match(pkg->files, strmatcher)) ||
+			((flags & PM_PACKAGE_BACKUP) && f_stringlist_any_match(pkg->backup, strmatcher)) ||
+			((flags & PM_PACKAGE_DEPENDS) && f_stringlist_any_match(pkg->depends, strmatcher)) ||
+			((flags & PM_PACKAGE_REMOVES) && f_stringlist_any_match(pkg->removes, strmatcher)) ||
+			((flags & PM_PACKAGE_REQUIREDBY) && f_stringlist_any_match(pkg->requiredby, strmatcher)) ||
+			((flags & PM_PACKAGE_CONFLITS) && f_stringlist_any_match(pkg->conflicts, strmatcher)) ||
+			((flags & PM_PACKAGE_PROVIDES) && f_stringlist_any_match(pkg->provides, strmatcher)) ||
+			((flags & PM_PACKAGE_TRIGGERS) && f_stringlist_any_match(pkg->triggers, strmatcher))) {
 		return 1;
 	}
 	return 0;

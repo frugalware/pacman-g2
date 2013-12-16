@@ -50,6 +50,28 @@ enum {
 #define PKG_SHA1SUM_LEN  41
 #define PKG_ARCH_LEN     32
 
+#define PM_PACKAGE_NAME                  (1<< 0)
+#define PM_PACKAGE_VERSION               (1<< 1)
+#define PM_PACKAGE_DESCRIPTION           (1<< 2)
+#define PM_PACKAGE_URL                   (1<< 3)
+#define PM_PACKAGE_BUILDDATE             (1<< 4)
+#define PM_PACKAGE_BUILDTYPE             (1<< 5)
+#define PM_PACKAGE_INSTALLDATE           (1<< 6)
+//#define PM_PACKAGE_HASH                (1<< 7)
+#define PM_PACKAGE_ARCH                  (1<< 8)
+#define PM_PACKAGE_LOCALISED_DESCRIPTION (1<< 9)
+#define PM_PACKAGE_LICENSE               (1<<10)
+#define PM_PACKAGE_REPLACES              (1<<11)
+#define PM_PACKAGE_GROUPS                (1<<12)
+#define PM_PACKAGE_FILES                 (1<<13)
+#define PM_PACKAGE_BACKUP                (1<<14)
+#define PM_PACKAGE_DEPENDS               (1<<15)
+#define PM_PACKAGE_REMOVES               (1<<16)
+#define PM_PACKAGE_REQUIREDBY            (1<<17)
+#define PM_PACKAGE_CONFLITS              (1<<18)
+#define PM_PACKAGE_PROVIDES              (1<<19)
+#define PM_PACKAGE_TRIGGERS              (1<<20)
+
 typedef struct pmpkg_ops_t pmpkg_ops_t;
 
 struct pmpkg_ops_t {
@@ -124,28 +146,6 @@ pmlist_t *_pacman_pkg_getowners(const char *filename);
 
 int _pacman_pkg_filename(char *str, size_t size, const pmpkg_t *pkg);
 char *_pacman_pkg_fileneedbackup(const pmpkg_t *pkg, const char *file);
-
-#define PM_PACKAGEMATCHER_NAME                  (1<< 0)
-#define PM_PACKAGEMATCHER_VERSION               (1<< 1)
-#define PM_PACKAGEMATCHER_DESCRIPTION           (1<< 2)
-#define PM_PACKAGEMATCHER_URL                   (1<< 3)
-#define PM_PACKAGEMATCHER_BUILDDATE             (1<< 4)
-#define PM_PACKAGEMATCHER_BUILDTYPE             (1<< 5)
-#define PM_PACKAGEMATCHER_INSTALLDATE           (1<< 6)
-//#define PM_PACKAGEMATCHER_HASH                (1<< 7)
-#define PM_PACKAGEMATCHER_ARCH                  (1<< 8)
-#define PM_PACKAGEMATCHER_LOCALISED_DESCRIPTION (1<< 9)
-#define PM_PACKAGEMATCHER_LICENSE               (1<<10)
-#define PM_PACKAGEMATCHER_REPLACES              (1<<11)
-#define PM_PACKAGEMATCHER_GROUPS                (1<<12)
-#define PM_PACKAGEMATCHER_FILES                 (1<<13)
-#define PM_PACKAGEMATCHER_BACKUP                (1<<14)
-#define PM_PACKAGEMATCHER_DEPENDS               (1<<15)
-#define PM_PACKAGEMATCHER_REMOVES               (1<<16)
-#define PM_PACKAGEMATCHER_REQUIREDBY            (1<<17)
-#define PM_PACKAGEMATCHER_CONFLITS              (1<<18)
-#define PM_PACKAGEMATCHER_PROVIDES              (1<<19)
-#define PM_PACKAGEMATCHER_TRIGGERS              (1<<20)
 
 int _pacman_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatcher, int flags);
 int _pacman_packagestrmatcher_fini(FMatcher *matcher);
