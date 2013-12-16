@@ -50,6 +50,35 @@
 #include "server.h"
 
 static
+int _pacman_syncdb_read(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
+
+static int
+_pacman_syncpkg_read(pmpkg_t *pkg, unsigned int flags)
+{
+	return _pacman_syncdb_read(pkg->database, pkg, flags);
+}
+
+static const
+pmpkg_ops_t _pacman_syncpkg_operations = {
+	.destroy = NULL,
+
+	.read = _pacman_syncpkg_read,
+	.write = NULL,
+	.remove = NULL,
+};
+
+static
+int _pacman_syncpkg_init(pmpkg_t *pkg, pmdb_t *db)
+{
+	ASSERT(pkg != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+
+	pkg->operations = &_pacman_syncpkg_operations;
+	pkg->database = db;
+	return 0;
+}
+
+static
 int suffixcmp(const char *str, const char *suffix)
 {
 	int len = strlen(str), suflen = strlen(suffix);
@@ -70,6 +99,7 @@ pmpkg_t *_pacman_syncdb_pkg_new(pmdb_t *db, const struct archive_entry *entry, u
 
 	dname = archive_entry_pathname((struct archive_entry *)entry);
 	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
+		_pacman_syncpkg_init(pkg, db) != 0 ||
 		_pacman_db_read(db, pkg, inforeq) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
 		FREEPKG(pkg);

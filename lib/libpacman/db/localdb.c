@@ -46,6 +46,53 @@
 #include <unistd.h>
 
 static
+int _pacman_localdb_read(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
+
+static
+int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
+
+static
+int _pacman_localdb_remove(pmdb_t *db, pmpkg_t *info);
+
+static int
+_pacman_localpkg_read(pmpkg_t *pkg, unsigned int flags)
+{
+	return _pacman_localdb_read(pkg->database, pkg, flags);
+}
+
+static int
+_pacman_localpkg_write(pmpkg_t *pkg, unsigned int flags)
+{
+	return _pacman_localdb_write(pkg->database, pkg, flags);
+}
+
+static int
+_pacman_localpkg_remove(pmpkg_t *pkg)
+{
+	return _pacman_localdb_remove(pkg->database, pkg);
+}
+
+static const
+pmpkg_ops_t _pacman_localpkg_operations = {
+	.destroy = NULL,
+
+	.read = _pacman_localpkg_read,
+	.write = _pacman_localpkg_write,
+	.remove = _pacman_localpkg_remove,
+};
+
+static
+int _pacman_localpkg_init(pmpkg_t *pkg, pmdb_t *db)
+{
+	ASSERT(pkg != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+
+	pkg->operations = &_pacman_localpkg_operations;
+	pkg->database = db;
+	return 0;
+}
+
+static
 pmpkg_t *_pacman_localdb_pkg_new(pmdb_t *db, const struct dirent *dirent, unsigned int inforeq)
 {
 	pmpkg_t *pkg;
@@ -56,6 +103,7 @@ pmpkg_t *_pacman_localdb_pkg_new(pmdb_t *db, const struct dirent *dirent, unsign
 
 	dname = dirent->d_name;
 	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
+		_pacman_localpkg_init(pkg, db) != 0 ||
 		_pacman_db_read(db, pkg, inforeq) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
 		FREEPKG(pkg);
@@ -291,6 +339,7 @@ void _pacman_localdb_write_stringlist(const char *entry, const pmlist_t *values,
 	}
 }
 
+static
 int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 {
 	FILE *fp = NULL;

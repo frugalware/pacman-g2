@@ -55,8 +55,8 @@ typedef struct pmpkg_ops_t pmpkg_ops_t;
 struct pmpkg_ops_t {
 	int (*destroy)(pmpkg_t *pkg);
 
-	int (*read)(pmpkg_t *pkg, unsigned int inforeq);
-	int (*write)(pmpkg_t *pkg, unsigned int inforeq); /* Optional */
+	int (*read)(pmpkg_t *pkg, unsigned int flags);
+	int (*write)(pmpkg_t *pkg, unsigned int flags); /* Optional */
 	int (*remove)(pmpkg_t *pkg); /* Optional */
 };
 
