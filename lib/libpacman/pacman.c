@@ -27,6 +27,7 @@
 /* pacman-g2 */
 #include "pacman.h"
 
+#include "package/fpmpackage.h"
 #include "config_parser.h"
 #include "error.h"
 #include "deps.h"
@@ -607,7 +608,7 @@ int pacman_pkg_load(char *filename, pmpkg_t **pkg)
 	ASSERT(!_pacman_strempty(filename), RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	*pkg = _pacman_pkg_load(filename);
+	*pkg = _pacman_fpmpackage_load(filename);
 	if(*pkg == NULL) {
 		/* pm_errno is set by pkg_load */
 		return(-1);

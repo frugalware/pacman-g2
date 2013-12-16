@@ -32,7 +32,7 @@
 int _pacman_pkginfo_fread(FILE *descfile, pmpkg_t *info, int output);
 int _pacman_pkginfo_read(char *descfile, pmpkg_t *info, int output);
 
-pmpkg_t *_pacman_pkg_load(const char *pkgfile);
+pmpkg_t *_pacman_fpmpackage_load(const char *pkgfile);
 
 #endif /* _PACMAN_FPMPACKAGE_H */
 

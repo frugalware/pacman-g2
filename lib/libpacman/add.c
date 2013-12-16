@@ -28,6 +28,7 @@
 /* pacman-g2 */
 #include "add.h"
 
+#include "package/fpmpackage.h"
 #include "util.h"
 #include "error.h"
 #include "cache.h"
@@ -66,7 +67,7 @@ pmpkg_t *_pacman_filedb_load(pmdb_t *db, const char *name)
 	}
 
 	_pacman_log(PM_LOG_FLOW2, _("loading target '%s'"), name);
-	return _pacman_pkg_load(name);
+	return _pacman_fpmpackage_load(name);
 }
 
 int _pacman_add_addtarget(pmtrans_t *trans, const char *name)

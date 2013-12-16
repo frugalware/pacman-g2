@@ -151,7 +151,7 @@ int _pacman_pkginfo_read(char *descfile, pmpkg_t *info, int output)
 	return ret;
 }
 
-pmpkg_t *_pacman_pkg_load(const char *pkgfile)
+pmpkg_t *_pacman_fpmpackage_load(const char *pkgfile)
 {
 	char *expath;
 	int i, ret;
