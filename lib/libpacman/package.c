@@ -313,6 +313,36 @@ int _pacman_pkg_splitname(const char *target, char *name, char *version, int wit
 	return(0);
 }
 
+int _pacman_pkg_read(pmpkg_t *pkg, unsigned int flags)
+{
+	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(pkg->operations != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(pkg->operations->read != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	if(~pkg->flags & flags) {
+		return pkg->operations->read(pkg, flags);
+	}
+	return 0;
+}
+
+int _pacman_pkg_write(pmpkg_t *pkg, unsigned int flags)
+{
+	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(pkg->operations != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(pkg->operations->write != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	return pkg->operations->write(pkg, flags);
+}
+
+int _pacman_pkg_remove(pmpkg_t *pkg)
+{
+	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(pkg->operations != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(pkg->operations->remove != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	return pkg->operations->remove(pkg);
+}
+
 void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 {
 	void *data = NULL;

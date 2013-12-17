@@ -83,10 +83,12 @@ struct pmpkg_ops_t {
 	int (*remove)(pmpkg_t *pkg); /* Optional */
 };
 
+/* IMPROVEMENT: Add a dirty_flags to know what flags needs to be written */
 struct __pmpkg_t {
 	const pmpkg_ops_t *operations;
 	pmdb_t *database;
 
+	unsigned int flags;
 	char name[PKG_NAME_LEN];
 	char version[PKG_VERSION_LEN];
 	char desc[PKG_DESC_LEN];
@@ -142,6 +144,11 @@ int _pacman_pkg_cmp(const void *p1, const void *p2);
 int _pacman_pkg_is_valid(const pmpkg_t *pkg, const pmtrans_t *trans, const char *pkgfile);
 pmpkg_t *_pacman_pkg_isin(const char *needle, pmlist_t *haystack);
 int _pacman_pkg_splitname(const char *target, char *name, char *version, int witharch);
+
+int _pacman_pkg_read(pmpkg_t *pkg, unsigned int flags);
+int _pacman_pkg_write(pmpkg_t *pkg, unsigned int flags);
+int _pacman_pkg_remove(pmpkg_t *pkg);
+
 void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm);
 pmlist_t *_pacman_pkg_getowners(const char *filename);
 
