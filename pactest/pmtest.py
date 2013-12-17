@@ -222,6 +222,7 @@ class pmtest:
 
 		# Check if pacman-g2 failed because of bad permissions
 		if self.retcode \
+		   and not pacman["gdb"] and not pacman["valgrind"] \
 		   and grep(os.path.join(self.root, LOGFILE),
 		            "you cannot perform this operation unless you are root"):
 			print "\tERROR: pacman-g2 support for fakeroot is not disabled"
