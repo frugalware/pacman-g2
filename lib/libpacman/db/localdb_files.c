@@ -174,6 +174,7 @@ int _pacman_localdb_desc_fread(pmpkg_t *info, FILE *fp)
 			info->stick = 1;
 		}
 	}
+	info->flags |= PM_LOCALPACKAGE_FLAGS_DESC;
 	return 0;
 
 error:
@@ -212,6 +213,7 @@ int _pacman_localdb_depends_fread(pmpkg_t *info, FILE *fp)
 			info->stick = 1;
 		}
 	}
+	info->flags |= PM_LOCALPACKAGE_FLAGS_DEPENDS;
 	return 0;
 }
 
@@ -241,6 +243,7 @@ int _pacman_localdb_files_fread(pmpkg_t *info, FILE *fp)
 			}
 		}
 	}
+	info->flags |= PM_LOCALPACKAGE_FLAGS_FILES;
 	return 0;
 }
 

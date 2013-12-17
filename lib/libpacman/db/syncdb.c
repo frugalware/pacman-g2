@@ -50,12 +50,60 @@
 #include "server.h"
 
 static
-int _pacman_syncdb_read(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
-
-static int
-_pacman_syncpkg_read(pmpkg_t *pkg, unsigned int flags)
+int suffixcmp(const char *str, const char *suffix)
 {
-	return _pacman_syncdb_read(pkg->database, pkg, flags);
+	int len = strlen(str), suflen = strlen(suffix);
+	if (len < suflen)
+		return -1;
+	else
+		return strcmp(str + len - suflen, suffix);
+}
+
+static
+int _pacman_syncpkg_file_reader(pmdb_t *db, pmpkg_t *pkg, unsigned int flags, unsigned int flags_masq, int (*reader)(pmpkg_t *, FILE *))
+{
+	int ret = 0;
+
+	if(flags & flags_masq) {
+		FILE *fp = _pacman_archive_read_fropen(db->handle);
+
+		ASSERT(fp != NULL, RET_ERR(PM_ERR_MEMORY, -1));
+		ret = reader(pkg, fp);
+		fclose(fp);
+	}
+	return ret;
+}
+
+static
+int _pacman_syncpkg_read(pmpkg_t *pkg, unsigned int flags)
+{
+	pmdb_t *db;
+	int descdone = 0, depsdone = 0;
+
+	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT((db = pkg->database) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(pkg == NULL || pkg->name[0] == 0 || pkg->version[0] == 0) {
+		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_syncdb_read"));
+		return(-1);
+	}
+
+	while (!descdone || !depsdone) {
+		struct archive_entry *entry = NULL;
+		if (archive_read_next_header(db->handle, &entry) != ARCHIVE_OK)
+			return -1;
+		const char *pathname = archive_entry_pathname(entry);
+		if (!suffixcmp(pathname, "/desc")) {
+			if(_pacman_syncpkg_file_reader(db, pkg, flags, PM_LOCALPACKAGE_FLAGS_DESC, _pacman_localdb_desc_fread) == -1)
+				return -1;
+			descdone = 1;
+		}
+		if (!suffixcmp(pathname, "/depends")) {
+			if(_pacman_syncpkg_file_reader(db, pkg, flags, PM_LOCALPACKAGE_FLAGS_DEPENDS, _pacman_localdb_depends_fread) == -1)
+				return -1;
+			depsdone = 1;
+		}
+	}
+	return 0;
 }
 
 static const
@@ -76,16 +124,6 @@ int _pacman_syncpkg_init(pmpkg_t *pkg, pmdb_t *db)
 	pkg->operations = &_pacman_syncpkg_operations;
 	pkg->database = db;
 	return 0;
-}
-
-static
-int suffixcmp(const char *str, const char *suffix)
-{
-	int len = strlen(str), suflen = strlen(suffix);
-	if (len < suflen)
-		return -1;
-	else
-		return strcmp(str + len - suflen, suffix);
 }
 
 static

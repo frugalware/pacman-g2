@@ -72,6 +72,10 @@ enum {
 #define PM_PACKAGE_FLAG_PROVIDES              (1<<19)
 #define PM_PACKAGE_FLAG_TRIGGERS              (1<<20)
 #define PM_PACKAGE_FLAG_PACKAGER              (1<<21)
+#define PM_PACKAGE_FLAG_FORCE                 (1<<22)
+#define PM_PACKAGE_FLAG_REASON                (1<<23)
+#define PM_PACKAGE_FLAG_SCRIPTLET             (1<<24)
+#define PM_PACKAGE_FLAG_STICKY                (1<<25)
 
 typedef struct pmpkg_ops_t pmpkg_ops_t;
 

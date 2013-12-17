@@ -46,18 +46,69 @@
 #include <unistd.h>
 
 static
-int _pacman_localdb_read(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
-
-static
 int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
 
 static
 int _pacman_localdb_remove(pmdb_t *db, pmpkg_t *info);
 
+static
+int _pacman_localpkg_file_reader(pmdb_t *db, pmpkg_t *pkg, unsigned int flags, unsigned int flags_masq, const char *file, int (*reader)(pmpkg_t *, FILE *))
+{
+	int ret = 0;
+
+	if(flags & flags_masq) {
+		FILE *fp = NULL;
+		char path[PATH_MAX];
+
+		snprintf(path, PATH_MAX, "%s/%s-%s/%s", db->path, pkg->name, pkg->version, file);
+		fp = fopen(path, "r");
+		if(fp == NULL) {
+			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
+			return -1;
+		}
+		if(reader(pkg, fp) == -1)
+			return -1;
+		fclose(fp);
+	}
+	return ret;
+}
+
 static int
 _pacman_localpkg_read(pmpkg_t *pkg, unsigned int flags)
 {
-	return _pacman_localdb_read(pkg->database, pkg, flags);
+	pmdb_t *db;
+	struct stat buf;
+	char path[PATH_MAX];
+
+	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT((db = pkg->database) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(f_strempty(pkg->name) || f_strempty(pkg->version)) {
+		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_localdb_read"));
+		return(-1);
+	}
+
+	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, pkg->name, pkg->version);
+	if(stat(path, &buf)) {
+		/* directory doesn't exist or can't be opened */
+		return(-1);
+	}
+
+	if (_pacman_localpkg_file_reader(db, pkg, flags, PM_LOCALPACKAGE_FLAGS_DESC, "desc", _pacman_localdb_desc_fread) == -1)
+		return -1;
+	if (_pacman_localpkg_file_reader(db, pkg, flags, PM_LOCALPACKAGE_FLAGS_DEPENDS, "depends", _pacman_localdb_depends_fread) == -1)
+		return -1;
+	if (_pacman_localpkg_file_reader(db, pkg, flags, PM_LOCALPACKAGE_FLAGS_FILES, "files", _pacman_localdb_files_fread) == -1)
+		return -1;
+
+	/* INSTALL */
+	if(flags & INFRQ_SCRIPLET) {
+		snprintf(path, PATH_MAX, "%s/%s-%s/install", db->path, pkg->name, pkg->version);
+		if(!stat(path, &buf)) {
+			pkg->scriptlet = 1;
+		}
+		pkg->flags |= PM_LOCALPACKAGE_FLAGS_SCRIPLET;
+	}
+	return 0;
 }
 
 static int
@@ -303,6 +354,7 @@ int _pacman_localdb_read(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
 		if(!stat(path, &buf)) {
 			info->scriptlet = 1;
 		}
+		info->flags |= PM_LOCALPACKAGE_FLAGS_SCRIPLET;
 	}
 	return 0;
 }
