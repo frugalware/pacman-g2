@@ -35,18 +35,18 @@ class pmrule:
 	def __str__(self):
 		return "rule = %s" % self.rule
 
-	def check(self, root, retcode, localdb, files):
+	def check(self, test):
 		"""
 		"""
 
 		inverted = False
 		self.result = SUCCESS
 
-		[test, args] = self.rule.split("=")
-		if test[0] == "!":
+		[name, args] = self.rule.split("=")
+		if name[0] == "!":
 			inverted = True
-			test = test.lstrip("!")
-		[kind, case] = test.split("_")
+			name = name.lstrip("!")
+		[kind, case] = name.split("_")
 		if "|" in args:
 			[key, value] = args.split("|", 1)
 		else:
@@ -54,14 +54,15 @@ class pmrule:
 
 		if kind == "PACMAN":
 			if case == "RETCODE":
-				if retcode != int(key):
+				if test.returncode != int(key):
 					self.result = FAILURE
 			elif case == "OUTPUT":
-				if not grep(os.path.join(root, LOGFILE), key):
+				if not grep(os.path.join(test.root, LOGFILE), key):
 					self.result = FAILURE
 			else:
 				self.result = SKIPPED
 		elif kind == "PKG":
+			localdb = test.db["local"]
 			newpkg = localdb.db_read(key)
 			if not newpkg:
 				self.result = FAILURE
@@ -102,13 +103,13 @@ class pmrule:
 				else:
 					self.result = SKIPPED
 		elif kind == "FILE":
-			filename = os.path.join(root, key)
+			filename = os.path.join(test.root, key)
 			if case == "EXIST":
 				if not os.path.isfile(filename):
 					self.result = FAILURE
 			else:
 				if case == "MODIFIED":
-					for f in files:
+					for f in test.files:
 						if f.name == key:
 							if not f.ismodified():
 								self.result = FAILURE
@@ -124,7 +125,7 @@ class pmrule:
 				else:
 					self.result = SKIPPED
 		elif kind == "LINK":
-			filename = os.path.join(root, key)
+			filename = os.path.join(test.root, key)
 			if case == "EXIST":
 				if not os.path.islink(filename):
 					self.result = FAILURE
@@ -138,6 +139,3 @@ class pmrule:
 				self.result = SUCCESS
 		return self.result
 
-
-if __name__ != "__main__":
-	rule = pmrule("PKG_EXIST=dummy")
