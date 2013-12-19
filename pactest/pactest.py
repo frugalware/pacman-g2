@@ -68,5 +68,5 @@ if __name__ == "__main__":
 		env.addtest(i)
 
 	env.run()
-	if env.results().failed > 0:
+	if env.results().failures > 0:
 		sys.exit(2)

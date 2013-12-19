@@ -23,12 +23,6 @@ import time
 
 import pmtest
 
-class pmresults:
-	def __init__(self, passed, total):
-		self.passed = passed
-		self.total = total
-		self.failed = total - passed
-
 class pmenv:
 	"""Environment object
 	"""
@@ -51,6 +45,7 @@ class pmenv:
 	def addtest(self, testcase):
 		"""
 		"""
+
 		if not os.path.isfile(testcase):
 			err("file %s not found" % testcase)
 			return
@@ -82,7 +77,7 @@ class pmenv:
 
 			t.check()
 			print "==> Test result"
-			if t.result["ko"] == 0:
+			if t.failures == 0:
 				print "\tPASSED"
 			else:
 				print "\tFAILED"
@@ -91,30 +86,31 @@ class pmenv:
 	def results(self):
 		"""
 		"""
-		passed = 0
+
+		self.successes = 0
+		self.failures = 0
+		self.total = len(self.testcases)
+
 		print "=========="*8
 		print "Results"
 		print "----------"*8
 		for test in self.testcases:
-			ok = test.result["ok"]
-			ko = test.result["ko"]
-			rules = len(test.rules)
-			if ko == 0:
+			if test.failures == 0:
 				print "[PASSED]",
-				passed += 1
+				self.successes += 1
 			else:
 				print "[FAILED]",
+				self.failures += 1
 			print test.name.strip(".py").ljust(38),
 			print "Rules:",
-			print "OK = %2u KO = %2u SKIP = %2u" % (ok, ko, rules-(ok+ko))
+			print "OK = %2u KO = %2u SKIP = %2u" % (test.successes, test.failures, test.skippeds)
 		print "----------"*8
-		results = pmresults(passed, len(self.testcases))
-		print "TOTAL  = %3u" % results.total
-		if results.total:
-			print "PASSED = %3u (%6.2f%%)" % (results.passed, float(results.passed)*100/results.total)
-			print "FAILED = %3u (%6.2f%%)" % (results.failed, float(results.failed)*100/results.total)
+		print "TOTAL  = %3u" % self.total
+		if self.total:
+			print "PASSED = %3u (%6.2f%%)" % (self.successes, float(self.failures)*100/self.total)
+			print "FAILED = %3u (%6.2f%%)" % (self.failures, float(self.failures)*100/self.total)
 		print
-		return results
+		return self
 
 
 if __name__ == "__main__":

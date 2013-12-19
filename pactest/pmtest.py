@@ -66,10 +66,6 @@ class pmtest:
 		"""
 
 		# Reset test parameters
-		self.result = {
-			"ok": 0,
-			"ko": 0
-		}
 		self.args = ""
 		self.retcode = 0
 		self.db = {
@@ -246,18 +242,23 @@ class pmtest:
 		"""
 		"""
 
+		self.successes = 0
+		self.failures = 0
+		self.skippeds = 0
+
 		print "==> Checking rules"
 
 		for i in self.rules:
 			success = i.check(self.root, self.returncode, self.db["local"], self.files)
 			if success == pmrule.SUCCESS:
 				msg = "OK"
-				self.result["ok"] += 1
+				self.successes += 1 
 			elif success == pmrule.FAILURE:
 				msg = "KO"
-				self.result["ko"] += 1
+				self.failures += 1
 			else:
 				msg = "SKIP"
+				self.skippeds += 1
 			print "\t[%s] %s" % (msg, i.rule)
 
 
