@@ -285,6 +285,29 @@ def grep(filename, pattern):
 	fd.close()
 	return found
 
+class tee :
+	def __init__(self, _fd1, _fd2):
+		self.fd1 = _fd1
+		self.fd2 = _fd2
+
+	def __del__(self):
+		self.close()
+
+	def close(self):
+		if self.fd1 and self.fd1 != sys.stdout and self.fd1 != sys.stderr :
+			self.fd1.close()
+			self.fd1 = None
+		if self.fd2 and self.fd2 != sys.stdout and self.fd2 != sys.stderr :
+			self.fd2.close()
+			self.fd2 = None
+
+	def flush(self):
+		self.fd1.flush()
+		self.fd2.flush()
+
+	def write(self, text):
+		self.fd1.write(text)
+		self.fd2.write(text)
 
 if __name__ == "__main__":
 	pass

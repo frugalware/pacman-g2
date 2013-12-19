@@ -20,12 +20,14 @@
 
 import os
 import shutil
+import subprocess
 import time
 
 import pmrule
 import pmdb
 import pmfile
 from pmpkg import pmpkg
+import util
 from util import *
 
 
@@ -198,8 +200,6 @@ class pmtest:
 		if pacman["debug"]:
 			cmd.append("--debug=%s" % pacman["debug"])
 		cmd.append("%s" % self.args)
-		if not pacman["gdb"] and not pacman["valgrind"]:
-			cmd.append(">%s 2>&1" % os.path.join(self.root, LOGFILE))
 		dbg(" ".join(cmd))
 
 		# Change to the tmp dir before running pacman-g2, so that local package
@@ -209,20 +209,28 @@ class pmtest:
 		os.chdir(tmpdir)
 
 		t0 = time.time()
-		self.retcode = os.system(" ".join(cmd))
+		self.logfile = None
+		if not pacman["gdb"]:
+			self.logfile = open(os.path.join(self.root, LOGFILE), 'w')
+			if pacman["valgrind"] or util.verbose:
+				self.logfile = tee(sys.stdout, self.logfile)
+			proc = subprocess.Popen(" ".join(cmd), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+			for line in proc.stdout:
+				self.logfile.write(line)
+				self.logfile.flush()
+			self.logfile.close()
+		else:
+			proc = subprocess.Popen(" ".join(cmd), shell=True)
+		proc.wait()
 		t1 = time.time()
 		vprint("\ttime elapsed: %ds" % (t1-t0))
-
-		if self.retcode == None:
-			self.retcode = 0
-		else:
-			self.retcode /= 256
-		dbg("retcode = %s" % self.retcode)
+		self.returncode = proc.returncode
+		dbg("returncode = %s" % self.returncode)
 		os.chdir(curdir)
 
 		# Check if pacman-g2 failed because of bad permissions
-		if self.retcode \
-		   and not pacman["gdb"] and not pacman["valgrind"] \
+		if self.returncode \
+		   and self.logfile \
 		   and grep(os.path.join(self.root, LOGFILE),
 		            "you cannot perform this operation unless you are root"):
 			print "\tERROR: pacman-g2 support for fakeroot is not disabled"
@@ -241,7 +249,7 @@ class pmtest:
 		print "==> Checking rules"
 
 		for i in self.rules:
-			success = i.check(self.root, self.retcode, self.db["local"], self.files)
+			success = i.check(self.root, self.returncode, self.db["local"], self.files)
 			if success == 1:
 				msg = "OK"
 				self.result["ok"] += 1
