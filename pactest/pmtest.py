@@ -250,16 +250,15 @@ class pmtest:
 
 		for i in self.rules:
 			success = i.check(self.root, self.returncode, self.db["local"], self.files)
-			if success == 1:
+			if success == pmrule.SUCCESS:
 				msg = "OK"
 				self.result["ok"] += 1
-			elif success == 0:
+			elif success == pmrule.FAILURE:
 				msg = "KO"
 				self.result["ko"] += 1
 			else:
 				msg = "SKIP"
 			print "\t[%s] %s" % (msg, i.rule)
-			i.result = success
 
 
 if __name__ == "__main__":

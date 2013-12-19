@@ -21,14 +21,17 @@
 from util import *
 
 
+SKIPPED = -1
+FAILURE = 0
+SUCCESS = 1
+
 class pmrule:
 	"""Rule object
 	"""
 
 	def __init__(self, rule):
 		self.rule = rule
-		self.false = 0
-		self.result = 0
+		self.result = None
 
 	def __str__(self):
 		return "rule = %s" % self.rule
@@ -37,11 +40,12 @@ class pmrule:
 		"""
 		"""
 
-		success = 1
+		inverted = False
+		success = SUCCESS
 
 		[test, args] = self.rule.split("=")
 		if test[0] == "!":
-			self.false = 1
+			inverted = True
 			test = test.lstrip("!")
 		[kind, case] = test.split("_")
 		if "|" in args:
@@ -52,16 +56,16 @@ class pmrule:
 		if kind == "PACMAN":
 			if case == "RETCODE":
 				if retcode != int(key):
-					success = 0
+					success = FAILURE
 			elif case == "OUTPUT":
 				if not grep(os.path.join(root, LOGFILE), key):
-					success = 0
+					success = FAILURE
 			else:
-				success = -1
+				success = SKIPPED
 		elif kind == "PKG":
 			newpkg = localdb.db_read(key)
 			if not newpkg:
-				success = 0
+				success = FAILURE
 			else:
 				dbg("newpkg.checksum : %s" % newpkg.checksum)
 				dbg("newpkg.mtime    : %s" % newpkg.mtime)
@@ -69,25 +73,25 @@ class pmrule:
 					success = 1
 				elif case == "MODIFIED":
 					if not localdb.ispkgmodified(newpkg):
-						success = 0
+						success = FAILURE
 				elif case == "VERSION":
 					if value != newpkg.version:
-						success = 0
+						success = FAILURE
 				elif case == "GROUPS":
 					if not value in newpkg.groups:
-						success = 0
+						success = FAILURE
 				elif case == "DEPENDS":
 					if not value in newpkg.depends:
-						success = 0
+						success = FAILURE
 				elif case == "REQUIREDBY":
 					if not value in newpkg.requiredby:
-						success = 0
+						success = FAILURE
 				elif case == "REASON":
 					if not newpkg.reason == int(value):
-						success = 0
+						success = FAILURE
 				elif case == "FILES":
 					if not value in newpkg.files:
-						success = 0
+						success = FAILURE
 				elif case == "BACKUP":
 					found = 0
 					for f in newpkg.backup:
@@ -95,41 +99,44 @@ class pmrule:
 						if value == name:
 							found = 1
 					if not found:
-						success = 0
+						success = FAILURE
 				else:
-					success = -1
+					success = SKIPPED
 		elif kind == "FILE":
 			filename = os.path.join(root, key)
 			if case == "EXIST":
 				if not os.path.isfile(filename):
-					success = 0
+					success = FAILURE
 			else:
 				if case == "MODIFIED":
 					for f in files:
 						if f.name == key:
 							if not f.ismodified():
-								success = 0
+								success = FAILURE
 				elif case == "PACNEW":
 					if not os.path.isfile("%s%s" % (filename, PM_PACNEW)):
-						success = 0
+						success = FAILURE
 				elif case == "PACORIG":
 					if not os.path.isfile("%s%s" % (filename, PM_PACORIG)):
-						success = 0
+						success = FAILURE
 				elif case == "PACSAVE":
 					if not os.path.isfile("%s%s" % (filename, PM_PACSAVE)):
-						success = 0
+						success = FAILURE
 				else:
-					success = -1
+					success = SKIPPED
 		elif kind == "LINK":
 			filename = os.path.join(root, key)
 			if case == "EXIST":
 				if not os.path.islink(filename):
-					success = 0
+					success = FAILURE
 		else:
-			success = -1
+			success = SKIPPED
 
-		if self.false and success != -1:
-			success = not success
+		if inverted:
+			if success == SUCCESS:
+				success = FAILURE
+			elif success == FAILURE:
+				success = SUCCESS
 		self.result = success
 		return success
 
