@@ -93,11 +93,12 @@ class pmrule:
 					if not value in newpkg.files:
 						self.result = FAILURE
 				elif case == "BACKUP":
-					found = 0
+					found = False
 					for f in newpkg.backup:
 						name, md5sum = f.split("\t")
 						if value == name:
-							found = 1
+							found = True
+							break
 					if not found:
 						self.result = FAILURE
 				else:
@@ -113,6 +114,7 @@ class pmrule:
 						if f.name == key:
 							if not f.ismodified():
 								self.result = FAILURE
+								break
 				elif case == "PACNEW":
 					if not os.path.isfile("%s%s" % (filename, PM_PACNEW)):
 						self.result = FAILURE
