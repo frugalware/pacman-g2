@@ -31,7 +31,6 @@ class pmrule:
 
 	def __init__(self, rule):
 		self.rule = rule
-		self.result = None
 
 	def __str__(self):
 		return "rule = %s" % self.rule
@@ -41,7 +40,7 @@ class pmrule:
 		"""
 
 		inverted = False
-		success = SUCCESS
+		self.result = SUCCESS
 
 		[test, args] = self.rule.split("=")
 		if test[0] == "!":
@@ -56,42 +55,42 @@ class pmrule:
 		if kind == "PACMAN":
 			if case == "RETCODE":
 				if retcode != int(key):
-					success = FAILURE
+					self.result = FAILURE
 			elif case == "OUTPUT":
 				if not grep(os.path.join(root, LOGFILE), key):
-					success = FAILURE
+					self.result = FAILURE
 			else:
-				success = SKIPPED
+				self.result = SKIPPED
 		elif kind == "PKG":
 			newpkg = localdb.db_read(key)
 			if not newpkg:
-				success = FAILURE
+				self.result = FAILURE
 			else:
 				dbg("newpkg.checksum : %s" % newpkg.checksum)
 				dbg("newpkg.mtime    : %s" % newpkg.mtime)
 				if case == "EXIST":
-					success = 1
+					self.result = 1
 				elif case == "MODIFIED":
 					if not localdb.ispkgmodified(newpkg):
-						success = FAILURE
+						self.result = FAILURE
 				elif case == "VERSION":
 					if value != newpkg.version:
-						success = FAILURE
+						self.result = FAILURE
 				elif case == "GROUPS":
 					if not value in newpkg.groups:
-						success = FAILURE
+						self.result = FAILURE
 				elif case == "DEPENDS":
 					if not value in newpkg.depends:
-						success = FAILURE
+						self.result = FAILURE
 				elif case == "REQUIREDBY":
 					if not value in newpkg.requiredby:
-						success = FAILURE
+						self.result = FAILURE
 				elif case == "REASON":
 					if not newpkg.reason == int(value):
-						success = FAILURE
+						self.result = FAILURE
 				elif case == "FILES":
 					if not value in newpkg.files:
-						success = FAILURE
+						self.result = FAILURE
 				elif case == "BACKUP":
 					found = 0
 					for f in newpkg.backup:
@@ -99,46 +98,45 @@ class pmrule:
 						if value == name:
 							found = 1
 					if not found:
-						success = FAILURE
+						self.result = FAILURE
 				else:
-					success = SKIPPED
+					self.result = SKIPPED
 		elif kind == "FILE":
 			filename = os.path.join(root, key)
 			if case == "EXIST":
 				if not os.path.isfile(filename):
-					success = FAILURE
+					self.result = FAILURE
 			else:
 				if case == "MODIFIED":
 					for f in files:
 						if f.name == key:
 							if not f.ismodified():
-								success = FAILURE
+								self.result = FAILURE
 				elif case == "PACNEW":
 					if not os.path.isfile("%s%s" % (filename, PM_PACNEW)):
-						success = FAILURE
+						self.result = FAILURE
 				elif case == "PACORIG":
 					if not os.path.isfile("%s%s" % (filename, PM_PACORIG)):
-						success = FAILURE
+						self.result = FAILURE
 				elif case == "PACSAVE":
 					if not os.path.isfile("%s%s" % (filename, PM_PACSAVE)):
-						success = FAILURE
+						self.result = FAILURE
 				else:
-					success = SKIPPED
+					self.result = SKIPPED
 		elif kind == "LINK":
 			filename = os.path.join(root, key)
 			if case == "EXIST":
 				if not os.path.islink(filename):
-					success = FAILURE
+					self.result = FAILURE
 		else:
-			success = SKIPPED
+			self.result = SKIPPED
 
 		if inverted:
-			if success == SUCCESS:
-				success = FAILURE
-			elif success == FAILURE:
-				success = SUCCESS
-		self.result = success
-		return success
+			if self.result == SUCCESS:
+				self.result = FAILURE
+			elif self.result == FAILURE:
+				self.result = SUCCESS
+		return self.result
 
 
 if __name__ != "__main__":
