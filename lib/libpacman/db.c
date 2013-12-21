@@ -67,13 +67,13 @@ FILE *_pacman_db_fopen_lastupdate(const pmdb_t *db, const char *mode)
 
 pmdb_t *_pacman_db_new(pmhandle_t *handle, const char *treename)
 {
-	pmdb_t *db = _pacman_zalloc(sizeof(pmdb_t));
+	pmdb_t *db = f_zalloc(sizeof(pmdb_t));
 
 	if(db == NULL) {
 		return(NULL);
 	}
 
-	db->path = _pacman_malloc(strlen(handle->root)+strlen(handle->dbpath)+strlen(treename)+2);
+	db->path = f_zalloc(strlen(handle->root)+strlen(handle->dbpath)+strlen(treename)+2);
 	if(db->path == NULL) {
 		FREE(db);
 		return(NULL);

@@ -61,7 +61,7 @@
 
 pmsyncpkg_t *_pacman_syncpkg_new(int type, pmpkg_t *spkg, void *data)
 {
-	pmsyncpkg_t *ps = _pacman_malloc(sizeof(pmsyncpkg_t));
+	pmsyncpkg_t *ps = _pacman_zalloc(sizeof(pmsyncpkg_t));
 
 	if(ps == NULL) {
 		return(NULL);
