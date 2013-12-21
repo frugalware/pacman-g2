@@ -52,7 +52,7 @@ typedef int (*_pacman_fn_cmp)(const void *, const void *);
 #define _pacman_list_count f_ptrlist_count
 #define _pacman_list_empty f_ptrlist_empty
 
-void f_listitem_delete(FListItem *item, FVisitor *visitor);
+int f_listitem_delete(FListItem *self, FVisitor *visitor);
 
 FList *f_list_new(void);
 
@@ -73,8 +73,10 @@ pmlist_t *_pacman_list_reverse(pmlist_t *list);
 typedef struct __pmlist_t FPtrList;
 typedef struct __pmlist_t FPtrListItem;
 
-FPtrListItem *f_ptrlistitem_new(void *ptr);
-void f_ptrlistitem_delete(FListItem *item, FVisitor *visitor);
+FPtrListItem *f_ptrlistitem_new(void *data);
+int f_ptrlistitem_delete(FListItem *self, FVisitor *visitor);
+
+void *f_ptrlistitem_data(const FPtrListItem *self);
 
 int f_ptrlistitem_match(const FListItem *item, const FMatcher *matcher);
 int f_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr);

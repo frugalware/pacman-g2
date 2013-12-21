@@ -30,12 +30,13 @@
 #include "fstdlib.h"
 #include "util.h"
 
-void f_listitem_delete(FListItem *item, FVisitor *visitor)
+int f_listitem_delete(FListItem *self, FVisitor *visitor)
 {
-	ASSERT(item != NULL, return);
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	f_visit(item, visitor);
-	free(item);
+	f_visit(self, visitor);
+	free(self);
+	return 0;
 }
 
 FList *f_list_new()
@@ -276,11 +277,18 @@ FPtrListItem *f_ptrlistitem_new(void *ptr)
 	return item;
 }
 
-void f_ptrlistitem_delete(FListItem *item, FVisitor *visitor)
+int f_ptrlistitem_delete(FListItem *self, FVisitor *visitor)
 {
-	ASSERT(item != NULL, return);
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	f_listitem_delete(item, visitor);
+	return f_listitem_delete(self, visitor);
+}
+
+void *f_ptrlistitem_data(const FPtrListItem *self)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	return self->data;
 }
 
 int f_ptrlistitem_match(const FListItem *item, const FMatcher *matcher) {
@@ -300,7 +308,7 @@ FPtrList *f_ptrlist_new(void)
 
 int f_ptrlist_delete(FPtrList *list, FVisitor *visitor)
 {
-	f_ptrlist_clear(list, visitor);
+	return f_ptrlist_clear(list, visitor);
 }
 
 int f_ptrlist_all_match(const FPtrList *list, const FMatcher *matcher)

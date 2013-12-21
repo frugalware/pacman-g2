@@ -80,6 +80,31 @@ struct FVisitor f_stringlistitem_destroyvisitor = {
 	.data = NULL,
 };
 
+FStringListItem *f_stringlistitem_new(const char *str)
+{
+#ifndef F_NOCOMPAT
+	return f_ptrlistitem_new(f_strdup(str));
+#else
+#endif
+}
+
+int f_stringlistitem_delete(FStringListItem *self)
+{
+#ifndef F_NOCOMPAT
+	return f_ptrlistitem_delete(self, &f_stringlistitem_destroyvisitor);
+#else
+#endif
+}
+
+const char *f_stringlistitem_to_str(const FStringListItem *self)
+{
+#ifndef F_NOCOMPAT
+	return f_ptrlistitem_data(self);
+#else
+	return self->to_str;
+#endif
+}
+
 FStringList *f_stringlist_new(void)
 {
 	return f_list_new();

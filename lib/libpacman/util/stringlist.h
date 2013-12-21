@@ -24,14 +24,35 @@
 #include "util/list.h"
 #include "fstring.h"
 
+#ifndef F_NOCOMPAT
 typedef struct __pmlist_t FStringList;
 typedef struct __pmlist_t FStringListItem;
+#else
+typedef struct FStringList FStringList;
+typedef struct FStringListItem FStringListItem;
+
+struct FStringList
+{
+	FList as_FList;
+};
+
+struct FStringListItem
+{
+	FListItem as_FListItem;
+	char to_str[0];
+};
+#endif
 
 #define _pacman_stringlist_append f_stringlist_append
 
 int _pacman_list_is_strin(const char *needle, FStringList *haystack);
 FStringList *_pacman_list_remove_dupes(FStringList *list);
 FStringList *_pacman_list_strdup(FStringList *list);
+
+FStringListItem *f_stringlistitem_new(const char *str);
+int f_stringlistitem_delete(FStringListItem *self);
+
+const char *f_stringlistitem_to_str(const FStringListItem *self);
 
 FStringList *f_stringlist_new(void);
 int f_stringlist_delete(FStringList *self);
