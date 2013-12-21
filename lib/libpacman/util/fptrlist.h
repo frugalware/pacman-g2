@@ -26,9 +26,22 @@
 
 #include "util/flist.h"
 
+#ifndef F_NOCOMPAT
 typedef struct __pmlist_t FPtrList;
 typedef struct __pmlist_t FPtrListItem;
+#else
+typedef struct FPtrList FPtrList;
+typedef struct FPtrListItem FPtrListItem;
 
+struct FPtrList {
+	FList as_FList;
+};
+
+struct FPtrListItem {
+	FListItem as_FListItem;
+	void *data;
+};
+#endif
 FPtrListItem *f_ptrlistitem_new(void *data);
 int f_ptrlistitem_delete(FListItem *self, FVisitor *visitor);
 

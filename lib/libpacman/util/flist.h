@@ -26,11 +26,9 @@
 
 #include "util/fcallback.h"
 
+#ifndef F_NOCOMPAT
 typedef struct __pmlist_t FList;
 typedef struct __pmlist_t FListItem;
-
-typedef int (*FListItemComparatorFunc)(const FListItem *item, const void *comparator_data);
-typedef void (*FListItemVisitorFunc)(FListItem *item, void *visitor_data);
 
 /* Chained list struct */
 struct __pmlist_t {
@@ -39,6 +37,19 @@ struct __pmlist_t {
 	void *data;
 	struct __pmlist_t *last; /* Quick access to last item in list */
 };
+#else
+typedef struct FList FList;
+typedef struct FListItem FListItem;
+
+struct FList {
+};
+
+struct FListItem {
+};
+#endif
+
+typedef int (*FListItemComparatorFunc)(const FListItem *item, const void *comparator_data);
+typedef void (*FListItemVisitorFunc)(FListItem *item, void *visitor_data);
 
 int f_listitem_delete(FListItem *self, FVisitor *visitor);
 

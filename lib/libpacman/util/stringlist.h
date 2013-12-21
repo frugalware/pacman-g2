@@ -31,13 +31,11 @@ typedef struct __pmlist_t FStringListItem;
 typedef struct FStringList FStringList;
 typedef struct FStringListItem FStringListItem;
 
-struct FStringList
-{
+struct FStringList {
 	FList as_FList;
 };
 
-struct FStringListItem
-{
+struct FStringListItem {
 	FListItem as_FListItem;
 	char to_str[0];
 };
