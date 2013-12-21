@@ -33,10 +33,14 @@ int _pacman_list_is_strin(const char *needle, FStringList *haystack);
 FStringList *_pacman_list_remove_dupes(FStringList *list);
 FStringList *_pacman_list_strdup(FStringList *list);
 
+FStringList *f_stringlist_new(void);
+int f_stringlist_delete(FStringList *self);
+
 int f_stringlist_all_match(const FStringList *list, const FStrMatcher *matcher);
 int f_stringlist_any_match(const FStringList *list, const FStrMatcher *matcher);
 FStringList *f_stringlist_append(FStringList *list, const char *s);
 FStringList *f_stringlist_append_stringlist(FStringList *dest, const FStringList *src);
+int f_stringlist_clear(FStringList *self);
 
 #endif /* _PACMAN_STRINGLIST_H */
 

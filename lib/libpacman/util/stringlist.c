@@ -74,6 +74,22 @@ FStringList *_pacman_list_strdup(FStringList *list)
 	return(newlist);
 }
 
+static
+struct FVisitor f_stringlistitem_destroyvisitor = {
+	.fn = (FVisitorFunc)free,
+	.data = NULL,
+};
+
+FStringList *f_stringlist_new(void)
+{
+	return f_ptrlist_new();
+}
+
+int f_stringlist_delete(FStringList *self)
+{
+	return f_ptrlist_delete(self, &f_stringlistitem_destroyvisitor);
+}
+
 int f_stringlist_all_match(const FStringList *list, const FStrMatcher *matcher)
 {
 	return f_ptrlist_all_match(list, (const FMatcher *)matcher);
@@ -97,6 +113,11 @@ FStringList *f_stringlist_append_stringlist(FStringList *dest, const FStringList
 		dest = _pacman_stringlist_append(dest, lp->data);
 	}
 	return dest;
+}
+
+int f_stringlist_clear(FStringList *self)
+{
+	return f_ptrlist_clear(self, &f_stringlistitem_destroyvisitor);
 }
 
 /* vim: set ts=2 sw=2 noet: */

@@ -38,6 +38,11 @@ void f_listitem_delete(FListItem *item, FVisitor *visitor)
 	free(item);
 }
 
+FList *f_list_new()
+{
+	return NULL;
+}
+
 int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
 {
 	return f_list_find(list, comparator, comparator_data) != NULL;
@@ -271,13 +276,6 @@ FPtrListItem *f_ptrlistitem_new(void *ptr)
 	return item;
 }
 
-FPtrList *f_ptrlist_new(void)
-{
-	FPtrListItem *item = f_ptrlistitem_new(NULL);
-	item->last = item;
-	return (FPtrList *)item;
-}
-
 void f_ptrlistitem_delete(FListItem *item, FVisitor *visitor)
 {
 	ASSERT(item != NULL, return);
@@ -293,7 +291,14 @@ int f_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr) {
 	return f_ptrcmp(item->data, ptr);
 }
 
-void f_ptrlist_delete(FPtrList *list, FVisitor *visitor)
+FPtrList *f_ptrlist_new(void)
+{
+	FPtrListItem *item = f_ptrlistitem_new(NULL);
+	item->last = item;
+	return (FPtrList *)item;
+}
+
+int f_ptrlist_delete(FPtrList *list, FVisitor *visitor)
 {
 	f_ptrlist_clear(list, visitor);
 }
@@ -318,7 +323,7 @@ int f_ptrlist_any_match(const FPtrList *list, const FMatcher *matcher)
 	return f_list_any_match(list, &itemmatcher);
 }
 
-void f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
+int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 {
 	FPtrList *next;
 
@@ -330,6 +335,7 @@ void f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 		free(list);
 		list = next;
 	}
+	return 0;
 }
 
 int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr)
