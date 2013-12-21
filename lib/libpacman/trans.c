@@ -112,6 +112,11 @@ int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags,
 	trans->type = type;
 	trans->flags = flags;
 	trans->cbs = cbs;
+//	trans->packages = f_ptrlist_new();
+	trans->targets = f_stringlist_new();
+	trans->skiplist = f_stringlist_new();
+	trans->triggers = f_stringlist_new();
+
 	trans->state = STATE_INITIALIZED;
 
 	check_oldcache();
@@ -124,7 +129,6 @@ int _pacman_trans_fini(pmtrans_t *trans)
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
-	FREELIST(trans->targets);
 	FREELISTPKGS(trans->packages);
 #if 0
 	{
@@ -136,8 +140,9 @@ int _pacman_trans_fini(pmtrans_t *trans)
 		f_ptrlist_delete(trans->syncpkgs, &visitor);
 	}
 #endif
-	FREELIST(trans->skiplist);
-	FREELIST(trans->triggers);
+	f_stringlist_delete(trans->targets);
+	f_stringlist_delete(trans->skiplist);
+	f_stringlist_delete(trans->triggers);
 
 	memset(trans, 0, sizeof(*trans));
 	trans->state = STATE_IDLE;

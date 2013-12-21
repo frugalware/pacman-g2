@@ -68,7 +68,7 @@ FStringList *_pacman_list_strdup(FStringList *list)
 	FStringList *lp;
 
 	for(lp = list; lp; lp = lp->next) {
-		newlist = _pacman_stringlist_append(newlist, lp->data);
+		newlist = f_stringlist_append(newlist, lp->data);
 	}
 
 	return(newlist);
@@ -82,7 +82,7 @@ struct FVisitor f_stringlistitem_destroyvisitor = {
 
 FStringList *f_stringlist_new(void)
 {
-	return f_ptrlist_new();
+	return f_list_new();
 }
 
 int f_stringlist_delete(FStringList *self)
@@ -110,7 +110,7 @@ FStringList *f_stringlist_append_stringlist(FStringList *dest, const FStringList
 	const FStringList *lp;
 
 	for(lp = src; lp; lp = lp->next) {
-		dest = _pacman_stringlist_append(dest, lp->data);
+		dest = f_stringlist_append(dest, lp->data);
 	}
 	return dest;
 }
