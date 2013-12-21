@@ -16,10 +16,14 @@ set(FLIB_SOURCES
 	io/ffilelock.c
 	io/ftp.c
 	util/fcallback.h
+	util/flist.c
+	util/flist.h
 	util/ffilelogger.c
 	util/ffilelogger.h
 	util/flogger.c
 	util/flogger.h
+	util/fptrlist.c
+	util/fptrlist.h
 	util/fsyslogger.c
 	util/fsyslogger.h
 	util/list.c

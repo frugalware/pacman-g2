@@ -23,21 +23,8 @@
 
 #include "pacman.h"
 
-#include "util/fcallback.h"
-
-typedef struct __pmlist_t FList;
-typedef struct __pmlist_t FListItem;
-
-typedef int (*FListItemComparatorFunc)(const FListItem *item, const void *comparator_data);
-typedef void (*FListItemVisitorFunc)(FListItem *item, void *visitor_data);
-
-/* Chained list struct */
-struct __pmlist_t {
-	struct __pmlist_t *prev;
-	struct __pmlist_t *next;
-	void *data;
-	struct __pmlist_t *last; /* Quick access to last item in list */
-};
+#include "util/flist.h"
+#include "util/fptrlist.h"
 
 #define _FREELIST(p, f) do { if(p) { FVisitor visitor = { .fn = (FVisitorFunc)f, .data = NULL, }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
 #define FREELIST(p) _FREELIST(p, free)
@@ -52,46 +39,10 @@ typedef int (*_pacman_fn_cmp)(const void *, const void *);
 #define _pacman_list_count f_ptrlist_count
 #define _pacman_list_empty f_ptrlist_empty
 
-int f_listitem_delete(FListItem *self, FVisitor *visitor);
-
-FList *f_list_new(void);
-
-int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
-int f_list_count(const FList *list);
-int f_list_empty(const FList *list);
-FListItem *f_list_find(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
-void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data);
-
-pmlist_t *f_ptrlist_append(pmlist_t *list, void *data);
 pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn);
-int f_list_all_match(const FList *list, const FMatcher *matcher);
-int f_list_any_match(const FList *list, const FMatcher *matcher);
 pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 pmlist_t *_pacman_list_last(pmlist_t *list);
 pmlist_t *_pacman_list_reverse(pmlist_t *list);
-
-typedef struct __pmlist_t FPtrList;
-typedef struct __pmlist_t FPtrListItem;
-
-FPtrListItem *f_ptrlistitem_new(void *data);
-int f_ptrlistitem_delete(FListItem *self, FVisitor *visitor);
-
-void *f_ptrlistitem_data(const FPtrListItem *self);
-
-int f_ptrlistitem_match(const FListItem *item, const FMatcher *matcher);
-int f_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr);
-
-FPtrList *f_ptrlist_new(void);
-int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
-
-int f_ptrlist_all_match(const FPtrList *list, const FMatcher *matcher);
-int f_ptrlist_any_match(const FPtrList *list, const FMatcher *matcher);
-int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
-#define f_ptrlist_contains f_list_contains
-int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
-#define f_ptrlist_count f_list_count
-#define f_ptrlist_empty f_list_empty
-FPtrList *f_ptrlist_filter(const FPtrList *list, const FMatcher *matcher);
 
 #endif /* _PACMAN_LIST_H */
 
