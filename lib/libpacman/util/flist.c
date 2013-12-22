@@ -26,6 +26,8 @@
 
 #include "fstdlib.h"
 
+#include <assert.h>
+
 int f_listitem_delete(FListItem *self, FVisitor *visitor)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
@@ -96,9 +98,34 @@ FListItem *f_list_find(const FList *list, FListItemComparatorFunc comparator, co
 	return (FListItem *)list;
 }
 
+FListItem *f_list_first(FList *self)
+{
+	return (FListItem *)f_list_first_const(self);
+}
+
+const FListItem *f_list_first_const(const FList *self)
+{
+	return (FListItem *)self;
+}
+
 void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data)
 {
 	for(; list != NULL; list = list->next) {
 		visitor((FListItem *)list, visitor_data);
 	}
+}
+
+FListItem *f_list_last(FList *self)
+{
+	return (FListItem *)f_list_last_const(self);
+}
+
+const FListItem *f_list_last_const(const FList *self)
+{
+	if(self == NULL) {
+		return(NULL);
+	}
+
+	assert(self->last != NULL);
+	return(self->last);
 }

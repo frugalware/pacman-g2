@@ -61,7 +61,11 @@ int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const
 int f_list_count(const FList *list);
 int f_list_empty(const FList *list);
 FListItem *f_list_find(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
+FListItem *f_list_first(FList *self);
+const FListItem *f_list_first_const(const FList *self);
 void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data);
+FListItem *f_list_last(FList *self);
+const FListItem *f_list_last_const(const FList *self);
 
 #endif /* F_LIST_H */
 

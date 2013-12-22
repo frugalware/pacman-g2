@@ -62,6 +62,11 @@ int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
 #define f_ptrlist_count f_list_count
 #define f_ptrlist_empty f_list_empty
 FPtrList *f_ptrlist_filter(const FPtrList *list, const FMatcher *matcher);
+#define f_ptrlist_first(self) ((FPtrListItem *)f_list_first(self))
+#define f_ptrlist_first_const(self) ((const FPtrListItem *)f_list_first_const(self))
+#define f_ptrlist_last(self) ((FPtrListItem *)f_list_last(self))
+#define f_ptrlist_last_const(self) ((const FPtrListItem *)f_list_last_const(self))
+
 
 #endif /* F_PTRLIST_H */
 

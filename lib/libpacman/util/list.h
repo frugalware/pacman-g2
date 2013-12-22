@@ -23,7 +23,6 @@
 
 #include "pacman.h"
 
-#include "util/flist.h"
 #include "util/fptrlist.h"
 
 #define _FREELIST(p, f) do { if(p) { FVisitor visitor = { .fn = (FVisitorFunc)f, .data = NULL, }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
@@ -38,10 +37,10 @@ typedef int (*_pacman_fn_cmp)(const void *, const void *);
 #define _pacman_list_add f_ptrlist_append
 #define _pacman_list_count f_ptrlist_count
 #define _pacman_list_empty f_ptrlist_empty
+#define _pacman_list_last f_ptrlist_last
 
 pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn);
 pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp fn, void **data);
-pmlist_t *_pacman_list_last(pmlist_t *list);
 pmlist_t *_pacman_list_reverse(pmlist_t *list);
 
 #endif /* _PACMAN_LIST_H */

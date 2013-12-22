@@ -102,7 +102,7 @@ pmlist_t *f_ptrlist_append(pmlist_t *list, void *data)
 		}
 	}
 
-	lp = _pacman_list_last(ptr);
+	lp = f_ptrlist_last(ptr);
 	if(lp == ptr && lp->data == NULL) {
 		/* nada */
 	} else {

@@ -129,17 +129,6 @@ pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp f
 	return(haystack);
 }
 
-pmlist_t *_pacman_list_last(pmlist_t *list)
-{
-	if(list == NULL) {
-		return(NULL);
-	}
-
-	assert(list->last != NULL);
-
-	return(list->last);
-}
-
 /* Reverse the order of a list
  *
  * The caller is responsible for freeing the old list
