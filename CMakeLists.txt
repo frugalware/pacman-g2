@@ -45,13 +45,15 @@ else(BUILD_SHARED_LIBS)
   set(CMAKE_EXECUTABLE_SUFFIX ".static")
 endif(BUILD_SHARED_LIBS)
 
+set(LIBCURL_VERSION_MIN 7.33.0)
+
 PKG_SEARCH_MODULE(LIBARCHIVE REQUIRED libarchive)
-PKG_SEARCH_MODULE(LIBCURL libpaccurl)
+PKG_SEARCH_MODULE(LIBCURL libpaccurl>=${LIBCURL_VERSION_MIN})
 if(LIBCURL_FOUND)
   include_directories("${LIBCURL_INCLUDEDIR}/paccurl")
 else(LIBCURL_FOUND)
   message(WARNING "libpaccurl not found - trying with regular libcurl")
-  PKG_SEARCH_MODULE(LIBCURL REQUIRED libcurl)
+  PKG_SEARCH_MODULE(LIBCURL REQUIRED libcurl>=${LIBCURL_VERSION_MIN})
   include_directories("${LIBCURL_INCLUDEDIR}/curl")
 endif(LIBCURL_FOUND)
 
