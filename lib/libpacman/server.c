@@ -265,7 +265,7 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 
 		curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 0);
 		curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_NONE);
-		if(dlFileType != PM_FILE_DB && !stat(output, &st)) {
+		if(dlFileType != PM_FILE_DB && stat(output, &st) == 0) {
 			curldownloader->download.dst_resume = st.st_size;
 			curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, curldownloader->download.dst_resume);
 			outputFile = fopen(output,"ab");
