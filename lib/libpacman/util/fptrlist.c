@@ -60,14 +60,27 @@ int f_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr) {
 
 FPtrList *f_ptrlist_new(void)
 {
-	FPtrListItem *item = f_ptrlistitem_new(NULL);
-	item->last = item;
-	return (FPtrList *)item;
+	FPtrList *self;
+
+	ASSERT((self = f_zalloc(sizeof(*self))), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	f_ptrlist_init(self);
+	return self;
 }
 
-int f_ptrlist_delete(FPtrList *list, FVisitor *visitor)
+int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
 {
-	return f_ptrlist_clear(list, visitor);
+	return f_ptrlist_fini(self, visitor);
+}
+
+int f_ptrlist_init(FPtrList *self)
+{
+	return f_list_init(self);
+}
+
+int f_ptrlist_fini(FPtrList *self, FVisitor *visitor)
+{
+	return f_ptrlist_clear(self, visitor);
 }
 
 int f_ptrlist_all_match(const FPtrList *list, const FMatcher *matcher)

@@ -42,6 +42,26 @@ FList *f_list_new()
 	return NULL;
 }
 
+int f_list_delete(FList *self, FVisitor *visitor)
+{
+	return f_list_fini(self, visitor);
+}
+
+int f_list_init(FList *self)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	self->last = self;
+	return 0;
+}
+
+int f_list_fini(FList *self, FVisitor *visitor)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	return f_list_clear(self, visitor);
+}
+
 int f_list_all_match(const FList *list, const FMatcher *matcher)
 {
 	const FListItem *it;
@@ -68,6 +88,11 @@ int f_list_any_match(const FList *list, const FMatcher *matcher)
 		}
 	}
 	return 0;
+}
+
+int f_list_clear(FList *self, FVisitor *visitor)
+{
+	return -1;
 }
 
 int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)

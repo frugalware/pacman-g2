@@ -42,6 +42,7 @@ struct FPtrListItem {
 	void *data;
 };
 #endif
+
 FPtrListItem *f_ptrlistitem_new(void *data);
 int f_ptrlistitem_delete(FListItem *self, FVisitor *visitor);
 
@@ -52,6 +53,9 @@ int f_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr);
 
 FPtrList *f_ptrlist_new(void);
 int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
+
+int f_ptrlist_init(FPtrList *self);
+int f_ptrlist_fini(FPtrList *self, FVisitor *visitor);
 
 int f_ptrlist_all_match(const FPtrList *list, const FMatcher *matcher);
 int f_ptrlist_any_match(const FPtrList *list, const FMatcher *matcher);
