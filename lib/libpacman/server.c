@@ -290,15 +290,23 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 		pm_errno = PM_ERR_RETRIEVE;
 		goto error;
 	}
-	CURLcode retc = curl_easy_perform(curlHandle);
-	if(retc == CURLE_RANGE_ERROR || retc == CURLE_BAD_DOWNLOAD_RESUME) {
-	  //server doesn't support ranges or we have an invalid range
-	  curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, 0);
-	  fclose(outputFile);
-	  outputFile = fopen(output,"wb");
-	  retc = curl_easy_perform(curlHandle);
-	}
-	if(retc != CURLE_OK) {
+
+again:
+	_pacman_log(PM_LOG_DEBUG, _("downloading file: %s\n"), url);
+	switch(curl_easy_perform(curlHandle)) {
+	case CURLE_OK:
+		_pacman_log(PM_LOG_DEBUG, _("successfuly downloaded file: %s\n"), url);
+		break;
+	case CURLE_BAD_DOWNLOAD_RESUME:
+	case CURLE_RANGE_ERROR:
+		//server doesn't support ranges or we have an invalid range
+		_pacman_log(PM_LOG_DEBUG, _("error resuming download file: %s\n"), url);
+		curl_easy_setopt(curlHandle, CURLOPT_RESUME_FROM, 0);
+		fclose(outputFile);
+		outputFile = fopen(output,"wb");
+		goto again;
+		break;
+	default:
 		_pacman_log(PM_LOG_WARNING, _("error downloading file: %s\n"), url);
 		pm_errno = PM_ERR_RETRIEVE;
 		goto error;
