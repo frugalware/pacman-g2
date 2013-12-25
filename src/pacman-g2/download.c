@@ -74,11 +74,6 @@ int log_progress(const pmdownload_t *download)
 
 	pct = ((float)(tell) / fsz) * 100;
 
-	if(config->dl_interrupted) {
-		printf("\n");
-		return 0;
-	}
-
 	if(strcmp(prev_fnm, sync_fnm) && lastpct == 100) {
 		lastpct = 0;
 	}

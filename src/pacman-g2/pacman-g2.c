@@ -228,10 +228,8 @@ static void signal_callback(int signum)
 		fprintf(stderr, "Internal pacman-g2 error: Segmentation fault\n"
 			"Please submit a full bug report, with the given package if appropriate.\n");
 		exit(signum);
-	} else if((signum == SIGINT) && (pacman_trans_release() == -1) &&
-			((pm_errno == PM_ERR_TRANS_COMMITING) || (pm_errno == PM_ERR_TRANS_DOWNLOADING))) {
-		if(pm_errno == PM_ERR_TRANS_DOWNLOADING)
-			config->dl_interrupted = 1;
+	} else if(signum == SIGINT && pacman_trans_release() == -1 &&
+			  pm_errno == PM_ERR_TRANS_COMMITING) {
 		return;
 	}
 
