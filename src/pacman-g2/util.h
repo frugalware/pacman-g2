@@ -48,7 +48,6 @@
 
 void indentprint(char *str, int indent);
 char *buildstring(list_t *strlist);
-char *strtoupper(char *str);
 char *strtrim(char *str);
 int reg_match(char *string, char *pattern);
 

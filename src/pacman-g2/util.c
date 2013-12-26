@@ -112,19 +112,6 @@ char *buildstring(list_t *strlist)
 	return(str);
 }
 
-/* Convert a string to uppercase
- */
-char *strtoupper(char *str)
-{
-	char *ptr = str;
-
-	while(*ptr) {
-		(*ptr) = toupper(*ptr);
-		ptr++;
-	}
-	return str;
-}
-
 /* Trim whitespace and newlines from a string
  */
 char *strtrim(char *str)
