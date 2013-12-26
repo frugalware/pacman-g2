@@ -74,14 +74,12 @@ pmtrans_t *_pacman_trans_new()
 	return(trans);
 }
 
-void _pacman_trans_free(pmtrans_t *trans)
+int _pacman_trans_delete(pmtrans_t *trans)
 {
-	if(trans == NULL) {
-		return;
-	}
+	ASSERT(_pacman_trans_fini(trans) == 0, return -1);
 
-	_pacman_trans_fini(trans);
 	free(trans);
+	return 0;
 }
 
 int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs)
@@ -128,6 +126,7 @@ int _pacman_trans_fini(pmtrans_t *trans)
 {
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(trans->state != STATE_COMMITING, RET_ERR(PM_ERR_TRANS_COMMITING, -1));
 
 	FREELISTPKGS(trans->packages);
 #if 0

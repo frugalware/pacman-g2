@@ -896,22 +896,11 @@ int pacman_trans_commit(pmlist_t **data)
  */
 int pacman_trans_release()
 {
-	pmtrans_t *trans;
-
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
+	ASSERT(_pacman_trans_delete(handle->trans) == 0, return -1);
 
-	trans = handle->trans;
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(trans->state != STATE_IDLE, RET_ERR(PM_ERR_TRANS_NULL, -1));
-
-	/* during a commit do not interrupt inmediatelly, just after a target */
-	if(trans->state == STATE_COMMITING) {
-		pm_errno = PM_ERR_TRANS_COMMITING;
-		return(-1);
-	}
-
-	FREETRANS(handle->trans);
+	handle->trans = 0;
 
 	_pacman_db_settimestamp(handle->db_local, NULL);
 

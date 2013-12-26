@@ -70,8 +70,7 @@ struct __pmtrans_t {
 
 #define FREETRANS(p) \
 do { \
-	if(p) { \
-		_pacman_trans_free(p); \
+	if((p) && _pacman_trans_delete(p) == 0) { \
 		p = NULL; \
 	} \
 } while (0)
@@ -93,7 +92,8 @@ do { \
 } while(0)
 
 pmtrans_t *_pacman_trans_new(void);
-void _pacman_trans_free(pmtrans_t *trans);
+int _pacman_trans_delete(pmtrans_t *trans);
+
 int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
 int _pacman_trans_fini(pmtrans_t *trans);
 
