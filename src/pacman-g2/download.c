@@ -85,13 +85,13 @@ int log_progress(const pmdownload_t *download)
 	pacman_get_option(PM_OPT_CHOMP, (long *)&chomp);
 
 	if(tell == fsz) {
-		time_t now = time(NULL);
-		struct timeval begin;
+		struct timeval begin, end;
 
 		pacman_download_avg(download, &rate);
 		pacman_download_begin(download, &begin);
+		pacman_download_end(download, &end);
 		/* total download time */
-		eta = difftime(now, begin.tv_sec);
+		eta = difftime(end.tv_sec, begin.tv_sec);
 	}
 	rate /= 1024; /* convert to KB/s */
 	eta_s = eta;
@@ -147,7 +147,7 @@ int log_progress(const pmdownload_t *download)
 	} else {
 		printf("] %3d%%  %6lldK  %6.1fK/s  %02d:%02d:%02d\r", pct, (long long)(tell / 1024), rate, eta_h, eta_m, eta_s);
 	}
-	if(lastpct != 100 && pct == 100) {
+	if(tell == fsz) {
 		printf("\n");
 	}
 	lastcur = cur;
