@@ -907,7 +907,6 @@ int pacman_trans_release()
 
 	/* during a commit do not interrupt inmediatelly, just after a target */
 	if(trans->state == STATE_COMMITING) {
-		trans->state = STATE_INTERRUPTED;
 		pm_errno = PM_ERR_TRANS_COMMITING;
 		return(-1);
 	}

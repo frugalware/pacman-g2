@@ -340,7 +340,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				pmpkg_t *local;
 
 				_pacman_log(PM_LOG_FLOW2, _("package '%s' is conflicting with '%s'"),
-				          miss->target, miss->depend.name);
+						  miss->target, miss->depend.name);
 
 				/* check if the conflicting package is one that's about to be removed/replaced.
 				 * if so, then just ignore it
@@ -362,7 +362,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				ps = _pacman_trans_find(trans, miss->target);
 				if(ps == NULL) {
 					_pacman_log(PM_LOG_DEBUG, _("'%s' not found in transaction set -- skipping"),
-					          miss->target);
+							  miss->target);
 					continue;
 				}
 				local = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
@@ -737,7 +737,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 							}
 							if(_pacman_db_write(db_local, depender, INFRQ_DEPENDS) == -1) {
 								_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
-								          new->name, new->version);
+										  new->name, new->version);
 							}
 							/* add the new requiredby */
 							new->requiredby = _pacman_stringlist_append(new->requiredby, k->data);
@@ -746,7 +746,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 				if(_pacman_db_write(db_local, new, INFRQ_DEPENDS) == -1) {
 					_pacman_log(PM_LOG_ERROR, _("could not update new database entry %s-%s"),
-					          new->name, new->version);
+							  new->name, new->version);
 				}
 			}
 		}
@@ -915,7 +915,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 			}
 		}
 	}
-	
+
 	if(retval) {
 		pm_errno = PM_ERR_PKG_CORRUPTED;
 		goto error;
@@ -927,6 +927,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 		return(0);
 	}
 	if(!retval) {
+		trans->state = STATE_COMMITING;
 		retval = _pacman_sync_commit(trans, data);
 		if(retval) {
 			goto error;
