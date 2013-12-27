@@ -107,10 +107,12 @@ void f_str_visit(char *str, FStrVisitor *strvisitor) {
 	f_visit(str, (FVisitor *)strvisitor);
 }
 
-#define F_STRMATCHER_IGNORE_CASE (1<<0)
-#define F_STRMATCHER_EQUAL       (1<<1)
-#define F_STRMATCHER_REGEXP      (1<<2)
-#define F_STRMATCHER_SUBSTRING   (1<<3)
+#define F_STRMATCHER_IGNORE_CASE     (1<<0)
+#define F_STRMATCHER_EQUAL           (1<<1)
+#define F_STRMATCHER_REGEXP          (1<<2)
+#define F_STRMATCHER_SUBSTRING       (1<<3)
+#define F_STRMATCHER_ALL             (F_STRMATCHER_EQUAL | F_STRMATCHER_REGEXP | F_STRMATCHER_SUBSTRING)
+#define F_STRMATCHER_ALL_IGNORE_CASE (F_STRMATCHER_IGNORE_CASE | F_STRMATCHER_ALL)
 
 int f_strmatcher_init(FStrMatcher *strmatcher, const char *pattern, int flags);
 int f_strmatcher_fini(FStrMatcher *strmatcher);
