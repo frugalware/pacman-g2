@@ -186,6 +186,7 @@ int _pacman_pkg_delete(pmpkg_t *self)
 int _pacman_pkg_init(pmpkg_t *self, pmdb_t *db)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	self->database = db;
 	return 0;
