@@ -100,13 +100,12 @@ int _pacman_trans_fini(pmtrans_t *trans);
 int _pacman_trans_event(pmtrans_t *trans, unsigned char, void *, void *);
 pmsyncpkg_t *_pacman_trans_find(const pmtrans_t *trans, const char *pkgname);
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state);
+
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target);
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data);
 int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data);
 
 int _pacman_trans_sysupgrade(pmtrans_t *trans);
-
-int _pacman_trans_compute_triggers(pmtrans_t *trans);
 
 #endif /* _PACMAN_TRANS_H */
 

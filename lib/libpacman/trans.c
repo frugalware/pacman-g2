@@ -148,26 +148,30 @@ int _pacman_trans_fini(pmtrans_t *trans)
 	return 0;
 }
 
-int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
+static
+int _pacman_trans_compute_triggers(pmtrans_t *trans)
 {
+	pmlist_t *lp;
+
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(trans->ops != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(trans->ops->addtarget != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(target != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	if(_pacman_list_is_strin(target, trans->targets)) {
-		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
+	/* NOTE: Not the most efficient way, but will do until we add some string hash. */
+	for(lp = trans->packages; lp; lp = lp->next) {
+		pmpkg_t *pkg = lp->data;
+
+		trans->triggers = f_stringlist_append_stringlist(trans->triggers, pkg->triggers);
 	}
+	for(lp = trans->syncpkgs; lp; lp = lp->next) {
+		pmpkg_t *pkg = ((pmsyncpkg_t *)lp->data)->pkg;
 
-	if(trans->ops->addtarget(trans, target) == -1) {
-		/* pm_errno is set by trans->ops->addtarget() */
-		return(-1);
+		/* FIXME: might be incomplete */
+		trans->triggers = f_stringlist_append_stringlist(trans->triggers, pkg->triggers);
 	}
+	trans->triggers = _pacman_list_remove_dupes(trans->triggers);
+	/* FIXME: Sort the triggers to have a predictable execution order */
 
-	trans->targets = _pacman_stringlist_append(trans->targets, target);
-
-	return(0);
+	return 0;
 }
 
 int _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, void *data2)
@@ -249,29 +253,26 @@ int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 	return(0);
 }
 
-int _pacman_trans_compute_triggers(pmtrans_t *trans)
+int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 {
-	pmlist_t *lp;
-
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(trans->ops != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(trans->ops->addtarget != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(target != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	/* NOTE: Not the most efficient way, but will do until we add some string hash. */
-	for(lp = trans->packages; lp; lp = lp->next) {
-		pmpkg_t *pkg = lp->data;
-
-		trans->triggers = f_stringlist_append_stringlist(trans->triggers, pkg->triggers);
+	if(_pacman_list_is_strin(target, trans->targets)) {
+		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
-	for(lp = trans->syncpkgs; lp; lp = lp->next) {
-		pmpkg_t *pkg = ((pmsyncpkg_t *)lp->data)->pkg;
 
-		/* FIXME: might be incomplete */
-		trans->triggers = f_stringlist_append_stringlist(trans->triggers, pkg->triggers);
+	if(trans->ops->addtarget(trans, target) == -1) {
+		/* pm_errno is set by trans->ops->addtarget() */
+		return(-1);
 	}
-	trans->triggers = _pacman_list_remove_dupes(trans->triggers);
-	/* FIXME: Sort the triggers to have a predictable execution order */
 
-	return 0;
+	trans->targets = _pacman_stringlist_append(trans->targets, target);
+
+	return(0);
 }
 
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
