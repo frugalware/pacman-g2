@@ -101,7 +101,7 @@ pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 {
 	pmpkg_t* pkg = NULL;
 
-	if((pkg = (pmpkg_t *)_pacman_zalloc(sizeof(pmpkg_t))) == NULL) {
+	if((pkg = (pmpkg_t *)f_zalloc(sizeof(pmpkg_t))) == NULL) {
 		return NULL;
 	}
 
@@ -123,7 +123,7 @@ pmpkg_t *_pacman_pkg_new_from_filename(const char *filename, int witharch)
 	ASSERT(pkg = _pacman_pkg_new(NULL, NULL), return NULL);
 
 	if(_pacman_pkg_splitname(filename, pkg->name, pkg->version, witharch) == -1) {
-		_pacman_pkg_free(pkg);
+		_pacman_pkg_delete(pkg);
 		pkg = NULL;
 	}
 	return pkg;
@@ -175,30 +175,42 @@ pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 	return(newpkg);
 }
 
-void _pacman_pkg_free(void *data)
+int _pacman_pkg_delete(pmpkg_t *self)
 {
-	pmpkg_t *pkg = data;
+	ASSERT(_pacman_pkg_fini(self) == 0, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	if(pkg == NULL) {
-		return;
-	}
+	free(self);
+	return 0;
+}
 
-	FREELIST(pkg->license);
-	FREELIST(pkg->desc_localized);
-	FREELIST(pkg->files);
-	FREELIST(pkg->backup);
-	FREELIST(pkg->depends);
-	FREELIST(pkg->removes);
-	FREELIST(pkg->conflicts);
-	FREELIST(pkg->requiredby);
-	FREELIST(pkg->groups);
-	FREELIST(pkg->provides);
-	FREELIST(pkg->replaces);
-	FREELIST(pkg->triggers);
-	if(pkg->origin == PKG_FROM_FILE) {
-		FREE(pkg->data);
+int _pacman_pkg_init(pmpkg_t *self, pmdb_t *db)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	self->database = db;
+	return 0;
+}
+
+int _pacman_pkg_fini(pmpkg_t *self)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	FREELIST(self->license);
+	FREELIST(self->desc_localized);
+	FREELIST(self->files);
+	FREELIST(self->backup);
+	FREELIST(self->depends);
+	FREELIST(self->removes);
+	FREELIST(self->conflicts);
+	FREELIST(self->requiredby);
+	FREELIST(self->groups);
+	FREELIST(self->provides);
+	FREELIST(self->replaces);
+	FREELIST(self->triggers);
+	if(self->origin == PKG_FROM_FILE) {
+		FREE(self->data);
 	}
-	free(pkg);
+	return 0;
 }
 
 /* Helper function for comparing packages

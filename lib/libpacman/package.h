@@ -131,18 +131,20 @@ struct __pmpkg_t {
 
 #define FREEPKG(p) \
 do { \
-	if(p) { \
-		_pacman_pkg_free(p); \
+	if(p && _pacman_pkg_delete(p) == 0) { \
 		p = NULL; \
 	} \
 } while(0)
 
-#define FREELISTPKGS(p) _FREELIST(p, _pacman_pkg_free)
+#define FREELISTPKGS(p) _FREELIST(p, _pacman_pkg_delete)
 
-pmpkg_t* _pacman_pkg_new(const char *name, const char *version);
+pmpkg_t *_pacman_pkg_new(const char *name, const char *version);
 pmpkg_t *_pacman_pkg_new_from_filename(const char *filename, int witharch);
 pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg);
-void _pacman_pkg_free(void *data);
+int _pacman_pkg_delete(pmpkg_t *self);
+
+int _pacman_pkg_init(pmpkg_t *self, pmdb_t *db);
+int _pacman_pkg_fini(pmpkg_t *self);
 
 int _pacman_pkg_cmp(const void *p1, const void *p2);
 int _pacman_pkg_is_valid(const pmpkg_t *pkg, const pmtrans_t *trans, const char *pkgfile);
