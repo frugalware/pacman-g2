@@ -104,7 +104,6 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	pmlist_t *j;
 	pmpkg_t *pkg_local;
 	pmpkg_t *spkg = NULL;
-	pmsyncpkg_t *ps;
 	int cmp;
 	pmdb_t *db_local = trans->handle->db_local;
 	pmlist_t *dbs_sync = trans->handle->dbs_sync;
@@ -185,6 +184,8 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	/* add the package to the transaction */
 	if(!_pacman_trans_find(trans, spkg->name)) {
 		pmpkg_t *dummy = NULL;
+		pmsyncpkg_t *ps;
+
 		if(pkg_local) {
 			dummy = _pacman_pkg_new(pkg_local->name, pkg_local->version);
 			if(dummy == NULL) {
@@ -196,8 +197,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 			FREEPKG(dummy);
 			RET_ERR(PM_ERR_MEMORY, -1);
 		}
-		_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), spkg->name);
-		trans->syncpkgs = _pacman_list_add(trans->syncpkgs, ps);
+		_pacman_trans_add(trans, ps, 0);
 	}
 
 	return(0);

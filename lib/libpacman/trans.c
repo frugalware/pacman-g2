@@ -253,6 +253,32 @@ int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 	return(0);
 }
 
+pmsyncpkg_t *_pacman_trans_add(pmtrans_t *trans, pmsyncpkg_t *syncpkg, int flags)
+{
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
+	ASSERT(syncpkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
+
+	_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), syncpkg->pkg_name);
+	trans->syncpkgs = _pacman_list_add(trans->syncpkgs, syncpkg);
+	return syncpkg;
+}
+
+pmsyncpkg_t *_pacman_trans_add_package(pmtrans_t *trans, pmpkg_t *pkg, pmtranstype_t type, int flags)
+{
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
+	ASSERT(pkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
+
+	return NULL;
+}
+
+pmsyncpkg_t *_pacman_trans_add_target(pmtrans_t *trans, const char *target, pmtranstype_t type, int flags)
+{
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
+	ASSERT(!f_strempty(target), RET_ERR(PM_ERR_TRANS_NULL, NULL));
+
+	return NULL;
+}
+
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 {
 	/* Sanity checks */
