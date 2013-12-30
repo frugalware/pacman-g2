@@ -255,9 +255,15 @@ int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 
 pmsyncpkg_t *_pacman_trans_add(pmtrans_t *trans, pmsyncpkg_t *syncpkg, int flags)
 {
+	pmsyncpkg_t *registered_syncpkg;
+
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
 	ASSERT(syncpkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
 
+	if((registered_syncpkg = _pacman_trans_find(trans, syncpkg->pkg_name)) != NULL) {
+		/* FIXME: Try to compress syncpkg in registered_syncpkg */
+		return NULL;
+	}
 	_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), syncpkg->pkg_name);
 	trans->syncpkgs = _pacman_list_add(trans->syncpkgs, syncpkg);
 	return syncpkg;
@@ -265,10 +271,13 @@ pmsyncpkg_t *_pacman_trans_add(pmtrans_t *trans, pmsyncpkg_t *syncpkg, int flags
 
 pmsyncpkg_t *_pacman_trans_add_package(pmtrans_t *trans, pmpkg_t *pkg, pmtranstype_t type, int flags)
 {
+	pmsyncpkg_t *syncpkg;
+
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
+	ASSERT((syncpkg = _pacman_syncpkg_new(type, pkg, NULL)) != NULL, return NULL);
 
-	return NULL;
+	return _pacman_trans_add(trans, syncpkg, flags);
 }
 
 pmsyncpkg_t *_pacman_trans_add_target(pmtrans_t *trans, const char *target, pmtranstype_t type, int flags)
