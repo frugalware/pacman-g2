@@ -32,10 +32,11 @@ struct __pmsyncpkg_t {
 	const char *pkg_name;
 	pmpkg_t *pkg;
 	void *data;
+	pmpkg_t *pkg_local;
 };
 
 pmsyncpkg_t *_pacman_syncpkg_new(int type, pmpkg_t *spkg, void *data);
-void _pacman_syncpkg_delete(pmsyncpkg_t *syncpkg);
+int _pacman_syncpkg_delete(pmsyncpkg_t *syncpkg);
 
 const pmtrans_ops_t _pacman_sync_pmtrans_opts;
 

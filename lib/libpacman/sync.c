@@ -61,25 +61,23 @@
 
 pmsyncpkg_t *_pacman_syncpkg_new(int type, pmpkg_t *spkg, void *data)
 {
-	pmsyncpkg_t *ps = _pacman_zalloc(sizeof(pmsyncpkg_t));
+	pmsyncpkg_t *ps;
 
-	if(ps == NULL) {
-		return(NULL);
-	}
+	ASSERT(spkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	ASSERT((ps = f_zalloc(sizeof(*ps))) != NULL, return NULL);
 
 	ps->type = type;
 	ps->pkg_name = spkg->name;
 	ps->pkg = spkg;
 	ps->data = data;
+	ps->pkg_local = _pacman_db_get_pkgfromcache(handle->db_local, ps->pkg_name);
 
 	return(ps);
 }
 
-void _pacman_syncpkg_delete(pmsyncpkg_t *ps)
+int _pacman_syncpkg_delete(pmsyncpkg_t *ps)
 {
-	if(ps == NULL) {
-		return;
-	}
+	ASSERT(ps != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	if(ps->type == PM_SYNC_TYPE_REPLACE) {
 		FREELISTPKGS(ps->data);
@@ -87,6 +85,7 @@ void _pacman_syncpkg_delete(pmsyncpkg_t *ps)
 		FREEPKG(ps->data);
 	}
 	free(ps);
+	return 0;
 }
 
 /* Helper functions for _pacman_list_remove
