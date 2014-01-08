@@ -164,6 +164,8 @@ char *_pacman_pkg_fileneedbackup(const pmpkg_t *pkg, const char *file);
 int _pacman_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatcher, int flags);
 int _pacman_packagestrmatcher_fini(FMatcher *matcher);
 
+int _pacman_packagestrmatcher_set_flags(FMatcher *matcher, int flags);
+
 #endif /* _PACMAN_PACKAGE_H */
 
 /* vim: set ts=2 sw=2 noet: */

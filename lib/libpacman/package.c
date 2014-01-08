@@ -610,9 +610,8 @@ int _pacman_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatc
 
 	matcher->fn = _pacman_packagestrmatcher_match;
 	matcher->data = data;
-	data->flags = flags;
 	data->strmatcher = strmatcher;
-	return 0;
+	return _pacman_packagestrmatcher_set_flags(matcher, flags);
 }
 
 int _pacman_packagestrmatcher_fini(FMatcher *matcher)
@@ -624,6 +623,18 @@ int _pacman_packagestrmatcher_fini(FMatcher *matcher)
 	ASSERT((data = (FPackageStrMatcher *)matcher->data) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	free(data);
+	return 0;
+}
+
+int _pacman_packagestrmatcher_set_flags(FMatcher *matcher, int flags)
+{
+	FPackageStrMatcher *data = NULL;
+
+	ASSERT(matcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(matcher->fn == _pacman_packagestrmatcher_match, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT((data = (FPackageStrMatcher *)matcher->data) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	data->flags = flags;
 	return 0;
 }
 
