@@ -3,10 +3,12 @@ PROJECT(PACMAN-G2 C)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/")
 
-INCLUDE (CheckIncludeFile)
-INCLUDE (CheckIncludeFiles)
-INCLUDE (CheckFunctionExists)
-INCLUDE (FindPkgConfig)
+include (CheckIncludeFile)
+include (CheckIncludeFiles)
+include (CheckFunctionExists)
+include (FindPkgConfig)
+include (GettextTranslate)
+include (UseAsciidoc)
 
 enable_testing()
 

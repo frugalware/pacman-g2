@@ -10,7 +10,6 @@
 *.conf
 *.tar.gz
 *.user
-CMake*
 Makefile
 config.h
 build
@@ -19,4 +18,7 @@ root
 .project
 .cproject
 *~
+*.txt.user*
+LINGUAS
+
 
