@@ -76,6 +76,19 @@ else(BUILD_SHARED_LIBS)
   set_target_properties(pacman PROPERTIES LINK_SEARCH_END_STATIC ON)
 endif(BUILD_SHARED_LIBS)
 
+#translations
+if(HAS_ASCIIDOC)
+  add_subdirectory(po)
+endif(HAS_ASCIIDOC)
+
+if(HAS_DOXYGEN)
+  add_custom_command(TARGET pacman
+                   POST_BUILD
+                   COMMAND doxygen Doxyfile
+                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+  install(DIRECTORY ../../doc/man3/ DESTINATION share/man/man3/)
+endif(HAS_DOXYGEN)
+
 install(TARGETS pacman DESTINATION lib)
 install(FILES pacman.h DESTINATION include)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pacman.pc DESTINATION lib/pkgconfig)
