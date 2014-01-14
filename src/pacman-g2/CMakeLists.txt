@@ -25,5 +25,10 @@ target_link_libraries(${CMAKE_PROJECT_NAME_LOWER} pacman ${M_LIB})
 execute_process(COMMAND ln -sf ./${CMAKE_PROJECT_NAME_LOWER} ./pacman
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
+#translations
+if(HAS_ASCIIDOC)
+  ADD_SUBDIRECTORY(po)
+endif(HAS_ASCIIDOC)
+		
 install(TARGETS "${CMAKE_PROJECT_NAME_LOWER}"  DESTINATION bin)
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/pacman DESTINATION bin)

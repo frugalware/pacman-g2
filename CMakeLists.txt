@@ -21,6 +21,7 @@ STRING(REPLACE ";" "" PM_VERSION ${PM_VERSION_TEMP})
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -std=c99 -Wall -D_GNU_SOURCE")
 
 OPTION(DISABLE_BINDINGS "disables all libpacman bindings" OFF)
+OPTION(DISABLE_TRANSLATIONS "disables all translations" OFF)
 SET(ENABLE_NLS TRUE CACHE BOOL "Translation program messages to the user's native language ?")
 OPTION(BUILD_SHARED_LIBS "make a shared build" ON)
 OPTION(FAKEROOT_PROOF "enable fakeroot proof protection" OFF)
@@ -66,9 +67,14 @@ ELSE(BUILD_SHARED_LIBS)
 ENDIF(BUILD_SHARED_LIBS)
 MESSAGE(STATUS "LIBPACMAN_LIBRARIES: ${LIBPACMAN_LIBRARIES}")
 
-FIND_PACKAGE(Asciidoc)
+IF(NOT DISABLE_TRANSLATIONS)
+  FIND_PACKAGE(Asciidoc REQUIRED)
+ENDIF(NOT DISABLE_TRANSLATIONS)  
+  
 IF(ASCIIDOC_FOUND)
   SET(HAS_ASCIIDOC TRUE CACHE BOOL "Use Asciidoc")
+ELSE()
+  MESSAGE(WARNING "ASCIIDOC not found or translations disabled, no translations will be built")
 ENDIF(ASCIIDOC_FOUND)
 
 FIND_PACKAGE(Doxygen)
