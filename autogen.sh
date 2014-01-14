@@ -12,28 +12,28 @@ import_pootle()
 		do
 			if [ -e $po_dir/pacman/$i/libpacman.po ]; then
 			  if msgfmt -c --statistics -o /dev/null $po_dir/pacman/$i/libpacman.po; then
-				mkdir -p lib/libpacman/po/$i/
-				cp $po_dir/pacman/$i/libpacman.po lib/libpacman/po/$i/libpacman.po
-				echo $i >> lib/libpacman/po/LINGUAS
-			  else
-				echo "WARNING: lib/libpacman/po/$i.po would break your build!"
+					mkdir -p lib/libpacman/po/$i/
+					cp $po_dir/pacman/$i/libpacman.po lib/libpacman/po/$i/libpacman.po
+					echo $i >> lib/libpacman/po/LINGUAS
+					else
+					echo "WARNING: lib/libpacman/po/$i.po would break your build!"
 			  fi
 			fi
 			if [ -e $po_dir/pacman/$i/pacman-g2.po ]; then
 			  if msgfmt -c --statistics -o /dev/null $po_dir/pacman/$i/pacman-g2.po; then
-				mkdir -p src/pacman-g2/po/$i/
-				cp $po_dir/pacman/$i/pacman-g2.po src/pacman-g2/po/$i/pacman-g2.po
-				echo $i >> src/pacman-g2/po/LINGUAS
+					mkdir -p src/pacman-g2/po/$i/
+					cp $po_dir/pacman/$i/pacman-g2.po src/pacman-g2/po/$i/pacman-g2.po
+					echo $i >> src/pacman-g2/po/LINGUAS
 			  else
-				echo "WARNING: src/pacman-g2/po/$i.po would break your build!"
+					echo "WARNING: src/pacman-g2/po/$i.po would break your build!"
 			  fi
 			fi
 			if [ -e $po_dir/pacman/$i/mans.po ]; then
 			  if grep -q "po4a_langs.*$i" doc/po4a.cfg; then
-				cp $po_dir/pacman/$i/mans.po doc/po/$i.po
-				echo $i >> doc/po/LINGUAS
+					cp $po_dir/pacman/$i/mans.po doc/po/$i.po
+					echo $i >> doc/po/LINGUAS
 			  else
-				echo "WARNING: doc/po/$i.po not found in po4a.cfg"
+					echo "WARNING: doc/po/$i.po not found in po4a.cfg"
 			fi
 			fi
 		done
@@ -46,8 +46,10 @@ cd `dirname $0`
 
 ver=`grep -m1 PACMAN_G2_VERSION CMakeLists.txt|sed 's/.*PACMAN_G2_VERSION\ \([0-9\.]*\).*/\1/'`
 if [ "$1" == "--dist" ]; then
+	rm -rf pacman-g2-$ver
 	git archive --format=tar --prefix=pacman-g2-$ver/ HEAD | tar xf -
 	git log --no-merges |git name-rev --tags --stdin > pacman-g2-$ver/ChangeLog
+	mkdir pacman-g2-$ver
 	cd pacman-g2-$ver
 	# copy in the po files
 	import_pootle

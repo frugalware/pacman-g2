@@ -1,11 +1,11 @@
 #translations
-if(EXISTS "${ROOT}/configuration/${customer}/configuration.${project_name}.xml")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LINGUAS")
   file (STRINGS "LINGUAS" languages)
   foreach(lang IN LISTS languages)
     GETTEXT_PROCESS_PO_FILES(${lang} ALL INSTALL_DESTINATION share/locale PO_FILES ${lang}/pacman-g2.po)
   endforeach(lang)
-else()
+else(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LINGUAS")
   message(WARNING "file LINGUAS not present")
-endif()
+endif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LINGUAS")
 
 
