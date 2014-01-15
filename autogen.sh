@@ -49,7 +49,6 @@ if [ "$1" == "--dist" ]; then
 	rm -rf pacman-g2-$ver
 	git archive --format=tar --prefix=pacman-g2-$ver/ HEAD | tar xf -
 	git log --no-merges |git name-rev --tags --stdin > pacman-g2-$ver/ChangeLog
-	mkdir pacman-g2-$ver
 	cd pacman-g2-$ver
 	# copy in the po files
 	import_pootle

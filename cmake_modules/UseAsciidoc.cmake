@@ -28,18 +28,20 @@ endmacro(ASCIIDOC2MAN _a2m_input _a2m_output _a2m_install_dir)
 
 macro(ASCIILOCALDOC2MAN _a2m_input _a2m_output _a2m_install_dir _lang)
 
-   set(_manFile ${CMAKE_CURRENT_BINARY_DIR}/${_lang}/${_a2m_output})
-   add_custom_command(OUTPUT ${_manFile}
-       COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/${_lang}
-       COMMAND ${ASCIIDOC_A2X_EXECUTABLE} -D ${CMAKE_CURRENT_BINARY_DIR}/${_lang} -f manpage ${CMAKE_CURRENT_SOURCE_DIR}/local_mans/${_lang}/${_a2m_input}
-       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-       DEPENDS ${_a2m_input}
-   )
+   IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/local_mans/${_lang}/${_a2m_input}")
+      set(_manFile ${CMAKE_CURRENT_BINARY_DIR}/${_lang}/${_a2m_output})
+      add_custom_command(OUTPUT ${_manFile}
+	COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/${_lang}
+	COMMAND ${ASCIIDOC_A2X_EXECUTABLE} -D ${CMAKE_CURRENT_BINARY_DIR}/${_lang} -f manpage ${CMAKE_CURRENT_SOURCE_DIR}/local_mans/${_lang}/${_a2m_input}
+	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+	DEPENDS ${_a2m_input}
+      )
    
-   string(REGEX REPLACE "/" "." no_slash_dir ${_a2m_install_dir})
+      string(REGEX REPLACE "/" "." no_slash_dir ${_a2m_install_dir})
    
-   add_custom_target(${no_slash_dir}${_lang}${_a2m_output} ALL DEPENDS ${_manFile})
+      add_custom_target(${no_slash_dir}${_lang}${_a2m_output} ALL DEPENDS ${_manFile})
 
-   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${_lang}/${_a2m_output} DESTINATION ${_a2m_install_dir})
+      install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${_lang}/${_a2m_output} DESTINATION ${_a2m_install_dir})
+   ENDIF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/local_mans/${_lang}/${_a2m_input}")
 
 endmacro(ASCIILOCALDOC2MAN _a2m_input _a2m_output _a2m_install_dir _lang)
