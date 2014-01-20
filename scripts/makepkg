@@ -1125,7 +1125,7 @@ install_pkg()
 makepkg_init
 
 if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
-	if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
+	if [ ! -e /usr/bin/tput -o "$(/usr/bin/tput colors)" -lt 3 ]; then
 		USE_COLOR="n"
 		warning "Disabling color as the terminal does not support it."
 	fi 
