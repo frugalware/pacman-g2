@@ -1142,7 +1142,7 @@ if [ -z "$PKG_COMP" ]; then
 fi
 
 if [ "$USE_AUTO_MAKEFLAGS" != "n" ]; then
-	export MAKEFLAGS="-j`grep -c ^processor /proc/cpuinfo`"
+	export MAKEFLAGS="-j`grep -i -c ^processor /proc/cpuinfo`"
 fi
 
 ARGLIST=$@
