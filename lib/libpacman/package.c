@@ -46,6 +46,7 @@
 #include <limits.h>
 #include <stdio.h>
 
+/*
 static
 unsigned int _pacman_pkg_parm_to_flag(unsigned char parm)
 {
@@ -96,6 +97,7 @@ unsigned int _pacman_pkg_parm_to_flag(unsigned char parm)
 	};
 	return 0;
 }
+*/
 
 pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 {

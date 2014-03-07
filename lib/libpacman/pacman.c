@@ -435,7 +435,7 @@ size_t pacman_download_source_tostr(const pmdownload_t *download, char *str, siz
 
 /** Get the average download speed (in bytes per seconds).
  * @param download pointer to the download state to get the informations from.
- * @param offset pointer to the value to be written.
+ * @param avg pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
 int pacman_download_avg(const pmdownload_t *download, double *avg)
@@ -449,6 +449,7 @@ int pacman_download_avg(const pmdownload_t *download, double *avg)
 
 /** Get the download start time
  * @param download pointer to the download state to get the informations from.
+ * @param timeval pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
 int pacman_download_begin(const pmdownload_t *download, struct timeval *timeval)
@@ -464,7 +465,7 @@ int pacman_download_begin(const pmdownload_t *download, struct timeval *timeval)
  * Calling this method before pacman_download_tell give the same value as pacman_download_size
  * has no meaning and can give any value.
  * @param download pointer to the download state to get the informations from.
- * @param offset pointer to the value to be written.
+ * @param timeval pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
 int pacman_download_end(const pmdownload_t *download, struct timeval *timeval)
@@ -478,7 +479,7 @@ int pacman_download_end(const pmdownload_t *download, struct timeval *timeval)
 
 /** Get the estimate time to arrival of the download (in seconds).
  * @param download pointer to the download state to get the informations from.
- * @param offset pointer to the value to be written.
+ * @param eta pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
 int pacman_download_eta(const pmdownload_t *download, double *eta)
@@ -492,7 +493,7 @@ int pacman_download_eta(const pmdownload_t *download, double *eta)
 
 /** Get the current download rate (in bytes per second).
  * @param download pointer to the download state to get the informations from.
- * @param offset pointer to the value to be written.
+ * @param rate pointer to the value to be written.
  * @return return 0 in case of success, !0 otherwise.
  */
 int pacman_download_rate(const pmdownload_t *download, double *rate)
@@ -683,7 +684,7 @@ void *pacman_grp_getinfo(pmgrp_t *grp, unsigned char parm)
  */
 
 /** Get information about a sync.
- * @param sync pointer
+ * @param ps sync data
  * @param parm name of the info to get
  * @return a void* on success (the value), NULL on error
  */
@@ -1124,7 +1125,6 @@ int pacman_reg_match(const char *string, const char *pattern)
 /** Parses a configuration file.
  * @param file path to the config file.
  * @param callback a function to be called upon new database creation
- * @param this_section the config current section being parsed
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
 int pacman_parse_config(const char *file, pacman_cb_db_register callback)
