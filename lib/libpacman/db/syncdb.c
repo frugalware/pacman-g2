@@ -214,7 +214,8 @@ int _pacman_syncdb_open(pmdb_t *db, int flags, time_t *timestamp)
 		return 0;
 	}
 	if((db->handle = _pacman_archive_read_open_all_file(dbpath)) == NULL) {
-		RET_ERR(PM_ERR_DB_OPEN, -1);
+		//return 0 here to be able to update the damaged db with pacman -Syy
+		RET_ERR(PM_ERR_DB_OPEN, 0);
 	}
 	if(timestamp != NULL) {
 		_pacman_db_gettimestamp(db, timestamp);
