@@ -766,7 +766,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *i, *j, *files = NULL;
 	char ldir[PATH_MAX];
-	int doremove, retval, tries = 0;
+    int doremove, retval = 0, tries = 0;
 	int varcache = 1;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));

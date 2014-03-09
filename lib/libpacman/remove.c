@@ -193,7 +193,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 			/* iterate through the list backwards, unlinking files */
 			for(lp = _pacman_list_last(pkg_local->files); lp; lp = lp->prev) {
 				int nb = 0;
-				double percent;
+                double percent = 0;
 				char *file = lp->data;
 				char *hash_orig = _pacman_pkg_fileneedbackup(pkg_local, file);
 

@@ -252,7 +252,7 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 	if(mtime1 && mtime2 && !handle->proxyhost) {
 		curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
 		curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
-		curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE , mtime1);
+        curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE , (long)mtime1);
 		outputFile = fopen(output,"wb");
 	} else {
 		struct stat st;
