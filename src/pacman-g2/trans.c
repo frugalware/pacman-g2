@@ -283,7 +283,7 @@ void cb_trans_progress(unsigned char event, const char *pkgname, int percent, in
 	static int prevpercent=0; /* for less progressbar output */
 	int i, hash;
 	unsigned int maxpkglen, progresslen = maxcols - 57;
-	const char *ptr;
+    const char *ptr = "";
 	char *pkgname_short = NULL;
 
 	if(config->noprogressbar) {
