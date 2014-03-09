@@ -64,4 +64,33 @@ FILE *_pacman_archive_read_fropen(struct archive *a)
 	return fopencookie(a, "r", _pacman_archive_io_functions);
 }
 
+int checkFile(pmfiletype_t fileType, char *file)
+{
+    switch(fileType) {
+    case PM_FILE_DB: return checkXZ(file);
+    case PM_FILE_PKG: return checkXZ(file);
+    default: RET_ERR(PM_FILE_INVALID, 0);
+    }
+}
+
+int checkXZ(char *file)
+{
+    FILE *fp;
+    fp = fopen(file, "rb");
+    if (fp == NULL) {
+        RET_ERR(PM_FILE_INVALID, 0);
+    }
+    uint8_t magicCh;
+    const uint8_t XZ_HEADER_MAGIC[6] = { 0xFD, '7', 'z', 'X', 'Z', 0x00 };
+    for(int i=0;i<6;i++) {
+        fscanf(fp, "%c", &magicCh);
+        if(magicCh != XZ_HEADER_MAGIC[i]) {
+            fclose(fp);
+            RET_ERR(PM_FILE_INVALID, 0);
+        }
+    }
+    fclose(fp);
+    return 1;
+}
+
 /* vim: set ts=2 sw=2 noet: */

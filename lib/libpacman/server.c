@@ -29,6 +29,7 @@
 #include "util.h"
 #include "handle.h"
 
+#include "io/archive.h"
 #include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
@@ -136,15 +137,8 @@ enum __pmdownloadsuccess_t {
 	PM_DOWNLOAD_OK_CACHE = 1,
 };
 
-enum __pmfiletype_t {
-	PM_FILE_UNKNOWN = -1,
-	PM_FILE_DB = 0,
-	PM_FILE_PKG = 1,
-};
-
 typedef struct __pmcurldownloader_t pmcurldownloader_t;
 typedef enum __pmdownloadsuccess_t pmdownloadsuccess_t;
-typedef enum __pmfiletype_t pmfiletype_t;
 
 /*
  * Progress callback used by libcurl, we then pass our own progress function
@@ -546,6 +540,9 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					case PM_DOWNLOAD_ERROR:
 						goto error;
 					case PM_DOWNLOAD_OK: {
+                        if(!checkFile(dlFileType, output)) {
+                            goto error;
+                        }
 						char completefile[PATH_MAX];
 
 						if(!strcmp(server->protocol, "file")) {

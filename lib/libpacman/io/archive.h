@@ -24,8 +24,18 @@
 #include <archive.h>
 #include <archive_entry.h>
 
+enum __pmfiletype_t {
+    PM_FILE_UNKNOWN = -1,
+    PM_FILE_DB = 0,
+    PM_FILE_PKG = 1,
+};
+
+typedef enum __pmfiletype_t pmfiletype_t;
+
 struct archive *_pacman_archive_read_open_all_file(const char *file);
 FILE *_pacman_archive_read_fropen(struct archive *a);
+int checkFile(pmfiletype_t fileType, char *file);
+int checkXZ(char *file);
 
 #endif /* _PACMAN_ARCHIVE_FILE_H */
 
