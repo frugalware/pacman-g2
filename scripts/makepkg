@@ -1144,11 +1144,11 @@ makepkg_usage() {
 	$ECHO "  --gzip           Use gzip compression for a package"
 }
 
-while [ "$#" -ne "0" ]; do
 	if in_array "$1" "${!_makepkg_commands[@]}"; then
 		"${_makepkg_commands[$1]}" "${@:2}"
 		exit $?
 	fi
+while [ "$#" -ne "0" ]; do
 	case "$1" in
 # pacman-g2
 		--noconfirm)      PACMAN_OPTS="$PACMAN_OPTS --noconfirm" ;;
