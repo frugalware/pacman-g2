@@ -1145,12 +1145,15 @@ makepkg_usage() {
 }
 
 makepkg() {
+	local _options_consumed
+
 	if in_array "$1" "${!_makepkg_commands[@]}"; then
 		"${_makepkg_commands[$1]}" "${@:2}"
 		exit $?
 	fi
-while [ "$#" -ne "0" ]; do
-	case "$1" in
+	while [ $# -gt 0 ]; do
+		_options_consumed=1
+		case "$1" in
 # pacman-g2
 		--noconfirm)      PACMAN_OPTS="$PACMAN_OPTS --noconfirm" ;;
 		--noprogressbar)  PACMAN_OPTS="$PACMAN_OPTS --noprogressbar" ;;
@@ -1237,9 +1240,9 @@ while [ "$#" -ne "0" ]; do
 		*)
 			true
 			;;
-	esac
-	shift
-done
+		esac
+		shift
+	done
 
 # see if we need to append bases to $TREE
 if ! echo $TREE |grep -q ,; then
