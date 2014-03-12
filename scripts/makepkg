@@ -1429,6 +1429,7 @@ if [ -f $PKGDEST/${pkgname}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT -a "$FORCE" = 
 fi
 
 # Generate the Changelog if necessary.
+if [ "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
 indir=n
 if [ "$F_makepkg_scm" = "git" ]; then
 	git rev-parse --git-dir &>/dev/null && indir=y
@@ -1437,7 +1438,7 @@ elif [ "$F_makepkg_scm" = "darcs" ]; then
 elif [ "$F_makepkg_scm" = "svn" ]; then
 	svn info $BUILDSCRIPT &>/dev/null && indir=y
 fi
-if [ "$indir" = "y" -a "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
+if [ "$indir" = "y" ]; then
 	if [ ! -e Changelog ] || [ `stat -c %Y Changelog|sed 's/\..*//'` -lt `stat -c %Y $BUILDSCRIPT|sed 's/\..*//'` ]; then
 		msg "Generating the Changelog..."
 		if [ "$F_makepkg_scm" = "git" ]; then
@@ -1454,6 +1455,7 @@ if [ "$indir" = "y" -a "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
 				Changelog
 		fi
 	fi
+fi
 fi
 # some applications (eg, blackbox) will not build with some languages
 unset LC_ALL LANG
