@@ -401,11 +401,11 @@ makepkg_env() {
 	while [ $# -gt 0 ]; do
 		_options_consumed=1
 		case "$1" in
-		-i|--interactive)
-			_interactive=1;;
 		-h|--help)
 			makepkg_env_usage
 			return 0 ;;
+		-i|--interactive)
+			_interactive=1 ;;
 		# assigned options
 		-u|--unset)
 			if ! unset -- "$2"; then
