@@ -779,61 +779,6 @@ makepkg_init() {
 	declare -r _makepkg_commands
 }
 
-usage() {
-	local i
-
-	$ECHO "makepkg"
-	$ECHO
-	$ECHO "Usage: $0 [COMMAND] [OPTION]... [VARIABLE=VALUE]..."
-	$ECHO
-	$ECHO "Command can be any of the following:"
-	for i in "${!_makepkg_commands[@]}"; do
-	$ECHO " - $i"
-	done
-	$ECHO
-	$ECHO "Options:"
-	$ECHO "  -a, --searchdeps Search for package dependencies automatically"
-	$ECHO "  -A <url>         rsync cache url to use before downloading anything"
-	$ECHO "  -b, --builddeps  Build missing dependencies from source"
-	$ECHO "  -B, --noccache   Do not use ccache during build"
-	$ECHO "  -c, --clean      Clean up work files after build"
-	$ECHO "  -C, --cleancache Clean up source files from the cache"
-	$ECHO "  -d, --nodeps     Skip all dependency checks"
-	$ECHO "  -D <pkgname>     Clean up the compiler cache for a package"
-	$ECHO "  -e, --noextract  Do not extract source files (use existing src/ dir)"
-	$ECHO "  -f, --force      Overwrite existing package"
-	$ECHO "  -g, --gensha1    Generate SHA1sums for source files"
-	$ECHO "  -G, --wrtsha1    Generate SHA1sums for source files and add it to the build script"
-	$ECHO "  -h, --help       This help"
-	$ECHO "  -i, --install    Install package after successful build"
-	$ECHO "  -j <jobs>        Set MAKEFLAGS to \"-j<jobs>\" before building"
-	$ECHO "  -l <pkgname>     Download buildscripts before building"
-	$ECHO "  -m, --nocolor    Disable colorized output messages"
-	$ECHO "  -n, --nostrip    Do not strip binaries/libraries"
-	$ECHO "  -o, --nobuild    Download and extract files only"
-	$ECHO "  -p <buildscript> Use an alternate build script (instead of $BUILDSCRIPT)"
-	$ECHO "  -r, --rmdeps     Remove installed dependencies after a successful build"
-	$ECHO "  -R, --chroot     Build the package in a chroot environment (default)"
-	$ECHO "  -H, --host       Build the package on the host system"
-	$ECHO "  -s, --syncdeps   Install missing dependencies with pacman-g2"
-	$ECHO "  -S, --sudosync   Install missing dependencies with pacman-g2 and sudo"
-	$ECHO "  -u, --noup2date  Do not check for newer version"
-	$ECHO "  -t <tree>        Use the given tree's chroot to build in"
-	$ECHO "  -w <destdir>     Write package to <destdir> instead of the working dir"
-	$ECHO "  -z <compression> Use compression program for a package (instead of $PKG_COMP)"
-	$ECHO
-	$ECHO "These options can be passed to pacman-g2:"
-	$ECHO
-	$ECHO "  --noconfirm      Do not ask for confirmation when resolving dependencies"
-	$ECHO "  --noprogressbar  Do not show a progress bar when downloading files"
-	$ECHO
-	$ECHO "If -p is not specified, makepkg will look for $BUILDSCRIPT"
-	$ECHO "Variable assignations are user defined shell assignations (eg. USE_FOO=BAR) used to interact with makepkg and the FrugalBuilds."
-	$ECHO
-	$ECHO "Compatibility options (these may be removed in any future release):"
-	$ECHO "  --gzip           Use gzip compression for a package"
-}
-
 chroot_umount() {
     msg "Attempting to umount chroot directories..."
     umount $CHROOTDIR/proc >/dev/null
@@ -1137,6 +1082,61 @@ fi
 
 ARGLIST=$@
 COMPRESS_PROGRAM="$PKG_COMP"
+
+usage() {
+	local i
+
+	$ECHO "makepkg"
+	$ECHO
+	$ECHO "Usage: $0 [COMMAND] [OPTION]... [VARIABLE=VALUE]..."
+	$ECHO
+	$ECHO "Command can be any of the following:"
+	for i in "${!_makepkg_commands[@]}"; do
+	$ECHO " - $i"
+	done
+	$ECHO
+	$ECHO "Options:"
+	$ECHO "  -a, --searchdeps Search for package dependencies automatically"
+	$ECHO "  -A <url>         rsync cache url to use before downloading anything"
+	$ECHO "  -b, --builddeps  Build missing dependencies from source"
+	$ECHO "  -B, --noccache   Do not use ccache during build"
+	$ECHO "  -c, --clean      Clean up work files after build"
+	$ECHO "  -C, --cleancache Clean up source files from the cache"
+	$ECHO "  -d, --nodeps     Skip all dependency checks"
+	$ECHO "  -D <pkgname>     Clean up the compiler cache for a package"
+	$ECHO "  -e, --noextract  Do not extract source files (use existing src/ dir)"
+	$ECHO "  -f, --force      Overwrite existing package"
+	$ECHO "  -g, --gensha1    Generate SHA1sums for source files"
+	$ECHO "  -G, --wrtsha1    Generate SHA1sums for source files and add it to the build script"
+	$ECHO "  -h, --help       This help"
+	$ECHO "  -i, --install    Install package after successful build"
+	$ECHO "  -j <jobs>        Set MAKEFLAGS to \"-j<jobs>\" before building"
+	$ECHO "  -l <pkgname>     Download buildscripts before building"
+	$ECHO "  -m, --nocolor    Disable colorized output messages"
+	$ECHO "  -n, --nostrip    Do not strip binaries/libraries"
+	$ECHO "  -o, --nobuild    Download and extract files only"
+	$ECHO "  -p <buildscript> Use an alternate build script (instead of $BUILDSCRIPT)"
+	$ECHO "  -r, --rmdeps     Remove installed dependencies after a successful build"
+	$ECHO "  -R, --chroot     Build the package in a chroot environment (default)"
+	$ECHO "  -H, --host       Build the package on the host system"
+	$ECHO "  -s, --syncdeps   Install missing dependencies with pacman-g2"
+	$ECHO "  -S, --sudosync   Install missing dependencies with pacman-g2 and sudo"
+	$ECHO "  -u, --noup2date  Do not check for newer version"
+	$ECHO "  -t <tree>        Use the given tree's chroot to build in"
+	$ECHO "  -w <destdir>     Write package to <destdir> instead of the working dir"
+	$ECHO "  -z <compression> Use compression program for a package (instead of $PKG_COMP)"
+	$ECHO
+	$ECHO "These options can be passed to pacman-g2:"
+	$ECHO
+	$ECHO "  --noconfirm      Do not ask for confirmation when resolving dependencies"
+	$ECHO "  --noprogressbar  Do not show a progress bar when downloading files"
+	$ECHO
+	$ECHO "If -p is not specified, makepkg will look for $BUILDSCRIPT"
+	$ECHO "Variable assignations are user defined shell assignations (eg. USE_FOO=BAR) used to interact with makepkg and the FrugalBuilds."
+	$ECHO
+	$ECHO "Compatibility options (these may be removed in any future release):"
+	$ECHO "  --gzip           Use gzip compression for a package"
+}
 
 while [ "$#" -ne "0" ]; do
 	if in_array "$1" "${!_makepkg_commands[@]}"; then
