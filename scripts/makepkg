@@ -618,6 +618,8 @@ makepkg_mount_usage() {
 	$ECHO
 	$ECHO "Options for mount command:"
 	$ECHO "  -h, --help             This help."
+	$ECHO "  -o, --options OPTION   Mount options, see mount manual."
+	$ECHO "  -t, --types TYPE       Mount types, see mount manual."
 }
 
 makepkg_mount() {
