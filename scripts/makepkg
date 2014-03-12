@@ -1144,6 +1144,7 @@ makepkg_usage() {
 	$ECHO "  --gzip           Use gzip compression for a package"
 }
 
+makepkg() {
 	if in_array "$1" "${!_makepkg_commands[@]}"; then
 		"${_makepkg_commands[$1]}" "${@:2}"
 		exit $?
@@ -2159,3 +2160,8 @@ msg "Finished making: $pkgname  (`date`)"
 install_pkg
 
 exit 0
+}
+
+makepkg "$@"
+return $?
+
