@@ -1179,7 +1179,7 @@ while [ "$#" -ne "0" ]; do
 			exit 1
 			;;
 		-*)
-			while getopts "aA:bBcCdD:efgGhij:kl:Lmnop:urRHsSt:w:z:-" opt; do
+			while getopts "aA:bBcCdD:efFgGhij:kl:Lmnop:urRHsSt:w:z:-" opt; do
 				case $opt in
 					a) SEARCHDEPS=1 ;;
 					A) CACHEURL=$OPTARG ;;
