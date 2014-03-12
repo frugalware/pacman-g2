@@ -1089,7 +1089,7 @@ fi
 ARGLIST=$@
 COMPRESS_PROGRAM="$PKG_COMP"
 
-usage() {
+makepkg_usage() {
 	local i
 
 	$ECHO "makepkg"
@@ -1177,11 +1177,11 @@ while [ "$#" -ne "0" ]; do
 		--noup2date)  NOUP2DATE=1 ;;
 		--gzip)       COMPRESS_PROGRAM="gzip" ;;
 		--help)
-			usage
+			makepkg_usage
 			exit 0
 			;;
 		--*)
-			usage
+			makepkg_usage
 			exit 1
 			;;
 		-*)
@@ -1201,7 +1201,7 @@ while [ "$#" -ne "0" ]; do
 					g) GENSHA1=1; CHROOT=0 ;;
 					G) GENSHA1=1; WRITESHA1=1; CHROOT=0; NODEPS=1 ;;
 					h)
-						usage
+						makepkg_usage
 						exit 0
 						;;
 					i) INSTALL=1 ;;
@@ -1225,7 +1225,7 @@ while [ "$#" -ne "0" ]; do
 						break
 						;;
 					*)
-						usage
+						makepkg_usage
 						exit 1
 						;;
 				esac
