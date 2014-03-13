@@ -1185,39 +1185,64 @@ makepkg() {
 			makepkg_usage
 			exit 0
 			;;
-		--*)
+		# assigned options
+		-A)
+			CACHEURL="$2"
+			_options_consumed=2 ;;
+		-D)
+			CLEANCCACHE="$2"
+			_options_consumed=2 ;;
+		-j)
+			export MAKEFLAGS="-j$2"
+			_options_consumed=2 ;;
+		-l)
+			DOWNLOAD="$2"
+			_options_consumed=2 ;;
+		-p)
+			BUILDSCRIPT="$2"
+			_options_consumed=2 ;;
+		-t)
+			TREE=""$2""
+			_options_consumed=2 ;;
+		-w)
+			PKGDEST="$2"
+			_options_consumed=2 ;;
+		-z)
+			COMPRESS_PROGRAM="$2"
+			_options_consumed=2 ;;
+		-A=*|\
+		-D=*|\
+		-j=*|\
+		-l=*|\
+		-p=*|\
+		-t=*|\
+		-w=*|\
+		-z=*)
+			set -- \
+				"${1%%=*}" \
+				"${1#*=}" \
+				"${@:2}"
+			continue;;
+		# special options
+		--)	shift; break ;; # End of options
+		--*|-?)	error "Invalid option: $1"
 			makepkg_usage
-			exit 1
-			;;
-		-*)
-			while getopts "aA:bBcCdD:efFgGhij:kl:Lmnop:urRHsSt:w:z:-" opt; do
-				case $opt in
-					A) CACHEURL=$OPTARG ;;
-					D) CLEANCCACHE=$OPTARG ;;
-					j) export MAKEFLAGS="-j$OPTARG" ;;
-					l) DOWNLOAD="$OPTARG" ;;
-					p) BUILDSCRIPT=$OPTARG ;;
-					t) TREE="$OPTARG" ;;
-					w) PKGDEST=$OPTARG ;;
-					z) COMPRESS_PROGRAM=$OPTARG ;;
-					-)
-						OPTIND=0
-						break
-						;;
-					*)
-						makepkg_usage
-						exit 1
-						;;
-				esac
-			done
-			;;
+			return 1 ;;
+		-*)	# Combined short options
+			set -- \
+				"$(echo "$1" | cut -c -2)" \
+				"-$(echo "$1" | cut -c 3-)" \
+				"${@:2}"
+			continue ;;
 		*=*)	eval $(IFS= ; printf 'export %q=%q' "${1%%=*}" "${1#*=}")
 			;;
-		*)
-			true
-			;;
+		*)	break ;; # End of options
 		esac
-		shift
+		if ! shift "$_options_consumed"; then
+			_options_consumed=$(($_options_consumed - 1))
+			error "Option $1 expects $_options_consumed argument(s)."
+			return 1
+		fi
 	done
 
 # see if we need to append bases to $TREE
