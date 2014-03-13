@@ -2167,5 +2167,5 @@ exit 0
 }
 
 makepkg "$@"
-return $?
+exit $?
 
