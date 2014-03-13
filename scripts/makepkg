@@ -1224,7 +1224,6 @@ makepkg() {
 				"${@:2}"
 			continue;;
 		# special options
-		--)	shift; break ;; # End of options
 		--*|-?)	error "Invalid option: $1"
 			makepkg_usage
 			return 1 ;;
@@ -1236,7 +1235,9 @@ makepkg() {
 			continue ;;
 		*=*)	eval $(IFS= ; printf 'export %q=%q' "${1%%=*}" "${1#*=}")
 			;;
-		*)	break ;; # End of options
+		*)	error "Invalid argument: $1"
+			makepkg_usage
+			return 1 ;;
 		esac
 		if ! shift "$_options_consumed"; then
 			_options_consumed=$(($_options_consumed - 1))
