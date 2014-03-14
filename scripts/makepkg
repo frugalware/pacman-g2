@@ -1144,7 +1144,7 @@ makepkg_usage() {
 	$ECHO "  --gzip           Use gzip compression for a package"
 }
 
-makepkg() {
+_makepkg() {
 	local _options_consumed
 
 	if in_array "$1" "${!_makepkg_commands[@]}"; then
@@ -2167,5 +2167,15 @@ install_pkg
 	return 0
 }
 
-makepkg "$@"
-exit $?
+makepkg() {
+	( # Protect environment with a subshell
+	_makepkg "$@"
+	)
+	return $?
+}
+
+if [ ! -v PS1 ]; then
+	_makepkg "$@"
+	exit $?
+fi
+
