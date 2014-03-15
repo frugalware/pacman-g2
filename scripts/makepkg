@@ -518,7 +518,7 @@ makepkg_lock() {
 		case "$1" in
 		-h|--help)
 			makepkg_lock_usage
-			return 0;;
+			return 0 ;;
 		# assigned options
 		-p|--parent)
 			_parents+=("$2")
@@ -581,7 +581,7 @@ makepkg_lschroot() {
 		case "$1" in
 		-h|--help)
 			makepkg_lschroot_usage
-			return 0;;
+			return 0 ;;
 		# special options
 		--)	shift; break ;; # End of options
 		--*|-?)	error "Invalid option: $1"
@@ -631,7 +631,7 @@ makepkg_mount() {
 		case "$1" in
 		-h|--help)
 			makepkg_mount_usage
-			return 0;;
+			return 0 ;;
 		# assigned options
 		-o|--options|\
 		-t|--types)
@@ -1165,9 +1165,9 @@ _makepkg() {
 		-S|--sudosync)    DEP_SUDO=1 ;;
 		-b|--builddeps)   DEP_SRC=1 ;;
 		-B|--noccache)    NOCCACHE=1 ;;
-		-d|--nodeps)     NODEPS=1 ;;
+		-d|--nodeps)      NODEPS=1 ;;
 		-e|--noextract)   NOEXTRACT=1 ;;
-		--inchroot)   INCHROOT=1 ;;
+		--inchroot)       INCHROOT=1 ;;
 		-F)               INFAKEROOT=1 ;;
 		-i|--install)     INSTALL=1 ;;
 		-f|--force)       FORCE=1 ;;
@@ -1180,11 +1180,11 @@ _makepkg() {
 		-R|--chroot)      CHROOT=1 ;;
 		-H|--host)        CHROOT=0 ;;
 		-u|--noup2date)   NOUP2DATE=1 ;;
-		--gzip)       COMPRESS_PROGRAM="gzip" ;;
 		-h|--help)
 			makepkg_usage
-			return 0
-			;;
+			return 0 ;;
+		# compatibility options
+		--gzip)           COMPRESS_PROGRAM="gzip" ;;
 		# assigned options
 		-A)
 			CACHEURL="$2"
@@ -1202,7 +1202,7 @@ _makepkg() {
 			BUILDSCRIPT="$2"
 			_options_consumed=2 ;;
 		-t)
-			TREE=""$2""
+			TREE="$2"
 			_options_consumed=2 ;;
 		-w)
 			PKGDEST="$2"
