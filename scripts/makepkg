@@ -914,6 +914,9 @@ _create_pkginfo()
 
 create_pkg()
 {
+	# strip binaries
+	strip_pkg "$1"
+
 	msg "Generating files for $1:"
 	# write the .PKGINFO file
 	msg2 ".PKGINFO file... " >&2
@@ -2080,19 +2083,6 @@ if [ -n "`find . -name "*|*"`" ]; then
 fi
 
 cd $startdir
-
-# strip binaries
-strip_pkg $pkgname
-if [ -n "$subpkgs" ]; then
-	i=0
-	for subpkg in "${subpkgs[@]}"
-	do
-		unset options
-		options="${suboptions[$i]}"
-		strip_pkg $subpkg
-		i=$(($i+1))
-	done
-fi
 
 # get some package meta info
 builddate=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
