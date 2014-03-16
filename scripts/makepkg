@@ -395,7 +395,6 @@ makepkg_env_usage() {
 }
 
 makepkg_env() {
-	( # Protect environment with a subshell
 	local _interactive=0 _options_consumed
 
 	while [ $# -gt 0 ]; do
@@ -462,7 +461,6 @@ makepkg_env() {
 	'!')	! "${@:2}" ;;
 	*)	"$@" ;;
 	esac
-	)
 	return $?
 }
 _makepkg_commands[env]=makepkg_env
@@ -558,7 +556,7 @@ makepkg_lock() {
 	fi
 	unset _parents _options_consumed
 
-	makepkg_env "${@:2}"
+	makepkg env "${@:2}"
 	local _ret=$?
 	_makepkg_unlock_files "$1"
 	return $_ret
@@ -673,7 +671,7 @@ makepkg_mount() {
 		return 1
 	fi
 	unset _mount_args _options_consumed
-	makepkg_env "${@:3}"
+	makepkg env "${@:3}"
 	local _ret=$?
 	if ! umount "$2"; then
 		error "Failed to umount $2"
