@@ -2152,7 +2152,7 @@ fi
 
 if [ "$RMDEPS" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" -a \( ! -z "$deplist" -o ! -z "$makedeplist" \) ]; then
 	msg "Removing installed dependencies..."
-	$PACMAN $PACMAN_OPTS -R $makedeplist $deplist
+	makepkg pacman-g2 --sudo -- -R $makedeplist $deplist
 elif [ "$RMDEPS" = "1" -a "$DEP_SUDO" = "1" ]; then
 	msg "Removing installed dependencies..."
 	makepkg pacman-g2 --sudo -- -R $makedeplist $deplist
