@@ -216,9 +216,9 @@ handledeps() {
 			# install missing deps from binary packages (using pacman-g2 -S)
 			msg "Installing missing dependencies..."
 			if [ "$INCHROOT" != "1" -o "`check_option SCRIPTLET`" ]; then
-				$PACMAN $PACMAN_OPTS -D $deplist
+				makepkg pacman-g2 -- -D $deplist
 			else
-				$PACMAN $PACMAN_OPTS --noscriptlet -D $deplist
+				makepkg pacman-g2 -- --noscriptlet -D $deplist
 			fi
 			if [ "$?" = "127" ]; then
 				error "Failed to install missing dependencies."
@@ -227,24 +227,14 @@ handledeps() {
 		elif [ "$DEP_SUDO" = "1" ]; then
 			# install missing deps from binary packages (using pacman-g2 -S and sudo)
 			msg "Installing missing dependencies..."
-			if [ "$INFAKEROOT" = "1" ]; then
-				# kinda hacky, but we need to make pacman-g2 think that we're NOT
-				# in fakeroot so it will go ahead and install the dependencies.
-				FAKEROOTKEY2=$FAKEROOTKEY
-				unset FAKEROOTKEY
-			fi
 			if [ "$INCHROOT" != "1" -o "`check_option SCRIPTLET`" ]; then
-				sudo $PACMAN $PACMAN_OPTS -D $deplist
+				makepkg pacman-g2 --sudo -- -D $deplist
 			else
-				sudo $PACMAN $PACMAN_OPTS --noscriptlet -D $deplist
+				makepkg pacman-g2 --sudo -- --noscriptlet -D $deplist
 			fi
 			if [ "$?" = "127" ]; then
 				error "Failed to install missing dependencies."
 				exit 1
-			fi
-			if [ "$INFAKEROOT" = "1" ]; then
-				export FAKEROOTKEY=$FAKEROOTKEY2
-				unset FAKEROOTKEY2
 			fi
 		elif [ "$DEP_SRC" = "1" ]; then
 			# install missing deps by building them from source.
@@ -1096,15 +1086,7 @@ install_pkg()
 				targs="$targs $PKGDEST/${subpkg}-${pkgver}-${pkgrel}-${CARCH}.$PKG_EXT"
 			done
 		fi
-		if [ "$INFAKEROOT" = "1" ]; then
-			FAKEROOTKEY2=$FAKEROOTKEY
-			unset FAKEROOTKEY
-		fi
-		sudo $PACMAN $PACMAN_OPTS -U $targs || exit $?
-		if [ "$INFAKEROOT" = "1" ]; then
-			export FAKEROOTKEY=$FAKEROOTKEY2
-			unset FAKEROOTKEY2
-		fi
+		makepkg pacman-g2 --sudo -- -U $targs || exit $?
 	elif [ "$INSTALL" = "1" ]; then
 		warning "Cannot auto-install packages as a normal user without sudo!"
 		plain "Run makepkg as root or with -S to install packages automatically."
@@ -2185,15 +2167,7 @@ if [ "$RMDEPS" = "1" -a "`id -u`" = "0" -a "$INFAKEROOT" != "1" -a \( ! -z "$dep
 	$PACMAN $PACMAN_OPTS -R $makedeplist $deplist
 elif [ "$RMDEPS" = "1" -a "$DEP_SUDO" = "1" ]; then
 	msg "Removing installed dependencies..."
-	if [ "$INFAKEROOT" = "1" ]; then
-		FAKEROOTKEY2=$FAKEROOTKEY
-		unset FAKEROOTKEY
-	fi
-	sudo $PACMAN $PACMAN_OPTS -R $makedeplist $deplist
-	if [ "$INFAKEROOT" = "1" ]; then
-		export FAKEROOTKEY=$FAKEROOTKEY2
-		unset FAKEROOTKEY2
-	fi
+	makepkg pacman-g2 --sudo -- -R $makedeplist $deplist
 fi
 
 msg "Finished making: $pkgname  (`date`)"
