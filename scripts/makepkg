@@ -212,19 +212,7 @@ handledeps() {
 	fi
 
 	if [ "$deplist" != "" -a $haveperm -eq 1 ]; then
-		if [ "$DEP_BIN" = "1" ]; then
-			# install missing deps from binary packages (using pacman-g2 -S)
-			msg "Installing missing dependencies..."
-			if [ "$INCHROOT" != "1" -o "`check_option SCRIPTLET`" ]; then
-				makepkg pacman-g2 -- -D $deplist
-			else
-				makepkg pacman-g2 -- --noscriptlet -D $deplist
-			fi
-			if [ "$?" = "127" ]; then
-				error "Failed to install missing dependencies."
-				exit 1
-			fi
-		elif [ "$DEP_SUDO" = "1" ]; then
+		if [ "$DEP_BIN" = "1" -o "$DEP_SUDO" = "1" ]; then
 			# install missing deps from binary packages (using pacman-g2 -S and sudo)
 			msg "Installing missing dependencies..."
 			if [ "$INCHROOT" != "1" -o "`check_option SCRIPTLET`" ]; then
