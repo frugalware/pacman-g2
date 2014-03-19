@@ -1312,14 +1312,12 @@ if [ "$DEP_SUDO" = "1" -a ! "`type -p sudo`" ]; then
 	return 1
 fi
 
-# convert a (possibly) relative path to absolute
-cd $PKGDEST 2>/dev/null
-if [ $? -ne 0 ]; then
-	error "Package destination directory does not exist or permission denied."
-	return 1
-fi
-PKGDEST=`pwd`
-cd $OLDPWD
+	# convert a (possibly) relative path to absolute
+	PKGDEST="$(shemu_realpath "$PKGDEST" 2>/dev/null)"
+	if [ $? -ne 0 ]; then
+		error "Package destination directory does not exist or permission denied."
+		return 1
+	fi
 
 if [ -z $CCACHE_BASEDIR ]; then
 	export CCACHE_BASEDIR=/var/cache/ccache
