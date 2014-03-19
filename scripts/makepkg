@@ -165,6 +165,34 @@ error() {
 	fi
 }
 
+### SHELL EMULATED EXTERNAL COMMANDS ###
+
+# convert a (possibly) relative path to absolute
+shemu_realpath() {
+	local path
+
+	for path in "$@"; do
+		( # Protect environment with a subshell
+		# FIXME: support path to file
+		if ! cd "$path" 2>/dev/null; then
+			error "shemu_realpath: '${path}': No such file or directory"
+			return 1
+		fi
+		pwd
+		) || return 1
+	done
+	return 0
+}
+
+if ! type -p realpath >/dev/null; then
+	realpath() {
+		shemu_realpath "$@"
+		return $?
+	}
+fi
+
+### MAKEPKG SUBROUTINES ####
+
 strip_url() {
 	$ECHO "$1" | sed 's|^.*://.*/||g'
 }
