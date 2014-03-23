@@ -731,4 +731,69 @@ int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep)
 
 	return equal;
 }
+
+/* Helper function for comparing strings
+ */
+static int str_cmp(const void *s1, const void *s2)
+{
+    return(strcmp(s1, s2));
+}
+
+int inList(pmlist_t *lst, char *lItem) {
+    pmlist_t *ll;
+    ll = lst;
+    while(ll) {
+        if(!strcmp(lItem, (char *)ll->data)) {
+           return 1;
+        }
+        ll = ll->next;
+    }
+    return 0;
+}
+
+int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist) {
+    pmlist_t *found = NULL;
+    pmlist_t *k = NULL, *j = NULL;
+    pmpkg_t *pkg = NULL;
+    char *match = NULL;
+    int foundMatch = 0;
+    unsigned int inforeq =  INFRQ_DEPENDS;
+    for(j = dblist; j; j = j->next) {
+        pmdb_t *db = j->data;
+        do {
+            foundMatch = 0;
+            pkg = _pacman_db_readpkg(db, inforeq);
+            while(pkg != NULL) {
+                char *pname = (char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME);
+                targets = _pacman_list_remove(targets, (void*) pname, str_cmp, (void **)&match);
+                if(match) {
+                    foundMatch = 1;
+                    for(k = _pacman_pkg_getinfo(pkg, PM_PKG_DEPENDS); k; k = k->next) {
+                        char *fullDep = (char *)k->data;
+                        pmdepend_t depend;
+                        if(_pacman_splitdep(fullDep, &depend)) {
+                            continue;
+                        }
+                        strcpy(fullDep, depend.name);
+                        if(!inList(found, fullDep) && !inList(targets, fullDep)) {
+                            targets = _pacman_list_add(targets, fullDep);
+                        }
+                    }
+                    if(!inList(found,pname)) {
+                        printf("%s ", pname);
+                        found = _pacman_list_add(found, pname);
+                    }
+                    FREE(match);
+                }
+                pkg = _pacman_db_readpkg(db, inforeq);
+            }
+            _pacman_db_rewind(db);
+        } while(foundMatch);
+    }
+    FREELISTPTR(found);
+    FREELISTPTR(targets);
+    printf("\n");
+    return 0;
+}
+
 /* vim: set ts=2 sw=2 noet: */

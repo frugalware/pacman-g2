@@ -35,6 +35,7 @@
 #include "deptest.h"
 
 extern config_t *config;
+extern list_t *pmc_syncs;
 
 int deptestpkg(list_t *targets)
 {
@@ -55,6 +56,21 @@ int deptestpkg(list_t *targets)
 		}
 		return(0);
 	}
+
+    if(config->op_d_all) {
+        list_t *i;
+        pmlist_t *targs = NULL, *dblist = NULL;
+
+        for(i=targets; i; i=i->next) {
+            targs = _pacman_list_add(targs, i->data);
+        }
+
+        for(i = pmc_syncs; i; i = i->next) {
+           dblist = _pacman_list_add(dblist, i->data);
+        }
+        pacman_output_generate(targs, dblist);
+        return(0);
+    }
 
 	/* we create a transaction to hold a dummy package to be able to use
 	 * deps checkings from pacman_trans_prepare() */

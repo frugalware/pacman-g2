@@ -259,7 +259,8 @@ static int parseargs(int argc, char *argv[])
 		{"deptest",    no_argument,       0, 'T'}, /* used by makepkg */
 		{"upgrade",    no_argument,       0, 'U'},
 		{"version",    no_argument,       0, 'V'},
-		{"vertest",    no_argument,       0, 'Y'}, /* does the same as the 'vercmp' binary */
+        {"vertest",    no_argument,       0, 'Y'}, /* does the same as the 'vercmp' binary */
+        {"all",        no_argument,       0, 'a'},
 		{"dbpath",     required_argument, 0, 'b'},
 		{"cascade",    no_argument,       0, 'c'},
 		{"changelog",  no_argument,       0, 'c'},
@@ -301,7 +302,7 @@ static int parseargs(int argc, char *argv[])
 	};
 	char root[PATH_MAX];
 
-	while((opt = getopt_long(argc, argv, "ARUFQSPTDYr:b:vkhscVfmnoldepituwyg", opts, &option_index))) {
+    while((opt = getopt_long(argc, argv, "ARUFQSPTDYr:b:vkhsacVfmnoldepituwyg", opts, &option_index))) {
 		if(opt < 0) {
 			break;
 		}
@@ -347,6 +348,7 @@ static int parseargs(int argc, char *argv[])
 				config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_DEPTEST);
 				config->op_d_vertest = 1;
 			break;
+            case 'a': config->op_d_all = 1; break;
 			case 'b':
 				if(config->dbpath) {
 					free(config->dbpath);

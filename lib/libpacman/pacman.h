@@ -376,6 +376,11 @@ int pacman_trans_addtarget(const char *target);
 int pacman_trans_prepare(pmlist_t **data);
 int pacman_trans_commit(pmlist_t **data);
 int pacman_trans_release(void);
+int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist);
+
+/*
+ * Output info
+ */
 
 /*
  * Dependencies and conflicts
@@ -433,6 +438,8 @@ pmlist_t *pacman_list_next(pmlist_t *entry);
 void *pacman_list_getdata(pmlist_t *entry);
 int pacman_list_free(pmlist_t *entry);
 int pacman_list_count(pmlist_t *list);
+pmlist_t *f_ptrlist_append(pmlist_t *list, void *data);
+#define _pacman_list_add f_ptrlist_append
 
 /* md5sums */
 char *pacman_get_md5sum(char *name);
