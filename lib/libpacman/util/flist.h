@@ -40,10 +40,13 @@ struct __pmlist_t {
 typedef struct FList FList;
 typedef struct FListItem FListItem;
 
-struct FList {
+struct FListItem {
+	FListItem *next;
+	FListItem *previous;
 };
 
-struct FListItem {
+struct FList {
+	FListItem as_FListItem;
 };
 #endif
 

@@ -28,6 +28,10 @@
 
 #include <assert.h>
 
+#ifndef F_NOCOMPAT
+#define previous prev
+#endif
+
 int f_listitem_delete(FListItem *self, FVisitor *visitor)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
@@ -39,17 +43,34 @@ int f_listitem_delete(FListItem *self, FVisitor *visitor)
 
 int f_listitem_insert_after(FListItem *self, FListItem *previous)
 {
+	FListItem *next;
+
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT(previous != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
+	next = previous->next;
 	previous->next = self;
-	self->prev = previous;
-	return -1;
+	self->next = next;
+	self->previous = previous;
+#ifndef F_NOCOMPAT
+	if (next != NULL)
+#endif
+	next->previous = self;
+	return 0;
 }
 
 FList *f_list_new()
 {
+#ifndef F_NOCOMPAT
 	return NULL;
+#else
+	FList *self;
+
+	ASSERT((self = f_zalloc(sizeof(*self))) != NULL, return NULL);
+
+	f_list_init(self);
+	return self;
+#endif
 }
 
 int f_list_delete(FList *self, FVisitor *visitor)
@@ -61,6 +82,9 @@ int f_list_init(FList *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
+#ifdef F_NOCOMPAT
+	self->as_FListItem.next = self->as_FListItem.previous = &self->as_FListItem;
+#endif
 	return 0;
 }
 
