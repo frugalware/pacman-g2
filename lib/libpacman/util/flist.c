@@ -69,7 +69,7 @@ int f_list_all_match(const FList *list, const FMatcher *matcher)
 		return 0;
 	}
 
-	for(it = list; it != NULL; it = it->next) {
+	for(it = f_list_first_const(list); it != NULL; it = it->next) {
 		if(f_match(it, matcher) == 0) {
 			return 0;
 		}
@@ -81,7 +81,7 @@ int f_list_any_match(const FList *list, const FMatcher *matcher)
 {
 	const FListItem *it;
 
-	for(it = list; it != NULL; it = it->next) {
+	for(it = f_list_first_const(list); it != NULL; it = it->next) {
 		if(f_match(it, matcher) != 0) {
 			return 1;
 		}
@@ -101,9 +101,10 @@ int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const
 
 int f_list_count(const FList *list)
 {
+	const FListItem *it;
 	int i;
 
-	for(i = 0; list; list = list->next, i++);
+	for(i = 0, it = f_list_first_const(list); it != NULL; it = it->next, i++);
 	return i;
 }
 
@@ -114,12 +115,14 @@ int f_list_empty(const FList *list)
 
 FListItem *f_list_find(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
 {
-	for(; list != NULL; list = list->next) {
-		if(comparator(list, comparator_data) == 0) {
+	const FListItem *it;
+
+	for(it = f_list_first_const(list); it != NULL; it = it->next) {
+		if(comparator(it, comparator_data) == 0) {
 			break;
 		}
 	}
-	return (FListItem *)list;
+	return (FListItem *)it;
 }
 
 FListItem *f_list_first(FList *self)
@@ -134,8 +137,10 @@ const FListItem *f_list_first_const(const FList *self)
 
 void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data)
 {
-	for(; list != NULL; list = list->next) {
-		visitor((FListItem *)list, visitor_data);
+	const FListItem *it;
+
+	for(it = f_list_first_const(list); it != NULL; it = it->next) {
+		visitor((FListItem *)it, visitor_data);
 	}
 }
 
@@ -146,10 +151,13 @@ FListItem *f_list_last(FList *self)
 
 const FListItem *f_list_last_const(const FList *self)
 {
+	const FListItem *it;
+
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-	while(self->next != NULL) {
-		self = self->next;
+	it = f_list_first_const(self);
+	while(it->next != NULL) {
+		it = it->next;
 	}
-	return self;
+	return it;
 }
