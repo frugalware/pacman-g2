@@ -50,11 +50,11 @@ void *f_ptrlistitem_data(const FPtrListItem *self)
 	return self->data;
 }
 
-int f_ptrlistitem_match(const FListItem *item, const FMatcher *matcher) {
+int f_ptrlistitem_match(const FPtrListItem *item, const FMatcher *matcher) {
 	return f_match(item->data, matcher);
 }
 
-int f_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr) {
+int f_ptrlistitem_ptrcmp(const FPtrListItem *item, const void *ptr) {
 	return f_ptrcmp(item->data, ptr);
 }
 
@@ -62,7 +62,7 @@ FPtrList *f_ptrlist_new(void)
 {
 	FPtrList *self;
 
-	ASSERT((self = f_zalloc(sizeof(*self))), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	ASSERT((self = f_zalloc(sizeof(*self))) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	f_ptrlist_init(self);
 	return self;
@@ -75,12 +75,28 @@ int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
 
 int f_ptrlist_init(FPtrList *self)
 {
-	return f_list_init(self);
+	return f_list_init(f_ptrlist_as_FList(self));
 }
 
 int f_ptrlist_fini(FPtrList *self, FVisitor *visitor)
 {
 	return f_ptrlist_clear(self, visitor);
+}
+
+FList *f_ptrlist_as_FList(FPtrList *self)
+{
+	return (FList *)f_ptrlist_as_FList_const(self);
+}
+
+const FList *f_ptrlist_as_FList_const(const FPtrList *self)
+{
+#ifndef F_NOCOMPAT
+	return (FList *)self;
+#else
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	return &self->as_FList;
+#endif
 }
 
 int f_ptrlist_all_match(const FPtrList *list, const FMatcher *matcher)
@@ -90,7 +106,7 @@ int f_ptrlist_all_match(const FPtrList *list, const FMatcher *matcher)
 		.data = matcher,
 	};
 
-	return f_list_all_match(list, &itemmatcher);
+	return f_list_all_match(f_ptrlist_as_FList_const(list), &itemmatcher);
 }
 
 int f_ptrlist_any_match(const FPtrList *list, const FMatcher *matcher)
@@ -100,7 +116,7 @@ int f_ptrlist_any_match(const FPtrList *list, const FMatcher *matcher)
 		.data = matcher,
 	};
 
-	return f_list_any_match(list, &itemmatcher);
+	return f_list_any_match(f_ptrlist_as_FList_const(list), &itemmatcher);
 }
 
 pmlist_t *f_ptrlist_append(pmlist_t *list, void *data)

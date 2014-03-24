@@ -48,14 +48,17 @@ int f_ptrlistitem_delete(FListItem *self, FVisitor *visitor);
 
 void *f_ptrlistitem_data(const FPtrListItem *self);
 
-int f_ptrlistitem_match(const FListItem *item, const FMatcher *matcher);
-int f_ptrlistitem_ptrcmp(const FListItem *item, const void *ptr);
+int f_ptrlistitem_match(const FPtrListItem *item, const FMatcher *matcher);
+int f_ptrlistitem_ptrcmp(const FPtrListItem *item, const void *ptr);
 
 FPtrList *f_ptrlist_new(void);
 int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
 
 int f_ptrlist_init(FPtrList *self);
 int f_ptrlist_fini(FPtrList *self, FVisitor *visitor);
+
+FList *f_ptrlist_as_FList(FPtrList *self);
+const FList *f_ptrlist_as_FList_const(const FPtrList *self);
 
 int f_ptrlist_all_match(const FPtrList *list, const FMatcher *matcher);
 int f_ptrlist_any_match(const FPtrList *list, const FMatcher *matcher);
