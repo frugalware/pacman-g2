@@ -51,7 +51,6 @@ int f_list_init(FList *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	self->last = self;
 	return 0;
 }
 
@@ -147,10 +146,10 @@ FListItem *f_list_last(FList *self)
 
 const FListItem *f_list_last_const(const FList *self)
 {
-	if(self == NULL) {
-		return(NULL);
-	}
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-	assert(self->last != NULL);
-	return(self->last);
+	while(self->next != NULL) {
+		self = self->next;
+	}
+	return self;
 }

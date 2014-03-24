@@ -55,21 +55,11 @@ pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn)
 
 	if(iter != NULL) {
 		iter->prev = add;   /*  Not at end.  */
-	} else {
-		if (list != NULL) {
-			list->last = add;   /* Added new to end, so update the link to last. */
-		}
 	}
 
 	if(prev != NULL) {
 		prev->next = add;       /*  In middle.  */
 	} else {
-		if(list == NULL) {
-			add->last = add;
-		} else {
-			add->last = list->last;
-			list->last = NULL;
-		}
 		list = add;           /*  Start or empty, new list head.  */
 	}
 
@@ -110,13 +100,7 @@ pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp f
 		}
 		if(i == haystack) {
 			/* The item found is the first in the chain */
-			if(haystack->next) {
-				haystack->next->last = haystack->last;
-			}
 			haystack = haystack->next;
-		} else if(i == haystack->last) {
-			/* The item found is the last in the chain */
-			haystack->last = i->prev;
 		}
 
 		if(data) {
@@ -141,7 +125,7 @@ pmlist_t *_pacman_list_reverse(pmlist_t *list)
 	pmlist_t *newlist = NULL;
 	pmlist_t *lp;
 
-	for(lp = list->last; lp; lp = lp->prev) {
+	for(lp = f_ptrlist_last(list); lp; lp = lp->prev) {
 		newlist = _pacman_list_add(newlist, lp->data);
 	}
 

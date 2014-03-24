@@ -35,7 +35,6 @@ struct __pmlist_t {
 	struct __pmlist_t *prev;
 	struct __pmlist_t *next;
 	void *data;
-	struct __pmlist_t *last; /* Quick access to last item in list */
 };
 #else
 typedef struct FList FList;

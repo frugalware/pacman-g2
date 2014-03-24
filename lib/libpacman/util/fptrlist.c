@@ -124,12 +124,10 @@ pmlist_t *f_ptrlist_append(pmlist_t *list, void *data)
 			return(NULL);
 		}
 		lp->next->prev = lp;
-		lp->last = NULL;
 		lp = lp->next;
 	}
 
 	lp->data = data;
-	ptr->last = lp;
 
 	return(ptr);
 }
