@@ -79,7 +79,7 @@ int f_list_all_match(const FList *list, const FMatcher *matcher)
 		return 0;
 	}
 
-	for(it = f_list_first_const(list); it != NULL; it = it->next) {
+	for(it = f_list_first_const(list); it != f_list_end_const(list); it = it->next) {
 		if(f_match(it, matcher) == 0) {
 			return 0;
 		}
@@ -91,7 +91,7 @@ int f_list_any_match(const FList *list, const FMatcher *matcher)
 {
 	const FListItem *it;
 
-	for(it = f_list_first_const(list); it != NULL; it = it->next) {
+	for(it = f_list_first_const(list); it != f_list_end_const(list); it = it->next) {
 		if(f_match(it, matcher) != 0) {
 			return 1;
 		}
@@ -127,7 +127,7 @@ int f_list_count(const FList *list)
 	const FListItem *it;
 	int i;
 
-	for(i = 0, it = f_list_first_const(list); it != NULL; it = it->next, i++);
+	for(i = 0, it = f_list_first_const(list); it != f_list_end_const(list); it = it->next, i++);
 	return i;
 }
 
@@ -150,7 +150,7 @@ FListItem *f_list_find(const FList *list, FListItemComparatorFunc comparator, co
 {
 	const FListItem *it;
 
-	for(it = f_list_first_const(list); it != NULL; it = it->next) {
+	for(it = f_list_first_const(list); it != f_list_end_const(list); it = it->next) {
 		if(comparator(it, comparator_data) == 0) {
 			break;
 		}
@@ -172,7 +172,7 @@ void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visit
 {
 	const FListItem *it;
 
-	for(it = f_list_first_const(list); it != NULL; it = it->next) {
+	for(it = f_list_first_const(list); it != f_list_end_const(list); it = it->next) {
 		visitor((FListItem *)it, visitor_data);
 	}
 }
@@ -189,7 +189,7 @@ const FListItem *f_list_last_const(const FList *self)
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	it = f_list_first_const(self);
-	while(it->next != NULL) {
+	while(it->next != f_list_end_const(self)) {
 		it = it->next;
 	}
 	return it;
