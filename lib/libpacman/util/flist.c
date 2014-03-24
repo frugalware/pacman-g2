@@ -37,6 +37,16 @@ int f_listitem_delete(FListItem *self, FVisitor *visitor)
 	return 0;
 }
 
+int f_listitem_insert_after(FListItem *self, FListItem *previous)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(previous != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	previous->next = self;
+	self->prev = previous;
+	return -1;
+}
+
 FList *f_list_new()
 {
 	return NULL;
@@ -89,6 +99,19 @@ int f_list_any_match(const FList *list, const FMatcher *matcher)
 	return 0;
 }
 
+int f_list_append(FList *self, FListItem *item)
+{
+	return f_listitem_insert_after(item, f_list_last(self));
+}
+
+int f_list_append_unique(FList *self, FListItem *item, FListItemComparatorFunc comparator)
+{
+	if (!f_list_contains(self, comparator, item)) {
+		return f_list_append(self, item);
+	}
+	return -1;
+}
+
 int f_list_clear(FList *self, FVisitor *visitor)
 {
 	return -1;
@@ -111,6 +134,16 @@ int f_list_count(const FList *list)
 int f_list_empty(const FList *list)
 {
 	return list == NULL;
+}
+
+FListItem *f_list_end(FList *self)
+{
+	return (FListItem *)f_list_end_const(self);
+}
+
+const FListItem *f_list_end_const(const FList *self)
+{
+	return NULL;
 }
 
 FListItem *f_list_find(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
@@ -160,4 +193,14 @@ const FListItem *f_list_last_const(const FList *self)
 		it = it->next;
 	}
 	return it;
+}
+
+FListItem *f_list_rend(FList *self)
+{
+	return (FListItem *)f_list_rend_const(self);
+}
+
+const FListItem *f_list_rend_const(const FList *self)
+{
+	return NULL;
 }
