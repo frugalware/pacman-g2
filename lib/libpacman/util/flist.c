@@ -119,7 +119,7 @@ int f_list_clear(FList *self, FVisitor *visitor)
 
 int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
 {
-	return f_list_find(list, comparator, comparator_data) != NULL;
+	return f_list_find_const(list, comparator, comparator_data) != NULL;
 }
 
 int f_list_count(const FList *list)
@@ -143,19 +143,31 @@ FListItem *f_list_end(FList *self)
 
 const FListItem *f_list_end_const(const FList *self)
 {
+#ifndef F_NOCOMPAT
 	return NULL;
+#else
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	return &self->as_FListItem;
+#endif
 }
 
-FListItem *f_list_find(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
+FListItem *f_list_find(FList *self, FListItemComparatorFunc comparator, const void *comparator_data)
 {
+	return (FListItem *)f_list_find_const(self, comparator, comparator_data);
+}
+
+const FListItem *f_list_find_const(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
+{
+	const FListItem *end = f_list_end_const(list);
 	const FListItem *it;
 
-	for(it = f_list_first_const(list); it != f_list_end_const(list); it = it->next) {
+	for(it = f_list_first_const(list); it != end; it = it->next) {
 		if(comparator(it, comparator_data) == 0) {
 			break;
 		}
 	}
-	return (FListItem *)it;
+	return it != end ? it : NULL;
 }
 
 FListItem *f_list_first(FList *self)
@@ -202,5 +214,12 @@ FListItem *f_list_rend(FList *self)
 
 const FListItem *f_list_rend_const(const FList *self)
 {
+#ifndef F_NOCOMPAT
 	return NULL;
+#else
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	return &self->as_FListItem;
+#endif
 }
+
