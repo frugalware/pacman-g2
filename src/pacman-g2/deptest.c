@@ -37,6 +37,8 @@
 extern config_t *config;
 extern list_t *pmc_syncs;
 
+int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist);
+
 int deptestpkg(list_t *targets)
 {
 	PM_LIST *data;

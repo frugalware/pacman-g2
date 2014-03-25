@@ -376,7 +376,6 @@ int pacman_trans_addtarget(const char *target);
 int pacman_trans_prepare(pmlist_t **data);
 int pacman_trans_commit(pmlist_t **data);
 int pacman_trans_release(void);
-int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist);
 
 /*
  * Output info
