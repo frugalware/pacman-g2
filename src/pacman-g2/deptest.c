@@ -58,17 +58,7 @@ int deptestpkg(list_t *targets)
 	}
 
     if(config->op_d_all) {
-        list_t *i;
-        pmlist_t *targs = NULL, *dblist = NULL;
-
-        for(i=targets; i; i=i->next) {
-            targs = _pacman_list_add(targs, i->data);
-        }
-
-        for(i = pmc_syncs; i; i = i->next) {
-           dblist = _pacman_list_add(dblist, i->data);
-        }
-        pacman_output_generate(targs, dblist);
+        pacman_output_generate(targets, pmc_syncs);
         return(0);
     }
 
