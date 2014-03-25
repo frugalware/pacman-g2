@@ -43,16 +43,6 @@ void list_free(list_t *list)
 	return;
 }
 
-int list_count(list_t *list)
-{
-	int i;
-	list_t *lp;
-
-	for(lp = list, i = 0; lp; lp = lp->next, i++);
-
-	return(i);
-}
-
 /* Test for existence of a string in a list_t
  */
 int list_is_strin(char *needle, list_t *haystack)
