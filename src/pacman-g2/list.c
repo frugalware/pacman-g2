@@ -30,21 +30,6 @@
 
 extern int maxcols;
 
-static list_t *list_last(list_t *list);
-
-list_t *list_new()
-{
-	list_t *list = NULL;
-
-	list = (list_t *)malloc(sizeof(list_t));
-	if(list == NULL) {
-		return(NULL);
-	}
-	list->data = NULL;
-	list->next = NULL;
-	return(list);
-}
-
 void list_free(list_t *list)
 {
 	list_t *ptr, *it = list;
@@ -58,29 +43,6 @@ void list_free(list_t *list)
 	return;
 }
 
-list_t *list_add(list_t *list, void *data)
-{
-	list_t *ptr, *lp;
-
-	ptr = list;
-	if(ptr == NULL) {
-		ptr = list_new();
-	}
-
-	lp = list_last(ptr);
-	if(lp == ptr && lp->data == NULL) {
-		/* nada */
-	} else {
-		lp->next = list_new();
-		if(lp->next == NULL) {
-			return(NULL);
-		}
-		lp = lp->next;
-	}
-	lp->data = data;
-	return(ptr);
-}
-
 int list_count(list_t *list)
 {
 	int i;
@@ -89,14 +51,6 @@ int list_count(list_t *list)
 	for(lp = list, i = 0; lp; lp = lp->next, i++);
 
 	return(i);
-}
-
-static list_t *list_last(list_t *list)
-{
-	list_t *ptr;
-
-	for(ptr = list; ptr && ptr->next; ptr = ptr->next);
-	return(ptr);
 }
 
 /* Test for existence of a string in a list_t

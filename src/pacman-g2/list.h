@@ -36,9 +36,9 @@ typedef FPtrList list_t;
 	FREELIST(p); \
 } while(0)
 
-list_t *list_new(void);
+#define list_new f_ptrlist_new
 void list_free(list_t *list);
-list_t *list_add(list_t *list, void *data);
+#define list_add f_ptrlist_add
 int list_count(list_t *list);
 int list_is_strin(char *needle, list_t *haystack);
 void list_display(const char *title, list_t *list);

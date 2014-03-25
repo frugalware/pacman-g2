@@ -35,14 +35,10 @@
 	} \
 } while(0)
 
-#define FREE(p) do { if (p) { free(p); (p) = NULL; }} while(0)
-
 #define STRNCPY(s1, s2, len) do { \
 	strncpy(s1, s2, (len)-1); \
 	s1[(len)-1] = 0; \
 } while(0)
-
-#define _(str) gettext(str)
 
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 
