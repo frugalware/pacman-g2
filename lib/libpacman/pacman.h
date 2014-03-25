@@ -438,8 +438,6 @@ pmlist_t *pacman_list_next(pmlist_t *entry);
 void *pacman_list_getdata(pmlist_t *entry);
 int pacman_list_free(pmlist_t *entry);
 int pacman_list_count(pmlist_t *list);
-pmlist_t *f_ptrlist_append(pmlist_t *list, void *data);
-#define _pacman_list_add f_ptrlist_append
 
 /* md5sums */
 char *pacman_get_md5sum(char *name);
