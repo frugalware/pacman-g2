@@ -60,9 +60,14 @@ int f_ptrlist_fini(FPtrList *self, FVisitor *visitor);
 FList *f_ptrlist_as_FList(FPtrList *self);
 const FList *f_ptrlist_as_FList_const(const FPtrList *self);
 
+#define f_ptrlist_add f_ptrlist_append
 int f_ptrlist_all_match(const FPtrList *list, const FMatcher *matcher);
 int f_ptrlist_any_match(const FPtrList *list, const FMatcher *matcher);
-pmlist_t *f_ptrlist_append(pmlist_t *list, void *data);
+#ifndef F_NOCOMPAT
+FPtrList *f_ptrlist_append(FPtrList *list, void *data);
+#else
+int f_ptrlist_append(FPtrList *list, void *data);
+#endif
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
 #define f_ptrlist_contains f_list_contains
 int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);

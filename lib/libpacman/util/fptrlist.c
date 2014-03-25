@@ -119,7 +119,8 @@ int f_ptrlist_any_match(const FPtrList *list, const FMatcher *matcher)
 	return f_list_any_match(f_ptrlist_as_FList_const(list), &itemmatcher);
 }
 
-pmlist_t *f_ptrlist_append(pmlist_t *list, void *data)
+#ifndef F_NOCOMPAT
+FPtrList *f_ptrlist_append(FPtrList *list, void *data)
 {
 	pmlist_t *ptr, *lp;
 
@@ -147,6 +148,11 @@ pmlist_t *f_ptrlist_append(pmlist_t *list, void *data)
 
 	return(ptr);
 }
+#else
+int f_ptrlist_append(FPtrList *self, void *data)
+{
+}
+#endif
 
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 {
