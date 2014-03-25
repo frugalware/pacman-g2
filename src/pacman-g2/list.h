@@ -23,11 +23,9 @@
 
 #include <pacman.h>
 
-/* Chained list struct */
-typedef struct __list_t {
-	void *data;
-	struct __list_t *next;
-} list_t;
+#include <util/fptrlist.h>
+
+typedef FPtrList list_t;
 
 #define FREELIST(p) do { if(p) { list_free(p); p = NULL; } } while(0)
 #define FREELISTPTR(p) do { \
