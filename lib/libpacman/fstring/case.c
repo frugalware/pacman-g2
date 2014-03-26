@@ -1,5 +1,5 @@
 /*
- *  fstring.c
+ *  case.c
  *
  *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
  *
@@ -21,42 +21,40 @@
 
 #include "config.h"
 
-#include <ctype.h>
-
 #include "fstring.h"
 
-#include "fstdlib.h"
+#include <ctype.h>
 
-/* Trim whitespace and newlines from a string
- */
-char *f_strtrim(char *str)
+char *f_strtolower(char *str)
 {
-	char *pch = str;
+	return f_str_tolower(str, str) >= 0 ? str: NULL;
+}
 
-	if(f_strempty(str)) {
-		/* string is empty, so we're done. */
-		return(str);
-	}
+char *f_strtoupper(char *str)
+{
+	return f_str_toupper(str, str) >= 0 ? str: NULL;
+}
 
-	while(isspace((int)*pch)) {
-		pch++;
-	}
-	if(pch != str) {
-		memmove(str, pch, (strlen(pch) + 1));
-	}
+int f_str_tolower(char *dst, const char *src)
+{
+	ASSERT(dst != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(src != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	/* check if there wasn't anything but whitespace in the string. */
-	if(f_strempty(str)) {
-		return(str);
-	}
+	do {
+		(*(dst++)) = tolower(*src);
+	} while(*(src++) != '\0');
+	return 0;
+}
 
-	pch = (char *)(str + (strlen(str) - 1));
-	while(isspace((int)*pch)) {
-		pch--;
-	}
-	*++pch = '\0';
+int f_str_toupper(char *dst, const char *src)
+{
+	ASSERT(dst != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(src != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	return(str);
+	do {
+		(*(dst++)) = toupper(*src);
+	} while(*(src++) != '\0');
+	return 0;
 }
 
 /* vim: set ts=2 sw=2 noet: */

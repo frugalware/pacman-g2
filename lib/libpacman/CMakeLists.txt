@@ -7,6 +7,7 @@ CONFIGURE_FILE("pacman.pc.in" "pacman.pc" @ONLY)
 set(FLIB_SOURCES
 	fstdlib/canonicalize.c
 	fstring/basename.c
+	fstring/case.c
 	fstring/dirname.c
 	fstring/matcher.c
 	hash/md5.c

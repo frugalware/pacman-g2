@@ -46,8 +46,12 @@ size_t f_strlen(const char *s)
 	return s != NULL ? strlen(s) : 0;
 }
 
+char *f_strtolower(char *str);
 char *f_strtoupper(char *str);
 char *f_strtrim(char *str);
+
+int f_str_tolower(char *dst, const char *src);
+int f_str_toupper(char *dst, const char *src);
 
 typedef int (*FStrComparatorFunc)(const char *str, const void *stringcomparator_data);
 typedef int (*FStrMatcherFunc)(const char *str, const void *stringmatcher_data);

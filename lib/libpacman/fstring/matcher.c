@@ -42,8 +42,7 @@ int f_strmatcher_match(const char *str, const void *_data)
 
 	if(data->flags & F_STRMATCHER_IGNORE_CASE) {
 		char *_str = alloca(strlen(str) + sizeof(char));
-		strcpy(_str, str);
-		f_strtoupper(_str);
+		f_str_toupper(_str, str);
 		str = _str;
 	}
 	if(((data->flags & F_STRMATCHER_EQUAL) && strcmp(str, data->str) == 0) ||
