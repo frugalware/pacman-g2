@@ -59,10 +59,9 @@ int list_is_strin(char *needle, list_t *haystack)
 
 /* Display the content of a list_t struct of strings
  */
-
-void list_display(const char *title, list_t *list)
+void list_display(const char *title, const FStringList *list)
 {
-	list_t *lp;
+	const FStringListItem *lp;
 	int cols, len;
 
 	len = strlen(title);
@@ -80,34 +79,6 @@ void list_display(const char *title, list_t *list)
 				}
 			}
 			printf("%s ", (char *)lp->data);
-			cols += s;
-		}
-		printf("\n");
-	} else {
-		printf(_("None\n"));
-	}
-}
-
-void PM_LIST_display(const char *title, PM_LIST *list)
-{
-	PM_LIST *lp;
-	int cols, len;
-
-	len = strlen(title);
-	printf("%s ", title);
-
-	if(list) {
-		for(lp = list, cols = len; lp; lp = pacman_list_next(lp)) {
-			int s = strlen(pacman_list_getdata(lp))+1;
-			if(s+cols >= maxcols) {
-				int i;
-				cols = len;
-				printf("\n");
-				for (i = 0; i < len+1; i++) {
-					printf(" ");
-				}
-			}
-			printf("%s ", (char *)pacman_list_getdata(lp));
 			cols += s;
 		}
 		printf("\n");

@@ -24,26 +24,18 @@
 #include <pacman.h>
 
 #include <util/fptrlist.h>
+#include <util/stringlist.h>
 
 typedef FPtrList list_t;
-
-#define FREELIST(p) do { if(p) { list_free(p); p = NULL; } } while(0)
-#define FREELISTPTR(p) do { \
-	list_t *q; \
-	for(q = p; q; q = q->next) { \
-		q->data = NULL; \
-	} \
-	FREELIST(p); \
-} while(0)
 
 #define list_new f_ptrlist_new
 void list_free(list_t *list);
 #define list_add f_ptrlist_add
 #define list_count f_ptrlist_count
 int list_is_strin(char *needle, list_t *haystack);
-void list_display(const char *title, list_t *list);
+void list_display(const char *title, const FStringList *list);
 
-void PM_LIST_display(const char *title, PM_LIST *list);
+#define PM_LIST_display list_display
 list_t *PM_LIST_remove_dupes(PM_LIST *list);
 
 #endif /* _PM_LIST_H */
