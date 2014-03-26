@@ -987,11 +987,12 @@ int pacman_logaction(const char *format, ...)
 {
 	va_list ap;
 
-	/* Sanity checks */
-	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
-
 	va_start(ap, format);
+	if (handle != NULL) {
 	_pacman_vlogaction(handle->usesyslog, handle->logfd, format, ap);
+	} else {
+		_pacman_vlogaction(0, NULL, format, ap);
+	}
 	va_end(ap);
 	return 0;
 
