@@ -74,6 +74,17 @@ void f_logger_log(FLogger *logger, unsigned char flag, const char *format, ...)
 	va_end(ap);
 }
 
+void f_logger_logs(FLogger *logger, unsigned char flag, const char *s)
+{
+	if(logger == NULL ||
+			logger->fn == NULL ||
+			(flag & logger->mask) == 0) {
+		return;
+	}
+
+	logger->fn(flag, s, logger->data);
+}
+
 void f_logger_vlog(FLogger *logger, unsigned char flag, const char *format, va_list ap)
 {
 	char str[LOG_STR_LEN];
@@ -85,8 +96,7 @@ void f_logger_vlog(FLogger *logger, unsigned char flag, const char *format, va_l
 	}
 
 	vsnprintf(str, LOG_STR_LEN, format, ap);
-	logger->fn(flag, f_strtrim(str), logger->data);
-//	pacman_logaction(str); ??
+	f_logger_logs(logger, flag, f_strtrim(str));
 }
 
 /* vim: set ts=2 sw=2 noet: */

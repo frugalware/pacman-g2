@@ -41,6 +41,7 @@ int f_logger_init(FLogger *logger, unsigned char mask, FLogFunc fn, void *data);
 int f_logger_fini(FLogger *logger);
 
 void f_logger_log(FLogger *logger, unsigned char flag, const char *format, ...);
+void f_logger_logs(FLogger *logger, unsigned char flag, const char *s);
 void f_logger_vlog(FLogger *logger, unsigned char flag, const char *format, va_list ap);
 
 #endif /* F_LOGGER_H */
