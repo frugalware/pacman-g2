@@ -39,8 +39,7 @@ void f_dispatchlogger_log(unsigned char flag, const char *message, void *data)
 
 	end = f_ptrlist_end(list);
 	for (it = f_ptrlist_first(list); it != end; it = it->next) {
-		// FIXME: Add an f_logger method for constant strings and use it there
-		f_logger_log((FLogger *)it->data, flag, "%s", message);
+		f_logger_logs((FLogger *)it->data, flag, message);
 	}
 }
 
