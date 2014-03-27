@@ -73,6 +73,8 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
 int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
 #define f_ptrlist_count f_list_count
 #define f_ptrlist_empty f_list_empty
+#define f_ptrlist_end(list) ((FPtrListItem *)f_ptrlist_end_const(list))
+#define f_ptrlist_end_const(list) ((const FPtrListItem *)f_list_end_const(f_ptrlist_as_FList_const(list)))
 FPtrList *f_ptrlist_filter(const FPtrList *list, const FMatcher *matcher);
 #define f_ptrlist_first(self) ((FPtrListItem *)f_list_first(self))
 #define f_ptrlist_first_const(self) ((const FPtrListItem *)f_list_first_const(self))
