@@ -28,7 +28,7 @@
 typedef struct FFileLogger FFileLogger;
 
 FFileLogger *f_filelogger_new(unsigned char mask, FILE *file);
-void f_filelogger_delete(FFileLogger *syslogger);
+void f_filelogger_delete(FFileLogger *filelogger);
 
 #endif /* F_FILELOGGER_H */
 
