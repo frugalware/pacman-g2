@@ -21,30 +21,56 @@
 #ifndef F_CALLBACKS_H
 #define F_CALLBACKS_H
 
+#include "fstdlib.h"
 #include "util.h"
 
 typedef int (*FComparatorFunc)(const void *ptr, const void *comparator_data);
-typedef int (*FMatcherFunc)(const void *ptr, const void *matcher_data);
-typedef void (*FVisitorFunc)(void *ptr, void *visitor_data);
 
 typedef struct FComparator FComparator;
-typedef struct FMatcher FMatcher;
-typedef struct FVisitor FVisitor;
 
 struct FComparator {
 	FComparatorFunc fn;
 	const void *data;
 };
 
-struct FMatcher {
-	FMatcherFunc fn;
-	const void *data;
-};
+static inline
+int f_comparator_init(FComparator *self, FComparatorFunc fn, const void *data)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-struct FVisitor {
-	FVisitorFunc fn;
-	void *data;
-};
+	self->fn = fn;
+	self->data = data;
+	return 0;
+}
+
+static inline
+int f_comparator_fini(FComparator *self)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	self->fn = NULL;
+	self->data = NULL;
+	return 0;
+}
+
+static inline
+FComparator *f_comparator_new(FComparatorFunc fn, const void *data)
+{
+	FComparator *self;
+
+	ASSERT((self = f_zalloc(sizeof(*self))) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	return f_comparator_init(self, fn, data) == 0 ? self: NULL;
+}
+
+static inline
+int f_comparator_delete(FComparator *self)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	f_comparator_fini(self);
+	free(self);
+	return 0;
+}
 
 static inline
 int f_compare(const void *ptr, const FComparator *comparator) {
@@ -66,6 +92,54 @@ int f_compare_all(const void *ptr, const FComparator **comparators) {
 		}
 		comparators++;
 	}
+	return 0;
+}
+
+typedef int (*FMatcherFunc)(const void *ptr, const void *matcher_data);
+
+typedef struct FMatcher FMatcher;
+
+struct FMatcher {
+	FMatcherFunc fn;
+	const void *data;
+};
+
+static inline
+int f_matcher_init(FMatcher *self, FMatcherFunc fn, const void *data)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	self->fn = fn;
+	self->data = data;
+	return 0;
+}
+
+static inline
+int f_matcher_fini(FMatcher *self)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	self->fn = NULL;
+	self->data = NULL;
+	return 0;
+}
+
+static inline
+FMatcher *f_matcher_new(FMatcherFunc fn, const void *data)
+{
+	FMatcher *self;
+
+	ASSERT((self = f_zalloc(sizeof(*self))) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	return f_matcher_init(self, fn, data) == 0 ? self: NULL;
+}
+
+static inline
+int f_matcher_delete(FMatcher *self)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	f_matcher_fini(self);
+	free(self);
 	return 0;
 }
 
@@ -111,6 +185,55 @@ int f_match_comparator(const void *ptr, const FComparator *comparator) {
 	ASSERT(comparator->fn != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	return comparator->fn(ptr, comparator->data) == 0;
+}
+
+typedef void (*FVisitorFunc)(void *ptr, void *visitor_data);
+
+typedef struct FVisitor FVisitor;
+
+struct FVisitor {
+	FVisitorFunc fn;
+	void *data;
+};
+
+static inline
+int f_visitor_init(FVisitor *self, FVisitorFunc fn, void *data)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	self->fn = fn;
+	self->data = data;
+	return 0;
+}
+
+static inline
+int f_visitor_fini(FVisitor *self)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	self->fn = NULL;
+	self->data = NULL;
+	return 0;
+}
+
+static inline
+FVisitor *f_visitor_new(FVisitorFunc fn, void *data)
+{
+	FVisitor *self;
+
+	ASSERT((self = f_zalloc(sizeof(*self))) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	return f_visitor_init(self, fn, data) == 0 ? self: NULL;
+}
+
+static inline
+int f_visitor_delete(FVisitor *self)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	f_visitor_fini(self);
+	free(self);
+	return 0;
 }
 
 static inline
