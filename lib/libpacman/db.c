@@ -101,65 +101,31 @@ int _pacman_db_cmp(const void *db1, const void *db2)
 	return(strcmp(((pmdb_t *)db1)->treename, ((pmdb_t *)db2)->treename));
 }
 
-static
-int _pacman_reg_match_or_substring(const char *string, const char *pattern)
-{
-	int retval = _pacman_reg_match(string, pattern);
-
-	if(retval < 0) {
-		/* bad regexp */
-		return -1;
-	} else if(retval) {
-		return 1;
-	} else if (strstr(string, pattern) != NULL) {
-		return 1;
-	}
-	return 0;
-}
-
 pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles)
 {
-	pmlist_t *i, *j, *k, *ret = NULL;
+	pmlist_t *i, *j, *ret = NULL;
 
 	for(i = needles; i; i = i->next) {
-		const char *targ;
+		FStrMatcher strmatcher = { NULL };
+		FMatcher packagestrmatcher = { NULL };
+		const char *targ = i->data;
 
-		if(i->data == NULL) {
+		if(f_strempty(targ)) {
 			continue;
 		}
-		targ = i->data;
 		_pacman_log(PM_LOG_DEBUG, "searching for target '%s'\n", targ);
+		if(f_strmatcher_init(&strmatcher, targ, F_STRMATCHER_ALL_IGNORE_CASE) == 0 &&
+				_pacman_packagestrmatcher_init(&packagestrmatcher, &strmatcher, PM_PACKAGE_FLAG_NAME | PM_PACKAGE_FLAG_DESCRIPTION | PM_PACKAGE_FLAG_PROVIDES) == 0) {
+			for(j = _pacman_db_get_pkgcache(db); j; j = j->next) {
+				pmpkg_t *pkg = j->data;
 
-		for(j = _pacman_db_get_pkgcache(db); j; j = j->next) {
-			pmpkg_t *pkg = j->data;
-			int match = 0;
-
-			/* check name */
-			if(_pacman_reg_match_or_substring(pkg->name, targ) == 1) {
-				_pacman_log(PM_LOG_DEBUG, "    search target '%s' matched '%s'", targ, pkg->name);
-				match = 1;
-			}
-
-			/* check description */
-			if(!match) {
-				if(_pacman_reg_match_or_substring(_pacman_pkg_getinfo(pkg, PM_PKG_DESC), targ) == 1) {
-					match = 1;
+				if(f_match(pkg, &packagestrmatcher)) {
+					ret = f_ptrlist_append(ret, pkg);
 				}
-			}
-
-			/* check provides */
-			if(!match) {
-				for(k = _pacman_pkg_getinfo(pkg, PM_PKG_PROVIDES); k; k = k->next) {
-					if(_pacman_reg_match_or_substring(k->data, targ) == 1) {
-						match = 1;
-					}
-				}
-			}
-
-			if(match) {
-				ret = _pacman_list_add(ret, pkg);
 			}
 		}
+		_pacman_packagestrmatcher_fini(&packagestrmatcher);
+		f_strmatcher_fini(&strmatcher);
 	}
 
 	return(ret);

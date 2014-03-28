@@ -163,22 +163,18 @@ pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, const char *target)
  */
 pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package)
 {
-	pmlist_t *pkgs = NULL;
-	pmlist_t *lp;
+	FPtrList *pkgs = NULL;
+	FStrMatcher strmatcher = { NULL };
+	FMatcher packagestrmatcher = { NULL };
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
-	if(_pacman_strempty(package)) {
-		return NULL;
+
+	if(f_strmatcher_init(&strmatcher, package, F_STRMATCHER_EQUAL) == 0 &&
+			_pacman_packagestrmatcher_init(&packagestrmatcher, &strmatcher, PM_PACKAGE_FLAG_PROVIDES) == 0) {
+		pkgs = f_ptrlist_filter(_pacman_db_get_pkgcache(db), &packagestrmatcher);
 	}
-
-	for(lp = _pacman_db_get_pkgcache(db); lp; lp = lp->next) {
-		pmpkg_t *info = lp->data;
-
-		if(_pacman_list_is_strin(package, _pacman_pkg_getinfo(info, PM_PKG_PROVIDES))) {
-			pkgs = _pacman_list_add(pkgs, info);
-		}
-	}
-
+	_pacman_packagestrmatcher_fini(&packagestrmatcher);
+	f_strmatcher_fini(&strmatcher);
 	return(pkgs);
 }
 
