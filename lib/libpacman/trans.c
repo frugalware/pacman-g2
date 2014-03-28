@@ -310,7 +310,7 @@ static
 int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 {
 	pmlist_t *i;
-	pmpkg_t *pkg_new, *pkg_local;
+	pmpkg_t *pkg_new, *pkg_local, *pkg_queued = NULL;
 	pmdb_t *db_local = trans->handle->db_local;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -359,21 +359,25 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 	for(i = trans->packages; i; i = i->next) {
 		pmpkg_t *pkg = i->data;
 		if(strcmp(pkg->name, pkg_new->name) == 0) {
-			if(_pacman_versioncmp(pkg->version, pkg_new->version) < 0) {
-				_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
-				          pkg->name, pkg->version, pkg_new->version);
-				f_ptrswap(&i->data, (void **)&pkg_new);
-			} else {
-				_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
-				          pkg->name, pkg->version, pkg_new->version);
-			}
-			FREEPKG(pkg_new);
-			return(0);
+			pkg_queued = pkg;
+			break;
 		}
 	}
 
-	/* add the package to the transaction */
-	trans->packages = _pacman_list_add(trans->packages, pkg_new);
+	if(pkg_queued != NULL) {
+		if(_pacman_versioncmp(pkg_queued->version, pkg_new->version) < 0) {
+			_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
+			          pkg_queued->name, pkg_queued->version, pkg_new->version);
+			f_ptrswap(&i->data, (void **)&pkg_new);
+		} else {
+			_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
+			          pkg_queued->name, pkg_queued->version, pkg_new->version);
+		}
+		FREEPKG(pkg_new);
+	} else {
+		/* add the package to the transaction */
+		trans->packages = _pacman_list_add(trans->packages, pkg_new);
+	}
 
 	return(0);
 
