@@ -345,6 +345,15 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 		}
 	}
 
+	if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
+		pkg_new->reason = PM_PKG_REASON_DEPEND;
+	}
+
+	/* copy over the install reason */
+	if(pkg_local) {
+		pkg_new->reason = (long)_pacman_pkg_getinfo(pkg_local, PM_PKG_REASON);
+	}
+
 	/* check if an older version of said package is already in transaction packages.
 	 * if so, replace it in the list */
 	for(i = trans->packages; i; i = i->next) {
@@ -361,15 +370,6 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 			FREEPKG(pkg_new);
 			return(0);
 		}
-	}
-
-	if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
-		pkg_new->reason = PM_PKG_REASON_DEPEND;
-	}
-
-	/* copy over the install reason */
-	if(pkg_local) {
-		pkg_new->reason = (long)_pacman_pkg_getinfo(pkg_local, PM_PKG_REASON);
 	}
 
 	/* add the package to the transaction */
