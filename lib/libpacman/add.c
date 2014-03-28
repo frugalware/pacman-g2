@@ -33,7 +33,6 @@
 #include "error.h"
 #include "cache.h"
 #include "deps.h"
-#include "versioncmp.h"
 #include "package.h"
 #include "db.h"
 #include "conflict.h"
@@ -42,7 +41,6 @@
 #include "packages_transaction.h"
 #include "trans.h"
 
-#include "db/fakedb.h"
 #include "hash/md5.h"
 #include "hash/sha1.h"
 #include "io/archive.h"
@@ -56,94 +54,6 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <time.h>
-
-pmpkg_t *_pacman_filedb_load(pmdb_t *db, const char *name)
-{
-	struct stat buf;
-
-	if(stat(name, &buf)) {
-		pm_errno = PM_ERR_NOT_A_FILE;
-		return NULL;
-	}
-
-	_pacman_log(PM_LOG_FLOW2, _("loading target '%s'"), name);
-	return _pacman_fpmpackage_load(name);
-}
-
-int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
-{
-	pmlist_t *i;
-	pmpkg_t *pkg_new, *pkg_local;
-	pmdb_t *db_local = trans->handle->db_local;
-
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(!_pacman_strempty(name), RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	/* Check if we need to add a fake target to the transaction. */
-	if(strchr(name, '|')) {
-		return(_pacman_fakedb_addtarget(trans, name));
-	}
-
-	pkg_new = _pacman_filedb_load(NULL, name);
-	if(pkg_new == NULL || _pacman_pkg_is_valid(pkg_new, trans, name) != 0) {
-		/* pm_errno is already set by _pacman_filedb_load() */
-		goto error;
-	}
-
-	pkg_local = _pacman_db_get_pkgfromcache(db_local, pkg_new->name);
-	if(trans->type != PM_TRANS_TYPE_UPGRADE) {
-		/* only install this package if it is not already installed */
-		if(pkg_local != NULL) {
-			pm_errno = PM_ERR_PKG_INSTALLED;
-			goto error;
-		}
-	} else {
-		if(trans->flags & PM_TRANS_FLAG_FRESHEN) {
-			/* only upgrade/install this package if it is already installed and at a lesser version */
-			if(pkg_local == NULL || _pacman_versioncmp(pkg_local->version, pkg_new->version) >= 0) {
-				pm_errno = PM_ERR_PKG_CANT_FRESH;
-				goto error;
-			}
-		}
-	}
-
-	/* check if an older version of said package is already in transaction packages.
-	 * if so, replace it in the list */
-	for(i = trans->packages; i; i = i->next) {
-		pmpkg_t *pkg = i->data;
-		if(strcmp(pkg->name, pkg_new->name) == 0) {
-			if(_pacman_versioncmp(pkg->version, pkg_new->version) < 0) {
-				_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
-				          pkg->name, pkg->version, pkg_new->version);
-				f_ptrswap(&i->data, (void **)&pkg_new);
-			} else {
-				_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
-				          pkg->name, pkg->version, pkg_new->version);
-			}
-			FREEPKG(pkg_new);
-			return(0);
-		}
-	}
-
-	if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
-		pkg_new->reason = PM_PKG_REASON_DEPEND;
-	}
-
-	/* copy over the install reason */
-	if(pkg_local) {
-		pkg_new->reason = (long)_pacman_pkg_getinfo(pkg_local, PM_PKG_REASON);
-	}
-
-	/* add the package to the transaction */
-	trans->packages = _pacman_list_add(trans->packages, pkg_new);
-
-	return(0);
-
-error:
-	FREEPKG(pkg_new);
-	return(-1);
-}
 
 int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 {
@@ -746,7 +656,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 }
 
 const pmtrans_ops_t _pacman_add_pmtrans_opts = {
-	.addtarget = _pacman_add_addtarget,
+	.addtarget = NULL,
 	.prepare = _pacman_add_prepare,
 	.commit = _pacman_add_commit
 };
