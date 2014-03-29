@@ -313,24 +313,69 @@ pmpkg_t *_pacman_filedb_load(pmdb_t *db, const char *name)
 	return _pacman_fpmpackage_load(name);
 }
 
-static
-int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
+int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
+{
+	pmpkg_t *pkg_local;
+	pmdb_t *db_local = trans->handle->db_local;
+
+	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(name != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	if(_pacman_pkg_isin(name, trans->packages)) {
+		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
+	}
+
+	if((pkg_local = _pacman_db_scan(db_local, name, INFRQ_ALL)) == NULL) {
+		_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), name);
+		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
+	}
+
+	/* ignore holdpkgs on upgrade */
+	if((trans == handle->trans) && _pacman_list_is_strin(pkg_local->name, handle->holdpkg)) {
+		int resp = 0;
+		QUESTION(trans, PM_TRANS_CONV_REMOVE_HOLDPKG, pkg_local, NULL, NULL, &resp);
+		if(!resp) {
+			RET_ERR(PM_ERR_PKG_HOLD, -1);
+		}
+	}
+
+	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), pkg_local->name);
+	trans->packages = _pacman_list_add(trans->packages, pkg_local);
+
+	return(0);
+}
+
+int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 {
 	pmlist_t *i;
 	pmpkg_t *pkg_new, *pkg_local, *pkg_queued = NULL;
 	pmdb_t *db_local = trans->handle->db_local;
 
+	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(!_pacman_strempty(name), RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(trans->ops != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	/* Check if we need to add a fake target to the transaction. */
-	if(strchr(name, '|')) {
-		return(_pacman_fakedb_addtarget(trans, name));
+	if(_pacman_list_is_strin(target, trans->targets)) {
+		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
 
-	pkg_new = _pacman_filedb_load(NULL, name);
-	if(pkg_new == NULL || _pacman_pkg_is_valid(pkg_new, trans, name) != 0) {
+	if(trans->ops->addtarget != NULL) {
+		if(trans->ops->addtarget(trans, target) == -1) {
+			/* pm_errno is set by trans->ops->addtarget() */
+			return(-1);
+		}
+	} else {
+	if(trans->type & PM_TRANS_TYPE_ADD) {
+	/* Check if we need to add a fake target to the transaction. */
+	if(strchr(target, '|')) {
+		return(_pacman_fakedb_addtarget(trans, target));
+	}
+
+	pkg_new = _pacman_filedb_load(NULL, target);
+	if(pkg_new == NULL || _pacman_pkg_is_valid(pkg_new, trans, target) != 0) {
 		/* pm_errno is already set by _pacman_filedb_load() */
 		goto error;
 	}
@@ -385,68 +430,6 @@ int _pacman_add_addtarget(pmtrans_t *trans, const char *name)
 		/* add the package to the transaction */
 		trans->packages = _pacman_list_add(trans->packages, pkg_new);
 	}
-
-	return(0);
-
-error:
-	FREEPKG(pkg_new);
-	return(-1);
-}
-
-int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
-{
-	pmpkg_t *pkg_local;
-	pmdb_t *db_local = trans->handle->db_local;
-
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(name != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	if(_pacman_pkg_isin(name, trans->packages)) {
-		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
-	}
-
-	if((pkg_local = _pacman_db_scan(db_local, name, INFRQ_ALL)) == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), name);
-		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
-	}
-
-	/* ignore holdpkgs on upgrade */
-	if((trans == handle->trans) && _pacman_list_is_strin(pkg_local->name, handle->holdpkg)) {
-		int resp = 0;
-		QUESTION(trans, PM_TRANS_CONV_REMOVE_HOLDPKG, pkg_local, NULL, NULL, &resp);
-		if(!resp) {
-			RET_ERR(PM_ERR_PKG_HOLD, -1);
-		}
-	}
-
-	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), pkg_local->name);
-	trans->packages = _pacman_list_add(trans->packages, pkg_local);
-
-	return(0);
-}
-
-int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
-{
-	/* Sanity checks */
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(trans->ops != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(target != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	if(_pacman_list_is_strin(target, trans->targets)) {
-		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
-	}
-
-	if(trans->ops->addtarget != NULL) {
-		if(trans->ops->addtarget(trans, target) == -1) {
-			/* pm_errno is set by trans->ops->addtarget() */
-			return(-1);
-		}
-	} else {
-	if(trans->type & PM_TRANS_TYPE_ADD) {
-		if(_pacman_add_addtarget(trans, target) == -1) {
-			return -1;
-		}
 	}
 	if(trans->type == PM_TRANS_TYPE_REMOVE) {
 		if(_pacman_remove_addtarget(trans, target) == -1) {
@@ -458,6 +441,10 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 	trans->targets = _pacman_stringlist_append(trans->targets, target);
 
 	return(0);
+
+error:
+	FREEPKG(pkg_new);
+	return(-1);
 }
 
 int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
