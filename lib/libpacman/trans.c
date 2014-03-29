@@ -280,15 +280,14 @@ pmsyncpkg_t *_pacman_trans_add(pmtrans_t *trans, pmsyncpkg_t *syncpkg, int flags
 	return syncpkg;
 }
 
-pmsyncpkg_t *_pacman_trans_add_package(pmtrans_t *trans, pmpkg_t *pkg, pmtranstype_t type, int flags)
+int _pacman_trans_add_package(pmtrans_t *trans, pmpkg_t *pkg, pmtranstype_t type, int flags)
 {
-	pmsyncpkg_t *syncpkg;
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
+	ASSERT(pkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
-	ASSERT(pkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
-	ASSERT((syncpkg = _pacman_syncpkg_new(type, pkg, NULL)) != NULL, return NULL);
-
-	return _pacman_trans_add(trans, syncpkg, flags);
+	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), pkg->name);
+	trans->packages = _pacman_list_add(trans->packages, pkg);
+	return 0;
 }
 
 pmsyncpkg_t *_pacman_trans_add_target(pmtrans_t *trans, const char *target, pmtranstype_t type, int flags)
@@ -340,10 +339,7 @@ int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 		}
 	}
 
-	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), pkg_local->name);
-	trans->packages = _pacman_list_add(trans->packages, pkg_local);
-
-	return(0);
+	return _pacman_trans_add_package(trans, pkg_local, trans->type, 0);
 }
 
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
@@ -427,8 +423,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 		}
 		FREEPKG(pkg_new);
 	} else {
-		/* add the package to the transaction */
-		trans->packages = _pacman_list_add(trans->packages, pkg_new);
+		_pacman_trans_add_package(trans, pkg_new, trans->type, 0);
 	}
 	}
 	if(trans->type == PM_TRANS_TYPE_REMOVE) {
