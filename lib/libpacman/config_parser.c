@@ -56,9 +56,6 @@
 #include "db.h"
 #include "cache.h"
 #include "conflict.h"
-#include "add.h"
-#include "remove.h"
-#include "sync.h"
 #include "handle.h"
 #include "server.h"
 

@@ -46,7 +46,6 @@ set(LIBPACMAN_SOURCES
 	db/syncdb.c
 	package/fpmpackage.c
 	package/packagecache.c
-	add.c
 	cache.c
 	config_parser.c
 	conflict.c
