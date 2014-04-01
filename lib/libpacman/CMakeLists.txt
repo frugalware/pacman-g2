@@ -57,7 +57,6 @@ set(LIBPACMAN_SOURCES
 	package.c
 	packages_transaction.c
 	pacman.c
-	remove.c
 	server.c
 	sync.c
 	trans.c
