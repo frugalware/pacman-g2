@@ -240,6 +240,7 @@ pmsyncpkg_t *_pacman_trans_find(const pmtrans_t *trans, const char *pkgname)
 	return NULL;
 }
 
+static
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 {
 	/* Sanity checks */
@@ -317,6 +318,7 @@ pmpkg_t *_pacman_filedb_load(pmdb_t *db, const char *name)
 	return _pacman_fpmpackage_load(name);
 }
 
+static
 int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 {
 	pmpkg_t *pkg_local;
@@ -446,6 +448,7 @@ error:
 	return(-1);
 }
 
+static
 int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *lp;
@@ -545,6 +548,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 	return(0);
 }
 
+static
 int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *lp;
@@ -636,13 +640,14 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 			return -1;
 		}
 	}
-}
+	}
 
 	_pacman_trans_set_state(trans, STATE_PREPARED);
 
 	return(0);
 }
 
+static
 int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 {
 	int i, ret = 0;
@@ -1151,6 +1156,7 @@ static int str_cmp(const void *s1, const void *s2)
 	return(strcmp(s1, s2));
 }
 
+static
 int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 {
 	pmpkg_t *pkg_local;
@@ -1194,7 +1200,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 			/* iterate through the list backwards, unlinking files */
 			for(lp = _pacman_list_last(pkg_local->files); lp; lp = lp->prev) {
 				int nb = 0;
-                double percent = 0;
+				double percent = 0;
 				char *file = lp->data;
 				char *hash_orig = _pacman_pkg_fileneedbackup(pkg_local, file);
 
