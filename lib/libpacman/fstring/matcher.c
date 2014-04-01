@@ -47,9 +47,9 @@ int f_strmatcher_match(const char *str, const void *_data)
 	}
 	if(((data->flags & F_STRMATCHER_EQUAL) && strcmp(str, data->str) == 0) ||
 			((data->flags & F_STRMATCHER_SUBSTRING) && strstr(str, data->str) != NULL) ||
-			((data->flags & F_STRMATCHER_REGEXP) && regexec(&data->regex, str, 0, 0, 0) == 0))
+			((data->flags & F_STRMATCHER_REGEXP) && regexec(&data->regex, str, 0, 0, 0) == 0)) {
 		return 1;
-
+	}
 	return 0;
 }
 

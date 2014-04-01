@@ -647,7 +647,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 {
 	int i, ret = 0;
 	int remain, howmany, archive_ret;
-    double percent = 0;
+	double percent = 0;
 	char expath[PATH_MAX], cwd[PATH_MAX] = "";
 	unsigned char cb_state;
 	time_t t;
