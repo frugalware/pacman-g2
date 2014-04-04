@@ -211,12 +211,16 @@ enum {
 	/* Files entry */
 	PM_PKG_FILES,
 	PM_PKG_BACKUP,
-	/* Sciplet */
-	PM_PKG_SCRIPLET,
+	/* Scriptlet */
+	PM_PKG_SCRIPTLET, /* (bool) */
+	PM_PKG_SCRIPTLET_PATH, /* (const char *) */
 	/* Misc */
 	PM_PKG_DATA,
 	PM_PKG_FORCE,
-	PM_PKG_STICK
+	PM_PKG_STICK,
+
+	/* For compatibility */
+	PM_PKG_SCRIPLET = PM_PKG_SCRIPTLET
 };
 
 /* reasons -- ie, why the package was installed */

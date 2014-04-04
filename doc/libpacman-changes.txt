@@ -38,6 +38,8 @@ pacman_trans_cb_download:
 
 pacman_trans_cb_progress: Make 'pkgname' argument a constant.
 
+PM_PKG_SCRIPTLET: Remove typo to PM_PKG_SCRIPLET (compatibility symbol is provided).
+
 ==== Symbols added:
 
 pmconflict_t: is now public and deprecate PM_CONFLICT.
@@ -71,6 +73,8 @@ pmlist_t: is now public and deprecate PM_LIST.
 pmpkg_t: is now public and deprecate PM_PKG.
 
 pmsyncpkg_t: is now public and deprecate PM_SYNCPKG.
+
+PM_PKG_SCRIPTLET_PATH: Access to package scriptlet path (.install).
 
 PM_PKG_TRIGGERS: Access to package triggers list.
 
