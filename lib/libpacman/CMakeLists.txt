@@ -54,6 +54,7 @@ set(LIBPACMAN_SOURCES
 	error.c
 	group.c
 	handle.c
+	object.c
 	package.c
 	packages_transaction.c
 	pacman.c
