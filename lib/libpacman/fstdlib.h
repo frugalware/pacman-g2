@@ -49,6 +49,12 @@ void *f_zalloc(size_t size)
 }
 
 static inline
+void f_free(void *ptr)
+{
+	free(ptr);
+}
+
+static inline
 intptr_t f_diffptr(const void *ptr1, const void *ptr2)
 {
 	return (intptr_t)ptr1 - (intptr_t)ptr2;
