@@ -539,6 +539,19 @@ char *_pacman_pkg_fileneedbackup(const pmpkg_t *pkg, const char *file)
 	return(NULL);
 }
 
+const struct __pmpkg_operations_t pmpkg_operations = {
+	.as_pmobject_operations_t = {
+		.fini = NULL,
+
+		.get = NULL,
+		.set = NULL,
+	},
+
+	.read = NULL,
+	.write = NULL,
+	.remove = NULL
+};
+
 typedef struct FPackageStrMatcher FPackageStrMatcher;
 
 struct FPackageStrMatcher

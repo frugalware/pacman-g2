@@ -57,22 +57,32 @@ int _pacman_object_fini(struct __pmobject_t *self)
 	return 0;
 }
 
+const struct __pmobject_operations_t *_pacman_object_operations(struct __pmobject_t *self)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	ASSERT(self->operations != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	return self->operations;
+}
+
 int _pacman_object_get(struct __pmobject_t *self, unsigned val, unsigned long *data)
 {
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(self->operations != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(self->operations->get != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	const struct __pmobject_operations_t *object_operations;
 
-	return self->operations->get(self, val, data);
+	ASSERT((object_operations = _pacman_object_operations(self)) != NULL, return -1);
+	ASSERT(object_operations->get != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	return object_operations->get(self, val, data);
 }
 
 int _pacman_object_set(struct __pmobject_t *self, unsigned val, unsigned long data)
 {
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(self->operations != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(self->operations->set != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	const struct __pmobject_operations_t *object_operations;
 
-	return self->operations->set(self, val, data);
+	ASSERT((object_operations = _pacman_object_operations(self)) != NULL, return -1);
+	ASSERT(object_operations->set != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	return object_operations->set(self, val, data);
 }
 
 /* vim: set ts=2 sw=2 noet: */

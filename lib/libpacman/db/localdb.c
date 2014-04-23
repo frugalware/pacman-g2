@@ -124,8 +124,13 @@ _pacman_localpkg_remove(pmpkg_t *pkg)
 }
 
 static const
-pmpkg_ops_t _pacman_localpkg_operations = {
-	.destroy = NULL,
+struct __pmpkg_operations_t _pacman_localpkg_operations = {
+	.as_pmobject_operations_t = {
+		.fini = NULL,
+
+		.get = NULL,
+		.set = NULL,
+	},
 
 	.read = _pacman_localpkg_read,
 	.write = _pacman_localpkg_write,
@@ -136,9 +141,9 @@ static
 int _pacman_localpkg_init(pmpkg_t *pkg, pmdb_t *db)
 {
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
+	_pacman_object_init(&pkg->as_pmobject_t, &_pacman_localpkg_operations.as_pmobject_operations_t);
 	ASSERT(_pacman_pkg_init(pkg, db) == 0, return -1);
 
-	pkg->operations = &_pacman_localpkg_operations;
 	return 0;
 }
 

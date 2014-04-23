@@ -43,6 +43,8 @@ int _pacman_object_delete(struct __pmobject_t *self);
 int _pacman_object_init(struct __pmobject_t *self, const struct __pmobject_operations_t *operations);
 int _pacman_object_fini(struct __pmobject_t *self);
 
+const struct __pmobject_operations_t *_pacman_object_operations(struct __pmobject_t *self);
+
 int _pacman_object_get(struct __pmobject_t *self, unsigned val, unsigned long *data);
 int _pacman_object_set(struct __pmobject_t *self, unsigned val, unsigned long data);
 

@@ -31,6 +31,7 @@
 
 #include "pacman.h"
 
+#include "object.h"
 #include "trans.h"
 
 enum {
@@ -77,10 +78,8 @@ enum {
 #define PM_PACKAGE_FLAG_SCRIPTLET             (1<<24)
 #define PM_PACKAGE_FLAG_STICKY                (1<<25)
 
-typedef struct pmpkg_ops_t pmpkg_ops_t;
-
-struct pmpkg_ops_t {
-	int (*destroy)(pmpkg_t *pkg);
+struct __pmpkg_operations_t {
+	struct __pmobject_operations_t as_pmobject_operations_t;
 
 	int (*read)(pmpkg_t *pkg, unsigned int flags);
 	int (*write)(pmpkg_t *pkg, unsigned int flags); /* Optional */
@@ -89,7 +88,7 @@ struct pmpkg_ops_t {
 
 /* IMPROVEMENT: Add a dirty_flags to know what flags needs to be written */
 struct __pmpkg_t {
-	const pmpkg_ops_t *operations;
+	struct __pmobject_t as_pmobject_t;
 	pmdb_t *database;
 
 	unsigned int flags;

@@ -107,8 +107,13 @@ int _pacman_syncpkg_read(pmpkg_t *pkg, unsigned int flags)
 }
 
 static const
-pmpkg_ops_t _pacman_syncpkg_operations = {
-	.destroy = NULL,
+struct __pmpkg_operations_t _pacman_syncpkg_operations = {
+	.as_pmobject_operations_t = {
+		.fini = NULL,
+
+		.get = NULL,
+		.set = NULL,
+	},
 
 	.read = _pacman_syncpkg_read,
 	.write = NULL,
@@ -119,9 +124,9 @@ static
 int _pacman_syncpkg_init(pmpkg_t *pkg, pmdb_t *db)
 {
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
+	_pacman_object_init(&pkg->as_pmobject_t, &_pacman_syncpkg_operations.as_pmobject_operations_t);
 	ASSERT(_pacman_pkg_init(pkg, db) == 0, return -1);
 
-	pkg->operations = &_pacman_syncpkg_operations;
 	return 0;
 }
 
