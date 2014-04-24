@@ -113,7 +113,6 @@ pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 	if(!_pacman_strempty(version)) {
 		STRNCPY(pkg->version, version, PKG_VERSION_LEN);
 	}
-	pkg->reason = PM_PKG_REASON_EXPLICIT;
 
 	return(pkg);
 }
@@ -192,6 +191,7 @@ int _pacman_pkg_init(pmpkg_t *self, pmdb_t *db)
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	self->database = db;
+	self->reason = PM_PKG_REASON_EXPLICIT;
 	return 0;
 }
 
