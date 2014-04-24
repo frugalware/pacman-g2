@@ -38,7 +38,7 @@ struct __pmobject_t
 {
 	const struct __pmobject_operations_t *operations;
 
-	struct __pmobject_private *object_private;
+	struct __pmobject_private_t *object_private;
 };
 
 int _pacman_object_delete(struct __pmobject_t *self);
