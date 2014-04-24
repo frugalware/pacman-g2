@@ -53,7 +53,7 @@ const struct __pmobject_operations_t *_pacman_object_operations(struct __pmobjec
 int _pacman_object_get(struct __pmobject_t *self, unsigned val, unsigned long *data);
 int _pacman_object_set(struct __pmobject_t *self, unsigned val, unsigned long data);
 
-struct __pmobject_t *_pacman_objectmemory_alloc(size_t size, const struct __pmobject_operations_t *operations);
+struct __pmobject_t *_pacman_objectmemory_alloc(size_t size, const struct __pmobject_operations_t *object_operations);
 
 #endif /* _PACMAN__OBJECT_H */
 

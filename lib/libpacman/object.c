@@ -96,15 +96,15 @@ int _pacman_object_set(struct __pmobject_t *self, unsigned val, unsigned long da
 	return object_operations->set(self, val, data);
 }
 
-struct __pmobject_t *_pacman_objectmemory_alloc(size_t size, const struct __pmobject_operations_t *operations)
+struct __pmobject_t *_pacman_objectmemory_alloc(size_t size, const struct __pmobject_operations_t *object_operations)
 {
 	struct __pmobject_t *ret;
 
 	ASSERT(size >= sizeof(*ret), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-	ASSERT(operations != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	ASSERT(object_operations != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	if((ret = f_zalloc(size)) != NULL) {
-		ret->operations = operations;
+		ret->operations = object_operations;
 	}
 	return ret;
 }
