@@ -124,7 +124,6 @@ static
 int _pacman_syncpkg_init(pmpkg_t *pkg, pmdb_t *db)
 {
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
-	_pacman_object_init(&pkg->as_pmobject_t, &_pacman_syncpkg_operations.as_pmobject_operations_t);
 	ASSERT(_pacman_pkg_init(pkg, db) == 0, return -1);
 
 	return 0;

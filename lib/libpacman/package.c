@@ -188,6 +188,7 @@ int _pacman_pkg_delete(pmpkg_t *self)
 int _pacman_pkg_init(pmpkg_t *self, pmdb_t *db)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(_pacman_object_init(&self->as_pmobject_t, NULL) == 0, return -1);
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	self->database = db;
@@ -214,6 +215,16 @@ int _pacman_pkg_fini(pmpkg_t *self)
 		FREE(self->data);
 	}
 	return 0;
+}
+
+static
+const struct __pmpkg_operations_t *_pacman_package_operations(pmpkg_t *self)
+{
+	const struct __pmobject_operations_t *object_operations;
+
+	ASSERT((object_operations = _pacman_object_operations(&self->as_pmobject_t)) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	return (const struct __pmpkg_operations_t *)object_operations;
 }
 
 /* Helper function for comparing packages

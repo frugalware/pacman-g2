@@ -39,12 +39,11 @@ int _pacman_object_delete(struct __pmobject_t *self)
 	return 0;
 }
 
-int _pacman_object_init(struct __pmobject_t *self, const struct __pmobject_operations_t *operations)
+int _pacman_object_init(struct __pmobject_t *self, struct __pmobject_private_t *object_private)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(self->operations == NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	self->operations = NULL;
+	self->object_private = object_private;
 	return 0;
 }
 
@@ -83,6 +82,19 @@ int _pacman_object_set(struct __pmobject_t *self, unsigned val, unsigned long da
 	ASSERT(object_operations->set != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	return object_operations->set(self, val, data);
+}
+
+struct __pmobject_t *_pacman_objectmemory_alloc(size_t size, const struct __pmobject_operations_t *operations)
+{
+	struct __pmobject_t *ret;
+
+	ASSERT(size >= sizeof(*ret), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	ASSERT(operations == NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	if((ret = f_zalloc(size)) != NULL) {
+		ret->operations = operations;
+	}
+	return ret;
 }
 
 /* vim: set ts=2 sw=2 noet: */
