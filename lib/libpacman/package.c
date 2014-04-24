@@ -352,38 +352,48 @@ int _pacman_pkg_splitname(const char *target, char *name, char *version, int wit
 
 int _pacman_pkg_read(pmpkg_t *pkg, unsigned int flags)
 {
-	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(pkg->operations != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(pkg->operations->read != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	const struct __pmpkg_operations_t *package_operations;
+
+	ASSERT((package_operations = _pacman_package_operations(pkg)) != NULL, return -1);
+	ASSERT(package_operations->read != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	if(~pkg->flags & flags) {
-		return pkg->operations->read(pkg, flags);
+		return package_operations->read(pkg, flags);
 	}
 	return 0;
 }
 
 int _pacman_pkg_write(pmpkg_t *pkg, unsigned int flags)
 {
-	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(pkg->operations != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(pkg->operations->write != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	const struct __pmpkg_operations_t *package_operations;
+	int ret;
 
-	return pkg->operations->write(pkg, flags);
+	ASSERT((package_operations = _pacman_package_operations(pkg)) != NULL, return -1);
+	ASSERT(package_operations->write != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	if((ret = package_operations->write(pkg, flags)) != 0) {
+		_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
+			pkg->name, pkg->version);
+	}
+	return ret;
 }
 
 int _pacman_pkg_remove(pmpkg_t *pkg)
 {
-	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(pkg->operations != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(pkg->operations->remove != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	const struct __pmpkg_operations_t *package_operations;
 
-	return pkg->operations->remove(pkg);
+	ASSERT((package_operations = _pacman_package_operations(pkg)) != NULL, return -1);
+	ASSERT(package_operations->remove != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	return package_operations->remove(pkg);
 }
 
-void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
+static
+void *__pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 {
 	void *data = NULL;
 
+#if 1
 	/* Update the cache package entry if needed */
 	if(pkg->origin == PKG_FROM_CACHE) {
 		switch(parm) {
@@ -435,6 +445,9 @@ void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 			break;
 		}
 	}
+#else
+	_pacman_pkg_read(pkg, _pacman_pkg_parm_to_flag(parm));
+#endif
 
 	switch(parm) {
 		case PM_PKG_NAME:        data = pkg->name; break;
