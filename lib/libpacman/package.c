@@ -99,6 +99,17 @@ unsigned int _pacman_pkg_parm_to_flag(unsigned char parm)
 }
 */
 
+pmpkg_t *_pacman_pkg_alloc(size_t size, const struct __pmpkg_operations_t *package_operations)
+{
+	pmpkg_t *ret;
+
+	ASSERT(size >= sizeof(*ret), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	ASSERT(package_operations != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	ret = (pmpkg_t *)_pacman_object_alloc(size, &package_operations->as_pmobject_operations_t, NULL);
+	return ret;
+}
+
 pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 {
 	pmpkg_t* pkg = NULL;

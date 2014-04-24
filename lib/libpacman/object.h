@@ -41,6 +41,8 @@ struct __pmobject_t
 	struct __pmobject_private_t *object_private;
 };
 
+struct __pmobject_t *_pacman_object_alloc(size_t size, const struct __pmobject_operations_t *object_operations, struct __pmobject_private_t *object_private);
+
 int _pacman_object_delete(struct __pmobject_t *self);
 
 int _pacman_object_init(struct __pmobject_t *self, struct __pmobject_private_t *object_private);

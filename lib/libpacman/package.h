@@ -137,6 +137,8 @@ do { \
 
 #define FREELISTPKGS(p) _FREELIST(p, _pacman_pkg_delete)
 
+pmpkg_t *_pacman_pkg_alloc(size_t size, const struct __pmpkg_operations_t *package_operations);
+
 pmpkg_t *_pacman_pkg_new(const char *name, const char *version);
 pmpkg_t *_pacman_pkg_new_from_filename(const char *filename, int witharch);
 pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg);

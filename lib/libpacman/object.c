@@ -27,6 +27,18 @@
 
 #include <fstdlib.h>
 
+struct __pmobject_t *_pacman_object_alloc(size_t size, const struct __pmobject_operations_t *object_operations, struct __pmobject_private_t *object_private)
+{
+	struct __pmobject_t *ret;
+
+	ASSERT(size >= sizeof(*ret), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	if((ret = _pacman_objectmemory_alloc(size, object_operations)) != NULL) {
+		ret->object_private = object_private;
+	}
+	return ret;
+}
+
 int _pacman_object_delete(struct __pmobject_t *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
