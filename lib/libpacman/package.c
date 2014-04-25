@@ -487,6 +487,15 @@ void *__pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 	return(data);
 }
 
+void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
+{
+#if 0
+	return pkg->operations->getinfo(pkg, parm);
+#else
+	return __pacman_pkg_getinfo(pkg, parm);
+#endif
+}
+
 pmlist_t *_pacman_pkg_getowners(const char *filename)
 {
 	struct stat buf;
