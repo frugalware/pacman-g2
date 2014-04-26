@@ -70,8 +70,8 @@ int _pacman_db_load_pkgcache(pmdb_t *db)
 	_pacman_log(PM_LOG_DEBUG, _("loading package cache (infolevel=%#x) for repository '%s'"),
 	                        inforeq, db->treename);
 
-	_pacman_db_rewind(db);
-	while((info = _pacman_db_readpkg(db, inforeq)) != NULL) {
+	db->rewind();
+	while((info = db->readpkg(inforeq)) != NULL) {
 		info->origin = PKG_FROM_CACHE;
 		info->data = db;
 		/* add to the collective */
@@ -197,7 +197,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 		pmpkg_t *pkg = lp->data;
 
 		if(!(pkg->infolevel & INFRQ_DESC)) {
-			_pacman_db_read(pkg->data, pkg, INFRQ_DESC);
+			((__pmdb_t *)pkg->data)->read(pkg, INFRQ_DESC);
 		}
 
 		for(i = pkg->groups; i; i = i->next) {

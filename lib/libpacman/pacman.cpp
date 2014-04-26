@@ -227,9 +227,9 @@ int pacman_db_unregister(pmdb_t *db)
 	_pacman_db_free_pkgcache(db);
 
 	_pacman_log(PM_LOG_DEBUG, _("closing database '%s'"), db->treename);
-	_pacman_db_close(db);
+	db->close();
 
-	_pacman_db_free(db);
+	delete db;
 
 	return(0);
 }
@@ -737,7 +737,7 @@ pmlist_t *pacman_db_test(pmdb_t *db)
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
-	return(_pacman_db_test(db));
+	return db->test();
 }
 
 /** Searches a database
@@ -754,7 +754,7 @@ pmlist_t *pacman_db_search(pmdb_t *db)
 	ASSERT(handle->needles->data != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
-	ret = _pacman_db_search(db, handle->needles);
+	ret = db->search(handle->needles);
 	FREELIST(handle->needles);
 	return(ret);
 }
@@ -912,7 +912,7 @@ int pacman_trans_release()
 
 	handle->trans = 0;
 
-	_pacman_db_settimestamp(handle->db_local, NULL);
+	handle->db_local->settimestamp(NULL);
 
 	if(_pacman_handle_unlock(handle) != 0) {
 		return -1;

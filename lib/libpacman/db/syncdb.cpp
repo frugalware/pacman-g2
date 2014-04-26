@@ -143,7 +143,7 @@ pmpkg_t *_pacman_syncdb_pkg_new(pmdb_t *db, const struct archive_entry *entry, u
 	dname = archive_entry_pathname((struct archive_entry *)entry);
 	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
 		_pacman_syncpkg_init(pkg, db) != 0 ||
-		_pacman_db_read(db, pkg, inforeq) == -1) {
+		db->read(pkg, inforeq) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
 		FREEPKG(pkg);
 	}
@@ -166,7 +166,7 @@ int _pacman_syncdb_update(pmdb_t *db, int force)
 	int ret, updated=0;
 
 	if(!force) {
-		_pacman_db_gettimestamp(db, &timestamp);
+		db->gettimestamp(&timestamp);
 		if(timestamp == PM_TIME_INVALID) {
 			_pacman_log(PM_LOG_DEBUG, _("failed to get timestamp for %s (no big deal)\n"), db->treename);
 		}
@@ -201,7 +201,7 @@ int _pacman_syncdb_update(pmdb_t *db, int force)
 		_pacman_db_free_pkgcache(db);
 
 		if(updated) {
-			_pacman_db_settimestamp(db, &newmtime);
+			db->settimestamp(&newmtime);
 		}
 	}
 	return 0;
@@ -224,7 +224,7 @@ int _pacman_syncdb_open(pmdb_t *db, int flags, time_t *timestamp)
 		RET_ERR(PM_ERR_DB_OPEN, 0);
 	}
 	if(timestamp != NULL) {
-		_pacman_db_gettimestamp(db, timestamp);
+		db->gettimestamp(timestamp);
 	}
 	return 0;
 }
@@ -254,7 +254,7 @@ pmpkg_t *_pacman_syncdb_readpkg(pmdb_t *db, unsigned int inforeq)
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
 	if(!db->handle) {
-		_pacman_db_rewind(db);
+		db->rewind();
 	}
 	if(!db->handle) {
 		return NULL;
@@ -284,7 +284,7 @@ pmpkg_t *_pacman_syncdb_scan(pmdb_t *db, const char *target, unsigned int infore
 	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	// Search from start
-	_pacman_db_rewind(db);
+	db->rewind();
 
 	/* search for a specific package (by name only) */
 	while (archive_read_next_header(db->handle, &entry) == ARCHIVE_OK) {

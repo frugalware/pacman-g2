@@ -218,7 +218,7 @@ static int check_olddelay(void)
 
 	for(i = handle->dbs_sync; i; i= i->next) {
 		pmdb_t *db = i->data;
-		if(_pacman_db_gettimestamp(db, &tm) == -1) {
+		if(db->gettimestamp(&tm) == -1) {
 			continue;
 		}
 		if(difftime(time(NULL), tm) > handle->olddelay) {
@@ -734,7 +734,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 									m->data = strdup(pkg_new->name);
 								}
 							}
-							if(_pacman_db_write(db_local, depender, INFRQ_DEPENDS) == -1) {
+							if(db_local->write(depender, INFRQ_DEPENDS) == -1) {
 								_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
 										  pkg_new->name, pkg_new->version);
 							}
@@ -743,7 +743,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 						}
 					}
 				}
-				if(_pacman_db_write(db_local, pkg_new, INFRQ_DEPENDS) == -1) {
+				if(db_local->write(pkg_new, INFRQ_DEPENDS) == -1) {
 					_pacman_log(PM_LOG_ERROR, _("could not update new database entry %s-%s"),
 							  pkg_new->name, pkg_new->version);
 				}

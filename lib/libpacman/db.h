@@ -58,6 +58,29 @@ struct __pmdb_ops_t {
 
 /* Database */
 struct __pmdb_t {
+	__pmdb_t(pmhandle_t *handle, const char *treename);
+	~__pmdb_t();
+
+	/* Prototypes for backends functions */
+	pmlist_t *test(); /* FIXME: constify */
+
+	int open(int flags);
+	int close();
+
+	int gettimestamp(time_t *timestamp);
+	int settimestamp(const time_t *timestamp);
+
+	int rewind();
+	pmpkg_t *readpkg(unsigned int inforeq);
+	pmpkg_t *scan(const char *target, unsigned int inforeq);
+
+	int read(pmpkg_t *info, unsigned int inforeq);
+	int write(pmpkg_t *info, unsigned int inforeq);
+	int remove(pmpkg_t *info);
+
+	// Cache operations
+	pmlist_t *search(pmlist_t *needles);
+
 	const pmdb_ops_t *ops;
 	char *path;
 	char treename[PATH_MAX];
@@ -68,23 +91,8 @@ struct __pmdb_t {
 	pmlist_t *servers;
 };
 
-pmdb_t *_pacman_db_new(pmhandle_t *handle, const char *treename);
-void _pacman_db_free(void *data);
 int _pacman_db_cmp(const void *db1, const void *db2);
-pmlist_t *_pacman_db_search(pmdb_t *db, pmlist_t *needles);
 
-/* Prototypes for backends functions */
-pmlist_t *_pacman_db_test(pmdb_t *db);
-int _pacman_db_open(pmdb_t *db, int flags);
-int _pacman_db_close(pmdb_t *db);
-int _pacman_db_gettimestamp(pmdb_t *db, time_t *timestamp);
-int _pacman_db_settimestamp(pmdb_t *db, const time_t *timestamp);
-int _pacman_db_rewind(pmdb_t *db);
-pmpkg_t *_pacman_db_readpkg(pmdb_t *db, unsigned int inforeq);
-pmpkg_t *_pacman_db_scan(pmdb_t *db, const char *target, unsigned int inforeq);
-int _pacman_db_read(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
-int _pacman_db_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
-int _pacman_db_remove(pmdb_t *db, pmpkg_t *info);
 pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback);
 
 namespace libpacman

@@ -62,7 +62,7 @@ static int check_oldcache(void)
 	pmdb_t *db = handle->db_local;
 	time_t timestamp;
 
-	if(_pacman_db_gettimestamp(db, &timestamp) == -1) {
+	if(db->gettimestamp(&timestamp) == -1) {
 		return(-1);
 	}
 	if(difftime(timestamp, db->cache_timestamp) != 0) {
@@ -332,7 +332,7 @@ int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
 
-	if((pkg_local = _pacman_db_scan(db_local, name, INFRQ_ALL)) == NULL) {
+	if((pkg_local = db_local->scan(name, INFRQ_ALL)) == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), name);
 		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 	}
@@ -568,7 +568,7 @@ int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
 					pmlist_t *i;
 					for(i = lp; i; i = i->next) {
 						pmdepmissing_t *miss = (pmdepmissing_t *)i->data;
-						pmpkg_t *pkg_local = _pacman_db_scan(db_local, miss->depend.name, INFRQ_ALL);
+						pmpkg_t *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
 						if(pkg_local) {
 							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), pkg_local->name);
 							trans->packages = _pacman_list_add(trans->packages, pkg_local);
@@ -1088,7 +1088,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				if(oldpkg) {
 					if(!(pkg_local->infolevel & INFRQ_FILES)) {
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg_local->name);
-						_pacman_db_read(db_local, pkg_local, INFRQ_FILES);
+						db_local->read(pkg_local, INFRQ_FILES);
 					}
 					oldpkg->backup = _pacman_list_strdup(pkg_local->backup);
 					strncpy(oldpkg->name, pkg_local->name, PKG_NAME_LEN);
@@ -1179,7 +1179,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 
 		_pacman_log(PM_LOG_FLOW1, _("updating database"));
 		_pacman_log(PM_LOG_FLOW2, _("adding database entry '%s'"), pkg_new->name);
-		if(_pacman_db_write(db_local, pkg_new, INFRQ_ALL)) {
+		if(db_local->write(pkg_new, INFRQ_ALL)) {
 			_pacman_log(PM_LOG_ERROR, _("error updating database for %s-%s!"),
 			          pkg_new->name, pkg_new->version);
 			RET_ERR(PM_ERR_DB_WRITE, -1);
@@ -1218,7 +1218,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 			}
 			_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), pkg_new->name, depinfo->name);
 			depinfo->requiredby = _pacman_stringlist_append(_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), pkg_new->name);
-			if(_pacman_db_write(db_local, depinfo, INFRQ_DEPENDS)) {
+			if(db_local->write(depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
 				          depinfo->name, depinfo->version);
 			}
@@ -1310,7 +1310,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 		/* remove the package from the database */
 		_pacman_log(PM_LOG_FLOW1, _("updating database"));
 		_pacman_log(PM_LOG_FLOW2, _("removing database entry '%s'"), pkg_local->name);
-		if(_pacman_db_remove(db_local, pkg_local) == -1) {
+		if(db_local->remove(pkg_local) == -1) {
 			_pacman_log(PM_LOG_ERROR, _("could not remove database entry %s-%s"), pkg_local->name, pkg_local->version);
 		}
 		if(_pacman_db_remove_pkgfromcache(db_local, pkg_local) == -1) {
@@ -1355,7 +1355,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 			depinfo->requiredby = _pacman_list_remove(_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), pkg_local->name, str_cmp, (void **)&data);
 			FREE(data);
 			_pacman_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name);
-			if(_pacman_db_write(db_local, depinfo, INFRQ_DEPENDS)) {
+			if(db_local->write(depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
 					depinfo->name, depinfo->version);
 			}

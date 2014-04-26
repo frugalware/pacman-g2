@@ -160,7 +160,7 @@ pmpkg_t *_pacman_localdb_pkg_new(pmdb_t *db, const struct dirent *dirent, unsign
 	dname = dirent->d_name;
 	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
 		_pacman_localpkg_init(pkg, db) != 0 ||
-		_pacman_db_read(db, pkg, inforeq) == -1) {
+		db->read(pkg, inforeq) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
 		FREEPKG(pkg);
 	}
@@ -218,7 +218,7 @@ int _pacman_localdb_open(pmdb_t *db, int flags, time_t *timestamp)
 	}
 	db->handle = opendir(db->path);
 	ASSERT(db->handle != NULL, RET_ERR(PM_ERR_DB_OPEN, -1));
-	_pacman_db_gettimestamp(db, timestamp);
+	db->gettimestamp(timestamp);
 	return 0;
 }
 
@@ -278,7 +278,7 @@ pmpkg_t *_pacman_localdb_scan(pmdb_t *db, const char *target, unsigned int infor
 	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	// Search from start
-	_pacman_db_rewind(db);
+	db->rewind();
 
 	/* search for a specific package (by name only) */
 	while((ent = readdir(db->handle)) != NULL) {

@@ -551,7 +551,7 @@ pmlist_t *_pacman_removedeps(pmdb_t *db, pmlist_t *targs)
 				}
 				/* add it to the target list */
 				_pacman_log(PM_LOG_DEBUG, _("loading ALL info for '%s'"), pkg->name);
-				_pacman_db_read(db, pkg, INFRQ_ALL);
+				db->read(pkg, INFRQ_ALL);
 				newtargs = _pacman_list_add(newtargs, pkg);
 				_pacman_log(PM_LOG_FLOW2, _("adding '%s' to the targets"), pkg->name);
 				newtargs = _pacman_removedeps(db, newtargs);
@@ -763,7 +763,7 @@ int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist) {
         pmdb_t *db = j->data;
         do {
             foundMatch = 0;
-            pkg = _pacman_db_readpkg(db, inforeq);
+            pkg = db->readpkg(inforeq);
             while(pkg != NULL) {
                 char *pname = (char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME);
                 targets = _pacman_list_remove(targets, (void*) pname, str_cmp, (void **)&match);
@@ -786,9 +786,9 @@ int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist) {
                     }
                     FREE(match);
                 }
-                pkg = _pacman_db_readpkg(db, inforeq);
+                pkg = db->readpkg(inforeq);
             }
-            _pacman_db_rewind(db);
+            db->rewind();
         } while(foundMatch);
     }
     FREELISTPTR(found);
