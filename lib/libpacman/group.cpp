@@ -32,39 +32,30 @@
 
 using namespace libpacman;
 
-pmgrp_t *_pacman_grp_new()
+Group::Group()
+	: packages(NULL)
 {
-	pmgrp_t* grp = _pacman_zalloc(sizeof(pmgrp_t));
-
-	if(grp == NULL) {
-		return(NULL);
-	}
-
-	return(grp);
+	memset(name, 0, sizeof(name));
 }
 
-void _pacman_grp_delete(pmgrp_t *grp)
+Group::~Group()
 {
-	if(grp == NULL) {
-		return;
-	}
+	f_ptrlist_delete(packages, NULL);
+}
 
-	f_ptrlist_delete(grp->packages, NULL);
-	free(grp);
+void _pacman_grp_delete(Group *grp)
+{
+	delete (grp);
 }
 
 /* Helper function for sorting groups
  */
 int _pacman_grp_cmp(const void *g1, const void *g2)
 {
-	pmgrp_t *grp1 = (pmgrp_t *)g1;
-	pmgrp_t *grp2 = (pmgrp_t *)g2;
+	const Group *grp1 = (const Group *)g1;
+	const Group *grp2 = (const Group *)g2;
 
 	return(strcmp(grp1->name, grp2->name));
-}
-
-Group::~Group()
-{
 }
 
 /* vim: set ts=2 sw=2 noet: */

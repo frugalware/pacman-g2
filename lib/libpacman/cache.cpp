@@ -45,6 +45,8 @@
 #include "handle.h"
 #include "error.h"
 
+using namespace libpacman;
+
 static
 int _pacman_db_clear_grpcache(pmdb_t *db);
 
@@ -200,7 +202,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 
 		for(i = pkg->groups; i; i = i->next) {
 			if(!_pacman_list_is_strin(i->data, db->grpcache)) {
-				pmgrp_t *grp = _pacman_grp_new();
+				Group *grp = new Group();
 
 				STRNCPY(grp->name, (char *)i->data, GRP_NAME_LEN);
 				grp->packages = _pacman_list_add_sorted(grp->packages, pkg->name, _pacman_grp_cmp);
@@ -209,7 +211,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 				pmlist_t *j;
 
 				for(j = db->grpcache; j; j = j->next) {
-					pmgrp_t *grp = j->data;
+					Group *grp = j->data;
 
 					if(strcmp(grp->name, i->data) == 0) {
 						if(!_pacman_list_is_strin(pkg->name, grp->packages)) {
@@ -249,7 +251,7 @@ pmlist_t *_pacman_db_get_grpcache(pmdb_t *db)
 	return(db->grpcache);
 }
 
-pmgrp_t *_pacman_db_get_grpfromcache(pmdb_t *db, const char *target)
+Group *_pacman_db_get_grpfromcache(pmdb_t *db, const char *target)
 {
 	pmlist_t *i;
 
@@ -259,7 +261,7 @@ pmgrp_t *_pacman_db_get_grpfromcache(pmdb_t *db, const char *target)
 	}
 
 	for(i = _pacman_db_get_grpcache(db); i; i = i->next) {
-		pmgrp_t *info = i->data;
+		Group *info = i->data;
 
 		if(strcmp(info->name, target) == 0) {
 			return(info);

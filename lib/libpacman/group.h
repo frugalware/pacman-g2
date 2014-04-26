@@ -27,27 +27,24 @@
 
 #define GRP_NAME_LEN 256
 
-/* Groups structure */
-struct __pmgrp_t {
-	char name[GRP_NAME_LEN];
-	pmlist_t *packages; /* List of unowned strings */
-};
-
-pmgrp_t *_pacman_grp_new(void);
-void _pacman_grp_delete(pmgrp_t *group);
-int _pacman_grp_cmp(const void *g1, const void *g2);
-
 namespace libpacman
 {
 
 class Group
-	: public libpacman::Object
+//	: public libpacman::Object // FIXME: Enable when C list search is removed.
 {
 public:
-	virtual ~Group();
+	Group();
+	~Group();
+
+	char name[GRP_NAME_LEN];
+	pmlist_t *packages; /* List of unowned strings */
 };
 
 }
+
+void _pacman_grp_delete(libpacman::Group *group);
+int _pacman_grp_cmp(const void *g1, const void *g2);
 
 #endif /* _PACMAN_GROUP_H */
 

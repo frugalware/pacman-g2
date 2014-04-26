@@ -35,7 +35,7 @@ pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, const char *target);
 pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package);
 /* groups */
 pmlist_t *_pacman_db_get_grpcache(pmdb_t *db);
-pmgrp_t *_pacman_db_get_grpfromcache(pmdb_t *db, const char *target);
+libpacman::Group *_pacman_db_get_grpfromcache(pmdb_t *db, const char *target);
 
 #endif /* _PACMAN_CACHE_H */
 

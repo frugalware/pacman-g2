@@ -61,6 +61,17 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+using namespace libpacman;
+
+#define DEFINE_CAST(c_type, cxx_type)  \
+static c_type *c_cast(cxx_type *obj)   \
+{ return (c_type *)obj; }              \
+                                       \
+static cxx_type *cxx_cast(c_type *obj) \
+{ return (cxx_type *)obj; }
+
+DEFINE_CAST(struct __pmgrp_t, Group)
+
 /* Globals */
 pmhandle_t *handle = NULL;
 enum __pmerrno_t pm_errno;
@@ -391,7 +402,7 @@ pmgrp_t *pacman_db_readgrp(pmdb_t *db, char *name)
 	ASSERT(db != NULL, return(NULL));
 	ASSERT(!_pacman_strempty(name), return(NULL));
 
-	return(_pacman_db_get_grpfromcache(db, name));
+	return c_cast(_pacman_db_get_grpfromcache(db, name));
 }
 
 /** Get the group cache of a package database
@@ -659,13 +670,14 @@ int pacman_pkg_vercmp(const char *ver1, const char *ver2)
 void *pacman_grp_getinfo(pmgrp_t *grp, unsigned char parm)
 {
 	void *data = NULL;
+	Group *group = cxx_cast(grp);
 
 	/* Sanity checks */
-	ASSERT(grp != NULL, return(NULL));
+	ASSERT(group != NULL, return(NULL));
 
 	switch(parm) {
-		case PM_GRP_NAME:     data = grp->name; break;
-		case PM_GRP_PKGNAMES: data = grp->packages; break;
+		case PM_GRP_NAME:     data = group->name; break;
+		case PM_GRP_PKGNAMES: data = group->packages; break;
 		default:
 			data = NULL;
 		break;
