@@ -43,6 +43,8 @@
 #include <string.h>
 #include <unistd.h>
 
+using namespace libpacman;
+
 /* Returns a pmlist_t* of pmdepmissing_t pointers.
  *
  * conflicts are always name only
@@ -55,7 +57,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 	pmdepmissing_t *miss = NULL;
 	int howmany, remain;
 	double percent;
-	pmdb_t *db_local = trans->handle->db_local;
+	Database *db_local = trans->handle->db_local;
 
 	if(db_local == NULL) {
 		return(NULL);
@@ -264,7 +266,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **ski
 	pmpkg_t *p, *dbpkg;
 	double percent;
 	int howmany, remain;
-	pmdb_t *db_local = trans->handle->db_local;
+	Database *db_local = trans->handle->db_local;
 
 	if(db_local == NULL || targets == NULL || root == NULL) {
 		return(NULL);

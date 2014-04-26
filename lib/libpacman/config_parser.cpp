@@ -38,7 +38,7 @@
 #include <stdarg.h>
 
 /* pacman-g2 */
-#include "pacman.h"
+#include "pacman_p.h"
 
 #include "db/syncdb.h"
 #include "hash/md5.h"
@@ -61,6 +61,8 @@
 
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 
+using namespace libpacman;
+
 int _pacman_parse_config(const char *file, pacman_cb_db_register callback, const char *this_section)
 {
 	FILE *fp = NULL;
@@ -69,7 +71,7 @@ int _pacman_parse_config(const char *file, pacman_cb_db_register callback, const
 	char *key = NULL;
 	int linenum = 0;
 	char section[256] = "";
-	pmdb_t *db = NULL;
+	Database *db = NULL;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -291,7 +293,7 @@ int _pacman_parse_config(const char *file, pacman_cb_db_register callback, const
 					if(!strcmp(key, "SERVER")) {
 						/* add to the list */
 						_pacman_log(PM_LOG_DEBUG, _("config: %s: server: %s\n"), section, ptr);
-						if(pacman_db_setserver(db, ptr) != 0) {
+						if(pacman_db_setserver(c_cast(db), ptr) != 0) {
 							/* pm_errno is set by pacman_set_option */
 							return(-1);
 						}

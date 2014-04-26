@@ -39,7 +39,7 @@
 #include "versioncmp.h"
 #include "handle.h"
 #include "util.h"
-#include "pacman.h"
+#include "pacman_p.h"
 #include "handle.h"
 #include "server.h"
 #include "packages_transaction.h"
@@ -58,6 +58,8 @@
 #include <limits.h> /* PATH_MAX */
 #include <stdio.h>
 #include <time.h>
+
+using namespace libpacman;
 
 pmsyncpkg_t *_pacman_syncpkg_new(int type, pmpkg_t *spkg, void *data)
 {
@@ -104,7 +106,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	pmpkg_t *pkg_local;
 	pmpkg_t *spkg = NULL;
 	int cmp;
-	pmdb_t *db_local = trans->handle->db_local;
+	Database *db_local = trans->handle->db_local;
 	pmlist_t *dbs_sync = trans->handle->dbs_sync;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -117,7 +119,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 		*targ = '\0';
 		targ++;
 		for(j = dbs_sync; j && !spkg; j = j->next) {
-			pmdb_t *dbs = j->data;
+			Database *dbs = j->data;
 			if(strcmp(dbs->treename, targline) == 0) {
 				spkg = _pacman_db_get_pkgfromcache(dbs, targ);
 				if(spkg == NULL) {
@@ -137,14 +139,14 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	} else {
 		targ = targline;
 		for(j = dbs_sync; j && !spkg; j = j->next) {
-			pmdb_t *dbs = j->data;
+			Database *dbs = j->data;
 			spkg = _pacman_db_get_pkgfromcache(dbs, targ);
 		}
 		if(spkg == NULL) {
 			/* Search provides */
 			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
 			for(j = dbs_sync; j && !spkg; j = j->next) {
-				pmdb_t *dbs = j->data;
+				Database *dbs = j->data;
 				pmlist_t *p = _pacman_db_whatprovides(dbs, targ);
 				if(p) {
 					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), p->data, targ);
@@ -217,7 +219,7 @@ static int check_olddelay(void)
 	}
 
 	for(i = handle->dbs_sync; i; i= i->next) {
-		pmdb_t *db = i->data;
+		Database *db = i->data;
 		if(db->gettimestamp(&tm) == -1) {
 			continue;
 		}
@@ -236,7 +238,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 	pmlist_t *asked = NULL;
 	pmlist_t *i, *j, *k, *l, *m;
 	int ret = 0;
-	pmdb_t *db_local = trans->handle->db_local;
+	Database *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -615,7 +617,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 	pmlist_t *i, *j;
 	pmtrans_t *tr = NULL;
 	int replaces = 0;
-	pmdb_t *db_local = trans->handle->db_local;
+	Database *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -781,12 +783,12 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 		int done = 1;
 		for(i = handle->dbs_sync; i; i = i->next) {
 			struct stat buf;
-			pmdb_t *current = i->data;
+			Database *current = i->data;
 
 			for(j = trans->syncpkgs; j; j = j->next) {
 				pmsyncpkg_t *ps = j->data;
 				pmpkg_t *spkg = ps->pkg;
-				pmdb_t *dbs = spkg->data;
+				Database *dbs = spkg->data;
 
 				if(current == dbs) {
 					char filename[PATH_MAX];
@@ -801,7 +803,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 							}
 						}
 
-						EVENT(trans, PM_TRANS_EVT_PRINTURI, pacman_db_getinfo(current, PM_DB_FIRSTSERVER), filename);
+						EVENT(trans, PM_TRANS_EVT_PRINTURI, pacman_db_getinfo(c_cast(current), PM_DB_FIRSTSERVER), filename);
 					} else {
 						if(stat(lcpath, &buf)) {
 							/* file is not in the cache dir, so add it to the list */

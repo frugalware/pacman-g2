@@ -26,16 +26,16 @@
 #include "db.h"
 
 /* packages */
-int _pacman_db_load_pkgcache(pmdb_t *db);
-void _pacman_db_free_pkgcache(pmdb_t *db);
-int _pacman_db_add_pkgincache(pmdb_t *db, pmpkg_t *pkg);
-int _pacman_db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg);
-pmlist_t *_pacman_db_get_pkgcache(pmdb_t *db);
-pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, const char *target);
-pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package);
+int _pacman_db_load_pkgcache(libpacman::Database *db);
+void _pacman_db_free_pkgcache(libpacman::Database *db);
+int _pacman_db_add_pkgincache(libpacman::Database *db, pmpkg_t *pkg);
+int _pacman_db_remove_pkgfromcache(libpacman::Database *db, pmpkg_t *pkg);
+pmlist_t *_pacman_db_get_pkgcache(libpacman::Database *db);
+pmpkg_t *_pacman_db_get_pkgfromcache(libpacman::Database *db, const char *target);
+pmlist_t *_pacman_db_whatprovides(libpacman::Database *db, char *package);
 /* groups */
-pmlist_t *_pacman_db_get_grpcache(pmdb_t *db);
-libpacman::Group *_pacman_db_get_grpfromcache(pmdb_t *db, const char *target);
+pmlist_t *_pacman_db_get_grpcache(libpacman::Database *db);
+libpacman::Group *_pacman_db_get_grpfromcache(libpacman::Database *db, const char *target);
 
 #endif /* _PACMAN_CACHE_H */
 

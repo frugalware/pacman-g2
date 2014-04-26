@@ -89,7 +89,7 @@ struct __pmpkg_operations_t {
 /* IMPROVEMENT: Add a dirty_flags to know what flags needs to be written */
 struct __pmpkg_t {
 	struct __pmobject_t as_pmobject_t;
-	pmdb_t *database;
+	libpacman::Database *database;
 
 	unsigned int flags;
 	char name[PKG_NAME_LEN];
@@ -144,7 +144,7 @@ pmpkg_t *_pacman_pkg_new_from_filename(const char *filename, int witharch);
 pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg);
 int _pacman_pkg_delete(pmpkg_t *self);
 
-int _pacman_pkg_init(pmpkg_t *self, pmdb_t *db);
+int _pacman_pkg_init(pmpkg_t *self, libpacman::Database *db);
 int _pacman_pkg_fini(pmpkg_t *self);
 
 int _pacman_pkg_cmp(const void *p1, const void *p2);

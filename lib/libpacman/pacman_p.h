@@ -1,7 +1,7 @@
 /*
- *  syncdb.h
+ * pacman_p.h
  *
- *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
+ *  Copyright (c) 2014 by Michel Hermier <hermier@frugalware.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,36 +18,30 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef _PACMAN_SYNCDB_H
-#define _PACMAN_SYNCDB_H
+#ifndef _PACMAN_P_H
+#define _PACMAN_P_H
 
-#include "db.h"
-#include "package.h"
+#include "pacman.h"
 
-extern
-const pmdb_ops_t _pacman_syncdb_ops;
+#define DEFINE_CAST(c_type, cxx_type)  \
+	static c_type *c_cast(cxx_type *obj)   \
+{ return (c_type *)obj; }              \
+                                       \
+static cxx_type *cxx_cast(c_type *obj) \
+{ return (cxx_type *)obj; }
 
-int _pacman_syncdb_update(libpacman::Database *db, int force);
+namespace libpacman {
 
-namespace libpacman
-{
-
-class SyncDatabase
-	: public libpacman::Database
-{
-public:
-	virtual ~SyncDatabase();
-};
-
-class SyncPackage
-	: public libpacman::Package
-{
-public:
-	virtual ~SyncPackage();
-};
+class Database;
+class Group;
 
 }
 
-#endif /* _PACMAN_SYNCDB_H */
+DEFINE_CAST(struct __pmdb_t, libpacman::Database)
+DEFINE_CAST(struct __pmgrp_t, libpacman::Group)
+
+#undef DEFINE_CAST
+
+#endif /* _PACMAN_P_H */
 
 /* vim: set ts=2 sw=2 noet: */

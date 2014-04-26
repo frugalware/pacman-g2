@@ -33,7 +33,7 @@
 #include "server.h"
 #include "handle.h"
 #include "cache.h"
-#include "pacman.h"
+#include "pacman_p.h"
 
 #include "db/localdb.h"
 #include "db/syncdb.h"
@@ -55,11 +55,11 @@
 
 using namespace libpacman;
 
-static int _pacman_db_getlastupdate(pmdb_t *db, char *ts);
-static int _pacman_db_setlastupdate(pmdb_t *db, const char *ts);
+static int _pacman_db_getlastupdate(Database *db, char *ts);
+static int _pacman_db_setlastupdate(Database *db, const char *ts);
 
 static
-FILE *_pacman_db_fopen_lastupdate(const pmdb_t *db, const char *mode)
+FILE *_pacman_db_fopen_lastupdate(const Database *db, const char *mode)
 {
 	char path[PATH_MAX];
 
@@ -67,7 +67,7 @@ FILE *_pacman_db_fopen_lastupdate(const pmdb_t *db, const char *mode)
 	return fopen(path, mode);
 }
 
-__pmdb_t::__pmdb_t(pmhandle_t *handle, const char *treename)
+Database::Database(pmhandle_t *handle, const char *treename)
 {
 	path = f_zalloc(strlen(handle->root)+strlen(handle->dbpath)+strlen(treename)+2);
 //	if(path == NULL) {
@@ -78,7 +78,7 @@ __pmdb_t::__pmdb_t(pmhandle_t *handle, const char *treename)
 	STRNCPY(this->treename, treename, PATH_MAX);
 }
 
-__pmdb_t::~__pmdb_t()
+Database::~Database()
 {
 	FREELISTSERVERS(servers);
 	free(path);
@@ -86,10 +86,10 @@ __pmdb_t::~__pmdb_t()
 
 int _pacman_db_cmp(const void *db1, const void *db2)
 {
-	return(strcmp(((pmdb_t *)db1)->treename, ((pmdb_t *)db2)->treename));
+	return(strcmp(((Database *)db1)->treename, ((Database *)db2)->treename));
 }
 
-pmlist_t *__pmdb_t::search(pmlist_t *needles)
+pmlist_t *Database::search(pmlist_t *needles)
 {
 	pmlist_t *i, *j, *ret = NULL;
 
@@ -119,24 +119,24 @@ pmlist_t *__pmdb_t::search(pmlist_t *needles)
 	return(ret);
 }
 
-pmlist_t *__pmdb_t::test()
+pmlist_t *Database::test()
 {
 	return ops->test(this);
 }
 
-int __pmdb_t::open(int flags)
+int Database::open(int flags)
 {
 	ASSERT(flags == 0, RET_ERR(PM_ERR_DB_OPEN, -1)); /* No flags are supported for now */
 
 	return ops->open(this, flags, &cache_timestamp);
 }
 
-int __pmdb_t::close()
+int Database::close()
 {
 	return ops->close(this);
 }
 
-int __pmdb_t::gettimestamp(time_t *timestamp)
+int Database::gettimestamp(time_t *timestamp)
 {
 	ASSERT(timestamp != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
@@ -155,7 +155,7 @@ int __pmdb_t::gettimestamp(time_t *timestamp)
 
 /* A NULL timestamp means now per f_localtime definition.
  */
-int __pmdb_t::settimestamp(const time_t *timestamp)
+int Database::settimestamp(const time_t *timestamp)
 {
 	char buffer[PM_FMT_MDTM_MAX];
 
@@ -163,22 +163,22 @@ int __pmdb_t::settimestamp(const time_t *timestamp)
 	return _pacman_db_setlastupdate(this, buffer);
 }
 
-int __pmdb_t::rewind()
+int Database::rewind()
 {
 	return ops->rewind(this);
 }
 
-pmpkg_t *__pmdb_t::readpkg(unsigned int inforeq)
+pmpkg_t *Database::readpkg(unsigned int inforeq)
 {
 	return ops->readpkg(this, inforeq);
 }
 
-pmpkg_t *__pmdb_t::scan(const char *target, unsigned int inforeq)
+pmpkg_t *Database::scan(const char *target, unsigned int inforeq)
 {
 	return ops->scan(this, target, inforeq);
 }
 
-int __pmdb_t::read(pmpkg_t *info, unsigned int inforeq)
+int Database::read(pmpkg_t *info, unsigned int inforeq)
 {
 	int ret;
 
@@ -194,7 +194,7 @@ int __pmdb_t::read(pmpkg_t *info, unsigned int inforeq)
 	return ret;
 }
 
-int __pmdb_t::write(pmpkg_t *info, unsigned int inforeq)
+int Database::write(pmpkg_t *info, unsigned int inforeq)
 {
 	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 
@@ -205,7 +205,7 @@ int __pmdb_t::write(pmpkg_t *info, unsigned int inforeq)
 	}
 }
 
-int __pmdb_t::remove(pmpkg_t *info)
+int Database::remove(pmpkg_t *info)
 {
 	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 
@@ -221,7 +221,7 @@ int __pmdb_t::remove(pmpkg_t *info)
  *
  * Returns 0 on success, -1 on error.
  */
-int _pacman_db_getlastupdate(pmdb_t *db, char *ts)
+int _pacman_db_getlastupdate(Database *db, char *ts)
 {
 	FILE *fp;
 
@@ -251,7 +251,7 @@ int _pacman_db_getlastupdate(pmdb_t *db, char *ts)
  *
  * Returns 0 on success, -1 on error.
  */
-int _pacman_db_setlastupdate(pmdb_t *db, const char *ts)
+int _pacman_db_setlastupdate(Database *db, const char *ts)
 {
 	FILE *fp;
 
@@ -271,9 +271,9 @@ int _pacman_db_setlastupdate(pmdb_t *db, const char *ts)
 	return(0);
 }
 
-pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback)
+Database *_pacman_db_register(const char *treename, pacman_cb_db_register callback)
 {
-	pmdb_t *db;
+	Database *db;
 
 	if(strcmp(treename, "local") == 0) {
 		if(handle->db_local != NULL) {
@@ -283,7 +283,7 @@ pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback
 	} else {
 		pmlist_t *i;
 		for(i = handle->dbs_sync; i; i = i->next) {
-			pmdb_t *sdb = i->data;
+			Database *sdb = i->data;
 			if(strcmp(treename, sdb->treename) == 0) {
 				_pacman_log(PM_LOG_DEBUG, _("attempt to re-register the '%s' database, using existing\n"), sdb->treename);
 				return sdb;
@@ -293,7 +293,7 @@ pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback
 
 	_pacman_log(PM_LOG_FLOW1, _("registering database '%s'"), treename);
 
-	db = new __pmdb_t(handle, treename);
+	db = new Database(handle, treename);
 	if(db == NULL) {
 		RET_ERR(PM_ERR_DB_CREATE, NULL);
 	}
@@ -310,7 +310,7 @@ pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback
 	}
 
 	/* Only call callback on NEW registration. */
-	if(callback) callback(treename, db);
+	if(callback) callback(treename, c_cast(db));
 
 	if(strcmp(treename, "local") == 0) {
 		handle->db_local = db;
@@ -318,10 +318,6 @@ pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback
 		handle->dbs_sync = _pacman_list_add(handle->dbs_sync, db);
 	}
 	return(db);
-}
-
-Database::~Database()
-{
 }
 
 /* vim: set ts=2 sw=2 noet: */

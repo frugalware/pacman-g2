@@ -34,6 +34,12 @@ typedef struct __pmhandle_t pmhandle_t;
 #include "object.h"
 #include "trans.h"
 
+namespace libpacman {
+
+class Database;
+
+}
+
 typedef enum __pmaccess_t {
 	PM_ACCESS_RO,
 	PM_ACCESS_RW
@@ -42,8 +48,8 @@ typedef enum __pmaccess_t {
 struct __pmhandle_t {
 	pmaccess_t access;
 	uid_t uid;
-	pmdb_t *db_local;
-	pmlist_t *dbs_sync; /* List of (pmdb_t *) */
+	libpacman::Database *db_local;
+	pmlist_t *dbs_sync; /* List of (libpacman::Database *) */
 	FILE *logfd;
 	FFileLock *filelock;
 	pmtrans_t *trans;

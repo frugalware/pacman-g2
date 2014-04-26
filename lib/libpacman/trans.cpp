@@ -54,12 +54,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+using namespace libpacman;
+
 static
 int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data);
 
 static int check_oldcache(void)
 {
-	pmdb_t *db = handle->db_local;
+	Database *db = handle->db_local;
 	time_t timestamp;
 
 	if(db->gettimestamp(&timestamp) == -1) {
@@ -272,7 +274,7 @@ pmsyncpkg_t *_pacman_trans_add(pmtrans_t *trans, pmsyncpkg_t *syncpkg, int flags
 	ASSERT(syncpkg->pkg != NULL || syncpkg->pkg_local != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	if(syncpkg->pkg != NULL && syncpkg->pkg_local == NULL) {
-		pmdb_t *db_local = trans->handle->db_local;
+		Database *db_local = trans->handle->db_local;
 
 		syncpkg->pkg_local = _pacman_db_get_pkgfromcache(db_local, syncpkg->pkg->name);
 	}
@@ -305,7 +307,7 @@ pmsyncpkg_t *_pacman_trans_add_target(pmtrans_t *trans, const char *target, pmtr
 }
 
 static
-pmpkg_t *_pacman_filedb_load(pmdb_t *db, const char *name)
+pmpkg_t *_pacman_filedb_load(Database *db, const char *name)
 {
 	struct stat buf;
 
@@ -322,7 +324,7 @@ static
 int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 {
 	pmpkg_t *pkg_local;
-	pmdb_t *db_local = trans->handle->db_local;
+	Database *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -353,7 +355,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 {
 	pmlist_t *i;
 	pmpkg_t *pkg_new, *pkg_local, *pkg_queued = NULL;
-	pmdb_t *db_local = trans->handle->db_local;
+	Database *db_local = trans->handle->db_local;
 
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -452,7 +454,7 @@ static
 int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *lp;
-	pmdb_t *db_local = trans->handle->db_local;
+	Database *db_local = trans->handle->db_local;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -552,7 +554,7 @@ static
 int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *lp;
-	pmdb_t *db_local = trans->handle->db_local;
+	Database *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -654,7 +656,7 @@ int _pacman_fpmpackage_install(pmpkg_t *pkg, pmtranstype_t type, pmtrans_t *tran
 	double percent = 0;
 	struct archive *archive;
 	struct archive_entry *entry;
-	pmdb_t *db_local = trans->handle->db_local;
+	Database *db_local = trans->handle->db_local;
 	pmlist_t *lp;
 	char expath[PATH_MAX], cwd[PATH_MAX] = "";
 
@@ -1046,7 +1048,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 	unsigned char cb_state;
 	time_t t;
 	pmlist_t *targ, *lp;
-	pmdb_t *db_local = trans->handle->db_local;
+	Database *db_local = trans->handle->db_local;
 
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -1264,7 +1266,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 	pmpkg_t *pkg_local;
 	pmlist_t *targ, *lp;
 	int howmany, remain;
-	pmdb_t *db_local = trans->handle->db_local;
+	Database *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));

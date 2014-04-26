@@ -62,7 +62,7 @@ int suffixcmp(const char *str, const char *suffix)
 }
 
 static
-int _pacman_syncpkg_file_reader(pmdb_t *db, pmpkg_t *pkg, unsigned int flags, unsigned int flags_masq, int (*reader)(pmpkg_t *, FILE *))
+int _pacman_syncpkg_file_reader(Database *db, pmpkg_t *pkg, unsigned int flags, unsigned int flags_masq, int (*reader)(pmpkg_t *, FILE *))
 {
 	int ret = 0;
 
@@ -79,7 +79,7 @@ int _pacman_syncpkg_file_reader(pmdb_t *db, pmpkg_t *pkg, unsigned int flags, un
 static
 int _pacman_syncpkg_read(pmpkg_t *pkg, unsigned int flags)
 {
-	pmdb_t *db;
+	Database *db;
 	int descdone = 0, depsdone = 0;
 
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
@@ -123,7 +123,7 @@ struct __pmpkg_operations_t _pacman_syncpkg_operations = {
 };
 
 static
-int _pacman_syncpkg_init(pmpkg_t *pkg, pmdb_t *db)
+int _pacman_syncpkg_init(pmpkg_t *pkg, Database *db)
 {
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 	ASSERT(_pacman_pkg_init(pkg, db) == 0, return -1);
@@ -132,7 +132,7 @@ int _pacman_syncpkg_init(pmpkg_t *pkg, pmdb_t *db)
 }
 
 static
-pmpkg_t *_pacman_syncdb_pkg_new(pmdb_t *db, const struct archive_entry *entry, unsigned int inforeq)
+pmpkg_t *_pacman_syncdb_pkg_new(Database *db, const struct archive_entry *entry, unsigned int inforeq)
 {
 	pmpkg_t *pkg;
 	const char *dname;
@@ -151,13 +151,13 @@ pmpkg_t *_pacman_syncdb_pkg_new(pmdb_t *db, const struct archive_entry *entry, u
 }
 
 static
-pmlist_t *_pacman_syncdb_test(pmdb_t *db)
+pmlist_t *_pacman_syncdb_test(Database *db)
 {
 	/* testing sync dbs is not supported */
 	return _pacman_list_new();
 }
 
-int _pacman_syncdb_update(pmdb_t *db, int force)
+int _pacman_syncdb_update(Database *db, int force)
 {
 	char path[PATH_MAX], dirpath[PATH_MAX];
 	pmlist_t *files = NULL;
@@ -208,7 +208,7 @@ int _pacman_syncdb_update(pmdb_t *db, int force)
 }
 
 static
-int _pacman_syncdb_open(pmdb_t *db, int flags, time_t *timestamp)
+int _pacman_syncdb_open(Database *db, int flags, time_t *timestamp)
 {
 	struct stat buf;
 	char dbpath[PATH_MAX];
@@ -230,7 +230,7 @@ int _pacman_syncdb_open(pmdb_t *db, int flags, time_t *timestamp)
 }
 
 static
-int _pacman_syncdb_close(pmdb_t *db)
+int _pacman_syncdb_close(Database *db)
 {
 	if(db->handle) {
 		archive_read_finish(db->handle);
@@ -240,14 +240,14 @@ int _pacman_syncdb_close(pmdb_t *db)
 }
 
 static
-int _pacman_syncdb_rewind(pmdb_t *db)
+int _pacman_syncdb_rewind(Database *db)
 {
 	_pacman_syncdb_close(db);
 	return _pacman_syncdb_open(db, 0, NULL);
 }
 
 static
-pmpkg_t *_pacman_syncdb_readpkg(pmdb_t *db, unsigned int inforeq)
+pmpkg_t *_pacman_syncdb_readpkg(Database *db, unsigned int inforeq)
 {
 	struct archive_entry *entry = NULL;
 
@@ -274,7 +274,7 @@ pmpkg_t *_pacman_syncdb_readpkg(pmdb_t *db, unsigned int inforeq)
 }
 
 static
-pmpkg_t *_pacman_syncdb_scan(pmdb_t *db, const char *target, unsigned int inforeq)
+pmpkg_t *_pacman_syncdb_scan(Database *db, const char *target, unsigned int inforeq)
 {
 	char name[PKG_FULLNAME_LEN];
 	char *ptr = NULL;
@@ -309,7 +309,7 @@ pmpkg_t *_pacman_syncdb_scan(pmdb_t *db, const char *target, unsigned int infore
 }
 
 static
-int _pacman_syncdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq, unsigned int inforeq_masq, int (*reader)(pmpkg_t *, FILE *))
+int _pacman_syncdb_file_reader(Database *db, pmpkg_t *info, unsigned int inforeq, unsigned int inforeq_masq, int (*reader)(pmpkg_t *, FILE *))
 {
 	int ret = 0;
 
@@ -324,7 +324,7 @@ int _pacman_syncdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq, 
 }
 
 static
-int _pacman_syncdb_read(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
+int _pacman_syncdb_read(Database *db, pmpkg_t *info, unsigned int inforeq)
 {
 	int descdone = 0, depsdone = 0;
 

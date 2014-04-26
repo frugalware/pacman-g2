@@ -43,6 +43,8 @@
 #include "versioncmp.h"
 #include "handle.h"
 
+using namespace libpacman;
+
 static pmgraph_t *_pacman_graph_new(void)
 {
 	pmgraph_t *graph = _pacman_zalloc(sizeof(pmgraph_t));
@@ -212,7 +214,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 	int found = 0;
 	pmlist_t *baddeps = NULL;
 	pmdepmissing_t *miss = NULL;
-	pmdb_t *db_local = trans->handle->db_local;
+	Database *db_local = trans->handle->db_local;
 
 	if(db_local == NULL) {
 		return(NULL);
@@ -492,7 +494,7 @@ int _pacman_splitdep(char *depstr, pmdepend_t *depend)
  * I mean dependencies that are *only* required for packages in the target
  * list, so they can be safely removed.  This function is recursive.
  */
-pmlist_t *_pacman_removedeps(pmdb_t *db, pmlist_t *targs)
+pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 {
 	pmlist_t *i, *j, *k;
 	pmlist_t *newtargs = targs;
@@ -760,7 +762,7 @@ int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist) {
     int foundMatch = 0;
     unsigned int inforeq =  INFRQ_DEPENDS;
     for(j = dblist; j; j = j->next) {
-        pmdb_t *db = j->data;
+        Database *db = j->data;
         do {
             foundMatch = 0;
             pkg = db->readpkg(inforeq);

@@ -56,6 +56,8 @@
 
 #include "sync.h"
 
+using namespace libpacman;
+
 static int istoonew(pmpkg_t *pkg)
 {
 	time_t t;
@@ -69,7 +71,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 {
 	pmlist_t *i, *j, *k;
 	pmhandle_t *handle;
-	pmdb_t *db_local;
+	Database *db_local;
 	pmlist_t *dbs_sync;
 
 	/* Sanity checks */
@@ -98,7 +100,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 						} else {
 							/* get confirmation for the replacement */
 							int doreplace = 0;
-							QUESTION(trans, PM_TRANS_CONV_REPLACE_PKG, lpkg, spkg, ((pmdb_t *)i->data)->treename, &doreplace);
+							QUESTION(trans, PM_TRANS_CONV_REPLACE_PKG, lpkg, spkg, ((Database *)i->data)->treename, &doreplace);
 
 							if(doreplace) {
 								/* if confirmed, add this to the 'final' list, designating 'lpkg' as

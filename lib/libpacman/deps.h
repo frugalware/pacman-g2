@@ -52,7 +52,7 @@ int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack);
 pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode);
 pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packages);
 int _pacman_splitdep(char *depstr, pmdepend_t *depend);
-pmlist_t *_pacman_removedeps(pmdb_t *db, pmlist_t *targs);
+pmlist_t *_pacman_removedeps(libpacman::Database *db, pmlist_t *targs);
 int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t *list,
                 pmlist_t *trail, pmlist_t **data);
 int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep);

@@ -25,7 +25,7 @@
 #include "config.h"
 
 /* pacman-g2 */
-#include "pacman.h"
+#include "pacman_p.h"
 
 #include "package/fpmpackage.h"
 #include "config_parser.h"
@@ -62,15 +62,6 @@
 #include <unistd.h>
 
 using namespace libpacman;
-
-#define DEFINE_CAST(c_type, cxx_type)  \
-static c_type *c_cast(cxx_type *obj)   \
-{ return (c_type *)obj; }              \
-                                       \
-static cxx_type *cxx_cast(c_type *obj) \
-{ return (cxx_type *)obj; }
-
-DEFINE_CAST(struct __pmgrp_t, Group)
 
 /* Globals */
 pmhandle_t *handle = NULL;
@@ -122,7 +113,7 @@ int pacman_release(void)
 	/* close local database */
 	if(handle->db_local) {
 		/* db_unregister() will set handle->db_local to NULL */
-		pacman_db_unregister(handle->db_local);
+		pacman_db_unregister(c_cast(handle->db_local));
 	}
 	/* and also sync ones */
 	while(handle->dbs_sync) {
@@ -189,15 +180,16 @@ pmdb_t *pacman_db_register(const char *treename)
 	/* Do not register a database if a transaction is on-going */
 	ASSERT(handle->trans == NULL, RET_ERR(PM_ERR_TRANS_NOT_NULL, NULL));
 
-	return(_pacman_db_register(treename, NULL));
+	return c_cast(_pacman_db_register(treename, NULL));
 }
 
 /** Unregister a package database
  * @param db pointer to the package database to unregister
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int pacman_db_unregister(pmdb_t *db)
+int pacman_db_unregister(pmdb_t *_db)
 {
+	Database *db = cxx_cast(_db);
 	int found = 0;
 
 	/* Sanity checks */
@@ -239,8 +231,9 @@ int pacman_db_unregister(pmdb_t *db)
  * @param parm name of the info to get
  * @return a void* on success (the value), NULL on error
  */
-void *pacman_db_getinfo(pmdb_t *db, unsigned char parm)
+void *pacman_db_getinfo(pmdb_t *_db, unsigned char parm)
 {
+	Database *db = cxx_cast(_db);
 	void *data = NULL;
 	char path[PATH_MAX];
 	pmserver_t *server;
@@ -274,8 +267,9 @@ void *pacman_db_getinfo(pmdb_t *db, unsigned char parm)
  * @param url url of the server
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int pacman_db_setserver(pmdb_t *db, char *url)
+int pacman_db_setserver(pmdb_t *_db, char *url)
 {
+	Database *db = cxx_cast(_db);
 	int found = 0;
 
 	/* Sanity checks */
@@ -288,7 +282,7 @@ int pacman_db_setserver(pmdb_t *db, char *url)
 	} else {
 		pmlist_t *i;
 		for(i = handle->dbs_sync; i && !found; i = i->next) {
-			pmdb_t *sdb = i->data;
+			Database *sdb = i->data;
 			if(strcmp(db->treename, sdb->treename) == 0) {
 				found = 1;
 			}
@@ -322,8 +316,9 @@ int pacman_db_setserver(pmdb_t *db, char *url)
  * @return 0 on success, -1 on error (pm_errno is set accordingly), 1 if up
  * to date
  */
-int pacman_db_update(int force, pmdb_t *db)
+int pacman_db_update(int force, pmdb_t *_db)
 {
+	Database *db = cxx_cast(_db);
 	int status=0;
 
 	/* Sanity checks */
@@ -351,8 +346,10 @@ int pacman_db_update(int force, pmdb_t *db)
  * @param name of the package
  * @return the package entry on success, NULL on error
  */
-pmpkg_t *pacman_db_readpkg(pmdb_t *db, const char *name)
+pmpkg_t *pacman_db_readpkg(pmdb_t *_db, const char *name)
 {
+	Database *db = cxx_cast(_db);
+
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
@@ -366,8 +363,10 @@ pmpkg_t *pacman_db_readpkg(pmdb_t *db, const char *name)
  * @return the list of packages on success, NULL on error. Returned list
  * is an internally cached list and shouldn't be freed.
  */
-pmlist_t *pacman_db_getpkgcache(pmdb_t *db)
+pmlist_t *pacman_db_getpkgcache(pmdb_t *_db)
 {
+	Database *db = cxx_cast(_db);
+
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
@@ -380,8 +379,10 @@ pmlist_t *pacman_db_getpkgcache(pmdb_t *db)
  * @param name name of the package
  * @return the list of packages on success, NULL on error
  */
-pmlist_t *pacman_db_whatprovides(pmdb_t *db, char *name)
+pmlist_t *pacman_db_whatprovides(pmdb_t *_db, char *name)
 {
+	Database *db = cxx_cast(_db);
+
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
@@ -395,8 +396,10 @@ pmlist_t *pacman_db_whatprovides(pmdb_t *db, char *name)
  * @param name of the group
  * @return the groups entry on success, NULL on error
  */
-pmgrp_t *pacman_db_readgrp(pmdb_t *db, char *name)
+pmgrp_t *pacman_db_readgrp(pmdb_t *_db, char *name)
 {
+	Database *db = cxx_cast(_db);
+
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
@@ -410,8 +413,10 @@ pmgrp_t *pacman_db_readgrp(pmdb_t *db, char *name)
  * @return the list of groups on success, NULL on error. Returned list
  * is an internally cached list and shouldn't be freed.
  */
-pmlist_t *pacman_db_getgrpcache(pmdb_t *db)
+pmlist_t *pacman_db_getgrpcache(pmdb_t *_db)
 {
+	Database *db = cxx_cast(_db);
+
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
@@ -731,8 +736,10 @@ int pacman_sync_cleancache(int full)
  * @param db pointer to the package database to search in
  * @return the list of problems found on success, NULL on error
  */
-pmlist_t *pacman_db_test(pmdb_t *db)
+pmlist_t *pacman_db_test(pmdb_t *_db)
 {
+	Database *db = cxx_cast(_db);
+
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
@@ -744,8 +751,9 @@ pmlist_t *pacman_db_test(pmdb_t *db)
  * @param db pointer to the package database to search in
  * @return the list of packages on success, NULL on error
  */
-pmlist_t *pacman_db_search(pmdb_t *db)
+pmlist_t *pacman_db_search(pmdb_t *_db)
 {
+	Database *db = cxx_cast(_db);
 	pmlist_t *ret;
 
 	/* Sanity checks */

@@ -48,13 +48,13 @@
 using namespace libpacman;
 
 static
-int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
+int _pacman_localdb_write(Database *db, pmpkg_t *info, unsigned int inforeq);
 
 static
-int _pacman_localdb_remove(pmdb_t *db, pmpkg_t *info);
+int _pacman_localdb_remove(Database *db, pmpkg_t *info);
 
 static
-int _pacman_localpkg_file_reader(pmdb_t *db, pmpkg_t *pkg, unsigned int flags, unsigned int flags_masq, const char *file, int (*reader)(pmpkg_t *, FILE *))
+int _pacman_localpkg_file_reader(Database *db, pmpkg_t *pkg, unsigned int flags, unsigned int flags_masq, const char *file, int (*reader)(pmpkg_t *, FILE *))
 {
 	int ret = 0;
 
@@ -78,7 +78,7 @@ int _pacman_localpkg_file_reader(pmdb_t *db, pmpkg_t *pkg, unsigned int flags, u
 static int
 _pacman_localpkg_read(pmpkg_t *pkg, unsigned int flags)
 {
-	pmdb_t *db;
+	Database *db;
 	struct stat buf;
 	char path[PATH_MAX];
 
@@ -140,7 +140,7 @@ struct __pmpkg_operations_t _pacman_localpkg_operations = {
 };
 
 static
-int _pacman_localpkg_init(pmpkg_t *pkg, pmdb_t *db)
+int _pacman_localpkg_init(pmpkg_t *pkg, Database *db)
 {
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 	ASSERT(_pacman_pkg_init(pkg, db) == 0, return -1);
@@ -149,7 +149,7 @@ int _pacman_localpkg_init(pmpkg_t *pkg, pmdb_t *db)
 }
 
 static
-pmpkg_t *_pacman_localdb_pkg_new(pmdb_t *db, const struct dirent *dirent, unsigned int inforeq)
+pmpkg_t *_pacman_localdb_pkg_new(Database *db, const struct dirent *dirent, unsigned int inforeq)
 {
 	pmpkg_t *pkg;
 	const char *dname;
@@ -168,7 +168,7 @@ pmpkg_t *_pacman_localdb_pkg_new(pmdb_t *db, const struct dirent *dirent, unsign
 }
 
 static
-pmlist_t *_pacman_localdb_test(pmdb_t *db)
+pmlist_t *_pacman_localdb_test(Database *db)
 {
 	struct dirent *ent;
 	char path[PATH_MAX];
@@ -205,7 +205,7 @@ pmlist_t *_pacman_localdb_test(pmdb_t *db)
 }
 
 static
-int _pacman_localdb_open(pmdb_t *db, int flags, time_t *timestamp)
+int _pacman_localdb_open(Database *db, int flags, time_t *timestamp)
 {
 	struct stat buf;
 
@@ -223,7 +223,7 @@ int _pacman_localdb_open(pmdb_t *db, int flags, time_t *timestamp)
 }
 
 static
-int _pacman_localdb_close(pmdb_t *db)
+int _pacman_localdb_close(Database *db)
 {
 	if(db->handle) {
 		closedir(db->handle);
@@ -233,7 +233,7 @@ int _pacman_localdb_close(pmdb_t *db)
 }
 
 static
-int _pacman_localdb_rewind(pmdb_t *db)
+int _pacman_localdb_rewind(Database *db)
 {
 	if(db->handle == NULL) {
 		return -1;
@@ -244,7 +244,7 @@ int _pacman_localdb_rewind(pmdb_t *db)
 }
 
 static
-pmpkg_t *_pacman_localdb_readpkg(pmdb_t *db, unsigned int inforeq)
+pmpkg_t *_pacman_localdb_readpkg(Database *db, unsigned int inforeq)
 {
 	struct dirent *ent = NULL;
 	struct stat sbuf;
@@ -266,7 +266,7 @@ pmpkg_t *_pacman_localdb_readpkg(pmdb_t *db, unsigned int inforeq)
 }
 
 static
-pmpkg_t *_pacman_localdb_scan(pmdb_t *db, const char *target, unsigned int inforeq)
+pmpkg_t *_pacman_localdb_scan(Database *db, const char *target, unsigned int inforeq)
 {
 	struct dirent *ent = NULL;
 	struct stat sbuf;
@@ -307,7 +307,7 @@ pmpkg_t *_pacman_localdb_scan(pmdb_t *db, const char *target, unsigned int infor
 }
 
 static
-int _pacman_localdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq, unsigned int inforeq_masq, const char *file, int (*reader)(pmpkg_t *, FILE *))
+int _pacman_localdb_file_reader(Database *db, pmpkg_t *info, unsigned int inforeq, unsigned int inforeq_masq, const char *file, int (*reader)(pmpkg_t *, FILE *))
 {
 	int ret = 0;
 
@@ -329,7 +329,7 @@ int _pacman_localdb_file_reader(pmdb_t *db, pmpkg_t *info, unsigned int inforeq,
 }
 
 static
-int _pacman_localdb_read(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
+int _pacman_localdb_read(Database *db, pmpkg_t *info, unsigned int inforeq)
 {
 	struct stat buf;
 	char path[PATH_MAX];
@@ -397,7 +397,7 @@ void _pacman_localdb_write_stringlist(const char *entry, const pmlist_t *values,
 }
 
 static
-int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq)
+int _pacman_localdb_write(Database *db, pmpkg_t *info, unsigned int inforeq)
 {
 	FILE *fp = NULL;
 	char path[PATH_MAX];
@@ -491,7 +491,7 @@ cleanup:
 }
 
 static
-int _pacman_localdb_remove(pmdb_t *db, pmpkg_t *info)
+int _pacman_localdb_remove(Database *db, pmpkg_t *info)
 {
 	char path[PATH_MAX];
 

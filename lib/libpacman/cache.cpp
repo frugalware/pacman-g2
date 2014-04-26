@@ -48,15 +48,15 @@
 using namespace libpacman;
 
 static
-int _pacman_db_clear_grpcache(pmdb_t *db);
+int _pacman_db_clear_grpcache(Database *db);
 
 static
-int _pacman_db_load_grpcache(pmdb_t *db);
+int _pacman_db_load_grpcache(Database *db);
 
 /* Returns a new package cache from db.
  * It frees the cache if it already exists.
  */
-int _pacman_db_load_pkgcache(pmdb_t *db)
+int _pacman_db_load_pkgcache(Database *db)
 {
 	pmpkg_t *info;
 
@@ -81,7 +81,7 @@ int _pacman_db_load_pkgcache(pmdb_t *db)
 	return(0);
 }
 
-void _pacman_db_free_pkgcache(pmdb_t *db)
+void _pacman_db_free_pkgcache(Database *db)
 {
 	ASSERT(db != NULL, pm_errno = PM_ERR_DB_NULL; return);
 	if(f_ptrlist_empty(db->pkgcache)) {
@@ -96,7 +96,7 @@ void _pacman_db_free_pkgcache(pmdb_t *db)
 	_pacman_db_clear_grpcache(db);
 }
 
-pmlist_t *_pacman_db_get_pkgcache(pmdb_t *db)
+pmlist_t *_pacman_db_get_pkgcache(Database *db)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
@@ -107,7 +107,7 @@ pmlist_t *_pacman_db_get_pkgcache(pmdb_t *db)
 	return(db->pkgcache);
 }
 
-int _pacman_db_add_pkgincache(pmdb_t *db, pmpkg_t *pkg)
+int _pacman_db_add_pkgincache(Database *db, pmpkg_t *pkg)
 {
 	pmpkg_t *newpkg;
 
@@ -128,7 +128,7 @@ int _pacman_db_add_pkgincache(pmdb_t *db, pmpkg_t *pkg)
 	return(0);
 }
 
-int _pacman_db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg)
+int _pacman_db_remove_pkgfromcache(Database *db, pmpkg_t *pkg)
 {
 	pmpkg_t *data;
 
@@ -151,7 +151,7 @@ int _pacman_db_remove_pkgfromcache(pmdb_t *db, pmpkg_t *pkg)
 	return(0);
 }
 
-pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, const char *target)
+pmpkg_t *_pacman_db_get_pkgfromcache(Database *db, const char *target)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 	if(_pacman_strempty(target)) {
@@ -163,7 +163,7 @@ pmpkg_t *_pacman_db_get_pkgfromcache(pmdb_t *db, const char *target)
 
 /* return a pmlist_t of packages in "db" that provide "package"
  */
-pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package)
+pmlist_t *_pacman_db_whatprovides(Database *db, char *package)
 {
 	FPtrList *pkgs = NULL;
 	FStrMatcher strmatcher = { NULL };
@@ -182,7 +182,7 @@ pmlist_t *_pacman_db_whatprovides(pmdb_t *db, char *package)
 
 /* Returns a new group cache from db.
  */
-int _pacman_db_load_grpcache(pmdb_t *db)
+int _pacman_db_load_grpcache(Database *db)
 {
 	pmlist_t *lp;
 
@@ -197,7 +197,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 		pmpkg_t *pkg = lp->data;
 
 		if(!(pkg->infolevel & INFRQ_DESC)) {
-			((__pmdb_t *)pkg->data)->read(pkg, INFRQ_DESC);
+			pkg->database->read(pkg, INFRQ_DESC);
 		}
 
 		for(i = pkg->groups; i; i = i->next) {
@@ -226,7 +226,7 @@ int _pacman_db_load_grpcache(pmdb_t *db)
 	return(0);
 }
 
-int _pacman_db_clear_grpcache(pmdb_t *db)
+int _pacman_db_clear_grpcache(Database *db)
 {
 	FVisitor visitor = {
 		.fn = (FVisitorFunc)_pacman_grp_delete,
@@ -240,7 +240,7 @@ int _pacman_db_clear_grpcache(pmdb_t *db)
 	return 0;
 }
 
-pmlist_t *_pacman_db_get_grpcache(pmdb_t *db)
+pmlist_t *_pacman_db_get_grpcache(Database *db)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
@@ -251,7 +251,7 @@ pmlist_t *_pacman_db_get_grpcache(pmdb_t *db)
 	return(db->grpcache);
 }
 
-Group *_pacman_db_get_grpfromcache(pmdb_t *db, const char *target)
+Group *_pacman_db_get_grpfromcache(Database *db, const char *target)
 {
 	pmlist_t *i;
 

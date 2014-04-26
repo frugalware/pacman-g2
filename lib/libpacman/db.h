@@ -37,46 +37,56 @@
 #define INFRQ_SCRIPLET 0x08
 #define INFRQ_ALL      0xFF
 
+namespace libpacman {
+
+class Database;
+
+}
+
 typedef struct __pmdb_ops_t pmdb_ops_t;
 
 struct __pmdb_ops_t {
-	pmlist_t *(*test)(pmdb_t *db);
-	int (*open)(pmdb_t *db, int flags, time_t *timestamp);
-	int (*close)(pmdb_t *db);
+	pmlist_t *(*test)(libpacman::Database *db);
+	int (*open)(libpacman::Database *db, int flags, time_t *timestamp);
+	int (*close)(libpacman::Database *db);
 
-	int (*gettimestamp)(pmdb_t *db, time_t *timestamp);
+	int (*gettimestamp)(libpacman::Database *db, time_t *timestamp);
 
 	/* Package iterator */
-	int (*rewind)(pmdb_t *db);
-	pmpkg_t *(*readpkg)(pmdb_t *db, unsigned int inforeq);
-	pmpkg_t *(*scan)(pmdb_t *db, const char *target, unsigned int inforeq);
+	int (*rewind)(libpacman::Database *db);
+	pmpkg_t *(*readpkg)(libpacman::Database *db, unsigned int inforeq);
+	pmpkg_t *(*scan)(libpacman::Database *db, const char *target, unsigned int inforeq);
 
-	int (*read)(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
-	int (*write)(pmdb_t *db, pmpkg_t *info, unsigned int inforeq); /* Optional */
-	int (*remove)(pmdb_t *db, pmpkg_t *info); /* Optional */
+	int (*read)(libpacman::Database *db, pmpkg_t *info, unsigned int inforeq);
+	int (*write)(libpacman::Database *db, pmpkg_t *info, unsigned int inforeq); /* Optional */
+	int (*remove)(libpacman::Database *db, pmpkg_t *info); /* Optional */
 };
 
-/* Database */
-struct __pmdb_t {
-	__pmdb_t(pmhandle_t *handle, const char *treename);
-	~__pmdb_t();
+namespace libpacman {
+
+class Database
+	: public libpacman::Object
+{
+	public:
+	Database(pmhandle_t *handle, const char *treename);
+	virtual ~Database();
 
 	/* Prototypes for backends functions */
-	pmlist_t *test(); /* FIXME: constify */
+	virtual pmlist_t *test(); /* FIXME: constify */
 
-	int open(int flags);
-	int close();
+	virtual int open(int flags);
+	virtual int close();
 
-	int gettimestamp(time_t *timestamp);
-	int settimestamp(const time_t *timestamp);
+	virtual int gettimestamp(time_t *timestamp);
+	virtual int settimestamp(const time_t *timestamp);
 
-	int rewind();
-	pmpkg_t *readpkg(unsigned int inforeq);
-	pmpkg_t *scan(const char *target, unsigned int inforeq);
+	virtual int rewind();
+	virtual pmpkg_t *readpkg(unsigned int inforeq);
+	virtual pmpkg_t *scan(const char *target, unsigned int inforeq);
 
-	int read(pmpkg_t *info, unsigned int inforeq);
-	int write(pmpkg_t *info, unsigned int inforeq);
-	int remove(pmpkg_t *info);
+	virtual int read(pmpkg_t *info, unsigned int inforeq);
+	virtual int write(pmpkg_t *info, unsigned int inforeq);
+	virtual int remove(pmpkg_t *info);
 
 	// Cache operations
 	pmlist_t *search(pmlist_t *needles);
@@ -91,21 +101,11 @@ struct __pmdb_t {
 	pmlist_t *servers;
 };
 
+}
+
 int _pacman_db_cmp(const void *db1, const void *db2);
 
-pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback);
-
-namespace libpacman
-{
-
-class Database
-	: public libpacman::Object
-{
-public:
-	virtual ~Database();
-};
-
-}
+libpacman::Database *_pacman_db_register(const char *treename, pacman_cb_db_register callback);
 
 #endif /* _PACMAN_DB_H */
 
