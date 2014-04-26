@@ -40,30 +40,30 @@ set(FLIB_SOURCES
 
 set(LIBPACMAN_SOURCES 
 	${FLIB_SOURCES}
-	db/fakedb.c
-	db/localdb.c
-	db/localdb_files.c
-	db/syncdb.c
-	package/fpmpackage.c
-	package/packagecache.c
-	cache.c
-	config_parser.c
-	conflict.c
-	db.c
-	deps.c
-	error.c
-	group.c
-	handle.c
-	object.c
-	package.c
-	packages_transaction.c
-	pacman.c
-	server.c
-	sync.c
-	trans.c
-	trans_sysupgrade.c
-	util.c
-	versioncmp.c
+	db/fakedb.cpp
+	db/localdb.cpp
+	db/localdb_files.cpp
+	db/syncdb.cpp
+	package/fpmpackage.cpp
+	package/packagecache.cpp
+	cache.cpp
+	config_parser.cpp
+	conflict.cpp
+	db.cpp
+	deps.cpp
+	error.cpp
+	group.cpp
+	handle.cpp
+	object.cpp
+	package.cpp
+	packages_transaction.cpp
+	pacman.cpp
+	server.cpp
+	sync.cpp
+	trans.cpp
+	trans_sysupgrade.cpp
+	util.cpp
+	versioncmp.cpp
 )
 
 include_directories (${PACMAN-G2_SOURCE_DIR})

@@ -29,7 +29,13 @@
 #include "fstring.h"
 
 static const char *trigger_function_table[STATE_MAX] = {
+	[STATE_IDLE] = NULL,
+	[STATE_INITIALIZED] = NULL,
+	[STATE_PREPARED] = NULL,
+	[STATE_DOWNLOADING] = NULL,
+	[STATE_COMMITING] = NULL,
 	[STATE_COMMITED] = "commited",
+	[STATE_INTERRUPTED] = NULL,
 };
 
 static int

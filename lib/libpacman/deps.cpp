@@ -751,6 +751,7 @@ int inList(pmlist_t *lst, char *lItem) {
     return 0;
 }
 
+extern "C" {
 int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist) {
     pmlist_t *found = NULL;
     pmlist_t *k = NULL, *j = NULL;
@@ -794,6 +795,7 @@ int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist) {
     FREELISTPTR(targets);
     printf("\n");
     return 0;
+}
 }
 
 /* vim: set ts=2 sw=2 noet: */

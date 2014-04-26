@@ -26,6 +26,9 @@
 #include <stdarg.h> /* for va_list */
 #include <stdio.h> /* for FILE */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #define LOG_STR_LEN 256
 
 extern pacman_cb_log pm_logcb;
@@ -35,6 +38,9 @@ void _pacman_log(unsigned char flag, const char *format, ...);
 void _pacman_vlog(unsigned char flag, const char *format, va_list ap);
 void _pacman_vlogaction(unsigned char usesyslog, FILE *f, const char *format, va_list ap);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* _PACMAN_LOG_H */
 
 /* vim: set ts=2 sw=2 noet: */

@@ -24,6 +24,10 @@
 #include "util/list.h"
 #include "fstring.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef F_NOCOMPAT
 typedef struct __pmlist_t FStringList;
 typedef struct __pmlist_t FStringListItem;
@@ -61,6 +65,9 @@ FStringList *f_stringlist_append(FStringList *list, const char *s);
 FStringList *f_stringlist_append_stringlist(FStringList *dest, const FStringList *src);
 int f_stringlist_clear(FStringList *self);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* _PACMAN_STRINGLIST_H */
 
 /* vim: set ts=2 sw=2 noet: */

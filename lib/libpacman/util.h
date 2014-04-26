@@ -53,7 +53,6 @@
 #define DONESTR "DONE "
 
 #define _pacman_basename f_basename
-int _pacman_makepath(const char *path);
 int _pacman_copyfile(char *src, char *dest);
 int _pacman_unpack(const char *archive, const char *prefix, const char *fn);
 int _pacman_rmrf(char *path);
@@ -76,6 +75,15 @@ char* mkdtemp(char *template);
 #define _pacman_malloc f_malloc
 #define _pacman_zalloc f_zalloc
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int _pacman_makepath(const char *path);
+
+#ifdef __cplusplus
+}
+#endif
 #endif /* _PACMAN_UTIL_H */
 
 /* vim: set ts=2 sw=2 noet: */

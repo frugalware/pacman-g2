@@ -711,13 +711,13 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		for(i = trans->syncpkgs; i; i = i->next) {
 			pmsyncpkg_t *ps = i->data;
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				pmpkg_t *new = _pacman_db_get_pkgfromcache(db_local, ps->pkg_name);
+				pmpkg_t *pkg_new = _pacman_db_get_pkgfromcache(db_local, ps->pkg_name);
 				for(j = ps->data; j; j = j->next) {
 					pmlist_t *k;
 					pmpkg_t *old = j->data;
 					/* merge lists */
 					for(k = old->requiredby; k; k = k->next) {
-						if(!_pacman_list_is_strin(k->data, new->requiredby)) {
+						if(!_pacman_list_is_strin(k->data, pkg_new->requiredby)) {
 							/* replace old's name with new's name in the requiredby's dependency list */
 							pmlist_t *m;
 							pmpkg_t *depender = _pacman_db_get_pkgfromcache(db_local, k->data);
@@ -731,21 +731,21 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 							for(m = depender->depends; m; m = m->next) {
 								if(!strcmp(m->data, old->name)) {
 									FREE(m->data);
-									m->data = strdup(new->name);
+									m->data = strdup(pkg_new->name);
 								}
 							}
 							if(_pacman_db_write(db_local, depender, INFRQ_DEPENDS) == -1) {
 								_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
-										  new->name, new->version);
+										  pkg_new->name, pkg_new->version);
 							}
 							/* add the new requiredby */
-							new->requiredby = _pacman_stringlist_append(new->requiredby, k->data);
+							pkg_new->requiredby = _pacman_stringlist_append(pkg_new->requiredby, k->data);
 						}
 					}
 				}
-				if(_pacman_db_write(db_local, new, INFRQ_DEPENDS) == -1) {
+				if(_pacman_db_write(db_local, pkg_new, INFRQ_DEPENDS) == -1) {
 					_pacman_log(PM_LOG_ERROR, _("could not update new database entry %s-%s"),
-							  new->name, new->version);
+							  pkg_new->name, pkg_new->version);
 				}
 			}
 		}

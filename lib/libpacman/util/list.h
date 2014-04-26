@@ -25,6 +25,10 @@
 
 #include "util/fptrlist.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define _FREELIST(p, f) do { if(p) { FVisitor visitor = { .fn = (FVisitorFunc)f, .data = NULL, }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
 #define FREELIST(p) _FREELIST(p, free)
 #define FREELISTPTR(p) _FREELIST(p, NULL)
@@ -43,6 +47,9 @@ pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn)
 pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 pmlist_t *_pacman_list_reverse(pmlist_t *list);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* _PACMAN_LIST_H */
 
 /* vim: set ts=2 sw=2 noet: */

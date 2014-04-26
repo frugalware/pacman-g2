@@ -21,6 +21,10 @@
 #ifndef _F_FILELOCK_H
 #define _F_FILELOCK_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct FFileLock FFileLock;
 
 #define F_FILELOCK_CREATE_HOLD_DIR (1<<0)
@@ -30,6 +34,9 @@ typedef struct FFileLock FFileLock;
 FFileLock *f_filelock_aquire(const char *pathname, int flags);
 int f_filelock_release(FFileLock *filelock);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* _F_FILELOCK_H */
 
 /* vim: set ts=2 sw=2 noet: */

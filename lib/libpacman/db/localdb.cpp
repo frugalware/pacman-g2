@@ -508,6 +508,7 @@ const pmdb_ops_t _pacman_localdb_ops = {
 	.test = _pacman_localdb_test,
 	.open = _pacman_localdb_open,
 	.close = _pacman_localdb_close,
+	.gettimestamp = NULL,
 	.rewind = _pacman_localdb_rewind,
 	.readpkg = _pacman_localdb_readpkg,
 	.scan = _pacman_localdb_scan,

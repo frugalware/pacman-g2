@@ -23,6 +23,10 @@ These notices must be retained in any copies of any part of this
 documentation and/or software.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* POINTER defines a generic pointer type */
 typedef unsigned char *POINTER;
 
@@ -46,5 +50,9 @@ void _pacman_MD5Final(unsigned char [16], MD5_CTX *);
 
 char* _pacman_MDFile(char *);
 void  _pacman_MDPrint(unsigned char [16]);
+
+#ifdef __cplusplus
+}
+#endif
 
 /* vim: set ts=2 sw=2 noet: */

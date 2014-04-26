@@ -24,6 +24,10 @@
 #include <archive.h>
 #include <archive_entry.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum __pmfiletype_t {
     PM_FILE_UNKNOWN = -1,
     PM_FILE_DB = 0,
@@ -37,6 +41,9 @@ FILE *_pacman_archive_read_fropen(struct archive *a);
 int checkFile(pmfiletype_t fileType, char *file);
 int checkXZ(char *file);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* _PACMAN_ARCHIVE_FILE_H */
 
 /* vim: set ts=2 sw=2 noet: */

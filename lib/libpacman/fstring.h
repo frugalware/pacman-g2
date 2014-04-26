@@ -25,6 +25,10 @@
 
 #include "util/fcallback.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 char *f_basename(const char *path);
 char *f_dirname(const char *path);
 
@@ -121,6 +125,9 @@ void f_str_visit(char *str, FStrVisitor *strvisitor) {
 int f_strmatcher_init(FStrMatcher *strmatcher, const char *pattern, int flags);
 int f_strmatcher_fini(FStrMatcher *strmatcher);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* F_STRING_H */
 
 /* vim: set ts=2 sw=2 noet: */

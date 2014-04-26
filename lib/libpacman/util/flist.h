@@ -26,6 +26,9 @@
 
 #include "util/fcallback.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifndef F_NOCOMPAT
 typedef struct __pmlist_t FList;
 typedef struct __pmlist_t FListItem;
@@ -84,6 +87,9 @@ const FListItem *f_list_last_const(const FList *self);
 FListItem *f_list_rend(FList *self);
 const FListItem *f_list_rend_const(const FList *self);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* F_LIST_H */
 
 /* vim: set ts=2 sw=2 noet: */

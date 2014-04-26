@@ -23,6 +23,7 @@
 
 #include "db.h"
 
+extern
 const pmdb_ops_t _pacman_syncdb_ops;
 
 int _pacman_syncdb_update(pmdb_t *db, int force);

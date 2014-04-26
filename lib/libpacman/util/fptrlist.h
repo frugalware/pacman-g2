@@ -26,6 +26,10 @@
 
 #include "util/flist.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef F_NOCOMPAT
 typedef struct __pmlist_t FPtrList;
 typedef struct __pmlist_t FPtrListItem;
@@ -81,7 +85,9 @@ FPtrList *f_ptrlist_filter(const FPtrList *list, const FMatcher *matcher);
 #define f_ptrlist_last(self) ((FPtrListItem *)f_list_last(self))
 #define f_ptrlist_last_const(self) ((const FPtrListItem *)f_list_last_const(self))
 
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* F_PTRLIST_H */
 
 /* vim: set ts=2 sw=2 noet: */

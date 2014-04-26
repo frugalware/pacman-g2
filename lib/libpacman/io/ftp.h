@@ -23,11 +23,18 @@
 
 #include <time.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PM_FMT_MDTM_MAX 64
 
 size_t _pacman_ftp_strfmdtm(char *s, size_t max, const time_t *time);
 char *_pacman_ftp_strpmdtm(const char *s, time_t *time);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* _PACMAN_FTP_H */
 
 /* vim: set ts=2 sw=2 noet: */
