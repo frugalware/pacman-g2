@@ -53,6 +53,8 @@
 #include <string.h>
 #include <unistd.h>
 
+using namespace libpacman;
+
 static int _pacman_db_getlastupdate(pmdb_t *db, char *ts);
 static int _pacman_db_setlastupdate(pmdb_t *db, const char *ts);
 
@@ -348,4 +350,9 @@ pmdb_t *_pacman_db_register(const char *treename, pacman_cb_db_register callback
 	}
 	return(db);
 }
+
+Database::~Database()
+{
+}
+
 /* vim: set ts=2 sw=2 noet: */

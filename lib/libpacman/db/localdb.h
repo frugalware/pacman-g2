@@ -22,9 +22,29 @@
 #define _PACMAN_LOCALDB_H
 
 #include "db.h"
+#include "package.h"
 
 extern
 const pmdb_ops_t _pacman_localdb_ops;
+
+namespace libpacman
+{
+
+class LocalDatabase
+	: public libpacman::Database
+{
+public:
+	virtual ~LocalDatabase();
+};
+
+class LocalPackage
+	: public libpacman::Package
+{
+public:
+	virtual ~LocalPackage();
+};
+
+}
 
 #endif /* _PACMAN_LOCALDB_H */
 

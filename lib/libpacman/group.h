@@ -23,6 +23,8 @@
 
 #include "pacman.h"
 
+#include "object.h"
+
 #define GRP_NAME_LEN 256
 
 /* Groups structure */
@@ -34,6 +36,18 @@ struct __pmgrp_t {
 pmgrp_t *_pacman_grp_new(void);
 void _pacman_grp_delete(pmgrp_t *group);
 int _pacman_grp_cmp(const void *g1, const void *g2);
+
+namespace libpacman
+{
+
+class Group
+	: public libpacman::Object
+{
+public:
+	virtual ~Group();
+};
+
+}
 
 #endif /* _PACMAN_GROUP_H */
 

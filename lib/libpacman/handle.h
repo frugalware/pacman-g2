@@ -31,6 +31,7 @@ typedef struct __pmhandle_t pmhandle_t;
 
 #include "io/ffilelock.h"
 #include "db.h"
+#include "object.h"
 #include "trans.h"
 
 typedef enum __pmaccess_t {

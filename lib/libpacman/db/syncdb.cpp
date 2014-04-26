@@ -49,6 +49,8 @@
 #include "handle.h"
 #include "server.h"
 
+using namespace libpacman;
+
 static
 int suffixcmp(const char *str, const char *suffix)
 {
@@ -363,5 +365,13 @@ const pmdb_ops_t _pacman_syncdb_ops = {
 	.write = NULL,
 	.remove = NULL,
 };
+
+SyncDatabase::~SyncDatabase()
+{
+}
+
+SyncPackage::~SyncPackage()
+{
+}
 
 /* vim: set ts=2 sw=2 noet: */

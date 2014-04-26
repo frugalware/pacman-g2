@@ -22,11 +22,31 @@
 #define _PACMAN_SYNCDB_H
 
 #include "db.h"
+#include "package.h"
 
 extern
 const pmdb_ops_t _pacman_syncdb_ops;
 
 int _pacman_syncdb_update(pmdb_t *db, int force);
+
+namespace libpacman
+{
+
+class SyncDatabase
+	: public libpacman::Database
+{
+public:
+	virtual ~SyncDatabase();
+};
+
+class SyncPackage
+	: public libpacman::Package
+{
+public:
+	virtual ~SyncPackage();
+};
+
+}
 
 #endif /* _PACMAN_SYNCDB_H */
 

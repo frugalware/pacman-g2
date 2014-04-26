@@ -167,6 +167,24 @@ int _pacman_packagestrmatcher_fini(FMatcher *matcher);
 
 int _pacman_packagestrmatcher_set_flags(FMatcher *matcher, int flags);
 
+namespace libpacman
+{
+
+class Package
+	: public libpacman::Object
+{
+public:
+	~Package();
+
+	virtual int read(pmpkg_t *pkg, unsigned int flags) = 0;
+	virtual int write(pmpkg_t *pkg, unsigned int flags); /* Optional */
+	virtual	int remove(pmpkg_t *pkg); /* Optional */
+
+	struct __pmpkg_t *d;
+};
+
+}
+
 #endif /* _PACMAN_PACKAGE_H */
 
 /* vim: set ts=2 sw=2 noet: */

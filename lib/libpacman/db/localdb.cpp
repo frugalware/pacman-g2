@@ -45,6 +45,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+using namespace libpacman;
+
 static
 int _pacman_localdb_write(pmdb_t *db, pmpkg_t *info, unsigned int inforeq);
 
@@ -516,5 +518,13 @@ const pmdb_ops_t _pacman_localdb_ops = {
 	.write = _pacman_localdb_write,
 	.remove = _pacman_localdb_remove,
 };
+
+LocalDatabase::~LocalDatabase()
+{
+}
+
+LocalPackage::~LocalPackage()
+{
+}
 
 /* vim: set ts=2 sw=2 noet: */

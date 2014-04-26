@@ -30,6 +30,8 @@
 
 #include <string.h>
 
+using namespace libpacman;
+
 pmgrp_t *_pacman_grp_new()
 {
 	pmgrp_t* grp = _pacman_zalloc(sizeof(pmgrp_t));
@@ -59,6 +61,10 @@ int _pacman_grp_cmp(const void *g1, const void *g2)
 	pmgrp_t *grp2 = (pmgrp_t *)g2;
 
 	return(strcmp(grp1->name, grp2->name));
+}
+
+Group::~Group()
+{
 }
 
 /* vim: set ts=2 sw=2 noet: */

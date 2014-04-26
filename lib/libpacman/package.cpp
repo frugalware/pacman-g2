@@ -46,6 +46,22 @@
 #include <limits.h>
 #include <stdio.h>
 
+using namespace libpacman;
+
+Package::~Package()
+{
+}
+
+int Package::write(pmpkg_t *pkg, unsigned int flags)
+{
+	return -1;
+}
+
+int Package::remove(pmpkg_t *pkg)
+{
+	return -1;
+}
+
 /*
 static
 unsigned int _pacman_pkg_parm_to_flag(unsigned char parm)

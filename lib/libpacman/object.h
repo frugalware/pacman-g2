@@ -23,6 +23,20 @@
 
 #include <stddef.h>
 
+namespace libpacman
+{
+
+class Object
+{
+public:
+	virtual ~Object() { }
+
+	virtual int get(unsigned val, unsigned long *data) const = 0;
+	virtual int set(unsigned val, unsigned long data) = 0;
+};
+
+}
+
 struct __pmobject_t;
 struct __pmobject_private_t;
 
