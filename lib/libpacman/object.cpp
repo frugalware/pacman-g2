@@ -27,6 +27,22 @@
 
 #include <fstdlib.h>
 
+using namespace libpacman;
+
+Object::~Object()
+{
+}
+
+int Object::get(unsigned val, unsigned long *data) const
+{
+	return -1;
+}
+
+int Object::set(unsigned val, unsigned long data)
+{
+	return -1;
+}
+
 struct __pmobject_t *_pacman_object_alloc(size_t size, const struct __pmobject_operations_t *object_operations, struct __pmobject_private_t *object_private)
 {
 	struct __pmobject_t *ret;

@@ -29,10 +29,10 @@ namespace libpacman
 class Object
 {
 public:
-	virtual ~Object() { }
+	virtual ~Object();
 
-	virtual int get(unsigned val, unsigned long *data) const = 0;
-	virtual int set(unsigned val, unsigned long data) = 0;
+	virtual int get(unsigned val, unsigned long *data) const;
+	virtual int set(unsigned val, unsigned long data);
 };
 
 }
