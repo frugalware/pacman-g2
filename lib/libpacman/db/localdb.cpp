@@ -203,30 +203,28 @@ pmlist_t *LocalDatabase::test() const
 	return(ret);
 }
 
-static
-int _pacman_localdb_open(Database *db, int flags, time_t *timestamp)
+int LocalDatabase::open(int flags, time_t *timestamp)
 {
 	struct stat buf;
 
 	/* make sure the database directory exists */
-	if(stat(db->path, &buf) != 0 || !S_ISDIR(buf.st_mode)) {
-		_pacman_log(PM_LOG_FLOW1, _("database directory '%s' does not exist -- try creating it"), db->path);
-		if(_pacman_makepath(db->path) != 0) {
+	if(stat(path, &buf) != 0 || !S_ISDIR(buf.st_mode)) {
+		_pacman_log(PM_LOG_FLOW1, _("database directory '%s' does not exist -- try creating it"), path);
+		if(_pacman_makepath(path) != 0) {
 			RET_ERR(PM_ERR_SYSTEM, -1);
 		}
 	}
-	db->handle = opendir(db->path);
-	ASSERT(db->handle != NULL, RET_ERR(PM_ERR_DB_OPEN, -1));
-	db->gettimestamp(timestamp);
+	handle = opendir(path);
+	ASSERT(handle != NULL, RET_ERR(PM_ERR_DB_OPEN, -1));
+	gettimestamp(timestamp);
 	return 0;
 }
 
-static
-int _pacman_localdb_close(Database *db)
+int LocalDatabase::close()
 {
-	if(db->handle) {
-		closedir(db->handle);
-		db->handle = NULL;
+	if(handle) {
+		closedir(handle);
+		handle = NULL;
 	}
 	return 0;
 }
@@ -500,9 +498,6 @@ int _pacman_localdb_remove(Database *db, pmpkg_t *info)
 }
 
 const pmdb_ops_t _pacman_localdb_ops = {
-	.open = _pacman_localdb_open,
-	.close = _pacman_localdb_close,
-	.gettimestamp = NULL,
 	.read = _pacman_localdb_read,
 	.write = _pacman_localdb_write,
 	.remove = _pacman_localdb_remove,

@@ -39,9 +39,14 @@ public:
 
 	virtual pmlist_t *test() const;
 
+	virtual int close();
+
 	virtual int rewind();
 	virtual pmpkg_t *readpkg(unsigned int inforeq);
 	virtual pmpkg_t *scan(const char *target, unsigned int inforeq);
+
+protected:
+	virtual int open(int flags, time_t *timestamp);
 };
 
 class LocalPackage

@@ -130,29 +130,20 @@ int Database::open(int flags)
 {
 	ASSERT(flags == 0, RET_ERR(PM_ERR_DB_OPEN, -1)); /* No flags are supported for now */
 
-	return ops->open(this, flags, &cache_timestamp);
-}
-
-int Database::close()
-{
-	return ops->close(this);
+	return open(flags, &cache_timestamp);
 }
 
 int Database::gettimestamp(time_t *timestamp)
 {
 	ASSERT(timestamp != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	if(ops->gettimestamp) {
-		return ops->gettimestamp(this, timestamp);
-	} else {
-		char buffer[PM_FMT_MDTM_MAX];
+	char buffer[PM_FMT_MDTM_MAX];
 
-		if(_pacman_db_getlastupdate(this, buffer) == 0 &&
-			_pacman_ftp_strpmdtm(buffer, timestamp) != NULL) {
-			return 0;
-		}
-		return -1;
+	if(_pacman_db_getlastupdate(this, buffer) == 0 &&
+		_pacman_ftp_strpmdtm(buffer, timestamp) != NULL) {
+		return 0;
 	}
+	return -1;
 }
 
 /* A NULL timestamp means now per f_localtime definition.

@@ -46,11 +46,6 @@ class Database;
 typedef struct __pmdb_ops_t pmdb_ops_t;
 
 struct __pmdb_ops_t {
-	int (*open)(libpacman::Database *db, int flags, time_t *timestamp);
-	int (*close)(libpacman::Database *db);
-
-	int (*gettimestamp)(libpacman::Database *db, time_t *timestamp);
-
 	int (*read)(libpacman::Database *db, pmpkg_t *info, unsigned int inforeq);
 	int (*write)(libpacman::Database *db, pmpkg_t *info, unsigned int inforeq); /* Optional */
 	int (*remove)(libpacman::Database *db, pmpkg_t *info); /* Optional */
@@ -67,8 +62,8 @@ class Database
 	/* Prototypes for backends functions */
 	virtual pmlist_t *test() const;
 
-	virtual int open(int flags);
-	virtual int close();
+	virtual int open(int flags = 0);
+	virtual int close() = 0;
 
 	virtual int gettimestamp(time_t *timestamp);
 	virtual int settimestamp(const time_t *timestamp);
@@ -95,6 +90,8 @@ class Database
 
 protected:
 	Database(pmhandle_t *handle, const char *treename, const pmdb_ops_t *ops);
+
+	virtual int open(int flags, time_t *timestamp) = 0;
 
 private:
 	const pmdb_ops_t *ops;

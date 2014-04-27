@@ -200,42 +200,40 @@ int _pacman_syncdb_update(Database *db, int force)
 	return 0;
 }
 
-static
-int _pacman_syncdb_open(Database *db, int flags, time_t *timestamp)
+int SyncDatabase::open(int flags, time_t *timestamp)
 {
 	struct stat buf;
 	char dbpath[PATH_MAX];
 
-	snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, db->path);
+	snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, path);
 	if(stat(dbpath, &buf) != 0) {
 		// db is not there, we'll open it later
-		db->handle = NULL;
+		handle = NULL;
 		return 0;
 	}
-	if((db->handle = _pacman_archive_read_open_all_file(dbpath)) == NULL) {
+	if((handle = _pacman_archive_read_open_all_file(dbpath)) == NULL) {
 		//return 0 here to be able to update the damaged db with pacman -Syy
 		RET_ERR(PM_ERR_DB_OPEN, 0);
 	}
 	if(timestamp != NULL) {
-		db->gettimestamp(timestamp);
+		gettimestamp(timestamp);
 	}
 	return 0;
 }
 
-static
-int _pacman_syncdb_close(Database *db)
+int SyncDatabase::close()
 {
-	if(db->handle) {
-		archive_read_finish(db->handle);
-		db->handle = NULL;
+	if(handle) {
+		archive_read_finish(handle);
+		handle = NULL;
 	}
 	return 0;
 }
 
 int SyncDatabase::rewind()
 {
-	_pacman_syncdb_close(this);
-	return _pacman_syncdb_open(this, 0, NULL);
+	close();
+	return open(0, NULL);
 }
 
 pmpkg_t *SyncDatabase::readpkg(unsigned int inforeq)
@@ -341,9 +339,6 @@ int _pacman_syncdb_read(Database *db, pmpkg_t *info, unsigned int inforeq)
 }
 
 const pmdb_ops_t _pacman_syncdb_ops = {
-	.open = _pacman_syncdb_open,
-	.close = _pacman_syncdb_close,
-	.gettimestamp = NULL,
 	.read = _pacman_syncdb_read,
 	.write = NULL,
 	.remove = NULL,
