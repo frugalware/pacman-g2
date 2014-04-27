@@ -61,6 +61,10 @@ int suffixcmp(const char *str, const char *suffix)
 		return strcmp(str + len - suflen, suffix);
 }
 
+SyncPackage::~SyncPackage()
+{
+}
+
 static
 int _pacman_syncpkg_file_reader(Database *db, Package *pkg, unsigned int flags, unsigned int flags_masq, int (*reader)(Package *, FILE *))
 {
@@ -76,44 +80,34 @@ int _pacman_syncpkg_file_reader(Database *db, Package *pkg, unsigned int flags, 
 	return ret;
 }
 
-static
-int _pacman_syncpkg_read(Package *pkg, unsigned int flags)
+int SyncPackage::read(unsigned int flags)
 {
-	Database *db;
 	int descdone = 0, depsdone = 0;
 
-	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT((db = pkg->database) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	if(pkg == NULL || pkg->name[0] == 0 || pkg->version[0] == 0) {
+	ASSERT(database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	if(name[0] == 0 || version[0] == 0) {
 		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_syncdb_read"));
 		return(-1);
 	}
 
 	while (!descdone || !depsdone) {
 		struct archive_entry *entry = NULL;
-		if (archive_read_next_header(db->handle, &entry) != ARCHIVE_OK)
+		if (archive_read_next_header(database->handle, &entry) != ARCHIVE_OK)
 			return -1;
 		const char *pathname = archive_entry_pathname(entry);
 		if (!suffixcmp(pathname, "/desc")) {
-			if(_pacman_syncpkg_file_reader(db, pkg, flags, PM_LOCALPACKAGE_FLAGS_DESC, _pacman_localdb_desc_fread) == -1)
+			if(_pacman_syncpkg_file_reader(database, this, flags, PM_LOCALPACKAGE_FLAGS_DESC, _pacman_localdb_desc_fread) == -1)
 				return -1;
 			descdone = 1;
 		}
 		if (!suffixcmp(pathname, "/depends")) {
-			if(_pacman_syncpkg_file_reader(db, pkg, flags, PM_LOCALPACKAGE_FLAGS_DEPENDS, _pacman_localdb_depends_fread) == -1)
+			if(_pacman_syncpkg_file_reader(database, this, flags, PM_LOCALPACKAGE_FLAGS_DEPENDS, _pacman_localdb_depends_fread) == -1)
 				return -1;
 			depsdone = 1;
 		}
 	}
 	return 0;
 }
-
-static const
-struct __pmpkg_operations_t _pacman_syncpkg_operations = {
-	.read = _pacman_syncpkg_read,
-	.write = NULL,
-	.remove = NULL,
-};
 
 static
 int _pacman_syncpkg_init(Package *pkg, Database *db)
@@ -122,6 +116,15 @@ int _pacman_syncpkg_init(Package *pkg, Database *db)
 	ASSERT(_pacman_pkg_init(pkg, db) == 0, return -1);
 
 	return 0;
+}
+
+SyncDatabase::SyncDatabase(pmhandle_t *handle, const char *treename)
+	  : Database(handle, treename, &_pacman_syncdb_ops)
+{
+}
+
+SyncDatabase::~SyncDatabase()
+{
 }
 
 static
@@ -334,18 +337,5 @@ int _pacman_syncdb_read(Database *db, Package *info, unsigned int inforeq)
 const pmdb_ops_t _pacman_syncdb_ops = {
 	.read = _pacman_syncdb_read,
 };
-
-SyncDatabase::SyncDatabase(pmhandle_t *handle, const char *treename)
-	: Database(handle, treename, &_pacman_syncdb_ops)
-{
-}
-
-SyncDatabase::~SyncDatabase()
-{
-}
-
-SyncPackage::~SyncPackage()
-{
-}
 
 /* vim: set ts=2 sw=2 noet: */

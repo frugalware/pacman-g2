@@ -30,6 +30,16 @@ const pmdb_ops_t _pacman_localdb_ops;
 namespace libpacman
 {
 
+class LocalPackage
+	  : public libpacman::Package
+{
+public:
+	LocalPackage();
+	virtual ~LocalPackage();
+
+	virtual int read(unsigned int flags);
+};
+
 class LocalDatabase
 	: public libpacman::Database
 {
@@ -50,13 +60,6 @@ public:
 
 protected:
 	virtual int open(int flags, time_t *timestamp);
-};
-
-class LocalPackage
-	: public libpacman::Package
-{
-public:
-	virtual ~LocalPackage();
 };
 
 }

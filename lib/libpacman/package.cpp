@@ -48,8 +48,7 @@
 
 using namespace libpacman;
 
-Package::Package(__pmpkg_operations_t *_operations)
-	: operations(_operations)
+Package::Package()
 {
 }
 
@@ -341,11 +340,10 @@ int _pacman_pkg_splitname(const char *target, char *name, char *version, int wit
 
 int Package::read(unsigned int flags)
 {
-	ASSERT(operations != NULL, return -1);
-	ASSERT(operations->read != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	if(~this->flags & flags) {
-		return operations->read(this, flags);
+		return database->read(this, flags);
 	}
 	return 0;
 }
@@ -354,22 +352,20 @@ int Package::write(unsigned int flags)
 {
 	int ret;
 
-	ASSERT(operations != NULL, return -1);
-	ASSERT(operations->write != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if((ret = operations->write(this, flags)) != 0) {
+	if((ret = database->write(this, flags)) != 0) {
 		_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
-			this->name, this->version);
+			name, version);
 	}
 	return ret;
 }
 
 int Package::remove()
 {
-	ASSERT(operations != NULL, return -1);
-	ASSERT(operations->remove != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	return operations->remove(this);
+	return database->remove(this);
 }
 
 static
@@ -566,12 +562,6 @@ char *_pacman_pkg_fileneedbackup(const Package *pkg, const char *file)
 
 	return(NULL);
 }
-
-const struct __pmpkg_operations_t pmpkg_operations = {
-	.read = NULL,
-	.write = NULL,
-	.remove = NULL
-};
 
 typedef struct FPackageStrMatcher FPackageStrMatcher;
 

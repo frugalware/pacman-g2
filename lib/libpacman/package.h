@@ -84,12 +84,6 @@ class Package;
 
 }
 
-struct __pmpkg_operations_t {
-	int (*read)(libpacman::Package *pkg, unsigned int flags);
-	int (*write)(libpacman::Package *pkg, unsigned int flags); /* Optional */
-	int (*remove)(libpacman::Package *pkg); /* Optional */
-};
-
 namespace libpacman {
 
 /* IMPROVEMENT: Add a dirty_flags to know what flags needs to be written */
@@ -97,15 +91,13 @@ class Package
 	: public libpacman::Object
 {
 public:
-
-	Package(__pmpkg_operations_t *operations);
+	Package();
 	virtual ~Package();
 
 	virtual int read(unsigned int flags);
 	virtual int write(unsigned int flags); /* Optional */
 	virtual int remove(); /* Optional */
 
-	__pmpkg_operations_t *operations;
 	libpacman::Database *database;
 
 	unsigned int flags;

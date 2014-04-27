@@ -32,6 +32,15 @@ int _pacman_syncdb_update(libpacman::Database *db, int force);
 namespace libpacman
 {
 
+class SyncPackage
+	  : public libpacman::Package
+{
+public:
+	virtual ~SyncPackage();
+
+	virtual int read(unsigned int flags);
+};
+
 class SyncDatabase
 	: public libpacman::Database
 {
@@ -47,13 +56,6 @@ public:
 
 protected:
 	virtual int open(int flags, time_t *timestamp);
-};
-
-class SyncPackage
-	: public libpacman::Package
-{
-public:
-	virtual ~SyncPackage();
 };
 
 }
