@@ -44,11 +44,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+using namespace libpacman;
+
 /* Parses the pkginfo package description file for the current package
  *
  * Returns: 0 on success, 1 on error
  */
-int _pacman_pkginfo_fread(FILE *descfile, pmpkg_t *info, int output)
+int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 {
 	char line[PATH_MAX];
 	char* ptr = NULL;
@@ -133,7 +135,7 @@ int _pacman_pkginfo_fread(FILE *descfile, pmpkg_t *info, int output)
 	return(0);
 }
 
-int _pacman_pkginfo_read(char *descfile, pmpkg_t *info, int output)
+int _pacman_pkginfo_read(char *descfile, Package *info, int output)
 {
 	FILE* fp = NULL;
 	int ret;
@@ -151,7 +153,7 @@ int _pacman_pkginfo_read(char *descfile, pmpkg_t *info, int output)
 	return ret;
 }
 
-pmpkg_t *_pacman_fpmpackage_load(const char *pkgfile)
+Package *_pacman_fpmpackage_load(const char *pkgfile)
 {
 	char *expath;
 	int i, ret;
@@ -160,7 +162,7 @@ pmpkg_t *_pacman_fpmpackage_load(const char *pkgfile)
 	int scriptcheck = 0;
 	register struct archive *archive;
 	struct archive_entry *entry;
-	pmpkg_t *info = NULL;
+	Package *info = NULL;
 
 	if((archive = _pacman_archive_read_open_all_file(pkgfile)) == NULL) {
 		RET_ERR(PM_ERR_PKG_OPEN, NULL);
@@ -201,7 +203,7 @@ pmpkg_t *_pacman_fpmpackage_load(const char *pkgfile)
 			char *str;
 
 			if((str = (char *)malloc(PATH_MAX)) == NULL) {
-				RET_ERR(PM_ERR_MEMORY, (pmpkg_t *)-1);
+				RET_ERR(PM_ERR_MEMORY, (Package *)-1);
 			}
 			filelist = _pacman_archive_read_fropen(archive);
 			while(!feof(filelist)) {

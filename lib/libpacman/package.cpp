@@ -48,18 +48,13 @@
 
 using namespace libpacman;
 
+Package::Package(__pmpkg_operations_t *_operations)
+	: operations(_operations)
+{
+}
+
 Package::~Package()
 {
-}
-
-int Package::write(pmpkg_t *pkg, unsigned int flags)
-{
-	return -1;
-}
-
-int Package::remove(pmpkg_t *pkg)
-{
-	return -1;
 }
 
 /*
@@ -115,22 +110,11 @@ unsigned int _pacman_pkg_parm_to_flag(unsigned char parm)
 }
 */
 
-pmpkg_t *_pacman_pkg_alloc(size_t size, const struct __pmpkg_operations_t *package_operations)
+Package *_pacman_pkg_new(const char *name, const char *version)
 {
-	pmpkg_t *ret;
+	Package* pkg = NULL;
 
-	ASSERT(size >= sizeof(*ret), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-	ASSERT(package_operations != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-
-	ret = (pmpkg_t *)_pacman_object_alloc(size, &package_operations->as_pmobject_operations_t, NULL);
-	return ret;
-}
-
-pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
-{
-	pmpkg_t* pkg = NULL;
-
-	if((pkg = (pmpkg_t *)f_zalloc(sizeof(pmpkg_t))) == NULL) {
+	if((pkg = (Package *)f_zalloc(sizeof(Package))) == NULL) {
 		return NULL;
 	}
 
@@ -144,9 +128,9 @@ pmpkg_t *_pacman_pkg_new(const char *name, const char *version)
 	return(pkg);
 }
 
-pmpkg_t *_pacman_pkg_new_from_filename(const char *filename, int witharch)
+Package *_pacman_pkg_new_from_filename(const char *filename, int witharch)
 {
-	pmpkg_t *pkg;
+	Package *pkg;
 
 	ASSERT(pkg = _pacman_pkg_new(NULL, NULL), return NULL);
 
@@ -157,9 +141,9 @@ pmpkg_t *_pacman_pkg_new_from_filename(const char *filename, int witharch)
 	return pkg;
 }
 
-pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
+Package *_pacman_pkg_dup(Package *pkg)
 {
-	pmpkg_t* newpkg = _pacman_malloc(sizeof(pmpkg_t));
+	Package* newpkg = _pacman_malloc(sizeof(Package));
 
 	if(newpkg == NULL) {
 		return(NULL);
@@ -203,7 +187,7 @@ pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg)
 	return(newpkg);
 }
 
-int _pacman_pkg_delete(pmpkg_t *self)
+int _pacman_pkg_delete(Package *self)
 {
 	ASSERT(_pacman_pkg_fini(self) == 0, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
@@ -211,10 +195,9 @@ int _pacman_pkg_delete(pmpkg_t *self)
 	return 0;
 }
 
-int _pacman_pkg_init(pmpkg_t *self, Database *db)
+int _pacman_pkg_init(Package *self, Database *db)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(_pacman_object_init(&self->as_pmobject_t, NULL) == 0, return -1);
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	self->database = db;
@@ -222,7 +205,7 @@ int _pacman_pkg_init(pmpkg_t *self, Database *db)
 	return 0;
 }
 
-int _pacman_pkg_fini(pmpkg_t *self)
+int _pacman_pkg_fini(Package *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
@@ -244,24 +227,14 @@ int _pacman_pkg_fini(pmpkg_t *self)
 	return 0;
 }
 
-static
-const struct __pmpkg_operations_t *_pacman_package_operations(pmpkg_t *self)
-{
-	const struct __pmobject_operations_t *object_operations;
-
-	ASSERT((object_operations = _pacman_object_operations(&self->as_pmobject_t)) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-
-	return (const struct __pmpkg_operations_t *)object_operations;
-}
-
 /* Helper function for comparing packages
  */
 int _pacman_pkg_cmp(const void *p1, const void *p2)
 {
-	return(strcmp(((pmpkg_t *)p1)->name, ((pmpkg_t *)p2)->name));
+	return(strcmp(((Package *)p1)->name, ((Package *)p2)->name));
 }
 
-int _pacman_pkg_is_valid(const pmpkg_t *pkg, const pmtrans_t *trans, const char *pkgfile)
+int _pacman_pkg_is_valid(const Package *pkg, const pmtrans_t *trans, const char *pkgfile)
 {
 	struct utsname name;
 
@@ -305,9 +278,9 @@ pkg_error:
 }
 
 /* Test for existence of a package in a pmlist_t*
- * of pmpkg_t*
+ * of Package*
  */
-pmpkg_t *_pacman_pkg_isin(const char *needle, pmlist_t *haystack)
+Package *_pacman_pkg_isin(const char *needle, pmlist_t *haystack)
 {
 	pmlist_t *lp;
 
@@ -316,7 +289,7 @@ pmpkg_t *_pacman_pkg_isin(const char *needle, pmlist_t *haystack)
 	}
 
 	for(lp = haystack; lp; lp = lp->next) {
-		pmpkg_t *info = lp->data;
+		Package *info = lp->data;
 
 		if(info && !strcmp(info->name, needle)) {
 			return(lp->data);
@@ -366,46 +339,41 @@ int _pacman_pkg_splitname(const char *target, char *name, char *version, int wit
 	return(0);
 }
 
-int _pacman_pkg_read(pmpkg_t *pkg, unsigned int flags)
+int Package::read(unsigned int flags)
 {
-	const struct __pmpkg_operations_t *package_operations;
+	ASSERT(operations != NULL, return -1);
+	ASSERT(operations->read != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	ASSERT((package_operations = _pacman_package_operations(pkg)) != NULL, return -1);
-	ASSERT(package_operations->read != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	if(~pkg->flags & flags) {
-		return package_operations->read(pkg, flags);
+	if(~this->flags & flags) {
+		return operations->read(this, flags);
 	}
 	return 0;
 }
 
-int _pacman_pkg_write(pmpkg_t *pkg, unsigned int flags)
+int Package::write(unsigned int flags)
 {
-	const struct __pmpkg_operations_t *package_operations;
 	int ret;
 
-	ASSERT((package_operations = _pacman_package_operations(pkg)) != NULL, return -1);
-	ASSERT(package_operations->write != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(operations != NULL, return -1);
+	ASSERT(operations->write != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	if((ret = package_operations->write(pkg, flags)) != 0) {
+	if((ret = operations->write(this, flags)) != 0) {
 		_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
-			pkg->name, pkg->version);
+			this->name, this->version);
 	}
 	return ret;
 }
 
-int _pacman_pkg_remove(pmpkg_t *pkg)
+int Package::remove()
 {
-	const struct __pmpkg_operations_t *package_operations;
+	ASSERT(operations != NULL, return -1);
+	ASSERT(operations->remove != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	ASSERT((package_operations = _pacman_package_operations(pkg)) != NULL, return -1);
-	ASSERT(package_operations->remove != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	return package_operations->remove(pkg);
+	return operations->remove(this);
 }
 
 static
-void *__pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
+void *__pacman_pkg_getinfo(Package *pkg, unsigned char parm)
 {
 	void *data = NULL;
 
@@ -503,7 +471,7 @@ void *__pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
 	return(data);
 }
 
-void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
+void *_pacman_pkg_getinfo(Package *pkg, unsigned char parm)
 {
 #if 0
 	return pkg->operations->getinfo(pkg, parm);
@@ -531,7 +499,7 @@ pmlist_t *_pacman_pkg_getowners(const char *filename)
 	}
 
 	for(lp = _pacman_db_get_pkgcache(handle->db_local); lp; lp = lp->next) {
-		pmpkg_t *info;
+		Package *info;
 		pmlist_t *i;
 
 		info = lp->data;
@@ -558,16 +526,16 @@ pmlist_t *_pacman_pkg_getowners(const char *filename)
 	return(ret);
 }
 
-int _pacman_pkg_filename(char *str, size_t size, const pmpkg_t *pkg)
+int _pacman_pkg_filename(char *str, size_t size, const Package *pkg)
 {
 	return snprintf(str, size, "%s-%s-%s%s",
 			pkg->name, pkg->version, pkg->arch, PM_EXT_PKG);
 }
 
-/* Look for a filename in a pmpkg_t.backup list.  If we find it,
+/* Look for a filename in a Package.backup list.  If we find it,
  * then we return the md5 or sha1 hash (parsed from the same line)
  */
-char *_pacman_pkg_fileneedbackup(const pmpkg_t *pkg, const char *file)
+char *_pacman_pkg_fileneedbackup(const Package *pkg, const char *file)
 {
 	const pmlist_t *lp;
 
@@ -600,13 +568,6 @@ char *_pacman_pkg_fileneedbackup(const pmpkg_t *pkg, const char *file)
 }
 
 const struct __pmpkg_operations_t pmpkg_operations = {
-	.as_pmobject_operations_t = {
-		.fini = NULL,
-
-		.get = NULL,
-		.set = NULL,
-	},
-
 	.read = NULL,
 	.write = NULL,
 	.remove = NULL
@@ -622,7 +583,7 @@ struct FPackageStrMatcher
 
 static
 int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
-	const pmpkg_t *pkg = ptr;
+	const Package *pkg = ptr;
 	const FPackageStrMatcher *data = matcher_data;
 	const int flags = data->flags;
 	const FStrMatcher *strmatcher = data->strmatcher;
@@ -632,19 +593,19 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 	if(pkg->origin == PKG_FROM_CACHE) {
 		if(!(pkg->infolevel & INFRQ_DESC)) {
 			_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), pkg->name);
-			_pacman_db_read(pkg->data, (pmpkg_t *)pkg, INFRQ_DESC);
+			_pacman_db_read(pkg->data, (Package *)pkg, INFRQ_DESC);
 		}
 		if(!(pkg->infolevel & INFRQ_DEPENDS)) {
 			_pacman_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", pkg->name);
-			_pacman_db_read(pkg->data, (pmpkg_t *)pkg, INFRQ_DEPENDS);
+			_pacman_db_read(pkg->data, (Package *)pkg, INFRQ_DEPENDS);
 		}
 		if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_FILES)) {
 			_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg->name);
-			_pacman_db_read(pkg->data, (pmpkg_t *)pkg, INFRQ_FILES);
+			_pacman_db_read(pkg->data, (Package *)pkg, INFRQ_FILES);
 		}
 		if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_SCRIPLET)) {
 			_pacman_log(PM_LOG_DEBUG, _("loading SCRIPLET info for '%s'"), pkg->name);
-			_pacman_db_read(pkg->data, (pmpkg_t *)pkg, INFRQ_SCRIPLET);
+			_pacman_db_read(pkg->data, (Package *)pkg, INFRQ_SCRIPLET);
 		}
 	}
 #endif

@@ -169,12 +169,12 @@ int _pacman_trans_compute_triggers(pmtrans_t *trans)
 
 	/* NOTE: Not the most efficient way, but will do until we add some string hash. */
 	for(lp = trans->packages; lp; lp = lp->next) {
-		pmpkg_t *pkg = lp->data;
+		Package *pkg = lp->data;
 
 		trans->triggers = f_stringlist_append_stringlist(trans->triggers, pkg->triggers);
 	}
 	for(lp = trans->syncpkgs; lp; lp = lp->next) {
-		pmpkg_t *pkg = ((pmsyncpkg_t *)lp->data)->pkg;
+		Package *pkg = ((pmsyncpkg_t *)lp->data)->pkg;
 
 		/* FIXME: might be incomplete */
 		trans->triggers = f_stringlist_append_stringlist(trans->triggers, pkg->triggers);
@@ -288,7 +288,7 @@ pmsyncpkg_t *_pacman_trans_add(pmtrans_t *trans, pmsyncpkg_t *syncpkg, int flags
 	return syncpkg;
 }
 
-int _pacman_trans_add_package(pmtrans_t *trans, pmpkg_t *pkg, pmtranstype_t type, int flags)
+int _pacman_trans_add_package(pmtrans_t *trans, Package *pkg, pmtranstype_t type, int flags)
 {
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -307,7 +307,7 @@ pmsyncpkg_t *_pacman_trans_add_target(pmtrans_t *trans, const char *target, pmtr
 }
 
 static
-pmpkg_t *_pacman_filedb_load(Database *db, const char *name)
+Package *_pacman_filedb_load(Database *db, const char *name)
 {
 	struct stat buf;
 
@@ -323,7 +323,7 @@ pmpkg_t *_pacman_filedb_load(Database *db, const char *name)
 static
 int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 {
-	pmpkg_t *pkg_local;
+	Package *pkg_local;
 	Database *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -354,7 +354,7 @@ int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 {
 	pmlist_t *i;
-	pmpkg_t *pkg_new, *pkg_local, *pkg_queued = NULL;
+	Package *pkg_new, *pkg_local, *pkg_queued = NULL;
 	Database *db_local = trans->handle->db_local;
 
 	/* Sanity checks */
@@ -413,7 +413,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 	/* check if an older version of said package is already in transaction packages.
 	 * if so, replace it in the list */
 	for(i = trans->packages; i; i = i->next) {
-		pmpkg_t *pkg = i->data;
+		Package *pkg = i->data;
 		if(strcmp(pkg->name, pkg_new->name) == 0) {
 			pkg_queued = pkg;
 			break;
@@ -503,7 +503,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 	EVENT(trans, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
 	_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
 	for (lp=trans->packages; lp!=NULL; lp=lp->next) {
-		pmpkg_t *pkg_new=(pmpkg_t *)lp->data;
+		Package *pkg_new=(Package *)lp->data;
 		pmlist_t *rmlist;
 
 		for (rmlist=pkg_new->removes; rmlist!=NULL; rmlist=rmlist->next) {
@@ -570,7 +570,7 @@ int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
 					pmlist_t *i;
 					for(i = lp; i; i = i->next) {
 						pmdepmissing_t *miss = (pmdepmissing_t *)i->data;
-						pmpkg_t *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
+						Package *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
 						if(pkg_local) {
 							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), pkg_local->name);
 							trans->packages = _pacman_list_add(trans->packages, pkg_local);
@@ -650,7 +650,7 @@ int _pacman_trans_prepare(pmtrans_t *trans, pmlist_t **data)
 }
 
 static
-int _pacman_fpmpackage_install(pmpkg_t *pkg, pmtranstype_t type, pmtrans_t *trans, unsigned char cb_state, int howmany, int remain, pmpkg_t *oldpkg)
+int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *trans, unsigned char cb_state, int howmany, int remain, Package *oldpkg)
 {
 	int archive_ret, errors = 0, i;
 	double percent = 0;
@@ -951,7 +951,7 @@ int _pacman_fpmpackage_install(pmpkg_t *pkg, pmtranstype_t type, pmtrans_t *tran
 }
 
 static
-int _pacman_localpackage_remove(pmpkg_t *pkg, pmtrans_t *trans, int howmany, int remain)
+int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int remain)
 {
 	pmlist_t *lp;
 	struct stat buf;
@@ -1058,8 +1058,8 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 		unsigned short pmo_upgrade;
 		pmtranstype_t type;
 		char pm_install[PATH_MAX];
-		pmpkg_t *pkg_new = (pmpkg_t *)targ->data;
-		pmpkg_t *oldpkg = NULL, *pkg_local = NULL;
+		Package *pkg_new = (Package *)targ->data;
+		Package *oldpkg = NULL, *pkg_local = NULL;
 		remain = _pacman_list_count(targ);
 
 		if(handle->trans->state == STATE_INTERRUPTED) {
@@ -1157,7 +1157,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 		/* Update the requiredby field by scanning the whole database
 		 * looking for packages depending on the package to add */
 		for(lp = _pacman_db_get_pkgcache(db_local); lp; lp = lp->next) {
-			pmpkg_t *tmpp = lp->data;
+			Package *tmpp = lp->data;
 			pmlist_t *tmppm = NULL;
 			if(tmpp == NULL) {
 				continue;
@@ -1195,7 +1195,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 			_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
 		}
 		for(lp = pkg_new->depends; lp; lp = lp->next) {
-			pmpkg_t *depinfo;
+			Package *depinfo;
 			pmdepend_t depend;
 			if(_pacman_splitdep(lp->data, &depend)) {
 				continue;
@@ -1209,7 +1209,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 					 *       the first one.
 					 */
 					/* use the first one */
-					depinfo = _pacman_db_get_pkgfromcache(db_local, ((pmpkg_t *)provides->data)->name);
+					depinfo = _pacman_db_get_pkgfromcache(db_local, ((Package *)provides->data)->name);
 					FREELISTPTR(provides);
 				}
 				if(depinfo == NULL) {
@@ -1263,7 +1263,7 @@ static int str_cmp(const void *s1, const void *s2)
 static
 int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 {
-	pmpkg_t *pkg_local;
+	Package *pkg_local;
 	pmlist_t *targ, *lp;
 	int howmany, remain;
 	Database *db_local = trans->handle->db_local;
@@ -1275,7 +1275,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 
 	for(targ = trans->packages; targ; targ = targ->next) {
 		char pm_install[PATH_MAX];
-		pkg_local = (pmpkg_t*)targ->data;
+		pkg_local = (Package*)targ->data;
 
 		if(handle->trans->state == STATE_INTERRUPTED) {
 			break;
@@ -1322,7 +1322,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 		/* update dependency packages' REQUIREDBY fields */
 		_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
 		for(lp = pkg_local->depends; lp; lp = lp->next) {
-			pmpkg_t *depinfo = NULL;
+			Package *depinfo = NULL;
 			pmdepend_t depend;
 			char *data;
 			if(_pacman_splitdep((char*)lp->data, &depend)) {
@@ -1344,7 +1344,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 					 *			 the first one.
 					 */
 					/* use the first one */
-					depinfo = _pacman_db_get_pkgfromcache(db_local, ((pmpkg_t *)provides->data)->name);
+					depinfo = _pacman_db_get_pkgfromcache(db_local, ((Package *)provides->data)->name);
 					FREELISTPTR(provides);
 				}
 				if(depinfo == NULL) {

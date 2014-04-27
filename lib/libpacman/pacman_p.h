@@ -34,11 +34,13 @@ namespace libpacman {
 
 class Database;
 class Group;
+class Package;
 
 }
 
 DEFINE_CAST(struct __pmdb_t, libpacman::Database)
 DEFINE_CAST(struct __pmgrp_t, libpacman::Group)
+DEFINE_CAST(struct __pmpkg_t, libpacman::Package)
 
 #undef DEFINE_CAST
 

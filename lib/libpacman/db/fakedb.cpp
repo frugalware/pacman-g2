@@ -36,11 +36,13 @@
 
 #include <time.h>
 
-static pmpkg_t *_pacman_fakedb_pkg_new(pmdb_t *fakedb, const char *name)
+using namespace libpacman;
+
+static Package *_pacman_fakedb_pkg_new(pmdb_t *fakedb, const char *name)
 {
 	char *ptr, *p;
 	char *str = NULL;
-	pmpkg_t *dummy = NULL;
+	Package *dummy = NULL;
 
 	dummy = _pacman_pkg_new(NULL, NULL);
 	if(dummy == NULL) {
@@ -81,7 +83,7 @@ static pmpkg_t *_pacman_fakedb_pkg_new(pmdb_t *fakedb, const char *name)
 
 int _pacman_fakedb_addtarget(pmtrans_t *trans, const char *name)
 {
-	pmpkg_t *dummy = _pacman_fakedb_pkg_new(NULL, name);
+	Package *dummy = _pacman_fakedb_pkg_new(NULL, name);
 
 	if (dummy == NULL)
 		return -1;

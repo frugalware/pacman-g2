@@ -61,7 +61,7 @@
 
 using namespace libpacman;
 
-pmsyncpkg_t *_pacman_syncpkg_new(int type, pmpkg_t *spkg, void *data)
+pmsyncpkg_t *_pacman_syncpkg_new(int type, Package *spkg, void *data)
 {
 	pmsyncpkg_t *ps;
 
@@ -103,8 +103,8 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	char targline[PKG_FULLNAME_LEN];
 	char *targ;
 	pmlist_t *j;
-	pmpkg_t *pkg_local;
-	pmpkg_t *spkg = NULL;
+	Package *pkg_local;
+	Package *spkg = NULL;
 	int cmp;
 	Database *db_local = trans->handle->db_local;
 	pmlist_t *dbs_sync = trans->handle->dbs_sync;
@@ -184,7 +184,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 
 	/* add the package to the transaction */
 	if(!_pacman_trans_find(trans, spkg->name)) {
-		pmpkg_t *dummy = NULL;
+		Package *dummy = NULL;
 		pmsyncpkg_t *ps;
 
 		if(pkg_local) {
@@ -206,7 +206,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 
 static int pkg_cmp(const void *p1, const void *p2)
 {
-	return(strcmp(((pmpkg_t *)p1)->name, ((pmsyncpkg_t *)p2)->pkg->name));
+	return(strcmp(((Package *)p1)->name, ((pmsyncpkg_t *)p2)->pkg->name));
 }
 
 static int check_olddelay(void)
@@ -260,7 +260,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 		for(i = trans->syncpkgs; i; i = i->next) {
-			pmpkg_t *spkg = ((pmsyncpkg_t *)i->data)->pkg;
+			Package *spkg = ((pmsyncpkg_t *)i->data)->pkg;
 			if(_pacman_resolvedeps(trans, spkg, list, trail, data) == -1) {
 				/* pm_errno is set by resolvedeps */
 				ret = -1;
@@ -270,7 +270,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 
 		for(i = list; i; i = i->next) {
 			/* add the dependencies found by resolvedeps to the transaction set */
-			pmpkg_t *spkg = i->data;
+			Package *spkg = i->data;
 			if(!_pacman_trans_find(trans, spkg->name)) {
 				pmsyncpkg_t *ps = _pacman_syncpkg_new(PM_SYNC_TYPE_DEPEND, spkg, NULL);
 				if(ps == NULL) {
@@ -338,7 +338,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				pmdepmissing_t *miss = i->data;
 				int found = 0;
 				pmsyncpkg_t *ps;
-				pmpkg_t *local;
+				Package *local;
 
 				_pacman_log(PM_LOG_FLOW2, _("package '%s' is conflicting with '%s'"),
 						  miss->target, miss->depend.name);
@@ -431,7 +431,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 						asked = _pacman_stringlist_append(asked, miss->depend.name);
 						if(doremove) {
 							pmsyncpkg_t *rsync = _pacman_trans_find(trans, miss->depend.name);
-							pmpkg_t *q = _pacman_pkg_new(miss->depend.name, NULL);
+							Package *q = _pacman_pkg_new(miss->depend.name, NULL);
 							if(q == NULL) {
 								if(data) {
 									FREELIST(*data);
@@ -532,8 +532,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 						int pfound = 0;
 						/* If miss->depend.name depends on something that miss->target and a
 						 * package in final both provide, then it's okay...  */
-						pmpkg_t *leavingp  = _pacman_db_get_pkgfromcache(db_local, miss->target);
-						pmpkg_t *conflictp = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
+						Package *leavingp  = _pacman_db_get_pkgfromcache(db_local, miss->target);
+						Package *conflictp = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
 						if(!leavingp || !conflictp) {
 							_pacman_log(PM_LOG_ERROR, _("something has gone horribly wrong"));
 							ret = -1;
@@ -642,7 +642,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		pmsyncpkg_t *ps = i->data;
 		if(ps->type == PM_SYNC_TYPE_REPLACE) {
 			for(j = ps->data; j; j = j->next) {
-				pmpkg_t *pkg = j->data;
+				Package *pkg = j->data;
 				if(!_pacman_pkg_isin(pkg->name, tr->packages)) {
 					if(_pacman_trans_addtarget(tr, pkg->name) == -1) {
 						goto error;
@@ -681,7 +681,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 	}
 	for(i = trans->syncpkgs; i; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
-		pmpkg_t *spkg = ps->pkg;
+		Package *spkg = ps->pkg;
 		char str[PATH_MAX];
 		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name, spkg->version, spkg->arch);
 		if(_pacman_trans_addtarget(tr, str) == -1) {
@@ -713,16 +713,16 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		for(i = trans->syncpkgs; i; i = i->next) {
 			pmsyncpkg_t *ps = i->data;
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				pmpkg_t *pkg_new = _pacman_db_get_pkgfromcache(db_local, ps->pkg_name);
+				Package *pkg_new = _pacman_db_get_pkgfromcache(db_local, ps->pkg_name);
 				for(j = ps->data; j; j = j->next) {
 					pmlist_t *k;
-					pmpkg_t *old = j->data;
+					Package *old = j->data;
 					/* merge lists */
 					for(k = old->requiredby; k; k = k->next) {
 						if(!_pacman_list_is_strin(k->data, pkg_new->requiredby)) {
 							/* replace old's name with new's name in the requiredby's dependency list */
 							pmlist_t *m;
-							pmpkg_t *depender = _pacman_db_get_pkgfromcache(db_local, k->data);
+							Package *depender = _pacman_db_get_pkgfromcache(db_local, k->data);
 							if(depender == NULL) {
 								/* If the depending package no longer exists in the local db,
 								 * then it must have ALSO conflicted with ps->pkg.  If
@@ -787,7 +787,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 
 			for(j = trans->syncpkgs; j; j = j->next) {
 				pmsyncpkg_t *ps = j->data;
-				pmpkg_t *spkg = ps->pkg;
+				Package *spkg = ps->pkg;
 				Database *dbs = spkg->data;
 
 				if(current == dbs) {
@@ -853,7 +853,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 
 			for(i = trans->syncpkgs; i; i = i->next) {
 				pmsyncpkg_t *ps = i->data;
-				pmpkg_t *spkg = ps->pkg;
+				Package *spkg = ps->pkg;
 				char str[PATH_MAX], pkgname[PATH_MAX];
 				char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
 				char *ptr=NULL;

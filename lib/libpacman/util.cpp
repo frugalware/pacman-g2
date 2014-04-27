@@ -52,6 +52,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+using namespace libpacman;
+
 /* does the same thing as 'mkdir -p' */
 int _pacman_makepath(const char *path)
 {
@@ -484,14 +486,14 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 	long long pkgsize=0, freespace;
 
 	for(i = trans->packages; i; i = i->next) {
-		pmpkg_t *pkg = i->data;
+		Package *pkg = i->data;
 		pkgsize += pkg->size;
 	}
 	for(i = trans->syncpkgs; i; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
 
 		if(ps->type != PM_SYNC_TYPE_REPLACE) {
-			pmpkg_t *pkg = ps->pkg;
+			Package *pkg = ps->pkg;
 			pkgsize += pkg->usize;
 		}
 	}

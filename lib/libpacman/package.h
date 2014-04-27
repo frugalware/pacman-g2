@@ -78,17 +78,34 @@ enum {
 #define PM_PACKAGE_FLAG_SCRIPTLET             (1<<24)
 #define PM_PACKAGE_FLAG_STICKY                (1<<25)
 
-struct __pmpkg_operations_t {
-	struct __pmobject_operations_t as_pmobject_operations_t;
+namespace libpacman {
 
-	int (*read)(pmpkg_t *pkg, unsigned int flags);
-	int (*write)(pmpkg_t *pkg, unsigned int flags); /* Optional */
-	int (*remove)(pmpkg_t *pkg); /* Optional */
+class Package;
+
+}
+
+struct __pmpkg_operations_t {
+	int (*read)(libpacman::Package *pkg, unsigned int flags);
+	int (*write)(libpacman::Package *pkg, unsigned int flags); /* Optional */
+	int (*remove)(libpacman::Package *pkg); /* Optional */
 };
 
+namespace libpacman {
+
 /* IMPROVEMENT: Add a dirty_flags to know what flags needs to be written */
-struct __pmpkg_t {
-	struct __pmobject_t as_pmobject_t;
+class Package
+	: public libpacman::Object
+{
+public:
+
+	Package(__pmpkg_operations_t *operations);
+	virtual ~Package();
+
+	virtual int read(unsigned int flags);
+	virtual int write(unsigned int flags); /* Optional */
+	virtual int remove(); /* Optional */
+
+	__pmpkg_operations_t *operations;
 	libpacman::Database *database;
 
 	unsigned int flags;
@@ -128,6 +145,8 @@ struct __pmpkg_t {
 	unsigned char infolevel;
 };
 
+}
+
 #define FREEPKG(p) \
 do { \
 	if(p && _pacman_pkg_delete(p) == 0) { \
@@ -137,53 +156,29 @@ do { \
 
 #define FREELISTPKGS(p) _FREELIST(p, _pacman_pkg_delete)
 
-pmpkg_t *_pacman_pkg_alloc(size_t size, const struct __pmpkg_operations_t *package_operations);
+libpacman::Package *_pacman_pkg_new(const char *name, const char *version);
+libpacman::Package *_pacman_pkg_new_from_filename(const char *filename, int witharch);
+libpacman::Package *_pacman_pkg_dup(libpacman::Package *pkg);
+int _pacman_pkg_delete(libpacman::Package *self);
 
-pmpkg_t *_pacman_pkg_new(const char *name, const char *version);
-pmpkg_t *_pacman_pkg_new_from_filename(const char *filename, int witharch);
-pmpkg_t *_pacman_pkg_dup(pmpkg_t *pkg);
-int _pacman_pkg_delete(pmpkg_t *self);
-
-int _pacman_pkg_init(pmpkg_t *self, libpacman::Database *db);
-int _pacman_pkg_fini(pmpkg_t *self);
+int _pacman_pkg_init(libpacman::Package *self, libpacman::Database *db);
+int _pacman_pkg_fini(libpacman::Package *self);
 
 int _pacman_pkg_cmp(const void *p1, const void *p2);
-int _pacman_pkg_is_valid(const pmpkg_t *pkg, const pmtrans_t *trans, const char *pkgfile);
-pmpkg_t *_pacman_pkg_isin(const char *needle, pmlist_t *haystack);
+int _pacman_pkg_is_valid(const libpacman::Package *pkg, const pmtrans_t *trans, const char *pkgfile);
+libpacman::Package *_pacman_pkg_isin(const char *needle, pmlist_t *haystack);
 int _pacman_pkg_splitname(const char *target, char *name, char *version, int witharch);
 
-int _pacman_pkg_read(pmpkg_t *pkg, unsigned int flags);
-int _pacman_pkg_write(pmpkg_t *pkg, unsigned int flags);
-int _pacman_pkg_remove(pmpkg_t *pkg);
-
-void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm);
+void *_pacman_pkg_getinfo(libpacman::Package *pkg, unsigned char parm);
 pmlist_t *_pacman_pkg_getowners(const char *filename);
 
-int _pacman_pkg_filename(char *str, size_t size, const pmpkg_t *pkg);
-char *_pacman_pkg_fileneedbackup(const pmpkg_t *pkg, const char *file);
+int _pacman_pkg_filename(char *str, size_t size, const libpacman::Package *pkg);
+char *_pacman_pkg_fileneedbackup(const libpacman::Package *pkg, const char *file);
 
 int _pacman_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatcher, int flags);
 int _pacman_packagestrmatcher_fini(FMatcher *matcher);
 
 int _pacman_packagestrmatcher_set_flags(FMatcher *matcher, int flags);
-
-namespace libpacman
-{
-
-class Package
-	: public libpacman::Object
-{
-public:
-	~Package();
-
-	virtual int read(pmpkg_t *pkg, unsigned int flags) = 0;
-	virtual int write(pmpkg_t *pkg, unsigned int flags); /* Optional */
-	virtual	int remove(pmpkg_t *pkg); /* Optional */
-
-	struct __pmpkg_t *d;
-};
-
-}
 
 #endif /* _PACMAN_PACKAGE_H */
 

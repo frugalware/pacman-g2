@@ -40,13 +40,14 @@
 namespace libpacman {
 
 class Database;
+class Package;
 
 }
 
 typedef struct __pmdb_ops_t pmdb_ops_t;
 
 struct __pmdb_ops_t {
-	int (*read)(libpacman::Database *db, pmpkg_t *info, unsigned int inforeq);
+	int (*read)(libpacman::Database *db, libpacman::Package *info, unsigned int inforeq);
 };
 
 namespace libpacman {
@@ -68,12 +69,12 @@ class Database
 
 	/* Package iterator */
 	virtual int rewind() = 0;
-	virtual pmpkg_t *readpkg(unsigned int inforeq) = 0;
-	virtual pmpkg_t *scan(const char *target, unsigned int inforeq) = 0;
+	virtual libpacman::Package *readpkg(unsigned int inforeq) = 0;
+	virtual libpacman::Package *scan(const char *target, unsigned int inforeq) = 0;
 
-	virtual int read(pmpkg_t *info, unsigned int inforeq);
-	virtual int write(pmpkg_t *info, unsigned int inforeq);
-	virtual int remove(pmpkg_t *info);
+	virtual int read(libpacman::Package *info, unsigned int inforeq);
+	virtual int write(libpacman::Package *info, unsigned int inforeq);
+	virtual int remove(libpacman::Package *info);
 
 	// Cache operations
 	pmlist_t *search(pmlist_t *needles);

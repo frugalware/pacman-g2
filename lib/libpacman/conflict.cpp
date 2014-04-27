@@ -51,7 +51,7 @@ using namespace libpacman;
  */
 pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 {
-	pmpkg_t *info = NULL;
+	Package *info = NULL;
 	pmlist_t *i, *j, *k;
 	pmlist_t *baddeps = NULL;
 	pmdepmissing_t *miss = NULL;
@@ -66,7 +66,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 	howmany = _pacman_list_count(packages);
 
 	for(i = packages; i; i = i->next) {
-		pmpkg_t *tp = i->data;
+		Package *tp = i->data;
 		if(tp == NULL) {
 			continue;
 		}
@@ -87,7 +87,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 			/* CHECK 1: check targets against database */
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs db"), tp->name);
 			for(k = _pacman_db_get_pkgcache(db_local); k; k = k->next) {
-				pmpkg_t *dp = (pmpkg_t *)k->data;
+				Package *dp = (Package *)k->data;
 				if(!strcmp(dp->name, tp->name)) {
 					/* a package cannot conflict with itself -- that's just not nice */
 					continue;
@@ -123,7 +123,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 			/* CHECK 2: check targets against targets */
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs targs"), tp->name);
 			for(k = packages; k; k = k->next) {
-				pmpkg_t *otp = (pmpkg_t *)k->data;
+				Package *otp = (Package *)k->data;
 				if(!strcmp(otp->name, tp->name)) {
 					/* a package cannot conflict with itself -- that's just not nice */
 					continue;
@@ -171,7 +171,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 			 * conflicts list from the new package, not the old one (*info)
 			 */
 			for(j = packages; j; j = j->next) {
-				pmpkg_t *pkg = j->data;
+				Package *pkg = j->data;
 				if(!strcmp(pkg->name, info->name)) {
 					/* Use the new, to-be-installed package's conflicts */
 					conflicts = _pacman_pkg_getinfo(pkg, PM_PKG_CONFLICTS);
@@ -263,7 +263,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **ski
 	struct stat buf;
 	pmlist_t *conflicts = NULL;
 	pmlist_t *targets = trans->packages;
-	pmpkg_t *p, *dbpkg;
+	Package *p, *dbpkg;
 	double percent;
 	int howmany, remain;
 	Database *db_local = trans->handle->db_local;
@@ -275,12 +275,12 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **ski
 
 	/* CHECK 1: check every target against every target */
 	for(i = targets; i; i = i->next) {
-		pmpkg_t *p1 = (pmpkg_t*)i->data;
+		Package *p1 = (Package*)i->data;
 		remain = _pacman_list_count(i);
 		percent = (double)(howmany - remain + 1) / howmany;
 		PROGRESS(trans, PM_TRANS_PROGRESS_CONFLICTS_START, "", (percent * 100), howmany, howmany - remain + 1);
 		for(j = i; j; j = j->next) {
-			pmpkg_t *p2 = (pmpkg_t*)j->data;
+			Package *p2 = (Package*)j->data;
 			if(strcmp(p1->name, p2->name)) {
 				pmlist_t *ret = chk_fileconflicts(p1->files, p2->files);
 				for(k = ret; k; k = k->next) {
@@ -299,7 +299,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **ski
 		}
 
 		/* CHECK 2: check every target against the filesystem */
-		p = (pmpkg_t*)i->data;
+		p = (Package*)i->data;
 		dbpkg = NULL;
 		for(j = p->files; j; j = j->next) {
 			filestr = (char*)j->data;
@@ -330,10 +330,10 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **ski
 					if(!ok) {
 						/* Look at all the targets */
 						for(k = targets; k && !ok; k = k->next) {
-							pmpkg_t *p2 = (pmpkg_t *)k->data;
+							Package *p2 = (Package *)k->data;
 							/* As long as they're not the current package */
 							if(strcmp(p2->name, p->name)) {
-								pmpkg_t *dbpkg2 = NULL;
+								Package *dbpkg2 = NULL;
 								dbpkg2 = _pacman_db_get_pkgfromcache(db_local, p2->name);
 								if(dbpkg2 && !(dbpkg2->infolevel & INFRQ_FILES)) {
 									_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg2->name);

@@ -48,7 +48,7 @@
 using namespace libpacman;
 
 static
-int _pacman_localpkg_file_reader(Database *db, pmpkg_t *pkg, unsigned int flags, unsigned int flags_masq, const char *file, int (*reader)(pmpkg_t *, FILE *))
+int _pacman_localpkg_file_reader(Database *db, Package *pkg, unsigned int flags, unsigned int flags_masq, const char *file, int (*reader)(Package *, FILE *))
 {
 	int ret = 0;
 
@@ -70,7 +70,7 @@ int _pacman_localpkg_file_reader(Database *db, pmpkg_t *pkg, unsigned int flags,
 }
 
 static int
-_pacman_localpkg_read(pmpkg_t *pkg, unsigned int flags)
+_pacman_localpkg_read(Package *pkg, unsigned int flags)
 {
 	Database *db;
 	struct stat buf;
@@ -108,33 +108,26 @@ _pacman_localpkg_read(pmpkg_t *pkg, unsigned int flags)
 }
 
 static int
-_pacman_localpkg_write(pmpkg_t *pkg, unsigned int flags)
+_pacman_localpkg_write(Package *pkg, unsigned int flags)
 {
 	return pkg->database->write(pkg, flags);
 }
 
 static int
-_pacman_localpkg_remove(pmpkg_t *pkg)
+_pacman_localpkg_remove(Package *pkg)
 {
 	return pkg->database->remove(pkg);
 }
 
 static const
 struct __pmpkg_operations_t _pacman_localpkg_operations = {
-	.as_pmobject_operations_t = {
-		.fini = NULL,
-
-		.get = NULL,
-		.set = NULL,
-	},
-
 	.read = _pacman_localpkg_read,
 	.write = _pacman_localpkg_write,
 	.remove = _pacman_localpkg_remove,
 };
 
 static
-int _pacman_localpkg_init(pmpkg_t *pkg, Database *db)
+int _pacman_localpkg_init(Package *pkg, Database *db)
 {
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 	ASSERT(_pacman_pkg_init(pkg, db) == 0, return -1);
@@ -143,9 +136,9 @@ int _pacman_localpkg_init(pmpkg_t *pkg, Database *db)
 }
 
 static
-pmpkg_t *_pacman_localdb_pkg_new(Database *db, const struct dirent *dirent, unsigned int inforeq)
+Package *_pacman_localdb_pkg_new(Database *db, const struct dirent *dirent, unsigned int inforeq)
 {
-	pmpkg_t *pkg;
+	Package *pkg;
 	const char *dname;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
@@ -233,7 +226,7 @@ int LocalDatabase::rewind()
 	return 0;
 }
 
-pmpkg_t *LocalDatabase::readpkg(unsigned int inforeq)
+Package *LocalDatabase::readpkg(unsigned int inforeq)
 {
 	struct dirent *ent = NULL;
 	struct stat sbuf;
@@ -252,7 +245,7 @@ pmpkg_t *LocalDatabase::readpkg(unsigned int inforeq)
 	return NULL;
 }
 
-pmpkg_t *LocalDatabase::scan(const char *target, unsigned int inforeq)
+Package *LocalDatabase::scan(const char *target, unsigned int inforeq)
 {
 	struct dirent *ent = NULL;
 	struct stat sbuf;
@@ -292,7 +285,7 @@ pmpkg_t *LocalDatabase::scan(const char *target, unsigned int inforeq)
 }
 
 static
-int _pacman_localdb_file_reader(Database *db, pmpkg_t *info, unsigned int inforeq, unsigned int inforeq_masq, const char *file, int (*reader)(pmpkg_t *, FILE *))
+int _pacman_localdb_file_reader(Database *db, Package *info, unsigned int inforeq, unsigned int inforeq_masq, const char *file, int (*reader)(Package *, FILE *))
 {
 	int ret = 0;
 
@@ -314,7 +307,7 @@ int _pacman_localdb_file_reader(Database *db, pmpkg_t *info, unsigned int infore
 }
 
 static
-int _pacman_localdb_read(Database *db, pmpkg_t *info, unsigned int inforeq)
+int _pacman_localdb_read(Database *db, Package *info, unsigned int inforeq)
 {
 	struct stat buf;
 	char path[PATH_MAX];
@@ -381,7 +374,7 @@ void _pacman_localdb_write_stringlist(const char *entry, const pmlist_t *values,
 	}
 }
 
-int LocalDatabase::write(pmpkg_t *info, unsigned int inforeq)
+int LocalDatabase::write(Package *info, unsigned int inforeq)
 {
 	FILE *fp = NULL;
 	char path[PATH_MAX];
@@ -473,7 +466,7 @@ cleanup:
 	return(retval);
 }
 
-int LocalDatabase::remove(pmpkg_t *info)
+int LocalDatabase::remove(Package *info)
 {
 	char path[PATH_MAX];
 

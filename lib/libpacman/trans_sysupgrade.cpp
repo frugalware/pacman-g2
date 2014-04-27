@@ -58,7 +58,7 @@
 
 using namespace libpacman;
 
-static int istoonew(pmpkg_t *pkg)
+static int istoonew(Package *pkg)
 {
 	time_t t;
 	if (!handle->upgradedelay)
@@ -87,11 +87,11 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	_pacman_log(PM_LOG_FLOW1, _("checking for package replacements"));
 	for(i = dbs_sync; i; i = i->next) {
 		for(j = _pacman_db_get_pkgcache(i->data); j; j = j->next) {
-			pmpkg_t *spkg = j->data;
+			Package *spkg = j->data;
 			for(k = _pacman_pkg_getinfo(spkg, PM_PKG_REPLACES); k; k = k->next) {
 				pmlist_t *m;
 				for(m = _pacman_db_get_pkgcache(db_local); m; m = m->next) {
-					pmpkg_t *lpkg = m->data;
+					Package *lpkg = m->data;
 					if(!strcmp(k->data, lpkg->name)) {
 						_pacman_log(PM_LOG_DEBUG, _("checking replacement '%s' for package '%s'"), k->data, spkg->name);
 						if(_pacman_list_is_strin(lpkg->name, handle->ignorepkg)) {
@@ -107,7 +107,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 								 * the package to replace.
 								 */
 								pmsyncpkg_t *ps;
-								pmpkg_t *dummy = _pacman_pkg_new(lpkg->name, NULL);
+								Package *dummy = _pacman_pkg_new(lpkg->name, NULL);
 								if(dummy == NULL) {
 									pm_errno = PM_ERR_MEMORY;
 									goto error;
@@ -145,8 +145,8 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	for(i = _pacman_db_get_pkgcache(db_local); i; i = i->next) {
 		int cmp;
 		int replace=0;
-		pmpkg_t *local = i->data;
-		pmpkg_t *spkg = NULL;
+		Package *local = i->data;
+		Package *spkg = NULL;
 		pmsyncpkg_t *ps;
 
 		for(j = dbs_sync; !spkg && j; j = j->next) {
@@ -196,7 +196,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 				local->name, local->version, local->version, spkg->version);
 			/* check if spkg->name is already in the packages list. */
 			if(!_pacman_trans_find(trans, spkg->name)) {
-				pmpkg_t *dummy = _pacman_pkg_new(local->name, local->version);
+				Package *dummy = _pacman_pkg_new(local->name, local->version);
 				if(dummy == NULL) {
 					goto error;
 				}

@@ -38,6 +38,7 @@
 #include "util.h"
 #include "error.h"
 #include "package.h"
+#include "pacman_p.h"
 #include "db.h"
 #include "cache.h"
 #include "versioncmp.h"
@@ -136,11 +137,11 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 	/* We compute the edges */
 	for(i = vertices; i; i = i->next) {
 		pmgraph_t *vertex_i = i->data;
-		pmpkg_t *p_i = vertex_i->data;
+		Package *p_i = vertex_i->data;
 		/* TODO this should be somehow combined with _pacman_checkdeps */
 		for(j = vertices; j; j = j->next) {
 			pmgraph_t *vertex_j = j->data;
-			pmpkg_t *p_j = vertex_j->data;
+			Package *p_j = vertex_j->data;
 			int child = 0;
 			for(k = _pacman_pkg_getinfo(p_i, PM_PKG_DEPENDS); k && !child; k = k->next) {
 				pmdepend_t depend;
@@ -225,8 +226,8 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 		 * listed in the requiredby field.
 		 */
 		for(i = packages; i; i = i->next) {
-			pmpkg_t *tp = i->data;
-			pmpkg_t *oldpkg;
+			Package *tp = i->data;
+			Package *oldpkg;
 			if(tp == NULL) {
 				continue;
 			}
@@ -236,7 +237,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 			}
 			for(j = _pacman_pkg_getinfo(oldpkg, PM_PKG_REQUIREDBY); j; j = j->next) {
 				//char *ver;
-				pmpkg_t *p;
+				Package *p;
 				found = 0;
 				if((p = _pacman_db_get_pkgfromcache(db_local, j->data)) == NULL) {
 					/* hmmm... package isn't installed.. */
@@ -267,7 +268,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 	if(op == PM_TRANS_TYPE_ADD || op == PM_TRANS_TYPE_UPGRADE) {
 		/* DEPENDENCIES -- look for unsatisfied dependencies */
 		for(i = packages; i; i = i->next) {
-			pmpkg_t *tp = i->data;
+			Package *tp = i->data;
 			if(tp == NULL) {
 				continue;
 			}
@@ -278,7 +279,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				found = 0;
 				/* check database for literal packages */
 				for(k = _pacman_db_get_pkgcache(db_local); k && !found; k = k->next) {
-					pmpkg_t *p = (pmpkg_t *)k->data;
+					Package *p = (Package *)k->data;
 					if(!strcmp(p->name, depend.name)) {
 						if(depend.mod == PM_DEP_MOD_ANY) {
 							/* accept any version */
@@ -314,11 +315,11 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
  						 * to install.  this way, if we match against a to-be-installed
  						 * package, we'll defer to the NEW one, not the one already
  						 * installed. */
- 						pmpkg_t *p = m->data;
+ 						Package *p = m->data;
  						pmlist_t *n;
  						int skip = 0;
  						for(n = packages; n && !skip; n = n->next) {
- 							pmpkg_t *ptp = n->data;
+ 							Package *ptp = n->data;
  							if(!strcmp(ptp->name, p->name)) {
  								skip = 1;
  							}
@@ -355,7 +356,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				}
  				/* check other targets */
  				for(k = packages; k && !found; k = k->next) {
- 					pmpkg_t *p = (pmpkg_t *)k->data;
+ 					Package *p = (Package *)k->data;
  					/* see if the package names match OR if p provides depend.name */
  					if(!strcmp(p->name, depend.name) || _pacman_list_is_strin(depend.name, _pacman_pkg_getinfo(p, PM_PKG_PROVIDES))) {
 						if(depend.mod == PM_DEP_MOD_ANY ||
@@ -401,7 +402,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 	} else if(op == PM_TRANS_TYPE_REMOVE) {
 		/* check requiredby fields */
 		for(i = packages; i; i = i->next) {
-			pmpkg_t *tp = i->data;
+			Package *tp = i->data;
 			if(tp == NULL) {
 				continue;
 			}
@@ -411,7 +412,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				if(!_pacman_list_is_strin((char *)j->data, packages)) {
 					/* check if a package in trans->packages provides this package */
 					for(k=trans->packages; !found && k; k=k->next) {
-						pmpkg_t *spkg = k->data;
+						Package *spkg = k->data;
 
 						if(spkg && _pacman_list_is_strin(tp->name, _pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES))) {
 							found=1;
@@ -419,7 +420,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 					}
 					for(k=trans->syncpkgs; !found && k; k=k->next) {
 						pmsyncpkg_t *ps = k->data;
-						pmpkg_t *spkg = ps->pkg;
+						Package *spkg = ps->pkg;
 
 						if(spkg && _pacman_list_is_strin(tp->name, _pacman_pkg_getinfo(spkg, PM_PKG_PROVIDES))) {
 							found=1;
@@ -504,9 +505,9 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 	}
 
 	for(i = targs; i; i = i->next) {
-		for(j = (_pacman_pkg_getinfo((pmpkg_t *)i->data, PM_PKG_DEPENDS)); j; j = j->next) {
+		for(j = (_pacman_pkg_getinfo((Package *)i->data, PM_PKG_DEPENDS)); j; j = j->next) {
 			pmdepend_t depend;
-			pmpkg_t *dep;
+			Package *dep;
 			int needed = 0;
 
 			if(_pacman_splitdep(j->data, &depend)) {
@@ -521,7 +522,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 					_pacman_log(PM_LOG_WARNING, _("cannot find package \"%s\" or anything that provides it!"), depend.name);
 					continue;
 				}
-				dep = _pacman_db_get_pkgfromcache(db, ((pmpkg_t *)k->data)->name);
+				dep = _pacman_db_get_pkgfromcache(db, ((Package *)k->data)->name);
 				if(dep == NULL) {
 					_pacman_log(PM_LOG_ERROR, _("dep is NULL!"));
 					/* wtf */
@@ -541,13 +542,13 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 
 			/* see if other packages need it */
 			for(k = _pacman_pkg_getinfo(dep, PM_PKG_REQUIREDBY); k && !needed; k = k->next) {
-				pmpkg_t *dummy = _pacman_db_get_pkgfromcache(db, k->data);
+				Package *dummy = _pacman_db_get_pkgfromcache(db, k->data);
 				if(!_pacman_pkg_isin(dummy->name, targs)) {
 					needed = 1;
 				}
 			}
 			if(!needed) {
-				pmpkg_t *pkg = _pacman_pkg_new(dep->name, dep->version);
+				Package *pkg = _pacman_pkg_new(dep->name, dep->version);
 				if(pkg == NULL) {
 					continue;
 				}
@@ -569,7 +570,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
  *
  * make sure *list and *trail are already initialized
  */
-int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t *list,
+int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
                       pmlist_t *trail, pmlist_t **data)
 {
 	pmlist_t *i, *j;
@@ -592,11 +593,11 @@ int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t *list,
 	for(i = deps; i; i = i->next) {
 		int found = 0;
 		pmdepmissing_t *miss = i->data;
-		pmpkg_t *ps = NULL;
+		Package *ps = NULL;
 
 		/* check if one of the packages in *list already provides this dependency */
 		for(j = list; j && !found; j = j->next) {
-			pmpkg_t *sp = (pmpkg_t *)j->data;
+			Package *sp = (Package *)j->data;
 			if(_pacman_list_is_strin(miss->depend.name, _pacman_pkg_getinfo(sp, PM_PKG_PROVIDES))) {
 				_pacman_log(PM_LOG_DEBUG, _("%s provides dependency %s -- skipping"),
 				          sp->name, miss->depend.name);
@@ -648,7 +649,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, pmpkg_t *syncpkg, pmlist_t *list,
 			 */
 			int usedep = 1;
 			if(_pacman_list_is_strin(ps->name, handle->ignorepkg)) {
-				pmpkg_t *dummypkg = _pacman_pkg_new(miss->target, NULL);
+				Package *dummypkg = _pacman_pkg_new(miss->target, NULL);
 				QUESTION(trans, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg, ps, NULL, &usedep);
 				FREEPKG(dummypkg);
 			}
@@ -688,7 +689,7 @@ error:
 	return(-1);
 }
 
-int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep)
+int _pacman_depcmp(Package *pkg, pmdepend_t *dep)
 {
 	int equal = 0, cmp;
 	const char *mod = "~=";
@@ -757,7 +758,7 @@ extern "C" {
 int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist) {
     pmlist_t *found = NULL;
     pmlist_t *k = NULL, *j = NULL;
-    pmpkg_t *pkg = NULL;
+    Package *pkg = NULL;
     char *match = NULL;
     int foundMatch = 0;
     unsigned int inforeq =  INFRQ_DEPENDS;
@@ -767,7 +768,7 @@ int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist) {
             foundMatch = 0;
             pkg = db->readpkg(inforeq);
             while(pkg != NULL) {
-                char *pname = (char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME);
+                char *pname = (char *)pacman_pkg_getinfo(c_cast(pkg), PM_PKG_NAME);
                 targets = _pacman_list_remove(targets, (void*) pname, str_cmp, (void **)&match);
                 if(match) {
                     foundMatch = 1;

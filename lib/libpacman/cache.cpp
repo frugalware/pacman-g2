@@ -58,7 +58,7 @@ int _pacman_db_load_grpcache(Database *db);
  */
 int _pacman_db_load_pkgcache(Database *db)
 {
-	pmpkg_t *info;
+	Package *info;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
@@ -107,9 +107,9 @@ pmlist_t *_pacman_db_get_pkgcache(Database *db)
 	return(db->pkgcache);
 }
 
-int _pacman_db_add_pkgincache(Database *db, pmpkg_t *pkg)
+int _pacman_db_add_pkgincache(Database *db, Package *pkg)
 {
-	pmpkg_t *newpkg;
+	Package *newpkg;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	if(pkg == NULL) {
@@ -128,9 +128,9 @@ int _pacman_db_add_pkgincache(Database *db, pmpkg_t *pkg)
 	return(0);
 }
 
-int _pacman_db_remove_pkgfromcache(Database *db, pmpkg_t *pkg)
+int _pacman_db_remove_pkgfromcache(Database *db, Package *pkg)
 {
-	pmpkg_t *data;
+	Package *data;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	if(pkg == NULL) {
@@ -151,7 +151,7 @@ int _pacman_db_remove_pkgfromcache(Database *db, pmpkg_t *pkg)
 	return(0);
 }
 
-pmpkg_t *_pacman_db_get_pkgfromcache(Database *db, const char *target)
+Package *_pacman_db_get_pkgfromcache(Database *db, const char *target)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 	if(_pacman_strempty(target)) {
@@ -194,7 +194,7 @@ int _pacman_db_load_grpcache(Database *db)
 
 	for(; lp; lp = lp->next) {
 		pmlist_t *i;
-		pmpkg_t *pkg = lp->data;
+		Package *pkg = lp->data;
 
 		if(!(pkg->infolevel & INFRQ_DESC)) {
 			pkg->database->read(pkg, INFRQ_DESC);

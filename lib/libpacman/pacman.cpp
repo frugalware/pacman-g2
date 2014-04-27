@@ -355,7 +355,7 @@ pmpkg_t *pacman_db_readpkg(pmdb_t *_db, const char *name)
 	ASSERT(db != NULL, return(NULL));
 	ASSERT(!_pacman_strempty(name), return(NULL));
 
-	return(_pacman_db_get_pkgfromcache(db, name));
+	return c_cast(_pacman_db_get_pkgfromcache(db, name));
 }
 
 /** Get the package cache of a package database
@@ -586,8 +586,10 @@ int pacman_download_xfered(const pmdownload_t *download, off64_t *offset)
  * @param parm name of the info to get
  * @return a void* on success (the value), NULL on error
  */
-void *pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm)
+void *pacman_pkg_getinfo(pmpkg_t *_pkg, unsigned char parm)
 {
+	Package *pkg = cxx_cast(_pkg);
+
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(pkg != NULL, return(NULL));
@@ -622,7 +624,7 @@ int pacman_pkg_load(char *filename, pmpkg_t **pkg)
 	ASSERT(!_pacman_strempty(filename), RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	*pkg = _pacman_fpmpackage_load(filename);
+	*pkg = c_cast(_pacman_fpmpackage_load(filename));
 	if(*pkg == NULL) {
 		/* pm_errno is set by pkg_load */
 		return(-1);
@@ -635,8 +637,10 @@ int pacman_pkg_load(char *filename, pmpkg_t **pkg)
  * @param pkg package pointer to free
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int pacman_pkg_free(pmpkg_t *pkg)
+int pacman_pkg_free(pmpkg_t *_pkg)
 {
+	Package *pkg = cxx_cast(_pkg);
+
 	_pacman_log(PM_LOG_FUNCTION, "enter pacman_pkg_free");
 
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));

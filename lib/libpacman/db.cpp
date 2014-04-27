@@ -106,7 +106,7 @@ pmlist_t *Database::search(pmlist_t *needles)
 		if(f_strmatcher_init(&strmatcher, targ, F_STRMATCHER_ALL_IGNORE_CASE) == 0 &&
 				_pacman_packagestrmatcher_init(&packagestrmatcher, &strmatcher, PM_PACKAGE_FLAG_NAME | PM_PACKAGE_FLAG_DESCRIPTION | PM_PACKAGE_FLAG_PROVIDES) == 0) {
 			for(j = _pacman_db_get_pkgcache(this); j; j = j->next) {
-				pmpkg_t *pkg = j->data;
+				Package *pkg = j->data;
 
 				if(f_match(pkg, &packagestrmatcher)) {
 					ret = f_ptrlist_append(ret, pkg);
@@ -156,7 +156,7 @@ int Database::settimestamp(const time_t *timestamp)
 	return _pacman_db_setlastupdate(this, buffer);
 }
 
-int Database::read(pmpkg_t *info, unsigned int inforeq)
+int Database::read(Package *info, unsigned int inforeq)
 {
 	int ret;
 
@@ -172,13 +172,13 @@ int Database::read(pmpkg_t *info, unsigned int inforeq)
 	return ret;
 }
 
-int Database::write(pmpkg_t *info, unsigned int inforeq)
+int Database::write(Package *info, unsigned int inforeq)
 {
 	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 	RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
 }
 
-int Database::remove(pmpkg_t *info)
+int Database::remove(Package *info)
 {
 	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 	RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
