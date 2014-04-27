@@ -150,13 +150,6 @@ pmpkg_t *_pacman_syncdb_pkg_new(Database *db, const struct archive_entry *entry,
 	return pkg;
 }
 
-static
-pmlist_t *_pacman_syncdb_test(Database *db)
-{
-	/* testing sync dbs is not supported */
-	return _pacman_list_new();
-}
-
 int _pacman_syncdb_update(Database *db, int force)
 {
 	char path[PATH_MAX], dirpath[PATH_MAX];
@@ -239,55 +232,49 @@ int _pacman_syncdb_close(Database *db)
 	return 0;
 }
 
-static
-int _pacman_syncdb_rewind(Database *db)
+int SyncDatabase::rewind()
 {
-	_pacman_syncdb_close(db);
-	return _pacman_syncdb_open(db, 0, NULL);
+	_pacman_syncdb_close(this);
+	return _pacman_syncdb_open(this, 0, NULL);
 }
 
-static
-pmpkg_t *_pacman_syncdb_readpkg(Database *db, unsigned int inforeq)
+pmpkg_t *SyncDatabase::readpkg(unsigned int inforeq)
 {
 	struct archive_entry *entry = NULL;
 
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
-
-	if(!db->handle) {
-		db->rewind();
+	if(!handle) {
+		rewind();
 	}
-	if(!db->handle) {
+	if(!handle) {
 		return NULL;
 	}
 
 	for(;;) {
-		if(archive_read_next_header(db->handle, &entry) != ARCHIVE_OK) {
+		if(archive_read_next_header(handle, &entry) != ARCHIVE_OK) {
 			return NULL;
 		}
 		// make sure it's a directory
 		const char *pathname = archive_entry_pathname(entry);
 		if (pathname[strlen(pathname)-1] == '/') {
-			return _pacman_syncdb_pkg_new(db, entry, inforeq);
+			return _pacman_syncdb_pkg_new(this, entry, inforeq);
 		}
 	}
 	return NULL;
 }
 
-static
-pmpkg_t *_pacman_syncdb_scan(Database *db, const char *target, unsigned int inforeq)
+pmpkg_t *SyncDatabase::scan(const char *target, unsigned int inforeq)
 {
 	char name[PKG_FULLNAME_LEN];
 	char *ptr = NULL;
 	struct archive_entry *entry = NULL;
 
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	// Search from start
-	db->rewind();
+	rewind();
 
 	/* search for a specific package (by name only) */
-	while (archive_read_next_header(db->handle, &entry) == ARCHIVE_OK) {
+	while (archive_read_next_header(handle, &entry) == ARCHIVE_OK) {
 		// make sure it's a directory
 		const char *pathname = archive_entry_pathname(entry);
 		if (pathname[strlen(pathname)-1] != '/')
@@ -302,7 +289,7 @@ pmpkg_t *_pacman_syncdb_scan(Database *db, const char *target, unsigned int info
 			*ptr = '\0';
 		}
 		if(!strcmp(name, target)) {
-			return _pacman_syncdb_pkg_new(db, entry, inforeq);
+			return _pacman_syncdb_pkg_new(this, entry, inforeq);
 		}
 	}
 	return(NULL);
@@ -354,17 +341,18 @@ int _pacman_syncdb_read(Database *db, pmpkg_t *info, unsigned int inforeq)
 }
 
 const pmdb_ops_t _pacman_syncdb_ops = {
-	.test = _pacman_syncdb_test,
 	.open = _pacman_syncdb_open,
 	.close = _pacman_syncdb_close,
 	.gettimestamp = NULL,
-	.rewind = _pacman_syncdb_rewind,
-	.readpkg = _pacman_syncdb_readpkg,
-	.scan = _pacman_syncdb_scan,
 	.read = _pacman_syncdb_read,
 	.write = NULL,
 	.remove = NULL,
 };
+
+SyncDatabase::SyncDatabase(pmhandle_t *handle, const char *treename)
+	: Database(handle, treename, &_pacman_syncdb_ops)
+{
+}
 
 SyncDatabase::~SyncDatabase()
 {

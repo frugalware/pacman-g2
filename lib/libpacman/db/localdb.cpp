@@ -167,33 +167,32 @@ pmpkg_t *_pacman_localdb_pkg_new(Database *db, const struct dirent *dirent, unsi
 	return pkg;
 }
 
-static
-pmlist_t *_pacman_localdb_test(Database *db)
+pmlist_t *LocalDatabase::test() const
 {
 	struct dirent *ent;
 	char path[PATH_MAX];
 	struct stat buf;
 	pmlist_t *ret = _pacman_list_new();
 
-	while ((ent = readdir(db->handle)) != NULL) {
-		snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
+	while ((ent = readdir(handle)) != NULL) {
+		snprintf(path, PATH_MAX, "%s/%s", this->path, ent->d_name);
 		stat(path, &buf);
 		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..") || !S_ISDIR(buf.st_mode)) {
 			continue;
 		}
-		snprintf(path, PATH_MAX, "%s/%s/desc", db->path, ent->d_name);
+		snprintf(path, PATH_MAX, "%s/%s/desc", this->path, ent->d_name);
 		if(stat(path, &buf))
 		{
 			snprintf(path, LOG_STR_LEN, _("%s: description file is missing"), ent->d_name);
 			ret = _pacman_stringlist_append(ret, path);
 		}
-		snprintf(path, PATH_MAX, "%s/%s/depends", db->path, ent->d_name);
+		snprintf(path, PATH_MAX, "%s/%s/depends", this->path, ent->d_name);
 		if(stat(path, &buf))
 		{
 			snprintf(path, LOG_STR_LEN, _("%s: dependency information is missing"), ent->d_name);
 			ret = _pacman_stringlist_append(ret, path);
 		}
-		snprintf(path, PATH_MAX, "%s/%s/files", db->path, ent->d_name);
+		snprintf(path, PATH_MAX, "%s/%s/files", this->path, ent->d_name);
 		if(stat(path, &buf))
 		{
 			snprintf(path, LOG_STR_LEN, _("%s: file list is missing"), ent->d_name);
@@ -232,41 +231,36 @@ int _pacman_localdb_close(Database *db)
 	return 0;
 }
 
-static
-int _pacman_localdb_rewind(Database *db)
+int LocalDatabase::rewind()
 {
-	if(db->handle == NULL) {
+	if(handle == NULL) {
 		return -1;
 	}
 
-	rewinddir(db->handle);
+	rewinddir(handle);
 	return 0;
 }
 
-static
-pmpkg_t *_pacman_localdb_readpkg(Database *db, unsigned int inforeq)
+pmpkg_t *LocalDatabase::readpkg(unsigned int inforeq)
 {
 	struct dirent *ent = NULL;
 	struct stat sbuf;
 	char path[PATH_MAX];
 
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
-
-	while((ent = readdir(db->handle)) != NULL) {
+	while((ent = readdir(handle)) != NULL) {
 		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
 			continue;
 		}
 		/* stat the entry, make sure it's a directory */
-		snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
+		snprintf(path, PATH_MAX, "%s/%s", this->path, ent->d_name);
 		if(!stat(path, &sbuf) && S_ISDIR(sbuf.st_mode)) {
-			return _pacman_localdb_pkg_new(db, ent, inforeq);
+			return _pacman_localdb_pkg_new(this, ent, inforeq);
 		}
 	}
 	return NULL;
 }
 
-static
-pmpkg_t *_pacman_localdb_scan(Database *db, const char *target, unsigned int inforeq)
+pmpkg_t *LocalDatabase::scan(const char *target, unsigned int inforeq)
 {
 	struct dirent *ent = NULL;
 	struct stat sbuf;
@@ -274,19 +268,18 @@ pmpkg_t *_pacman_localdb_scan(Database *db, const char *target, unsigned int inf
 	char name[PKG_FULLNAME_LEN];
 	char *ptr = NULL;
 
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	// Search from start
-	db->rewind();
+	rewind();
 
 	/* search for a specific package (by name only) */
-	while((ent = readdir(db->handle)) != NULL) {
+	while((ent = readdir(handle)) != NULL) {
 		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
 			continue;
 		}
 		/* stat the entry, make sure it's a directory */
-		snprintf(path, PATH_MAX, "%s/%s", db->path, ent->d_name);
+		snprintf(path, PATH_MAX, "%s/%s", this->path, ent->d_name);
 		if(stat(path, &sbuf) || !S_ISDIR(sbuf.st_mode)) {
 			continue;
 		}
@@ -300,7 +293,7 @@ pmpkg_t *_pacman_localdb_scan(Database *db, const char *target, unsigned int inf
 			*ptr = '\0';
 		}
 		if(!strcmp(name, target)) {
-			return _pacman_localdb_pkg_new(db, ent, inforeq);
+			return _pacman_localdb_pkg_new(this, ent, inforeq);
 		}
 	}
 	return(NULL);
@@ -507,17 +500,18 @@ int _pacman_localdb_remove(Database *db, pmpkg_t *info)
 }
 
 const pmdb_ops_t _pacman_localdb_ops = {
-	.test = _pacman_localdb_test,
 	.open = _pacman_localdb_open,
 	.close = _pacman_localdb_close,
 	.gettimestamp = NULL,
-	.rewind = _pacman_localdb_rewind,
-	.readpkg = _pacman_localdb_readpkg,
-	.scan = _pacman_localdb_scan,
 	.read = _pacman_localdb_read,
 	.write = _pacman_localdb_write,
 	.remove = _pacman_localdb_remove,
 };
+
+LocalDatabase::LocalDatabase(pmhandle_t *handle, const char *treename)
+	: Database(handle, treename, &_pacman_localdb_ops)
+{
+}
 
 LocalDatabase::~LocalDatabase()
 {

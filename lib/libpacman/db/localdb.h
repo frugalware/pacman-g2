@@ -34,7 +34,14 @@ class LocalDatabase
 	: public libpacman::Database
 {
 public:
+	LocalDatabase(pmhandle_t *handle, const char *treename);
 	virtual ~LocalDatabase();
+
+	virtual pmlist_t *test() const;
+
+	virtual int rewind();
+	virtual pmpkg_t *readpkg(unsigned int inforeq);
+	virtual pmpkg_t *scan(const char *target, unsigned int inforeq);
 };
 
 class LocalPackage

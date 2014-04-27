@@ -46,16 +46,10 @@ class Database;
 typedef struct __pmdb_ops_t pmdb_ops_t;
 
 struct __pmdb_ops_t {
-	pmlist_t *(*test)(libpacman::Database *db);
 	int (*open)(libpacman::Database *db, int flags, time_t *timestamp);
 	int (*close)(libpacman::Database *db);
 
 	int (*gettimestamp)(libpacman::Database *db, time_t *timestamp);
-
-	/* Package iterator */
-	int (*rewind)(libpacman::Database *db);
-	pmpkg_t *(*readpkg)(libpacman::Database *db, unsigned int inforeq);
-	pmpkg_t *(*scan)(libpacman::Database *db, const char *target, unsigned int inforeq);
 
 	int (*read)(libpacman::Database *db, pmpkg_t *info, unsigned int inforeq);
 	int (*write)(libpacman::Database *db, pmpkg_t *info, unsigned int inforeq); /* Optional */
@@ -68,11 +62,10 @@ class Database
 	: public libpacman::Object
 {
 	public:
-	Database(pmhandle_t *handle, const char *treename);
 	virtual ~Database();
 
 	/* Prototypes for backends functions */
-	virtual pmlist_t *test(); /* FIXME: constify */
+	virtual pmlist_t *test() const;
 
 	virtual int open(int flags);
 	virtual int close();
@@ -80,9 +73,10 @@ class Database
 	virtual int gettimestamp(time_t *timestamp);
 	virtual int settimestamp(const time_t *timestamp);
 
-	virtual int rewind();
-	virtual pmpkg_t *readpkg(unsigned int inforeq);
-	virtual pmpkg_t *scan(const char *target, unsigned int inforeq);
+	/* Package iterator */
+	virtual int rewind() = 0;
+	virtual pmpkg_t *readpkg(unsigned int inforeq) = 0;
+	virtual pmpkg_t *scan(const char *target, unsigned int inforeq) = 0;
 
 	virtual int read(pmpkg_t *info, unsigned int inforeq);
 	virtual int write(pmpkg_t *info, unsigned int inforeq);
@@ -91,7 +85,6 @@ class Database
 	// Cache operations
 	pmlist_t *search(pmlist_t *needles);
 
-	const pmdb_ops_t *ops;
 	char *path;
 	char treename[PATH_MAX];
 	void *handle;
@@ -99,6 +92,12 @@ class Database
 	pmlist_t *pkgcache;
 	pmlist_t *grpcache;
 	pmlist_t *servers;
+
+protected:
+	Database(pmhandle_t *handle, const char *treename, const pmdb_ops_t *ops);
+
+private:
+	const pmdb_ops_t *ops;
 };
 
 }

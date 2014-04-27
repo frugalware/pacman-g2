@@ -67,7 +67,8 @@ FILE *_pacman_db_fopen_lastupdate(const Database *db, const char *mode)
 	return fopen(path, mode);
 }
 
-Database::Database(pmhandle_t *handle, const char *treename)
+Database::Database(pmhandle_t *handle, const char *treename, const pmdb_ops_t *_ops)
+	: ops(_ops)
 {
 	path = f_zalloc(strlen(handle->root)+strlen(handle->dbpath)+strlen(treename)+2);
 //	if(path == NULL) {
@@ -119,9 +120,10 @@ pmlist_t *Database::search(pmlist_t *needles)
 	return(ret);
 }
 
-pmlist_t *Database::test()
+pmlist_t *Database::test() const
 {
-	return ops->test(this);
+	/* testing sync dbs is not supported */
+	return _pacman_list_new();
 }
 
 int Database::open(int flags)
@@ -161,21 +163,6 @@ int Database::settimestamp(const time_t *timestamp)
 
 	_pacman_ftp_strfmdtm(buffer, sizeof(buffer), timestamp);
 	return _pacman_db_setlastupdate(this, buffer);
-}
-
-int Database::rewind()
-{
-	return ops->rewind(this);
-}
-
-pmpkg_t *Database::readpkg(unsigned int inforeq)
-{
-	return ops->readpkg(this, inforeq);
-}
-
-pmpkg_t *Database::scan(const char *target, unsigned int inforeq)
-{
-	return ops->scan(this, target, inforeq);
 }
 
 int Database::read(pmpkg_t *info, unsigned int inforeq)
@@ -293,14 +280,9 @@ Database *_pacman_db_register(const char *treename, pacman_cb_db_register callba
 
 	_pacman_log(PM_LOG_FLOW1, _("registering database '%s'"), treename);
 
-	db = new Database(handle, treename);
+	db = strcmp(treename, "local") == 0 ? (Database *)new LocalDatabase(handle, treename) : new SyncDatabase(handle, treename);
 	if(db == NULL) {
 		RET_ERR(PM_ERR_DB_CREATE, NULL);
-	}
-	if(strcmp(treename, "local") == 0) {
-		db->ops = &_pacman_localdb_ops;
-	} else {
-		db->ops = &_pacman_syncdb_ops;
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("opening database '%s'"), db->treename);

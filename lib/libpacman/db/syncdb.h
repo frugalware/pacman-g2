@@ -36,7 +36,12 @@ class SyncDatabase
 	: public libpacman::Database
 {
 public:
+	SyncDatabase(pmhandle_t *handle, const char *treename);
 	virtual ~SyncDatabase();
+
+	virtual int rewind();
+	virtual pmpkg_t *readpkg(unsigned int inforeq);
+	virtual pmpkg_t *scan(const char *target, unsigned int inforeq);
 };
 
 class SyncPackage
