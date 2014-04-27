@@ -340,8 +340,6 @@ int _pacman_syncdb_read(Database *db, pmpkg_t *info, unsigned int inforeq)
 
 const pmdb_ops_t _pacman_syncdb_ops = {
 	.read = _pacman_syncdb_read,
-	.write = NULL,
-	.remove = NULL,
 };
 
 SyncDatabase::SyncDatabase(pmhandle_t *handle, const char *treename)

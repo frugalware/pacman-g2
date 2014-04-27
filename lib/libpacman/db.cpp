@@ -175,23 +175,13 @@ int Database::read(pmpkg_t *info, unsigned int inforeq)
 int Database::write(pmpkg_t *info, unsigned int inforeq)
 {
 	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
-
-	if(ops->write != NULL) {
-		return ops->write(this, info, inforeq);
-	} else {
-		RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
-	}
+	RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
 }
 
 int Database::remove(pmpkg_t *info)
 {
 	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
-
-	if(ops->remove != NULL) {
-		return ops->remove(this, info);
-	} else {
-		RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
-	}
+	RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
 }
 
 /* Reads dbpath/treename.lastupdate and populates *ts with the contents.

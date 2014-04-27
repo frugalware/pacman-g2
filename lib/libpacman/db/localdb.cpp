@@ -48,12 +48,6 @@
 using namespace libpacman;
 
 static
-int _pacman_localdb_write(Database *db, pmpkg_t *info, unsigned int inforeq);
-
-static
-int _pacman_localdb_remove(Database *db, pmpkg_t *info);
-
-static
 int _pacman_localpkg_file_reader(Database *db, pmpkg_t *pkg, unsigned int flags, unsigned int flags_masq, const char *file, int (*reader)(pmpkg_t *, FILE *))
 {
 	int ret = 0;
@@ -116,13 +110,13 @@ _pacman_localpkg_read(pmpkg_t *pkg, unsigned int flags)
 static int
 _pacman_localpkg_write(pmpkg_t *pkg, unsigned int flags)
 {
-	return _pacman_localdb_write(pkg->database, pkg, flags);
+	return pkg->database->write(pkg, flags);
 }
 
 static int
 _pacman_localpkg_remove(pmpkg_t *pkg)
 {
-	return _pacman_localdb_remove(pkg->database, pkg);
+	return pkg->database->remove(pkg);
 }
 
 static const
@@ -387,18 +381,16 @@ void _pacman_localdb_write_stringlist(const char *entry, const pmlist_t *values,
 	}
 }
 
-static
-int _pacman_localdb_write(Database *db, pmpkg_t *info, unsigned int inforeq)
+int LocalDatabase::write(pmpkg_t *info, unsigned int inforeq)
 {
 	FILE *fp = NULL;
 	char path[PATH_MAX];
 	mode_t oldmask;
 	int retval = 0;
 
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 
-	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name, info->version);
+	snprintf(path, PATH_MAX, "%s/%s-%s", this->path, info->name, info->version);
 	oldmask = umask(0000);
 	mkdir(path, 0755);
 	/* make sure we have a sane umask */
@@ -406,9 +398,9 @@ int _pacman_localdb_write(Database *db, pmpkg_t *info, unsigned int inforeq)
 
 	/* DESC */
 	if(inforeq & INFRQ_DESC) {
-		snprintf(path, PATH_MAX, "%s/%s-%s/desc", db->path, info->name, info->version);
+		snprintf(path, PATH_MAX, "%s/%s-%s/desc", this->path, info->name, info->version);
 		if((fp = fopen(path, "w")) == NULL) {
-			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/desc"), db->treename);
+			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/desc"), treename);
 			retval = 1;
 			goto cleanup;
 		}
@@ -440,9 +432,9 @@ int _pacman_localdb_write(Database *db, pmpkg_t *info, unsigned int inforeq)
 
 	/* FILES */
 	if(inforeq & INFRQ_FILES) {
-		snprintf(path, PATH_MAX, "%s/%s-%s/files", db->path, info->name, info->version);
+		snprintf(path, PATH_MAX, "%s/%s-%s/files", this->path, info->name, info->version);
 		if((fp = fopen(path, "w")) == NULL) {
-			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/files"), db->treename);
+			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/files"), treename);
 			retval = -1;
 			goto cleanup;
 		}
@@ -454,9 +446,9 @@ int _pacman_localdb_write(Database *db, pmpkg_t *info, unsigned int inforeq)
 
 	/* DEPENDS */
 	if(inforeq & INFRQ_DEPENDS) {
-		snprintf(path, PATH_MAX, "%s/%s-%s/depends", db->path, info->name, info->version);
+		snprintf(path, PATH_MAX, "%s/%s-%s/depends", this->path, info->name, info->version);
 		if((fp = fopen(path, "w")) == NULL) {
-			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/depends"), db->treename);
+			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/depends"), treename);
 			retval = -1;
 			goto cleanup;
 		}
@@ -481,15 +473,13 @@ cleanup:
 	return(retval);
 }
 
-static
-int _pacman_localdb_remove(Database *db, pmpkg_t *info)
+int LocalDatabase::remove(pmpkg_t *info)
 {
 	char path[PATH_MAX];
 
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 
-	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name, info->version);
+	snprintf(path, PATH_MAX, "%s/%s-%s", this->path, info->name, info->version);
 	if(_pacman_rmrf(path) == -1) {
 		return(-1);
 	}
@@ -499,8 +489,6 @@ int _pacman_localdb_remove(Database *db, pmpkg_t *info)
 
 const pmdb_ops_t _pacman_localdb_ops = {
 	.read = _pacman_localdb_read,
-	.write = _pacman_localdb_write,
-	.remove = _pacman_localdb_remove,
 };
 
 LocalDatabase::LocalDatabase(pmhandle_t *handle, const char *treename)

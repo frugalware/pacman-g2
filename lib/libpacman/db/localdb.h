@@ -45,6 +45,9 @@ public:
 	virtual pmpkg_t *readpkg(unsigned int inforeq);
 	virtual pmpkg_t *scan(const char *target, unsigned int inforeq);
 
+	virtual int write(pmpkg_t *info, unsigned int inforeq);
+	virtual int remove(pmpkg_t *info);
+
 protected:
 	virtual int open(int flags, time_t *timestamp);
 };

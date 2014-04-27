@@ -47,8 +47,6 @@ typedef struct __pmdb_ops_t pmdb_ops_t;
 
 struct __pmdb_ops_t {
 	int (*read)(libpacman::Database *db, pmpkg_t *info, unsigned int inforeq);
-	int (*write)(libpacman::Database *db, pmpkg_t *info, unsigned int inforeq); /* Optional */
-	int (*remove)(libpacman::Database *db, pmpkg_t *info); /* Optional */
 };
 
 namespace libpacman {
