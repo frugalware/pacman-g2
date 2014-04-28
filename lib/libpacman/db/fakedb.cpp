@@ -44,7 +44,7 @@ static Package *_pacman_fakedb_pkg_new(pmdb_t *fakedb, const char *name)
 	char *str = NULL;
 	Package *dummy = NULL;
 
-	dummy = _pacman_pkg_new(NULL, NULL);
+	dummy = new Package(NULL, NULL);
 	if(dummy == NULL) {
 		RET_ERR(PM_ERR_MEMORY, NULL);
 	}

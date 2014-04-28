@@ -548,7 +548,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 				}
 			}
 			if(!needed) {
-				Package *pkg = _pacman_pkg_new(dep->name, dep->version);
+				Package *pkg = new Package(dep->name, dep->version);
 				if(pkg == NULL) {
 					continue;
 				}
@@ -649,7 +649,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 			 */
 			int usedep = 1;
 			if(_pacman_list_is_strin(ps->name, handle->ignorepkg)) {
-				Package *dummypkg = _pacman_pkg_new(miss->target, NULL);
+				Package *dummypkg = new Package(miss->target, NULL);
 				QUESTION(trans, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg, ps, NULL, &usedep);
 				FREEPKG(dummypkg);
 			}

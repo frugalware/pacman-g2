@@ -52,6 +52,16 @@ Package::Package()
 {
 }
 
+Package::Package(const char *name, const char *version)
+{
+	if(!_pacman_strempty(name)) {
+		STRNCPY(this->name, name, PKG_NAME_LEN);
+	}
+	if(!_pacman_strempty(version)) {
+		STRNCPY(this->version, version, PKG_VERSION_LEN);
+	}
+}
+
 Package::~Package()
 {
 }
@@ -109,29 +119,11 @@ unsigned int _pacman_pkg_parm_to_flag(unsigned char parm)
 }
 */
 
-Package *_pacman_pkg_new(const char *name, const char *version)
-{
-	Package* pkg = NULL;
-
-	if((pkg = (Package *)f_zalloc(sizeof(Package))) == NULL) {
-		return NULL;
-	}
-
-	if(!_pacman_strempty(name)) {
-		STRNCPY(pkg->name, name, PKG_NAME_LEN);
-	}
-	if(!_pacman_strempty(version)) {
-		STRNCPY(pkg->version, version, PKG_VERSION_LEN);
-	}
-
-	return(pkg);
-}
-
 Package *_pacman_pkg_new_from_filename(const char *filename, int witharch)
 {
 	Package *pkg;
 
-	ASSERT(pkg = _pacman_pkg_new(NULL, NULL), return NULL);
+	ASSERT(pkg = new Package(NULL, NULL), return NULL);
 
 	if(_pacman_pkg_splitname(filename, pkg->name, pkg->version, witharch) == -1) {
 		_pacman_pkg_delete(pkg);

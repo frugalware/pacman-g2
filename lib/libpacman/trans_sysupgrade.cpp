@@ -107,7 +107,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 								 * the package to replace.
 								 */
 								pmsyncpkg_t *ps;
-								Package *dummy = _pacman_pkg_new(lpkg->name, NULL);
+								Package *dummy = new Package(lpkg->name, NULL);
 								if(dummy == NULL) {
 									pm_errno = PM_ERR_MEMORY;
 									goto error;
@@ -196,7 +196,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 				local->name, local->version, local->version, spkg->version);
 			/* check if spkg->name is already in the packages list. */
 			if(!_pacman_trans_find(trans, spkg->name)) {
-				Package *dummy = _pacman_pkg_new(local->name, local->version);
+				Package *dummy = new Package(local->name, local->version);
 				if(dummy == NULL) {
 					goto error;
 				}

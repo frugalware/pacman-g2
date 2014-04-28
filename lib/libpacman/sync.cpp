@@ -188,7 +188,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 		pmsyncpkg_t *ps;
 
 		if(pkg_local) {
-			dummy = _pacman_pkg_new(pkg_local->name, pkg_local->version);
+			dummy = new Package(pkg_local->name, pkg_local->version);
 			if(dummy == NULL) {
 				RET_ERR(PM_ERR_MEMORY, -1);
 			}
@@ -431,7 +431,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 						asked = _pacman_stringlist_append(asked, miss->depend.name);
 						if(doremove) {
 							pmsyncpkg_t *rsync = _pacman_trans_find(trans, miss->depend.name);
-							Package *q = _pacman_pkg_new(miss->depend.name, NULL);
+							Package *q = new Package(miss->depend.name, NULL);
 							if(q == NULL) {
 								if(data) {
 									FREELIST(*data);

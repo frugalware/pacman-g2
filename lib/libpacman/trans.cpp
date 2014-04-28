@@ -1086,7 +1086,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				_pacman_log(PM_LOG_FLOW1, _("upgrading package %s-%s"), pkg_new->name, pkg_new->version);
 
 				/* we'll need to save some record for backup checks later */
-				oldpkg = _pacman_pkg_new(pkg_local->name, pkg_local->version);
+				oldpkg = new Package(pkg_local->name, pkg_local->version);
 				if(oldpkg) {
 					if(!(pkg_local->infolevel & INFRQ_FILES)) {
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg_local->name);

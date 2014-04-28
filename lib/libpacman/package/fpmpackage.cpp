@@ -167,7 +167,7 @@ Package *_pacman_fpmpackage_load(const char *pkgfile)
 	if((archive = _pacman_archive_read_open_all_file(pkgfile)) == NULL) {
 		RET_ERR(PM_ERR_PKG_OPEN, NULL);
 	}
-	info = _pacman_pkg_new(NULL, NULL);
+	info = new Package(NULL, NULL);
 	if(info == NULL) {
 		archive_read_finish (archive);
 		RET_ERR(PM_ERR_MEMORY, NULL);
