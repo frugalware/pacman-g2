@@ -118,15 +118,6 @@ LocalDatabase::~LocalDatabase()
 }
 
 static
-int _pacman_localpkg_init(Package *pkg, Database *db)
-{
-	ASSERT(pkg != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
-	ASSERT(_pacman_pkg_init(pkg, db) == 0, return -1);
-
-	return 0;
-}
-
-static
 Package *_pacman_localdb_pkg_new(Database *db, const struct dirent *dirent, unsigned int inforeq)
 {
 	Package *pkg;
@@ -136,8 +127,7 @@ Package *_pacman_localdb_pkg_new(Database *db, const struct dirent *dirent, unsi
 	ASSERT(dirent != NULL, return NULL);
 
 	dname = dirent->d_name;
-	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
-		_pacman_localpkg_init(pkg, db) != 0 ||
+	if((pkg = _pacman_pkg_new_from_filename(dname, 0, db)) == NULL ||
 		db->read(pkg, inforeq) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
 		FREEPKG(pkg);

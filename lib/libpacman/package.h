@@ -91,7 +91,7 @@ class Package
 	: public libpacman::Object
 {
 public:
-	Package();
+	Package(libpacman::Database *database = 0);
 	Package(const char *name, const char *version);
 	Package(const libpacman::Package &other);
 	virtual ~Package();
@@ -152,11 +152,10 @@ do { \
 
 #define FREELISTPKGS(p) _FREELIST(p, _pacman_pkg_delete)
 
-libpacman::Package *_pacman_pkg_new_from_filename(const char *filename, int witharch);
+libpacman::Package *_pacman_pkg_new_from_filename(const char *filename, int witharch, libpacman::Database *database = 0);
 int _pacman_pkg_delete(libpacman::Package *self);
 
 int _pacman_pkg_init(libpacman::Package *self, libpacman::Database *db);
-int _pacman_pkg_fini(libpacman::Package *self);
 
 int _pacman_pkg_cmp(const void *p1, const void *p2);
 int _pacman_pkg_is_valid(const libpacman::Package *pkg, const pmtrans_t *trans, const char *pkgfile);

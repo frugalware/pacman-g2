@@ -48,11 +48,13 @@
 
 using namespace libpacman;
 
-Package::Package()
+Package::Package(Database *_database)
+	: database(_database), reason(PM_PKG_REASON_EXPLICIT)
 {
 }
 
 Package::Package(const char *name, const char *version)
+	: reason(PM_PKG_REASON_EXPLICIT)
 {
 	if(!_pacman_strempty(name)) {
 		STRNCPY(this->name, name, PKG_NAME_LEN);
@@ -103,6 +105,21 @@ Package::Package(const libpacman::Package &other)
 
 Package::~Package()
 {
+	FREELIST(license);
+	FREELIST(desc_localized);
+	FREELIST(files);
+	FREELIST(backup);
+	FREELIST(depends);
+	FREELIST(removes);
+	FREELIST(conflicts);
+	FREELIST(requiredby);
+	FREELIST(groups);
+	FREELIST(provides);
+	FREELIST(replaces);
+	FREELIST(triggers);
+	if(origin == PKG_FROM_FILE) {
+		FREE(data);
+	}
 }
 
 libpacman::Package *Package::dup() const
@@ -163,14 +180,14 @@ unsigned int _pacman_pkg_parm_to_flag(unsigned char parm)
 }
 */
 
-Package *_pacman_pkg_new_from_filename(const char *filename, int witharch)
+Package *_pacman_pkg_new_from_filename(const char *filename, int witharch, Database *database)
 {
 	Package *pkg;
 
-	ASSERT(pkg = new Package(NULL, NULL), return NULL);
+	ASSERT(pkg = new Package(database), return NULL);
 
 	if(_pacman_pkg_splitname(filename, pkg->name, pkg->version, witharch) == -1) {
-		_pacman_pkg_delete(pkg);
+		delete pkg;
 		pkg = NULL;
 	}
 	return pkg;
@@ -178,19 +195,7 @@ Package *_pacman_pkg_new_from_filename(const char *filename, int witharch)
 
 int _pacman_pkg_delete(Package *self)
 {
-	ASSERT(_pacman_pkg_fini(self) == 0, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	free(self);
-	return 0;
-}
-
-int _pacman_pkg_init(Package *self, Database *db)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-
-	self->database = db;
-	self->reason = PM_PKG_REASON_EXPLICIT;
+	delete self;
 	return 0;
 }
 

@@ -109,15 +109,6 @@ int SyncPackage::read(unsigned int flags)
 	return 0;
 }
 
-static
-int _pacman_syncpkg_init(Package *pkg, Database *db)
-{
-	ASSERT(pkg != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
-	ASSERT(_pacman_pkg_init(pkg, db) == 0, return -1);
-
-	return 0;
-}
-
 SyncDatabase::SyncDatabase(pmhandle_t *handle, const char *treename)
 	  : Database(handle, treename, &_pacman_syncdb_ops)
 {
@@ -137,8 +128,7 @@ Package *_pacman_syncdb_pkg_new(Database *db, const struct archive_entry *entry,
 	ASSERT(entry != NULL, return NULL);
 
 	dname = archive_entry_pathname((struct archive_entry *)entry);
-	if((pkg = _pacman_pkg_new_from_filename(dname, 0)) == NULL ||
-		_pacman_syncpkg_init(pkg, db) != 0 ||
+	if((pkg = _pacman_pkg_new_from_filename(dname, 0, db)) == NULL ||
 		db->read(pkg, inforeq) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
 		FREEPKG(pkg);
