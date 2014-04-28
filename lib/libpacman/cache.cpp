@@ -116,7 +116,7 @@ int _pacman_db_add_pkgincache(Database *db, Package *pkg)
 		return(-1);
 	}
 
-	newpkg = _pacman_pkg_dup(pkg);
+	newpkg = pkg->dup();
 	if(newpkg == NULL) {
 		return(-1);
 	}

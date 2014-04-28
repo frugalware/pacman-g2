@@ -93,7 +93,10 @@ class Package
 public:
 	Package();
 	Package(const char *name, const char *version);
+	Package(const libpacman::Package &other);
 	virtual ~Package();
+
+	virtual libpacman::Package *dup() const;
 
 	virtual int read(unsigned int flags);
 	virtual int write(unsigned int flags); /* Optional */
@@ -150,7 +153,6 @@ do { \
 #define FREELISTPKGS(p) _FREELIST(p, _pacman_pkg_delete)
 
 libpacman::Package *_pacman_pkg_new_from_filename(const char *filename, int witharch);
-libpacman::Package *_pacman_pkg_dup(libpacman::Package *pkg);
 int _pacman_pkg_delete(libpacman::Package *self);
 
 int _pacman_pkg_init(libpacman::Package *self, libpacman::Database *db);

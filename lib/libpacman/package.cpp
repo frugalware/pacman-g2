@@ -62,8 +62,52 @@ Package::Package(const char *name, const char *version)
 	}
 }
 
+Package::Package(const libpacman::Package &other)
+{
+	database       = other.database;
+	STRNCPY(name,        other.name,        PKG_NAME_LEN);
+	STRNCPY(version,     other.version,     PKG_VERSION_LEN);
+	STRNCPY(desc,        other.desc,        PKG_DESC_LEN);
+	STRNCPY(url,         other.url,         PKG_URL_LEN);
+	STRNCPY(builddate,   other.builddate,   PKG_DATE_LEN);
+	STRNCPY(buildtype,   other.buildtype,   PKG_DATE_LEN);
+	STRNCPY(installdate, other.installdate, PKG_DATE_LEN);
+	STRNCPY(packager,    other.packager,    PKG_PACKAGER_LEN);
+	STRNCPY(md5sum,      other.md5sum,      PKG_MD5SUM_LEN);
+	STRNCPY(sha1sum,     other.sha1sum,     PKG_SHA1SUM_LEN);
+	STRNCPY(arch,        other.arch,        PKG_ARCH_LEN);
+	size           = other.size;
+	usize          = other.usize;
+	force          = other.force;
+	stick          = other.stick;
+	scriptlet      = other.scriptlet;
+	reason         = other.reason;
+	license        = _pacman_list_strdup(other.license);
+	desc_localized = _pacman_list_strdup(other.desc_localized);
+	requiredby     = _pacman_list_strdup(other.requiredby);
+	conflicts      = _pacman_list_strdup(other.conflicts);
+	files          = _pacman_list_strdup(other.files);
+	backup         = _pacman_list_strdup(other.backup);
+	depends        = _pacman_list_strdup(other.depends);
+	removes        = _pacman_list_strdup(other.removes);
+	groups         = _pacman_list_strdup(other.groups);
+	provides       = _pacman_list_strdup(other.provides);
+	replaces       = _pacman_list_strdup(other.replaces);
+	triggers       = _pacman_list_strdup(other.triggers);
+
+	/* internal */
+	origin         = other.origin;
+	data           = (origin == PKG_FROM_FILE) ? strdup(other.data) : other.data;
+	infolevel      = other.infolevel;
+}
+
 Package::~Package()
 {
+}
+
+libpacman::Package *Package::dup() const
+{
+	return new Package(*this);
 }
 
 /*
@@ -130,52 +174,6 @@ Package *_pacman_pkg_new_from_filename(const char *filename, int witharch)
 		pkg = NULL;
 	}
 	return pkg;
-}
-
-Package *_pacman_pkg_dup(Package *pkg)
-{
-	Package* newpkg = _pacman_malloc(sizeof(Package));
-
-	if(newpkg == NULL) {
-		return(NULL);
-	}
-
-	STRNCPY(newpkg->name, pkg->name, PKG_NAME_LEN);
-	STRNCPY(newpkg->version, pkg->version, PKG_VERSION_LEN);
-	STRNCPY(newpkg->desc, pkg->desc, PKG_DESC_LEN);
-	STRNCPY(newpkg->url, pkg->url, PKG_URL_LEN);
-	STRNCPY(newpkg->builddate, pkg->builddate, PKG_DATE_LEN);
-	STRNCPY(newpkg->buildtype, pkg->buildtype, PKG_DATE_LEN);
-	STRNCPY(newpkg->installdate, pkg->installdate, PKG_DATE_LEN);
-	STRNCPY(newpkg->packager, pkg->packager, PKG_PACKAGER_LEN);
-	STRNCPY(newpkg->md5sum, pkg->md5sum, PKG_MD5SUM_LEN);
-	STRNCPY(newpkg->sha1sum, pkg->sha1sum, PKG_SHA1SUM_LEN);
-	STRNCPY(newpkg->arch, pkg->arch, PKG_ARCH_LEN);
-	newpkg->size       = pkg->size;
-	newpkg->usize      = pkg->usize;
-	newpkg->force      = pkg->force;
-	newpkg->stick      = pkg->stick;
-	newpkg->scriptlet  = pkg->scriptlet;
-	newpkg->reason     = pkg->reason;
-	newpkg->license    = _pacman_list_strdup(pkg->license);
-	newpkg->desc_localized = _pacman_list_strdup(pkg->desc_localized);
-	newpkg->requiredby = _pacman_list_strdup(pkg->requiredby);
-	newpkg->conflicts  = _pacman_list_strdup(pkg->conflicts);
-	newpkg->files      = _pacman_list_strdup(pkg->files);
-	newpkg->backup     = _pacman_list_strdup(pkg->backup);
-	newpkg->depends    = _pacman_list_strdup(pkg->depends);
-	newpkg->removes    = _pacman_list_strdup(pkg->removes);
-	newpkg->groups     = _pacman_list_strdup(pkg->groups);
-	newpkg->provides   = _pacman_list_strdup(pkg->provides);
-	newpkg->replaces   = _pacman_list_strdup(pkg->replaces);
-	newpkg->triggers = _pacman_list_strdup(pkg->triggers);
-
-	/* internal */
-	newpkg->origin     = pkg->origin;
-	newpkg->data = (newpkg->origin == PKG_FROM_FILE) ? strdup(pkg->data) : pkg->data;
-	newpkg->infolevel  = pkg->infolevel;
-
-	return(newpkg);
 }
 
 int _pacman_pkg_delete(Package *self)
