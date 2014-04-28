@@ -29,6 +29,16 @@
 
 using namespace libpacman;
 
+void *Object::operator new(std::size_t size)
+{
+	return f_zalloc(size);
+}
+
+void *Object::operator new[](std::size_t size)
+{
+	return f_zalloc(size);
+}
+
 Object::~Object()
 {
 }

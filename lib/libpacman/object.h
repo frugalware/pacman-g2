@@ -21,7 +21,7 @@
 #ifndef _PACMAN_OBJECT_H
 #define _PACMAN_OBJECT_H
 
-#include <stddef.h>
+#include <cstddef>
 
 namespace libpacman
 {
@@ -29,6 +29,9 @@ namespace libpacman
 class Object
 {
 public:
+	void *operator new(std::size_t size);
+	void *operator new[](std::size_t size);
+
 	virtual ~Object();
 
 	virtual int get(unsigned val, unsigned long *data) const;
