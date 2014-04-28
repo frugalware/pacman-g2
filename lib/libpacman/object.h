@@ -40,38 +40,6 @@ public:
 
 }
 
-struct __pmobject_t;
-struct __pmobject_private_t;
-
-struct __pmobject_operations_t
-{
-	int (*fini)(struct __pmobject_t *object);
-
-	int (*get)(struct __pmobject_t *object, unsigned val, unsigned long *data);
-	int (*set)(struct __pmobject_t *object, unsigned val, unsigned long data);
-};
-
-struct __pmobject_t
-{
-	const struct __pmobject_operations_t *operations;
-
-	struct __pmobject_private_t *object_private;
-};
-
-struct __pmobject_t *_pacman_object_alloc(size_t size, const struct __pmobject_operations_t *object_operations, struct __pmobject_private_t *object_private);
-
-int _pacman_object_delete(struct __pmobject_t *self);
-
-int _pacman_object_init(struct __pmobject_t *self, struct __pmobject_private_t *object_private);
-int _pacman_object_fini(struct __pmobject_t *self);
-
-const struct __pmobject_operations_t *_pacman_object_operations(struct __pmobject_t *self);
-
-int _pacman_object_get(struct __pmobject_t *self, unsigned val, unsigned long *data);
-int _pacman_object_set(struct __pmobject_t *self, unsigned val, unsigned long data);
-
-struct __pmobject_t *_pacman_objectmemory_alloc(size_t size, const struct __pmobject_operations_t *object_operations);
-
 #endif /* _PACMAN__OBJECT_H */
 
 /* vim: set ts=2 sw=2 noet: */
