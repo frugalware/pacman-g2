@@ -27,8 +27,6 @@
 
 #include "pacman.h"
 
-typedef struct __pmhandle_t pmhandle_t;
-
 #include "io/ffilelock.h"
 #include "db.h"
 #include "object.h"
@@ -45,7 +43,15 @@ typedef enum __pmaccess_t {
 	PM_ACCESS_RW
 } pmaccess_t;
 
-struct __pmhandle_t {
+namespace libpacman {
+
+class Handle
+	: public libpacman::Object
+{
+public:
+	Handle();
+	virtual ~Handle();
+
 	pmaccess_t access;
 	uid_t uid;
 	libpacman::Database *db_local;
@@ -81,14 +87,14 @@ struct __pmhandle_t {
 	int sysupgrade;
 };
 
-extern pmhandle_t *handle;
+}
 
-pmhandle_t *_pacman_handle_new(void);
-int _pacman_handle_free(pmhandle_t *handle);
-int _pacman_handle_set_option(pmhandle_t *handle, unsigned char val, unsigned long data);
-int _pacman_handle_get_option(pmhandle_t *handle, unsigned char val, long *data);
-int _pacman_handle_lock(pmhandle_t *handle);
-int _pacman_handle_unlock(pmhandle_t *handle);
+extern libpacman::Handle *handle;
+
+int _pacman_handle_set_option(libpacman::Handle *handle, unsigned char val, unsigned long data);
+int _pacman_handle_get_option(libpacman::Handle *handle, unsigned char val, long *data);
+int _pacman_handle_lock(libpacman::Handle *handle);
+int _pacman_handle_unlock(libpacman::Handle *handle);
 
 #endif /* _PACMAN_HANDLE_H */
 

@@ -30,6 +30,12 @@ typedef struct __pmtrans_t pmtrans_t;
 
 #include "util/stringlist.h"
 
+namespace libpacman {
+
+class Handle;
+
+}
+
 enum {
 	STATE_IDLE = 0,
 	STATE_INITIALIZED,
@@ -56,7 +62,7 @@ typedef struct __pmtrans_cbs_t {
 struct __pmtrans_t {
 	const pmtrans_ops_t *ops;
 	int (*set_state)(pmtrans_t *trans, int new_state);
-	pmhandle_t *handle;
+	libpacman::Handle *handle;
 	pmtranstype_t type;
 	unsigned int flags;
 	unsigned char state;

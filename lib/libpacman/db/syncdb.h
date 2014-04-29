@@ -45,7 +45,7 @@ class SyncDatabase
 	: public libpacman::Database
 {
 public:
-	SyncDatabase(pmhandle_t *handle, const char *treename);
+	SyncDatabase(libpacman::Handle *handle, const char *treename);
 	virtual ~SyncDatabase();
 
 	virtual int close();

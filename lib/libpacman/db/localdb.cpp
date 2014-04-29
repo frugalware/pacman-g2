@@ -108,7 +108,7 @@ int LocalPackage::read(unsigned int flags)
 	return 0;
 }
 
-LocalDatabase::LocalDatabase(pmhandle_t *handle, const char *treename)
+LocalDatabase::LocalDatabase(libpacman::Handle *handle, const char *treename)
 	  : Database(handle, treename, &_pacman_localdb_ops)
 {
 }

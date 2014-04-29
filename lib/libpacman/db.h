@@ -40,6 +40,7 @@
 namespace libpacman {
 
 class Database;
+class Handle;
 class Package;
 
 }
@@ -55,7 +56,7 @@ namespace libpacman {
 class Database
 	: public libpacman::Object
 {
-	public:
+public:
 	virtual ~Database();
 
 	/* Prototypes for backends functions */
@@ -88,7 +89,7 @@ class Database
 	pmlist_t *servers;
 
 protected:
-	Database(pmhandle_t *handle, const char *treename, const pmdb_ops_t *ops);
+	Database(libpacman::Handle *handle, const char *treename, const pmdb_ops_t *ops);
 
 	virtual int open(int flags, time_t *timestamp) = 0;
 

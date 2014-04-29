@@ -109,7 +109,7 @@ int SyncPackage::read(unsigned int flags)
 	return 0;
 }
 
-SyncDatabase::SyncDatabase(pmhandle_t *handle, const char *treename)
+SyncDatabase::SyncDatabase(libpacman::Handle *handle, const char *treename)
 	  : Database(handle, treename, &_pacman_syncdb_ops)
 {
 }

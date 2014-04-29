@@ -67,7 +67,7 @@ FILE *_pacman_db_fopen_lastupdate(const Database *db, const char *mode)
 	return fopen(path, mode);
 }
 
-Database::Database(pmhandle_t *handle, const char *treename, const pmdb_ops_t *_ops)
+Database::Database(libpacman::Handle *handle, const char *treename, const pmdb_ops_t *_ops)
 	: ops(_ops)
 {
 	path = f_zalloc(strlen(handle->root)+strlen(handle->dbpath)+strlen(treename)+2);

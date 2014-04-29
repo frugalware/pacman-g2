@@ -64,7 +64,7 @@
 using namespace libpacman;
 
 /* Globals */
-pmhandle_t *handle = NULL;
+Handle *handle = NULL;
 enum __pmerrno_t pm_errno;
 
 /** @defgroup pacman_interface Interface Functions
@@ -83,7 +83,7 @@ int pacman_initialize(const char *root)
 
 	ASSERT(handle == NULL, RET_ERR(PM_ERR_HANDLE_NOT_NULL, -1));
 
-	handle = _pacman_handle_new();
+	handle = new Handle();
 	if(handle == NULL) {
 		RET_ERR(PM_ERR_MEMORY, -1);
 	}
@@ -124,7 +124,7 @@ int pacman_release(void)
 	if(_pacman_handle_unlock(handle) != 0) {
 		return -1;
 	}
-	_pacman_handle_free(handle);
+	delete handle;
 	handle = NULL;
 	return(0);
 }

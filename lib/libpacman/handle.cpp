@@ -45,83 +45,72 @@
 #include <time.h>
 #include <unistd.h>
 
-pmhandle_t *_pacman_handle_new()
+using namespace libpacman;
+
+Handle::Handle()
 {
-	pmhandle_t *ph = _pacman_zalloc(sizeof(pmhandle_t));
-
-	if(ph == NULL) {
-		return(NULL);
-	}
-
-	ph->maxtries = 1;
+	maxtries = 1;
 
 #ifndef CYGWIN
 	/* see if we're root or not */
-	ph->uid = geteuid();
+	uid = geteuid();
 #ifdef FAKEROOT_PROOF
-	if(!ph->uid && getenv("FAKEROOTKEY")) {
+	if(!uid && getenv("FAKEROOTKEY")) {
 		/* fakeroot doesn't count, we're non-root */
-		ph->uid = 99;
+		uid = 99;
 	}
 #endif
 
 	/* see if we're root or not (fakeroot does not count) */
 #ifdef FAKEROOT_PROOF
-	if(ph->uid == 0 && !getenv("FAKEROOTKEY")) {
+	if(uid == 0 && !getenv("FAKEROOTKEY")) {
 #else
-	if(ph->uid == 0) {
+	if(uid == 0) {
 #endif
-		ph->access = PM_ACCESS_RW;
+		access = PM_ACCESS_RW;
 	} else {
-		ph->access = PM_ACCESS_RO;
+		access = PM_ACCESS_RO;
 	}
 #else
-	ph->access = PM_ACCESS_RW;
+	access = PM_ACCESS_RW;
 #endif
 
-	ph->dbpath = strdup(PM_DBPATH);
-	ph->cachedir = strdup(PM_CACHEDIR);
-	ph->hooksdir = strdup(PM_HOOKSDIR);
-	ph->triggersdir = strdup(PM_TRIGGERSDIR);
+	dbpath = strdup(PM_DBPATH);
+	cachedir = strdup(PM_CACHEDIR);
+	hooksdir = strdup(PM_HOOKSDIR);
+	triggersdir = strdup(PM_TRIGGERSDIR);
 
-	ph->language = strdup(setlocale(LC_ALL, NULL));
-
-	return(ph);
+	language = strdup(setlocale(LC_ALL, NULL));
 }
 
-int _pacman_handle_free(pmhandle_t *ph)
+Handle::~Handle()
 {
-	ASSERT(ph != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
-
 	/* close logfiles */
-	if(ph->logfd) {
-		fclose(ph->logfd);
-		ph->logfd = NULL;
+	if(logfd) {
+		fclose(logfd);
+		logfd = NULL;
 	}
-	if(ph->usesyslog) {
-		ph->usesyslog = 0;
+	if(usesyslog) {
+		usesyslog = 0;
 		closelog();
 	}
 
 	/* free memory */
-	FREETRANS(ph->trans);
-	FREE(ph->root);
-	FREE(ph->dbpath);
-	FREE(ph->cachedir);
-	FREE(ph->hooksdir);
-	FREE(ph->language);
-	FREE(ph->logfile);
-	FREE(ph->proxyhost);
-	FREE(ph->xfercommand);
-	FREELIST(ph->dbs_sync);
-	FREELIST(ph->noupgrade);
-	FREELIST(ph->noextract);
-	FREELIST(ph->ignorepkg);
-	FREELIST(ph->holdpkg);
-	FREELIST(ph->needles);
-	free(ph);
-
-	return(0);
+	FREETRANS(trans);
+	FREE(root);
+	FREE(dbpath);
+	FREE(cachedir);
+	FREE(hooksdir);
+	FREE(language);
+	FREE(logfile);
+	FREE(proxyhost);
+	FREE(xfercommand);
+	FREELIST(dbs_sync);
+	FREELIST(noupgrade);
+	FREELIST(noextract);
+	FREELIST(ignorepkg);
+	FREELIST(holdpkg);
+	FREELIST(needles);
 }
 
 static
@@ -144,7 +133,7 @@ void _pacman_handle_set_option_stringlist(const char *option, pmlist_t **stringl
 	}
 }
 
-int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long data)
+int _pacman_handle_set_option(Handle *ph, unsigned char val, unsigned long data)
 {
 
 	char logdir[PATH_MAX], path[PATH_MAX], *p, *q;
@@ -301,7 +290,7 @@ int _pacman_handle_set_option(pmhandle_t *ph, unsigned char val, unsigned long d
 	return(0);
 }
 
-int _pacman_handle_get_option(pmhandle_t *ph, unsigned char val, long *data)
+int _pacman_handle_get_option(Handle *ph, unsigned char val, long *data)
 {
 	/* Sanity checks */
 	ASSERT(ph != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
@@ -342,7 +331,7 @@ int _pacman_handle_get_option(pmhandle_t *ph, unsigned char val, long *data)
 	return(0);
 }
 
-int _pacman_handle_lock(pmhandle_t *handle)
+int _pacman_handle_lock(Handle *handle)
 {
 	char lckpath[PATH_MAX];
 
@@ -352,7 +341,7 @@ int _pacman_handle_lock(pmhandle_t *handle)
 	return (handle->filelock = f_filelock_aquire(lckpath, F_FILELOCK_CREATE_HOLD_DIR | F_FILELOCK_EXCLUSIVE | F_FILELOCK_UNLINK_ON_CLOSE)) != NULL ? 0: -1;
 }
 
-int _pacman_handle_unlock(pmhandle_t *handle)
+int _pacman_handle_unlock(Handle *handle)
 {
 	int ret = 0;
 

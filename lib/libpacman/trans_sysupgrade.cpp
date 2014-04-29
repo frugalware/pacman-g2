@@ -70,7 +70,7 @@ static int istoonew(Package *pkg)
 int _pacman_trans_sysupgrade(pmtrans_t *trans)
 {
 	pmlist_t *i, *j, *k;
-	pmhandle_t *handle;
+	Handle *handle;
 	Database *db_local;
 	pmlist_t *dbs_sync;
 
