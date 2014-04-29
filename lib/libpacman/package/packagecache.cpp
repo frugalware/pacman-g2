@@ -31,6 +31,8 @@
 #include "package.h"
 #include "handle.h"
 
+using namespace libpacman;
+
 int _pacman_packagecache_clean(int level)
 {
 	char dirpath[PATH_MAX];
@@ -70,7 +72,7 @@ int _pacman_packagecache_clean(int level)
 			if(strstr(str, PM_EXT_PKG ".part")) {
 				continue;
 			}
-			if(_pacman_pkg_splitname(str, name, version, 1) != 0) {
+			if(!Package::splitname(str, name, version, 1)) {
 				clean = _pacman_stringlist_append(clean, str);
 				continue;
 			}
@@ -84,7 +86,7 @@ int _pacman_packagecache_clean(int level)
 				if(strstr(s, PM_EXT_PKG ".part")) {
 					continue;
 				}
-				if(_pacman_pkg_splitname(s, n, v, 1) != 0) {
+				if(!Package::splitname(s, n, v, 1)) {
 					continue;
 				}
 				if(!strcmp(name, n)) {

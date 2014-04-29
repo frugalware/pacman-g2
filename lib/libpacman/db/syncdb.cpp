@@ -124,7 +124,7 @@ SyncDatabase::~SyncDatabase()
 }
 
 static
-Package *_pacman_syncdb_pkg_new(Database *db, const struct archive_entry *entry, unsigned int inforeq)
+SyncPackage *_pacman_syncdb_pkg_new(Database *db, const struct archive_entry *entry, unsigned int inforeq)
 {
 	Package *pkg;
 	const char *dname;
@@ -133,8 +133,9 @@ Package *_pacman_syncdb_pkg_new(Database *db, const struct archive_entry *entry,
 	ASSERT(entry != NULL, return NULL);
 
 	dname = archive_entry_pathname((struct archive_entry *)entry);
-	if((pkg = _pacman_pkg_new_from_filename(dname, 0, db)) == NULL ||
-		db->read(pkg, inforeq) == -1) {
+	if((pkg = new SyncPackage(db)) == NULL ||
+			!pkg->set_filename(dname, 0) ||
+			db->read(pkg, inforeq) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
 		delete pkg;
 		pkg = NULL;

@@ -180,17 +180,9 @@ unsigned int _pacman_pkg_parm_to_flag(unsigned char parm)
 }
 */
 
-Package *_pacman_pkg_new_from_filename(const char *filename, int witharch, Database *database)
+bool Package::set_filename(const char *filename, int witharch)
 {
-	Package *pkg;
-
-	ASSERT(pkg = new Package(database), return NULL);
-
-	if(_pacman_pkg_splitname(filename, pkg->name, pkg->version, witharch) == -1) {
-		delete pkg;
-		pkg = NULL;
-	}
-	return pkg;
+	return Package::splitname(filename, name, version, witharch);
 }
 
 int _pacman_pkg_delete(Package *self)
@@ -292,13 +284,13 @@ Package *_pacman_pkg_isin(const char *needle, pmlist_t *haystack)
 	return(NULL);
 }
 
-int _pacman_pkg_splitname(const char *target, char *name, char *version, int witharch)
+bool Package::splitname(const char *target, char *name, char *version, int witharch)
 {
 	char *tmp;
 	char *p, *q;
 
 	if ((tmp = _pacman_basename(target)) == NULL) {
-		return -1;
+		return false;
 	}
 	/* trim file extension (if any) */
 	if((p = strstr(tmp, PM_EXT_PKG))) {
@@ -315,11 +307,11 @@ int _pacman_pkg_splitname(const char *target, char *name, char *version, int wit
 
 	for(q = --p; *q && *q != '-'; q--);
 	if(*q != '-' || q == tmp) {
-		return(-1);
+		return false;
 	}
 	for(p = --q; *p && *p != '-'; p--);
 	if(*p != '-' || p == tmp) {
-		return(-1);
+		return false;
 	}
 	if(version) {
 		STRNCPY(version, p+1, PKG_VERSION_LEN);
@@ -330,7 +322,7 @@ int _pacman_pkg_splitname(const char *target, char *name, char *version, int wit
 		STRNCPY(name, tmp, PKG_NAME_LEN);
 	}
 
-	return(0);
+	return true;
 }
 
 int Package::read(unsigned int flags)
