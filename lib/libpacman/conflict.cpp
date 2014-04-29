@@ -79,7 +79,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 					howmany - remain + 1);
 		}
 
-		for(j = _pacman_pkg_getinfo(tp, PM_PKG_CONFLICTS); j; j = j->next) {
+		for(j = tp->getinfo(PM_PKG_CONFLICTS); j; j = j->next) {
 			if(!strcmp(tp->name, j->data)) {
 				/* a package cannot conflict with itself -- that's just not nice */
 				continue;
@@ -105,7 +105,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 				} else {
 					/* see if dp provides something in tp's conflict list */
 					pmlist_t *m;
-					for(m = _pacman_pkg_getinfo(dp, PM_PKG_PROVIDES); m; m = m->next) {
+					for(m = dp->getinfo(PM_PKG_PROVIDES); m; m = m->next) {
 						if(!strcmp(m->data, j->data)) {
 							/* confict */
 							_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
@@ -141,7 +141,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 				} else {
 					/* see if otp provides something in tp's conflict list */
 					pmlist_t *m;
-					for(m = _pacman_pkg_getinfo(otp, PM_PKG_PROVIDES); m; m = m->next) {
+					for(m = otp->getinfo(PM_PKG_PROVIDES); m; m = m->next) {
 						if(!strcmp(m->data, j->data)) {
 							_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
 							          otp->name, tp->name);
@@ -174,13 +174,13 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 				Package *pkg = j->data;
 				if(!strcmp(pkg->name, info->name)) {
 					/* Use the new, to-be-installed package's conflicts */
-					conflicts = _pacman_pkg_getinfo(pkg, PM_PKG_CONFLICTS);
+					conflicts = pkg->getinfo(PM_PKG_CONFLICTS);
 					usenewconflicts = 1;
 				}
 			}
 			if(!usenewconflicts) {
 				/* Use the old package's conflicts, it's the only set we have */
-				conflicts = _pacman_pkg_getinfo(info, PM_PKG_CONFLICTS);
+				conflicts = info->getinfo(PM_PKG_CONFLICTS);
 			}
 			for(j = conflicts; j; j = j->next) {
 				if(!strcmp((char *)j->data, tp->name)) {
@@ -197,7 +197,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 					pmlist_t *m;
 					for(m = conflicts; m; m = m->next) {
 						pmlist_t *n;
-						for(n = _pacman_pkg_getinfo(tp, PM_PKG_PROVIDES); n; n = n->next) {
+						for(n = tp->getinfo(PM_PKG_PROVIDES); n; n = n->next) {
 							if(!strcmp(m->data, n->data)) {
 								_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
 								          info->name, tp->name);

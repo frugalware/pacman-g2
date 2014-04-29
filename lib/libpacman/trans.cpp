@@ -407,7 +407,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 
 	/* copy over the install reason */
 	if(pkg_local) {
-		pkg_new->reason = (long)_pacman_pkg_getinfo(pkg_local, PM_PKG_REASON);
+		pkg_new->reason = (long)pkg_local->getinfo(PM_PKG_REASON);
 	}
 
 	/* check if an older version of said package is already in transaction packages.
@@ -1219,7 +1219,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 			}
 			_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), pkg_new->name, depinfo->name);
-			depinfo->requiredby = _pacman_stringlist_append(_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), pkg_new->name);
+			depinfo->requiredby = _pacman_stringlist_append(depinfo->getinfo(PM_PKG_REQUIREDBY), pkg_new->name);
 			if(db_local->write(depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
 				          depinfo->name, depinfo->version);
@@ -1354,7 +1354,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 			}
 			/* splice out this entry from requiredby */
-			depinfo->requiredby = _pacman_list_remove(_pacman_pkg_getinfo(depinfo, PM_PKG_REQUIREDBY), pkg_local->name, str_cmp, (void **)&data);
+			depinfo->requiredby = _pacman_list_remove(depinfo->getinfo(PM_PKG_REQUIREDBY), pkg_local->name, str_cmp, (void **)&data);
 			FREE(data);
 			_pacman_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name);
 			if(db_local->write(depinfo, INFRQ_DEPENDS)) {

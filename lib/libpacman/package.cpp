@@ -355,14 +355,13 @@ int Package::remove()
 	return database->remove(this);
 }
 
-static
-void *__pacman_pkg_getinfo(Package *pkg, unsigned char parm)
+void *Package::getinfo(unsigned char parm)
 {
 	void *data = NULL;
 
 #if 1
 	/* Update the cache package entry if needed */
-	if(pkg->origin == PKG_FROM_CACHE) {
+	if(origin == PKG_FROM_CACHE) {
 		switch(parm) {
 			/* Desc entry */
 			case PM_PKG_DESC:
@@ -380,9 +379,9 @@ void *__pacman_pkg_getinfo(Package *pkg, unsigned char parm)
 			case PM_PKG_SHA1SUM:
 			case PM_PKG_REPLACES:
 			case PM_PKG_FORCE:
-				if(!(pkg->infolevel & INFRQ_DESC)) {
-					_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), pkg->name);
-					pkg->database->read(pkg, INFRQ_DESC);
+				if(!(infolevel & INFRQ_DESC)) {
+					_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), name);
+					database->read(this, INFRQ_DESC);
 				}
 			break;
 			/* Depends entry */
@@ -390,77 +389,68 @@ void *__pacman_pkg_getinfo(Package *pkg, unsigned char parm)
 			case PM_PKG_REQUIREDBY:
 			case PM_PKG_CONFLICTS:
 			case PM_PKG_PROVIDES:
-				if(!(pkg->infolevel & INFRQ_DEPENDS)) {
-					_pacman_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", pkg->name);
-					pkg->database->read(pkg, INFRQ_DEPENDS);
+				if(!(infolevel & INFRQ_DEPENDS)) {
+					_pacman_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", name);
+					database->read(this, INFRQ_DEPENDS);
 				}
 			break;
 			/* Files entry */
 			case PM_PKG_FILES:
 			case PM_PKG_BACKUP:
-				if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_FILES)) {
-					_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg->name);
-					pkg->database->read(pkg, INFRQ_FILES);
+				if(this->data == handle->db_local && !(infolevel & INFRQ_FILES)) {
+					_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), name);
+					database->read(this, INFRQ_FILES);
 				}
 			break;
 			/* Scriptlet */
 			case PM_PKG_SCRIPLET:
-				if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_SCRIPLET)) {
-					_pacman_log(PM_LOG_DEBUG, _("loading SCRIPLET info for '%s'"), pkg->name);
-					pkg->database->read(pkg, INFRQ_SCRIPLET);
+				if(this->data == handle->db_local && !(infolevel & INFRQ_SCRIPLET)) {
+					_pacman_log(PM_LOG_DEBUG, _("loading SCRIPLET info for '%s'"), name);
+					database->read(this, INFRQ_SCRIPLET);
 				}
 			break;
 		}
 	}
 #else
-	_pacman_pkg_read(pkg, _pacman_pkg_parm_to_flag(parm));
+	read(_pacman_pkg_parm_to_flag(parm));
 #endif
 
 	switch(parm) {
-		case PM_PKG_NAME:        data = pkg->name; break;
-		case PM_PKG_VERSION:     data = pkg->version; break;
-		case PM_PKG_DESC:        data = pkg->desc; break;
-		case PM_PKG_GROUPS:      data = pkg->groups; break;
-		case PM_PKG_URL:         data = pkg->url; break;
-		case PM_PKG_ARCH:        data = pkg->arch; break;
-		case PM_PKG_BUILDDATE:   data = pkg->builddate; break;
-		case PM_PKG_BUILDTYPE:   data = pkg->buildtype; break;
-		case PM_PKG_INSTALLDATE: data = pkg->installdate; break;
-		case PM_PKG_PACKAGER:    data = pkg->packager; break;
-		case PM_PKG_SIZE:        data = (void *)(long)pkg->size; break;
-		case PM_PKG_USIZE:       data = (void *)(long)pkg->usize; break;
-		case PM_PKG_REASON:      data = (void *)(long)pkg->reason; break;
-		case PM_PKG_LICENSE:     data = pkg->license; break;
-		case PM_PKG_REPLACES:    data = pkg->replaces; break;
-		case PM_PKG_FORCE:       data = (void *)(long)pkg->force; break;
-		case PM_PKG_STICK:       data = (void *)(long)pkg->stick; break;
-		case PM_PKG_MD5SUM:      data = pkg->md5sum; break;
-		case PM_PKG_SHA1SUM:     data = pkg->sha1sum; break;
-		case PM_PKG_DEPENDS:     data = pkg->depends; break;
-		case PM_PKG_REMOVES:     data = pkg->removes; break;
-		case PM_PKG_REQUIREDBY:  data = pkg->requiredby; break;
-		case PM_PKG_PROVIDES:    data = pkg->provides; break;
-		case PM_PKG_CONFLICTS:   data = pkg->conflicts; break;
-		case PM_PKG_FILES:       data = pkg->files; break;
-		case PM_PKG_BACKUP:      data = pkg->backup; break;
-		case PM_PKG_SCRIPLET:    data = (void *)(long)pkg->scriptlet; break;
-		case PM_PKG_DATA:        data = pkg->data; break;
-		case PM_PKG_TRIGGERS:    data = pkg->triggers; break;
+		case PM_PKG_NAME:        data = name; break;
+		case PM_PKG_VERSION:     data = version; break;
+		case PM_PKG_DESC:        data = desc; break;
+		case PM_PKG_GROUPS:      data = groups; break;
+		case PM_PKG_URL:         data = url; break;
+		case PM_PKG_ARCH:        data = arch; break;
+		case PM_PKG_BUILDDATE:   data = builddate; break;
+		case PM_PKG_BUILDTYPE:   data = buildtype; break;
+		case PM_PKG_INSTALLDATE: data = installdate; break;
+		case PM_PKG_PACKAGER:    data = packager; break;
+		case PM_PKG_SIZE:        data = (void *)(long)size; break;
+		case PM_PKG_USIZE:       data = (void *)(long)usize; break;
+		case PM_PKG_REASON:      data = (void *)(long)reason; break;
+		case PM_PKG_LICENSE:     data = license; break;
+		case PM_PKG_REPLACES:    data = replaces; break;
+		case PM_PKG_FORCE:       data = (void *)(long)force; break;
+		case PM_PKG_STICK:       data = (void *)(long)stick; break;
+		case PM_PKG_MD5SUM:      data = md5sum; break;
+		case PM_PKG_SHA1SUM:     data = sha1sum; break;
+		case PM_PKG_DEPENDS:     data = depends; break;
+		case PM_PKG_REMOVES:     data = removes; break;
+		case PM_PKG_REQUIREDBY:  data = requiredby; break;
+		case PM_PKG_PROVIDES:    data = provides; break;
+		case PM_PKG_CONFLICTS:   data = conflicts; break;
+		case PM_PKG_FILES:       data = files; break;
+		case PM_PKG_BACKUP:      data = backup; break;
+		case PM_PKG_SCRIPLET:    data = (void *)(long)scriptlet; break;
+		case PM_PKG_DATA:        data = this->data; break;
+		case PM_PKG_TRIGGERS:    data = triggers; break;
 		default:
 			data = NULL;
 		break;
 	}
 
 	return(data);
-}
-
-void *_pacman_pkg_getinfo(Package *pkg, unsigned char parm)
-{
-#if 0
-	return pkg->operations->getinfo(pkg, parm);
-#else
-	return __pacman_pkg_getinfo(pkg, parm);
-#endif
 }
 
 pmlist_t *_pacman_pkg_getowners(const char *filename)
@@ -487,7 +477,7 @@ pmlist_t *_pacman_pkg_getowners(const char *filename)
 
 		info = lp->data;
 
-		for(i = _pacman_pkg_getinfo(info, PM_PKG_FILES); i; i = i->next) {
+		for(i = info->getinfo(PM_PKG_FILES); i; i = i->next) {
 			char path[PATH_MAX];
 
 			snprintf(path, PATH_MAX, "%s%s", handle->root, (char *)i->data);

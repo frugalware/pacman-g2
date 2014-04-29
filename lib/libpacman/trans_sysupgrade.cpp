@@ -88,7 +88,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	for(i = dbs_sync; i; i = i->next) {
 		for(j = _pacman_db_get_pkgcache(i->data); j; j = j->next) {
 			Package *spkg = j->data;
-			for(k = _pacman_pkg_getinfo(spkg, PM_PKG_REPLACES); k; k = k->next) {
+			for(k = spkg->getinfo(PM_PKG_REPLACES); k; k = k->next) {
 				pmlist_t *m;
 				for(m = _pacman_db_get_pkgcache(db_local); m; m = m->next) {
 					Package *lpkg = m->data;
@@ -174,7 +174,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 
 		/* compare versions and see if we need to upgrade */
 		cmp = _pacman_versioncmp(local->version, spkg->version);
-		if(cmp > 0 && !_pacman_pkg_getinfo(spkg, PM_PKG_FORCE) && !(trans->flags & PM_TRANS_FLAG_DOWNGRADE)) {
+		if(cmp > 0 && !spkg->getinfo(PM_PKG_FORCE) && !(trans->flags & PM_TRANS_FLAG_DOWNGRADE)) {
 			/* local version is newer */
 			_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer"),
 				local->name, local->version);
@@ -188,7 +188,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 			/* package too new (UpgradeDelay) */
 			_pacman_log(PM_LOG_FLOW1, _("%s-%s: delaying upgrade of package (%s)\n"),
 					local->name, local->version, spkg->version);
-		} else if(_pacman_pkg_getinfo(spkg, PM_PKG_STICK)) {
+		} else if(spkg->getinfo(PM_PKG_STICK)) {
 			_pacman_log(PM_LOG_WARNING, _("%s-%s: please upgrade manually (%s => %s)"),
 				local->name, local->version, local->version, spkg->version);
 		} else {

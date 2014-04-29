@@ -594,7 +594,7 @@ void *pacman_pkg_getinfo(pmpkg_t *_pkg, unsigned char parm)
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(pkg != NULL, return(NULL));
 
-	return(_pacman_pkg_getinfo(pkg, parm));
+	return pkg->getinfo(parm);
 }
 
 /** Get a list of packages that own the specified file
