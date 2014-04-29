@@ -369,7 +369,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				local = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
 				/* check if this package also "provides" the package it's conflicting with
 				 */
-				if(_pacman_list_is_strin(miss->depend.name, ps->pkg->provides)) {
+				if(ps->pkg->provides(miss->depend.name)) {
 					/* so just treat it like a "replaces" item so the REQUIREDBY
 					 * fields are inherited properly.
 					 */
@@ -544,7 +544,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 						 * to a provisio from the package we want to remove */
 						for(k = conflictp->depends; k && !pfound; k = k->next) {
 							pmlist_t *m;
-							for(m = leavingp->provides; m && !pfound; m = m->next) {
+							for(m = leavingp->provides(); m && !pfound; m = m->next) {
 								if(!strcmp(k->data, m->data)) {
 									/* Found a match -- now look through final for a package that
 									 * provides the same thing.  If none are found, then it truly
@@ -552,7 +552,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 									pmlist_t *n, *o;
 									for(n = trans->syncpkgs; n && !pfound; n = n->next) {
 										pmsyncpkg_t *sp = n->data;
-										for(o = sp->pkg->provides; o && !pfound; o = o->next) {
+										for(o = sp->pkg->provides(); o && !pfound; o = o->next) {
 											if(!strcmp(m->data, o->data)) {
 												/* found matching provisio -- we're good to go */
 												_pacman_log(PM_LOG_FLOW2, _("found '%s' as a provision for '%s' -- conflict aborted"),

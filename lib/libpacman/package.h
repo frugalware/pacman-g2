@@ -110,6 +110,9 @@ public:
 	bool set_filename(const char *filename, int witharch);
 	static bool splitname(const char *target, char *name, char *version, int witharch);
 
+	FStringList *provides() const;
+	bool provides(const char *pkgname);
+
 	libpacman::Database *database;
 
 	unsigned int flags;
@@ -141,7 +144,7 @@ public:
 	FStringList *removes;
 	FStringList *requiredby;
 	FStringList *conflicts;
-	FStringList *provides;
+	FStringList *m_provides;
 	FStringList *triggers;
 	/* internal */
 	unsigned char origin;

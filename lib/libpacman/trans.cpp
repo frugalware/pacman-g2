@@ -1167,7 +1167,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				if(_pacman_splitdep(tmppm->data, &depend)) {
 					continue;
 				}
-				if(tmppm->data && (!strcmp(depend.name, pkg_new->name) || _pacman_list_is_strin(depend.name, pkg_new->provides))) {
+				if(tmppm->data && (!strcmp(depend.name, pkg_new->name) || pkg_new->provides(depend.name))) {
 					_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), tmpp->name, pkg_new->name);
 					pkg_new->requiredby = _pacman_stringlist_append(pkg_new->requiredby, tmpp->name);
 				}

@@ -358,9 +358,9 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
  				for(k = packages; k && !found; k = k->next) {
  					Package *p = (Package *)k->data;
  					/* see if the package names match OR if p provides depend.name */
- 					if(!strcmp(p->name, depend.name) || _pacman_list_is_strin(depend.name, p->getinfo(PM_PKG_PROVIDES))) {
+ 					if(!strcmp(p->name, depend.name) || p->provides(depend.name)) {
 						if(depend.mod == PM_DEP_MOD_ANY ||
-								_pacman_list_is_strin(depend.name, p->getinfo(PM_PKG_PROVIDES))) {
+								p->provides(depend.name)) {
 							/* depend accepts any version or p provides depend (provides - by
 							 * definition - is for all versions) */
 							found = 1;
@@ -414,7 +414,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 					for(k=trans->packages; !found && k; k=k->next) {
 						Package *spkg = k->data;
 
-						if(spkg && _pacman_list_is_strin(tp->name, spkg->getinfo(PM_PKG_PROVIDES))) {
+						if(spkg && spkg->provides(tp->name)) {
 							found=1;
 						}
 					}
@@ -422,7 +422,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 						pmsyncpkg_t *ps = k->data;
 						Package *spkg = ps->pkg;
 
-						if(spkg && _pacman_list_is_strin(tp->name, spkg->getinfo(PM_PKG_PROVIDES))) {
+						if(spkg && spkg->provides(tp->name)) {
 							found=1;
 						}
 					}
@@ -598,7 +598,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 		/* check if one of the packages in *list already provides this dependency */
 		for(j = list; j && !found; j = j->next) {
 			Package *sp = (Package *)j->data;
-			if(_pacman_list_is_strin(miss->depend.name, sp->getinfo(PM_PKG_PROVIDES))) {
+			if(sp->provides(miss->depend.name)) {
 				_pacman_log(PM_LOG_DEBUG, _("%s provides dependency %s -- skipping"),
 				          sp->name, miss->depend.name);
 				found = 1;
@@ -695,7 +695,7 @@ int _pacman_depcmp(Package *pkg, pmdepend_t *dep)
 	const char *mod = "~=";
 
 	if(strcmp(pkg->name, dep->name) == 0
-	    	|| _pacman_list_is_strin(dep->name, pkg->getinfo(PM_PKG_PROVIDES))) {
+	    	|| pkg->provides(dep->name)) {
 			if(dep->mod == PM_DEP_MOD_ANY) {
 				equal = 1;
 			} else {
