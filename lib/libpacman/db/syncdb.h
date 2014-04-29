@@ -36,6 +36,7 @@ class SyncPackage
 	  : public libpacman::Package
 {
 public:
+	SyncPackage(Database *database = 0);
 	virtual ~SyncPackage();
 
 	virtual int read(unsigned int flags);

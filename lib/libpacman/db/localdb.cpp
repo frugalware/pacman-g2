@@ -47,6 +47,11 @@
 
 using namespace libpacman;
 
+LocalPackage::LocalPackage(Database *database)
+	: Package(database)
+{
+}
+
 LocalPackage::~LocalPackage()
 {
 }

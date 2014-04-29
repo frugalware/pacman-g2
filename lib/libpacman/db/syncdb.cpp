@@ -61,6 +61,11 @@ int suffixcmp(const char *str, const char *suffix)
 		return strcmp(str + len - suflen, suffix);
 }
 
+SyncPackage::SyncPackage(Database *database)
+	: Package(database)
+{
+}
+
 SyncPackage::~SyncPackage()
 {
 }

@@ -34,7 +34,7 @@ class LocalPackage
 	  : public libpacman::Package
 {
 public:
-	LocalPackage();
+	LocalPackage(Database *database = 0);
 	virtual ~LocalPackage();
 
 	virtual int read(unsigned int flags);
