@@ -66,7 +66,7 @@ static Package *_pacman_fakedb_pkg_new(pmdb_t *fakedb, const char *name)
 		if(strncmp("name", p, q-p) == 0) {
 			STRNCPY(dummy->m_name, q+1, PKG_NAME_LEN);
 		} else if(strncmp("version", p, q-p) == 0) {
-			STRNCPY(dummy->version, q+1, PKG_VERSION_LEN);
+			STRNCPY(dummy->m_version, q+1, PKG_VERSION_LEN);
 		} else if(strncmp("depend", p, q-p) == 0) {
 			dummy->depends = _pacman_stringlist_append(dummy->depends, q+1);
 		} else {
@@ -74,7 +74,7 @@ static Package *_pacman_fakedb_pkg_new(pmdb_t *fakedb, const char *name)
 		}
 	}
 	FREE(str);
-	if(dummy->m_name[0] == 0 || dummy->version[0] == 0) {
+	if(dummy->m_name[0] == 0 || dummy->m_version[0] == 0) {
 		delete dummy;
 		RET_ERR(PM_ERR_PKG_INVALID_NAME, NULL);
 	}

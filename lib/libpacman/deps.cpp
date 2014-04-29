@@ -285,7 +285,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 							/* accept any version */
 							found = 1;
 						} else {
-							char *ver = strdup(p->version);
+							char *ver = strdup(p->version());
 							/* check for a release in depend.version.  if it's
 							 * missing remove it from p->version as well.
 							 */
@@ -332,7 +332,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 							/* accept any version */
 							found = 1;
 						} else {
-							char *ver = strdup(p->version);
+							char *ver = strdup(p->version());
 							/* check for a release in depend.version.  if it's
 							 * missing remove it from p->version as well.
 							 */
@@ -365,7 +365,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 							 * definition - is for all versions) */
 							found = 1;
 						} else {
-							char *ver = strdup(p->version);
+							char *ver = strdup(p->version());
 							/* check for a release in depend.version.  if it's
 							 * missing remove it from p->version as well.
 							 */
@@ -548,7 +548,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 				}
 			}
 			if(!needed) {
-				Package *pkg = new Package(dep->name(), dep->version);
+				Package *pkg = new Package(dep->name(), dep->version());
 				if(pkg == NULL) {
 					continue;
 				}

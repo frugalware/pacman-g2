@@ -65,7 +65,7 @@ int _pacman_localpkg_file_reader(Database *db, Package *pkg, unsigned int flags,
 		FILE *fp = NULL;
 		char path[PATH_MAX];
 
-		snprintf(path, PATH_MAX, "%s/%s-%s/%s", db->path, pkg->name(), pkg->version, file);
+		snprintf(path, PATH_MAX, "%s/%s-%s/%s", db->path, pkg->name(), pkg->version(), file);
 		fp = fopen(path, "r");
 		if(fp == NULL) {
 			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
@@ -84,12 +84,12 @@ int LocalPackage::read(unsigned int flags)
 	char path[PATH_MAX];
 
 	ASSERT(database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	if(f_strempty(name()) || f_strempty(version)) {
+	if(f_strempty(name()) || f_strempty(version())) {
 		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_localdb_read"));
 		return(-1);
 	}
 
-	snprintf(path, PATH_MAX, "%s/%s-%s", database->path, name(), version);
+	snprintf(path, PATH_MAX, "%s/%s-%s", database->path, name(), version());
 	if(stat(path, &buf)) {
 		/* directory doesn't exist or can't be opened */
 		return(-1);
@@ -104,7 +104,7 @@ int LocalPackage::read(unsigned int flags)
 
 	/* INSTALL */
 	if(flags & INFRQ_SCRIPLET) {
-		snprintf(path, PATH_MAX, "%s/%s-%s/install", database->path, name(), version);
+		snprintf(path, PATH_MAX, "%s/%s-%s/install", database->path, name(), version());
 		if(!stat(path, &buf)) {
 			scriptlet = 1;
 		}
@@ -281,7 +281,7 @@ int _pacman_localdb_file_reader(Database *db, Package *info, unsigned int infore
 		FILE *fp = NULL;
 		char path[PATH_MAX];
 
-		snprintf(path, PATH_MAX, "%s/%s-%s/%s", db->path, info->name(), info->version, file);
+		snprintf(path, PATH_MAX, "%s/%s-%s/%s", db->path, info->name(), info->version(), file);
 		fp = fopen(path, "r");
 		if(fp == NULL) {
 			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
@@ -301,12 +301,12 @@ int _pacman_localdb_read(Database *db, Package *info, unsigned int inforeq)
 	char path[PATH_MAX];
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	if(info == NULL || info->name()[0] == 0 || info->version[0] == 0) {
+	if(info == NULL || info->name()[0] == 0 || info->version()[0] == 0) {
 		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_localdb_read"));
 		return(-1);
 	}
 
-	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name(), info->version);
+	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name(), info->version());
 	if(stat(path, &buf)) {
 		/* directory doesn't exist or can't be opened */
 		return(-1);
@@ -321,7 +321,7 @@ int _pacman_localdb_read(Database *db, Package *info, unsigned int inforeq)
 
 	/* INSTALL */
 	if(inforeq & INFRQ_SCRIPLET) {
-		snprintf(path, PATH_MAX, "%s/%s-%s/install", db->path, info->name(), info->version);
+		snprintf(path, PATH_MAX, "%s/%s-%s/install", db->path, info->name(), info->version());
 		if(!stat(path, &buf)) {
 			info->scriptlet = 1;
 		}
@@ -371,7 +371,7 @@ int LocalDatabase::write(Package *info, unsigned int inforeq)
 
 	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 
-	snprintf(path, PATH_MAX, "%s/%s-%s", this->path, info->name(), info->version);
+	snprintf(path, PATH_MAX, "%s/%s-%s", this->path, info->name(), info->version());
 	oldmask = umask(0000);
 	mkdir(path, 0755);
 	/* make sure we have a sane umask */
@@ -379,14 +379,14 @@ int LocalDatabase::write(Package *info, unsigned int inforeq)
 
 	/* DESC */
 	if(inforeq & INFRQ_DESC) {
-		snprintf(path, PATH_MAX, "%s/%s-%s/desc", this->path, info->name(), info->version);
+		snprintf(path, PATH_MAX, "%s/%s-%s/desc", this->path, info->name(), info->version());
 		if((fp = fopen(path, "w")) == NULL) {
 			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/desc"), treename);
 			retval = 1;
 			goto cleanup;
 		}
 		_pacman_localdb_write_string("NAME", info->name(), fp);
-		_pacman_localdb_write_string("VERSION", info->version, fp);
+		_pacman_localdb_write_string("VERSION", info->version(), fp);
 		if(info->desc[0]) {
 			_pacman_localdb_write_stringlist("DESC", info->desc_localized, fp);
 		}
@@ -413,7 +413,7 @@ int LocalDatabase::write(Package *info, unsigned int inforeq)
 
 	/* FILES */
 	if(inforeq & INFRQ_FILES) {
-		snprintf(path, PATH_MAX, "%s/%s-%s/files", this->path, info->name(), info->version);
+		snprintf(path, PATH_MAX, "%s/%s-%s/files", this->path, info->name(), info->version());
 		if((fp = fopen(path, "w")) == NULL) {
 			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/files"), treename);
 			retval = -1;
@@ -427,7 +427,7 @@ int LocalDatabase::write(Package *info, unsigned int inforeq)
 
 	/* DEPENDS */
 	if(inforeq & INFRQ_DEPENDS) {
-		snprintf(path, PATH_MAX, "%s/%s-%s/depends", this->path, info->name(), info->version);
+		snprintf(path, PATH_MAX, "%s/%s-%s/depends", this->path, info->name(), info->version());
 		if((fp = fopen(path, "w")) == NULL) {
 			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/depends"), treename);
 			retval = -1;
@@ -460,7 +460,7 @@ int LocalDatabase::remove(Package *info)
 
 	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 
-	snprintf(path, PATH_MAX, "%s/%s-%s", this->path, info->name(), info->version);
+	snprintf(path, PATH_MAX, "%s/%s-%s", this->path, info->name(), info->version());
 	if(_pacman_rmrf(path) == -1) {
 		return(-1);
 	}

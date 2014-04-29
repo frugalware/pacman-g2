@@ -60,7 +60,7 @@ Package::Package(const char *name, const char *version)
 		STRNCPY(m_name, name, PKG_NAME_LEN);
 	}
 	if(!_pacman_strempty(version)) {
-		STRNCPY(this->version, version, PKG_VERSION_LEN);
+		STRNCPY(m_version, version, PKG_VERSION_LEN);
 	}
 }
 
@@ -68,7 +68,7 @@ Package::Package(const libpacman::Package &other)
 {
 	database       = other.database;
 	STRNCPY(m_name,      other.m_name,      PKG_NAME_LEN);
-	STRNCPY(version,     other.version,     PKG_VERSION_LEN);
+	STRNCPY(m_version,   other.m_version,   PKG_VERSION_LEN);
 	STRNCPY(desc,        other.desc,        PKG_DESC_LEN);
 	STRNCPY(url,         other.url,         PKG_URL_LEN);
 	STRNCPY(builddate,   other.builddate,   PKG_DATE_LEN);
@@ -182,7 +182,7 @@ unsigned int _pacman_pkg_parm_to_flag(unsigned char parm)
 
 bool Package::set_filename(const char *filename, int witharch)
 {
-	return Package::splitname(filename, m_name, version, witharch);
+	return Package::splitname(filename, m_name, m_version, witharch);
 }
 
 int _pacman_pkg_delete(Package *self)
@@ -228,11 +228,11 @@ int _pacman_pkg_is_valid(const Package *pkg, const pmtrans_t *trans, const char 
 		_pacman_log(PM_LOG_ERROR, _("missing package name in %s"), pkgfile);
 		goto pkg_error;
 	}
-	if(_pacman_strempty(pkg->version)) {
+	if(_pacman_strempty(pkg->m_version)) {
 		_pacman_log(PM_LOG_ERROR, _("missing package version in %s"), pkgfile);
 		goto pkg_error;
 	}
-	if(strchr(pkg->version, '-') != strrchr(pkg->version, '-')) {
+	if(strchr(pkg->m_version, '-') != strrchr(pkg->m_version, '-')) {
 		_pacman_log(PM_LOG_ERROR, _("version contains additional hyphens in %s"), pkgfile);
 		goto invalid_name_error;
 	}
@@ -343,7 +343,7 @@ int Package::write(unsigned int flags)
 
 	if((ret = database->write(this, flags)) != 0) {
 		_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
-			name(), version);
+			name(), version());
 	}
 	return ret;
 }
@@ -417,7 +417,7 @@ void *Package::getinfo(unsigned char parm)
 
 	switch(parm) {
 		case PM_PKG_NAME:        data = m_name; break;
-		case PM_PKG_VERSION:     data = version; break;
+		case PM_PKG_VERSION:     data = m_version; break;
 		case PM_PKG_DESC:        data = desc; break;
 		case PM_PKG_GROUPS:      data = groups; break;
 		case PM_PKG_URL:         data = url; break;
@@ -502,7 +502,7 @@ pmlist_t *_pacman_pkg_getowners(const char *filename)
 int Package::filename(char *str, size_t size) const
 {
 	return snprintf(str, size, "%s-%s-%s%s",
-			m_name, version, arch, PM_EXT_PKG);
+			m_name, m_version, arch, PM_EXT_PKG);
 }
 
 /* Look for a filename in a Package.backup list.  If we find it,
@@ -542,6 +542,11 @@ char *Package::fileneedbackup(const char *file) const
 const char *Package::name()
 {
 	return getinfo(PM_PKG_NAME);
+}
+
+const char *Package::version()
+{
+	return getinfo(PM_PKG_VERSION);
 }
 
 FStringList *Package::provides() const
@@ -592,7 +597,7 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 #endif
 
 	if(((flags & PM_PACKAGE_FLAG_NAME) && f_str_match(pkg->m_name, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_VERSION) && f_str_match(pkg->version, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_VERSION) && f_str_match(pkg->m_version, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_DESCRIPTION) && f_str_match(pkg->desc, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BUILDDATE) && f_str_match(pkg->builddate, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BUILDTYPE) && f_str_match(pkg->buildtype, strmatcher)) ||

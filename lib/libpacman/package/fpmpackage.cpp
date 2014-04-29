@@ -79,7 +79,7 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 			if(!strcmp(key, "PKGNAME")) {
 				STRNCPY(info->m_name, ptr, sizeof(info->m_name));
 			} else if(!strcmp(key, "PKGVER")) {
-				STRNCPY(info->version, ptr, sizeof(info->version));
+				STRNCPY(info->m_version, ptr, sizeof(info->m_version));
 			} else if(!strcmp(key, "PKGDESC")) {
 				info->desc_localized = f_stringlist_append(info->desc_localized, ptr);
 				if(_pacman_list_count(info->desc_localized) == 1) {

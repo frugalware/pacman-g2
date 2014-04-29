@@ -394,7 +394,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 	} else {
 		if(trans->flags & PM_TRANS_FLAG_FRESHEN) {
 			/* only upgrade/install this package if it is already installed and at a lesser version */
-			if(pkg_local == NULL || _pacman_versioncmp(pkg_local->version, pkg_new->version) >= 0) {
+			if(pkg_local == NULL || _pacman_versioncmp(pkg_local->version(), pkg_new->version()) >= 0) {
 				pm_errno = PM_ERR_PKG_CANT_FRESH;
 				goto error;
 			}
@@ -421,13 +421,13 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 	}
 
 	if(pkg_queued != NULL) {
-		if(_pacman_versioncmp(pkg_queued->version, pkg_new->version) < 0) {
+		if(_pacman_versioncmp(pkg_queued->version(), pkg_new->version()) < 0) {
 			_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
-			          pkg_queued->name(), pkg_queued->version, pkg_new->version);
+			          pkg_queued->name(), pkg_queued->version(), pkg_new->version());
 			f_ptrswap(&i->data, (void **)&pkg_new);
 		} else {
 			_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
-			          pkg_queued->name(), pkg_queued->version, pkg_new->version);
+			          pkg_queued->name(), pkg_queued->version(), pkg_new->version());
 		}
 		delete pkg_new;
 	} else {
@@ -704,11 +704,11 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 					if(!strcmp(pathname, ".CHANGELOG")) {
 						/* the changelog goes inside the db */
 						snprintf(expath, PATH_MAX, "%s/%s-%s/changelog", db_local->path,
-							pkg->name(), pkg->version);
+							pkg->name(), pkg->version());
 					} else {
 						/* the install script goes inside the db */
 						snprintf(expath, PATH_MAX, "%s/%s-%s/install", db_local->path,
-							pkg->name(), pkg->version);
+							pkg->name(), pkg->version());
 					}
 				} else {
 					/* build the new pathname relative to handle->root */
@@ -1083,10 +1083,10 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 		{
 				EVENT(trans, PM_TRANS_EVT_UPGRADE_START, pkg_new, NULL);
 				cb_state = PM_TRANS_PROGRESS_UPGRADE_START;
-				_pacman_log(PM_LOG_FLOW1, _("upgrading package %s-%s"), pkg_new->name(), pkg_new->version);
+				_pacman_log(PM_LOG_FLOW1, _("upgrading package %s-%s"), pkg_new->name(), pkg_new->version());
 
 				/* we'll need to save some record for backup checks later */
-				oldpkg = new Package(pkg_local->name(), pkg_local->version);
+				oldpkg = new Package(pkg_local->name(), pkg_local->version());
 				if(oldpkg) {
 					if(!(pkg_local->infolevel & INFRQ_FILES)) {
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg_local->name());
@@ -1094,18 +1094,18 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 					}
 					oldpkg->backup = _pacman_list_strdup(pkg_local->backup);
 					strncpy(oldpkg->m_name, pkg_local->name(), PKG_NAME_LEN);
-					strncpy(oldpkg->version, pkg_local->version, PKG_VERSION_LEN);
+					strncpy(oldpkg->m_version, pkg_local->version(), PKG_VERSION_LEN);
 				}
 
 				/* pre_upgrade scriptlet */
 				if(pkg_new->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-					_pacman_runscriptlet(handle->root, pkg_new->data, "pre_upgrade", pkg_new->version, oldpkg ? oldpkg->version : NULL,
+					_pacman_runscriptlet(handle->root, pkg_new->data, "pre_upgrade", pkg_new->version(), oldpkg ? oldpkg->version() : NULL,
 						trans);
 				}
 
 				if(oldpkg) {
 					pmtrans_t *tr;
-					_pacman_log(PM_LOG_FLOW1, _("removing old package first (%s-%s)"), oldpkg->name(), oldpkg->version);
+					_pacman_log(PM_LOG_FLOW1, _("removing old package first (%s-%s)"), oldpkg->name(), oldpkg->version());
 					tr = _pacman_trans_new();
 					if(tr == NULL) {
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
@@ -1127,15 +1127,15 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 					}
 					FREETRANS(tr);
 				}
-			_pacman_log(PM_LOG_FLOW1, _("adding new package %s-%s"), pkg_new->name(), pkg_new->version);
+			_pacman_log(PM_LOG_FLOW1, _("adding new package %s-%s"), pkg_new->name(), pkg_new->version());
 		} else {
 			EVENT(trans, PM_TRANS_EVT_ADD_START, pkg_new, NULL);
 			cb_state = PM_TRANS_PROGRESS_ADD_START;
-			_pacman_log(PM_LOG_FLOW1, _("adding package %s-%s"), pkg_new->name(), pkg_new->version);
+			_pacman_log(PM_LOG_FLOW1, _("adding package %s-%s"), pkg_new->name(), pkg_new->version());
 
 			/* pre_install scriptlet */
 			if(pkg_new->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-				_pacman_runscriptlet(handle->root, pkg_new->data, "pre_install", pkg_new->version, NULL, trans);
+				_pacman_runscriptlet(handle->root, pkg_new->data, "pre_install", pkg_new->version(), NULL, trans);
 			}
 		}
 
@@ -1183,7 +1183,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 		_pacman_log(PM_LOG_FLOW2, _("adding database entry '%s'"), pkg_new->name());
 		if(db_local->write(pkg_new, INFRQ_ALL)) {
 			_pacman_log(PM_LOG_ERROR, _("error updating database for %s-%s!"),
-			          pkg_new->name(), pkg_new->version);
+			          pkg_new->name(), pkg_new->version());
 			RET_ERR(PM_ERR_DB_WRITE, -1);
 		}
 		if(_pacman_db_add_pkgincache(db_local, pkg_new) == -1) {
@@ -1222,7 +1222,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 			depinfo->requiredby = _pacman_stringlist_append(depinfo->getinfo(PM_PKG_REQUIREDBY), pkg_new->name());
 			if(db_local->write(depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
-				          depinfo->name(), depinfo->version);
+				          depinfo->name(), depinfo->version());
 			}
 		}
 
@@ -1232,11 +1232,11 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 		if(pkg_new->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 			/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
 			_pacman_ldconfig(handle->root);
-			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", handle->root, handle->dbpath, db_local->treename, pkg_new->name(), pkg_new->version);
+			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", handle->root, handle->dbpath, db_local->treename, pkg_new->name(), pkg_new->version());
 			if(pmo_upgrade) {
-				_pacman_runscriptlet(handle->root, pm_install, "post_upgrade", pkg_new->version, oldpkg ? oldpkg->version : NULL, trans);
+				_pacman_runscriptlet(handle->root, pm_install, "post_upgrade", pkg_new->version(), oldpkg ? oldpkg->version() : NULL, trans);
 			} else {
-				_pacman_runscriptlet(handle->root, pm_install, "post_install", pkg_new->version, NULL, trans);
+				_pacman_runscriptlet(handle->root, pm_install, "post_install", pkg_new->version(), NULL, trans);
 			}
 		}
 
@@ -1285,12 +1285,12 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 
 		if(trans->type != PM_TRANS_TYPE_UPGRADE) {
 			EVENT(trans, PM_TRANS_EVT_REMOVE_START, pkg_local, NULL);
-			_pacman_log(PM_LOG_FLOW1, _("removing package %s-%s"), pkg_local->name(), pkg_local->version);
+			_pacman_log(PM_LOG_FLOW1, _("removing package %s-%s"), pkg_local->name(), pkg_local->version());
 
 			/* run the pre-remove scriptlet if it exists */
 			if(pkg_local->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, pkg_local->name(), pkg_local->version);
-				_pacman_runscriptlet(handle->root, pm_install, "pre_remove", pkg_local->version, NULL, trans);
+				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, pkg_local->name(), pkg_local->version());
+				_pacman_runscriptlet(handle->root, pm_install, "pre_remove", pkg_local->version(), NULL, trans);
 			}
 		}
 
@@ -1304,8 +1304,8 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 			if(pkg_local->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 				/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
 				_pacman_ldconfig(handle->root);
-				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, pkg_local->name(), pkg_local->version);
-				_pacman_runscriptlet(handle->root, pm_install, "post_remove", pkg_local->version, NULL, trans);
+				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, pkg_local->name(), pkg_local->version());
+				_pacman_runscriptlet(handle->root, pm_install, "post_remove", pkg_local->version(), NULL, trans);
 			}
 		}
 
@@ -1313,7 +1313,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 		_pacman_log(PM_LOG_FLOW1, _("updating database"));
 		_pacman_log(PM_LOG_FLOW2, _("removing database entry '%s'"), pkg_local->name());
 		if(db_local->remove(pkg_local) == -1) {
-			_pacman_log(PM_LOG_ERROR, _("could not remove database entry %s-%s"), pkg_local->name(), pkg_local->version);
+			_pacman_log(PM_LOG_ERROR, _("could not remove database entry %s-%s"), pkg_local->name(), pkg_local->version());
 		}
 		if(_pacman_db_remove_pkgfromcache(db_local, pkg_local) == -1) {
 			_pacman_log(PM_LOG_ERROR, _("could not remove entry '%s' from cache"), pkg_local->name());
@@ -1359,7 +1359,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 			_pacman_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name());
 			if(db_local->write(depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
-					depinfo->name(), depinfo->version);
+					depinfo->name(), depinfo->version());
 			}
 		}
 

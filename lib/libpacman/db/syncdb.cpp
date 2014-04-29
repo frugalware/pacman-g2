@@ -90,7 +90,7 @@ int SyncPackage::read(unsigned int flags)
 	int descdone = 0, depsdone = 0;
 
 	ASSERT(database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	if(name()[0] == 0 || version[0] == 0) {
+	if(name()[0] == 0 || version()[0] == 0) {
 		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_syncdb_read"));
 		return(-1);
 	}
@@ -307,7 +307,7 @@ int _pacman_syncdb_read(Database *db, Package *info, unsigned int inforeq)
 	int descdone = 0, depsdone = 0;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	if(info == NULL || info->name()[0] == 0 || info->version[0] == 0) {
+	if(info == NULL || info->name()[0] == 0 || info->version()[0] == 0) {
 		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_syncdb_read"));
 		return(-1);
 	}
