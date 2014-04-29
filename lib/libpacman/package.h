@@ -146,13 +146,6 @@ public:
 
 }
 
-#define FREEPKG(p) \
-do { \
-	if(p && _pacman_pkg_delete(p) == 0) { \
-		p = NULL; \
-	} \
-} while(0)
-
 #define FREELISTPKGS(p) _FREELIST(p, _pacman_pkg_delete)
 
 libpacman::Package *_pacman_pkg_new_from_filename(const char *filename, int witharch, libpacman::Database *database = 0);

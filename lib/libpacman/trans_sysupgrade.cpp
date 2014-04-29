@@ -122,7 +122,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 									/* none found -- enter pkg into the final sync list */
 									ps = _pacman_syncpkg_new(PM_SYNC_TYPE_REPLACE, spkg, NULL);
 									if(ps == NULL) {
-										FREEPKG(dummy);
+										delete dummy;
 										pm_errno = PM_ERR_MEMORY;
 										goto error;
 									}
@@ -202,7 +202,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 				}
 				ps = _pacman_syncpkg_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
 				if(ps == NULL) {
-					FREEPKG(dummy);
+					delete dummy;
 					goto error;
 				}
 				trans->syncpkgs = _pacman_list_add(trans->syncpkgs, ps);

@@ -429,7 +429,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 			_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
 			          pkg_queued->name, pkg_queued->version, pkg_new->version);
 		}
-		FREEPKG(pkg_new);
+		delete pkg_new;
 	} else {
 		_pacman_trans_add_package(trans, pkg_new, trans->type, 0);
 	}
@@ -446,7 +446,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 	return(0);
 
 error:
-	FREEPKG(pkg_new);
+	delete pkg_new;
 	return(-1);
 }
 
@@ -1242,7 +1242,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 
 		EVENT(trans, (pmo_upgrade) ? PM_TRANS_EVT_UPGRADE_DONE : PM_TRANS_EVT_ADD_DONE, pkg_new, oldpkg);
 
-		FREEPKG(oldpkg);
+		delete oldpkg;
 	}
 
 	/* run ldconfig if it exists */

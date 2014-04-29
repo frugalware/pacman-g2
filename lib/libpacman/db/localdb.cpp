@@ -130,7 +130,8 @@ Package *_pacman_localdb_pkg_new(Database *db, const struct dirent *dirent, unsi
 	if((pkg = _pacman_pkg_new_from_filename(dname, 0, db)) == NULL ||
 		db->read(pkg, inforeq) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
-		FREEPKG(pkg);
+		delete pkg;
+		pkg = NULL;
 	}
 	return pkg;
 }

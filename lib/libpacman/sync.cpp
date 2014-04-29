@@ -84,7 +84,7 @@ int _pacman_syncpkg_delete(pmsyncpkg_t *ps)
 	if(ps->type == PM_SYNC_TYPE_REPLACE) {
 		FREELISTPKGS(ps->data);
 	} else {
-		FREEPKG(ps->data);
+		delete (Package *)ps->data;
 	}
 	free(ps);
 	return 0;
@@ -195,7 +195,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 		}
 		ps = _pacman_syncpkg_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
 		if(ps == NULL) {
-			FREEPKG(dummy);
+			delete dummy;
 			RET_ERR(PM_ERR_MEMORY, -1);
 		}
 		_pacman_trans_add(trans, ps, 0);
@@ -443,7 +443,8 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 							if(ps->type != PM_SYNC_TYPE_REPLACE) {
 								/* switch this sync type to REPLACE */
 								ps->type = PM_SYNC_TYPE_REPLACE;
-								FREEPKG(ps->data);
+								delete ps->data;
+								ps->data = NULL;
 							}
 							/* append to the replaces list */
 							_pacman_log(PM_LOG_FLOW2, _("electing '%s' for removal"), miss->depend.name);
