@@ -91,8 +91,6 @@ public:
 
 extern libpacman::Handle *handle;
 
-int _pacman_handle_set_option(libpacman::Handle *handle, unsigned char val, unsigned long data);
-int _pacman_handle_get_option(libpacman::Handle *handle, unsigned char val, long *data);
 int _pacman_handle_lock(libpacman::Handle *handle);
 int _pacman_handle_unlock(libpacman::Handle *handle);
 

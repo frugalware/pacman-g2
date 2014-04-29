@@ -59,6 +59,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <syslog.h>
 #include <unistd.h>
 
 using namespace libpacman;
@@ -135,6 +136,26 @@ int pacman_release(void)
  * @{
  */
 
+static
+void _pacman_handle_set_option_string(const char *option, char **string, const char *value, const char *default_value)
+{
+	free(*string);
+	*string = strdup(!_pacman_strempty(value) ? value : default_value);
+	_pacman_log(PM_LOG_FLOW2, _("%s set to '%s'"), option, *string);
+}
+
+static
+void _pacman_handle_set_option_stringlist(const char *option, pmlist_t **stringlist, const char *value)
+{
+	if(!_pacman_strempty(value)) {
+		*stringlist = _pacman_stringlist_append(*stringlist, value);
+		_pacman_log(PM_LOG_FLOW2, _("'%s' added to %s"), value, option);
+	} else {
+		FREELIST(*stringlist);
+		_pacman_log(PM_LOG_FLOW2, _("%s flushed"), option);
+	}
+}
+
 /** Set a library option.
  * @param parm the name of the parameter
  * @param data the value of the parameter
@@ -142,10 +163,158 @@ int pacman_release(void)
  */
 int pacman_set_option(unsigned char parm, unsigned long data)
 {
+	char logdir[PATH_MAX], path[PATH_MAX], *p, *q;
+
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
-	return(_pacman_handle_set_option(handle, parm, data));
+	switch(parm) {
+		case PM_OPT_DBPATH:
+			_pacman_handle_set_option_string("PM_OPT_DBPATH", &handle->dbpath, (const char *)data, PM_DBPATH);
+		break;
+		case PM_OPT_CACHEDIR:
+			_pacman_handle_set_option_string("PM_OPT_CACHEDIR", &handle->cachedir, (const char *)data, PM_CACHEDIR);
+		break;
+		case PM_OPT_HOOKSDIR:
+			_pacman_handle_set_option_string("PM_OPT_HOOKSDIR", &handle->hooksdir, (const char *)data, PM_HOOKSDIR);
+		break;
+		case PM_OPT_LOGFILE:
+			if((char *)data == NULL || handle->uid != 0) {
+				return(0);
+			}
+			if(handle->logfile) {
+				FREE(handle->logfile);
+			}
+			if(handle->logfd) {
+				if(fclose(handle->logfd) != 0) {
+					handle->logfd = NULL;
+					RET_ERR(PM_ERR_OPT_LOGFILE, -1);
+				}
+				handle->logfd = NULL;
+			}
+
+			snprintf(path, PATH_MAX, "%s/%s", handle->root, (char *)data);
+			p = strdup((char*)data);
+			q = strrchr(p, '/');
+			if (q) {
+				*q = '\0';
+			}
+			snprintf(logdir, PATH_MAX, "%s/%s", handle->root, p);
+			free(p);
+			_pacman_makepath(logdir);
+			if((handle->logfd = fopen(path, "a")) == NULL) {
+				_pacman_log(PM_LOG_ERROR, _("can't open log file %s"), path);
+				RET_ERR(PM_ERR_OPT_LOGFILE, -1);
+			}
+			handle->logfile = strdup(path);
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_LOGFILE set to '%s'"), path);
+		break;
+		case PM_OPT_NOUPGRADE:
+			_pacman_handle_set_option_stringlist("PM_OPT_NOUPGRADE", &handle->noupgrade, (const char *)data);
+		break;
+		case PM_OPT_NOEXTRACT:
+			_pacman_handle_set_option_stringlist("PM_OPT_NOEXTRACT", &handle->noextract, (const char *)data);
+		break;
+		case PM_OPT_IGNOREPKG:
+			_pacman_handle_set_option_stringlist("PM_OPT_IGNOREPKG", &handle->ignorepkg, (const char *)data);
+		break;
+		case PM_OPT_HOLDPKG:
+			_pacman_handle_set_option_stringlist("PM_OPT_HOLDPKG", &handle->holdpkg, (const char *)data);
+		break;
+		case PM_OPT_NEEDLES:
+			_pacman_handle_set_option_stringlist("PM_OPT_NEEDLES", &handle->needles, (const char *)data);
+		break;
+		case PM_OPT_USESYSLOG:
+			if(data != 0 && data != 1) {
+				RET_ERR(PM_ERR_OPT_USESYSLOG, -1);
+			}
+			if(handle->usesyslog == data) {
+				return(0);
+			}
+			if(handle->usesyslog) {
+				closelog();
+			} else {
+				openlog("libpacman", 0, LOG_USER);
+			}
+			handle->usesyslog = (unsigned short)data;
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_USESYSLOG set to '%d'"), handle->usesyslog);
+		break;
+		case PM_OPT_LOGCB:
+			pm_logcb = (pacman_cb_log)data;
+		break;
+		case PM_OPT_DLCB:
+			pm_dlcb = (pacman_trans_cb_download)data;
+		break;
+		case PM_OPT_DLFNM:
+			pm_dlfnm = (char *)data;
+		break;
+		case PM_OPT_DLREMAIN:
+			handle->dlremain = (int *)data;
+		break;
+		case PM_OPT_DLHOWMANY:
+			handle->dlhowmany = (int *)data;
+		break;
+		case PM_OPT_UPGRADEDELAY:
+			handle->upgradedelay = data;
+		break;
+		case PM_OPT_OLDDELAY:
+			handle->olddelay = data;
+		break;
+		case PM_OPT_LOGMASK:
+			pm_logmask = (unsigned char)data;
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_LOGMASK set to '%02x'"), (unsigned char)data);
+		break;
+		case PM_OPT_PROXYHOST:
+			if(handle->proxyhost) {
+				FREE(handle->proxyhost);
+			}
+			p = strstr((char*)data, "://");
+			if(p) {
+				p += 3;
+				if(p == NULL || *p == '\0') {
+					RET_ERR(PM_ERR_SERVER_BAD_LOCATION, -1);
+				}
+				data = (long)p;
+			}
+#if defined(__APPLE__) || defined(__OpenBSD__)
+			handle->proxyhost = strdup((char*)data);
+#else
+			handle->proxyhost = strndup((char*)data, PATH_MAX);
+#endif
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_PROXYHOST set to '%s'"), handle->proxyhost);
+		break;
+		case PM_OPT_PROXYPORT:
+			handle->proxyport = (unsigned short)data;
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_PROXYPORT set to '%d'"), handle->proxyport);
+		break;
+		case PM_OPT_XFERCOMMAND:
+			if(handle->xfercommand) {
+				FREE(handle->xfercommand);
+			}
+#if defined(__APPLE__) || defined(__OpenBSD__)
+			handle->xfercommand = strdup((char*)data);
+#else
+			handle->xfercommand = strndup((char*)data, PATH_MAX);
+#endif
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_XFERCOMMAND set to '%s'"), handle->xfercommand);
+		break;
+		case PM_OPT_NOPASSIVEFTP:
+			handle->nopassiveftp = (unsigned short)data;
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_NOPASSIVEFTP set to '%d'"), handle->nopassiveftp);
+		break;
+		case PM_OPT_CHOMP:
+			handle->chomp = (unsigned short)data;
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_CHOMP set to '%d'"), handle->chomp);
+		break;
+		case PM_OPT_MAXTRIES:
+			handle->maxtries = (unsigned short)data;
+			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_MAXTRIES set to '%d'"), handle->maxtries);
+		break;
+		default:
+			RET_ERR(PM_ERR_WRONG_ARGS, -1);
+	}
+
+	return(0);
 }
 
 /** Get the value of a library option.
@@ -159,7 +328,40 @@ int pacman_get_option(unsigned char parm, long *data)
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 	ASSERT(data != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	return(_pacman_handle_get_option(handle, parm, data));
+	switch(parm) {
+		case PM_OPT_ROOT:      *data = (long)handle->root; break;
+		case PM_OPT_DBPATH:    *data = (long)handle->dbpath; break;
+		case PM_OPT_CACHEDIR:  *data = (long)handle->cachedir; break;
+		case PM_OPT_HOOKSDIR:  *data = (long)handle->hooksdir; break;
+		case PM_OPT_LOCALDB:   *data = (long)handle->db_local; break;
+		case PM_OPT_SYNCDB:    *data = (long)handle->dbs_sync; break;
+		case PM_OPT_LOGFILE:   *data = (long)handle->logfile; break;
+		case PM_OPT_NOUPGRADE: *data = (long)handle->noupgrade; break;
+		case PM_OPT_NOEXTRACT: *data = (long)handle->noextract; break;
+		case PM_OPT_IGNOREPKG: *data = (long)handle->ignorepkg; break;
+		case PM_OPT_HOLDPKG:   *data = (long)handle->holdpkg; break;
+		case PM_OPT_NEEDLES:   *data = (long)handle->needles; break;
+		case PM_OPT_USESYSLOG: *data = handle->usesyslog; break;
+		case PM_OPT_LOGCB:     *data = (long)pm_logcb; break;
+		case PM_OPT_DLCB:     *data = (long)pm_dlcb; break;
+		case PM_OPT_UPGRADEDELAY: *data = (long)handle->upgradedelay; break;
+		case PM_OPT_OLDDELAY:  *data = (long)handle->olddelay; break;
+		case PM_OPT_LOGMASK:   *data = pm_logmask; break;
+		case PM_OPT_DLFNM:     *data = (long)pm_dlfnm; break;
+		case PM_OPT_DLREMAIN:  *data = (long)handle->dlremain; break;
+		case PM_OPT_DLHOWMANY: *data = (long)handle->dlhowmany; break;
+		case PM_OPT_PROXYHOST: *data = (long)handle->proxyhost; break;
+		case PM_OPT_PROXYPORT: *data = handle->proxyport; break;
+		case PM_OPT_XFERCOMMAND: *data = (long)handle->xfercommand; break;
+		case PM_OPT_NOPASSIVEFTP: *data = handle->nopassiveftp; break;
+		case PM_OPT_CHOMP: *data = handle->chomp; break;
+		case PM_OPT_MAXTRIES: *data = handle->maxtries; break;
+		default:
+			RET_ERR(PM_ERR_WRONG_ARGS, -1);
+		break;
+	}
+
+	return(0);
 }
 /** @} */
 

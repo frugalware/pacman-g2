@@ -827,7 +827,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 						 */
 						_pacman_log(PM_LOG_WARNING, _("couldn't create package cache, using /tmp instead"));
 						snprintf(ldir, PATH_MAX, "%s/tmp", handle->root);
-						if(_pacman_handle_set_option(handle, PM_OPT_CACHEDIR, (long)"/tmp") == -1) {
+						if(pacman_set_option(PM_OPT_CACHEDIR, (long)"/tmp") == -1) {
 							_pacman_log(PM_LOG_WARNING, _("failed to set option CACHEDIR (%s)\n"), pacman_strerror(pm_errno));
 							RET_ERR(PM_ERR_RETRIEVE, -1);
 						}
