@@ -71,13 +71,13 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 		key = strsep(&ptr, "=");
 		if(key == NULL || ptr == NULL) {
 			_pacman_log(PM_LOG_DEBUG, _("%s: syntax error in description file line %d"),
-				info->name[0] != '\0' ? info->name : "error", linenum);
+				info->name()[0] != '\0' ? info->name() : "error", linenum);
 		} else {
 			f_strtrim(key);
 			key = f_strtoupper(key);
 			f_strtrim(ptr);
 			if(!strcmp(key, "PKGNAME")) {
-				STRNCPY(info->name, ptr, sizeof(info->name));
+				STRNCPY(info->m_name, ptr, sizeof(info->m_name));
 			} else if(!strcmp(key, "PKGVER")) {
 				STRNCPY(info->version, ptr, sizeof(info->version));
 			} else if(!strcmp(key, "PKGDESC")) {
@@ -127,7 +127,7 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 				info->triggers = f_stringlist_append(info->triggers, ptr);
 			} else {
 				_pacman_log(PM_LOG_DEBUG, _("%s: syntax error in description file line %d"),
-					info->name[0] != '\0' ? info->name : "error", linenum);
+					info->name()[0] != '\0' ? info->name() : "error", linenum);
 			}
 		}
 		line[0] = '\0';

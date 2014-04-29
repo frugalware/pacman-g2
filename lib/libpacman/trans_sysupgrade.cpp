@@ -92,11 +92,11 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 				pmlist_t *m;
 				for(m = _pacman_db_get_pkgcache(db_local); m; m = m->next) {
 					Package *lpkg = m->data;
-					if(!strcmp(k->data, lpkg->name)) {
-						_pacman_log(PM_LOG_DEBUG, _("checking replacement '%s' for package '%s'"), k->data, spkg->name);
-						if(_pacman_list_is_strin(lpkg->name, handle->ignorepkg)) {
+					if(!strcmp(k->data, lpkg->name())) {
+						_pacman_log(PM_LOG_DEBUG, _("checking replacement '%s' for package '%s'"), k->data, spkg->name());
+						if(_pacman_list_is_strin(lpkg->name(), handle->ignorepkg)) {
 							_pacman_log(PM_LOG_WARNING, _("%s-%s: ignoring package upgrade (to be replaced by %s-%s)"),
-								lpkg->name, lpkg->version, spkg->name, spkg->version);
+								lpkg->name(), lpkg->version, spkg->name(), spkg->version);
 						} else {
 							/* get confirmation for the replacement */
 							int doreplace = 0;
@@ -107,14 +107,14 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 								 * the package to replace.
 								 */
 								pmsyncpkg_t *ps;
-								Package *dummy = new Package(lpkg->name, NULL);
+								Package *dummy = new Package(lpkg->name(), NULL);
 								if(dummy == NULL) {
 									pm_errno = PM_ERR_MEMORY;
 									goto error;
 								}
 								dummy->requiredby = _pacman_list_strdup(lpkg->requiredby);
 								/* check if spkg->name is already in the packages list. */
-								ps = _pacman_trans_find(trans, spkg->name);
+								ps = _pacman_trans_find(trans, spkg->name());
 								if(ps) {
 									/* found it -- just append to the replaces list */
 									ps->data = _pacman_list_add(ps->data, dummy);
@@ -130,7 +130,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 									trans->syncpkgs = _pacman_list_add(trans->syncpkgs, ps);
 								}
 								_pacman_log(PM_LOG_FLOW2, _("%s-%s elected for upgrade (to be replaced by %s-%s)"),
-								          lpkg->name, lpkg->version, spkg->name, spkg->version);
+								          lpkg->name(), lpkg->version, spkg->name(), spkg->version);
 							}
 						}
 						break;
@@ -150,10 +150,10 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 		pmsyncpkg_t *ps;
 
 		for(j = dbs_sync; !spkg && j; j = j->next) {
-			spkg = _pacman_db_get_pkgfromcache(j->data, local->name);
+			spkg = _pacman_db_get_pkgfromcache(j->data, local->name());
 		}
 		if(spkg == NULL) {
-			_pacman_log(PM_LOG_DEBUG, _("'%s' not found in sync db -- skipping"), local->name);
+			_pacman_log(PM_LOG_DEBUG, _("'%s' not found in sync db -- skipping"), local->name());
 			continue;
 		}
 
@@ -161,14 +161,14 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 		for(j = trans->syncpkgs; j && !replace; j=j->next) {
 			ps = j->data;
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				if(_pacman_pkg_isin(spkg->name, ps->data)) {
+				if(_pacman_pkg_isin(spkg->name(), ps->data)) {
 					replace=1;
 				}
 			}
 		}
 		if(replace) {
 			_pacman_log(PM_LOG_DEBUG, _("'%s' is already elected for removal -- skipping"),
-								local->name);
+								local->name());
 			continue;
 		}
 
@@ -177,26 +177,26 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 		if(cmp > 0 && !spkg->getinfo(PM_PKG_FORCE) && !(trans->flags & PM_TRANS_FLAG_DOWNGRADE)) {
 			/* local version is newer */
 			_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer"),
-				local->name, local->version);
+					local->name(), local->version);
 		} else if(cmp == 0) {
 			/* versions are identical */
-		} else if(_pacman_list_is_strin(local->name, handle->ignorepkg)) {
+		} else if(_pacman_list_is_strin(local->name(), handle->ignorepkg)) {
 			/* package should be ignored (IgnorePkg) */
 			_pacman_log(PM_LOG_WARNING, _("%s-%s: ignoring package upgrade (%s)"),
-				local->name, local->version, spkg->version);
+					local->name(), local->version, spkg->version);
 		} else if(istoonew(spkg)) {
 			/* package too new (UpgradeDelay) */
 			_pacman_log(PM_LOG_FLOW1, _("%s-%s: delaying upgrade of package (%s)\n"),
-					local->name, local->version, spkg->version);
+					local->name(), local->version, spkg->version);
 		} else if(spkg->getinfo(PM_PKG_STICK)) {
 			_pacman_log(PM_LOG_WARNING, _("%s-%s: please upgrade manually (%s => %s)"),
-				local->name, local->version, local->version, spkg->version);
+					local->name(), local->version, local->version, spkg->version);
 		} else {
 			_pacman_log(PM_LOG_FLOW2, _("%s-%s elected for upgrade (%s => %s)"),
-				local->name, local->version, local->version, spkg->version);
+					local->name(), local->version, local->version, spkg->version);
 			/* check if spkg->name is already in the packages list. */
-			if(!_pacman_trans_find(trans, spkg->name)) {
-				Package *dummy = new Package(local->name, local->version);
+			if(!_pacman_trans_find(trans, spkg->name())) {
+				Package *dummy = new Package(local->name(), local->version);
 				if(dummy == NULL) {
 					goto error;
 				}

@@ -161,7 +161,7 @@ int Database::read(Package *info, unsigned int inforeq)
 	int ret;
 
 	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
-	if(_pacman_strempty(info->name) || _pacman_strempty(info->version)) {
+	if(_pacman_strempty(info->name()) || _pacman_strempty(info->version)) {
 		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_db_read"));
 		return(-1);
 	}

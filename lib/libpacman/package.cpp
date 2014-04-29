@@ -57,7 +57,7 @@ Package::Package(const char *name, const char *version)
 	: reason(PM_PKG_REASON_EXPLICIT)
 {
 	if(!_pacman_strempty(name)) {
-		STRNCPY(this->name, name, PKG_NAME_LEN);
+		STRNCPY(m_name, name, PKG_NAME_LEN);
 	}
 	if(!_pacman_strempty(version)) {
 		STRNCPY(this->version, version, PKG_VERSION_LEN);
@@ -67,7 +67,7 @@ Package::Package(const char *name, const char *version)
 Package::Package(const libpacman::Package &other)
 {
 	database       = other.database;
-	STRNCPY(name,        other.name,        PKG_NAME_LEN);
+	STRNCPY(m_name,      other.m_name,      PKG_NAME_LEN);
 	STRNCPY(version,     other.version,     PKG_VERSION_LEN);
 	STRNCPY(desc,        other.desc,        PKG_DESC_LEN);
 	STRNCPY(url,         other.url,         PKG_URL_LEN);
@@ -182,7 +182,7 @@ unsigned int _pacman_pkg_parm_to_flag(unsigned char parm)
 
 bool Package::set_filename(const char *filename, int witharch)
 {
-	return Package::splitname(filename, name, version, witharch);
+	return Package::splitname(filename, m_name, version, witharch);
 }
 
 int _pacman_pkg_delete(Package *self)
@@ -217,14 +217,14 @@ int _pacman_pkg_fini(Package *self)
  */
 int _pacman_pkg_cmp(const void *p1, const void *p2)
 {
-	return(strcmp(((Package *)p1)->name, ((Package *)p2)->name));
+	return(strcmp(((Package *)p1)->name(), ((Package *)p2)->name()));
 }
 
 int _pacman_pkg_is_valid(const Package *pkg, const pmtrans_t *trans, const char *pkgfile)
 {
 	struct utsname name;
 
-	if(_pacman_strempty(pkg->name)) {
+	if(_pacman_strempty(pkg->m_name)) {
 		_pacman_log(PM_LOG_ERROR, _("missing package name in %s"), pkgfile);
 		goto pkg_error;
 	}
@@ -277,7 +277,7 @@ Package *_pacman_pkg_isin(const char *needle, pmlist_t *haystack)
 	for(lp = haystack; lp; lp = lp->next) {
 		Package *info = lp->data;
 
-		if(info && !strcmp(info->name, needle)) {
+		if(info && !strcmp(info->name(), needle)) {
 			return(lp->data);
 		}
 	}
@@ -343,7 +343,7 @@ int Package::write(unsigned int flags)
 
 	if((ret = database->write(this, flags)) != 0) {
 		_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
-			name, version);
+			name(), version);
 	}
 	return ret;
 }
@@ -380,7 +380,7 @@ void *Package::getinfo(unsigned char parm)
 			case PM_PKG_REPLACES:
 			case PM_PKG_FORCE:
 				if(!(infolevel & INFRQ_DESC)) {
-					_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), name);
+					_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), name());
 					database->read(this, INFRQ_DESC);
 				}
 			break;
@@ -390,7 +390,7 @@ void *Package::getinfo(unsigned char parm)
 			case PM_PKG_CONFLICTS:
 			case PM_PKG_PROVIDES:
 				if(!(infolevel & INFRQ_DEPENDS)) {
-					_pacman_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", name);
+					_pacman_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", name());
 					database->read(this, INFRQ_DEPENDS);
 				}
 			break;
@@ -398,14 +398,14 @@ void *Package::getinfo(unsigned char parm)
 			case PM_PKG_FILES:
 			case PM_PKG_BACKUP:
 				if(this->data == handle->db_local && !(infolevel & INFRQ_FILES)) {
-					_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), name);
+					_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), name());
 					database->read(this, INFRQ_FILES);
 				}
 			break;
 			/* Scriptlet */
 			case PM_PKG_SCRIPLET:
 				if(this->data == handle->db_local && !(infolevel & INFRQ_SCRIPLET)) {
-					_pacman_log(PM_LOG_DEBUG, _("loading SCRIPLET info for '%s'"), name);
+					_pacman_log(PM_LOG_DEBUG, _("loading SCRIPLET info for '%s'"), name());
 					database->read(this, INFRQ_SCRIPLET);
 				}
 			break;
@@ -416,7 +416,7 @@ void *Package::getinfo(unsigned char parm)
 #endif
 
 	switch(parm) {
-		case PM_PKG_NAME:        data = name; break;
+		case PM_PKG_NAME:        data = m_name; break;
 		case PM_PKG_VERSION:     data = version; break;
 		case PM_PKG_DESC:        data = desc; break;
 		case PM_PKG_GROUPS:      data = groups; break;
@@ -502,7 +502,7 @@ pmlist_t *_pacman_pkg_getowners(const char *filename)
 int Package::filename(char *str, size_t size) const
 {
 	return snprintf(str, size, "%s-%s-%s%s",
-			name, version, arch, PM_EXT_PKG);
+			m_name, version, arch, PM_EXT_PKG);
 }
 
 /* Look for a filename in a Package.backup list.  If we find it,
@@ -537,6 +537,11 @@ char *Package::fileneedbackup(const char *file) const
 	}
 
 	return(NULL);
+}
+
+const char *Package::name()
+{
+	return getinfo(PM_PKG_NAME);
 }
 
 FStringList *Package::provides() const
@@ -586,7 +591,7 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 	}
 #endif
 
-	if(((flags & PM_PACKAGE_FLAG_NAME) && f_str_match(pkg->name, strmatcher)) ||
+	if(((flags & PM_PACKAGE_FLAG_NAME) && f_str_match(pkg->m_name, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_VERSION) && f_str_match(pkg->version, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_DESCRIPTION) && f_str_match(pkg->desc, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BUILDDATE) && f_str_match(pkg->builddate, strmatcher)) ||

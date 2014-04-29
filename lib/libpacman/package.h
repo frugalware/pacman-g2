@@ -110,13 +110,15 @@ public:
 	bool set_filename(const char *filename, int witharch);
 	static bool splitname(const char *target, char *name, char *version, int witharch);
 
+	const char *name();
+
 	FStringList *provides() const;
 	bool provides(const char *pkgname);
 
 	libpacman::Database *database;
 
 	unsigned int flags;
-	char name[PKG_NAME_LEN];
+	char m_name[PKG_NAME_LEN];
 	char version[PKG_VERSION_LEN];
 	char desc[PKG_DESC_LEN];
 	char url[PKG_URL_LEN];

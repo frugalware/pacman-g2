@@ -69,7 +69,7 @@ pmsyncpkg_t *_pacman_syncpkg_new(int type, Package *spkg, void *data)
 	ASSERT((ps = f_zalloc(sizeof(*ps))) != NULL, return NULL);
 
 	ps->type = type;
-	ps->pkg_name = spkg->name;
+	ps->pkg_name = spkg->name();
 	ps->pkg = spkg;
 	ps->data = data;
 	ps->pkg_local = _pacman_db_get_pkgfromcache(handle->db_local, ps->pkg_name);
@@ -95,7 +95,7 @@ int _pacman_syncpkg_delete(pmsyncpkg_t *ps)
 static
 int _pacman_syncpkg_cmp(const void *s1, const void *s2)
 {
-	return(strcmp(((pmsyncpkg_t *)s1)->pkg->name, ((pmsyncpkg_t *)s2)->pkg->name));
+	return(strcmp(((pmsyncpkg_t *)s1)->pkg->name(), ((pmsyncpkg_t *)s2)->pkg->name()));
 }
 
 int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
@@ -160,7 +160,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 	}
 
-	pkg_local = _pacman_db_get_pkgfromcache(db_local, spkg->name);
+	pkg_local = _pacman_db_get_pkgfromcache(db_local, spkg->name());
 	if(pkg_local) {
 		cmp = _pacman_versioncmp(pkg_local->version, spkg->version);
 		if(cmp > 0) {
@@ -168,7 +168,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 			int resp = 0;
 			QUESTION(trans, PM_TRANS_CONV_LOCAL_NEWER, pkg_local, NULL, NULL, &resp);
 			if(!resp) {
-				_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), pkg_local->name, pkg_local->version);
+				_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), pkg_local->name(), pkg_local->version);
 				return(0);
 			}
 		} else if(cmp == 0) {
@@ -176,19 +176,19 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 			int resp = 0;
 			QUESTION(trans, PM_TRANS_CONV_LOCAL_UPTODATE, pkg_local, NULL, NULL, &resp);
 			if(!resp) {
-				_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), pkg_local->name, pkg_local->version);
+				_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), pkg_local->name(), pkg_local->version);
 				return(0);
 			}
 		}
 	}
 
 	/* add the package to the transaction */
-	if(!_pacman_trans_find(trans, spkg->name)) {
+	if(!_pacman_trans_find(trans, spkg->name())) {
 		Package *dummy = NULL;
 		pmsyncpkg_t *ps;
 
 		if(pkg_local) {
-			dummy = new Package(pkg_local->name, pkg_local->version);
+			dummy = new Package(pkg_local->name(), pkg_local->version);
 			if(dummy == NULL) {
 				RET_ERR(PM_ERR_MEMORY, -1);
 			}
@@ -206,7 +206,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 
 static int pkg_cmp(const void *p1, const void *p2)
 {
-	return(strcmp(((Package *)p1)->name, ((pmsyncpkg_t *)p2)->pkg->name));
+	return(strcmp(((Package *)p1)->name(), ((pmsyncpkg_t *)p2)->pkg->name()));
 }
 
 static int check_olddelay(void)
@@ -271,7 +271,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 		for(i = list; i; i = i->next) {
 			/* add the dependencies found by resolvedeps to the transaction set */
 			Package *spkg = i->data;
-			if(!_pacman_trans_find(trans, spkg->name)) {
+			if(!_pacman_trans_find(trans, spkg->name())) {
 				pmsyncpkg_t *ps = _pacman_syncpkg_new(PM_SYNC_TYPE_DEPEND, spkg, NULL);
 				if(ps == NULL) {
 					ret = -1;
@@ -279,7 +279,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				}
 				trans->syncpkgs = _pacman_list_add(trans->syncpkgs, ps);
 				_pacman_log(PM_LOG_FLOW2, _("adding package %s-%s to the transaction targets"),
-						spkg->name, spkg->version);
+						spkg->name(), spkg->version);
 			} else {
 				/* remove the original targets from the list if requested */
 				if((trans->flags & PM_TRANS_FLAG_DEPENDSONLY)) {
@@ -556,7 +556,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 											if(!strcmp(m->data, o->data)) {
 												/* found matching provisio -- we're good to go */
 												_pacman_log(PM_LOG_FLOW2, _("found '%s' as a provision for '%s' -- conflict aborted"),
-														sp->pkg->name, (char *)o->data);
+														sp->pkg->name(), (char *)o->data);
 												pfound = 1;
 											}
 										}
@@ -644,8 +644,8 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		if(ps->type == PM_SYNC_TYPE_REPLACE) {
 			for(j = ps->data; j; j = j->next) {
 				Package *pkg = j->data;
-				if(!_pacman_pkg_isin(pkg->name, tr->packages)) {
-					if(_pacman_trans_addtarget(tr, pkg->name) == -1) {
+				if(!_pacman_pkg_isin(pkg->name(), tr->packages)) {
+					if(_pacman_trans_addtarget(tr, pkg->name()) == -1) {
 						goto error;
 					}
 					replaces++;
@@ -684,7 +684,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		pmsyncpkg_t *ps = i->data;
 		Package *spkg = ps->pkg;
 		char str[PATH_MAX];
-		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name, spkg->version, spkg->arch);
+		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name(), spkg->version, spkg->arch);
 		if(_pacman_trans_addtarget(tr, str) == -1) {
 			goto error;
 		}
@@ -732,14 +732,14 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 								continue;
 							}
 							for(m = depender->depends; m; m = m->next) {
-								if(!strcmp(m->data, old->name)) {
+								if(!strcmp(m->data, old->name())) {
 									FREE(m->data);
-									m->data = strdup(pkg_new->name);
+									m->data = strdup(pkg_new->name());
 								}
 							}
 							if(db_local->write(depender, INFRQ_DEPENDS) == -1) {
 								_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
-										  pkg_new->name, pkg_new->version);
+										  pkg_new->name(), pkg_new->version);
 							}
 							/* add the new requiredby */
 							pkg_new->requiredby = _pacman_stringlist_append(pkg_new->requiredby, k->data);
@@ -748,7 +748,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 				if(db_local->write(pkg_new, INFRQ_DEPENDS) == -1) {
 					_pacman_log(PM_LOG_ERROR, _("could not update new database entry %s-%s"),
-							  pkg_new->name, pkg_new->version);
+							  pkg_new->name(), pkg_new->version);
 				}
 			}
 		}
@@ -900,7 +900,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 						QUESTION(trans, PM_TRANS_CONV_CORRUPTED_PKG, pkgname, NULL, NULL, &doremove);
 					}
 					if(doremove) {
-						snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name, spkg->version, spkg->arch);
+						snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name(), spkg->version, spkg->arch);
 						unlink(str);
 						snprintf(ptr, 512, _("archive %s was corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
 					} else {
