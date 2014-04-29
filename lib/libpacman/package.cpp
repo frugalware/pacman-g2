@@ -517,24 +517,23 @@ pmlist_t *_pacman_pkg_getowners(const char *filename)
 	return(ret);
 }
 
-int _pacman_pkg_filename(char *str, size_t size, const Package *pkg)
+int Package::filename(char *str, size_t size) const
 {
 	return snprintf(str, size, "%s-%s-%s%s",
-			pkg->name, pkg->version, pkg->arch, PM_EXT_PKG);
+			name, version, arch, PM_EXT_PKG);
 }
 
 /* Look for a filename in a Package.backup list.  If we find it,
  * then we return the md5 or sha1 hash (parsed from the same line)
  */
-char *_pacman_pkg_fileneedbackup(const Package *pkg, const char *file)
+char *Package::fileneedbackup(const char *file) const
 {
 	const pmlist_t *lp;
 
-	ASSERT(pkg != NULL, RET_ERR(PM_ERR_PKG_INVALID, NULL)); // Should be PM_ERR_PKG_NULL
 	ASSERT(!_pacman_strempty(file), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	/* run through the backup list and parse out the md5 or sha1 hash for our file */
-	for(lp = pkg->backup; lp; lp = lp->next) {
+	for(lp = backup; lp; lp = lp->next) {
 		char *str = strdup(lp->data);
 		char *ptr;
 

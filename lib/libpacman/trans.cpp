@@ -741,7 +741,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 								nb = _pacman_list_is_strin(pathname, pkg->backup);
 							} else {
 								/* op == PM_TRANS_TYPE_UPGRADE */
-								hash_orig = _pacman_pkg_fileneedbackup(oldpkg, pathname);
+								hash_orig = oldpkg->fileneedbackup(pathname);
 								if(!_pacman_strempty(hash_orig)) {
 									nb = 1;
 								}
@@ -966,7 +966,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 				int nb = 0;
 				double percent = 0;
 				char *file = lp->data;
-				char *hash_orig = _pacman_pkg_fileneedbackup(pkg, file);
+				char *hash_orig = pkg->fileneedbackup(file);
 
 				if (position != 0) {
 				percent = (double)position / filenum;

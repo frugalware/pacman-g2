@@ -793,7 +793,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 				if(current == dbs) {
 					char filename[PATH_MAX];
 					char lcpath[PATH_MAX];
-					_pacman_pkg_filename(filename, sizeof(filename), spkg);
+					spkg->filename(filename, sizeof(filename));
 					snprintf(lcpath, sizeof(lcpath), "%s/%s", ldir, filename);
 
 					if(trans->flags & PM_TRANS_FLAG_PRINTURIS) {
@@ -858,7 +858,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 				char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
 				char *ptr=NULL;
 
-				_pacman_pkg_filename(pkgname, sizeof(pkgname), spkg);
+				spkg->filename(pkgname, sizeof(pkgname));
 				md5sum1 = spkg->md5sum;
 				sha1sum1 = spkg->sha1sum;
 

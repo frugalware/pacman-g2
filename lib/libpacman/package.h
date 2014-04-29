@@ -102,6 +102,9 @@ public:
 	virtual int write(unsigned int flags); /* Optional */
 	virtual int remove(); /* Optional */
 
+	int filename(char *str, size_t size) const;
+	char *fileneedbackup(const char *file) const;
+
 	libpacman::Database *database;
 
 	unsigned int flags;
@@ -155,8 +158,6 @@ do { \
 libpacman::Package *_pacman_pkg_new_from_filename(const char *filename, int witharch, libpacman::Database *database = 0);
 int _pacman_pkg_delete(libpacman::Package *self);
 
-int _pacman_pkg_init(libpacman::Package *self, libpacman::Database *db);
-
 int _pacman_pkg_cmp(const void *p1, const void *p2);
 int _pacman_pkg_is_valid(const libpacman::Package *pkg, const pmtrans_t *trans, const char *pkgfile);
 libpacman::Package *_pacman_pkg_isin(const char *needle, pmlist_t *haystack);
@@ -164,9 +165,6 @@ int _pacman_pkg_splitname(const char *target, char *name, char *version, int wit
 
 void *_pacman_pkg_getinfo(libpacman::Package *pkg, unsigned char parm);
 pmlist_t *_pacman_pkg_getowners(const char *filename);
-
-int _pacman_pkg_filename(char *str, size_t size, const libpacman::Package *pkg);
-char *_pacman_pkg_fileneedbackup(const libpacman::Package *pkg, const char *file);
 
 int _pacman_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatcher, int flags);
 int _pacman_packagestrmatcher_fini(FMatcher *matcher);
