@@ -191,28 +191,6 @@ int _pacman_pkg_delete(Package *self)
 	return 0;
 }
 
-int _pacman_pkg_fini(Package *self)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	FREELIST(self->license);
-	FREELIST(self->desc_localized);
-	FREELIST(self->files);
-	FREELIST(self->backup);
-	FREELIST(self->depends);
-	FREELIST(self->removes);
-	FREELIST(self->conflicts);
-	FREELIST(self->requiredby);
-	FREELIST(self->groups);
-	FREELIST(self->m_provides);
-	FREELIST(self->replaces);
-	FREELIST(self->triggers);
-	if(self->origin == PKG_FROM_FILE) {
-		FREE(self->data);
-	}
-	return 0;
-}
-
 /* Helper function for comparing packages
  */
 int _pacman_pkg_cmp(const void *p1, const void *p2)
