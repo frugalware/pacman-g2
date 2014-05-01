@@ -549,6 +549,11 @@ const char *Package::version()
 	return getinfo(PM_PKG_VERSION);
 }
 
+FStringList *Package::provides()
+{
+	return getinfo(PM_PKG_PROVIDES);
+}
+
 FStringList *Package::provides() const
 {
 	return m_provides;
@@ -556,7 +561,7 @@ FStringList *Package::provides() const
 
 bool Package::provides(const char *pkgname)
 {
-	return _pacman_list_is_strin(pkgname, getinfo(PM_PKG_PROVIDES));
+	return _pacman_list_is_strin(pkgname, provides());
 }
 
 typedef struct FPackageStrMatcher FPackageStrMatcher;

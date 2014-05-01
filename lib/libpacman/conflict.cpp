@@ -105,7 +105,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 				} else {
 					/* see if dp provides something in tp's conflict list */
 					pmlist_t *m;
-					for(m = dp->getinfo(PM_PKG_PROVIDES); m; m = m->next) {
+					for(m = dp->provides(); m; m = m->next) {
 						if(!strcmp(m->data, j->data)) {
 							/* confict */
 							_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
@@ -141,7 +141,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 				} else {
 					/* see if otp provides something in tp's conflict list */
 					pmlist_t *m;
-					for(m = otp->getinfo(PM_PKG_PROVIDES); m; m = m->next) {
+					for(m = otp->provides(); m; m = m->next) {
 						if(!strcmp(m->data, j->data)) {
 							_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
 							          otp->name(), tp->name());
@@ -197,7 +197,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 					pmlist_t *m;
 					for(m = conflicts; m; m = m->next) {
 						pmlist_t *n;
-						for(n = tp->getinfo(PM_PKG_PROVIDES); n; n = n->next) {
+						for(n = tp->provides(); n; n = n->next) {
 							if(!strcmp(m->data, n->data)) {
 								_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
 								          info->name(), tp->name());

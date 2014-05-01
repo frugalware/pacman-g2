@@ -113,6 +113,7 @@ public:
 	const char *name();
 	const char *version();
 
+	FStringList *provides();
 	FStringList *provides() const;
 	bool provides(const char *pkgname);
 
