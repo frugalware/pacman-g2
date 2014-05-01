@@ -87,7 +87,7 @@ Package::Package(const libpacman::Package &other)
 	license        = _pacman_list_strdup(other.license);
 	desc_localized = _pacman_list_strdup(other.desc_localized);
 	requiredby     = _pacman_list_strdup(other.requiredby);
-	conflicts      = _pacman_list_strdup(other.conflicts);
+	m_conflicts    = _pacman_list_strdup(other.m_conflicts);
 	files          = _pacman_list_strdup(other.files);
 	backup         = _pacman_list_strdup(other.backup);
 	depends        = _pacman_list_strdup(other.depends);
@@ -111,7 +111,7 @@ Package::~Package()
 	FREELIST(backup);
 	FREELIST(depends);
 	FREELIST(removes);
-	FREELIST(conflicts);
+	FREELIST(m_conflicts);
 	FREELIST(requiredby);
 	FREELIST(groups);
 	FREELIST(m_provides);
@@ -417,7 +417,7 @@ void *Package::getinfo(unsigned char parm)
 		case PM_PKG_REMOVES:     data = removes; break;
 		case PM_PKG_REQUIREDBY:  data = requiredby; break;
 		case PM_PKG_PROVIDES:    data = m_provides; break;
-		case PM_PKG_CONFLICTS:   data = conflicts; break;
+		case PM_PKG_CONFLICTS:   data = m_conflicts; break;
 		case PM_PKG_FILES:       data = files; break;
 		case PM_PKG_BACKUP:      data = backup; break;
 		case PM_PKG_SCRIPLET:    data = (void *)(long)scriptlet; break;
@@ -527,6 +527,11 @@ const char *Package::version()
 	return getinfo(PM_PKG_VERSION);
 }
 
+FStringList *Package::conflicts()
+{
+	return getinfo(PM_PKG_CONFLICTS);
+}
+
 FStringList *Package::provides()
 {
 	return getinfo(PM_PKG_PROVIDES);
@@ -597,7 +602,7 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 			((flags & PM_PACKAGE_FLAG_DEPENDS) && f_stringlist_any_match(pkg->depends, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REMOVES) && f_stringlist_any_match(pkg->removes, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REQUIREDBY) && f_stringlist_any_match(pkg->requiredby, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_CONFLITS) && f_stringlist_any_match(pkg->conflicts, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_CONFLITS) && f_stringlist_any_match(pkg->m_conflicts, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_PROVIDES) && f_stringlist_any_match(pkg->m_provides, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_TRIGGERS) && f_stringlist_any_match(pkg->triggers, strmatcher))) {
 		return 1;

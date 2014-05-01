@@ -79,7 +79,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 					howmany - remain + 1);
 		}
 
-		for(j = tp->getinfo(PM_PKG_CONFLICTS); j; j = j->next) {
+		for(j = tp->conflicts(); j; j = j->next) {
 			if(!strcmp(tp->name(), j->data)) {
 				/* a package cannot conflict with itself -- that's just not nice */
 				continue;
@@ -174,13 +174,13 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 				Package *pkg = j->data;
 				if(!strcmp(pkg->name(), info->name())) {
 					/* Use the new, to-be-installed package's conflicts */
-					conflicts = pkg->getinfo(PM_PKG_CONFLICTS);
+					conflicts = pkg->conflicts();
 					usenewconflicts = 1;
 				}
 			}
 			if(!usenewconflicts) {
 				/* Use the old package's conflicts, it's the only set we have */
-				conflicts = info->getinfo(PM_PKG_CONFLICTS);
+				conflicts = info->conflicts();
 			}
 			for(j = conflicts; j; j = j->next) {
 				if(!strcmp((char *)j->data, tp->name())) {

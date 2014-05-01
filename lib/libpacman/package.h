@@ -113,6 +113,8 @@ public:
 	const char *name();
 	const char *version();
 
+	FStringList *conflicts();
+
 	FStringList *provides();
 	FStringList *provides() const;
 	bool provides(const char *pkgname);
@@ -147,7 +149,7 @@ public:
 	FStringList *depends;
 	FStringList *removes;
 	FStringList *requiredby;
-	FStringList *conflicts;
+	FStringList *m_conflicts;
 	FStringList *m_provides;
 	FStringList *triggers;
 	/* internal */
