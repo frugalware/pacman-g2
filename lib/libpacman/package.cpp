@@ -517,30 +517,15 @@ char *Package::fileneedbackup(const char *file) const
 	return(NULL);
 }
 
-const char *Package::name()
-{
-	return getinfo(PM_PKG_NAME);
+#define LIBPACMAN_PACKAGE_PROPERTY(type, name, flag)                           \
+type Package::name()                                                           \
+{                                                                              \
+	return getinfo(PM_PKG_##flag);                                               \
 }
 
-const char *Package::version()
-{
-	return getinfo(PM_PKG_VERSION);
-}
+#include "package_properties.h"
 
-FStringList *Package::conflicts()
-{
-	return getinfo(PM_PKG_CONFLICTS);
-}
-
-FStringList *Package::requiredby()
-{
-	return getinfo(PM_PKG_REQUIREDBY);
-}
-
-FStringList *Package::provides()
-{
-	return getinfo(PM_PKG_PROVIDES);
-}
+#undef LIBPACMAN_PACKAGE_PROPERTY
 
 FStringList *Package::provides() const
 {

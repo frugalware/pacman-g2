@@ -90,6 +90,14 @@ namespace libpacman {
 class Package
 	: public libpacman::Object
 {
+#define LIBPACMAN_PACKAGE_PROPERTY(type, name, flag)                           \
+public:                                                                        \
+	type name();
+
+#include "package_properties.h"
+
+#undef LIBPACMAN_PACKAGE_PROPERTY
+
 public:
 	Package(libpacman::Database *database = 0);
 	Package(const char *name, const char *version);
@@ -110,16 +118,8 @@ public:
 	bool set_filename(const char *filename, int witharch);
 	static bool splitname(const char *target, char *name, char *version, int witharch);
 
-	const char *name();
-	const char *version();
-
-	FStringList *conflicts();
-
-	FStringList *provides();
 	FStringList *provides() const;
 	bool provides(const char *pkgname);
-
-	FStringList *requiredby();
 
 	libpacman::Database *database;
 
