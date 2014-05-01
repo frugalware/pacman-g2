@@ -119,6 +119,8 @@ public:
 	FStringList *provides() const;
 	bool provides(const char *pkgname);
 
+	FStringList *requiredby();
+
 	libpacman::Database *database;
 
 	unsigned int flags;
@@ -148,7 +150,7 @@ public:
 	FStringList *backup;
 	FStringList *depends;
 	FStringList *removes;
-	FStringList *requiredby;
+	FStringList *m_requiredby;
 	FStringList *m_conflicts;
 	FStringList *m_provides;
 	FStringList *triggers;

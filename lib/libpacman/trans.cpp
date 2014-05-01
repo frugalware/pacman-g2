@@ -1175,7 +1175,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 				if(tmppm->data && (!strcmp(depend.name, pkg_new->name()) || pkg_new->provides(depend.name))) {
 					_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), tmpp->name(), pkg_new->name());
-					pkg_new->requiredby = _pacman_stringlist_append(pkg_new->requiredby, tmpp->name());
+					pkg_new->m_requiredby = _pacman_stringlist_append(pkg_new->m_requiredby, tmpp->name());
 				}
 			}
 		}
@@ -1225,7 +1225,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 			}
 			_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), pkg_new->name(), depinfo->name());
-			depinfo->requiredby = _pacman_stringlist_append(depinfo->getinfo(PM_PKG_REQUIREDBY), pkg_new->name());
+			depinfo->m_requiredby = _pacman_stringlist_append(depinfo->requiredby(), pkg_new->name());
 			if(db_local->write(depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
 				          depinfo->name(), depinfo->version());
@@ -1360,7 +1360,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 				}
 			}
 			/* splice out this entry from requiredby */
-			depinfo->requiredby = _pacman_list_remove(depinfo->getinfo(PM_PKG_REQUIREDBY), pkg_local->name(), str_cmp, (void **)&data);
+			depinfo->m_requiredby = _pacman_list_remove(depinfo->requiredby(), pkg_local->name(), str_cmp, (void **)&data);
 			FREE(data);
 			_pacman_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name());
 			if(db_local->write(depinfo, INFRQ_DEPENDS)) {

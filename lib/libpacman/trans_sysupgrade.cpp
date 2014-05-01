@@ -112,7 +112,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 									pm_errno = PM_ERR_MEMORY;
 									goto error;
 								}
-								dummy->requiredby = _pacman_list_strdup(lpkg->requiredby);
+								dummy->m_requiredby = _pacman_list_strdup(lpkg->requiredby());
 								/* check if spkg->name is already in the packages list. */
 								ps = _pacman_trans_find(trans, spkg->name());
 								if(ps) {

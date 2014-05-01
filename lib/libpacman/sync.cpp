@@ -439,7 +439,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 								ret = -1;
 								goto cleanup;
 							}
-							q->requiredby = _pacman_list_strdup(local->requiredby);
+							q->m_requiredby = _pacman_list_strdup(local->requiredby());
 							if(ps->type != PM_SYNC_TYPE_REPLACE) {
 								/* switch this sync type to REPLACE */
 								ps->type = PM_SYNC_TYPE_REPLACE;
@@ -719,8 +719,8 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 					pmlist_t *k;
 					Package *old = j->data;
 					/* merge lists */
-					for(k = old->requiredby; k; k = k->next) {
-						if(!_pacman_list_is_strin(k->data, pkg_new->requiredby)) {
+					for(k = old->requiredby(); k; k = k->next) {
+						if(!_pacman_list_is_strin(k->data, pkg_new->requiredby())) {
 							/* replace old's name with new's name in the requiredby's dependency list */
 							pmlist_t *m;
 							Package *depender = _pacman_db_get_pkgfromcache(db_local, k->data);
@@ -742,7 +742,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 										  pkg_new->name(), pkg_new->version());
 							}
 							/* add the new requiredby */
-							pkg_new->requiredby = _pacman_stringlist_append(pkg_new->requiredby, k->data);
+							pkg_new->m_requiredby = _pacman_stringlist_append(pkg_new->m_requiredby, k->data);
 						}
 					}
 				}

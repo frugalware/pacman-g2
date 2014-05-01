@@ -434,7 +434,7 @@ int LocalDatabase::write(Package *info, unsigned int inforeq)
 			goto cleanup;
 		}
 		_pacman_localdb_write_stringlist("DEPENDS", info->depends, fp);
-		_pacman_localdb_write_stringlist("REQUIREDBY", info->requiredby, fp);
+		_pacman_localdb_write_stringlist("REQUIREDBY", info->requiredby(), fp);
 		_pacman_localdb_write_stringlist("CONFLICTS", info->conflicts(), fp);
 		_pacman_localdb_write_stringlist("PROVIDES", info->provides(), fp);
 		fclose(fp);
