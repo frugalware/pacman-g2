@@ -193,24 +193,30 @@ int _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, void
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	switch(event) {
-	case PM_TRANS_EVT_ADD_DONE:
-		snprintf(str, LOG_STR_LEN, "installed %s (%s)",
-			(char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
-			(char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
-		pacman_logaction(str);
+	case PM_TRANS_EVT_ADD_DONE: {
+			Package *pkg_new = (Package *)data1;
+
+			snprintf(str, LOG_STR_LEN, "installed %s (%s)",
+					pkg_new->name(), pkg_new->version());
+			pacman_logaction(str);
+		}
 		break;
-	case PM_TRANS_EVT_REMOVE_DONE:
-		snprintf(str, LOG_STR_LEN, "removed %s (%s)",
-			(char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
-			(char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
-		pacman_logaction(str);
+	case PM_TRANS_EVT_REMOVE_DONE: {
+			Package *pkg_old = (Package *)data1;
+
+			snprintf(str, LOG_STR_LEN, "removed %s (%s)",
+					pkg_old->name(), pkg_old->version());
+			pacman_logaction(str);
+		}
 		break;
-	case PM_TRANS_EVT_UPGRADE_DONE:
-		snprintf(str, LOG_STR_LEN, "upgraded %s (%s -> %s)",
-			(char *)pacman_pkg_getinfo(data1, PM_PKG_NAME),
-			(char *)pacman_pkg_getinfo(data2, PM_PKG_VERSION),
-			(char *)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
-		pacman_logaction(str);
+	case PM_TRANS_EVT_UPGRADE_DONE: {
+			Package *pkg_new = (Package *)data1;
+			Package *pkg_old = (Package *)data2;
+
+			snprintf(str, LOG_STR_LEN, "upgraded %s (%s -> %s)",
+					pkg_new->name(), pkg_old->version(), pkg_new->version());
+			pacman_logaction(str);
+		}
 		break;
 	default:
 		/* Nothing to log */

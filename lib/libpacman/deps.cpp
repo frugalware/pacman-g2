@@ -699,7 +699,7 @@ int _pacman_depcmp(Package *pkg, pmdepend_t *dep)
 			if(dep->mod == PM_DEP_MOD_ANY) {
 				equal = 1;
 			} else {
-				cmp = _pacman_versioncmp(pkg->getinfo(PM_PKG_VERSION), dep->version);
+				cmp = _pacman_versioncmp(pkg->version(), dep->version);
 				switch(dep->mod) {
 					case PM_DEP_MOD_EQ: equal = (cmp == 0); break;
 					case PM_DEP_MOD_GE: equal = (cmp >= 0); break;
@@ -721,12 +721,12 @@ int _pacman_depcmp(Package *pkg, pmdepend_t *dep)
 
 		if(!_pacman_strempty(dep->version)) {
 			_pacman_log(PM_LOG_DEBUG, _("depcmp: %s-%s %s %s-%s => %s"),
-								pkg->getinfo(PM_PKG_NAME), pkg->getinfo(PM_PKG_VERSION),
+								pkg->name(), pkg->version(),
 								mod, dep->name, dep->version,
 								(equal ? "match" : "no match"));
 		} else {
 			_pacman_log(PM_LOG_DEBUG, _("depcmp: %s-%s %s %s => %s"),
-								pkg->getinfo(PM_PKG_NAME), pkg->getinfo(PM_PKG_VERSION),
+								pkg->name(), pkg->version(),
 								mod, dep->name,
 								(equal ? "match" : "no match"));
 		}
@@ -768,7 +768,7 @@ int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist) {
             foundMatch = 0;
             pkg = db->readpkg(inforeq);
             while(pkg != NULL) {
-                char *pname = (char *)pacman_pkg_getinfo(c_cast(pkg), PM_PKG_NAME);
+                const char *pname = pkg->name();
                 targets = _pacman_list_remove(targets, (void*) pname, str_cmp, (void **)&match);
                 if(match) {
                     foundMatch = 1;
