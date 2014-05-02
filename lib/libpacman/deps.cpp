@@ -535,7 +535,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 			}
 
 			/* see if it was explicitly installed */
-			if(dep->reason == PM_PKG_REASON_EXPLICIT) {
+			if(dep->reason() == PM_PKG_REASON_EXPLICIT) {
 				_pacman_log(PM_LOG_FLOW2, _("excluding %s -- explicitly installed"), dep->name());
 				needed = 1;
 			}

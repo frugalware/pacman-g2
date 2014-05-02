@@ -402,9 +402,9 @@ int LocalDatabase::write(Package *info, unsigned int inforeq)
 			fprintf(fp, "%%SIZE%%\n"
 				"%ld\n\n", info->size);
 		}
-		if(info->reason) {
+		if(info->reason()) {
 			fprintf(fp, "%%REASON%%\n"
-				"%d\n\n", info->reason);
+				"%d\n\n", info->reason());
 		}
 		_pacman_localdb_write_stringlist("TRIGGERS", info->triggers, fp);
 		fclose(fp);

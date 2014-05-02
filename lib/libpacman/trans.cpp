@@ -408,12 +408,12 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 	}
 
 	if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
-		pkg_new->reason = PM_PKG_REASON_DEPEND;
+		pkg_new->m_reason = PM_PKG_REASON_DEPEND;
 	}
 
 	/* copy over the install reason */
 	if(pkg_local) {
-		pkg_new->reason = (long)pkg_local->getinfo(PM_PKG_REASON);
+		pkg_new->m_reason = pkg_local->reason();
 	}
 
 	/* check if an older version of said package is already in transaction packages.

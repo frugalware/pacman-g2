@@ -49,12 +49,12 @@
 using namespace libpacman;
 
 Package::Package(Database *_database)
-	: database(_database), reason(PM_PKG_REASON_EXPLICIT)
+	: database(_database), m_reason(PM_PKG_REASON_EXPLICIT)
 {
 }
 
 Package::Package(const char *name, const char *version)
-	: reason(PM_PKG_REASON_EXPLICIT)
+	: m_reason(PM_PKG_REASON_EXPLICIT)
 {
 	if(!_pacman_strempty(name)) {
 		STRNCPY(m_name, name, PKG_NAME_LEN);
@@ -83,7 +83,7 @@ Package::Package(const libpacman::Package &other)
 	force          = other.force;
 	stick          = other.stick;
 	scriptlet      = other.scriptlet;
-	reason         = other.reason;
+	m_reason       = other.m_reason;
 	license        = _pacman_list_strdup(other.license);
 	desc_localized = _pacman_list_strdup(other.desc_localized);
 	m_requiredby   = _pacman_list_strdup(other.m_requiredby);
@@ -406,7 +406,7 @@ void *Package::getinfo(unsigned char parm)
 		case PM_PKG_PACKAGER:    data = packager; break;
 		case PM_PKG_SIZE:        data = (void *)(long)size; break;
 		case PM_PKG_USIZE:       data = (void *)(long)usize; break;
-		case PM_PKG_REASON:      data = (void *)(long)reason; break;
+		case PM_PKG_REASON:      data = (void *)(long)m_reason; break;
 		case PM_PKG_LICENSE:     data = license; break;
 		case PM_PKG_REPLACES:    data = m_replaces; break;
 		case PM_PKG_FORCE:       data = (void *)(long)force; break;

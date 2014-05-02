@@ -141,7 +141,7 @@ public:
 	unsigned char force;
 	unsigned char stick;
 	time_t date;
-	unsigned char reason;
+	unsigned char m_reason;
 	FStringList *desc_localized;
 	FStringList *license;
 	FStringList *m_replaces;

@@ -122,7 +122,7 @@ int _pacman_localdb_desc_fread(Package *info, FILE *fp)
 				goto error;
 			}
 			f_strtrim(tmp);
-			info->reason = atol(tmp);
+			info->m_reason = atol(tmp);
 		} else if(!strcmp(line, "%TRIGGERS%")) {
 			_pacman_db_read_lines(&info->triggers, line, sline, fp);
 		} else if(!strcmp(line, "%SIZE%") || !strcmp(line, "%CSIZE%")) {
