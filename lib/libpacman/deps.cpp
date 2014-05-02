@@ -235,7 +235,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 			if((oldpkg = _pacman_db_get_pkgfromcache(db_local, tp->name())) == NULL) {
 				continue;
 			}
-			for(j = oldpkg->getinfo(PM_PKG_REQUIREDBY); j; j = j->next) {
+			for(j = oldpkg->requiredby(); j; j = j->next) {
 				//char *ver;
 				Package *p;
 				found = 0;
@@ -408,7 +408,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 			}
 
 			found=0;
-			for(j = tp->getinfo(PM_PKG_REQUIREDBY); j; j = j->next) {
+			for(j = tp->requiredby(); j; j = j->next) {
 				if(!_pacman_list_is_strin((char *)j->data, packages)) {
 					/* check if a package in trans->packages provides this package */
 					for(k=trans->packages; !found && k; k=k->next) {
@@ -541,7 +541,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 			}
 
 			/* see if other packages need it */
-			for(k = dep->getinfo(PM_PKG_REQUIREDBY); k && !needed; k = k->next) {
+			for(k = dep->requiredby(); k && !needed; k = k->next) {
 				Package *dummy = _pacman_db_get_pkgfromcache(db, k->data);
 				if(!_pacman_pkg_isin(dummy->name(), targs)) {
 					needed = 1;
