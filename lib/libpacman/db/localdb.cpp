@@ -390,7 +390,7 @@ int LocalDatabase::write(Package *info, unsigned int inforeq)
 		if(info->desc[0]) {
 			_pacman_localdb_write_stringlist("DESC", info->desc_localized, fp);
 		}
-		_pacman_localdb_write_stringlist("GROUPS", info->groups, fp);
+		_pacman_localdb_write_stringlist("GROUPS", info->groups(), fp);
 		_pacman_localdb_write_string("URL", info->url, fp);
 		_pacman_localdb_write_stringlist("LICENSE", info->license, fp);
 		_pacman_localdb_write_string("ARCH", info->arch, fp);

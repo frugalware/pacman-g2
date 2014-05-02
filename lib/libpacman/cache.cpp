@@ -201,7 +201,7 @@ int _pacman_db_load_grpcache(Database *db)
 			pkg->database->read(pkg, INFRQ_DESC);
 		}
 
-		for(i = pkg->groups; i; i = i->next) {
+		for(i = pkg->groups(); i; i = i->next) {
 			if(!_pacman_list_is_strin(i->data, db->grpcache)) {
 				Group *grp = new Group();
 

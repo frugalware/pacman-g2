@@ -95,7 +95,7 @@ Package::Package(const libpacman::Package &other)
 	backup         = _pacman_list_strdup(other.backup);
 	m_depends      = _pacman_list_strdup(other.m_depends);
 	removes        = _pacman_list_strdup(other.removes);
-	groups         = _pacman_list_strdup(other.groups);
+	m_groups       = _pacman_list_strdup(other.m_groups);
 	m_provides     = _pacman_list_strdup(other.m_provides);
 	m_replaces     = _pacman_list_strdup(other.m_replaces);
 	triggers       = _pacman_list_strdup(other.triggers);
@@ -115,7 +115,7 @@ Package::~Package()
 	FREELIST(removes);
 	FREELIST(m_conflicts);
 	FREELIST(m_requiredby);
-	FREELIST(groups);
+	FREELIST(m_groups);
 	FREELIST(m_provides);
 	FREELIST(m_replaces);
 	FREELIST(triggers);
@@ -399,7 +399,7 @@ void *Package::getinfo(unsigned char parm)
 		case PM_PKG_NAME:        data = m_name; break;
 		case PM_PKG_VERSION:     data = m_version; break;
 		case PM_PKG_DESC:        data = desc; break;
-		case PM_PKG_GROUPS:      data = groups; break;
+		case PM_PKG_GROUPS:      data = m_groups; break;
 		case PM_PKG_URL:         data = url; break;
 		case PM_PKG_ARCH:        data = arch; break;
 		case PM_PKG_BUILDDATE:   data = builddate; break;
@@ -588,7 +588,7 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 			((flags & PM_PACKAGE_FLAG_LOCALISED_DESCRIPTION) && f_stringlist_any_match(pkg->desc_localized, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_LICENSE) && f_stringlist_any_match(pkg->license, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REPLACES) && f_stringlist_any_match(pkg->m_replaces, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_GROUPS) && f_stringlist_any_match(pkg->groups, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_GROUPS) && f_stringlist_any_match(pkg->m_groups, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_FILES) && f_stringlist_any_match(pkg->m_files, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BACKUP) && f_stringlist_any_match(pkg->backup, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_DEPENDS) && f_stringlist_any_match(pkg->m_depends, strmatcher)) ||

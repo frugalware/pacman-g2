@@ -88,7 +88,7 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 					STRNCPY(info->desc, ptr+strlen(handle->language)+1, sizeof(info->desc));
 				}
 			} else if(!strcmp(key, "GROUP")) {
-				info->groups = f_stringlist_append(info->groups, ptr);
+				info->m_groups = f_stringlist_append(info->m_groups, ptr);
 			} else if(!strcmp(key, "URL")) {
 				STRNCPY(info->url, ptr, sizeof(info->url));
 			} else if(!strcmp(key, "LICENSE")) {
