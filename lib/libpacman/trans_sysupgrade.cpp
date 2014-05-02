@@ -174,7 +174,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 
 		/* compare versions and see if we need to upgrade */
 		cmp = _pacman_versioncmp(local->version(), spkg->version());
-		if(cmp > 0 && !spkg->getinfo(PM_PKG_FORCE) && !(trans->flags & PM_TRANS_FLAG_DOWNGRADE)) {
+		if(cmp > 0 && !spkg->force() && !(trans->flags & PM_TRANS_FLAG_DOWNGRADE)) {
 			/* local version is newer */
 			_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer"),
 					local->name(), local->version());

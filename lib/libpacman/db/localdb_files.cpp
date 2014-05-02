@@ -169,7 +169,7 @@ int _pacman_localdb_desc_fread(Package *info, FILE *fp)
 		} else if(!strcmp(line, "%FORCE%")) {
 			/* FORCE tag only appears in sync repositories,
 			 * not the local one. */
-			info->force = 1;
+			info->m_force = 1;
 		} else if(!strcmp(line, "%STICK%")) {
 			/* STICK tag only appears in sync repositories,
 			 * not the local one. */
@@ -208,7 +208,7 @@ int _pacman_localdb_depends_fread(Package *info, FILE *fp)
 		} else if(!strcmp(line, "%FORCE%")) {
 			/* FORCE tag only appears in sync repositories,
 			 * not the local one. */
-			info->force = 1;
+			info->m_force = 1;
 		} else if(!strcmp(line, "%STICK%")) {
 			/* STICK tag only appears in sync repositories,
 			 * not the local one. */

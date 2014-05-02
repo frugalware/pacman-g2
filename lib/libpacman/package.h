@@ -138,7 +138,7 @@ public:
 	unsigned long size;
 	unsigned long usize;
 	unsigned char scriptlet;
-	unsigned char force;
+	unsigned char m_force;
 	unsigned char stick;
 	time_t date;
 	unsigned char m_reason;

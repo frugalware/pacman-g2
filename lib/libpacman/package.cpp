@@ -80,7 +80,7 @@ Package::Package(const libpacman::Package &other)
 	STRNCPY(arch,        other.arch,        PKG_ARCH_LEN);
 	size           = other.size;
 	usize          = other.usize;
-	force          = other.force;
+	m_force        = other.m_force;
 	stick          = other.stick;
 	scriptlet      = other.scriptlet;
 	m_reason       = other.m_reason;
@@ -409,7 +409,7 @@ void *Package::getinfo(unsigned char parm)
 		case PM_PKG_REASON:      data = (void *)(long)m_reason; break;
 		case PM_PKG_LICENSE:     data = license; break;
 		case PM_PKG_REPLACES:    data = m_replaces; break;
-		case PM_PKG_FORCE:       data = (void *)(long)force; break;
+		case PM_PKG_FORCE:       data = (void *)(long)m_force; break;
 		case PM_PKG_STICK:       data = (void *)(long)stick; break;
 		case PM_PKG_MD5SUM:      data = md5sum; break;
 		case PM_PKG_SHA1SUM:     data = sha1sum; break;
