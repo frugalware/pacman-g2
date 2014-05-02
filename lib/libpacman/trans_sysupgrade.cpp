@@ -188,7 +188,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 			/* package too new (UpgradeDelay) */
 			_pacman_log(PM_LOG_FLOW1, _("%s-%s: delaying upgrade of package (%s)\n"),
 					local->name(), local->version(), spkg->version());
-		} else if(spkg->getinfo(PM_PKG_STICK)) {
+		} else if(spkg->stick()) {
 			_pacman_log(PM_LOG_WARNING, _("%s-%s: please upgrade manually (%s => %s)"),
 					local->name(), local->version(), local->version(), spkg->version());
 		} else {

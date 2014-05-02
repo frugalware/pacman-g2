@@ -28,5 +28,6 @@ LIBPACMAN_PACKAGE_PROPERTY(FStringList *, provides,   PROVIDES  )
 LIBPACMAN_PACKAGE_PROPERTY(unsigned char, reason,     REASON    )
 LIBPACMAN_PACKAGE_PROPERTY(FStringList *, replaces,   REPLACES  )
 LIBPACMAN_PACKAGE_PROPERTY(FStringList *, requiredby, REQUIREDBY)
+LIBPACMAN_PACKAGE_PROPERTY(unsigned char, stick,      STICK     )
 LIBPACMAN_PACKAGE_PROPERTY(const char *,  version,    VERSION   )
 

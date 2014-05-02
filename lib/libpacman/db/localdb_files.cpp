@@ -173,7 +173,7 @@ int _pacman_localdb_desc_fread(Package *info, FILE *fp)
 		} else if(!strcmp(line, "%STICK%")) {
 			/* STICK tag only appears in sync repositories,
 			 * not the local one. */
-			info->stick = 1;
+			info->m_stick = 1;
 		}
 	}
 	info->flags |= PM_LOCALPACKAGE_FLAGS_DESC;
@@ -212,7 +212,7 @@ int _pacman_localdb_depends_fread(Package *info, FILE *fp)
 		} else if(!strcmp(line, "%STICK%")) {
 			/* STICK tag only appears in sync repositories,
 			 * not the local one. */
-			info->stick = 1;
+			info->m_stick = 1;
 		}
 	}
 	info->flags |= PM_LOCALPACKAGE_FLAGS_DEPENDS;

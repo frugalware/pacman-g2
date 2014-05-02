@@ -139,7 +139,7 @@ public:
 	unsigned long usize;
 	unsigned char scriptlet;
 	unsigned char m_force;
-	unsigned char stick;
+	unsigned char m_stick;
 	time_t date;
 	unsigned char m_reason;
 	FStringList *desc_localized;

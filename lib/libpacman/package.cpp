@@ -81,7 +81,7 @@ Package::Package(const libpacman::Package &other)
 	size           = other.size;
 	usize          = other.usize;
 	m_force        = other.m_force;
-	stick          = other.stick;
+	m_stick        = other.m_stick;
 	scriptlet      = other.scriptlet;
 	m_reason       = other.m_reason;
 	license        = _pacman_list_strdup(other.license);
@@ -410,7 +410,7 @@ void *Package::getinfo(unsigned char parm)
 		case PM_PKG_LICENSE:     data = license; break;
 		case PM_PKG_REPLACES:    data = m_replaces; break;
 		case PM_PKG_FORCE:       data = (void *)(long)m_force; break;
-		case PM_PKG_STICK:       data = (void *)(long)stick; break;
+		case PM_PKG_STICK:       data = (void *)(long)m_stick; break;
 		case PM_PKG_MD5SUM:      data = md5sum; break;
 		case PM_PKG_SHA1SUM:     data = sha1sum; break;
 		case PM_PKG_DEPENDS:     data = m_depends; break;
