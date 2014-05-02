@@ -549,35 +549,13 @@ struct FPackageStrMatcher
 
 static
 int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
-	const Package *pkg = ptr;
+	Package *pkg = (void *)ptr; /* FIXME: Make const when const accessors are available */
 	const FPackageStrMatcher *data = matcher_data;
 	const int flags = data->flags;
 	const FStrMatcher *strmatcher = data->strmatcher;
 
-#if 0
-	/* Update the cache package entry if needed */
-	if(pkg->origin == PKG_FROM_CACHE) {
-		if(!(pkg->infolevel & INFRQ_DESC)) {
-			_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), pkg->name);
-			_pacman_db_read(pkg->data, (Package *)pkg, INFRQ_DESC);
-		}
-		if(!(pkg->infolevel & INFRQ_DEPENDS)) {
-			_pacman_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", pkg->name);
-			_pacman_db_read(pkg->data, (Package *)pkg, INFRQ_DEPENDS);
-		}
-		if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_FILES)) {
-			_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg->name);
-			_pacman_db_read(pkg->data, (Package *)pkg, INFRQ_FILES);
-		}
-		if(pkg->data == handle->db_local && !(pkg->infolevel & INFRQ_SCRIPLET)) {
-			_pacman_log(PM_LOG_DEBUG, _("loading SCRIPLET info for '%s'"), pkg->name);
-			_pacman_db_read(pkg->data, (Package *)pkg, INFRQ_SCRIPLET);
-		}
-	}
-#endif
-
-	if(((flags & PM_PACKAGE_FLAG_NAME) && f_str_match(pkg->m_name, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_VERSION) && f_str_match(pkg->m_version, strmatcher)) ||
+	if(((flags & PM_PACKAGE_FLAG_NAME) && f_str_match(pkg->name(), strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_VERSION) && f_str_match(pkg->version(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_DESCRIPTION) && f_str_match(pkg->desc, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BUILDDATE) && f_str_match(pkg->builddate, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BUILDTYPE) && f_str_match(pkg->buildtype, strmatcher)) ||
@@ -587,15 +565,15 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 			((flags & PM_PACKAGE_FLAG_ARCH) && f_str_match(pkg->arch, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_LOCALISED_DESCRIPTION) && f_stringlist_any_match(pkg->desc_localized, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_LICENSE) && f_stringlist_any_match(pkg->license, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_REPLACES) && f_stringlist_any_match(pkg->m_replaces, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_GROUPS) && f_stringlist_any_match(pkg->m_groups, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_FILES) && f_stringlist_any_match(pkg->m_files, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_REPLACES) && f_stringlist_any_match(pkg->replaces(), strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_GROUPS) && f_stringlist_any_match(pkg->groups(), strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_FILES) && f_stringlist_any_match(pkg->files(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BACKUP) && f_stringlist_any_match(pkg->backup, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_DEPENDS) && f_stringlist_any_match(pkg->m_depends, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_DEPENDS) && f_stringlist_any_match(pkg->depends(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REMOVES) && f_stringlist_any_match(pkg->removes, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_REQUIREDBY) && f_stringlist_any_match(pkg->m_requiredby, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_CONFLICTS) && f_stringlist_any_match(pkg->m_conflicts, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_PROVIDES) && f_stringlist_any_match(pkg->m_provides, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_REQUIREDBY) && f_stringlist_any_match(pkg->requiredby(), strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_CONFLICTS) && f_stringlist_any_match(pkg->conflicts(), strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_PROVIDES) && f_stringlist_any_match(pkg->provides(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_TRIGGERS) && f_stringlist_any_match(pkg->triggers, strmatcher))) {
 		return 1;
 	}
