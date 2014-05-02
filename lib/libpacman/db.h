@@ -29,14 +29,6 @@
 #include "handle.h"
 #include "object.h"
 
-/* Database entries */
-#define INFRQ_NONE     0x00
-#define INFRQ_DESC     0x01
-#define INFRQ_DEPENDS  0x02
-#define INFRQ_FILES    0x04
-#define INFRQ_SCRIPLET 0x08
-#define INFRQ_ALL      0xFF
-
 namespace libpacman {
 
 class Database;

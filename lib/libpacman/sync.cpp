@@ -27,6 +27,7 @@
 /* pacman-g2 */
 #include "sync.h"
 
+#include "db/localdb_files.h"
 #include "error.h"
 #include "package.h"
 #include "db.h"

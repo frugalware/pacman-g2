@@ -27,6 +27,7 @@
 /* pacman-g2 */
 #include "package.h"
 
+#include "db/localdb_files.h"
 #include "util.h"
 #include "error.h"
 #include "db.h"
@@ -592,7 +593,7 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 			((flags & PM_PACKAGE_FLAG_DEPENDS) && f_stringlist_any_match(pkg->m_depends, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REMOVES) && f_stringlist_any_match(pkg->removes, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REQUIREDBY) && f_stringlist_any_match(pkg->m_requiredby, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_CONFLITS) && f_stringlist_any_match(pkg->m_conflicts, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_CONFLICTS) && f_stringlist_any_match(pkg->m_conflicts, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_PROVIDES) && f_stringlist_any_match(pkg->m_provides, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_TRIGGERS) && f_stringlist_any_match(pkg->triggers, strmatcher))) {
 		return 1;

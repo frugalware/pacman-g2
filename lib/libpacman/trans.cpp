@@ -28,6 +28,7 @@
 #include "trans.h"
 
 #include "db/fakedb.h"
+#include "db/localdb_files.h"
 #include "package/fpmpackage.h"
 #include "conflict.h"
 #include "deps.h"

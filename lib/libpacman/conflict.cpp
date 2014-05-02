@@ -28,6 +28,7 @@
 /* pacman-g2 */
 #include "conflict.h"
 
+#include "db/localdb_files.h"
 #include "util.h"
 #include "error.h"
 #include "cache.h"

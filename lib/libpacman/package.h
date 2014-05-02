@@ -69,7 +69,7 @@ enum {
 #define PM_PACKAGE_FLAG_DEPENDS               (1<<15)
 #define PM_PACKAGE_FLAG_REMOVES               (1<<16)
 #define PM_PACKAGE_FLAG_REQUIREDBY            (1<<17)
-#define PM_PACKAGE_FLAG_CONFLITS              (1<<18)
+#define PM_PACKAGE_FLAG_CONFLICTS             (1<<18)
 #define PM_PACKAGE_FLAG_PROVIDES              (1<<19)
 #define PM_PACKAGE_FLAG_TRIGGERS              (1<<20)
 #define PM_PACKAGE_FLAG_PACKAGER              (1<<21)
@@ -157,7 +157,7 @@ public:
 	/* internal */
 	unsigned char origin;
 	void *data;
-	unsigned char infolevel;
+	unsigned int infolevel;
 };
 
 }

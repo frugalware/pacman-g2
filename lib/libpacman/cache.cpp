@@ -33,6 +33,7 @@
 /* pacman-g2 */
 #include "cache.h"
 
+#include "db/localdb_files.h"
 #include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
