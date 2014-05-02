@@ -165,7 +165,7 @@ int _pacman_localdb_desc_fread(Package *info, FILE *fp)
 		} else if(!strcmp(line, "%REPLACES%")) {
 			/* the REPLACES tag is special -- it only appears in sync repositories,
 			 * not the local one. */
-			_pacman_db_read_lines(&info->replaces, line, sline, fp);
+			_pacman_db_read_lines(&info->m_replaces, line, sline, fp);
 		} else if(!strcmp(line, "%FORCE%")) {
 			/* FORCE tag only appears in sync repositories,
 			 * not the local one. */
@@ -204,7 +204,7 @@ int _pacman_localdb_depends_fread(Package *info, FILE *fp)
 		} else if(!strcmp(line, "%REPLACES%")) {
 			/* the REPLACES tag is special -- it only appears in sync repositories,
 			 * not the local one. */
-			_pacman_db_read_lines(&info->replaces, line, sline, fp);
+			_pacman_db_read_lines(&info->m_replaces, line, sline, fp);
 		} else if(!strcmp(line, "%FORCE%")) {
 			/* FORCE tag only appears in sync repositories,
 			 * not the local one. */

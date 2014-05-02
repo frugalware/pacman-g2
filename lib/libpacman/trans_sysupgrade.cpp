@@ -88,7 +88,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	for(i = dbs_sync; i; i = i->next) {
 		for(j = _pacman_db_get_pkgcache(i->data); j; j = j->next) {
 			Package *spkg = j->data;
-			for(k = spkg->getinfo(PM_PKG_REPLACES); k; k = k->next) {
+			for(k = spkg->replaces(); k; k = k->next) {
 				pmlist_t *m;
 				for(m = _pacman_db_get_pkgcache(db_local); m; m = m->next) {
 					Package *lpkg = m->data;

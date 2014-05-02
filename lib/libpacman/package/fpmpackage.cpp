@@ -118,7 +118,7 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 			} else if(!strcmp(key, "CONFLICT")) {
 				info->m_conflicts = f_stringlist_append(info->m_conflicts, ptr);
 			} else if(!strcmp(key, "REPLACES")) {
-				info->replaces = f_stringlist_append(info->replaces, ptr);
+				info->m_replaces = f_stringlist_append(info->m_replaces, ptr);
 			} else if(!strcmp(key, "PROVIDES")) {
 				info->m_provides = f_stringlist_append(info->m_provides, ptr);
 			} else if(!strcmp(key, "BACKUP")) {

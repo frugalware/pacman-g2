@@ -94,7 +94,7 @@ Package::Package(const libpacman::Package &other)
 	removes        = _pacman_list_strdup(other.removes);
 	groups         = _pacman_list_strdup(other.groups);
 	m_provides     = _pacman_list_strdup(other.m_provides);
-	replaces       = _pacman_list_strdup(other.replaces);
+	m_replaces     = _pacman_list_strdup(other.m_replaces);
 	triggers       = _pacman_list_strdup(other.triggers);
 
 	/* internal */
@@ -115,7 +115,7 @@ Package::~Package()
 	FREELIST(m_requiredby);
 	FREELIST(groups);
 	FREELIST(m_provides);
-	FREELIST(replaces);
+	FREELIST(m_replaces);
 	FREELIST(triggers);
 	if(origin == PKG_FROM_FILE) {
 		FREE(data);
@@ -408,7 +408,7 @@ void *Package::getinfo(unsigned char parm)
 		case PM_PKG_USIZE:       data = (void *)(long)usize; break;
 		case PM_PKG_REASON:      data = (void *)(long)reason; break;
 		case PM_PKG_LICENSE:     data = license; break;
-		case PM_PKG_REPLACES:    data = replaces; break;
+		case PM_PKG_REPLACES:    data = m_replaces; break;
 		case PM_PKG_FORCE:       data = (void *)(long)force; break;
 		case PM_PKG_STICK:       data = (void *)(long)stick; break;
 		case PM_PKG_MD5SUM:      data = md5sum; break;
@@ -585,7 +585,7 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 			((flags & PM_PACKAGE_FLAG_ARCH) && f_str_match(pkg->arch, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_LOCALISED_DESCRIPTION) && f_stringlist_any_match(pkg->desc_localized, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_LICENSE) && f_stringlist_any_match(pkg->license, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_REPLACES) && f_stringlist_any_match(pkg->replaces, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_REPLACES) && f_stringlist_any_match(pkg->m_replaces, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_GROUPS) && f_stringlist_any_match(pkg->groups, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_FILES) && f_stringlist_any_match(pkg->files, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BACKUP) && f_stringlist_any_match(pkg->backup, strmatcher)) ||

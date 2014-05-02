@@ -144,7 +144,7 @@ public:
 	unsigned char reason;
 	FStringList *desc_localized;
 	FStringList *license;
-	FStringList *replaces;
+	FStringList *m_replaces;
 	FStringList *groups;
 	FStringList *files;
 	FStringList *backup;
