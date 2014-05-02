@@ -1168,7 +1168,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 			if(tmpp == NULL) {
 				continue;
 			}
-			for(tmppm = tmpp->depends; tmppm; tmppm = tmppm->next) {
+			for(tmppm = tmpp->depends(); tmppm; tmppm = tmppm->next) {
 				pmdepend_t depend;
 				if(_pacman_splitdep(tmppm->data, &depend)) {
 					continue;
@@ -1197,10 +1197,10 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 		}
 
 		/* update dependency packages' REQUIREDBY fields */
-		if(pkg_new->depends) {
+		if(pkg_new->depends()) {
 			_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
 		}
-		for(lp = pkg_new->depends; lp; lp = lp->next) {
+		for(lp = pkg_new->depends(); lp; lp = lp->next) {
 			Package *depinfo;
 			pmdepend_t depend;
 			if(_pacman_splitdep(lp->data, &depend)) {
@@ -1327,7 +1327,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 
 		/* update dependency packages' REQUIREDBY fields */
 		_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
-		for(lp = pkg_local->depends; lp; lp = lp->next) {
+		for(lp = pkg_local->depends(); lp; lp = lp->next) {
 			Package *depinfo = NULL;
 			pmdepend_t depend;
 			char *data;

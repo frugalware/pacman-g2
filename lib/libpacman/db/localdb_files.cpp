@@ -194,7 +194,7 @@ int _pacman_localdb_depends_fread(Package *info, FILE *fp)
 		}
 		f_strtrim(line);
 		if(!strcmp(line, "%DEPENDS%")) {
-			_pacman_db_read_lines(&info->depends, line, sline, fp);
+			_pacman_db_read_lines(&info->m_depends, line, sline, fp);
 		} else if(!strcmp(line, "%REQUIREDBY%")) {
 			_pacman_db_read_lines(&info->m_requiredby, line, sline, fp);
 		} else if(!strcmp(line, "%CONFLICTS%")) {

@@ -20,6 +20,7 @@
  */
 
 LIBPACMAN_PACKAGE_PROPERTY(FStringList *, conflicts,  CONFLICTS )
+LIBPACMAN_PACKAGE_PROPERTY(FStringList *, depends,    DEPENDS   )
 LIBPACMAN_PACKAGE_PROPERTY(const char *,  name,       NAME      )
 LIBPACMAN_PACKAGE_PROPERTY(FStringList *, provides,   PROVIDES  )
 LIBPACMAN_PACKAGE_PROPERTY(FStringList *, requiredby, REQUIREDBY)

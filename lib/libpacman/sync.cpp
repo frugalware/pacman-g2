@@ -542,7 +542,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 						}
 						/* Look through the upset package's dependencies and try to match one up
 						 * to a provisio from the package we want to remove */
-						for(k = conflictp->depends; k && !pfound; k = k->next) {
+						for(k = conflictp->depends(); k && !pfound; k = k->next) {
 							pmlist_t *m;
 							for(m = leavingp->provides(); m && !pfound; m = m->next) {
 								if(!strcmp(k->data, m->data)) {
@@ -731,7 +731,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 								 * here. */
 								continue;
 							}
-							for(m = depender->depends; m; m = m->next) {
+							for(m = depender->depends(); m; m = m->next) {
 								if(!strcmp(m->data, old->name())) {
 									FREE(m->data);
 									m->data = strdup(pkg_new->name());

@@ -148,7 +148,7 @@ public:
 	FStringList *groups;
 	FStringList *files;
 	FStringList *backup;
-	FStringList *depends;
+	FStringList *m_depends;
 	FStringList *removes;
 	FStringList *m_requiredby;
 	FStringList *m_conflicts;

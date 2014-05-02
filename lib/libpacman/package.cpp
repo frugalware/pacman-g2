@@ -90,7 +90,7 @@ Package::Package(const libpacman::Package &other)
 	m_conflicts    = _pacman_list_strdup(other.m_conflicts);
 	files          = _pacman_list_strdup(other.files);
 	backup         = _pacman_list_strdup(other.backup);
-	depends        = _pacman_list_strdup(other.depends);
+	m_depends      = _pacman_list_strdup(other.m_depends);
 	removes        = _pacman_list_strdup(other.removes);
 	groups         = _pacman_list_strdup(other.groups);
 	m_provides     = _pacman_list_strdup(other.m_provides);
@@ -109,7 +109,7 @@ Package::~Package()
 	FREELIST(desc_localized);
 	FREELIST(files);
 	FREELIST(backup);
-	FREELIST(depends);
+	FREELIST(m_depends);
 	FREELIST(removes);
 	FREELIST(m_conflicts);
 	FREELIST(m_requiredby);
@@ -413,7 +413,7 @@ void *Package::getinfo(unsigned char parm)
 		case PM_PKG_STICK:       data = (void *)(long)stick; break;
 		case PM_PKG_MD5SUM:      data = md5sum; break;
 		case PM_PKG_SHA1SUM:     data = sha1sum; break;
-		case PM_PKG_DEPENDS:     data = depends; break;
+		case PM_PKG_DEPENDS:     data = m_depends; break;
 		case PM_PKG_REMOVES:     data = removes; break;
 		case PM_PKG_REQUIREDBY:  data = m_requiredby; break;
 		case PM_PKG_PROVIDES:    data = m_provides; break;
@@ -589,7 +589,7 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 			((flags & PM_PACKAGE_FLAG_GROUPS) && f_stringlist_any_match(pkg->groups, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_FILES) && f_stringlist_any_match(pkg->files, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BACKUP) && f_stringlist_any_match(pkg->backup, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_DEPENDS) && f_stringlist_any_match(pkg->depends, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_DEPENDS) && f_stringlist_any_match(pkg->m_depends, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REMOVES) && f_stringlist_any_match(pkg->removes, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REQUIREDBY) && f_stringlist_any_match(pkg->m_requiredby, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_CONFLITS) && f_stringlist_any_match(pkg->m_conflicts, strmatcher)) ||

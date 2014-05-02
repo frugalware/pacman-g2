@@ -143,7 +143,7 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 			pmgraph_t *vertex_j = j->data;
 			Package *p_j = vertex_j->data;
 			int child = 0;
-			for(k = p_i->getinfo(PM_PKG_DEPENDS); k && !child; k = k->next) {
+			for(k = p_i->depends(); k && !child; k = k->next) {
 				pmdepend_t depend;
 				_pacman_splitdep(k->data, &depend);
 				child = _pacman_depcmp(p_j, &depend);
@@ -247,7 +247,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 					/* this package is also in the upgrade list, so don't worry about it */
 					continue;
 				}
-				for(k = p->getinfo(PM_PKG_DEPENDS); k; k = k->next) {
+				for(k = p->depends(); k; k = k->next) {
 					/* don't break any existing dependencies (possible provides) */
 					_pacman_splitdep(k->data, &depend);
 					if(_pacman_depcmp(oldpkg, &depend) && !_pacman_depcmp(tp, &depend)) {
@@ -273,7 +273,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				continue;
 			}
 
-			for(j = tp->getinfo(PM_PKG_DEPENDS); j; j = j->next) {
+			for(j = tp->depends(); j; j = j->next) {
 				/* split into name/version pairs */
 				_pacman_splitdep((char *)j->data, &depend);
 				found = 0;
@@ -505,7 +505,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 	}
 
 	for(i = targs; i; i = i->next) {
-		for(j = ((Package *)i->data)->getinfo(PM_PKG_DEPENDS); j; j = j->next) {
+		for(j = ((Package *)i->data)->depends(); j; j = j->next) {
 			pmdepend_t depend;
 			Package *dep;
 			int needed = 0;
@@ -772,7 +772,7 @@ int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist) {
                 targets = _pacman_list_remove(targets, (void*) pname, str_cmp, (void **)&match);
                 if(match) {
                     foundMatch = 1;
-                    for(k = pkg->getinfo(PM_PKG_DEPENDS); k; k = k->next) {
+                    for(k = pkg->depends(); k; k = k->next) {
                         char *fullDep = (char *)k->data;
                         pmdepend_t depend;
                         if(_pacman_splitdep(fullDep, &depend)) {

@@ -112,7 +112,7 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 				STRNCPY(tmp, ptr, sizeof(tmp));
 				info->usize = atol(tmp);
 			} else if(!strcmp(key, "DEPEND")) {
-				info->depends = f_stringlist_append(info->depends, ptr);
+				info->m_depends = f_stringlist_append(info->m_depends, ptr);
 			} else if(!strcmp(key, "REMOVE")) {
 				info->removes = f_stringlist_append(info->removes, ptr);
 			} else if(!strcmp(key, "CONFLICT")) {
