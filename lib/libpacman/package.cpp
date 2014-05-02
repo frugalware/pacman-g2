@@ -68,6 +68,8 @@ Package::Package(const char *name, const char *version)
 Package::Package(const libpacman::Package &other)
 {
 	database       = other.database;
+
+	flags          = other.flags;
 	STRNCPY(m_name,      other.m_name,      PKG_NAME_LEN);
 	STRNCPY(m_version,   other.m_version,   PKG_VERSION_LEN);
 	STRNCPY(desc,        other.desc,        PKG_DESC_LEN);
@@ -101,7 +103,6 @@ Package::Package(const libpacman::Package &other)
 	/* internal */
 	origin         = other.origin;
 	data           = (origin == PKG_FROM_FILE) ? strdup(other.data) : other.data;
-	infolevel      = other.infolevel;
 }
 
 Package::~Package()
@@ -358,7 +359,7 @@ void *Package::getinfo(unsigned char parm)
 			case PM_PKG_SHA1SUM:
 			case PM_PKG_REPLACES:
 			case PM_PKG_FORCE:
-				if(!(infolevel & INFRQ_DESC)) {
+				if(!(flags & INFRQ_DESC)) {
 					_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), name());
 					database->read(this, INFRQ_DESC);
 				}
@@ -368,7 +369,7 @@ void *Package::getinfo(unsigned char parm)
 			case PM_PKG_REQUIREDBY:
 			case PM_PKG_CONFLICTS:
 			case PM_PKG_PROVIDES:
-				if(!(infolevel & INFRQ_DEPENDS)) {
+				if(!(flags & INFRQ_DEPENDS)) {
 					_pacman_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", name());
 					database->read(this, INFRQ_DEPENDS);
 				}
@@ -376,14 +377,14 @@ void *Package::getinfo(unsigned char parm)
 			/* Files entry */
 			case PM_PKG_FILES:
 			case PM_PKG_BACKUP:
-				if(this->data == handle->db_local && !(infolevel & INFRQ_FILES)) {
+				if(this->data == handle->db_local && !(flags & INFRQ_FILES)) {
 					_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), name());
 					database->read(this, INFRQ_FILES);
 				}
 			break;
 			/* Scriptlet */
 			case PM_PKG_SCRIPLET:
-				if(this->data == handle->db_local && !(infolevel & INFRQ_SCRIPLET)) {
+				if(this->data == handle->db_local && !(flags & INFRQ_SCRIPLET)) {
 					_pacman_log(PM_LOG_DEBUG, _("loading SCRIPLET info for '%s'"), name());
 					database->read(this, INFRQ_SCRIPLET);
 				}

@@ -157,7 +157,6 @@ public:
 	/* internal */
 	unsigned char origin;
 	void *data;
-	unsigned int infolevel;
 };
 
 }

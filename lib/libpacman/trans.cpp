@@ -1095,7 +1095,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				/* we'll need to save some record for backup checks later */
 				oldpkg = new Package(pkg_local->name(), pkg_local->version());
 				if(oldpkg) {
-					if(!(pkg_local->infolevel & INFRQ_FILES)) {
+					if(!(pkg_local->flags & INFRQ_FILES)) {
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg_local->name());
 						db_local->read(pkg_local, INFRQ_FILES);
 					}

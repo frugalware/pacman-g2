@@ -197,7 +197,7 @@ int _pacman_db_load_grpcache(Database *db)
 		pmlist_t *i;
 		Package *pkg = lp->data;
 
-		if(!(pkg->infolevel & INFRQ_DESC)) {
+		if(!(pkg->flags & INFRQ_DESC)) {
 			pkg->database->read(pkg, INFRQ_DESC);
 		}
 

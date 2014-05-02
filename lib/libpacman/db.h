@@ -65,7 +65,7 @@ public:
 	virtual libpacman::Package *readpkg(unsigned int inforeq) = 0;
 	virtual libpacman::Package *scan(const char *target, unsigned int inforeq) = 0;
 
-	virtual int read(libpacman::Package *info, unsigned int inforeq);
+	virtual int read(libpacman::Package *info, unsigned int flags);
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
 	virtual int remove(libpacman::Package *info);
 

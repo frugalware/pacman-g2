@@ -156,7 +156,7 @@ int Database::settimestamp(const time_t *timestamp)
 	return _pacman_db_setlastupdate(this, buffer);
 }
 
-int Database::read(Package *info, unsigned int inforeq)
+int Database::read(Package *info, unsigned int flags)
 {
 	int ret;
 
@@ -166,8 +166,8 @@ int Database::read(Package *info, unsigned int inforeq)
 		return(-1);
 	}
 
-	if((ret = ops->read(this, info, inforeq)) == 0) {
-		info->infolevel |= inforeq;
+	if((ret = ops->read(this, info, flags)) == 0) {
+		info->flags |= flags;
 	}
 	return ret;
 }

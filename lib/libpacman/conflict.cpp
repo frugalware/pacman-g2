@@ -320,7 +320,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **ski
 					if(dbpkg == NULL) {
 						dbpkg = _pacman_db_get_pkgfromcache(db_local, p->name());
 					}
-					if(dbpkg && !(dbpkg->infolevel & INFRQ_FILES)) {
+					if(dbpkg && !(dbpkg->flags & INFRQ_FILES)) {
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg->name());
 						db_local->read(dbpkg, INFRQ_FILES);
 					}
@@ -336,7 +336,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **ski
 							if(strcmp(p2->name(), p->name())) {
 								Package *dbpkg2 = NULL;
 								dbpkg2 = _pacman_db_get_pkgfromcache(db_local, p2->name());
-								if(dbpkg2 && !(dbpkg2->infolevel & INFRQ_FILES)) {
+								if(dbpkg2 && !(dbpkg2->flags & INFRQ_FILES)) {
 									_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg2->name());
 									db_local->read(dbpkg2, INFRQ_FILES);
 								}
