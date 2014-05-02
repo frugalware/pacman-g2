@@ -237,7 +237,7 @@ int _pacman_localdb_files_fread(Package *info, FILE *fp)
 					/* just ignore the content after the pipe for now */
 					*ptr = '\0';
 				}
-				info->files = f_stringlist_append(info->files, line);
+				info->m_files = f_stringlist_append(info->m_files, line);
 			}
 		} else if(!strcmp(line, "%BACKUP%")) {
 			while(fgets(line, sline, fp) && !_pacman_strempty(f_strtrim(line))) {

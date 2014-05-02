@@ -211,7 +211,7 @@ Package *_pacman_fpmpackage_load(const char *pkgfile)
 					continue;
 				}
 				f_strtrim(str);
-				info->files = _pacman_stringlist_append(info->files, str);
+				info->m_files = _pacman_stringlist_append(info->m_files, str);
 			}
 			FREE(str);
 			fclose(filelist);
@@ -222,7 +222,7 @@ Package *_pacman_fpmpackage_load(const char *pkgfile)
 				/* no .FILELIST present in this package..  build the filelist the */
 				/* old-fashioned way, one at a time */
 				expath = strdup(archive_entry_pathname (entry));
-				info->files = _pacman_list_add(info->files, expath);
+				info->m_files = _pacman_list_add(info->m_files, expath);
 			}
 		}
 

@@ -964,11 +964,11 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 	int position = 0;
 	char line[PATH_MAX+1];
 
-			int filenum = _pacman_list_count(pkg->files);
+			int filenum = _pacman_list_count(pkg->files());
 			_pacman_log(PM_LOG_FLOW1, _("removing files"));
 
 			/* iterate through the list backwards, unlinking files */
-			for(lp = _pacman_list_last(pkg->files); lp; lp = lp->prev) {
+			for(lp = _pacman_list_last(pkg->files()); lp; lp = lp->prev) {
 				int nb = 0;
 				double percent = 0;
 				char *file = lp->data;

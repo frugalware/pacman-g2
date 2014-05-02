@@ -88,7 +88,7 @@ Package::Package(const libpacman::Package &other)
 	desc_localized = _pacman_list_strdup(other.desc_localized);
 	m_requiredby   = _pacman_list_strdup(other.m_requiredby);
 	m_conflicts    = _pacman_list_strdup(other.m_conflicts);
-	files          = _pacman_list_strdup(other.files);
+	m_files        = _pacman_list_strdup(other.m_files);
 	backup         = _pacman_list_strdup(other.backup);
 	m_depends      = _pacman_list_strdup(other.m_depends);
 	removes        = _pacman_list_strdup(other.removes);
@@ -107,7 +107,7 @@ Package::~Package()
 {
 	FREELIST(license);
 	FREELIST(desc_localized);
-	FREELIST(files);
+	FREELIST(m_files);
 	FREELIST(backup);
 	FREELIST(m_depends);
 	FREELIST(removes);
@@ -418,7 +418,7 @@ void *Package::getinfo(unsigned char parm)
 		case PM_PKG_REQUIREDBY:  data = m_requiredby; break;
 		case PM_PKG_PROVIDES:    data = m_provides; break;
 		case PM_PKG_CONFLICTS:   data = m_conflicts; break;
-		case PM_PKG_FILES:       data = files; break;
+		case PM_PKG_FILES:       data = m_files; break;
 		case PM_PKG_BACKUP:      data = backup; break;
 		case PM_PKG_SCRIPLET:    data = (void *)(long)scriptlet; break;
 		case PM_PKG_DATA:        data = this->data; break;
@@ -455,7 +455,7 @@ pmlist_t *_pacman_pkg_getowners(const char *filename)
 
 		info = lp->data;
 
-		for(i = info->getinfo(PM_PKG_FILES); i; i = i->next) {
+		for(i = info->files(); i; i = i->next) {
 			char path[PATH_MAX];
 
 			snprintf(path, PATH_MAX, "%s%s", handle->root, (char *)i->data);
@@ -587,7 +587,7 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 			((flags & PM_PACKAGE_FLAG_LICENSE) && f_stringlist_any_match(pkg->license, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REPLACES) && f_stringlist_any_match(pkg->m_replaces, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_GROUPS) && f_stringlist_any_match(pkg->groups, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_FILES) && f_stringlist_any_match(pkg->files, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_FILES) && f_stringlist_any_match(pkg->m_files, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BACKUP) && f_stringlist_any_match(pkg->backup, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_DEPENDS) && f_stringlist_any_match(pkg->m_depends, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REMOVES) && f_stringlist_any_match(pkg->removes, strmatcher)) ||
