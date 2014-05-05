@@ -122,7 +122,7 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 			} else if(!strcmp(key, "PROVIDES")) {
 				info->m_provides = f_stringlist_append(info->m_provides, ptr);
 			} else if(!strcmp(key, "BACKUP")) {
-				info->backup = f_stringlist_append(info->backup, ptr);
+				info->m_backup = f_stringlist_append(info->m_backup, ptr);
 			} else if(!strcmp(key, "TRIGGER")) {
 				info->triggers = f_stringlist_append(info->triggers, ptr);
 			} else {

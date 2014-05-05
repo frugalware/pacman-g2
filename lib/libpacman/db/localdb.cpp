@@ -420,7 +420,7 @@ int LocalDatabase::write(Package *info, unsigned int inforeq)
 			goto cleanup;
 		}
 		_pacman_localdb_write_stringlist("FILES", info->files(), fp);
-		_pacman_localdb_write_stringlist("BACKUP", info->backup, fp);
+		_pacman_localdb_write_stringlist("BACKUP", info->backup(), fp);
 		fclose(fp);
 		fp = NULL;
 	}

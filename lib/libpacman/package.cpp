@@ -94,7 +94,7 @@ Package::Package(const libpacman::Package &other)
 	m_requiredby   = _pacman_list_strdup(other.m_requiredby);
 	m_conflicts    = _pacman_list_strdup(other.m_conflicts);
 	m_files        = _pacman_list_strdup(other.m_files);
-	backup         = _pacman_list_strdup(other.backup);
+	m_backup       = _pacman_list_strdup(other.m_backup);
 	m_depends      = _pacman_list_strdup(other.m_depends);
 	m_removes      = _pacman_list_strdup(other.m_removes);
 	m_groups       = _pacman_list_strdup(other.m_groups);
@@ -112,7 +112,7 @@ Package::~Package()
 	FREELIST(license);
 	FREELIST(desc_localized);
 	FREELIST(m_files);
-	FREELIST(backup);
+	FREELIST(m_backup);
 	FREELIST(m_depends);
 	FREELIST(m_removes);
 	FREELIST(m_conflicts);
@@ -403,7 +403,7 @@ char *Package::fileneedbackup(const char *file) const
 	ASSERT(!_pacman_strempty(file), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	/* run through the backup list and parse out the md5 or sha1 hash for our file */
-	for(lp = backup; lp; lp = lp->next) {
+	for(lp = m_backup; lp; lp = lp->next) {
 		char *str = strdup(lp->data);
 		char *ptr;
 
@@ -479,7 +479,7 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 			((flags & PM_PACKAGE_FLAG_REPLACES) && f_stringlist_any_match(pkg->replaces(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_GROUPS) && f_stringlist_any_match(pkg->groups(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_FILES) && f_stringlist_any_match(pkg->files(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_BACKUP) && f_stringlist_any_match(pkg->backup, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_BACKUP) && f_stringlist_any_match(pkg->backup(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_DEPENDS) && f_stringlist_any_match(pkg->depends(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REMOVES) && f_stringlist_any_match(pkg->removes(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REQUIREDBY) && f_stringlist_any_match(pkg->requiredby(), strmatcher)) ||

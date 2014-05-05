@@ -19,6 +19,7 @@
  *  USA.
  */
 
+LIBPACMAN_PACKAGE_PROPERTY(FStringList *, backup,     BACKUP    )
 LIBPACMAN_PACKAGE_PROPERTY(FStringList *, conflicts,  CONFLICTS )
 LIBPACMAN_PACKAGE_PROPERTY(FStringList *, depends,    DEPENDS   )
 LIBPACMAN_PACKAGE_PROPERTY(FStringList *, files,      FILES     )

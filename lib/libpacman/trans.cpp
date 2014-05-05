@@ -745,7 +745,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 							notouch = 1;
 						} else {
 							if(type == PM_TRANS_TYPE_ADD || oldpkg == NULL) {
-								nb = _pacman_list_is_strin(pathname, pkg->backup);
+								nb = _pacman_list_is_strin(pathname, pkg->backup());
 							} else {
 								/* op == PM_TRANS_TYPE_UPGRADE */
 								hash_orig = oldpkg->fileneedbackup(pathname);
@@ -785,7 +785,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 					/* append the new md5 or sha1 hash to it's respective entry in pkg->backup
 					 * (it will be the new orginal)
 					 */
-					for(lp = pkg->backup; lp; lp = lp->next) {
+					for(lp = pkg->backup(); lp; lp = lp->next) {
 						char *fn;
 						char *file = lp->data;
 
@@ -915,7 +915,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 						errors++;
 					}
 					/* calculate an md5 or sha1 hash if this is in pkg->backup */
-					for(lp = pkg->backup; lp; lp = lp->next) {
+					for(lp = pkg->backup(); lp; lp = lp->next) {
 						char *fn, *md5, *sha1;
 						char path[PATH_MAX];
 						char *file = lp->data;
@@ -1099,7 +1099,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg_local->name());
 						db_local->read(pkg_local, INFRQ_FILES);
 					}
-					oldpkg->backup = _pacman_list_strdup(pkg_local->backup);
+					oldpkg->m_backup = _pacman_list_strdup(pkg_local->m_backup);
 					strncpy(oldpkg->m_name, pkg_local->name(), PKG_NAME_LEN);
 					strncpy(oldpkg->m_version, pkg_local->version(), PKG_VERSION_LEN);
 				}
