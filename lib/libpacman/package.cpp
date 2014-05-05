@@ -131,59 +131,6 @@ libpacman::Package *Package::dup() const
 	return new Package(*this);
 }
 
-/*
-static
-unsigned int _pacman_pkg_parm_to_flag(unsigned char parm)
-{
-	switch(parm) {
-	case PM_PKG_NAME:
-		return PM_PACKAGE_FLAG_NAME;
-	case PM_PKG_VERSION:
-		return PM_PACKAGE_FLAG_VERSION;
-	case PM_PKG_DESC:
-		return PM_PACKAGE_FLAG_DESCRIPTION;
-	case PM_PKG_URL:
-		return PM_PACKAGE_FLAG_URL;
-	case PM_PKG_BUILDDATE:
-		return PM_PACKAGE_FLAG_BUILDDATE;
-	case PM_PKG_BUILDTYPE:
-		return PM_PACKAGE_FLAG_BUILDTYPE;
-	case PM_PKG_INSTALLDATE:
-		return PM_PACKAGE_FLAG_INSTALLDATE;
-//	case PM_PKG_MD5SUM:
-//	case PM_PKG_SHA1SUM:
-//		return PM_PACKAGE_FLAG_HASH;
-	case PM_PKG_ARCH:
-		return PM_PACKAGE_FLAG_ARCH;
-//	case PM_PKG_DESC:
-//		return PM_PACKAGE_FLAG_LOCALISED_DESCRIPTION;
-	case PM_PKG_LICENSE:
-		return PM_PACKAGE_FLAG_LICENSE;
-	case PM_PKG_REPLACES:
-		return PM_PACKAGE_FLAG_REPLACES;
-	case PM_PKG_GROUPS:
-		return PM_PACKAGE_FLAG_GROUPS;
-	case PM_PKG_FILES:
-		return PM_PACKAGE_FLAG_FILES;
-	case PM_PKG_BACKUP:
-		return PM_PACKAGE_FLAG_BACKUP;
-	case PM_PKG_DEPENDS:
-		return PM_PACKAGE_FLAG_DEPENDS;
-	case PM_PKG_REMOVES:
-		return PM_PACKAGE_FLAG_REMOVES;
-	case PM_PKG_REQUIREDBY:
-		return PM_PACKAGE_FLAG_REQUIREDBY;
-	case PM_PKG_CONFLICTS:
-		return PM_PACKAGE_FLAG_CONFLITS;
-	case PM_PKG_PROVIDES:
-		return PM_PACKAGE_FLAG_PROVIDES;
-	case PM_PKG_TRIGGERS:
-		return PM_PACKAGE_FLAG_TRIGGERS;
-	};
-	return 0;
-}
-*/
-
 bool Package::set_filename(const char *filename, int witharch)
 {
 	if(splitname(filename, m_name, m_version, witharch)) {
