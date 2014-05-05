@@ -75,7 +75,7 @@ Package::Package(const libpacman::Package &other)
 	STRNCPY(m_name,      other.m_name,      PKG_NAME_LEN);
 	STRNCPY(m_version,   other.m_version,   PKG_VERSION_LEN);
 	STRNCPY(desc,        other.desc,        PKG_DESC_LEN);
-	STRNCPY(url,         other.url,         PKG_URL_LEN);
+	STRNCPY(m_url,       other.m_url,       PKG_URL_LEN);
 	STRNCPY(builddate,   other.builddate,   PKG_DATE_LEN);
 	STRNCPY(buildtype,   other.buildtype,   PKG_DATE_LEN);
 	STRNCPY(installdate, other.installdate, PKG_DATE_LEN);

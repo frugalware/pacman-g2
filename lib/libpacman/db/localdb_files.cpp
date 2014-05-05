@@ -85,10 +85,10 @@ int _pacman_localdb_desc_fread(Package *info, FILE *fp)
 		} else if(!strcmp(line, "%GROUPS%")) {
 			_pacman_db_read_lines(&info->m_groups, line, sline, fp);
 		} else if(!strcmp(line, "%URL%")) {
-			if(fgets(info->url, sizeof(info->url), fp) == NULL) {
+			if(fgets(info->m_url, sizeof(info->m_url), fp) == NULL) {
 				goto error;
 			}
-			f_strtrim(info->url);
+			f_strtrim(info->m_url);
 		} else if(!strcmp(line, "%LICENSE%")) {
 			_pacman_db_read_lines(&info->license, line, sline, fp);
 		} else if(!strcmp(line, "%ARCH%")) {

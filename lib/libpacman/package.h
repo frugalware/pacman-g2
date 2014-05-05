@@ -125,7 +125,7 @@ public:
 	char m_name[PKG_NAME_LEN];
 	char m_version[PKG_VERSION_LEN];
 	char desc[PKG_DESC_LEN];
-	char url[PKG_URL_LEN];
+	char m_url[PKG_URL_LEN];
 	char builddate[PKG_DATE_LEN];
 	char buildtype[PKG_TYPE_LEN];
 	char installdate[PKG_DATE_LEN];

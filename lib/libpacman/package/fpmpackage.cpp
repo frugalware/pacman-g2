@@ -90,7 +90,7 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 			} else if(!strcmp(key, "GROUP")) {
 				info->m_groups = f_stringlist_append(info->m_groups, ptr);
 			} else if(!strcmp(key, "URL")) {
-				STRNCPY(info->url, ptr, sizeof(info->url));
+				STRNCPY(info->m_url, ptr, sizeof(info->m_url));
 			} else if(!strcmp(key, "LICENSE")) {
 				info->license = f_stringlist_append(info->license, ptr);
 			} else if(!strcmp(key, "BUILDDATE")) {
