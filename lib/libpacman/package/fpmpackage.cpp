@@ -83,9 +83,9 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 			} else if(!strcmp(key, "PKGDESC")) {
 				info->desc_localized = f_stringlist_append(info->desc_localized, ptr);
 				if(_pacman_list_count(info->desc_localized) == 1) {
-					STRNCPY(info->desc, ptr, sizeof(info->desc));
+					STRNCPY(info->m_description, ptr, sizeof(info->m_description));
 				} else if (!strncmp(ptr, handle->language, strlen(handle->language))) {
-					STRNCPY(info->desc, ptr+strlen(handle->language)+1, sizeof(info->desc));
+					STRNCPY(info->m_description, ptr+strlen(handle->language)+1, sizeof(info->m_description));
 				}
 			} else if(!strcmp(key, "GROUP")) {
 				info->m_groups = f_stringlist_append(info->m_groups, ptr);

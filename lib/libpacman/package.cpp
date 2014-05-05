@@ -74,7 +74,7 @@ Package::Package(const libpacman::Package &other)
 	flags          = other.flags;
 	STRNCPY(m_name,      other.m_name,      PKG_NAME_LEN);
 	STRNCPY(m_version,   other.m_version,   PKG_VERSION_LEN);
-	STRNCPY(desc,        other.desc,        PKG_DESC_LEN);
+	STRNCPY(m_description, other.m_description, PKG_DESC_LEN);
 	STRNCPY(m_url,       other.m_url,       PKG_URL_LEN);
 	STRNCPY(builddate,   other.builddate,   PKG_DATE_LEN);
 	STRNCPY(buildtype,   other.buildtype,   PKG_DATE_LEN);
@@ -467,7 +467,7 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 
 	if(((flags & PM_PACKAGE_FLAG_NAME) && f_str_match(pkg->name(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_VERSION) && f_str_match(pkg->version(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_DESCRIPTION) && f_str_match(pkg->desc, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_DESCRIPTION) && f_str_match(pkg->description(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BUILDDATE) && f_str_match(pkg->builddate, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BUILDTYPE) && f_str_match(pkg->buildtype, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_INSTALLDATE) && f_str_match(pkg->installdate, strmatcher)) ||

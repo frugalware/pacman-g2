@@ -387,7 +387,7 @@ int LocalDatabase::write(Package *info, unsigned int inforeq)
 		}
 		_pacman_localdb_write_string("NAME", info->name(), fp);
 		_pacman_localdb_write_string("VERSION", info->version(), fp);
-		if(info->desc[0]) {
+		if(info->description()[0]) {
 			_pacman_localdb_write_stringlist("DESC", info->desc_localized, fp);
 		}
 		_pacman_localdb_write_stringlist("GROUPS", info->groups(), fp);

@@ -74,14 +74,14 @@ int _pacman_localdb_desc_fread(Package *info, FILE *fp)
 		f_strtrim(line);
 		if(!strcmp(line, "%DESC%")) {
 			_pacman_db_read_lines(&info->desc_localized, line, sline, fp);
-			STRNCPY(info->desc, (char*)info->desc_localized->data, sizeof(info->desc));
+			STRNCPY(info->m_description, (char*)info->desc_localized->data, sizeof(info->m_description));
 			for (i = info->desc_localized; i; i = i->next) {
 				if (!strncmp(i->data, handle->language, strlen(handle->language)) &&
 						*((char*)i->data+strlen(handle->language)) == ' ') {
-					STRNCPY(info->desc, (char*)i->data+strlen(handle->language)+1, sizeof(info->desc));
+					STRNCPY(info->m_description, (char*)i->data+strlen(handle->language)+1, sizeof(info->m_description));
 				}
 			}
-			f_strtrim(info->desc);
+			f_strtrim(info->m_description);
 		} else if(!strcmp(line, "%GROUPS%")) {
 			_pacman_db_read_lines(&info->m_groups, line, sline, fp);
 		} else if(!strcmp(line, "%URL%")) {
