@@ -75,7 +75,7 @@ int _pacman_syncpkg_file_reader(Database *db, Package *pkg, unsigned int flags, 
 {
 	int ret = 0;
 
-	if(flags & flags_masq) {
+	if((flags & flags_masq) != 0) {
 		FILE *fp = _pacman_archive_read_fropen(db->handle);
 
 		ASSERT(fp != NULL, RET_ERR(PM_ERR_MEMORY, -1));

@@ -58,9 +58,11 @@ Package::Package(const char *name, const char *version)
 	: m_reason(PM_PKG_REASON_EXPLICIT)
 {
 	if(!_pacman_strempty(name)) {
+		flags |= PM_PACKAGE_FLAG_NAME;
 		STRNCPY(m_name, name, PKG_NAME_LEN);
 	}
 	if(!_pacman_strempty(version)) {
+		flags |= PM_PACKAGE_FLAG_VERSION;
 		STRNCPY(m_version, version, PKG_VERSION_LEN);
 	}
 }
@@ -184,7 +186,11 @@ unsigned int _pacman_pkg_parm_to_flag(unsigned char parm)
 
 bool Package::set_filename(const char *filename, int witharch)
 {
-	return Package::splitname(filename, m_name, m_version, witharch);
+	if(splitname(filename, m_name, m_version, witharch)) {
+		flags |= PM_PACKAGE_FLAG_NAME | PM_PACKAGE_FLAG_VERSION;
+		return true;
+	}
+	return false;
 }
 
 int _pacman_pkg_delete(Package *self)
@@ -522,7 +528,10 @@ char *Package::fileneedbackup(const char *file) const
 #define LIBPACMAN_PACKAGE_PROPERTY(type, name, flag)                           \
 type Package::name()                                                           \
 {                                                                              \
-	return getinfo(PM_PKG_##flag);                                               \
+	if((flags & PM_PACKAGE_FLAG_##flag) == 0) {                                  \
+		read(PM_PACKAGE_FLAG_##flag);                                              \
+	}                                                                            \
+	return m_##name;                                                             \
 }
 
 #include "package_properties.h"

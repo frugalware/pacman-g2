@@ -61,7 +61,7 @@ int _pacman_localpkg_file_reader(Database *db, Package *pkg, unsigned int flags,
 {
 	int ret = 0;
 
-	if(flags & flags_masq) {
+	if((flags & flags_masq) != 0) {
 		FILE *fp = NULL;
 		char path[PATH_MAX];
 
@@ -108,8 +108,8 @@ int LocalPackage::read(unsigned int flags)
 		if(!stat(path, &buf)) {
 			scriptlet = 1;
 		}
-		this->flags |= PM_LOCALPACKAGE_FLAGS_SCRIPLET;
 	}
+	this->flags |= flags;
 	return 0;
 }
 
