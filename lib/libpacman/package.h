@@ -106,8 +106,6 @@ public:
 
 	virtual libpacman::Package *dup() const;
 
-	virtual void *getinfo(unsigned char parm);
-
 	virtual int read(unsigned int flags);
 	virtual int write(unsigned int flags); /* Optional */
 	virtual int remove(); /* Optional */

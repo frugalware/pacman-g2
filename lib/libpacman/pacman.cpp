@@ -42,6 +42,7 @@
 #include "server.h"
 #include "packages_transaction.h"
 
+#include "db/localdb_files.h"
 #include "db/syncdb.h"
 #include "hash/md5.h"
 #include "hash/sha1.h"
@@ -790,13 +791,101 @@ int pacman_download_xfered(const pmdownload_t *download, off64_t *offset)
  */
 void *pacman_pkg_getinfo(pmpkg_t *_pkg, unsigned char parm)
 {
+	void *data = NULL;
 	Package *pkg = cxx_cast(_pkg);
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(pkg != NULL, return(NULL));
 
-	return pkg->getinfo(parm);
+	/* Update the cache package entry if needed */
+	if(pkg->origin == PKG_FROM_CACHE) {
+		switch(parm) {
+			/* Desc entry */
+			case PM_PKG_DESC:
+			case PM_PKG_GROUPS:
+			case PM_PKG_URL:
+			case PM_PKG_LICENSE:
+			case PM_PKG_ARCH:
+			case PM_PKG_BUILDDATE:
+			case PM_PKG_INSTALLDATE:
+			case PM_PKG_PACKAGER:
+			case PM_PKG_SIZE:
+			case PM_PKG_USIZE:
+			case PM_PKG_REASON:
+			case PM_PKG_MD5SUM:
+			case PM_PKG_SHA1SUM:
+			case PM_PKG_REPLACES:
+			case PM_PKG_FORCE:
+				if(!(pkg->flags & INFRQ_DESC)) {
+					_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), pkg->name());
+					pkg->read(INFRQ_DESC);
+				}
+			break;
+			/* Depends entry */
+			case PM_PKG_DEPENDS:
+			case PM_PKG_REQUIREDBY:
+			case PM_PKG_CONFLICTS:
+			case PM_PKG_PROVIDES:
+				if(!(pkg->flags & INFRQ_DEPENDS)) {
+					_pacman_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", pkg->name());
+					pkg->read(INFRQ_DEPENDS);
+				}
+			break;
+			/* Files entry */
+			case PM_PKG_FILES:
+			case PM_PKG_BACKUP:
+				if(pkg->data == handle->db_local && !(pkg->flags & INFRQ_FILES)) {
+					_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg->name());
+					pkg->read(INFRQ_FILES);
+				}
+			break;
+			/* Scriptlet */
+			case PM_PKG_SCRIPLET:
+				if(pkg->data == handle->db_local && !(pkg->flags & INFRQ_SCRIPLET)) {
+					_pacman_log(PM_LOG_DEBUG, _("loading SCRIPLET info for '%s'"), pkg->name());
+					pkg->read(INFRQ_SCRIPLET);
+				}
+			break;
+		}
+	}
+
+	switch(parm) {
+		case PM_PKG_NAME:        data = pkg->m_name; break;
+		case PM_PKG_VERSION:     data = pkg->m_version; break;
+		case PM_PKG_DESC:        data = pkg->desc; break;
+		case PM_PKG_GROUPS:      data = pkg->m_groups; break;
+		case PM_PKG_URL:         data = pkg->url; break;
+		case PM_PKG_ARCH:        data = pkg->arch; break;
+		case PM_PKG_BUILDDATE:   data = pkg->builddate; break;
+		case PM_PKG_BUILDTYPE:   data = pkg->buildtype; break;
+		case PM_PKG_INSTALLDATE: data = pkg->installdate; break;
+		case PM_PKG_PACKAGER:    data = pkg->packager; break;
+		case PM_PKG_SIZE:        data = (void *)(long)pkg->size; break;
+		case PM_PKG_USIZE:       data = (void *)(long)pkg->usize; break;
+		case PM_PKG_REASON:      data = (void *)(long)pkg->m_reason; break;
+		case PM_PKG_LICENSE:     data = pkg->license; break;
+		case PM_PKG_REPLACES:    data = pkg->m_replaces; break;
+		case PM_PKG_FORCE:       data = (void *)(long)pkg->m_force; break;
+		case PM_PKG_STICK:       data = (void *)(long)pkg->m_stick; break;
+		case PM_PKG_MD5SUM:      data = pkg->md5sum; break;
+		case PM_PKG_SHA1SUM:     data = pkg->sha1sum; break;
+		case PM_PKG_DEPENDS:     data = pkg->m_depends; break;
+		case PM_PKG_REMOVES:     data = pkg->removes; break;
+		case PM_PKG_REQUIREDBY:  data = pkg->m_requiredby; break;
+		case PM_PKG_PROVIDES:    data = pkg->m_provides; break;
+		case PM_PKG_CONFLICTS:   data = pkg->m_conflicts; break;
+		case PM_PKG_FILES:       data = pkg->m_files; break;
+		case PM_PKG_BACKUP:      data = pkg->backup; break;
+		case PM_PKG_SCRIPLET:    data = (void *)(long)pkg->scriptlet; break;
+		case PM_PKG_DATA:        data = pkg->data; break;
+		case PM_PKG_TRIGGERS:    data = pkg->triggers; break;
+		default:
+			data = NULL;
+		break;
+	}
+
+	return(data);
 }
 
 /** Get a list of packages that own the specified file
