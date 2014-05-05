@@ -851,10 +851,10 @@ void *pacman_pkg_getinfo(pmpkg_t *_pkg, unsigned char parm)
 	}
 
 	switch(parm) {
-		case PM_PKG_NAME:        data = pkg->m_name; break;
-		case PM_PKG_VERSION:     data = pkg->m_version; break;
+		case PM_PKG_NAME:        data = pkg->name(); break;
+		case PM_PKG_VERSION:     data = pkg->version(); break;
 		case PM_PKG_DESC:        data = pkg->desc; break;
-		case PM_PKG_GROUPS:      data = pkg->m_groups; break;
+		case PM_PKG_GROUPS:      data = pkg->groups(); break;
 		case PM_PKG_URL:         data = pkg->url(); break;
 		case PM_PKG_ARCH:        data = pkg->arch; break;
 		case PM_PKG_BUILDDATE:   data = pkg->builddate; break;
@@ -863,19 +863,19 @@ void *pacman_pkg_getinfo(pmpkg_t *_pkg, unsigned char parm)
 		case PM_PKG_PACKAGER:    data = pkg->packager; break;
 		case PM_PKG_SIZE:        data = (void *)(long)pkg->size; break;
 		case PM_PKG_USIZE:       data = (void *)(long)pkg->usize; break;
-		case PM_PKG_REASON:      data = (void *)(long)pkg->m_reason; break;
+		case PM_PKG_REASON:      data = (void *)(long)pkg->reason(); break;
 		case PM_PKG_LICENSE:     data = pkg->license; break;
-		case PM_PKG_REPLACES:    data = pkg->m_replaces; break;
-		case PM_PKG_FORCE:       data = (void *)(long)pkg->m_force; break;
-		case PM_PKG_STICK:       data = (void *)(long)pkg->m_stick; break;
+		case PM_PKG_REPLACES:    data = pkg->replaces(); break;
+		case PM_PKG_FORCE:       data = (void *)(long)pkg->force(); break;
+		case PM_PKG_STICK:       data = (void *)(long)pkg->stick(); break;
 		case PM_PKG_MD5SUM:      data = pkg->md5sum; break;
 		case PM_PKG_SHA1SUM:     data = pkg->sha1sum; break;
-		case PM_PKG_DEPENDS:     data = pkg->m_depends; break;
+		case PM_PKG_DEPENDS:     data = pkg->depends(); break;
 		case PM_PKG_REMOVES:     data = pkg->removes; break;
-		case PM_PKG_REQUIREDBY:  data = pkg->m_requiredby; break;
-		case PM_PKG_PROVIDES:    data = pkg->m_provides; break;
-		case PM_PKG_CONFLICTS:   data = pkg->m_conflicts; break;
-		case PM_PKG_FILES:       data = pkg->m_files; break;
+		case PM_PKG_REQUIREDBY:  data = pkg->requiredby(); break;
+		case PM_PKG_PROVIDES:    data = pkg->provides(); break;
+		case PM_PKG_CONFLICTS:   data = pkg->conflicts(); break;
+		case PM_PKG_FILES:       data = pkg->files(); break;
 		case PM_PKG_BACKUP:      data = pkg->backup; break;
 		case PM_PKG_SCRIPLET:    data = (void *)(long)pkg->scriptlet; break;
 		case PM_PKG_DATA:        data = pkg->data; break;
