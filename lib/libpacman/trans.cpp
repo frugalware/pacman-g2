@@ -513,7 +513,7 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 		Package *pkg_new=(Package *)lp->data;
 		pmlist_t *rmlist;
 
-		for (rmlist=pkg_new->removes; rmlist!=NULL; rmlist=rmlist->next) {
+		for (rmlist=pkg_new->removes(); rmlist!=NULL; rmlist=rmlist->next) {
 			char rm_fname[PATH_MAX];
 
 			snprintf(rm_fname, PATH_MAX, "%s%s", handle->root, (char *)rmlist->data);

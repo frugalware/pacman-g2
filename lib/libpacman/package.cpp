@@ -96,7 +96,7 @@ Package::Package(const libpacman::Package &other)
 	m_files        = _pacman_list_strdup(other.m_files);
 	backup         = _pacman_list_strdup(other.backup);
 	m_depends      = _pacman_list_strdup(other.m_depends);
-	removes        = _pacman_list_strdup(other.removes);
+	m_removes      = _pacman_list_strdup(other.m_removes);
 	m_groups       = _pacman_list_strdup(other.m_groups);
 	m_provides     = _pacman_list_strdup(other.m_provides);
 	m_replaces     = _pacman_list_strdup(other.m_replaces);
@@ -114,7 +114,7 @@ Package::~Package()
 	FREELIST(m_files);
 	FREELIST(backup);
 	FREELIST(m_depends);
-	FREELIST(removes);
+	FREELIST(m_removes);
 	FREELIST(m_conflicts);
 	FREELIST(m_requiredby);
 	FREELIST(m_groups);
@@ -481,7 +481,7 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 			((flags & PM_PACKAGE_FLAG_FILES) && f_stringlist_any_match(pkg->files(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BACKUP) && f_stringlist_any_match(pkg->backup, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_DEPENDS) && f_stringlist_any_match(pkg->depends(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_REMOVES) && f_stringlist_any_match(pkg->removes, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_REMOVES) && f_stringlist_any_match(pkg->removes(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REQUIREDBY) && f_stringlist_any_match(pkg->requiredby(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_CONFLICTS) && f_stringlist_any_match(pkg->conflicts(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_PROVIDES) && f_stringlist_any_match(pkg->provides(), strmatcher)) ||
