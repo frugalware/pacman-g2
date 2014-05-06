@@ -1115,19 +1115,18 @@ int pacman_trans_init(unsigned char type, unsigned int flags, pacman_trans_cb_ev
 		return -1;
 	}
 
-	handle->trans = new __pmtrans_t();
-	if(handle->trans == NULL) {
-		RET_ERR(PM_ERR_MEMORY, -1);
-	}
-
 	pmtrans_cbs_t cbs = {
 		.event = event,
 		.conv = conv,
 		.progress = progress
 	};
 
-	_pacman_packages_transaction_init(handle->trans);
-	return(_pacman_trans_init(handle->trans, type, flags, cbs));
+	handle->trans = new __pmtrans_t((pmtranstype_t)type, flags, cbs);
+	if(handle->trans == NULL) {
+		RET_ERR(PM_ERR_MEMORY, -1);
+	}
+
+	return _pacman_packages_transaction_init(handle->trans);
 }
 
 /** Search for packages to upgrade and add them to the transaction.

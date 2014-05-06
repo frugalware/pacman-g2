@@ -62,7 +62,7 @@ typedef struct __pmtrans_cbs_t {
 struct __pmtrans_t
 	: public libpacman::Object
 {
-	__pmtrans_t();
+	__pmtrans_t(pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
 	~__pmtrans_t();
 
 	const pmtrans_ops_t *ops;
@@ -100,8 +100,6 @@ do { \
 		t->cbs.progress((e), (p), (per), (h), (r)); \
 	} \
 } while(0)
-
-int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
 
 int _pacman_trans_event(pmtrans_t *trans, unsigned char, void *, void *);
 pmsyncpkg_t *_pacman_trans_find(const pmtrans_t *trans, const char *pkgname);

@@ -628,18 +628,12 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		_pacman_runhook("pre_sysupgrade", trans);
 	}
 	/* remove conflicting and to-be-replaced packages */
-	tr = new __pmtrans_t();
+	tr = new __pmtrans_t(PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, trans->cbs);
 	if(tr == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not create removal transaction"));
 		pm_errno = PM_ERR_MEMORY;
 		goto error;
 	}
-
-	if(_pacman_trans_init(tr, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, trans->cbs) == -1) {
-		_pacman_log(PM_LOG_ERROR, _("could not initialize the removal transaction"));
-		goto error;
-	}
-
 	for(i = trans->syncpkgs; i; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
 		if(ps->type == PM_SYNC_TYPE_REPLACE) {
@@ -671,14 +665,10 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 
 	/* install targets */
 	_pacman_log(PM_LOG_FLOW1, _("installing packages"));
-	tr = new __pmtrans_t();
+	tr = new __pmtrans_t(PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, trans->cbs);
 	if(tr == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not create transaction"));
 		pm_errno = PM_ERR_MEMORY;
-		goto error;
-	}
-	if(_pacman_trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, trans->cbs) == -1) {
-		_pacman_log(PM_LOG_ERROR, _("could not initialize transaction"));
 		goto error;
 	}
 	for(i = trans->syncpkgs; i; i = i->next) {

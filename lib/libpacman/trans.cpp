@@ -77,47 +77,37 @@ static int check_oldcache(void)
 	return(0);
 }
 
-__pmtrans_t::__pmtrans_t()
+__pmtrans_t::__pmtrans_t(pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs)
 	: state(STATE_IDLE)
 {
-}
-
-int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs)
-{
-	/* Sanity checks */
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-
 	switch(type) {
 		case PM_TRANS_TYPE_ADD:
 		case PM_TRANS_TYPE_UPGRADE:
 		case PM_TRANS_TYPE_REMOVE:
-			trans->ops = NULL;
+			ops = NULL;
 		break;
 		case PM_TRANS_TYPE_SYNC:
-			trans->ops = &_pacman_sync_pmtrans_opts;
+			ops = &_pacman_sync_pmtrans_opts;
 		break;
 		default:
-			trans->ops = NULL;
+			ops = NULL;
 			// Be more verbose about the trans type
 			_pacman_log(PM_LOG_ERROR,
 					_("could not initialize transaction: Unknown Transaction Type %d"), type);
-			return(-1);
 	}
 
-	trans->handle = handle;
-	trans->type = type;
-	trans->flags = flags;
-	trans->cbs = cbs;
-//	trans->packages = f_ptrlist_new();
-	trans->targets = f_stringlist_new();
-	trans->skiplist = f_stringlist_new();
-	trans->triggers = f_stringlist_new();
+	this->handle = ::handle;
+	this->type = type;
+	this->flags = flags;
+	this->cbs = cbs;
+//	packages = f_ptrlist_new();
+	targets = f_stringlist_new();
+	skiplist = f_stringlist_new();
+	triggers = f_stringlist_new();
 
-	trans->state = STATE_INITIALIZED;
+	state = STATE_INITIALIZED;
 
 	check_oldcache();
-
-	return(0);
 }
 
 __pmtrans_t::~__pmtrans_t()
@@ -1095,14 +1085,11 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 
 				if(oldpkg) {
 					pmtrans_t *tr;
-					_pacman_log(PM_LOG_FLOW1, _("removing old package first (%s-%s)"), oldpkg->name(), oldpkg->version());
-					tr = new __pmtrans_t();
-					if(tr == NULL) {
-						RET_ERR(PM_ERR_TRANS_ABORT, -1);
-					}
 					pmtrans_cbs_t null_cbs = { NULL };
-					if(_pacman_trans_init(tr, PM_TRANS_TYPE_UPGRADE, trans->flags, null_cbs) == -1) {
-						FREETRANS(tr);
+
+					_pacman_log(PM_LOG_FLOW1, _("removing old package first (%s-%s)"), oldpkg->name(), oldpkg->version());
+					tr = new __pmtrans_t(PM_TRANS_TYPE_UPGRADE, trans->flags, null_cbs);
+					if(tr == NULL) {
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
 					if(_pacman_remove_addtarget(tr, pkg_new->name()) == -1) {
