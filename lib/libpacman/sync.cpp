@@ -628,7 +628,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		_pacman_runhook("pre_sysupgrade", trans);
 	}
 	/* remove conflicting and to-be-replaced packages */
-	tr = _pacman_trans_new();
+	tr = new __pmtrans_t();
 	if(tr == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not create removal transaction"));
 		pm_errno = PM_ERR_MEMORY;
@@ -671,7 +671,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 
 	/* install targets */
 	_pacman_log(PM_LOG_FLOW1, _("installing packages"));
-	tr = _pacman_trans_new();
+	tr = new __pmtrans_t();
 	if(tr == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not create transaction"));
 		pm_errno = PM_ERR_MEMORY;

@@ -59,7 +59,12 @@ typedef struct __pmtrans_cbs_t {
 	pacman_trans_cb_progress progress;
 } pmtrans_cbs_t;
 
-struct __pmtrans_t {
+struct __pmtrans_t
+	: public libpacman::Object
+{
+	__pmtrans_t();
+	~__pmtrans_t();
+
 	const pmtrans_ops_t *ops;
 	int (*set_state)(pmtrans_t *trans, int new_state);
 	libpacman::Handle *handle;
@@ -76,9 +81,8 @@ struct __pmtrans_t {
 
 #define FREETRANS(p) \
 do { \
-	if((p) && _pacman_trans_delete(p) == 0) { \
-		p = NULL; \
-	} \
+	delete (p); \
+	(p) = NULL; \
 } while (0)
 #define EVENT(t, e, d1, d2) \
 	_pacman_trans_event((t), (e), (d1), (d2))
@@ -97,11 +101,7 @@ do { \
 	} \
 } while(0)
 
-pmtrans_t *_pacman_trans_new(void);
-int _pacman_trans_delete(pmtrans_t *trans);
-
 int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
-int _pacman_trans_fini(pmtrans_t *trans);
 
 int _pacman_trans_event(pmtrans_t *trans, unsigned char, void *, void *);
 pmsyncpkg_t *_pacman_trans_find(const pmtrans_t *trans, const char *pkgname);

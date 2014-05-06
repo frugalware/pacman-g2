@@ -1115,7 +1115,7 @@ int pacman_trans_init(unsigned char type, unsigned int flags, pacman_trans_cb_ev
 		return -1;
 	}
 
-	handle->trans = _pacman_trans_new();
+	handle->trans = new __pmtrans_t();
 	if(handle->trans == NULL) {
 		RET_ERR(PM_ERR_MEMORY, -1);
 	}
@@ -1211,8 +1211,9 @@ int pacman_trans_release()
 {
 	/* Sanity checks */
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
-	ASSERT(_pacman_trans_delete(handle->trans) == 0, return -1);
+	ASSERT(handle->trans != NULL, return -1);
 
+	delete handle->trans;
 	handle->trans = 0;
 
 	handle->db_local->settimestamp(NULL);

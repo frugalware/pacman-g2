@@ -77,23 +77,9 @@ static int check_oldcache(void)
 	return(0);
 }
 
-pmtrans_t *_pacman_trans_new()
+__pmtrans_t::__pmtrans_t()
+	: state(STATE_IDLE)
 {
-	pmtrans_t *trans = _pacman_zalloc(sizeof(pmtrans_t));
-
-	if(trans) {
-		trans->state = STATE_IDLE;
-	}
-
-	return(trans);
-}
-
-int _pacman_trans_delete(pmtrans_t *trans)
-{
-	ASSERT(_pacman_trans_fini(trans) == 0, return -1);
-
-	free(trans);
-	return 0;
 }
 
 int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs)
@@ -134,13 +120,12 @@ int _pacman_trans_init(pmtrans_t *trans, pmtranstype_t type, unsigned int flags,
 	return(0);
 }
 
-int _pacman_trans_fini(pmtrans_t *trans)
+__pmtrans_t::~__pmtrans_t()
 {
 	/* Sanity checks */
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT(trans->state != STATE_COMMITING, RET_ERR(PM_ERR_TRANS_COMMITING, -1));
+//	ASSERT(state != STATE_COMMITING, RET_ERR(PM_ERR_TRANS_COMMITING, -1));
 
-	FREELISTPKGS(trans->packages);
+	FREELISTPKGS(packages);
 #if 0
 	{
 		FVisitor visitor = {
@@ -148,16 +133,14 @@ int _pacman_trans_fini(pmtrans_t *trans)
 			.data = NULL,
 		};
 		
-		f_ptrlist_delete(trans->syncpkgs, &visitor);
+		f_ptrlist_delete(syncpkgs, &visitor);
 	}
 #endif
-	f_stringlist_delete(trans->targets);
-	f_stringlist_delete(trans->skiplist);
-	f_stringlist_delete(trans->triggers);
+	f_stringlist_delete(targets);
+	f_stringlist_delete(skiplist);
+	f_stringlist_delete(triggers);
 
-	memset(trans, 0, sizeof(*trans));
-	trans->state = STATE_IDLE;
-	return 0;
+	state = STATE_IDLE;
 }
 
 static
@@ -1113,7 +1096,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				if(oldpkg) {
 					pmtrans_t *tr;
 					_pacman_log(PM_LOG_FLOW1, _("removing old package first (%s-%s)"), oldpkg->name(), oldpkg->version());
-					tr = _pacman_trans_new();
+					tr = new __pmtrans_t();
 					if(tr == NULL) {
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
