@@ -661,7 +661,8 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 			goto error;
 		}
 	}
-	FREETRANS(tr);
+	delete tr;
+	tr = NULL;
 
 	/* install targets */
 	_pacman_log(PM_LOG_FLOW1, _("installing packages"));
@@ -697,7 +698,8 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		_pacman_log(PM_LOG_ERROR, _("could not commit transaction"));
 		goto error;
 	}
-	FREETRANS(tr);
+	delete tr;
+	tr = NULL;
 
 	/* propagate replaced packages' requiredby fields to their new owners */
 	if(replaces) {
@@ -751,7 +753,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 	return(0);
 
 error:
-	FREETRANS(tr);
+	delete tr;
 	/* commiting failed, so this is still just a prepared transaction */
 	return(-1);
 }

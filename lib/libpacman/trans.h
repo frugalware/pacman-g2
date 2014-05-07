@@ -79,11 +79,6 @@ struct __pmtrans_t
 	pmtrans_cbs_t cbs;
 };
 
-#define FREETRANS(p) \
-do { \
-	delete (p); \
-	(p) = NULL; \
-} while (0)
 #define EVENT(t, e, d1, d2) \
 	_pacman_trans_event((t), (e), (d1), (d2))
 #define QUESTION(_t, q, d1, d2, d3, r) \

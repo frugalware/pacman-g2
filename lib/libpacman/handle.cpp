@@ -96,7 +96,7 @@ Handle::~Handle()
 	}
 
 	/* free memory */
-	FREETRANS(trans);
+	delete trans;
 	FREE(root);
 	FREE(dbpath);
 	FREE(cachedir);

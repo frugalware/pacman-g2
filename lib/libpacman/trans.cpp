@@ -1093,16 +1093,16 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
 					if(_pacman_remove_addtarget(tr, pkg_new->name()) == -1) {
-						FREETRANS(tr);
+						delete tr;
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
 					/* copy the skiplist over */
 					tr->skiplist = _pacman_list_strdup(trans->skiplist);
 					if(_pacman_remove_commit(tr, NULL) == -1) {
-						FREETRANS(tr);
+						delete tr;
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
-					FREETRANS(tr);
+					delete tr;
 				}
 			_pacman_log(PM_LOG_FLOW1, _("adding new package %s-%s"), pkg_new->name(), pkg_new->version());
 		} else {
