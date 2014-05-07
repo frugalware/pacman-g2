@@ -29,9 +29,6 @@
 
 #include <stdio.h>
 
-int _pacman_pkginfo_fread(FILE *descfile, libpacman::Package *info, int output);
-int _pacman_pkginfo_read(char *descfile, libpacman::Package *info, int output);
-
 libpacman::Package *_pacman_fpmpackage_load(const char *pkgfile);
 
 #endif /* _PACMAN_FPMPACKAGE_H */

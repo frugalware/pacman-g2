@@ -50,6 +50,7 @@ using namespace libpacman;
  *
  * Returns: 0 on success, 1 on error
  */
+static
 int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 {
 	char line[PATH_MAX];
@@ -135,6 +136,7 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 	return(0);
 }
 
+static
 int _pacman_pkginfo_read(char *descfile, Package *info, int output)
 {
 	FILE* fp = NULL;
