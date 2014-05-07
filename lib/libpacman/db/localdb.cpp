@@ -25,14 +25,15 @@
 /* pacman-g2 */
 #include "db/localdb.h"
 
+#include "db/localdb_files.h"
 #include "util.h"
+#include "cache.h"
 #include "db.h"
 #include "package.h"
 #include "pacman.h"
 #include "error.h"
 #include "handle.h"
 
-#include "db/localdb_files.h"
 #include "util/log.h"
 #include "util/stringlist.h"
 #include "fstring.h"
@@ -466,6 +467,52 @@ int LocalDatabase::remove(Package *info)
 	}
 
 	return(0);
+}
+
+pmlist_t *LocalDatabase::getowners(const char *filename)
+{
+	struct stat buf;
+	int gotcha = 0;
+	char rpath[PATH_MAX];
+	pmlist_t *lp, *ret = NULL;
+
+	if(stat(filename, &buf) == -1 || realpath(filename, rpath) == NULL) {
+		RET_ERR(PM_ERR_PKG_OPEN, NULL);
+	}
+
+	if(S_ISDIR(buf.st_mode)) {
+		/* this is a directory and the db has a / suffix for dirs - add it here so
+		 * that we'll find dirs, too */
+		rpath[strlen(rpath)+1] = '\0';
+		rpath[strlen(rpath)] = '/';
+	}
+
+	for(lp = _pacman_db_get_pkgcache(this); lp; lp = lp->next) {
+		Package *info;
+		pmlist_t *i;
+
+		info = lp->data;
+
+		for(i = info->files(); i; i = i->next) {
+			char path[PATH_MAX];
+
+			snprintf(path, PATH_MAX, "%s%s", ::handle->root, (char *)i->data);
+			if(!strcmp(path, rpath)) {
+				ret = _pacman_list_add(ret, info);
+				if(rpath[strlen(rpath)-1] != '/') {
+					/* we are searching for a file and multiple packages won't contain
+					 * the same file */
+					return(ret);
+				}
+				gotcha = 1;
+			}
+		}
+	}
+	if(!gotcha) {
+		RET_ERR(PM_ERR_NO_OWNER, NULL);
+	}
+
+	return(ret);
 }
 
 const pmdb_ops_t _pacman_localdb_ops = {

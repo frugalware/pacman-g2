@@ -899,7 +899,7 @@ pmlist_t *pacman_pkg_getowners(const char *filename)
 	ASSERT(handle->db_local != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 	ASSERT(!_pacman_strempty(filename), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-	return(_pacman_pkg_getowners(filename));
+	return handle->db_local->getowners(filename);
 }
 
 /** Create a package from a file.

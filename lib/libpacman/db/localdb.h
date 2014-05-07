@@ -58,6 +58,8 @@ public:
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
 	virtual int remove(libpacman::Package *info);
 
+	virtual pmlist_t *getowners(const char *filename);
+
 protected:
 	virtual int open(int flags, time_t *timestamp);
 };

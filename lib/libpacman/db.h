@@ -72,6 +72,8 @@ public:
 	// Cache operations
 	pmlist_t *search(pmlist_t *needles);
 
+	virtual pmlist_t *getowners(const char *filename); /* Make pure virtual */
+
 	char *path;
 	char treename[PATH_MAX];
 	void *handle;

@@ -184,6 +184,11 @@ int Database::remove(Package *info)
 	RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
 }
 
+pmlist_t *Database::getowners(const char *filename)
+{
+	return NULL;
+}
+
 /* Reads dbpath/treename.lastupdate and populates *ts with the contents.
  * *ts should be malloc'ed and should be at least 15 bytes.
  *
