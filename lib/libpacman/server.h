@@ -25,14 +25,6 @@
 
 #include "pacman.h"
 
-#define FREESERVER(p) \
-do { \
-	if(p) { \
-		_pacman_server_free(p); \
-		p = NULL; \
-	} \
-} while(0)
-
 #define FREELISTSERVERS(p) _FREELIST(p, _pacman_server_free)
 
 /* Servers */
