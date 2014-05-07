@@ -530,7 +530,7 @@ int pacman_db_update(int force, pmdb_t *_db)
 	/* Do not update a database if a transaction is on-going */
 	ASSERT(handle->trans == NULL, RET_ERR(PM_ERR_TRANS_NOT_NULL, -1));
 
-	if(_pacman_handle_lock(handle) != 0) {
+	if(handle->lock() != 0) {
 		return -1;
 	}
 	if(!f_ptrlist_contains_ptr(handle->dbs_sync, db)) {
@@ -1111,7 +1111,7 @@ int pacman_trans_init(unsigned char type, unsigned int flags, pacman_trans_cb_ev
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 	ASSERT(handle->trans == NULL, RET_ERR(PM_ERR_TRANS_NOT_NULL, -1));
 
-	if(_pacman_handle_lock(handle) != 0) {
+	if(handle->lock() != 0) {
 		return -1;
 	}
 

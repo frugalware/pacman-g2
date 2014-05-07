@@ -113,13 +113,11 @@ Handle::~Handle()
 	FREELIST(needles);
 }
 
-int _pacman_handle_lock(Handle *handle)
+int Handle::lock()
 {
 	char lckpath[PATH_MAX];
 
-	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
-
-	snprintf(lckpath, PATH_MAX, "%s/%s", handle->root, PM_LOCK);
+	snprintf(lckpath, PATH_MAX, "%s/%s", root, PM_LOCK);
 	return (handle->filelock = f_filelock_aquire(lckpath, F_FILELOCK_CREATE_HOLD_DIR | F_FILELOCK_EXCLUSIVE | F_FILELOCK_UNLINK_ON_CLOSE)) != NULL ? 0: -1;
 }
 

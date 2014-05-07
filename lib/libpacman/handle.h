@@ -52,6 +52,8 @@ public:
 	Handle();
 	virtual ~Handle();
 
+	int lock();
+
 	pmaccess_t access;
 	uid_t uid;
 	libpacman::Database *db_local;
@@ -91,7 +93,6 @@ public:
 
 extern libpacman::Handle *handle;
 
-int _pacman_handle_lock(libpacman::Handle *handle);
 int _pacman_handle_unlock(libpacman::Handle *handle);
 
 #endif /* _PACMAN_HANDLE_H */
