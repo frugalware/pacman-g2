@@ -645,7 +645,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 	}
 	if(replaces) {
 		_pacman_log(PM_LOG_FLOW1, _("removing conflicting and to-be-replaced packages"));
-		if(_pacman_trans_prepare(tr, data) == -1) {
+		if(tr->prepare(data) == -1) {
 			_pacman_log(PM_LOG_ERROR, _("could not prepare removal transaction"));
 			goto error;
 		}
@@ -684,7 +684,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 			spkg->m_reason = PM_PKG_REASON_EXPLICIT;
 		}
 	}
-	if(_pacman_trans_prepare(tr, data) == -1) {
+	if(tr->prepare(data) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("could not prepare transaction"));
 		/* pm_errno is set by trans_prepare */
 		goto error;

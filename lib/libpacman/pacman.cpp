@@ -1180,7 +1180,7 @@ int pacman_trans_prepare(pmlist_t **data)
 	ASSERT(handle->trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(handle->trans->state == STATE_INITIALIZED, RET_ERR(PM_ERR_TRANS_NOT_INITIALIZED, -1));
 
-	return(_pacman_trans_prepare(handle->trans, data));
+	return handle->trans->prepare(data);
 }
 
 /** Commit a transaction.
