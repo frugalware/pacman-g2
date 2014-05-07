@@ -24,6 +24,8 @@
 #include "db.h"
 #include "package.h"
 
+#include <archive.h>
+
 extern
 const pmdb_ops_t _pacman_syncdb_ops;
 
@@ -61,6 +63,9 @@ public:
 
 protected:
 	virtual int open(int flags, time_t *timestamp);
+
+public: // FIXME: Make private
+	struct archive *m_archive;
 };
 
 }

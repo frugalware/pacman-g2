@@ -76,12 +76,12 @@ SyncDatabase *SyncPackage::database() const
 }
 
 static
-int _pacman_syncpkg_file_reader(Database *db, Package *pkg, unsigned int flags, unsigned int flags_masq, int (*reader)(Package *, FILE *))
+int _pacman_syncpkg_file_reader(SyncDatabase *db, Package *pkg, unsigned int flags, unsigned int flags_masq, int (*reader)(Package *, FILE *))
 {
 	int ret = 0;
 
 	if((flags & flags_masq) != 0) {
-		FILE *fp = _pacman_archive_read_fropen(db->handle);
+		FILE *fp = _pacman_archive_read_fropen(db->m_archive);
 
 		ASSERT(fp != NULL, RET_ERR(PM_ERR_MEMORY, -1));
 		ret = reader(pkg, fp);
@@ -103,7 +103,7 @@ int SyncPackage::read(unsigned int flags)
 
 	while (!descdone || !depsdone) {
 		struct archive_entry *entry = NULL;
-		if (archive_read_next_header(database->handle, &entry) != ARCHIVE_OK)
+		if (archive_read_next_header(database->m_archive, &entry) != ARCHIVE_OK)
 			return -1;
 		const char *pathname = archive_entry_pathname(entry);
 		if (!suffixcmp(pathname, "/desc")) {
@@ -207,10 +207,10 @@ int SyncDatabase::open(int flags, time_t *timestamp)
 	snprintf(dbpath, PATH_MAX, "%s" PM_EXT_DB, path);
 	if(stat(dbpath, &buf) != 0) {
 		// db is not there, we'll open it later
-		handle = NULL;
+		m_archive = NULL;
 		return 0;
 	}
-	if((handle = _pacman_archive_read_open_all_file(dbpath)) == NULL) {
+	if((m_archive = _pacman_archive_read_open_all_file(dbpath)) == NULL) {
 		//return 0 here to be able to update the damaged db with pacman -Syy
 		RET_ERR(PM_ERR_DB_OPEN, 0);
 	}
@@ -222,9 +222,9 @@ int SyncDatabase::open(int flags, time_t *timestamp)
 
 int SyncDatabase::close()
 {
-	if(handle) {
-		archive_read_finish(handle);
-		handle = NULL;
+	if(m_archive) {
+		archive_read_finish(m_archive);
+		m_archive = NULL;
 	}
 	return 0;
 }
@@ -239,15 +239,15 @@ Package *SyncDatabase::readpkg(unsigned int inforeq)
 {
 	struct archive_entry *entry = NULL;
 
-	if(!handle) {
+	if(!m_archive) {
 		rewind();
 	}
-	if(!handle) {
+	if(!m_archive) {
 		return NULL;
 	}
 
 	for(;;) {
-		if(archive_read_next_header(handle, &entry) != ARCHIVE_OK) {
+		if(archive_read_next_header(m_archive, &entry) != ARCHIVE_OK) {
 			return NULL;
 		}
 		// make sure it's a directory
@@ -271,7 +271,7 @@ Package *SyncDatabase::scan(const char *target, unsigned int inforeq)
 	rewind();
 
 	/* search for a specific package (by name only) */
-	while (archive_read_next_header(handle, &entry) == ARCHIVE_OK) {
+	while (archive_read_next_header(m_archive, &entry) == ARCHIVE_OK) {
 		// make sure it's a directory
 		const char *pathname = archive_entry_pathname(entry);
 		if (pathname[strlen(pathname)-1] != '/')
@@ -293,12 +293,12 @@ Package *SyncDatabase::scan(const char *target, unsigned int inforeq)
 }
 
 static
-int _pacman_syncdb_file_reader(Database *db, Package *info, unsigned int inforeq, unsigned int inforeq_masq, int (*reader)(Package *, FILE *))
+int _pacman_syncdb_file_reader(SyncDatabase *db, Package *info, unsigned int inforeq, unsigned int inforeq_masq, int (*reader)(Package *, FILE *))
 {
 	int ret = 0;
 
 	if(inforeq & inforeq_masq) {
-		FILE *fp = _pacman_archive_read_fropen(db->handle);
+		FILE *fp = _pacman_archive_read_fropen(db->m_archive);
 
 		ASSERT(fp != NULL, RET_ERR(PM_ERR_MEMORY, -1));
 		ret = reader(info, fp);
@@ -308,7 +308,7 @@ int _pacman_syncdb_file_reader(Database *db, Package *info, unsigned int inforeq
 }
 
 static
-int _pacman_syncdb_read(Database *db, Package *info, unsigned int inforeq)
+int _pacman_syncdb_read(SyncDatabase *db, Package *info, unsigned int inforeq)
 {
 	int descdone = 0, depsdone = 0;
 
@@ -320,7 +320,7 @@ int _pacman_syncdb_read(Database *db, Package *info, unsigned int inforeq)
 
 	while (!descdone || !depsdone) {
 		struct archive_entry *entry = NULL;
-		if (archive_read_next_header(db->handle, &entry) != ARCHIVE_OK)
+		if (archive_read_next_header(db->m_archive, &entry) != ARCHIVE_OK)
 			return -1;
 		const char *pathname = archive_entry_pathname(entry);
 		if (!suffixcmp(pathname, "/desc")) {

@@ -76,7 +76,6 @@ public:
 
 	char *path;
 	char treename[PATH_MAX];
-	void *handle;
 	time_t cache_timestamp;
 	pmlist_t *pkgcache;
 	pmlist_t *grpcache;

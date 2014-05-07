@@ -156,7 +156,7 @@ pmlist_t *LocalDatabase::test() const
 	struct stat buf;
 	pmlist_t *ret = _pacman_list_new();
 
-	while ((ent = readdir(handle)) != NULL) {
+	while ((ent = readdir(m_dir)) != NULL) {
 		snprintf(path, PATH_MAX, "%s/%s", this->path, ent->d_name);
 		stat(path, &buf);
 		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..") || !S_ISDIR(buf.st_mode)) {
@@ -196,28 +196,28 @@ int LocalDatabase::open(int flags, time_t *timestamp)
 			RET_ERR(PM_ERR_SYSTEM, -1);
 		}
 	}
-	handle = opendir(path);
-	ASSERT(handle != NULL, RET_ERR(PM_ERR_DB_OPEN, -1));
+	m_dir = opendir(path);
+	ASSERT(m_dir != NULL, RET_ERR(PM_ERR_DB_OPEN, -1));
 	gettimestamp(timestamp);
 	return 0;
 }
 
 int LocalDatabase::close()
 {
-	if(handle) {
-		closedir(handle);
-		handle = NULL;
+	if(m_dir) {
+		closedir(m_dir);
+		m_dir = NULL;
 	}
 	return 0;
 }
 
 int LocalDatabase::rewind()
 {
-	if(handle == NULL) {
+	if(m_dir == NULL) {
 		return -1;
 	}
 
-	rewinddir(handle);
+	rewinddir(m_dir);
 	return 0;
 }
 
@@ -227,7 +227,7 @@ Package *LocalDatabase::readpkg(unsigned int inforeq)
 	struct stat sbuf;
 	char path[PATH_MAX];
 
-	while((ent = readdir(handle)) != NULL) {
+	while((ent = readdir(m_dir)) != NULL) {
 		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
 			continue;
 		}
@@ -254,7 +254,7 @@ Package *LocalDatabase::scan(const char *target, unsigned int inforeq)
 	rewind();
 
 	/* search for a specific package (by name only) */
-	while((ent = readdir(handle)) != NULL) {
+	while((ent = readdir(m_dir)) != NULL) {
 		if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
 			continue;
 		}

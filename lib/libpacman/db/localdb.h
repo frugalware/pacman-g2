@@ -24,6 +24,8 @@
 #include "db.h"
 #include "package.h"
 
+#include <dirent.h>
+
 extern
 const pmdb_ops_t _pacman_localdb_ops;
 
@@ -66,6 +68,9 @@ public:
 
 protected:
 	virtual int open(int flags, time_t *timestamp);
+
+private:
+	DIR *m_dir;
 };
 
 }
