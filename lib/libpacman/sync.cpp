@@ -179,7 +179,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	}
 
 	/* add the package to the transaction */
-	if(!_pacman_trans_find(trans, spkg->name())) {
+	if(!trans->find(spkg->name())) {
 		Package *dummy = NULL;
 		pmsyncpkg_t *ps;
 
@@ -267,7 +267,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 		for(i = list; i; i = i->next) {
 			/* add the dependencies found by resolvedeps to the transaction set */
 			Package *spkg = i->data;
-			if(!_pacman_trans_find(trans, spkg->name())) {
+			if(!trans->find(spkg->name())) {
 				pmsyncpkg_t *ps = new __pmsyncpkg_t(PM_SYNC_TYPE_DEPEND, spkg, NULL);
 				if(ps == NULL) {
 					ret = -1;
@@ -356,7 +356,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 					continue;
 				}
 
-				ps = _pacman_trans_find(trans, miss->target);
+				ps = trans->find(miss->target);
 				if(ps == NULL) {
 					_pacman_log(PM_LOG_DEBUG, _("'%s' not found in transaction set -- skipping"),
 							  miss->target);
@@ -407,7 +407,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 							rmpkg = miss->depend.name;
 						}
 						if(rmpkg) {
-							pmsyncpkg_t *rsync = _pacman_trans_find(trans, rmpkg);
+							pmsyncpkg_t *rsync = trans->find(rmpkg);
 							pmsyncpkg_t *spkg = NULL;
 
 							_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
@@ -426,7 +426,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 						QUESTION(trans, PM_TRANS_CONV_CONFLICT_PKG, miss->target, miss->depend.name, NULL, &doremove);
 						asked = _pacman_stringlist_append(asked, miss->depend.name);
 						if(doremove) {
-							pmsyncpkg_t *rsync = _pacman_trans_find(trans, miss->depend.name);
+							pmsyncpkg_t *rsync = trans->find(miss->depend.name);
 							Package *q = new Package(miss->depend.name, NULL);
 							if(q == NULL) {
 								if(data) {
@@ -525,7 +525,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 				int errorout = 0;
 				for(i = deps; i; i = i->next) {
 					pmdepmissing_t *miss = i->data;
-					if(!_pacman_trans_find(trans, miss->depend.name)) {
+					if(!trans->find(miss->depend.name)) {
 						int pfound = 0;
 						/* If miss->depend.name depends on something that miss->target and a
 						 * package in final both provide, then it's okay...  */

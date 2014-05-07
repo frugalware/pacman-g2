@@ -206,13 +206,11 @@ int _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, void
 /* Test for existence of a package in a pmlist_t* of pmsyncpkg_t*
  * If found, return a pointer to the respective pmsyncpkg_t*
  */
-pmsyncpkg_t *_pacman_trans_find(const pmtrans_t *trans, const char *pkgname)
+pmsyncpkg_t *__pmtrans_t::find(const char *pkgname) const
 {
 	pmlist_t *i;
 
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
-
-	for(i = trans->syncpkgs; i != NULL ; i = i->next) {
+	for(i = syncpkgs; i != NULL ; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
 
 		if(ps && !strcmp(ps->pkg->name(), pkgname)) {
@@ -259,7 +257,7 @@ pmsyncpkg_t *_pacman_trans_add(pmtrans_t *trans, pmsyncpkg_t *syncpkg, int flags
 		syncpkg->pkg_local = _pacman_db_get_pkgfromcache(db_local, syncpkg->pkg->name());
 	}
 
-	if((syncpkg_queued = _pacman_trans_find(trans, syncpkg->pkg_name)) != NULL) {
+	if((syncpkg_queued = trans->find(syncpkg->pkg_name)) != NULL) {
 		/* FIXME: Try to compress syncpkg in syncpkg_queued more */
 		return NULL;
 	}

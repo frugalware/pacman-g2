@@ -65,6 +65,8 @@ struct __pmtrans_t
 	__pmtrans_t(pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
 	~__pmtrans_t();
 
+	pmsyncpkg_t *find(const char *pkgname) const;
+
 	const pmtrans_ops_t *ops;
 	int (*set_state)(pmtrans_t *trans, int new_state);
 	libpacman::Handle *handle;
@@ -97,7 +99,6 @@ do { \
 } while(0)
 
 int _pacman_trans_event(pmtrans_t *trans, unsigned char, void *, void *);
-pmsyncpkg_t *_pacman_trans_find(const pmtrans_t *trans, const char *pkgname);
 
 pmsyncpkg_t *_pacman_trans_add(pmtrans_t *trans, pmsyncpkg_t *syncpkg, int flags);
 int _pacman_trans_add_package(pmtrans_t *trans, pmpkg_t *pkg, pmtranstype_t type, int flags);

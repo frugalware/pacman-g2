@@ -114,7 +114,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 								}
 								dummy->m_requiredby = _pacman_list_strdup(lpkg->requiredby());
 								/* check if spkg->name is already in the packages list. */
-								ps = _pacman_trans_find(trans, spkg->name());
+								ps = trans->find(spkg->name());
 								if(ps) {
 									/* found it -- just append to the replaces list */
 									ps->data = _pacman_list_add(ps->data, dummy);
@@ -195,7 +195,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 			_pacman_log(PM_LOG_FLOW2, _("%s-%s elected for upgrade (%s => %s)"),
 					local->name(), local->version(), local->version(), spkg->version());
 			/* check if spkg->name is already in the packages list. */
-			if(!_pacman_trans_find(trans, spkg->name())) {
+			if(!trans->find(spkg->name())) {
 				Package *dummy = new Package(local->name(), local->version());
 				if(dummy == NULL) {
 					goto error;
