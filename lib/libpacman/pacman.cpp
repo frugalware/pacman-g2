@@ -1200,7 +1200,7 @@ int pacman_trans_commit(pmlist_t **data)
 	ASSERT((handle->access == PM_ACCESS_RW) || (handle->trans->flags & PM_TRANS_FLAG_PRINTURIS),
 			RET_ERR(PM_ERR_BADPERMS, -1));
 
-	return(_pacman_trans_commit(handle->trans, data));
+	return handle->trans->commit(data);
 }
 
 /** Release a transaction.

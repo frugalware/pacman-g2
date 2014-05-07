@@ -651,7 +651,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		}
 		/* we want the frontend to be aware of commit details */
 		tr->cbs.event = trans->cbs.event;
-		if(_pacman_trans_commit(tr, NULL) == -1) {
+		if(tr->commit(NULL) == -1) {
 			_pacman_log(PM_LOG_ERROR, _("could not commit removal transaction"));
 			goto error;
 		}
@@ -689,7 +689,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		/* pm_errno is set by trans_prepare */
 		goto error;
 	}
-	if(_pacman_trans_commit(tr, NULL) == -1) {
+	if(tr->commit(NULL) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("could not commit transaction"));
 		goto error;
 	}

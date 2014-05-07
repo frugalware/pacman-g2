@@ -1350,42 +1350,39 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 	return(0);
 }
 
-int _pacman_trans_commit(pmtrans_t *trans, pmlist_t **data)
+int __pmtrans_t::commit(pmlist_t **data)
 {
-	/* Sanity checks */
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-
 	if(data!=NULL)
 		*data = NULL;
 
 	/* If there's nothing to do, return without complaining */
-	if(_pacman_list_empty(trans->packages) &&
-		_pacman_list_empty(trans->syncpkgs)) {
+	if(_pacman_list_empty(packages) &&
+		_pacman_list_empty(syncpkgs)) {
 		return(0);
 	}
 
-	_pacman_trans_set_state(trans, STATE_COMMITING);
+	_pacman_trans_set_state(this, STATE_COMMITING);
 
-	if(trans->ops != NULL && trans->ops->commit != NULL) {
-		if(trans->ops->commit(trans, data) == -1) {
-			/* pm_errno is set by trans->ops->commit() */
-			_pacman_trans_set_state(trans, STATE_PREPARED);
+	if(ops != NULL && ops->commit != NULL) {
+		if(ops->commit(this, data) == -1) {
+			/* pm_errno is set by ops->commit() */
+			_pacman_trans_set_state(this, STATE_PREPARED);
 			return(-1);
 		}
 	} else {
-	if(trans->type & PM_TRANS_TYPE_ADD) {
-		if(_pacman_add_commit(trans, data) == -1) {
+	if(type & PM_TRANS_TYPE_ADD) {
+		if(_pacman_add_commit(this, data) == -1) {
 			return -1;
 		}
 	}
-	if(trans->type == PM_TRANS_TYPE_REMOVE) {
-		if(_pacman_remove_commit(trans, data) == -1) {
+	if(type == PM_TRANS_TYPE_REMOVE) {
+		if(_pacman_remove_commit(this, data) == -1) {
 			return -1;
 		}
 	}
 	}
 
-	_pacman_trans_set_state(trans, STATE_COMMITED);
+	_pacman_trans_set_state(this, STATE_COMMITED);
 
 	return(0);
 }
