@@ -58,7 +58,7 @@ static void _pacman_graph_free(void *data)
 {
 	pmgraph_t *graph = data;
 	FREELISTPTR(graph->children);
-	FREE(graph);
+	free(graph);
 }
 
 pmdepmissing_t *_pacman_depmiss_new(const char *target, unsigned char type, unsigned char depmod,
@@ -303,7 +303,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 								case PM_DEP_MOD_LT: found = (cmp < 0); break;
 								case PM_DEP_MOD_GT: found = (cmp > 0); break;
 							}
-							FREE(ver);
+							free(ver);
 						}
 					}
 				}
@@ -350,7 +350,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 								case PM_DEP_MOD_LT: found = (cmp < 0); break;
 								case PM_DEP_MOD_GT: found = (cmp > 0); break;
 							}
-							FREE(ver);
+							free(ver);
 						}
 					}
 					FREELISTPTR(k);
@@ -383,7 +383,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 								case PM_DEP_MOD_LT: found = (cmp < 0); break;
 								case PM_DEP_MOD_GT: found = (cmp > 0); break;
 							}
-							FREE(ver);
+							free(ver);
 						}
 					}
 				}
@@ -476,8 +476,7 @@ int _pacman_splitdep(char *depstr, pmdepend_t *depend)
 	}
 
 	if(ptr == NULL) {
-		FREE(str);
-		return(0);
+		goto out;
 	}
 	*ptr = '\0';
 	STRNCPY(depend->name, str, PKG_NAME_LEN);
@@ -486,8 +485,9 @@ int _pacman_splitdep(char *depstr, pmdepend_t *depend)
 		ptr++;
 	}
 	STRNCPY(depend->version, ptr, PKG_VERSION_LEN);
-	FREE(str);
 
+out:
+	free(str);
 	return(0);
 }
 

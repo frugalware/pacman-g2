@@ -118,9 +118,9 @@ void _pacman_server_free(void *data)
 	}
 
 	/* free memory */
-	FREE(server->protocol);
-	FREE(server->server);
-	FREE(server->path);
+	free(server->protocol);
+	free(server->server);
+	free(server->path);
 	free(server);
 }
 

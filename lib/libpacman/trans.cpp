@@ -853,13 +853,13 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 						}
 					}
 
-					FREE(md5_local);
-					FREE(md5_pkg);
-					FREE(sha1_local);
-					FREE(sha1_pkg);
-					FREE(hash_orig);
+					free(md5_local);
+					free(md5_pkg);
+					free(sha1_local);
+					free(sha1_pkg);
+					free(hash_orig);
 					unlink(temp);
-					FREE(temp);
+					free(temp);
 					close(fd);
 				} else {
 					if(!notouch) {

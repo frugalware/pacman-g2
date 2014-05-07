@@ -97,14 +97,14 @@ Handle::~Handle()
 
 	/* free memory */
 	delete trans;
-	FREE(root);
-	FREE(dbpath);
-	FREE(cachedir);
-	FREE(hooksdir);
-	FREE(language);
-	FREE(logfile);
-	FREE(proxyhost);
-	FREE(xfercommand);
+	free(root);
+	free(dbpath);
+	free(cachedir);
+	free(hooksdir);
+	free(language);
+	free(logfile);
+	free(proxyhost);
+	free(xfercommand);
 	FREELIST(dbs_sync);
 	FREELIST(noupgrade);
 	FREELIST(noextract);

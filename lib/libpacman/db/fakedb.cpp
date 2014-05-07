@@ -73,7 +73,7 @@ static Package *_pacman_fakedb_pkg_new(pmdb_t *fakedb, const char *name)
 			_pacman_log(PM_LOG_ERROR, _("could not parse token %s"), p);
 		}
 	}
-	FREE(str);
+	free(str);
 	if(dummy->m_name[0] == 0 || dummy->m_version[0] == 0) {
 		delete dummy;
 		RET_ERR(PM_ERR_PKG_INVALID_NAME, NULL);

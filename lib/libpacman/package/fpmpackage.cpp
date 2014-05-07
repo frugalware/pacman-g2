@@ -213,7 +213,7 @@ Package *_pacman_fpmpackage_load(const char *pkgfile)
 				f_strtrim(str);
 				info->m_files = _pacman_stringlist_append(info->m_files, str);
 			}
-			FREE(str);
+			free(str);
 			fclose(filelist);
 			continue;
 		} else {
