@@ -322,7 +322,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **ski
 					}
 					if(dbpkg && !(dbpkg->flags & INFRQ_FILES)) {
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg->name());
-						db_local->read(dbpkg, INFRQ_FILES);
+						dbpkg->read(INFRQ_FILES);
 					}
 					if(dbpkg && _pacman_list_is_strin(j->data, dbpkg->files())) {
 						ok = 1;
@@ -338,7 +338,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **ski
 								dbpkg2 = _pacman_db_get_pkgfromcache(db_local, p2->name());
 								if(dbpkg2 && !(dbpkg2->flags & INFRQ_FILES)) {
 									_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg2->name());
-									db_local->read(dbpkg2, INFRQ_FILES);
+									dbpkg2->read(INFRQ_FILES);
 								}
 								/* If it used to exist in there, but doesn't anymore */
 								if(dbpkg2 && !_pacman_list_is_strin(filestr, p2->files()) && _pacman_list_is_strin(filestr, dbpkg2->files())) {

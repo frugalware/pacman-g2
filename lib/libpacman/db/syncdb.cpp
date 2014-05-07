@@ -141,7 +141,7 @@ SyncPackage *_pacman_syncdb_pkg_new(SyncDatabase *db, const struct archive_entry
 	dname = archive_entry_pathname((struct archive_entry *)entry);
 	if((pkg = new SyncPackage(db)) == NULL ||
 			!pkg->set_filename(dname, 0) ||
-			db->read(pkg, inforeq) == -1) {
+			pkg->read(inforeq) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
 		delete pkg;
 		pkg = NULL;

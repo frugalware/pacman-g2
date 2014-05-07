@@ -141,7 +141,7 @@ LocalPackage *_pacman_localdb_pkg_new(LocalDatabase *db, const struct dirent *di
 	dname = dirent->d_name;
 	if((pkg = new LocalPackage(db)) == NULL ||
 			!pkg->set_filename(dname, 0) ||
-			db->read(pkg, inforeq) == -1) {
+			pkg->read(inforeq) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
 		delete pkg;
 		pkg = NULL;

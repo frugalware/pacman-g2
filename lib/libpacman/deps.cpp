@@ -555,7 +555,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 				}
 				/* add it to the target list */
 				_pacman_log(PM_LOG_DEBUG, _("loading ALL info for '%s'"), pkg->name());
-				db->read(pkg, INFRQ_ALL);
+				pkg->read(INFRQ_ALL);
 				newtargs = _pacman_list_add(newtargs, pkg);
 				_pacman_log(PM_LOG_FLOW2, _("adding '%s' to the targets"), pkg->name());
 				newtargs = _pacman_removedeps(db, newtargs);

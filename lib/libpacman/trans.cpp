@@ -1067,7 +1067,7 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 				if(oldpkg) {
 					if(!(pkg_local->flags & INFRQ_FILES)) {
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg_local->name());
-						db_local->read(pkg_local, INFRQ_FILES);
+						pkg_local->read(INFRQ_FILES);
 					}
 					oldpkg->m_backup = _pacman_list_strdup(pkg_local->m_backup);
 					strncpy(oldpkg->m_name, pkg_local->name(), PKG_NAME_LEN);
