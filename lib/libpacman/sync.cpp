@@ -62,32 +62,27 @@
 
 using namespace libpacman;
 
-pmsyncpkg_t *_pacman_syncpkg_new(int type, Package *spkg, void *data)
+__pmsyncpkg_t::__pmsyncpkg_t(int type, Package *spkg, void *data)
 {
-	pmsyncpkg_t *ps;
+	this->type = type;
+	this->pkg_name = spkg->name();
+	this->pkg = spkg;
+	this->data = data;
+	this->pkg_local = _pacman_db_get_pkgfromcache(handle->db_local, this->pkg_name);
+}
 
-	ASSERT(spkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-	ASSERT((ps = f_zalloc(sizeof(*ps))) != NULL, return NULL);
-
-	ps->type = type;
-	ps->pkg_name = spkg->name();
-	ps->pkg = spkg;
-	ps->data = data;
-	ps->pkg_local = _pacman_db_get_pkgfromcache(handle->db_local, ps->pkg_name);
-
-	return(ps);
+__pmsyncpkg_t::~__pmsyncpkg_t()
+{
+	if(type == PM_SYNC_TYPE_REPLACE) {
+		FREELISTPKGS(data);
+	} else {
+		delete (Package *)data;
+	}
 }
 
 int _pacman_syncpkg_delete(pmsyncpkg_t *ps)
 {
-	ASSERT(ps != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	if(ps->type == PM_SYNC_TYPE_REPLACE) {
-		FREELISTPKGS(ps->data);
-	} else {
-		delete (Package *)ps->data;
-	}
-	free(ps);
+	delete ps;
 	return 0;
 }
 
@@ -194,7 +189,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 				RET_ERR(PM_ERR_MEMORY, -1);
 			}
 		}
-		ps = _pacman_syncpkg_new(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
+		ps = new __pmsyncpkg_t(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
 		if(ps == NULL) {
 			delete dummy;
 			RET_ERR(PM_ERR_MEMORY, -1);
@@ -273,7 +268,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 			/* add the dependencies found by resolvedeps to the transaction set */
 			Package *spkg = i->data;
 			if(!_pacman_trans_find(trans, spkg->name())) {
-				pmsyncpkg_t *ps = _pacman_syncpkg_new(PM_SYNC_TYPE_DEPEND, spkg, NULL);
+				pmsyncpkg_t *ps = new __pmsyncpkg_t(PM_SYNC_TYPE_DEPEND, spkg, NULL);
 				if(ps == NULL) {
 					ret = -1;
 					goto cleanup;

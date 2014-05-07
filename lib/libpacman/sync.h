@@ -27,7 +27,12 @@
 #include "package.h"
 #include "trans.h"
 
-struct __pmsyncpkg_t {
+struct __pmsyncpkg_t
+	: public libpacman::Object
+{
+	__pmsyncpkg_t(int type, libpacman::Package *spkg, void *data);
+	~__pmsyncpkg_t();
+
 	unsigned char type;
 	const char *pkg_name;
 	libpacman::Package *pkg;
@@ -35,7 +40,6 @@ struct __pmsyncpkg_t {
 	libpacman::Package *pkg_local;
 };
 
-pmsyncpkg_t *_pacman_syncpkg_new(int type, libpacman::Package *spkg, void *data);
 int _pacman_syncpkg_delete(pmsyncpkg_t *syncpkg);
 
 extern
