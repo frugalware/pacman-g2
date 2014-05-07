@@ -106,6 +106,8 @@ public:
 
 	virtual libpacman::Package *dup() const;
 
+	libpacman::Database *database() const;
+
 	virtual int read(unsigned int flags);
 	virtual int write(unsigned int flags); /* Optional */
 	virtual int remove(); /* Optional */
@@ -119,7 +121,7 @@ public:
 	FStringList *provides() const;
 	bool provides(const char *pkgname);
 
-	libpacman::Database *database;
+	libpacman::Database *m_database;
 
 	unsigned int flags;
 	char m_name[PKG_NAME_LEN];

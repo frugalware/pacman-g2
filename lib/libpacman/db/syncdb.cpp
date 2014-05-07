@@ -61,13 +61,18 @@ int suffixcmp(const char *str, const char *suffix)
 		return strcmp(str + len - suflen, suffix);
 }
 
-SyncPackage::SyncPackage(Database *database)
+SyncPackage::SyncPackage(SyncDatabase *database)
 	: Package(database)
 {
 }
 
 SyncPackage::~SyncPackage()
 {
+}
+
+SyncDatabase *SyncPackage::database() const
+{
+	return static_cast<SyncDatabase *>(Package::database());
 }
 
 static
@@ -88,6 +93,7 @@ int _pacman_syncpkg_file_reader(Database *db, Package *pkg, unsigned int flags, 
 int SyncPackage::read(unsigned int flags)
 {
 	int descdone = 0, depsdone = 0;
+	SyncDatabase *database = this->database();
 
 	ASSERT(database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	if(name()[0] == 0 || version()[0] == 0) {
@@ -124,7 +130,7 @@ SyncDatabase::~SyncDatabase()
 }
 
 static
-SyncPackage *_pacman_syncdb_pkg_new(Database *db, const struct archive_entry *entry, unsigned int inforeq)
+SyncPackage *_pacman_syncdb_pkg_new(SyncDatabase *db, const struct archive_entry *entry, unsigned int inforeq)
 {
 	Package *pkg;
 	const char *dname;

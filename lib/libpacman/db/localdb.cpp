@@ -48,13 +48,18 @@
 
 using namespace libpacman;
 
-LocalPackage::LocalPackage(Database *database)
+LocalPackage::LocalPackage(LocalDatabase *database)
 	: Package(database)
 {
 }
 
 LocalPackage::~LocalPackage()
 {
+}
+
+LocalDatabase *LocalPackage::database() const
+{
+	return static_cast<LocalDatabase *>(Package::database());
 }
 
 static
@@ -83,6 +88,7 @@ int LocalPackage::read(unsigned int flags)
 {
 	struct stat buf;
 	char path[PATH_MAX];
+	LocalDatabase *database = this->database();
 
 	ASSERT(database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	if(f_strempty(name()) || f_strempty(version())) {
@@ -124,7 +130,7 @@ LocalDatabase::~LocalDatabase()
 }
 
 static
-LocalPackage *_pacman_localdb_pkg_new(Database *db, const struct dirent *dirent, unsigned int inforeq)
+LocalPackage *_pacman_localdb_pkg_new(LocalDatabase *db, const struct dirent *dirent, unsigned int inforeq)
 {
 	Package *pkg;
 	const char *dname;

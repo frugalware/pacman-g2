@@ -30,12 +30,16 @@ const pmdb_ops_t _pacman_localdb_ops;
 namespace libpacman
 {
 
+class LocalDatabase;
+
 class LocalPackage
 	  : public libpacman::Package
 {
 public:
-	LocalPackage(Database *database = 0);
+	LocalPackage(LocalDatabase *database = 0);
 	virtual ~LocalPackage();
+
+	virtual LocalDatabase *database() const;
 
 	virtual int read(unsigned int flags);
 };

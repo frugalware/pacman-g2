@@ -49,8 +49,8 @@
 
 using namespace libpacman;
 
-Package::Package(Database *_database)
-	: database(_database), m_reason(PM_PKG_REASON_EXPLICIT)
+Package::Package(Database *database)
+	: m_database(database), m_reason(PM_PKG_REASON_EXPLICIT)
 {
 }
 
@@ -69,7 +69,7 @@ Package::Package(const char *name, const char *version)
 
 Package::Package(const libpacman::Package &other)
 {
-	database       = other.database;
+	m_database     = other.m_database;
 
 	flags          = other.flags;
 	STRNCPY(m_name,      other.m_name,      PKG_NAME_LEN);
@@ -126,9 +126,14 @@ Package::~Package()
 	}
 }
 
-libpacman::Package *Package::dup() const
+Package *Package::dup() const
 {
 	return new Package(*this);
+}
+
+Database *Package::database() const
+{
+	return m_database;
 }
 
 bool Package::set_filename(const char *filename, int witharch)
@@ -260,10 +265,10 @@ bool Package::splitname(const char *target, char *name, char *version, int witha
 
 int Package::read(unsigned int flags)
 {
-	ASSERT(database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(m_database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	if(~this->flags & flags) {
-		return database->read(this, flags);
+		return m_database->read(this, flags);
 	}
 	return 0;
 }
@@ -272,9 +277,9 @@ int Package::write(unsigned int flags)
 {
 	int ret;
 
-	ASSERT(database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(m_database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if((ret = database->write(this, flags)) != 0) {
+	if((ret = m_database->write(this, flags)) != 0) {
 		_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
 			name(), version());
 	}
@@ -283,9 +288,9 @@ int Package::write(unsigned int flags)
 
 int Package::remove()
 {
-	ASSERT(database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT(m_database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	return database->remove(this);
+	return m_database->remove(this);
 }
 
 int Package::filename(char *str, size_t size) const

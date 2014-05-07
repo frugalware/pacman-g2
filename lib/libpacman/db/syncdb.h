@@ -32,12 +32,16 @@ int _pacman_syncdb_update(libpacman::Database *db, int force);
 namespace libpacman
 {
 
+class SyncDatabase;
+
 class SyncPackage
 	  : public libpacman::Package
 {
 public:
-	SyncPackage(Database *database = 0);
+	SyncPackage(SyncDatabase *database = 0);
 	virtual ~SyncPackage();
+
+	virtual SyncDatabase *database() const;
 
 	virtual int read(unsigned int flags);
 };
