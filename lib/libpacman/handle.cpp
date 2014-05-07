@@ -121,7 +121,7 @@ int Handle::lock()
 	return (handle->filelock = f_filelock_aquire(lckpath, F_FILELOCK_CREATE_HOLD_DIR | F_FILELOCK_EXCLUSIVE | F_FILELOCK_UNLINK_ON_CLOSE)) != NULL ? 0: -1;
 }
 
-int _pacman_handle_unlock(Handle *handle)
+int Handle::unlock()
 {
 	int ret = 0;
 

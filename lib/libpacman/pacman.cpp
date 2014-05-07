@@ -123,7 +123,7 @@ int pacman_release(void)
 		pacman_db_unregister(handle->dbs_sync->data);
 	}
 
-	if(_pacman_handle_unlock(handle) != 0) {
+	if(handle->unlock() != 0) {
 		return -1;
 	}
 	delete handle;
@@ -538,7 +538,7 @@ int pacman_db_update(int force, pmdb_t *_db)
 	}
 
 	status = _pacman_syncdb_update(db, force);
-	if(_pacman_handle_unlock(handle) != 0) {
+	if(handle->unlock() != 0) {
 		return -1;
 	}
 	return status;
@@ -1217,7 +1217,7 @@ int pacman_trans_release()
 
 	handle->db_local->settimestamp(NULL);
 
-	if(_pacman_handle_unlock(handle) != 0) {
+	if(handle->unlock() != 0) {
 		return -1;
 	}
 	return(0);

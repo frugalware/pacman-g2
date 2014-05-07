@@ -53,6 +53,7 @@ public:
 	virtual ~Handle();
 
 	int lock();
+	int unlock();
 
 	pmaccess_t access;
 	uid_t uid;
@@ -92,8 +93,6 @@ public:
 }
 
 extern libpacman::Handle *handle;
-
-int _pacman_handle_unlock(libpacman::Handle *handle);
 
 #endif /* _PACMAN_HANDLE_H */
 
