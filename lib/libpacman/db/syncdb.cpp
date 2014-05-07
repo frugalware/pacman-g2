@@ -97,7 +97,7 @@ int SyncPackage::read(unsigned int flags)
 
 	ASSERT(database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	if(name()[0] == 0 || version()[0] == 0) {
-		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_syncdb_read"));
+		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to SyncPackage::read"));
 		return(-1);
 	}
 
@@ -121,7 +121,7 @@ int SyncPackage::read(unsigned int flags)
 }
 
 SyncDatabase::SyncDatabase(libpacman::Handle *handle, const char *treename)
-	  : Database(handle, treename, &_pacman_syncdb_ops)
+	  : Database(handle, treename)
 {
 }
 
@@ -306,39 +306,5 @@ int _pacman_syncdb_file_reader(SyncDatabase *db, Package *info, unsigned int inf
 	}
 	return ret;
 }
-
-static
-int _pacman_syncdb_read(SyncDatabase *db, Package *info, unsigned int inforeq)
-{
-	int descdone = 0, depsdone = 0;
-
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	if(info == NULL || info->name()[0] == 0 || info->version()[0] == 0) {
-		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_syncdb_read"));
-		return(-1);
-	}
-
-	while (!descdone || !depsdone) {
-		struct archive_entry *entry = NULL;
-		if (archive_read_next_header(db->m_archive, &entry) != ARCHIVE_OK)
-			return -1;
-		const char *pathname = archive_entry_pathname(entry);
-		if (!suffixcmp(pathname, "/desc")) {
-			if(_pacman_syncdb_file_reader(db, info, inforeq, INFRQ_DESC, _pacman_localdb_desc_fread) == -1)
-				return -1;
-			descdone = 1;
-		}
-		if (!suffixcmp(pathname, "/depends")) {
-			if(_pacman_syncdb_file_reader(db, info, inforeq, INFRQ_DEPENDS, _pacman_localdb_depends_fread) == -1)
-				return -1;
-			depsdone = 1;
-		}
-	}
-	return 0;
-}
-
-const pmdb_ops_t _pacman_syncdb_ops = {
-	.read = _pacman_syncdb_read,
-};
 
 /* vim: set ts=2 sw=2 noet: */

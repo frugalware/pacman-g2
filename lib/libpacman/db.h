@@ -37,12 +37,6 @@ class Package;
 
 }
 
-typedef struct __pmdb_ops_t pmdb_ops_t;
-
-struct __pmdb_ops_t {
-	int (*read)(libpacman::Database *db, libpacman::Package *info, unsigned int inforeq);
-};
-
 namespace libpacman {
 
 class Database
@@ -65,7 +59,6 @@ public:
 	virtual libpacman::Package *readpkg(unsigned int inforeq) = 0;
 	virtual libpacman::Package *scan(const char *target, unsigned int inforeq) = 0;
 
-	virtual int read(libpacman::Package *info, unsigned int flags);
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
 	virtual int remove(libpacman::Package *info);
 
@@ -82,12 +75,11 @@ public:
 	pmlist_t *servers;
 
 protected:
-	Database(libpacman::Handle *handle, const char *treename, const pmdb_ops_t *ops);
+	Database(libpacman::Handle *handle, const char *treename);
 
 	virtual int open(int flags, time_t *timestamp) = 0;
 
 private:
-	const pmdb_ops_t *ops;
 };
 
 }

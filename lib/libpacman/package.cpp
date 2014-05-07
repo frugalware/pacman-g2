@@ -265,12 +265,7 @@ bool Package::splitname(const char *target, char *name, char *version, int witha
 
 int Package::read(unsigned int flags)
 {
-	ASSERT(m_database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-
-	if(~this->flags & flags) {
-		return m_database->read(this, flags);
-	}
-	return 0;
+	return -1;
 }
 
 int Package::write(unsigned int flags)

@@ -26,9 +26,6 @@
 
 #include <archive.h>
 
-extern
-const pmdb_ops_t _pacman_syncdb_ops;
-
 int _pacman_syncdb_update(libpacman::Database *db, int force);
 
 namespace libpacman

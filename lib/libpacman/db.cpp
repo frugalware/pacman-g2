@@ -67,8 +67,7 @@ FILE *_pacman_db_fopen_lastupdate(const Database *db, const char *mode)
 	return fopen(path, mode);
 }
 
-Database::Database(libpacman::Handle *handle, const char *treename, const pmdb_ops_t *_ops)
-	: ops(_ops)
+Database::Database(libpacman::Handle *handle, const char *treename)
 {
 	path = f_zalloc(strlen(handle->root)+strlen(handle->dbpath)+strlen(treename)+2);
 //	if(path == NULL) {
@@ -154,22 +153,6 @@ int Database::settimestamp(const time_t *timestamp)
 
 	_pacman_ftp_strfmdtm(buffer, sizeof(buffer), timestamp);
 	return _pacman_db_setlastupdate(this, buffer);
-}
-
-int Database::read(Package *info, unsigned int flags)
-{
-	int ret;
-
-	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
-	if(_pacman_strempty(info->name()) || _pacman_strempty(info->version())) {
-		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_db_read"));
-		return(-1);
-	}
-
-	if((ret = ops->read(this, info, flags)) == 0) {
-		info->flags |= flags;
-	}
-	return ret;
 }
 
 int Database::write(Package *info, unsigned int inforeq)

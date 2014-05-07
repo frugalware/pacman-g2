@@ -92,7 +92,7 @@ int LocalPackage::read(unsigned int flags)
 
 	ASSERT(database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	if(f_strempty(name()) || f_strempty(version())) {
-		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_localdb_read"));
+		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to LocalPackage::read"));
 		return(-1);
 	}
 
@@ -121,7 +121,7 @@ int LocalPackage::read(unsigned int flags)
 }
 
 LocalDatabase::LocalDatabase(libpacman::Handle *handle, const char *treename)
-	  : Database(handle, treename, &_pacman_localdb_ops)
+	  : Database(handle, treename)
 {
 }
 
@@ -299,42 +299,6 @@ int _pacman_localdb_file_reader(Database *db, Package *info, unsigned int infore
 		fclose(fp);
 	}
 	return ret;
-}
-
-static
-int _pacman_localdb_read(Database *db, Package *info, unsigned int inforeq)
-{
-	struct stat buf;
-	char path[PATH_MAX];
-
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	if(info == NULL || info->name()[0] == 0 || info->version()[0] == 0) {
-		_pacman_log(PM_LOG_ERROR, _("invalid package entry provided to _pacman_localdb_read"));
-		return(-1);
-	}
-
-	snprintf(path, PATH_MAX, "%s/%s-%s", db->path, info->name(), info->version());
-	if(stat(path, &buf)) {
-		/* directory doesn't exist or can't be opened */
-		return(-1);
-	}
-
-	if (_pacman_localdb_file_reader(db, info, inforeq, INFRQ_DESC, "desc", _pacman_localdb_desc_fread) == -1)
-		return -1;
-	if (_pacman_localdb_file_reader(db, info, inforeq, INFRQ_DEPENDS, "depends", _pacman_localdb_depends_fread) == -1)
-		return -1;
-	if (_pacman_localdb_file_reader(db, info, inforeq, INFRQ_FILES, "files", _pacman_localdb_files_fread) == -1)
-		return -1;
-
-	/* INSTALL */
-	if(inforeq & INFRQ_SCRIPLET) {
-		snprintf(path, PATH_MAX, "%s/%s-%s/install", db->path, info->name(), info->version());
-		if(!stat(path, &buf)) {
-			info->scriptlet = 1;
-		}
-		info->flags |= PM_LOCALPACKAGE_FLAGS_SCRIPLET;
-	}
-	return 0;
 }
 
 /*
@@ -520,9 +484,5 @@ pmlist_t *LocalDatabase::getowners(const char *filename)
 
 	return(ret);
 }
-
-const pmdb_ops_t _pacman_localdb_ops = {
-	.read = _pacman_localdb_read,
-};
 
 /* vim: set ts=2 sw=2 noet: */

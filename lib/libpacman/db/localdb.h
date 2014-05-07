@@ -26,9 +26,6 @@
 
 #include <dirent.h>
 
-extern
-const pmdb_ops_t _pacman_localdb_ops;
-
 namespace libpacman
 {
 
