@@ -938,7 +938,7 @@ int pacman_pkg_free(pmpkg_t *_pkg)
 
 	/* Only free packages loaded in user space */
 	if(pkg->origin != PKG_FROM_CACHE) {
-		_pacman_pkg_delete(pkg);
+		delete pkg;
 	}
 
 	return(0);

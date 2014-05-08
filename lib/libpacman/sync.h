@@ -40,8 +40,6 @@ struct __pmsyncpkg_t
 	libpacman::Package *pkg_local;
 };
 
-int _pacman_syncpkg_delete(pmsyncpkg_t *syncpkg);
-
 extern
 const pmtrans_ops_t _pacman_sync_pmtrans_opts;
 

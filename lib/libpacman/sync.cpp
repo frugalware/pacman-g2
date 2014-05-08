@@ -80,12 +80,6 @@ __pmsyncpkg_t::~__pmsyncpkg_t()
 	}
 }
 
-int _pacman_syncpkg_delete(pmsyncpkg_t *ps)
-{
-	delete ps;
-	return 0;
-}
-
 /* Helper functions for _pacman_list_remove
  */
 static
@@ -412,7 +406,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 
 							_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
 							trans->syncpkgs = _pacman_list_remove(trans->syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
-							_pacman_syncpkg_delete(spkg);
+							delete spkg;
 							continue;
 						}
 					}
@@ -451,7 +445,7 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 
 								_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), miss->depend.name);
 								trans->syncpkgs = _pacman_list_remove(trans->syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
-								_pacman_syncpkg_delete(spkg);
+								delete spkg;
 							}
 						} else {
 							/* abort */
