@@ -80,12 +80,6 @@ enum {
 
 namespace libpacman {
 
-class Package;
-
-}
-
-namespace libpacman {
-
 /* IMPROVEMENT: Add a dirty_flags to know what flags needs to be written */
 class Package
 	: public libpacman::Object
