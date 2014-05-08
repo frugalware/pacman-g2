@@ -120,6 +120,18 @@ int LocalPackage::read(unsigned int flags)
 	return 0;
 }
 
+int LocalPackage::remove()
+{
+	char path[PATH_MAX];
+
+	snprintf(path, PATH_MAX, "%s/%s-%s", m_database->path, name(), version());
+	if(_pacman_rmrf(path) == -1) {
+		return(-1);
+	}
+
+	return(0);
+}
+
 LocalDatabase::LocalDatabase(libpacman::Handle *handle, const char *treename)
 	  : Database(handle, treename)
 {
@@ -423,20 +435,6 @@ cleanup:
 	}
 
 	return(retval);
-}
-
-int LocalDatabase::remove(Package *info)
-{
-	char path[PATH_MAX];
-
-	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
-
-	snprintf(path, PATH_MAX, "%s/%s-%s", this->path, info->name(), info->version());
-	if(_pacman_rmrf(path) == -1) {
-		return(-1);
-	}
-
-	return(0);
 }
 
 pmlist_t *LocalDatabase::getowners(const char *filename)

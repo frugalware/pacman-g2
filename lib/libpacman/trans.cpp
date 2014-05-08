@@ -1286,7 +1286,7 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 		/* remove the package from the database */
 		_pacman_log(PM_LOG_FLOW1, _("updating database"));
 		_pacman_log(PM_LOG_FLOW2, _("removing database entry '%s'"), pkg_local->name());
-		if(db_local->remove(pkg_local) == -1) {
+		if(pkg_local->remove() == -1) {
 			_pacman_log(PM_LOG_ERROR, _("could not remove database entry %s-%s"), pkg_local->name(), pkg_local->version());
 		}
 		if(_pacman_db_remove_pkgfromcache(db_local, pkg_local) == -1) {

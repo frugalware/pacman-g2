@@ -41,6 +41,7 @@ public:
 	virtual LocalDatabase *database() const;
 
 	virtual int read(unsigned int flags);
+	virtual int remove();
 };
 
 class LocalDatabase
@@ -59,7 +60,6 @@ public:
 	virtual libpacman::Package *scan(const char *target, unsigned int inforeq);
 
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
-	virtual int remove(libpacman::Package *info);
 
 	virtual pmlist_t *getowners(const char *filename);
 

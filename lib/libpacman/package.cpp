@@ -283,9 +283,7 @@ int Package::write(unsigned int flags)
 
 int Package::remove()
 {
-	ASSERT(m_database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-
-	return m_database->remove(this);
+	return -1;
 }
 
 int Package::filename(char *str, size_t size) const

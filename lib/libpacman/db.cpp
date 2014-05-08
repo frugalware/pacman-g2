@@ -161,12 +161,6 @@ int Database::write(Package *info, unsigned int inforeq)
 	RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
 }
 
-int Database::remove(Package *info)
-{
-	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
-	RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
-}
-
 pmlist_t *Database::getowners(const char *filename)
 {
 	return NULL;

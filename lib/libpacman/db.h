@@ -60,7 +60,6 @@ public:
 	virtual libpacman::Package *scan(const char *target, unsigned int inforeq) = 0;
 
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
-	virtual int remove(libpacman::Package *info);
 
 	// Cache operations
 	pmlist_t *search(pmlist_t *needles);
