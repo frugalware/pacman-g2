@@ -85,8 +85,6 @@ private:
 
 int _pacman_db_cmp(const void *db1, const void *db2);
 
-libpacman::Database *_pacman_db_register(const char *treename, pacman_cb_db_register callback);
-
 #endif /* _PACMAN_DB_H */
 
 /* vim: set ts=2 sw=2 noet: */

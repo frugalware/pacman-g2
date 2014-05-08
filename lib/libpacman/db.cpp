@@ -221,48 +221,4 @@ int _pacman_db_setlastupdate(Database *db, const char *ts)
 	return(0);
 }
 
-Database *_pacman_db_register(const char *treename, pacman_cb_db_register callback)
-{
-	Database *db;
-
-	if(strcmp(treename, "local") == 0) {
-		if(handle->db_local != NULL) {
-			_pacman_log(PM_LOG_WARNING, _("attempt to re-register the 'local' DB\n"));
-			RET_ERR(PM_ERR_DB_NOT_NULL, NULL);
-		}
-	} else {
-		pmlist_t *i;
-		for(i = handle->dbs_sync; i; i = i->next) {
-			Database *sdb = i->data;
-			if(strcmp(treename, sdb->treename) == 0) {
-				_pacman_log(PM_LOG_DEBUG, _("attempt to re-register the '%s' database, using existing\n"), sdb->treename);
-				return sdb;
-			}
-		}
-	}
-
-	_pacman_log(PM_LOG_FLOW1, _("registering database '%s'"), treename);
-
-	db = strcmp(treename, "local") == 0 ? (Database *)new LocalDatabase(handle, treename) : new SyncDatabase(handle, treename);
-	if(db == NULL) {
-		RET_ERR(PM_ERR_DB_CREATE, NULL);
-	}
-
-	_pacman_log(PM_LOG_DEBUG, _("opening database '%s'"), db->treename);
-	if(db->open(0) == -1) {
-		delete db;
-		RET_ERR(PM_ERR_DB_OPEN, NULL);
-	}
-
-	/* Only call callback on NEW registration. */
-	if(callback) callback(treename, c_cast(db));
-
-	if(strcmp(treename, "local") == 0) {
-		handle->db_local = db;
-	} else {
-		handle->dbs_sync = _pacman_list_add(handle->dbs_sync, db);
-	}
-	return(db);
-}
-
 /* vim: set ts=2 sw=2 noet: */

@@ -25,9 +25,12 @@
 
 #include "handle.h"
 
+#include "db/localdb.h"
+#include "db/syncdb.h"
 #include "error.h"
 #include "trans.h"
 #include "pacman.h"
+#include "pacman_p.h"
 #include "server.h"
 #include "util.h"
 
@@ -118,20 +121,63 @@ int Handle::lock()
 	char lckpath[PATH_MAX];
 
 	snprintf(lckpath, PATH_MAX, "%s/%s", root, PM_LOCK);
-	return (handle->filelock = f_filelock_aquire(lckpath, F_FILELOCK_CREATE_HOLD_DIR | F_FILELOCK_EXCLUSIVE | F_FILELOCK_UNLINK_ON_CLOSE)) != NULL ? 0: -1;
+	return (filelock = f_filelock_aquire(lckpath, F_FILELOCK_CREATE_HOLD_DIR | F_FILELOCK_EXCLUSIVE | F_FILELOCK_UNLINK_ON_CLOSE)) != NULL ? 0: -1;
 }
 
 int Handle::unlock()
 {
 	int ret = 0;
 
-	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
-
-	if(handle->filelock != NULL) {
-		ret = f_filelock_release(handle->filelock);
-		handle->filelock = NULL;
+	if(filelock != NULL) {
+		ret = f_filelock_release(filelock);
+		filelock = NULL;
 	}
 	return ret;
 }
 
+Database *Handle::getDatabase(const char *treename, pacman_cb_db_register callback)
+{
+	Database *db;
+
+	if(strcmp(treename, "local") == 0) {
+		if(db_local != NULL) {
+			_pacman_log(PM_LOG_WARNING, _("attempt to re-register the 'local' DB\n"));
+			RET_ERR(PM_ERR_DB_NOT_NULL, NULL);
+		}
+	} else {
+		pmlist_t *i;
+		for(i = dbs_sync; i; i = i->next) {
+			Database *sdb = i->data;
+			if(strcmp(treename, sdb->treename) == 0) {
+				_pacman_log(PM_LOG_DEBUG, _("attempt to re-register the '%s' database, using existing\n"), sdb->treename);
+				return sdb;
+			}
+		}
+	}
+
+	_pacman_log(PM_LOG_FLOW1, _("registering database '%s'"), treename);
+
+	db = strcmp(treename, "local") == 0 ? (Database *)new LocalDatabase(this, treename) : new SyncDatabase(this, treename);
+	if(db == NULL) {
+		RET_ERR(PM_ERR_DB_CREATE, NULL);
+	}
+
+	_pacman_log(PM_LOG_DEBUG, _("opening database '%s'"), db->treename);
+	if(db->open(0) == -1) {
+		delete db;
+		RET_ERR(PM_ERR_DB_OPEN, NULL);
+	}
+
+	/* Only call callback on NEW registration. */
+	if(callback) callback(treename, c_cast(db));
+
+	if(strcmp(treename, "local") == 0) {
+		db_local = db;
+	} else {
+		dbs_sync = _pacman_list_add(dbs_sync, db);
+	}
+	return(db);
+}
+
 /* vim: set ts=2 sw=2 noet: */
+
