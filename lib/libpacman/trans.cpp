@@ -274,9 +274,8 @@ int __pmtrans_t::add(Package *pkg, pmtranstype_t type, int flags)
 	return 0;
 }
 
-pmsyncpkg_t *_pacman_trans_add_target(pmtrans_t *trans, const char *target, pmtranstype_t type, int flags)
+pmsyncpkg_t *__pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 {
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
 	ASSERT(!f_strempty(target), RET_ERR(PM_ERR_TRANS_NULL, NULL));
 
 	return NULL;
