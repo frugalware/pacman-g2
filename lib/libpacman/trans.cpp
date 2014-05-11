@@ -255,7 +255,6 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	pmlist_t *dbs_sync = trans->handle->dbs_sync;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(name != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	STRNCPY(targline, name, PKG_FULLNAME_LEN);
 	targ = strchr(targline, '/');
@@ -1143,7 +1142,6 @@ int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 	Database *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(name != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	if(_pacman_pkg_isin(name, trans->packages)) {
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
