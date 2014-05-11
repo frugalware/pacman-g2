@@ -64,6 +64,16 @@ pacman_download_tell: Access to current download size.
 
 pacman_download_xfered: Access to a xfered download size.
 
+pacman_list_begin: Access to iterator at bigging of list.
+
+pacman_list_end: Access to iterator at end of list.
+
+pacman_list_iterator_free: Free a list iterator.
+
+pacman_list_iterator_getdata: Access to iterator data.
+
+pacman_list_iterator_next: Make iterator goes next.
+
 pmdepmissing_t: is now public and deprecate PM_DEPMISS.
 
 pmgrp_t: is now public and deprecate PM_GRP.
@@ -81,6 +91,8 @@ PM_PKG_TRIGGERS: Access to package triggers list.
 PM_TRANS_SYNCPKGS: Access to transaction syncpkgs list.
 
 ==== Symbols removed:
+
+pacman_list_begin, pacman_list_iterator_next, pacman_list_iterator_getdata: Removed in favor of the new lit iterator API.
 
 PM_NETBUF, PM_OPT_DLETA_H, PM_OPT_DLETA_M, PM_OPT_DLETA_H, PM_OPT_DLOFFSET, PM_OPT_DLRATE, PM_OPT_DLT, PM_OPT_DLT0, PM_OPT_DLXFERED1: Removed due to code refactor so public API does not try to hide that it use libftp internal callback. See pacman_trans_cb_download changes.
 

@@ -54,6 +54,7 @@ typedef struct __pmdepmissing_t pmdepmissing_t;
 typedef struct __pmdownload_t pmdownload_t;
 typedef struct __pmgrp_t pmgrp_t;
 typedef struct __pmlist_t pmlist_t;
+typedef struct __pmlist_iterator_t pmlist_iterator_t;
 typedef struct __pmpkg_t pmpkg_t;
 typedef struct __pmsyncpkg_t pmsyncpkg_t;
 
@@ -65,6 +66,10 @@ typedef struct __pmgrp_t PM_GRP;
 typedef struct __pmsyncpkg_t PM_SYNCPKG;
 typedef struct __pmdepmissing_t PM_DEPMISS;
 typedef struct __pmconflict_t PM_CONFLICT;
+
+#define pacman_list_first pacman_list_begin
+#define pacman_list_next pacman_list_iterator_next
+#define pacman_list_getdata pacman_list_iterator_getdata
 
 /*
  * Library
@@ -436,11 +441,15 @@ void *pacman_conflict_getinfo(pmconflict_t*conflict, unsigned char parm);
  */
 
 /* pmlist_t */
-pmlist_t *pacman_list_first(pmlist_t *list);
-pmlist_t *pacman_list_next(pmlist_t *entry);
-void *pacman_list_getdata(pmlist_t *entry);
+pmlist_iterator_t *pacman_list_begin(pmlist_t *list);
+pmlist_iterator_t *pacman_list_end(pmlist_t *list);
 int pacman_list_free(pmlist_t *entry);
 int pacman_list_count(pmlist_t *list);
+
+/* pmlist_iterator_t */
+int pacman_list_iterator_free(pmlist_iterator_t *iterator);
+pmlist_iterator_t *pacman_list_iterator_next(pmlist_iterator_t *iterator);
+void *pacman_list_iterator_getdata(pmlist_iterator_t *iterator);
 
 /* md5sums */
 char *pacman_get_md5sum(char *name);

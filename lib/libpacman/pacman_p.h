@@ -24,7 +24,7 @@
 #include "pacman.h"
 
 #define DEFINE_CAST(c_type, cxx_type)  \
-	static c_type *c_cast(cxx_type *obj)   \
+static c_type *c_cast(cxx_type *obj)   \
 { return (c_type *)obj; }              \
                                        \
 static cxx_type *cxx_cast(c_type *obj) \
@@ -40,6 +40,7 @@ class Package;
 }
 
 DEFINE_CAST(struct __pmdb_t, libpacman::Database)
+DEFINE_CAST(struct __pmlist_iterator_t, struct __pmlist_t)
 DEFINE_CAST(struct __pmgrp_t, libpacman::Group)
 DEFINE_CAST(struct __pmhandle_t, libpacman::Handle)
 DEFINE_CAST(struct __pmpkg_t, libpacman::Package)

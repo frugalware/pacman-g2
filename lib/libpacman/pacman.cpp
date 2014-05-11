@@ -1328,46 +1328,33 @@ int pacman_logaction(const char *format, ...)
  * @{
  */
 
-/** Get the first element of a list.
+/** Get the iterator to biginning of a list.
  * @param list the list
  * @return the first element
  */
-pmlist_t *pacman_list_first(pmlist_t *list)
+pmlist_iterator_t *pacman_list_begin(pmlist_t *list)
 {
-	return(list);
+	return c_cast(list);
 }
 
-/** Get the next element of a list.
- * @param entry the list entry
- * @return the next element on success, NULL on error
+/** Get the iterator to end of a list.
+ * @param list the list
+ * @return the first element
  */
-pmlist_t *pacman_list_next(pmlist_t *entry)
+pmlist_iterator_t *pacman_list_end(pmlist_t *list)
 {
-	ASSERT(entry != NULL, return(NULL));
-
-	return(entry->next);
-}
-
-/** Get the data of a list entry.
- * @param entry the list entry
- * @return the data on success, NULL on error
- */
-void *pacman_list_getdata(pmlist_t *entry)
-{
-	ASSERT(entry != NULL, return(NULL));
-
-	return(entry->data);
+	return NULL;
 }
 
 /** Free a list.
  * @param entry list to free
  * @return 0 on success, -1 on error
  */
-int pacman_list_free(pmlist_t *entry)
+int pacman_list_free(pmlist_t *list)
 {
-	ASSERT(entry != NULL, return(-1));
+	ASSERT(list != NULL, return(-1));
 
-	FREELIST(entry);
+	FREELIST(list);
 
 	return(0);
 }
@@ -1381,6 +1368,39 @@ int pacman_list_count(pmlist_t *list)
 	ASSERT(list != NULL, return(-1));
 
 	return(_pacman_list_count(list));
+}
+
+/** Free a list iterator.
+ * @param iterator the iterator
+ * @return 0 on success, -1 on error
+ */
+int pacman_list_iterator_free(pmlist_iterator_t *iterator)
+{
+	ASSERT(iterator != NULL, return -1);
+
+	return 0;
+}
+
+/** Get the next element of a list.
+ * @param entry the list entry
+ * @return the next element on success, NULL on error
+ */
+pmlist_iterator_t *pacman_list_iterator_next(pmlist_iterator_t *iterator)
+{
+	ASSERT(iterator != NULL, return NULL);
+
+	return c_cast(cxx_cast(iterator)->next);
+}
+
+/** Get the data of a list iterator.
+ * @param entry the list entry
+ * @return the data on success, NULL on error
+ */
+void *pacman_list_iterator_getdata(pmlist_iterator_t *iterator)
+{
+	ASSERT(iterator != NULL, return NULL);
+
+	return cxx_cast(iterator)->data;
 }
 /** @} */
 
