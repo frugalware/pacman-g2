@@ -248,6 +248,7 @@ int _pacman_syncpkg_cmp(const void *s1, const void *s2)
 	return(strcmp(((pmsyncpkg_t *)s1)->pkg->name(), ((pmsyncpkg_t *)s2)->pkg->name()));
 }
 
+static
 int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 {
 	char targline[PKG_FULLNAME_LEN];
@@ -380,6 +381,7 @@ static int check_olddelay(void)
 	return(0);
 }
 
+static
 int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *deps = NULL;
@@ -763,6 +765,7 @@ cleanup:
 	return(ret);
 }
 
+static
 int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *i, *j;
