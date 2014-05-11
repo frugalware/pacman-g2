@@ -48,12 +48,6 @@ enum {
 	STATE_MAX
 };
 
-typedef struct __pmtrans_ops_t {
-	int (*addtarget)(pmtrans_t *trans, const char *name);
-	int (*prepare)(pmtrans_t *trans, pmlist_t **data);
-	int (*commit)(pmtrans_t *trans, pmlist_t **data);
-} pmtrans_ops_t;
-
 typedef struct __pmtrans_cbs_t {
 	pacman_trans_cb_event event;
 	pacman_trans_cb_conv conv;
@@ -76,7 +70,6 @@ struct __pmtrans_t
 	pmsyncpkg_t *add(const char *target, pmtranstype_t type, int flags);
 	int add(const char *target);
 
-	const pmtrans_ops_t *ops;
 	int (*set_state)(pmtrans_t *trans, int new_state);
 	libpacman::Handle *handle;
 	pmtranstype_t type;

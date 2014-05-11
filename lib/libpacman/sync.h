@@ -40,9 +40,6 @@ struct __pmsyncpkg_t
 	libpacman::Package *pkg_local;
 };
 
-extern
-const pmtrans_ops_t _pacman_sync_pmtrans_opts;
-
 #endif /* _PACMAN_SYNC_H */
 
 /* vim: set ts=2 sw=2 noet: */
