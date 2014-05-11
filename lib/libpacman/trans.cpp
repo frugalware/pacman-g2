@@ -326,48 +326,47 @@ int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 	return trans->add(pkg_local, trans->type, 0);
 }
 
-int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
+int __pmtrans_t::add(const char *target)
 {
 	pmlist_t *i;
 	Package *pkg_new, *pkg_local, *pkg_queued = NULL;
-	Database *db_local = trans->handle->db_local;
+	Database *db_local = handle->db_local;
 
 	/* Sanity checks */
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	if(_pacman_list_is_strin(target, trans->targets)) {
+	if(_pacman_list_is_strin(target, targets)) {
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
 
-	if(trans->ops != NULL && trans->ops->addtarget != NULL) {
-		if(trans->ops->addtarget(trans, target) == -1) {
+	if(ops != NULL && ops->addtarget != NULL) {
+		if(ops->addtarget(this, target) == -1) {
 			/* pm_errno is set by trans->ops->addtarget() */
 			return(-1);
 		}
 	} else {
-	if(trans->type & PM_TRANS_TYPE_ADD) {
+	if(type & PM_TRANS_TYPE_ADD) {
 	/* Check if we need to add a fake target to the transaction. */
 	if(strchr(target, '|')) {
-		return(_pacman_fakedb_addtarget(trans, target));
+		return(_pacman_fakedb_addtarget(this, target));
 	}
 
 	pkg_new = _pacman_filedb_load(NULL, target);
-	if(pkg_new == NULL || _pacman_pkg_is_valid(pkg_new, trans, target) != 0) {
+	if(pkg_new == NULL || _pacman_pkg_is_valid(pkg_new, this, target) != 0) {
 		/* pm_errno is already set by _pacman_filedb_load() */
 		goto error;
 	}
 
 	pkg_local = _pacman_db_get_pkgfromcache(db_local, pkg_new->name());
-	if(trans->type != PM_TRANS_TYPE_UPGRADE) {
+	if(type != PM_TRANS_TYPE_UPGRADE) {
 		/* only install this package if it is not already installed */
 		if(pkg_local != NULL) {
 			pm_errno = PM_ERR_PKG_INSTALLED;
 			goto error;
 		}
 	} else {
-		if(trans->flags & PM_TRANS_FLAG_FRESHEN) {
+		if(flags & PM_TRANS_FLAG_FRESHEN) {
 			/* only upgrade/install this package if it is already installed and at a lesser version */
 			if(pkg_local == NULL || _pacman_versioncmp(pkg_local->version(), pkg_new->version()) >= 0) {
 				pm_errno = PM_ERR_PKG_CANT_FRESH;
@@ -376,7 +375,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 		}
 	}
 
-	if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
+	if(flags & PM_TRANS_FLAG_ALLDEPS) {
 		pkg_new->m_reason = PM_PKG_REASON_DEPEND;
 	}
 
@@ -387,7 +386,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 
 	/* check if an older version of said package is already in transaction packages.
 	 * if so, replace it in the list */
-	for(i = trans->packages; i; i = i->next) {
+	for(i = packages; i; i = i->next) {
 		Package *pkg = i->data;
 		if(strcmp(pkg->name(), pkg_new->name()) == 0) {
 			pkg_queued = pkg;
@@ -406,17 +405,17 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 		}
 		delete pkg_new;
 	} else {
-		trans->add(pkg_new, trans->type, 0);
+		add(pkg_new, type, 0);
 	}
 	}
-	if(trans->type == PM_TRANS_TYPE_REMOVE) {
-		if(_pacman_remove_addtarget(trans, target) == -1) {
+	if(type == PM_TRANS_TYPE_REMOVE) {
+		if(_pacman_remove_addtarget(this, target) == -1) {
 			return -1;
 		}
 	}
 	}
 
-	trans->targets = _pacman_stringlist_append(trans->targets, target);
+	targets = _pacman_stringlist_append(targets, target);
 
 	return(0);
 

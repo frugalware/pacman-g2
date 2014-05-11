@@ -74,6 +74,7 @@ struct __pmtrans_t
 	pmsyncpkg_t *add(pmsyncpkg_t *syncpkg, int flags);
 	int add(libpacman::Package *pkg, pmtranstype_t type, int flags);
 	pmsyncpkg_t *add(const char *target, pmtranstype_t type, int flags);
+	int add(const char *target);
 
 	const pmtrans_ops_t *ops;
 	int (*set_state)(pmtrans_t *trans, int new_state);
@@ -107,8 +108,6 @@ do { \
 } while(0)
 
 int _pacman_trans_event(pmtrans_t *trans, unsigned char, void *, void *);
-
-int _pacman_trans_addtarget(pmtrans_t *trans, const char *target);
 
 int _pacman_trans_sysupgrade(pmtrans_t *trans);
 

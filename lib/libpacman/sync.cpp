@@ -629,7 +629,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 			for(j = ps->data; j; j = j->next) {
 				Package *pkg = j->data;
 				if(!_pacman_pkg_isin(pkg->name(), tr->packages)) {
-					if(_pacman_trans_addtarget(tr, pkg->name()) == -1) {
+					if(tr->add(pkg->name()) == -1) {
 						goto error;
 					}
 					replaces++;
@@ -666,7 +666,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		Package *spkg = ps->pkg;
 		char str[PATH_MAX];
 		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
-		if(_pacman_trans_addtarget(tr, str) == -1) {
+		if(tr->add(str) == -1) {
 			goto error;
 		}
 		/* using _pacman_list_last() is ok because addtarget() adds the new target at the
