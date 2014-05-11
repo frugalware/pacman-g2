@@ -135,9 +135,6 @@ int _pacman_trans_compute_triggers(pmtrans_t *trans)
 {
 	pmlist_t *lp;
 
-	/* Sanity checks */
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-
 	/* NOTE: Not the most efficient way, but will do until we add some string hash. */
 	for(lp = trans->packages; lp; lp = lp->next) {
 		Package *pkg = lp->data;
@@ -220,9 +217,6 @@ pmsyncpkg_t *__pmtrans_t::find(const char *pkgname) const
 static
 int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 {
-	/* Sanity checks */
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-
 	/* Ignore unchanged state */
 	if (trans->state == new_state) {
 		return(0);
@@ -261,7 +255,6 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 	pmlist_t *dbs_sync = trans->handle->dbs_sync;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(name != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	STRNCPY(targline, name, PKG_FULLNAME_LEN);
@@ -393,7 +386,6 @@ int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
 	Database *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(trans->packages == NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	if(data) {
@@ -774,7 +766,6 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 	Database *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	if(handle->sysupgrade) {
 		_pacman_runhook("pre_sysupgrade", trans);
@@ -910,14 +901,13 @@ error:
 	return(-1);
 }
 
+static
 int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *i, *j, *files = NULL;
 	char ldir[PATH_MAX];
     int doremove, retval = 0, tries = 0;
 	int varcache = 1;
-
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	trans->state = STATE_DOWNLOADING;
 	/* group sync records by repository and download */
@@ -1153,7 +1143,6 @@ int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 	Database *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(name != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	if(_pacman_pkg_isin(name, trans->packages)) {
@@ -1280,7 +1269,6 @@ int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
 	pmlist_t *lp;
 	Database *db_local = trans->handle->db_local;
 
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	/* Check dependencies
@@ -1381,7 +1369,6 @@ int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
 	Database *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	if(!(trans->flags & (PM_TRANS_FLAG_NODEPS)) && (trans->type != PM_TRANS_TYPE_UPGRADE)) {
 		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
@@ -1872,7 +1859,6 @@ int _pacman_add_commit(pmtrans_t *trans, pmlist_t **data)
 	pmlist_t *targ, *lp;
 	Database *db_local = trans->handle->db_local;
 
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	howmany = _pacman_list_count(trans->packages);
@@ -2088,7 +2074,6 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 	Database *db_local = trans->handle->db_local;
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	howmany = _pacman_list_count(trans->packages);
 
