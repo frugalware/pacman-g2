@@ -33,6 +33,7 @@ typedef struct __pmtrans_t pmtrans_t;
 namespace libpacman {
 
 class Handle;
+class Package;
 
 }
 
@@ -71,6 +72,7 @@ struct __pmtrans_t
 	int commit(pmlist_t **data);
 
 	pmsyncpkg_t *add(pmsyncpkg_t *syncpkg, int flags);
+	int add(libpacman::Package *pkg, pmtranstype_t type, int flags);
 
 	const pmtrans_ops_t *ops;
 	int (*set_state)(pmtrans_t *trans, int new_state);
@@ -105,7 +107,6 @@ do { \
 
 int _pacman_trans_event(pmtrans_t *trans, unsigned char, void *, void *);
 
-int _pacman_trans_add_package(pmtrans_t *trans, pmpkg_t *pkg, pmtranstype_t type, int flags);
 pmsyncpkg_t *_pacman_trans_add_target(pmtrans_t *trans, const char *target, pmtranstype_t type, int flags);
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target);
 

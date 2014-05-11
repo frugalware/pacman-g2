@@ -265,13 +265,12 @@ pmsyncpkg_t *__pmtrans_t::add(pmsyncpkg_t *syncpkg, int flags)
 	return syncpkg;
 }
 
-int _pacman_trans_add_package(pmtrans_t *trans, Package *pkg, pmtranstype_t type, int flags)
+int __pmtrans_t::add(Package *pkg, pmtranstype_t type, int flags)
 {
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), pkg->name());
-	trans->packages = _pacman_list_add(trans->packages, pkg);
+	packages = _pacman_list_add(packages, pkg);
 	return 0;
 }
 
@@ -325,7 +324,7 @@ int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 		}
 	}
 
-	return _pacman_trans_add_package(trans, pkg_local, trans->type, 0);
+	return trans->add(pkg_local, trans->type, 0);
 }
 
 int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
@@ -408,7 +407,7 @@ int _pacman_trans_addtarget(pmtrans_t *trans, const char *target)
 		}
 		delete pkg_new;
 	} else {
-		_pacman_trans_add_package(trans, pkg_new, trans->type, 0);
+		trans->add(pkg_new, trans->type, 0);
 	}
 	}
 	if(trans->type == PM_TRANS_TYPE_REMOVE) {
