@@ -243,26 +243,25 @@ int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 	return(0);
 }
 
-pmsyncpkg_t *_pacman_trans_add(pmtrans_t *trans, pmsyncpkg_t *syncpkg, int flags)
+pmsyncpkg_t *__pmtrans_t::add(pmsyncpkg_t *syncpkg, int flags)
 {
 	pmsyncpkg_t *syncpkg_queued;
 
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
 	ASSERT(syncpkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
 	ASSERT(syncpkg->pkg != NULL || syncpkg->pkg_local != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	if(syncpkg->pkg != NULL && syncpkg->pkg_local == NULL) {
-		Database *db_local = trans->handle->db_local;
+		Database *db_local = handle->db_local;
 
 		syncpkg->pkg_local = _pacman_db_get_pkgfromcache(db_local, syncpkg->pkg->name());
 	}
 
-	if((syncpkg_queued = trans->find(syncpkg->pkg_name)) != NULL) {
+	if((syncpkg_queued = find(syncpkg->pkg_name)) != NULL) {
 		/* FIXME: Try to compress syncpkg in syncpkg_queued more */
 		return NULL;
 	}
 	_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), syncpkg->pkg_name);
-	trans->syncpkgs = _pacman_list_add(trans->syncpkgs, syncpkg);
+	syncpkgs = _pacman_list_add(syncpkgs, syncpkg);
 	return syncpkg;
 }
 

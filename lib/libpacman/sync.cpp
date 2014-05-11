@@ -188,7 +188,7 @@ int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
 			delete dummy;
 			RET_ERR(PM_ERR_MEMORY, -1);
 		}
-		_pacman_trans_add(trans, ps, 0);
+		trans->add(ps, 0);
 	}
 
 	return(0);
