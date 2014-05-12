@@ -242,111 +242,6 @@ int _pacman_syncpkg_cmp(const void *s1, const void *s2)
 	return(strcmp(((pmsyncpkg_t *)s1)->pkg->name(), ((pmsyncpkg_t *)s2)->pkg->name()));
 }
 
-static
-int _pacman_sync_addtarget(pmtrans_t *trans, const char *name)
-{
-	char targline[PKG_FULLNAME_LEN];
-	char *targ;
-	pmlist_t *j;
-	Package *pkg_local;
-	Package *spkg = NULL;
-	int cmp;
-	Database *db_local = trans->handle->db_local;
-	pmlist_t *dbs_sync = trans->handle->dbs_sync;
-
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-
-	STRNCPY(targline, name, PKG_FULLNAME_LEN);
-	targ = strchr(targline, '/');
-	if(targ) {
-		*targ = '\0';
-		targ++;
-		for(j = dbs_sync; j && !spkg; j = j->next) {
-			Database *dbs = j->data;
-			if(strcmp(dbs->treename, targline) == 0) {
-				spkg = _pacman_db_get_pkgfromcache(dbs, targ);
-				if(spkg == NULL) {
-					/* Search provides */
-					pmlist_t *p;
-					_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
-					p = _pacman_db_whatprovides(dbs, targ);
-					if(p == NULL) {
-						RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
-					}
-					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), p->data, targ);
-					spkg = _pacman_db_get_pkgfromcache(dbs, p->data);
-					FREELISTPTR(p);
-				}
-			}
-		}
-	} else {
-		targ = targline;
-		for(j = dbs_sync; j && !spkg; j = j->next) {
-			Database *dbs = j->data;
-			spkg = _pacman_db_get_pkgfromcache(dbs, targ);
-		}
-		if(spkg == NULL) {
-			/* Search provides */
-			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
-			for(j = dbs_sync; j && !spkg; j = j->next) {
-				Database *dbs = j->data;
-				pmlist_t *p = _pacman_db_whatprovides(dbs, targ);
-				if(p) {
-					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), p->data, targ);
-					spkg = _pacman_db_get_pkgfromcache(dbs, p->data);
-					FREELISTPTR(p);
-				}
-			}
-		}
-	}
-	if(spkg == NULL) {
-		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
-	}
-
-	pkg_local = _pacman_db_get_pkgfromcache(db_local, spkg->name());
-	if(pkg_local) {
-		cmp = _pacman_versioncmp(pkg_local->version(), spkg->version());
-		if(cmp > 0) {
-			/* pkg_local version is newer -- get confirmation before adding */
-			int resp = 0;
-			QUESTION(trans, PM_TRANS_CONV_LOCAL_NEWER, pkg_local, NULL, NULL, &resp);
-			if(!resp) {
-				_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), pkg_local->name(), pkg_local->version());
-				return(0);
-			}
-		} else if(cmp == 0) {
-			/* versions are identical -- get confirmation before adding */
-			int resp = 0;
-			QUESTION(trans, PM_TRANS_CONV_LOCAL_UPTODATE, pkg_local, NULL, NULL, &resp);
-			if(!resp) {
-				_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), pkg_local->name(), pkg_local->version());
-				return(0);
-			}
-		}
-	}
-
-	/* add the package to the transaction */
-	if(!trans->find(spkg->name())) {
-		Package *dummy = NULL;
-		pmsyncpkg_t *ps;
-
-		if(pkg_local) {
-			dummy = new Package(pkg_local->name(), pkg_local->version());
-			if(dummy == NULL) {
-				RET_ERR(PM_ERR_MEMORY, -1);
-			}
-		}
-		ps = new __pmsyncpkg_t(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
-		if(ps == NULL) {
-			delete dummy;
-			RET_ERR(PM_ERR_MEMORY, -1);
-		}
-		trans->add(ps, 0);
-	}
-
-	return(0);
-}
-
 static int pkg_cmp(const void *p1, const void *p2)
 {
 	return(strcmp(((Package *)p1)->name(), ((pmsyncpkg_t *)p2)->pkg->name()));
@@ -522,7 +417,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *i, *j, *files = NULL;
 	char ldir[PATH_MAX];
-    int doremove, retval = 0, tries = 0;
+	int doremove, retval = 0, tries = 0;
 	int varcache = 1;
 
 	trans->state = STATE_DOWNLOADING;
@@ -785,10 +680,11 @@ int __pmtrans_t::add(const char *target)
 {
 	pmlist_t *i;
 	Package *pkg_new, *pkg_local, *pkg_queued = NULL;
-	Database *db_local = handle->db_local;
+	Database *db_local;
+	pmlist_t *dbs_sync = handle->dbs_sync;
 
 	/* Sanity checks */
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT((db_local = handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	if(_pacman_list_is_strin(target, targets)) {
@@ -796,9 +692,100 @@ int __pmtrans_t::add(const char *target)
 	}
 
 	if(type == PM_TRANS_TYPE_SYNC) {
-		if(_pacman_sync_addtarget(this, target) == -1) {
-			return(-1);
+	char targline[PKG_FULLNAME_LEN];
+	char *targ;
+	pmlist_t *j;
+	Package *pkg_local;
+	Package *spkg = NULL;
+	int cmp;
+
+	STRNCPY(targline, target, PKG_FULLNAME_LEN);
+	targ = strchr(targline, '/');
+	if(targ) {
+		*targ = '\0';
+		targ++;
+		for(j = dbs_sync; j && !spkg; j = j->next) {
+			Database *dbs = j->data;
+			if(strcmp(dbs->treename, targline) == 0) {
+				spkg = _pacman_db_get_pkgfromcache(dbs, targ);
+				if(spkg == NULL) {
+					/* Search provides */
+					pmlist_t *p;
+					_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
+					p = _pacman_db_whatprovides(dbs, targ);
+					if(p == NULL) {
+						RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
+					}
+					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), p->data, targ);
+					spkg = _pacman_db_get_pkgfromcache(dbs, p->data);
+					FREELISTPTR(p);
+				}
+			}
 		}
+	} else {
+		targ = targline;
+		for(j = dbs_sync; j && !spkg; j = j->next) {
+			Database *dbs = j->data;
+			spkg = _pacman_db_get_pkgfromcache(dbs, targ);
+		}
+		if(spkg == NULL) {
+			/* Search provides */
+			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
+			for(j = dbs_sync; j && !spkg; j = j->next) {
+				Database *dbs = j->data;
+				pmlist_t *p = _pacman_db_whatprovides(dbs, targ);
+				if(p) {
+					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), p->data, targ);
+					spkg = _pacman_db_get_pkgfromcache(dbs, p->data);
+					FREELISTPTR(p);
+				}
+			}
+		}
+	}
+	if(spkg == NULL) {
+		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
+	}
+
+	pkg_local = _pacman_db_get_pkgfromcache(db_local, spkg->name());
+	if(pkg_local) {
+		cmp = _pacman_versioncmp(pkg_local->version(), spkg->version());
+		if(cmp > 0) {
+			/* pkg_local version is newer -- get confirmation before adding */
+			int resp = 0;
+			QUESTION(this, PM_TRANS_CONV_LOCAL_NEWER, pkg_local, NULL, NULL, &resp);
+			if(!resp) {
+				_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), pkg_local->name(), pkg_local->version());
+				return(0);
+			}
+		} else if(cmp == 0) {
+			/* versions are identical -- get confirmation before adding */
+			int resp = 0;
+			QUESTION(this, PM_TRANS_CONV_LOCAL_UPTODATE, pkg_local, NULL, NULL, &resp);
+			if(!resp) {
+				_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), pkg_local->name(), pkg_local->version());
+				return(0);
+			}
+		}
+	}
+
+	/* add the package to the transaction */
+	if(!find(spkg->name())) {
+		Package *dummy = NULL;
+		pmsyncpkg_t *ps;
+
+		if(pkg_local) {
+			dummy = new Package(pkg_local->name(), pkg_local->version());
+			if(dummy == NULL) {
+				RET_ERR(PM_ERR_MEMORY, -1);
+			}
+		}
+		ps = new __pmsyncpkg_t(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
+		if(ps == NULL) {
+			delete dummy;
+			RET_ERR(PM_ERR_MEMORY, -1);
+		}
+		add(ps, 0);
+	}
 	} else {
 	if(type & PM_TRANS_TYPE_ADD) {
 	/* Check if we need to add a fake target to the transaction. */
