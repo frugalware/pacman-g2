@@ -1893,6 +1893,28 @@ int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data)
 	return(0);
 }
 
+static const
+struct trans_event_table_item {
+	struct {
+		int event;
+		const char *hook;
+	} pre, post;   
+} trans_event_table[4] = {
+	{ 0 }, // PM_TRANS_TYPE_...
+	{ // PM_TRANS_TYPE_ADD
+		{ PM_TRANS_EVT_ADD_START, "pre_install" }, // .pre
+		{ PM_TRANS_EVT_ADD_DONE,  "post_install" } // .post
+	},
+	{ // PM_TRANS_TYPE_REMOVE
+		{ PM_TRANS_EVT_REMOVE_START, "pre_remove" }, // .pre
+		{ PM_TRANS_EVT_REMOVE_DONE,  "post_remove" } // .post
+	},
+	{ // PM_TRANS_TYPE_UPGRADE
+		{ PM_TRANS_EVT_UPGRADE_START, "pre_upgrade" }, // .pre
+		{ PM_TRANS_EVT_UPGRADE_DONE,  "post_upgrade" } // .post
+	}
+};
+
 int __pmtrans_t::commit(pmlist_t **data)
 {
 	Database *db_local;
@@ -1919,7 +1941,6 @@ int __pmtrans_t::commit(pmlist_t **data)
 	if(type & PM_TRANS_TYPE_ADD) {
 	int ret = 0;
 	int remain, howmany;
-	unsigned char cb_state;
 	time_t t;
 	pmlist_t *targ, *lp;
 
@@ -1949,10 +1970,9 @@ int __pmtrans_t::commit(pmlist_t **data)
 				type &= ~PM_TRANS_TYPE_REMOVE;
 			}
 		}
+		EVENT(this, trans_event_table[type].pre.event, pkg_new, NULL);
 		if(type == PM_TRANS_TYPE_UPGRADE)
 		{
-				EVENT(this, PM_TRANS_EVT_UPGRADE_START, pkg_new, NULL);
-				cb_state = PM_TRANS_PROGRESS_UPGRADE_START;
 				_pacman_log(PM_LOG_FLOW1, _("upgrading package %s-%s"), pkg_new->name(), pkg_new->version());
 
 				/* we'll need to save some record for backup checks later */
@@ -1969,7 +1989,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 
 				/* pre_upgrade scriptlet */
 				if(pkg_new->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-					_pacman_runscriptlet(handle->root, pkg_new->data, "pre_upgrade", pkg_new->version(), oldpkg ? oldpkg->version() : NULL,
+					_pacman_runscriptlet(handle->root, pkg_new->data, trans_event_table[type].pre.hook, pkg_new->version(), oldpkg ? oldpkg->version() : NULL,
 						this);
 				}
 
@@ -1996,25 +2016,23 @@ int __pmtrans_t::commit(pmlist_t **data)
 				}
 			_pacman_log(PM_LOG_FLOW1, _("adding new package %s-%s"), pkg_new->name(), pkg_new->version());
 		} else {
-			EVENT(this, PM_TRANS_EVT_ADD_START, pkg_new, NULL);
-			cb_state = PM_TRANS_PROGRESS_ADD_START;
 			_pacman_log(PM_LOG_FLOW1, _("adding package %s-%s"), pkg_new->name(), pkg_new->version());
 
 			/* pre_install scriptlet */
 			if(pkg_new->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-				_pacman_runscriptlet(handle->root, pkg_new->data, "pre_install", pkg_new->version(), NULL, this);
+				_pacman_runscriptlet(handle->root, pkg_new->data, trans_event_table[type].pre.hook, pkg_new->version(), NULL, this);
 			}
 		}
 
 		if(!(this->flags & PM_TRANS_FLAG_DBONLY)) {
-			int errors = _pacman_fpmpackage_install(pkg_new, type, this, cb_state, howmany, remain, oldpkg);
+			int errors = _pacman_fpmpackage_install(pkg_new, type, this, trans_event_table[type].pre.event, howmany, remain, oldpkg);
 
 			if(errors) {
 				ret = 1;
 				_pacman_log(PM_LOG_WARNING, _("errors occurred while %s %s"),
 					(pmo_upgrade ? _("upgrading") : _("installing")), pkg_new->name());
 			} else {
-			PROGRESS(this, cb_state, pkg_new->name(), 100, howmany, howmany - remain + 1);
+			PROGRESS(this, trans_event_table[type].pre.event, pkg_new->name(), 100, howmany, howmany - remain + 1);
 			}
 		}
 
@@ -2100,14 +2118,10 @@ int __pmtrans_t::commit(pmlist_t **data)
 			/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
 			_pacman_ldconfig(handle->root);
 			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", handle->root, handle->dbpath, db_local->treename, pkg_new->name(), pkg_new->version());
-			if(pmo_upgrade) {
-				_pacman_runscriptlet(handle->root, pm_install, "post_upgrade", pkg_new->version(), oldpkg ? oldpkg->version() : NULL, this);
-			} else {
-				_pacman_runscriptlet(handle->root, pm_install, "post_install", pkg_new->version(), NULL, this);
-			}
+			_pacman_runscriptlet(handle->root, pm_install, trans_event_table[type].post.hook, pkg_new->version(), oldpkg ? oldpkg->version() : NULL, this);
 		}
 
-		EVENT(this, (pmo_upgrade) ? PM_TRANS_EVT_UPGRADE_DONE : PM_TRANS_EVT_ADD_DONE, pkg_new, oldpkg);
+		EVENT(this, trans_event_table[type].post.event, pkg_new, oldpkg);
 
 		delete oldpkg;
 	}
