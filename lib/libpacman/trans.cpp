@@ -890,10 +890,11 @@ int __pmtrans_t::prepare(pmlist_t **data)
 	int ret = 0;
 
 	/* Sanity checks */
-	ASSERT(data != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT((db_local = handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	*data = NULL;
+	if(data) {
+		*data = NULL;
+	}
 
 	/* If there's nothing to do, return without complaining */
 	if(_pacman_list_empty(packages) &&
@@ -904,11 +905,6 @@ int __pmtrans_t::prepare(pmlist_t **data)
 	_pacman_trans_compute_triggers(this);
 
 	if(type == PM_TRANS_TYPE_SYNC) {
-
-	if(data) {
-		*data = NULL;
-	}
-
 	for(i = syncpkgs; i; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
 		list = _pacman_list_add(list, ps->pkg);
