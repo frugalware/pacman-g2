@@ -374,389 +374,6 @@ static int check_olddelay(void)
 }
 
 static
-int _pacman_sync_prepare(pmtrans_t *trans, pmlist_t **data)
-{
-	pmlist_t *deps = NULL;
-	pmlist_t *list = NULL; /* list allowing checkdeps usage with data from trans->packages */
-	pmlist_t *trail = NULL; /* breadcrum list to avoid running into circles */
-	pmlist_t *asked = NULL;
-	pmlist_t *i, *j, *k, *l, *m;
-	int ret = 0;
-	Database *db_local = trans->handle->db_local;
-
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-	ASSERT(trans->packages == NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-
-	if(data) {
-		*data = NULL;
-	}
-
-	for(i = trans->syncpkgs; i; i = i->next) {
-		pmsyncpkg_t *ps = i->data;
-		list = _pacman_list_add(list, ps->pkg);
-	}
-
-	if(!(trans->flags & PM_TRANS_FLAG_NODEPS)) {
-		trail = _pacman_list_new();
-
-		/* Resolve targets dependencies */
-		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
-		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
-		for(i = trans->syncpkgs; i; i = i->next) {
-			Package *spkg = ((pmsyncpkg_t *)i->data)->pkg;
-			if(_pacman_resolvedeps(trans, spkg, list, trail, data) == -1) {
-				/* pm_errno is set by resolvedeps */
-				ret = -1;
-				goto cleanup;
-			}
-		}
-
-		for(i = list; i; i = i->next) {
-			/* add the dependencies found by resolvedeps to the transaction set */
-			Package *spkg = i->data;
-			if(!trans->find(spkg->name())) {
-				pmsyncpkg_t *ps = new __pmsyncpkg_t(PM_SYNC_TYPE_DEPEND, spkg, NULL);
-				if(ps == NULL) {
-					ret = -1;
-					goto cleanup;
-				}
-				trans->syncpkgs = _pacman_list_add(trans->syncpkgs, ps);
-				_pacman_log(PM_LOG_FLOW2, _("adding package %s-%s to the transaction targets"),
-						spkg->name(), spkg->version());
-			} else {
-				/* remove the original targets from the list if requested */
-				if((trans->flags & PM_TRANS_FLAG_DEPENDSONLY)) {
-					/* they are just pointers so we don't have to free them */
-					trans->syncpkgs = _pacman_list_remove(trans->syncpkgs, spkg, pkg_cmp, NULL);
-				}
-			}
-		}
-
-		/* re-order w.r.t. dependencies */
-		k = l = NULL;
-		for(i=trans->syncpkgs; i; i=i->next) {
-			pmsyncpkg_t *s = (pmsyncpkg_t*)i->data;
-			k = _pacman_list_add(k, s->pkg);
-		}
-		m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
-		for(i=m; i; i=i->next) {
-			for(j=trans->syncpkgs; j; j=j->next) {
-				pmsyncpkg_t *s = (pmsyncpkg_t*)j->data;
-				if(s->pkg==i->data) {
-					l = _pacman_list_add(l, s);
-				}
-			}
-		}
-		FREELISTPTR(k);
-		FREELISTPTR(m);
-		FREELISTPTR(trans->syncpkgs);
-		trans->syncpkgs = l;
-
-		EVENT(trans, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
-
-		_pacman_log(PM_LOG_FLOW1, _("looking for unresolvable dependencies"));
-		deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_UPGRADE, list);
-		if(!f_ptrlist_empty(deps)) {
-			if(data) {
-				*data = deps;
-			}
-			pm_errno = PM_ERR_UNSATISFIED_DEPS;
-			ret = -1;
-			goto cleanup;
-		}
-
-		FREELISTPTR(trail);
-	}
-
-	if(!(trans->flags & PM_TRANS_FLAG_NOCONFLICTS)) {
-		/* check for inter-conflicts and whatnot */
-		EVENT(trans, PM_TRANS_EVT_INTERCONFLICTS_START, NULL, NULL);
-
-		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		deps = _pacman_checkconflicts(trans, list);
-		if(!f_ptrlist_empty(deps)) {
-			int errorout = 0;
-
-			for(i = deps; i && !errorout; i = i->next) {
-				pmdepmissing_t *miss = i->data;
-				int found = 0;
-				pmsyncpkg_t *ps;
-				Package *local;
-
-				_pacman_log(PM_LOG_FLOW2, _("package '%s' is conflicting with '%s'"),
-						  miss->target, miss->depend.name);
-
-				/* check if the conflicting package is one that's about to be removed/replaced.
-				 * if so, then just ignore it
-				 */
-				for(j = trans->syncpkgs; j && !found; j = j->next) {
-					ps = j->data;
-					if(ps->type == PM_SYNC_TYPE_REPLACE) {
-						if(_pacman_pkg_isin(miss->depend.name, ps->data)) {
-							found = 1;
-						}
-					}
-				}
-				if(found) {
-					_pacman_log(PM_LOG_DEBUG, _("'%s' is already elected for removal -- skipping"),
-							miss->depend.name);
-					continue;
-				}
-
-				ps = trans->find(miss->target);
-				if(ps == NULL) {
-					_pacman_log(PM_LOG_DEBUG, _("'%s' not found in transaction set -- skipping"),
-							  miss->target);
-					continue;
-				}
-				local = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
-				/* check if this package also "provides" the package it's conflicting with
-				 */
-				if(ps->pkg->provides(miss->depend.name)) {
-					/* so just treat it like a "replaces" item so the REQUIREDBY
-					 * fields are inherited properly.
-					 */
-					_pacman_log(PM_LOG_DEBUG, _("package '%s' provides its own conflict"), miss->target);
-					if(local) {
-						/* nothing to do for now: it will be handled later
-						 * (not the same behavior as in pacman) */
-					} else {
-						char *rmpkg = NULL;
-						int target, depend;
-						/* hmmm, depend.name isn't installed, so it must be conflicting
-						 * with another package in our final list.  For example:
-						 *
-						 *     pacman-g2 -S blackbox xfree86
-						 *
-						 * If no x-servers are installed and blackbox pulls in xorg, then
-						 * xorg and xfree86 will conflict with each other.  In this case,
-						 * we should follow the user's preference and rip xorg out of final,
-						 * opting for xfree86 instead.
-						 */
-
-						/* figure out which one was requested in targets.  If they both were,
-						 * then it's still an unresolvable conflict. */
-						target = _pacman_list_is_strin(miss->target, trans->targets);
-						depend = _pacman_list_is_strin(miss->depend.name, trans->targets);
-						if(depend && !target) {
-							_pacman_log(PM_LOG_DEBUG, _("'%s' is in the target list -- keeping it"),
-								miss->depend.name);
-							/* remove miss->target */
-							rmpkg = miss->target;
-						} else if(target && !depend) {
-							_pacman_log(PM_LOG_DEBUG, _("'%s' is in the target list -- keeping it"),
-								miss->target);
-							/* remove miss->depend.name */
-							rmpkg = miss->depend.name;
-						} else {
-							/* miss->depend.name is not needed, miss->target already provides
-							 * it, let's resolve the conflict */
-							rmpkg = miss->depend.name;
-						}
-						if(rmpkg) {
-							pmsyncpkg_t *rsync = trans->find(rmpkg);
-							pmsyncpkg_t *spkg = NULL;
-
-							_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
-							trans->syncpkgs = _pacman_list_remove(trans->syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
-							delete spkg;
-							continue;
-						}
-					}
-				}
-				/* It's a conflict -- see if they want to remove it
-				*/
-				_pacman_log(PM_LOG_DEBUG, _("resolving package '%s' conflict"), miss->target);
-				if(local) {
-					int doremove = 0;
-					if(!_pacman_list_is_strin(miss->depend.name, asked)) {
-						QUESTION(trans, PM_TRANS_CONV_CONFLICT_PKG, miss->target, miss->depend.name, NULL, &doremove);
-						asked = _pacman_stringlist_append(asked, miss->depend.name);
-						if(doremove) {
-							pmsyncpkg_t *rsync = trans->find(miss->depend.name);
-							Package *q = new Package(miss->depend.name, NULL);
-							if(q == NULL) {
-								if(data) {
-									FREELIST(*data);
-								}
-								ret = -1;
-								goto cleanup;
-							}
-							q->m_requiredby = _pacman_list_strdup(local->requiredby());
-							if(ps->type != PM_SYNC_TYPE_REPLACE) {
-								/* switch this sync type to REPLACE */
-								ps->type = PM_SYNC_TYPE_REPLACE;
-								delete ps->data;
-								ps->data = NULL;
-							}
-							/* append to the replaces list */
-							_pacman_log(PM_LOG_FLOW2, _("electing '%s' for removal"), miss->depend.name);
-							ps->data = _pacman_list_add(ps->data, q);
-							if(rsync) {
-								/* remove it from the target list */
-								pmsyncpkg_t *spkg = NULL;
-
-								_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), miss->depend.name);
-								trans->syncpkgs = _pacman_list_remove(trans->syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
-								delete spkg;
-							}
-						} else {
-							/* abort */
-							_pacman_log(PM_LOG_ERROR, _("unresolvable package conflicts detected"));
-							errorout = 1;
-							if(data) {
-								if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
-									FREELIST(*data);
-									ret = -1;
-									goto cleanup;
-								}
-								*miss = *(pmdepmissing_t *)i->data;
-								*data = _pacman_list_add(*data, miss);
-							}
-						}
-					}
-				} else {
-					_pacman_log(PM_LOG_ERROR, _("unresolvable package conflicts detected"));
-					errorout = 1;
-					if(data) {
-						if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
-							FREELIST(*data);
-							ret = -1;
-							goto cleanup;
-						}
-						*miss = *(pmdepmissing_t *)i->data;
-						*data = _pacman_list_add(*data, miss);
-					}
-				}
-			}
-			if(errorout) {
-				pm_errno = PM_ERR_CONFLICTING_DEPS;
-				ret = -1;
-				goto cleanup;
-			}
-			FREELIST(deps);
-			FREELIST(asked);
-		}
-		EVENT(trans, PM_TRANS_EVT_INTERCONFLICTS_DONE, NULL, NULL);
-	}
-
-	FREELISTPTR(list);
-
-	/* XXX: this fails for cases where a requested package wants
-	 *      a dependency that conflicts with an older version of
-	 *      the package.  It will be removed from final, and the user
-	 *      has to re-request it to get it installed properly.
-	 *
-	 *      Not gonna happen very often, but should be dealt with...
-	 */
-
-	if(!(trans->flags & PM_TRANS_FLAG_NODEPS)) {
-		/* Check dependencies of packages in rmtargs and make sure
-		 * we won't be breaking anything by removing them.
-		 * If a broken dep is detected, make sure it's not from a
-		 * package that's in our final (upgrade) list.
-		 */
-		/*EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
-		for(i = trans->syncpkgs; i; i = i->next) {
-			pmsyncpkg_t *ps = i->data;
-			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				for(j = ps->data; j; j = j->next) {
-					list = _pacman_list_add(list, j->data);
-				}
-			}
-		}
-		if(list) {
-			_pacman_log(PM_LOG_FLOW1, _("checking dependencies of packages designated for removal"));
-			deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_REMOVE, list);
-			if(deps) {
-				int errorout = 0;
-				for(i = deps; i; i = i->next) {
-					pmdepmissing_t *miss = i->data;
-					if(!trans->find(miss->depend.name)) {
-						int pfound = 0;
-						/* If miss->depend.name depends on something that miss->target and a
-						 * package in final both provide, then it's okay...  */
-						Package *leavingp  = _pacman_db_get_pkgfromcache(db_local, miss->target);
-						Package *conflictp = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
-						if(!leavingp || !conflictp) {
-							_pacman_log(PM_LOG_ERROR, _("something has gone horribly wrong"));
-							ret = -1;
-							goto cleanup;
-						}
-						/* Look through the upset package's dependencies and try to match one up
-						 * to a provisio from the package we want to remove */
-						for(k = conflictp->depends(); k && !pfound; k = k->next) {
-							pmlist_t *m;
-							for(m = leavingp->provides(); m && !pfound; m = m->next) {
-								if(!strcmp(k->data, m->data)) {
-									/* Found a match -- now look through final for a package that
-									 * provides the same thing.  If none are found, then it truly
-									 * is an unresolvable conflict. */
-									pmlist_t *n, *o;
-									for(n = trans->syncpkgs; n && !pfound; n = n->next) {
-										pmsyncpkg_t *sp = n->data;
-										for(o = sp->pkg->provides(); o && !pfound; o = o->next) {
-											if(!strcmp(m->data, o->data)) {
-												/* found matching provisio -- we're good to go */
-												_pacman_log(PM_LOG_FLOW2, _("found '%s' as a provision for '%s' -- conflict aborted"),
-														sp->pkg->name(), (char *)o->data);
-												pfound = 1;
-											}
-										}
-									}
-								}
-							}
-						}
-						if(!pfound) {
-							if(!errorout) {
-								errorout = 1;
-							}
-							if(data) {
-								if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
-									FREELIST(*data);
-									ret = -1;
-									goto cleanup;
-								}
-								*miss = *(pmdepmissing_t *)i->data;
-								*data = _pacman_list_add(*data, miss);
-							}
-						}
-					}
-				}
-				if(errorout) {
-					pm_errno = PM_ERR_UNSATISFIED_DEPS;
-					ret = -1;
-					goto cleanup;
-				}
-				FREELIST(deps);
-			}
-		}
-		/*EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
-	}
-
-#ifndef __sun__
-	/* check for free space only in case the packages will be extracted */
-	if(!(trans->flags & PM_TRANS_FLAG_NOCONFLICTS)) {
-		if(_pacman_check_freespace(trans, data) == -1) {
-				/* pm_errno is set by check_freespace */
-				ret = -1;
-				goto cleanup;
-		}
-	}
-#endif
-
-	/* issue warning if the local db is too old */
-	check_olddelay();
-
-cleanup:
-	FREELISTPTR(list);
-	FREELISTPTR(trail);
-	FREELIST(asked);
-
-	return(ret);
-}
-
-static
 int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 {
 	pmlist_t *i, *j;
@@ -1261,164 +878,6 @@ error:
 	return(-1);
 }
 
-static
-int _pacman_add_prepare(pmtrans_t *trans, pmlist_t **data)
-{
-	pmlist_t *lp;
-	Database *db_local = trans->handle->db_local;
-
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-
-	/* Check dependencies
-	 */
-	if(!(trans->flags & PM_TRANS_FLAG_NODEPS)) {
-		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
-
-		/* look for unsatisfied dependencies */
-		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-		lp = _pacman_checkdeps(trans, trans->type, trans->packages);
-		if(lp != NULL) {
-			if(data) {
-				*data = lp;
-			} else {
-				FREELIST(lp);
-			}
-			RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
-		}
-
-		/* no unsatisfied deps, so look for conflicts */
-		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		lp = _pacman_checkconflicts(trans, trans->packages);
-		if(lp != NULL) {
-			if(data) {
-				*data = lp;
-			} else {
-				FREELIST(lp);
-			}
-			RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
-		}
-
-		/* re-order w.r.t. dependencies */
-		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _pacman_sortbydeps(trans->packages, PM_TRANS_TYPE_ADD);
-		/* free the old alltargs */
-		FREELISTPTR(trans->packages);
-		trans->packages = lp;
-
-		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
-	}
-
-	/* Cleaning up
-	 */
-	EVENT(trans, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
-	_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
-	for (lp=trans->packages; lp!=NULL; lp=lp->next) {
-		Package *pkg_new=(Package *)lp->data;
-		pmlist_t *rmlist;
-
-		for (rmlist=pkg_new->removes(); rmlist!=NULL; rmlist=rmlist->next) {
-			char rm_fname[PATH_MAX];
-
-			snprintf(rm_fname, PATH_MAX, "%s%s", handle->root, (char *)rmlist->data);
-			remove(rm_fname);
-		}
-	}
-	EVENT(trans, PM_TRANS_EVT_CLEANUP_DONE, NULL, NULL);
-
-	/* Check for file conflicts
-	 */
-	if(!(trans->flags & PM_TRANS_FLAG_FORCE)) {
-		pmlist_t *skiplist = NULL;
-
-		EVENT(trans, PM_TRANS_EVT_FILECONFLICTS_START, NULL, NULL);
-
-		_pacman_log(PM_LOG_FLOW1, _("looking for file conflicts"));
-		lp = _pacman_db_find_conflicts(trans, handle->root, &skiplist);
-		if(lp != NULL) {
-			if(data) {
-				*data = lp;
-			} else {
-				FREELIST(lp);
-			}
-			FREELIST(skiplist);
-			RET_ERR(PM_ERR_FILE_CONFLICTS, -1);
-		}
-
-		/* copy the file skiplist into the transaction */
-		trans->skiplist = skiplist;
-
-		EVENT(trans, PM_TRANS_EVT_FILECONFLICTS_DONE, NULL, NULL);
-	}
-
-#ifndef __sun__
-	if(_pacman_check_freespace(trans, data) == -1) {
-			/* pm_errno is set by check_freespace */
-			return(-1);
-	}
-#endif
-
-	return(0);
-}
-
-static
-int _pacman_remove_prepare(pmtrans_t *trans, pmlist_t **data)
-{
-	pmlist_t *lp;
-	Database *db_local = trans->handle->db_local;
-
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-
-	if(!(trans->flags & (PM_TRANS_FLAG_NODEPS)) && (trans->type != PM_TRANS_TYPE_UPGRADE)) {
-		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
-
-		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-		lp = _pacman_checkdeps(trans, trans->type, trans->packages);
-		if(lp != NULL) {
-			if(trans->flags & PM_TRANS_FLAG_CASCADE) {
-				while(lp) {
-					pmlist_t *i;
-					for(i = lp; i; i = i->next) {
-						pmdepmissing_t *miss = (pmdepmissing_t *)i->data;
-						Package *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
-						if(pkg_local) {
-							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), pkg_local->name());
-							trans->packages = _pacman_list_add(trans->packages, pkg_local);
-						} else {
-							_pacman_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
-								miss->depend.name);
-						}
-					}
-					FREELIST(lp);
-					lp = _pacman_checkdeps(trans, trans->type, trans->packages);
-				}
-			} else {
-				if(data) {
-					*data = lp;
-				} else {
-					FREELIST(lp);
-				}
-				RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
-			}
-		}
-
-		if(trans->flags & PM_TRANS_FLAG_RECURSE) {
-			_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
-			trans->packages = _pacman_removedeps(db_local, trans->packages);
-		}
-
-		/* re-order w.r.t. dependencies */
-		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _pacman_sortbydeps(trans->packages, PM_TRANS_TYPE_REMOVE);
-		/* free the old alltargs */
-		FREELISTPTR(trans->packages);
-		trans->packages = lp;
-
-		EVENT(trans, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
-	}
-
-	return(0);
-}
-
 int __pmtrans_t::prepare(pmlist_t **data)
 {
 	/* Sanity checks */
@@ -1435,19 +894,533 @@ int __pmtrans_t::prepare(pmlist_t **data)
 	_pacman_trans_compute_triggers(this);
 
 	if(type == PM_TRANS_TYPE_SYNC) {
-		if(_pacman_sync_prepare(this, data) == -1) {
-			return(-1);
+	pmlist_t *deps = NULL;
+	pmlist_t *list = NULL; /* list allowing checkdeps usage with data from packages */
+	pmlist_t *trail = NULL; /* breadcrum list to avoid running into circles */
+	pmlist_t *asked = NULL;
+	pmlist_t *i, *j, *k, *l, *m;
+	int ret = 0;
+	Database *db_local = handle->db_local;
+
+	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+
+	if(data) {
+		*data = NULL;
+	}
+
+	for(i = syncpkgs; i; i = i->next) {
+		pmsyncpkg_t *ps = i->data;
+		list = _pacman_list_add(list, ps->pkg);
+	}
+
+	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
+		trail = _pacman_list_new();
+
+		/* Resolve targets dependencies */
+		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
+		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
+		for(i = syncpkgs; i; i = i->next) {
+			Package *spkg = ((pmsyncpkg_t *)i->data)->pkg;
+			if(_pacman_resolvedeps(this, spkg, list, trail, data) == -1) {
+				/* pm_errno is set by resolvedeps */
+				ret = -1;
+				goto cleanup;
+			}
 		}
-	} else {
-	if(type & PM_TRANS_TYPE_ADD) {
-		if(_pacman_add_prepare(this, data) == -1) {
-			return -1;
+
+		for(i = list; i; i = i->next) {
+			/* add the dependencies found by resolvedeps to the transaction set */
+			Package *spkg = i->data;
+			if(!find(spkg->name())) {
+				pmsyncpkg_t *ps = new __pmsyncpkg_t(PM_SYNC_TYPE_DEPEND, spkg, NULL);
+				if(ps == NULL) {
+					ret = -1;
+					goto cleanup;
+				}
+				syncpkgs = _pacman_list_add(syncpkgs, ps);
+				_pacman_log(PM_LOG_FLOW2, _("adding package %s-%s to the transaction targets"),
+						spkg->name(), spkg->version());
+			} else {
+				/* remove the original targets from the list if requested */
+				if((flags & PM_TRANS_FLAG_DEPENDSONLY)) {
+					/* they are just pointers so we don't have to free them */
+					syncpkgs = _pacman_list_remove(syncpkgs, spkg, pkg_cmp, NULL);
+				}
+			}
+		}
+
+		/* re-order w.r.t. dependencies */
+		k = l = NULL;
+		for(i=syncpkgs; i; i=i->next) {
+			pmsyncpkg_t *s = (pmsyncpkg_t*)i->data;
+			k = _pacman_list_add(k, s->pkg);
+		}
+		m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
+		for(i=m; i; i=i->next) {
+			for(j=syncpkgs; j; j=j->next) {
+				pmsyncpkg_t *s = (pmsyncpkg_t*)j->data;
+				if(s->pkg==i->data) {
+					l = _pacman_list_add(l, s);
+				}
+			}
+		}
+		FREELISTPTR(k);
+		FREELISTPTR(m);
+		FREELISTPTR(syncpkgs);
+		syncpkgs = l;
+
+		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
+
+		_pacman_log(PM_LOG_FLOW1, _("looking for unresolvable dependencies"));
+		deps = _pacman_checkdeps(this, PM_TRANS_TYPE_UPGRADE, list);
+		if(!f_ptrlist_empty(deps)) {
+			if(data) {
+				*data = deps;
+			}
+			pm_errno = PM_ERR_UNSATISFIED_DEPS;
+			ret = -1;
+			goto cleanup;
+		}
+
+		FREELISTPTR(trail);
+	}
+
+	if(!(flags & PM_TRANS_FLAG_NOCONFLICTS)) {
+		/* check for inter-conflicts and whatnot */
+		EVENT(this, PM_TRANS_EVT_INTERCONFLICTS_START, NULL, NULL);
+
+		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
+		deps = _pacman_checkconflicts(this, list);
+		if(!f_ptrlist_empty(deps)) {
+			int errorout = 0;
+
+			for(i = deps; i && !errorout; i = i->next) {
+				pmdepmissing_t *miss = i->data;
+				int found = 0;
+				pmsyncpkg_t *ps;
+				Package *local;
+
+				_pacman_log(PM_LOG_FLOW2, _("package '%s' is conflicting with '%s'"),
+						  miss->target, miss->depend.name);
+
+				/* check if the conflicting package is one that's about to be removed/replaced.
+				 * if so, then just ignore it
+				 */
+				for(j = syncpkgs; j && !found; j = j->next) {
+					ps = j->data;
+					if(ps->type == PM_SYNC_TYPE_REPLACE) {
+						if(_pacman_pkg_isin(miss->depend.name, ps->data)) {
+							found = 1;
+						}
+					}
+				}
+				if(found) {
+					_pacman_log(PM_LOG_DEBUG, _("'%s' is already elected for removal -- skipping"),
+							miss->depend.name);
+					continue;
+				}
+
+				ps = find(miss->target);
+				if(ps == NULL) {
+					_pacman_log(PM_LOG_DEBUG, _("'%s' not found in transaction set -- skipping"),
+							  miss->target);
+					continue;
+				}
+				local = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
+				/* check if this package also "provides" the package it's conflicting with
+				 */
+				if(ps->pkg->provides(miss->depend.name)) {
+					/* so just treat it like a "replaces" item so the REQUIREDBY
+					 * fields are inherited properly.
+					 */
+					_pacman_log(PM_LOG_DEBUG, _("package '%s' provides its own conflict"), miss->target);
+					if(local) {
+						/* nothing to do for now: it will be handled later
+						 * (not the same behavior as in pacman) */
+					} else {
+						char *rmpkg = NULL;
+						int target, depend;
+						/* hmmm, depend.name isn't installed, so it must be conflicting
+						 * with another package in our final list.  For example:
+						 *
+						 *     pacman-g2 -S blackbox xfree86
+						 *
+						 * If no x-servers are installed and blackbox pulls in xorg, then
+						 * xorg and xfree86 will conflict with each other.  In this case,
+						 * we should follow the user's preference and rip xorg out of final,
+						 * opting for xfree86 instead.
+						 */
+
+						/* figure out which one was requested in targets.  If they both were,
+						 * then it's still an unresolvable conflict. */
+						target = _pacman_list_is_strin(miss->target, targets);
+						depend = _pacman_list_is_strin(miss->depend.name, targets);
+						if(depend && !target) {
+							_pacman_log(PM_LOG_DEBUG, _("'%s' is in the target list -- keeping it"),
+								miss->depend.name);
+							/* remove miss->target */
+							rmpkg = miss->target;
+						} else if(target && !depend) {
+							_pacman_log(PM_LOG_DEBUG, _("'%s' is in the target list -- keeping it"),
+								miss->target);
+							/* remove miss->depend.name */
+							rmpkg = miss->depend.name;
+						} else {
+							/* miss->depend.name is not needed, miss->target already provides
+							 * it, let's resolve the conflict */
+							rmpkg = miss->depend.name;
+						}
+						if(rmpkg) {
+							pmsyncpkg_t *rsync = find(rmpkg);
+							pmsyncpkg_t *spkg = NULL;
+
+							_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
+							syncpkgs = _pacman_list_remove(syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
+							delete spkg;
+							continue;
+						}
+					}
+				}
+				/* It's a conflict -- see if they want to remove it
+				*/
+				_pacman_log(PM_LOG_DEBUG, _("resolving package '%s' conflict"), miss->target);
+				if(local) {
+					int doremove = 0;
+					if(!_pacman_list_is_strin(miss->depend.name, asked)) {
+						QUESTION(this, PM_TRANS_CONV_CONFLICT_PKG, miss->target, miss->depend.name, NULL, &doremove);
+						asked = _pacman_stringlist_append(asked, miss->depend.name);
+						if(doremove) {
+							pmsyncpkg_t *rsync = find(miss->depend.name);
+							Package *q = new Package(miss->depend.name, NULL);
+							if(q == NULL) {
+								if(data) {
+									FREELIST(*data);
+								}
+								ret = -1;
+								goto cleanup;
+							}
+							q->m_requiredby = _pacman_list_strdup(local->requiredby());
+							if(ps->type != PM_SYNC_TYPE_REPLACE) {
+								/* switch this sync type to REPLACE */
+								ps->type = PM_SYNC_TYPE_REPLACE;
+								delete ps->data;
+								ps->data = NULL;
+							}
+							/* append to the replaces list */
+							_pacman_log(PM_LOG_FLOW2, _("electing '%s' for removal"), miss->depend.name);
+							ps->data = _pacman_list_add(ps->data, q);
+							if(rsync) {
+								/* remove it from the target list */
+								pmsyncpkg_t *spkg = NULL;
+
+								_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), miss->depend.name);
+								syncpkgs = _pacman_list_remove(syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
+								delete spkg;
+							}
+						} else {
+							/* abort */
+							_pacman_log(PM_LOG_ERROR, _("unresolvable package conflicts detected"));
+							errorout = 1;
+							if(data) {
+								if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
+									FREELIST(*data);
+									ret = -1;
+									goto cleanup;
+								}
+								*miss = *(pmdepmissing_t *)i->data;
+								*data = _pacman_list_add(*data, miss);
+							}
+						}
+					}
+				} else {
+					_pacman_log(PM_LOG_ERROR, _("unresolvable package conflicts detected"));
+					errorout = 1;
+					if(data) {
+						if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
+							FREELIST(*data);
+							ret = -1;
+							goto cleanup;
+						}
+						*miss = *(pmdepmissing_t *)i->data;
+						*data = _pacman_list_add(*data, miss);
+					}
+				}
+			}
+			if(errorout) {
+				pm_errno = PM_ERR_CONFLICTING_DEPS;
+				ret = -1;
+				goto cleanup;
+			}
+			FREELIST(deps);
+			FREELIST(asked);
+		}
+		EVENT(this, PM_TRANS_EVT_INTERCONFLICTS_DONE, NULL, NULL);
+	}
+
+	FREELISTPTR(list);
+
+	/* XXX: this fails for cases where a requested package wants
+	 *      a dependency that conflicts with an older version of
+	 *      the package.  It will be removed from final, and the user
+	 *      has to re-request it to get it installed properly.
+	 *
+	 *      Not gonna happen very often, but should be dealt with...
+	 */
+
+	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
+		/* Check dependencies of packages in rmtargs and make sure
+		 * we won't be breaking anything by removing them.
+		 * If a broken dep is detected, make sure it's not from a
+		 * package that's in our final (upgrade) list.
+		 */
+		/*EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
+		for(i = syncpkgs; i; i = i->next) {
+			pmsyncpkg_t *ps = i->data;
+			if(ps->type == PM_SYNC_TYPE_REPLACE) {
+				for(j = ps->data; j; j = j->next) {
+					list = _pacman_list_add(list, j->data);
+				}
+			}
+		}
+		if(list) {
+			_pacman_log(PM_LOG_FLOW1, _("checking dependencies of packages designated for removal"));
+			deps = _pacman_checkdeps(this, PM_TRANS_TYPE_REMOVE, list);
+			if(deps) {
+				int errorout = 0;
+				for(i = deps; i; i = i->next) {
+					pmdepmissing_t *miss = i->data;
+					if(!find(miss->depend.name)) {
+						int pfound = 0;
+						/* If miss->depend.name depends on something that miss->target and a
+						 * package in final both provide, then it's okay...  */
+						Package *leavingp  = _pacman_db_get_pkgfromcache(db_local, miss->target);
+						Package *conflictp = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
+						if(!leavingp || !conflictp) {
+							_pacman_log(PM_LOG_ERROR, _("something has gone horribly wrong"));
+							ret = -1;
+							goto cleanup;
+						}
+						/* Look through the upset package's dependencies and try to match one up
+						 * to a provisio from the package we want to remove */
+						for(k = conflictp->depends(); k && !pfound; k = k->next) {
+							pmlist_t *m;
+							for(m = leavingp->provides(); m && !pfound; m = m->next) {
+								if(!strcmp(k->data, m->data)) {
+									/* Found a match -- now look through final for a package that
+									 * provides the same thing.  If none are found, then it truly
+									 * is an unresolvable conflict. */
+									pmlist_t *n, *o;
+									for(n = syncpkgs; n && !pfound; n = n->next) {
+										pmsyncpkg_t *sp = n->data;
+										for(o = sp->pkg->provides(); o && !pfound; o = o->next) {
+											if(!strcmp(m->data, o->data)) {
+												/* found matching provisio -- we're good to go */
+												_pacman_log(PM_LOG_FLOW2, _("found '%s' as a provision for '%s' -- conflict aborted"),
+														sp->pkg->name(), (char *)o->data);
+												pfound = 1;
+											}
+										}
+									}
+								}
+							}
+						}
+						if(!pfound) {
+							if(!errorout) {
+								errorout = 1;
+							}
+							if(data) {
+								if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
+									FREELIST(*data);
+									ret = -1;
+									goto cleanup;
+								}
+								*miss = *(pmdepmissing_t *)i->data;
+								*data = _pacman_list_add(*data, miss);
+							}
+						}
+					}
+				}
+				if(errorout) {
+					pm_errno = PM_ERR_UNSATISFIED_DEPS;
+					ret = -1;
+					goto cleanup;
+				}
+				FREELIST(deps);
+			}
+		}
+		/*EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
+	}
+
+#ifndef __sun__
+	/* check for free space only in case the packages will be extracted */
+	if(!(flags & PM_TRANS_FLAG_NOCONFLICTS)) {
+		if(_pacman_check_freespace(this, data) == -1) {
+				/* pm_errno is set by check_freespace */
+				ret = -1;
+				goto cleanup;
 		}
 	}
-	if(type == PM_TRANS_TYPE_REMOVE) {
-		if(_pacman_remove_prepare(this, data) == -1) {
-			return -1;
+#endif
+
+	/* issue warning if the local db is too old */
+	check_olddelay();
+
+cleanup:
+	FREELISTPTR(list);
+	FREELISTPTR(trail);
+	FREELIST(asked);
+
+	if(ret != 0) {
+		return ret;
+	}
+	} else {
+	if(type & PM_TRANS_TYPE_ADD) {
+	pmlist_t *lp;
+	Database *db_local = handle->db_local;
+
+	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+
+	/* Check dependencies
+	 */
+	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
+		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
+
+		/* look for unsatisfied dependencies */
+		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
+		lp = _pacman_checkdeps(this, type, packages);
+		if(lp != NULL) {
+			if(data) {
+				*data = lp;
+			} else {
+				FREELIST(lp);
+			}
+			RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
 		}
+
+		/* no unsatisfied deps, so look for conflicts */
+		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
+		lp = _pacman_checkconflicts(this, packages);
+		if(lp != NULL) {
+			if(data) {
+				*data = lp;
+			} else {
+				FREELIST(lp);
+			}
+			RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
+		}
+
+		/* re-order w.r.t. dependencies */
+		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
+		lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_ADD);
+		/* free the old alltargs */
+		FREELISTPTR(packages);
+		packages = lp;
+
+		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
+	}
+
+	/* Cleaning up
+	 */
+	EVENT(this, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
+	_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
+	for (lp = packages; lp!=NULL; lp=lp->next) {
+		Package *pkg_new=(Package *)lp->data;
+		pmlist_t *rmlist;
+
+		for (rmlist=pkg_new->removes(); rmlist!=NULL; rmlist=rmlist->next) {
+			char rm_fname[PATH_MAX];
+
+			snprintf(rm_fname, PATH_MAX, "%s%s", handle->root, (char *)rmlist->data);
+			remove(rm_fname);
+		}
+	}
+	EVENT(this, PM_TRANS_EVT_CLEANUP_DONE, NULL, NULL);
+
+	/* Check for file conflicts
+	 */
+	if(!(flags & PM_TRANS_FLAG_FORCE)) {
+		pmlist_t *skiplist = NULL;
+
+		EVENT(this, PM_TRANS_EVT_FILECONFLICTS_START, NULL, NULL);
+
+		_pacman_log(PM_LOG_FLOW1, _("looking for file conflicts"));
+		lp = _pacman_db_find_conflicts(this, handle->root, &skiplist);
+		if(lp != NULL) {
+			if(data) {
+				*data = lp;
+			} else {
+				FREELIST(lp);
+			}
+			FREELIST(skiplist);
+			RET_ERR(PM_ERR_FILE_CONFLICTS, -1);
+		}
+
+		/* copy the file skiplist into the transaction */
+		skiplist = skiplist;
+
+		EVENT(this, PM_TRANS_EVT_FILECONFLICTS_DONE, NULL, NULL);
+	}
+
+#ifndef __sun__
+	if(_pacman_check_freespace(this, data) == -1) {
+			/* pm_errno is set by check_freespace */
+			return(-1);
+	}
+#endif
+	}
+	if(type == PM_TRANS_TYPE_REMOVE) {
+	pmlist_t *lp;
+	Database *db_local = handle->db_local;
+
+	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+
+	if(!(flags & (PM_TRANS_FLAG_NODEPS)) && (type != PM_TRANS_TYPE_UPGRADE)) {
+		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
+
+		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
+		lp = _pacman_checkdeps(this, type, packages);
+		if(lp != NULL) {
+			if(flags & PM_TRANS_FLAG_CASCADE) {
+				while(lp) {
+					pmlist_t *i;
+					for(i = lp; i; i = i->next) {
+						pmdepmissing_t *miss = (pmdepmissing_t *)i->data;
+						Package *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
+						if(pkg_local) {
+							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), pkg_local->name());
+							packages = _pacman_list_add(packages, pkg_local);
+						} else {
+							_pacman_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
+								miss->depend.name);
+						}
+					}
+					FREELIST(lp);
+					lp = _pacman_checkdeps(this, type, packages);
+				}
+			} else {
+				if(data) {
+					*data = lp;
+				} else {
+					FREELIST(lp);
+				}
+				RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
+			}
+		}
+
+		if(flags & PM_TRANS_FLAG_RECURSE) {
+			_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
+			packages = _pacman_removedeps(db_local, packages);
+		}
+
+		/* re-order w.r.t. dependencies */
+		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
+		lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_REMOVE);
+		/* free the old alltargs */
+		FREELISTPTR(packages);
+		packages = lp;
+
+		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
+	}
 	}
 	}
 
