@@ -1310,6 +1310,53 @@ cleanup:
 
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 		}
+		if(type == PM_TRANS_TYPE_REMOVE && type != PM_TRANS_TYPE_UPGRADE) {
+		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
+
+		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
+		lp = _pacman_checkdeps(this, type, packages);
+		if(lp != NULL) {
+			if(flags & PM_TRANS_FLAG_CASCADE) {
+				while(lp) {
+					pmlist_t *i;
+					for(i = lp; i; i = i->next) {
+						pmdepmissing_t *miss = (pmdepmissing_t *)i->data;
+						Package *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
+						if(pkg_local) {
+							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), pkg_local->name());
+							packages = _pacman_list_add(packages, pkg_local);
+						} else {
+							_pacman_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
+								miss->depend.name);
+						}
+					}
+					FREELIST(lp);
+					lp = _pacman_checkdeps(this, type, packages);
+				}
+			} else {
+				if(data) {
+					*data = lp;
+				} else {
+					FREELIST(lp);
+				}
+				RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
+			}
+		}
+
+		if(flags & PM_TRANS_FLAG_RECURSE) {
+			_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
+			packages = _pacman_removedeps(db_local, packages);
+		}
+
+		/* re-order w.r.t. dependencies */
+		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
+		lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_REMOVE);
+		/* free the old alltargs */
+		FREELISTPTR(packages);
+		packages = lp;
+
+		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
+		}
 	}
 
 	/* Cleaning up
@@ -1361,55 +1408,6 @@ cleanup:
 			return(-1);
 	}
 #endif
-	}
-	if(!(flags & (PM_TRANS_FLAG_NODEPS))) {
-		if(type == PM_TRANS_TYPE_REMOVE && type != PM_TRANS_TYPE_UPGRADE) {
-		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
-
-		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-		lp = _pacman_checkdeps(this, type, packages);
-		if(lp != NULL) {
-			if(flags & PM_TRANS_FLAG_CASCADE) {
-				while(lp) {
-					pmlist_t *i;
-					for(i = lp; i; i = i->next) {
-						pmdepmissing_t *miss = (pmdepmissing_t *)i->data;
-						Package *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
-						if(pkg_local) {
-							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), pkg_local->name());
-							packages = _pacman_list_add(packages, pkg_local);
-						} else {
-							_pacman_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
-								miss->depend.name);
-						}
-					}
-					FREELIST(lp);
-					lp = _pacman_checkdeps(this, type, packages);
-				}
-			} else {
-				if(data) {
-					*data = lp;
-				} else {
-					FREELIST(lp);
-				}
-				RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
-			}
-		}
-
-		if(flags & PM_TRANS_FLAG_RECURSE) {
-			_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
-			packages = _pacman_removedeps(db_local, packages);
-		}
-
-		/* re-order w.r.t. dependencies */
-		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_REMOVE);
-		/* free the old alltargs */
-		FREELISTPTR(packages);
-		packages = lp;
-
-		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
-		}
 	}
 	}
 
