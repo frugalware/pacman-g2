@@ -1986,42 +1986,36 @@ int __pmtrans_t::commit(pmlist_t **data)
 					strncpy(oldpkg->m_name, pkg_local->name(), PKG_NAME_LEN);
 					strncpy(oldpkg->m_version, pkg_local->version(), PKG_VERSION_LEN);
 				}
-
-				/* pre_upgrade scriptlet */
-				if(pkg_new->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-					_pacman_runscriptlet(handle->root, pkg_new->data, trans_event_table[type].pre.hook, pkg_new->version(), oldpkg ? oldpkg->version() : NULL,
-						this);
-				}
-
-				if(oldpkg) {
-					pmtrans_t *tr;
-					pmtrans_cbs_t null_cbs = { NULL };
-
-					_pacman_log(PM_LOG_FLOW1, _("removing old package first (%s-%s)"), oldpkg->name(), oldpkg->version());
-					tr = new __pmtrans_t(PM_TRANS_TYPE_UPGRADE, flags, null_cbs);
-					if(tr == NULL) {
-						RET_ERR(PM_ERR_TRANS_ABORT, -1);
-					}
-					if(_pacman_remove_addtarget(tr, pkg_new->name()) == -1) {
-						delete tr;
-						RET_ERR(PM_ERR_TRANS_ABORT, -1);
-					}
-					/* copy the skiplist over */
-					tr->skiplist = _pacman_list_strdup(skiplist);
-					if(_pacman_remove_commit(tr, NULL) == -1) {
-						delete tr;
-						RET_ERR(PM_ERR_TRANS_ABORT, -1);
-					}
-					delete tr;
-				}
-			_pacman_log(PM_LOG_FLOW1, _("adding new package %s-%s"), pkg_new->name(), pkg_new->version());
 		} else {
 			_pacman_log(PM_LOG_FLOW1, _("adding package %s-%s"), pkg_new->name(), pkg_new->version());
+		}
 
-			/* pre_install scriptlet */
-			if(pkg_new->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-				_pacman_runscriptlet(handle->root, pkg_new->data, trans_event_table[type].pre.hook, pkg_new->version(), NULL, this);
+		if(pkg_new->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
+			_pacman_runscriptlet(handle->root, pkg_new->data, trans_event_table[type].pre.hook, pkg_new->version(), oldpkg ? oldpkg->version() : NULL, this);
+		}
+
+		if(oldpkg) {
+			pmtrans_t *tr;
+			pmtrans_cbs_t null_cbs = { NULL };
+
+			_pacman_log(PM_LOG_FLOW1, _("removing old package first (%s-%s)"), oldpkg->name(), oldpkg->version());
+			tr = new __pmtrans_t(PM_TRANS_TYPE_UPGRADE, flags, null_cbs);
+			if(tr == NULL) {
+				RET_ERR(PM_ERR_TRANS_ABORT, -1);
 			}
+			if(_pacman_remove_addtarget(tr, pkg_new->name()) == -1) {
+				delete tr;
+				RET_ERR(PM_ERR_TRANS_ABORT, -1);
+			}
+			/* copy the skiplist over */
+			tr->skiplist = _pacman_list_strdup(skiplist);
+			if(_pacman_remove_commit(tr, NULL) == -1) {
+				delete tr;
+				RET_ERR(PM_ERR_TRANS_ABORT, -1);
+			}
+			delete tr;
+
+			_pacman_log(PM_LOG_FLOW1, _("adding new package %s-%s"), pkg_new->name(), pkg_new->version());
 		}
 
 		if(!(this->flags & PM_TRANS_FLAG_DBONLY)) {
