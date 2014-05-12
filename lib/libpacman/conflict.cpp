@@ -256,7 +256,7 @@ static pmlist_t *chk_fileconflicts(pmlist_t *filesA, pmlist_t *filesB)
 	return(ret);
 }
 
-pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **skip_list)
+pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans)
 {
 	pmlist_t *i, *j, *k;
 	char *filestr = NULL;
@@ -268,6 +268,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **ski
 	double percent;
 	int howmany, remain;
 	Database *db_local = trans->handle->db_local;
+	const char *root = trans->handle->root;
 
 	if(db_local == NULL || targets == NULL || root == NULL) {
 		return(NULL);
@@ -359,7 +360,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans, char *root, pmlist_t **ski
 									 * Our workaround is to scan through all "old" packages and all "new"
 									 * ones, looking for files that jump to different packages.
 									 */
-									*skip_list = _pacman_stringlist_append(*skip_list, filestr);
+									trans->skiplist = _pacman_stringlist_append(trans->skiplist, filestr);
 								}
 							}
 						}

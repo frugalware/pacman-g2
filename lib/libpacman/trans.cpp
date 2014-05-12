@@ -1367,25 +1367,18 @@ cleanup:
 	/* Check for file conflicts
 	 */
 	if(!(flags & PM_TRANS_FLAG_FORCE)) {
-		pmlist_t *skiplist = NULL;
-
 		EVENT(this, PM_TRANS_EVT_FILECONFLICTS_START, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for file conflicts"));
-		lp = _pacman_db_find_conflicts(this, handle->root, &skiplist);
+		lp = _pacman_db_find_conflicts(this);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
 			} else {
 				FREELIST(lp);
 			}
-			FREELIST(skiplist);
 			RET_ERR(PM_ERR_FILE_CONFLICTS, -1);
 		}
-
-		/* copy the file skiplist into the transaction */
-		skiplist = skiplist;
-
 		EVENT(this, PM_TRANS_EVT_FILECONFLICTS_DONE, NULL, NULL);
 	}
 
