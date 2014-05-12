@@ -1917,15 +1917,14 @@ int __pmtrans_t::commit(pmlist_t **data)
 		}
 	} else {
 	if(type & PM_TRANS_TYPE_ADD) {
-	pmtrans_t *trans = this;
 	int ret = 0;
 	int remain, howmany;
 	unsigned char cb_state;
 	time_t t;
 	pmlist_t *targ, *lp;
 
-	howmany = _pacman_list_count(trans->packages);
-	for(targ = trans->packages; targ; targ = targ->next) {
+	howmany = _pacman_list_count(packages);
+	for(targ = packages; targ; targ = targ->next) {
 		unsigned short pmo_upgrade;
 		pmtranstype_t type;
 		char pm_install[PATH_MAX];
@@ -1937,8 +1936,8 @@ int __pmtrans_t::commit(pmlist_t **data)
 			break;
 		}
 
-		pmo_upgrade = (trans->type == PM_TRANS_TYPE_UPGRADE) ? 1 : 0;
-		type = trans->type;
+		pmo_upgrade = (this->type == PM_TRANS_TYPE_UPGRADE) ? 1 : 0;
+		type = this->type;
 
 		/* see if this is an upgrade.  if so, remove the old package first */
 		if(type == PM_TRANS_TYPE_UPGRADE) {
@@ -1952,7 +1951,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 		}
 		if(type == PM_TRANS_TYPE_UPGRADE)
 		{
-				EVENT(trans, PM_TRANS_EVT_UPGRADE_START, pkg_new, NULL);
+				EVENT(this, PM_TRANS_EVT_UPGRADE_START, pkg_new, NULL);
 				cb_state = PM_TRANS_PROGRESS_UPGRADE_START;
 				_pacman_log(PM_LOG_FLOW1, _("upgrading package %s-%s"), pkg_new->name(), pkg_new->version());
 
@@ -1969,9 +1968,9 @@ int __pmtrans_t::commit(pmlist_t **data)
 				}
 
 				/* pre_upgrade scriptlet */
-				if(pkg_new->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
+				if(pkg_new->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 					_pacman_runscriptlet(handle->root, pkg_new->data, "pre_upgrade", pkg_new->version(), oldpkg ? oldpkg->version() : NULL,
-						trans);
+						this);
 				}
 
 				if(oldpkg) {
@@ -1979,7 +1978,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 					pmtrans_cbs_t null_cbs = { NULL };
 
 					_pacman_log(PM_LOG_FLOW1, _("removing old package first (%s-%s)"), oldpkg->name(), oldpkg->version());
-					tr = new __pmtrans_t(PM_TRANS_TYPE_UPGRADE, trans->flags, null_cbs);
+					tr = new __pmtrans_t(PM_TRANS_TYPE_UPGRADE, flags, null_cbs);
 					if(tr == NULL) {
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
@@ -1988,7 +1987,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
 					}
 					/* copy the skiplist over */
-					tr->skiplist = _pacman_list_strdup(trans->skiplist);
+					tr->skiplist = _pacman_list_strdup(skiplist);
 					if(_pacman_remove_commit(tr, NULL) == -1) {
 						delete tr;
 						RET_ERR(PM_ERR_TRANS_ABORT, -1);
@@ -1997,25 +1996,25 @@ int __pmtrans_t::commit(pmlist_t **data)
 				}
 			_pacman_log(PM_LOG_FLOW1, _("adding new package %s-%s"), pkg_new->name(), pkg_new->version());
 		} else {
-			EVENT(trans, PM_TRANS_EVT_ADD_START, pkg_new, NULL);
+			EVENT(this, PM_TRANS_EVT_ADD_START, pkg_new, NULL);
 			cb_state = PM_TRANS_PROGRESS_ADD_START;
 			_pacman_log(PM_LOG_FLOW1, _("adding package %s-%s"), pkg_new->name(), pkg_new->version());
 
 			/* pre_install scriptlet */
-			if(pkg_new->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-				_pacman_runscriptlet(handle->root, pkg_new->data, "pre_install", pkg_new->version(), NULL, trans);
+			if(pkg_new->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
+				_pacman_runscriptlet(handle->root, pkg_new->data, "pre_install", pkg_new->version(), NULL, this);
 			}
 		}
 
-		if(!(trans->flags & PM_TRANS_FLAG_DBONLY)) {
-			int errors = _pacman_fpmpackage_install(pkg_new, type, trans, cb_state, howmany, remain, oldpkg);
+		if(!(this->flags & PM_TRANS_FLAG_DBONLY)) {
+			int errors = _pacman_fpmpackage_install(pkg_new, type, this, cb_state, howmany, remain, oldpkg);
 
 			if(errors) {
 				ret = 1;
 				_pacman_log(PM_LOG_WARNING, _("errors occurred while %s %s"),
 					(pmo_upgrade ? _("upgrading") : _("installing")), pkg_new->name());
 			} else {
-			PROGRESS(trans, cb_state, pkg_new->name(), 100, howmany, howmany - remain + 1);
+			PROGRESS(this, cb_state, pkg_new->name(), 100, howmany, howmany - remain + 1);
 			}
 		}
 
@@ -2094,21 +2093,21 @@ int __pmtrans_t::commit(pmlist_t **data)
 			}
 		}
 
-		EVENT(trans, PM_TRANS_EVT_EXTRACT_DONE, NULL, NULL);
+		EVENT(this, PM_TRANS_EVT_EXTRACT_DONE, NULL, NULL);
 
 		/* run the post-install script if it exists  */
-		if(pkg_new->scriptlet && !(trans->flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
+		if(pkg_new->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 			/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
 			_pacman_ldconfig(handle->root);
 			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", handle->root, handle->dbpath, db_local->treename, pkg_new->name(), pkg_new->version());
 			if(pmo_upgrade) {
-				_pacman_runscriptlet(handle->root, pm_install, "post_upgrade", pkg_new->version(), oldpkg ? oldpkg->version() : NULL, trans);
+				_pacman_runscriptlet(handle->root, pm_install, "post_upgrade", pkg_new->version(), oldpkg ? oldpkg->version() : NULL, this);
 			} else {
-				_pacman_runscriptlet(handle->root, pm_install, "post_install", pkg_new->version(), NULL, trans);
+				_pacman_runscriptlet(handle->root, pm_install, "post_install", pkg_new->version(), NULL, this);
 			}
 		}
 
-		EVENT(trans, (pmo_upgrade) ? PM_TRANS_EVT_UPGRADE_DONE : PM_TRANS_EVT_ADD_DONE, pkg_new, oldpkg);
+		EVENT(this, (pmo_upgrade) ? PM_TRANS_EVT_UPGRADE_DONE : PM_TRANS_EVT_ADD_DONE, pkg_new, oldpkg);
 
 		delete oldpkg;
 	}
