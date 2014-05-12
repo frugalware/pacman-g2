@@ -880,8 +880,18 @@ error:
 
 int __pmtrans_t::prepare(pmlist_t **data)
 {
+	Database *db_local;
+	pmlist_t *lp;
+	pmlist_t *deps = NULL;
+	pmlist_t *list = NULL; /* list allowing checkdeps usage with data from packages */
+	pmlist_t *trail = NULL; /* breadcrum list to avoid running into circles */
+	pmlist_t *asked = NULL;
+	pmlist_t *i, *j, *k, *l, *m;
+	int ret = 0;
+
 	/* Sanity checks */
 	ASSERT(data != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT((db_local = handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	*data = NULL;
 
@@ -894,15 +904,6 @@ int __pmtrans_t::prepare(pmlist_t **data)
 	_pacman_trans_compute_triggers(this);
 
 	if(type == PM_TRANS_TYPE_SYNC) {
-	pmlist_t *deps = NULL;
-	pmlist_t *list = NULL; /* list allowing checkdeps usage with data from packages */
-	pmlist_t *trail = NULL; /* breadcrum list to avoid running into circles */
-	pmlist_t *asked = NULL;
-	pmlist_t *i, *j, *k, *l, *m;
-	int ret = 0;
-	Database *db_local = handle->db_local;
-
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	if(data) {
 		*data = NULL;
@@ -1275,10 +1276,6 @@ cleanup:
 	}
 	} else {
 	if(type & PM_TRANS_TYPE_ADD) {
-	pmlist_t *lp;
-	Database *db_local = handle->db_local;
-
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	/* Check dependencies
 	 */
@@ -1369,11 +1366,6 @@ cleanup:
 #endif
 	}
 	if(type == PM_TRANS_TYPE_REMOVE) {
-	pmlist_t *lp;
-	Database *db_local = handle->db_local;
-
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-
 	if(!(flags & (PM_TRANS_FLAG_NODEPS)) && (type != PM_TRANS_TYPE_UPGRADE)) {
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 
