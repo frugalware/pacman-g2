@@ -142,7 +142,7 @@ int _pacman_trans_compute_triggers(pmtrans_t *trans)
 		trans->triggers = f_stringlist_append_stringlist(trans->triggers, pkg->triggers);
 	}
 	for(lp = trans->syncpkgs; lp; lp = lp->next) {
-		Package *pkg = ((pmsyncpkg_t *)lp->data)->pkg;
+		Package *pkg = ((pmsyncpkg_t *)lp->data)->pkg_new;
 
 		/* FIXME: might be incomplete */
 		trans->triggers = f_stringlist_append_stringlist(trans->triggers, pkg->triggers);
@@ -207,7 +207,7 @@ pmsyncpkg_t *__pmtrans_t::find(const char *pkgname) const
 	for(i = syncpkgs; i != NULL ; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
 
-		if(ps && !strcmp(ps->pkg->name(), pkgname)) {
+		if(ps && !strcmp(ps->pkg_name, pkgname)) {
 			return ps;
 		}
 	}
@@ -239,12 +239,12 @@ int _pacman_trans_set_state(pmtrans_t *trans, int new_state)
 static
 int _pacman_syncpkg_cmp(const void *s1, const void *s2)
 {
-	return(strcmp(((pmsyncpkg_t *)s1)->pkg->name(), ((pmsyncpkg_t *)s2)->pkg->name()));
+	return(strcmp(((pmsyncpkg_t *)s1)->pkg_name, ((pmsyncpkg_t *)s2)->pkg_name));
 }
 
 static int pkg_cmp(const void *p1, const void *p2)
 {
-	return(strcmp(((Package *)p1)->name(), ((pmsyncpkg_t *)p2)->pkg->name()));
+	return(strcmp(((Package *)p1)->name(), ((pmsyncpkg_t *)p2)->pkg_name));
 }
 
 static int check_olddelay(void)
@@ -328,7 +328,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 	}
 	for(i = trans->syncpkgs; i; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
-		Package *spkg = ps->pkg;
+		Package *spkg = ps->pkg_new;
 		char str[PATH_MAX];
 		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
 		if(tr->add(str) == -1) {
@@ -434,8 +434,8 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 
 			for(j = trans->syncpkgs; j; j = j->next) {
 				pmsyncpkg_t *ps = j->data;
-				Package *spkg = ps->pkg;
-				Database *dbs = spkg->data;
+				Package *spkg = ps->pkg_new;
+				Database *dbs = spkg->database();
 
 				if(current == dbs) {
 					char filename[PATH_MAX];
@@ -500,7 +500,7 @@ int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
 
 			for(i = trans->syncpkgs; i; i = i->next) {
 				pmsyncpkg_t *ps = i->data;
-				Package *spkg = ps->pkg;
+				Package *spkg = ps->pkg_new;
 				char str[PATH_MAX], pkgname[PATH_MAX];
 				char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
 				char *ptr=NULL;
@@ -600,13 +600,6 @@ pmsyncpkg_t *__pmtrans_t::add(pmsyncpkg_t *syncpkg, int flags)
 	pmsyncpkg_t *syncpkg_queued;
 
 	ASSERT(syncpkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
-	ASSERT(syncpkg->pkg != NULL || syncpkg->pkg_local != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-
-	if(syncpkg->pkg != NULL && syncpkg->pkg_local == NULL) {
-		Database *db_local = handle->db_local;
-
-		syncpkg->pkg_local = _pacman_db_get_pkgfromcache(db_local, syncpkg->pkg->name());
-	}
 
 	if((syncpkg_queued = find(syncpkg->pkg_name)) != NULL) {
 		/* FIXME: Try to compress syncpkg in syncpkg_queued more */
@@ -891,7 +884,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 	if(type == PM_TRANS_TYPE_SYNC) {
 	for(i = syncpkgs; i; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
-		list = _pacman_list_add(list, ps->pkg);
+		list = _pacman_list_add(list, ps->pkg_new);
 	}
 
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
@@ -901,7 +894,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 		for(i = syncpkgs; i; i = i->next) {
-			Package *spkg = ((pmsyncpkg_t *)i->data)->pkg;
+			Package *spkg = ((pmsyncpkg_t *)i->data)->pkg_new;
 			if(_pacman_resolvedeps(this, spkg, list, trail, data) == -1) {
 				/* pm_errno is set by resolvedeps */
 				ret = -1;
@@ -934,13 +927,13 @@ int __pmtrans_t::prepare(pmlist_t **data)
 		k = l = NULL;
 		for(i=syncpkgs; i; i=i->next) {
 			pmsyncpkg_t *s = (pmsyncpkg_t*)i->data;
-			k = _pacman_list_add(k, s->pkg);
+			k = _pacman_list_add(k, s->pkg_new);
 		}
 		m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
 		for(i=m; i; i=i->next) {
 			for(j=syncpkgs; j; j=j->next) {
 				pmsyncpkg_t *s = (pmsyncpkg_t*)j->data;
-				if(s->pkg==i->data) {
+				if(s->pkg_new == i->data) {
 					l = _pacman_list_add(l, s);
 				}
 			}
@@ -1010,7 +1003,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 				local = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
 				/* check if this package also "provides" the package it's conflicting with
 				 */
-				if(ps->pkg->provides(miss->depend.name)) {
+				if(ps->pkg_new->provides(miss->depend.name)) {
 					/* so just treat it like a "replaces" item so the REQUIREDBY
 					 * fields are inherited properly.
 					 */
@@ -1193,11 +1186,11 @@ int __pmtrans_t::prepare(pmlist_t **data)
 									pmlist_t *n, *o;
 									for(n = syncpkgs; n && !pfound; n = n->next) {
 										pmsyncpkg_t *sp = n->data;
-										for(o = sp->pkg->provides(); o && !pfound; o = o->next) {
+										for(o = sp->pkg_new->provides(); o && !pfound; o = o->next) {
 											if(!strcmp(m->data, o->data)) {
 												/* found matching provisio -- we're good to go */
 												_pacman_log(PM_LOG_FLOW2, _("found '%s' as a provision for '%s' -- conflict aborted"),
-														sp->pkg->name(), (char *)o->data);
+														sp->pkg_name, (char *)o->data);
 												pfound = 1;
 											}
 										}

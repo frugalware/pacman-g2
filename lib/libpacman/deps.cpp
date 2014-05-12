@@ -421,9 +421,8 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 					}
 					for(k=trans->syncpkgs; !found && k; k=k->next) {
 						pmsyncpkg_t *ps = k->data;
-						Package *spkg = ps->pkg;
 
-						if(spkg && spkg->provides(tp->name())) {
+						if(ps->pkg_new->provides(tp->name())) {
 							found=1;
 						}
 					}

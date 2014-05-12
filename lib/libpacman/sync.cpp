@@ -65,7 +65,7 @@ __pmsyncpkg_t::__pmsyncpkg_t(int type, Package *spkg, void *data)
 {
 	this->type = type;
 	this->pkg_name = spkg->name();
-	this->pkg = spkg;
+	this->pkg_new = spkg;
 	this->data = data;
 	this->pkg_local = _pacman_db_get_pkgfromcache(handle->db_local, this->pkg_name);
 }

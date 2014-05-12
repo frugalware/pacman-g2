@@ -35,7 +35,7 @@ struct __pmsyncpkg_t
 
 	unsigned char type;
 	const char *pkg_name;
-	libpacman::Package *pkg;
+	libpacman::Package *pkg_new;
 	void *data;
 	libpacman::Package *pkg_local;
 };
