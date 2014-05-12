@@ -1946,7 +1946,6 @@ int __pmtrans_t::commit(pmlist_t **data)
 
 	howmany = _pacman_list_count(packages);
 	for(targ = packages; targ; targ = targ->next) {
-		unsigned short pmo_upgrade;
 		pmtranstype_t type;
 		char pm_install[PATH_MAX];
 		Package *pkg_new = (Package *)targ->data;
@@ -1957,7 +1956,6 @@ int __pmtrans_t::commit(pmlist_t **data)
 			break;
 		}
 
-		pmo_upgrade = (this->type == PM_TRANS_TYPE_UPGRADE) ? 1 : 0;
 		type = this->type;
 
 		/* see if this is an upgrade.  if so, remove the old package first */
@@ -1966,7 +1964,6 @@ int __pmtrans_t::commit(pmlist_t **data)
 			if(pkg_local == NULL) {
 				/* no previous package version is installed, so this is actually
 				 * just an install.  */
-				pmo_upgrade = 0;
 				type &= ~PM_TRANS_TYPE_REMOVE;
 			}
 		}
@@ -2024,7 +2021,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 			if(errors) {
 				ret = 1;
 				_pacman_log(PM_LOG_WARNING, _("errors occurred while %s %s"),
-					(pmo_upgrade ? _("upgrading") : _("installing")), pkg_new->name());
+					(type == PM_TRANS_TYPE_UPGRADE ? _("upgrading") : _("installing")), pkg_new->name());
 			} else {
 			PROGRESS(this, trans_event_table[type].pre.event, pkg_new->name(), 100, howmany, howmany - remain + 1);
 			}
