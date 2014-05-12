@@ -1279,17 +1279,19 @@ cleanup:
 
 		lp = _pacman_checkdeps(this, type, packages);
 
-		if(type & PM_TRANS_TYPE_ADD) {
 		/* look for unsatisfied dependencies */
 		if(lp != NULL) {
+			if(type & PM_TRANS_TYPE_ADD) {
 			if(data) {
 				*data = lp;
 			} else {
 				FREELIST(lp);
 			}
 			RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
+			}
 		}
 
+		if(type & PM_TRANS_TYPE_ADD) {
 		/* no unsatisfied deps, so look for conflicts */
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
 		lp = _pacman_checkconflicts(this, packages);
@@ -1309,8 +1311,8 @@ cleanup:
 		FREELISTPTR(packages);
 		packages = lp;
 		}
-		if(type == PM_TRANS_TYPE_REMOVE && type != PM_TRANS_TYPE_UPGRADE) {
 		if(lp != NULL) {
+			if(type == PM_TRANS_TYPE_REMOVE && type != PM_TRANS_TYPE_UPGRADE) {
 			if(flags & PM_TRANS_FLAG_CASCADE) {
 				while(lp) {
 					pmlist_t *i;
@@ -1336,8 +1338,10 @@ cleanup:
 				}
 				RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
 			}
+			}
 		}
 
+		if(type == PM_TRANS_TYPE_REMOVE && type != PM_TRANS_TYPE_UPGRADE) {
 		if(flags & PM_TRANS_FLAG_RECURSE) {
 			_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
 			packages = _pacman_removedeps(db_local, packages);
