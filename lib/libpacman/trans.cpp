@@ -690,6 +690,7 @@ int __pmtrans_t::add(const char *target)
 	if(_pacman_list_is_strin(target, targets)) {
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
+	targets = _pacman_stringlist_append(targets, target);
 
 	if(type == PM_TRANS_TYPE_SYNC) {
 	char targline[PKG_FULLNAME_LEN];
@@ -855,8 +856,6 @@ int __pmtrans_t::add(const char *target)
 		}
 	}
 	}
-
-	targets = _pacman_stringlist_append(targets, target);
 
 	return(0);
 
