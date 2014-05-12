@@ -695,8 +695,6 @@ int __pmtrans_t::add(const char *target)
 	if(type == PM_TRANS_TYPE_SYNC) {
 	char targline[PKG_FULLNAME_LEN];
 	char *targ;
-	pmlist_t *j;
-	Package *pkg_local;
 	Package *spkg = NULL;
 	int cmp;
 
@@ -705,8 +703,8 @@ int __pmtrans_t::add(const char *target)
 	if(targ) {
 		*targ = '\0';
 		targ++;
-		for(j = dbs_sync; j && !spkg; j = j->next) {
-			Database *dbs = j->data;
+		for(i = dbs_sync; i && !spkg; i = i->next) {
+			Database *dbs = i->data;
 			if(strcmp(dbs->treename, targline) == 0) {
 				spkg = _pacman_db_get_pkgfromcache(dbs, targ);
 				if(spkg == NULL) {
@@ -725,15 +723,15 @@ int __pmtrans_t::add(const char *target)
 		}
 	} else {
 		targ = targline;
-		for(j = dbs_sync; j && !spkg; j = j->next) {
-			Database *dbs = j->data;
+		for(i = dbs_sync; i && !spkg; i = i->next) {
+			Database *dbs = i->data;
 			spkg = _pacman_db_get_pkgfromcache(dbs, targ);
 		}
 		if(spkg == NULL) {
 			/* Search provides */
 			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
-			for(j = dbs_sync; j && !spkg; j = j->next) {
-				Database *dbs = j->data;
+			for(i = dbs_sync; i && !spkg; i = i->next) {
+				Database *dbs = i->data;
 				pmlist_t *p = _pacman_db_whatprovides(dbs, targ);
 				if(p) {
 					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), p->data, targ);
