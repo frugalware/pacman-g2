@@ -1271,11 +1271,10 @@ cleanup:
 		return ret;
 	}
 	} else {
-	if(type & PM_TRANS_TYPE_ADD) {
-
 	/* Check dependencies
 	 */
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
+		if(type & PM_TRANS_TYPE_ADD) {
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 
 		/* look for unsatisfied dependencies */
@@ -1310,10 +1309,12 @@ cleanup:
 		packages = lp;
 
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
+		}
 	}
 
 	/* Cleaning up
 	 */
+	if(type & PM_TRANS_TYPE_ADD) {
 	EVENT(this, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
 	_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
 	for (lp = packages; lp!=NULL; lp=lp->next) {
@@ -1361,8 +1362,8 @@ cleanup:
 	}
 #endif
 	}
-	if(type == PM_TRANS_TYPE_REMOVE) {
-	if(!(flags & (PM_TRANS_FLAG_NODEPS)) && (type != PM_TRANS_TYPE_UPGRADE)) {
+	if(!(flags & (PM_TRANS_FLAG_NODEPS))) {
+		if(type == PM_TRANS_TYPE_REMOVE && type != PM_TRANS_TYPE_UPGRADE) {
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
@@ -1408,7 +1409,7 @@ cleanup:
 		packages = lp;
 
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
-	}
+		}
 	}
 	}
 
