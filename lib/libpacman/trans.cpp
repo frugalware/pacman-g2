@@ -1274,12 +1274,13 @@ cleanup:
 	/* Check dependencies
 	 */
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
-		if(type & PM_TRANS_TYPE_ADD) {
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
-
-		/* look for unsatisfied dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
+
 		lp = _pacman_checkdeps(this, type, packages);
+
+		if(type & PM_TRANS_TYPE_ADD) {
+		/* look for unsatisfied dependencies */
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -1307,14 +1308,8 @@ cleanup:
 		/* free the old alltargs */
 		FREELISTPTR(packages);
 		packages = lp;
-
-		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 		}
 		if(type == PM_TRANS_TYPE_REMOVE && type != PM_TRANS_TYPE_UPGRADE) {
-		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
-
-		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
-		lp = _pacman_checkdeps(this, type, packages);
 		if(lp != NULL) {
 			if(flags & PM_TRANS_FLAG_CASCADE) {
 				while(lp) {
@@ -1354,9 +1349,8 @@ cleanup:
 		/* free the old alltargs */
 		FREELISTPTR(packages);
 		packages = lp;
-
-		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 		}
+		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
 
 	/* Cleaning up
