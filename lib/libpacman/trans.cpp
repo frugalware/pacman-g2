@@ -762,20 +762,9 @@ int __pmtrans_t::add(const char *target)
 
 	/* add the package to the transaction */
 	if(!find(spkg->name())) {
-		Package *dummy = NULL;
 		pmsyncpkg_t *ps;
-
-		if(pkg_local) {
-			dummy = new Package(pkg_local->name(), pkg_local->version());
-			if(dummy == NULL) {
-				RET_ERR(PM_ERR_MEMORY, -1);
-			}
-		}
-		ps = new __pmsyncpkg_t(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
-		if(ps == NULL) {
-			delete dummy;
-			RET_ERR(PM_ERR_MEMORY, -1);
-		}
+		
+		ASSERT((ps = new __pmsyncpkg_t(PM_SYNC_TYPE_UPGRADE, spkg, pkg_local)) != NULL, RET_ERR(PM_ERR_MEMORY, -1));
 		add(ps, 0);
 	}
 	} else {
@@ -1077,7 +1066,6 @@ int __pmtrans_t::prepare(pmlist_t **data)
 							if(ps->type != PM_SYNC_TYPE_REPLACE) {
 								/* switch this sync type to REPLACE */
 								ps->type = PM_SYNC_TYPE_REPLACE;
-								delete ps->data;
 								ps->data = NULL;
 							}
 							/* append to the replaces list */
