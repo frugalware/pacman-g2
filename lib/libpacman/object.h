@@ -47,6 +47,9 @@ private:
 	void operator delete[](void *ptr);
 	void *operator new[](std::size_t size);
 
+	Object(const libpacman::Object &other);
+	libpacman::Object &operator =(const libpacman::Object &other);
+
 	mutable unsigned m_reference_counter;
 };
 

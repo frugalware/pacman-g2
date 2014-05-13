@@ -95,10 +95,7 @@ public:                                                                        \
 public:
 	Package(libpacman::Database *database = 0);
 	Package(const char *name, const char *version);
-	Package(const libpacman::Package &other);
 	virtual ~Package();
-
-	virtual libpacman::Package *dup() const;
 
 	libpacman::Database *database() const;
 
@@ -115,6 +112,11 @@ public:
 	FStringList *provides() const;
 	bool provides(const char *pkgname);
 
+private:
+	Package(const libpacman::Package &other);
+	libpacman::Package &operator =(const libpacman::Package &other);
+
+public:
 	libpacman::Database *m_database;
 
 	unsigned int flags;

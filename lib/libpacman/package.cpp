@@ -67,46 +67,6 @@ Package::Package(const char *name, const char *version)
 	}
 }
 
-Package::Package(const libpacman::Package &other)
-{
-	m_database     = other.m_database;
-
-	flags          = other.flags;
-	STRNCPY(m_name,      other.m_name,      PKG_NAME_LEN);
-	STRNCPY(m_version,   other.m_version,   PKG_VERSION_LEN);
-	STRNCPY(m_description, other.m_description, PKG_DESC_LEN);
-	STRNCPY(m_url,       other.m_url,       PKG_URL_LEN);
-	STRNCPY(builddate,   other.builddate,   PKG_DATE_LEN);
-	STRNCPY(buildtype,   other.buildtype,   PKG_DATE_LEN);
-	STRNCPY(installdate, other.installdate, PKG_DATE_LEN);
-	STRNCPY(packager,    other.packager,    PKG_PACKAGER_LEN);
-	STRNCPY(md5sum,      other.md5sum,      PKG_MD5SUM_LEN);
-	STRNCPY(sha1sum,     other.sha1sum,     PKG_SHA1SUM_LEN);
-	STRNCPY(arch,        other.arch,        PKG_ARCH_LEN);
-	size           = other.size;
-	usize          = other.usize;
-	m_force        = other.m_force;
-	m_stick        = other.m_stick;
-	scriptlet      = other.scriptlet;
-	m_reason       = other.m_reason;
-	license        = _pacman_list_strdup(other.license);
-	desc_localized = _pacman_list_strdup(other.desc_localized);
-	m_requiredby   = _pacman_list_strdup(other.m_requiredby);
-	m_conflicts    = _pacman_list_strdup(other.m_conflicts);
-	m_files        = _pacman_list_strdup(other.m_files);
-	m_backup       = _pacman_list_strdup(other.m_backup);
-	m_depends      = _pacman_list_strdup(other.m_depends);
-	m_removes      = _pacman_list_strdup(other.m_removes);
-	m_groups       = _pacman_list_strdup(other.m_groups);
-	m_provides     = _pacman_list_strdup(other.m_provides);
-	m_replaces     = _pacman_list_strdup(other.m_replaces);
-	triggers       = _pacman_list_strdup(other.triggers);
-
-	/* internal */
-	origin         = other.origin;
-	data           = (origin == PKG_FROM_FILE) ? strdup(other.data) : other.data;
-}
-
 Package::~Package()
 {
 	FREELIST(license);
@@ -124,11 +84,6 @@ Package::~Package()
 	if(origin == PKG_FROM_FILE) {
 		FREE(data);
 	}
-}
-
-Package *Package::dup() const
-{
-	return new Package(*this);
 }
 
 Database *Package::database() const
