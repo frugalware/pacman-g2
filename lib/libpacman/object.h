@@ -29,13 +29,23 @@ namespace libpacman
 class Object
 {
 public:
+	void operator delete(void *ptr);
 	void *operator new(std::size_t size);
-	void *operator new[](std::size_t size);
 
+	Object();
 	virtual ~Object();
+
+	void acquire() const;
+	void release() const;
 
 	virtual int get(unsigned val, unsigned long *data) const;
 	virtual int set(unsigned val, unsigned long data);
+
+private:
+	void operator delete[](void *ptr);
+	void *operator new[](std::size_t size);
+
+	mutable unsigned m_reference_counter;
 };
 
 }

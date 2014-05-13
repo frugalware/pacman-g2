@@ -29,18 +29,35 @@
 
 using namespace libpacman;
 
+void Object::operator delete(void *ptr)
+{
+	free(ptr);
+}
+
 void *Object::operator new(std::size_t size)
 {
 	return f_zalloc(size);
 }
 
-void *Object::operator new[](std::size_t size)
+Object::Object()
+	: m_reference_counter(1)
 {
-	return f_zalloc(size);
 }
 
 Object::~Object()
 {
+}
+
+void Object::acquire() const
+{
+	++m_reference_counter;
+}
+
+void Object::release() const
+{
+	if(--m_reference_counter == 0) {
+		delete this;
+	}
 }
 
 int Object::get(unsigned val, unsigned long *data) const
