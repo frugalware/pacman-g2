@@ -33,8 +33,10 @@ public:
 	void *operator new(std::size_t size);
 
 	Object();
+protected:
 	virtual ~Object();
 
+public:
 	void acquire() const;
 	void release() const;
 
