@@ -191,13 +191,8 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 					local->name(), local->version(), local->version(), spkg->version());
 			/* check if spkg->name is already in the packages list. */
 			if(!trans->find(spkg->name())) {
-				Package *dummy = new Package(local->name(), local->version());
-				if(dummy == NULL) {
-					goto error;
-				}
-				ps = new __pmsyncpkg_t(PM_SYNC_TYPE_UPGRADE, spkg, dummy);
+				ps = new __pmsyncpkg_t(PM_SYNC_TYPE_UPGRADE, spkg, local);
 				if(ps == NULL) {
-					delete dummy;
 					goto error;
 				}
 				trans->syncpkgs = _pacman_list_add(trans->syncpkgs, ps);
