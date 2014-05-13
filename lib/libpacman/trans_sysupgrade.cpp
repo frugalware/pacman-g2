@@ -107,26 +107,21 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 								 * the package to replace.
 								 */
 								pmsyncpkg_t *ps;
-								Package *dummy = new Package(lpkg->name(), NULL);
-								if(dummy == NULL) {
-									pm_errno = PM_ERR_MEMORY;
-									goto error;
-								}
-								dummy->m_requiredby = _pacman_list_strdup(lpkg->requiredby());
 								/* check if spkg->name is already in the packages list. */
 								ps = trans->find(spkg->name());
 								if(ps) {
 									/* found it -- just append to the replaces list */
-									ps->data = _pacman_list_add(ps->data, dummy);
+									lpkg->acquire();
+									ps->data = _pacman_list_add(ps->data, lpkg);
 								} else {
 									/* none found -- enter pkg into the final sync list */
 									ps = new __pmsyncpkg_t(PM_SYNC_TYPE_REPLACE, spkg, NULL);
 									if(ps == NULL) {
-										delete dummy;
 										pm_errno = PM_ERR_MEMORY;
 										goto error;
 									}
-									ps->data = _pacman_list_add(NULL, dummy);
+									lpkg->acquire();
+									ps->data = _pacman_list_add(NULL, lpkg);
 									trans->syncpkgs = _pacman_list_add(trans->syncpkgs, ps);
 								}
 								_pacman_log(PM_LOG_FLOW2, _("%s-%s elected for upgrade (to be replaced by %s-%s)"),

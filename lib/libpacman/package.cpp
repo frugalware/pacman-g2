@@ -147,7 +147,7 @@ bool Package::set_filename(const char *filename, int witharch)
 
 int _pacman_pkg_delete(Package *self)
 {
-	delete self;
+	self->release();
 	return 0;
 }
 

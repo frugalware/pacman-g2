@@ -145,7 +145,7 @@ int _pacman_db_remove_pkgfromcache(Database *db, Package *pkg)
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("removing entry '%s' from '%s' cache"), pkg->name(), db->treename);
-	delete data;
+	data->release();
 
 	_pacman_db_clear_grpcache(db);
 
