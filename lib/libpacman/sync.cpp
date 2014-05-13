@@ -66,16 +66,21 @@ __pmsyncpkg_t::__pmsyncpkg_t(int type, Package *spkg, void *data)
 	this->type = type;
 	this->pkg_name = spkg->name();
 	this->pkg_new = spkg;
+	this->pkg_new->acquire();
 	this->data = data;
-	this->pkg_local = _pacman_db_get_pkgfromcache(handle->db_local, this->pkg_name);
+	if((this->pkg_local = _pacman_db_get_pkgfromcache(handle->db_local, this->pkg_name)) != NULL) {
+		this->pkg_local->acquire();
+	}
 }
 
 __pmsyncpkg_t::~__pmsyncpkg_t()
 {
 	if(type == PM_SYNC_TYPE_REPLACE) {
 		FREELISTPKGS(data);
-	} else {
-		delete (Package *)data;
+	}
+	pkg_new->release();
+	if(pkg_local != NULL) {
+		pkg_local->release();
 	}
 }
 
