@@ -110,19 +110,14 @@ pmlist_t *_pacman_db_get_pkgcache(Database *db)
 
 int _pacman_db_add_pkgincache(Database *db, Package *pkg)
 {
-	Package *newpkg;
-
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	if(pkg == NULL) {
 		return(-1);
 	}
 
-	newpkg = pkg->dup();
-	if(newpkg == NULL) {
-		return(-1);
-	}
-	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), newpkg->name(), db->treename);
-	db->pkgcache = _pacman_list_add_sorted(db->pkgcache, newpkg, _pacman_pkg_cmp);
+	pkg->acquire(); // FIXME: Should not be necessary, but required during migration to refcounted object
+	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), pkg->name(), db->treename);
+	db->pkgcache = _pacman_list_add_sorted(db->pkgcache, pkg, _pacman_pkg_cmp);
 
 	_pacman_db_clear_grpcache(db);
 
@@ -145,7 +140,7 @@ int _pacman_db_remove_pkgfromcache(Database *db, Package *pkg)
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("removing entry '%s' from '%s' cache"), pkg->name(), db->treename);
-	data->release();
+	data->release(); // FIXME: Should not be necessary, but required during migration to refcounted object
 
 	_pacman_db_clear_grpcache(db);
 
