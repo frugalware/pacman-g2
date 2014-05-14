@@ -132,6 +132,16 @@ int Database::open(int flags)
 	return open(flags, &cache_timestamp);
 }
 
+int Database::open(int flags, time_t *timestamp)
+{
+	return -1;
+}
+
+int Database::close()
+{
+	return -1;
+}
+
 int Database::gettimestamp(time_t *timestamp)
 {
 	ASSERT(timestamp != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
@@ -153,6 +163,16 @@ int Database::settimestamp(const time_t *timestamp)
 
 	_pacman_ftp_strfmdtm(buffer, sizeof(buffer), timestamp);
 	return _pacman_db_setlastupdate(this, buffer);
+}
+
+int Database::rewind()
+{
+	return -1;
+}
+
+Package *Database::readpkg(unsigned int inforeq)
+{
+	return NULL;
 }
 
 int Database::write(Package *info, unsigned int inforeq)

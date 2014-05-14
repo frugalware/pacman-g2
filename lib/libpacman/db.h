@@ -49,14 +49,14 @@ public:
 	virtual pmlist_t *test() const;
 
 	virtual int open(int flags = 0);
-	virtual int close() = 0;
+	virtual int close();
 
 	virtual int gettimestamp(time_t *timestamp);
 	virtual int settimestamp(const time_t *timestamp);
 
 	/* Package iterator */
-	virtual int rewind() = 0;
-	virtual libpacman::Package *readpkg(unsigned int inforeq) = 0;
+	virtual int rewind();
+	virtual libpacman::Package *readpkg(unsigned int inforeq);
 	virtual libpacman::Package *scan(const char *target, unsigned int inforeq) = 0;
 
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
@@ -76,7 +76,7 @@ public:
 protected:
 	Database(libpacman::Handle *handle, const char *treename);
 
-	virtual int open(int flags, time_t *timestamp) = 0;
+	virtual int open(int flags, time_t *timestamp);
 
 private:
 };
