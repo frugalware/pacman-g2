@@ -220,7 +220,6 @@ enum {
 	PM_PKG_SCRIPTLET, /* (bool) */
 	PM_PKG_SCRIPTLET_PATH, /* (const char *) */
 	/* Misc */
-	PM_PKG_DATA,
 	PM_PKG_FORCE,
 	PM_PKG_STICK,
 
