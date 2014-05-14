@@ -73,8 +73,6 @@ int _pacman_db_load_pkgcache(Database *db)
 
 	db->rewind();
 	while((info = db->readpkg(inforeq)) != NULL) {
-		info->origin = PKG_FROM_CACHE;
-		info->data = db;
 		/* add to the collective */
 		db->pkgcache = _pacman_list_add_sorted(db->pkgcache, info, _pacman_pkg_cmp);
 	}

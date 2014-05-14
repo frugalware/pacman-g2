@@ -81,9 +81,7 @@ Package::~Package()
 	FREELIST(m_provides);
 	FREELIST(m_replaces);
 	FREELIST(triggers);
-	if(origin == PKG_FROM_FILE) {
-		FREE(data);
-	}
+	free(m_path);
 }
 
 Database *Package::database() const
@@ -296,6 +294,11 @@ type Package::name()                                                           \
 #include "package_properties.h"
 
 #undef LIBPACMAN_PACKAGE_PROPERTY
+
+const char *Package::path() const
+{
+	return m_path;
+}
 
 FStringList *Package::provides() const
 {

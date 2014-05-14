@@ -884,9 +884,7 @@ int pacman_pkg_free(pmpkg_t *_pkg)
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	/* Only free packages loaded in user space */
-	if(pkg->origin != PKG_FROM_CACHE) {
-		pkg->release();
-	}
+	pkg->release();
 
 	return(0);
 }

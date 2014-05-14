@@ -109,6 +109,8 @@ public:
 	bool set_filename(const char *filename, int witharch);
 	static bool splitname(const char *target, char *name, char *version, int witharch);
 
+	const char *path() const;
+
 	FStringList *provides() const;
 	bool provides(const char *pkgname);
 
@@ -150,9 +152,7 @@ public:
 	FStringList *m_conflicts;
 	FStringList *m_provides;
 	FStringList *triggers;
-	/* internal */
-	unsigned char origin;
-	void *data;
+	char *m_path;
 };
 
 }

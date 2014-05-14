@@ -1377,7 +1377,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 			_pacman_log(PM_LOG_FLOW1, _("extracting files"));
 
 			/* Extract the package */
-			if((archive = _pacman_archive_read_open_all_file(pkg->data)) == NULL) {
+			if((archive = _pacman_archive_read_open_all_file(pkg->path())) == NULL) {
 				RET_ERR(PM_ERR_PKG_OPEN, -1);
 			}
 
@@ -1969,7 +1969,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 		}
 
 		if(pkg_new->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-			_pacman_runscriptlet(handle->root, pkg_new->data, trans_event_table[type].pre.hook, pkg_new->version(), oldpkg ? oldpkg->version() : NULL, this);
+			_pacman_runscriptlet(handle->root, pkg_new->path(), trans_event_table[type].pre.hook, pkg_new->version(), oldpkg ? oldpkg->version() : NULL, this);
 		}
 
 		if(oldpkg) {
