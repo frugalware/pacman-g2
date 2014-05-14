@@ -110,7 +110,10 @@ int _pacman_pkg_delete(Package *self)
  */
 int _pacman_pkg_cmp(const void *p1, const void *p2)
 {
-	return(strcmp(((Package *)p1)->name(), ((Package *)p2)->name()));
+	Package *pkg1 = (Package *)p1;
+	Package *pkg2 = (Package *)p2;
+
+	return pkg1 == pkg2 ? 0: strcmp(pkg1->name(), pkg2->name());
 }
 
 int _pacman_pkg_is_valid(const Package *pkg, const pmtrans_t *trans, const char *pkgfile)
