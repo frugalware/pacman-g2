@@ -67,8 +67,7 @@ struct __pmtrans_t
 
 	pmsyncpkg_t *add(pmsyncpkg_t *syncpkg, int flags);
 	int add(libpacman::Package *pkg, pmtranstype_t type, int flags);
-	pmsyncpkg_t *add(const char *target, pmtranstype_t type, int flags);
-	int add(const char *target);
+	int add(const char *target, pmtranstype_t type, int flags);
 
 	int (*set_state)(pmtrans_t *trans, int new_state);
 	libpacman::Handle *handle;

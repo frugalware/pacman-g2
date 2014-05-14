@@ -294,7 +294,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 			for(j = ps->data; j; j = j->next) {
 				Package *pkg = j->data;
 				if(!_pacman_pkg_isin(pkg->name(), tr->packages)) {
-					if(tr->add(pkg->name()) == -1) {
+					if(tr->add(pkg->name(), tr->type, tr->flags) == -1) {
 						goto error;
 					}
 					replaces++;
@@ -331,7 +331,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		Package *spkg = ps->pkg_new;
 		char str[PATH_MAX];
 		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
-		if(tr->add(str) == -1) {
+		if(tr->add(str, tr->type, tr->flags) == -1) {
 			goto error;
 		}
 		/* using _pacman_list_last() is ok because addtarget() adds the new target at the
@@ -619,13 +619,6 @@ int __pmtrans_t::add(Package *pkg, pmtranstype_t type, int flags)
 	return 0;
 }
 
-pmsyncpkg_t *__pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
-{
-	ASSERT(!f_strempty(target), RET_ERR(PM_ERR_TRANS_NULL, NULL));
-
-	return NULL;
-}
-
 static
 Package *_pacman_filedb_load(Database *db, const char *name)
 {
@@ -669,7 +662,8 @@ int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
 	return trans->add(pkg_local, trans->type, 0);
 }
 
-int __pmtrans_t::add(const char *target)
+// FIXME: Make returning a pmsyncpkg_t in the future
+int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 {
 	pmlist_t *i;
 	Package *pkg_new, *pkg_local, *pkg_queued = NULL;
