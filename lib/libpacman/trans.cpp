@@ -633,35 +633,6 @@ Package *_pacman_filedb_load(Database *db, const char *name)
 	return _pacman_fpmpackage_load(name);
 }
 
-static
-int _pacman_remove_addtarget(pmtrans_t *trans, const char *name)
-{
-	Package *pkg_local;
-	Database *db_local = trans->handle->db_local;
-
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-
-	if(_pacman_pkg_isin(name, trans->packages)) {
-		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
-	}
-
-	if((pkg_local = db_local->scan(name, INFRQ_ALL)) == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), name);
-		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
-	}
-
-	/* ignore holdpkgs on upgrade */
-	if((trans == handle->trans) && _pacman_list_is_strin(pkg_local->name(), handle->holdpkg)) {
-		int resp = 0;
-		QUESTION(trans, PM_TRANS_CONV_REMOVE_HOLDPKG, pkg_local, NULL, NULL, &resp);
-		if(!resp) {
-			RET_ERR(PM_ERR_PKG_HOLD, -1);
-		}
-	}
-
-	return trans->add(pkg_local, trans->type, 0);
-}
-
 // FIXME: Make returning a pmsyncpkg_t in the future
 int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 {
@@ -825,9 +796,25 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	}
 	}
 	if(type == PM_TRANS_TYPE_REMOVE) {
-		if(_pacman_remove_addtarget(this, target) == -1) {
-			return -1;
+	if(_pacman_pkg_isin(target, packages)) {
+		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
+	}
+
+	if((pkg_local = db_local->scan(target, INFRQ_ALL)) == NULL) {
+		_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), target);
+		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
+	}
+
+	/* ignore holdpkgs on upgrade */
+	if((this == handle->trans) && _pacman_list_is_strin(pkg_local->name(), handle->holdpkg)) {
+		int resp = 0;
+		QUESTION(this, PM_TRANS_CONV_REMOVE_HOLDPKG, pkg_local, NULL, NULL, &resp);
+		if(!resp) {
+			RET_ERR(PM_ERR_PKG_HOLD, -1);
 		}
+	}
+
+	return add(pkg_local, type, 0);
 	}
 	}
 
@@ -1975,7 +1962,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 			if(tr == NULL) {
 				RET_ERR(PM_ERR_TRANS_ABORT, -1);
 			}
-			if(_pacman_remove_addtarget(tr, pkg_new->name()) == -1) {
+			if(tr->add(pkg_new->name(), PM_TRANS_TYPE_REMOVE, 0) == -1) {
 				delete tr;
 				RET_ERR(PM_ERR_TRANS_ABORT, -1);
 			}
