@@ -798,58 +798,6 @@ void *pacman_pkg_getinfo(pmpkg_t *_pkg, unsigned char parm)
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(pkg != NULL, return(NULL));
 
-	/* Update the cache package entry if needed */
-	if(pkg->origin == PKG_FROM_CACHE) {
-		switch(parm) {
-			/* Desc entry */
-			case PM_PKG_DESC:
-			case PM_PKG_GROUPS:
-			case PM_PKG_URL:
-			case PM_PKG_LICENSE:
-			case PM_PKG_ARCH:
-			case PM_PKG_BUILDDATE:
-			case PM_PKG_INSTALLDATE:
-			case PM_PKG_PACKAGER:
-			case PM_PKG_SIZE:
-			case PM_PKG_USIZE:
-			case PM_PKG_REASON:
-			case PM_PKG_MD5SUM:
-			case PM_PKG_SHA1SUM:
-			case PM_PKG_REPLACES:
-			case PM_PKG_FORCE:
-				if(!(pkg->flags & INFRQ_DESC)) {
-					_pacman_log(PM_LOG_DEBUG, _("loading DESC info for '%s'"), pkg->name());
-					pkg->read(INFRQ_DESC);
-				}
-			break;
-			/* Depends entry */
-			case PM_PKG_DEPENDS:
-			case PM_PKG_REQUIREDBY:
-			case PM_PKG_CONFLICTS:
-			case PM_PKG_PROVIDES:
-				if(!(pkg->flags & INFRQ_DEPENDS)) {
-					_pacman_log(PM_LOG_DEBUG, "loading DEPENDS info for '%s'", pkg->name());
-					pkg->read(INFRQ_DEPENDS);
-				}
-			break;
-			/* Files entry */
-			case PM_PKG_FILES:
-			case PM_PKG_BACKUP:
-				if(pkg->data == handle->db_local && !(pkg->flags & INFRQ_FILES)) {
-					_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg->name());
-					pkg->read(INFRQ_FILES);
-				}
-			break;
-			/* Scriptlet */
-			case PM_PKG_SCRIPLET:
-				if(pkg->data == handle->db_local && !(pkg->flags & INFRQ_SCRIPLET)) {
-					_pacman_log(PM_LOG_DEBUG, _("loading SCRIPLET info for '%s'"), pkg->name());
-					pkg->read(INFRQ_SCRIPLET);
-				}
-			break;
-		}
-	}
-
 	switch(parm) {
 		case PM_PKG_NAME:        data = pkg->name(); break;
 		case PM_PKG_VERSION:     data = pkg->version(); break;
