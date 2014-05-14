@@ -75,7 +75,7 @@ static Package *_pacman_fakedb_pkg_new(pmdb_t *fakedb, const char *name)
 	}
 	free(str);
 	if(dummy->m_name[0] == 0 || dummy->m_version[0] == 0) {
-		delete dummy;
+		dummy->release();
 		RET_ERR(PM_ERR_PKG_INVALID_NAME, NULL);
 	}
 	return dummy;

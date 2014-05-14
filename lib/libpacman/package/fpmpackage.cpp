@@ -248,7 +248,7 @@ Package *_pacman_fpmpackage_load(const char *pkgfile)
 	return(info);
 
 error:
-	delete info;
+	info->release();
 	if(!ret) {
 		archive_read_finish (archive);
 	}
