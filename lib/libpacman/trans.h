@@ -80,6 +80,9 @@ struct __pmtrans_t
 	FStringList *skiplist;
 	FStringList *triggers;
 	pmtrans_cbs_t cbs;
+
+private:
+	int commit(pmtranstype_t type, pmlist_t **data);
 };
 
 #define EVENT(t, e, d1, d2) \

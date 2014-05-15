@@ -58,9 +58,6 @@
 
 using namespace libpacman;
 
-static
-int _pacman_remove_commit(pmtrans_t *trans, pmlist_t **data);
-
 static int check_oldcache(void)
 {
 	Database *db = handle->db_local;
@@ -1879,6 +1876,11 @@ struct trans_event_table_item {
 
 int __pmtrans_t::commit(pmlist_t **data)
 {
+	return commit(type, data);
+}
+
+int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
+{
 	Database *db_local;
 
 	ASSERT((db_local = handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -1968,7 +1970,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 			}
 			/* copy the skiplist over */
 			tr->skiplist = _pacman_list_strdup(skiplist);
-			if(_pacman_remove_commit(tr, NULL) == -1) {
+			if(tr->commit(PM_TRANS_TYPE_REMOVE, NULL) == -1) {
 				delete tr;
 				RET_ERR(PM_ERR_TRANS_ABORT, -1);
 			}
