@@ -1767,6 +1767,10 @@ int __pmtrans_t::commit(pmlist_t **data)
 int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 {
 	Database *db_local;
+	Package *pkg_new, *pkg_local;
+	int howmany, remain;
+	pmlist_t *targ, *lp;
+	char pm_install[PATH_MAX];
 
 	ASSERT((db_local = handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
@@ -1787,23 +1791,23 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 			return(-1);
 		}
 	} else {
-	if(type & PM_TRANS_TYPE_ADD) {
 	int ret = 0;
-	int remain, howmany;
 	time_t t;
-	pmlist_t *targ, *lp;
 
 	howmany = _pacman_list_count(packages);
+
+	if(type & PM_TRANS_TYPE_ADD) {
+
 	for(targ = packages; targ; targ = targ->next) {
-		pmtranstype_t type;
-		char pm_install[PATH_MAX];
-		Package *pkg_new = (Package *)targ->data;
-		Package *oldpkg = NULL, *pkg_local = NULL;
+		Package *oldpkg = NULL;
 		remain = _pacman_list_count(targ);
 
 		if(handle->trans->state == STATE_INTERRUPTED) {
 			break;
 		}
+
+		pkg_new = (Package *)targ->data;
+		pkg_local = NULL;
 
 		type = this->type;
 
@@ -1974,17 +1978,8 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 //	return(ret);
 	}
 	if(type == PM_TRANS_TYPE_REMOVE) {
-	Package *pkg_local;
-	pmlist_t *targ, *lp;
-	int howmany, remain;
-	Database *db_local = handle->db_local;
-
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-
-	howmany = _pacman_list_count(packages);
 
 	for(targ = packages; targ; targ = targ->next) {
-		char pm_install[PATH_MAX];
 		pkg_local = (Package*)targ->data;
 
 		if(handle->trans->state == STATE_INTERRUPTED) {
