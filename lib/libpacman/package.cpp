@@ -80,7 +80,7 @@ Package::~Package()
 	FREELIST(m_groups);
 	FREELIST(m_provides);
 	FREELIST(m_replaces);
-	FREELIST(triggers);
+	FREELIST(m_triggers);
 	free(m_path);
 }
 
@@ -345,7 +345,7 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 			((flags & PM_PACKAGE_FLAG_REQUIREDBY) && f_stringlist_any_match(pkg->requiredby(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_CONFLICTS) && f_stringlist_any_match(pkg->conflicts(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_PROVIDES) && f_stringlist_any_match(pkg->provides(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_TRIGGERS) && f_stringlist_any_match(pkg->triggers, strmatcher))) {
+			((flags & PM_PACKAGE_FLAG_TRIGGERS) && f_stringlist_any_match(pkg->triggers(), strmatcher))) {
 		return 1;
 	}
 	return 0;

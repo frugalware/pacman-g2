@@ -125,7 +125,7 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 			} else if(!strcmp(key, "BACKUP")) {
 				info->m_backup = f_stringlist_append(info->m_backup, ptr);
 			} else if(!strcmp(key, "TRIGGER")) {
-				info->triggers = f_stringlist_append(info->triggers, ptr);
+				info->m_triggers = f_stringlist_append(info->m_triggers, ptr);
 			} else {
 				_pacman_log(PM_LOG_DEBUG, _("%s: syntax error in description file line %d"),
 					info->name()[0] != '\0' ? info->name() : "error", linenum);

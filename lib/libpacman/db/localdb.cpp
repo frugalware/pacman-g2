@@ -389,7 +389,7 @@ int LocalDatabase::write(Package *info, unsigned int inforeq)
 			fprintf(fp, "%%REASON%%\n"
 				"%d\n\n", info->reason());
 		}
-		_pacman_localdb_write_stringlist("TRIGGERS", info->triggers, fp);
+		_pacman_localdb_write_stringlist("TRIGGERS", info->triggers(), fp);
 		fclose(fp);
 		fp = NULL;
 	}

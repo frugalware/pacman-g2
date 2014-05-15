@@ -124,7 +124,7 @@ int _pacman_localdb_desc_fread(Package *info, FILE *fp)
 			f_strtrim(tmp);
 			info->m_reason = atol(tmp);
 		} else if(!strcmp(line, "%TRIGGERS%")) {
-			_pacman_db_read_lines(&info->triggers, line, sline, fp);
+			_pacman_db_read_lines(&info->m_triggers, line, sline, fp);
 		} else if(!strcmp(line, "%SIZE%") || !strcmp(line, "%CSIZE%")) {
 			/* NOTE: the CSIZE and SIZE fields both share the "size" field
 			 *       in the pkginfo_t struct.  This can be done b/c CSIZE
