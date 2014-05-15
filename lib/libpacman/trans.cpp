@@ -1805,12 +1805,14 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 		}
 
 		if(type & PM_TRANS_TYPE_ADD) {
-		pkg_new = (Package *)targ->data;
-
-		type = this->type;
+			pkg_new = (Package *)targ->data;
+			type = this->type;
+		} else {
+			pkg_local = (Package *)targ->data;
+		}
 
 		/* see if this is an upgrade.  if so, remove the old package first */
-		if(type == PM_TRANS_TYPE_UPGRADE) {
+		if(pkg_local == NULL) {
 			pkg_local = _pacman_db_get_pkgfromcache(db_local, pkg_new->name());
 			if(pkg_local == NULL) {
 				/* no previous package version is installed, so this is actually
@@ -1818,6 +1820,8 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 				type &= ~PM_TRANS_TYPE_REMOVE;
 			}
 		}
+
+		if(type & PM_TRANS_TYPE_ADD) {
 		EVENT(this, trans_event_table[type].pre.event, pkg_new, NULL);
 		if(type == PM_TRANS_TYPE_UPGRADE)
 		{
@@ -1965,7 +1969,6 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 		}
 		}
 		if(type == PM_TRANS_TYPE_REMOVE) {
-		pkg_local = (Package*)targ->data;
 		if(this->type != PM_TRANS_TYPE_UPGRADE) {
 			EVENT(this, PM_TRANS_EVT_REMOVE_START, pkg_local, NULL);
 			_pacman_log(PM_LOG_FLOW1, _("removing package %s-%s"), pkg_local->name(), pkg_local->version());
