@@ -1796,8 +1796,6 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 
 	howmany = _pacman_list_count(packages);
 
-	if(type & PM_TRANS_TYPE_ADD) {
-
 	for(targ = packages; targ; targ = targ->next) {
 		Package *oldpkg = NULL;
 		remain = _pacman_list_count(targ);
@@ -1806,6 +1804,7 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 			break;
 		}
 
+		if(type & PM_TRANS_TYPE_ADD) {
 		pkg_new = (Package *)targ->data;
 		pkg_local = NULL;
 
@@ -1968,26 +1967,9 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 		EVENT(this, trans_event_table[type].post.event, pkg_new, oldpkg);
 
 		delete oldpkg;
-	}
-
-	/* run ldconfig if it exists */
-	if(handle->trans->state != STATE_INTERRUPTED) {
-		_pacman_ldconfig(handle->root);
-	}
-
-//	return(ret);
-	}
-	if(type == PM_TRANS_TYPE_REMOVE) {
-
-	for(targ = packages; targ; targ = targ->next) {
-		pkg_local = (Package*)targ->data;
-
-		if(handle->trans->state == STATE_INTERRUPTED) {
-			break;
 		}
-
-		remain = _pacman_list_count(targ);
-
+		if(type == PM_TRANS_TYPE_REMOVE) {
+		pkg_local = (Package*)targ->data;
 		if(this->type != PM_TRANS_TYPE_UPGRADE) {
 			EVENT(this, PM_TRANS_EVT_REMOVE_START, pkg_local, NULL);
 			_pacman_log(PM_LOG_FLOW1, _("removing package %s-%s"), pkg_local->name(), pkg_local->version());
@@ -2071,12 +2053,12 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 		if(this->type != PM_TRANS_TYPE_UPGRADE) {
 			EVENT(this, PM_TRANS_EVT_REMOVE_DONE, pkg_local, NULL);
 		}
+		}
 	}
 
 	/* run ldconfig if it exists */
-	if((this->type != PM_TRANS_TYPE_UPGRADE) && (handle->trans->state != STATE_INTERRUPTED)) {
+	if(handle->trans->state != STATE_INTERRUPTED) {
 		_pacman_ldconfig(handle->root);
-	}
 	}
 	}
 
