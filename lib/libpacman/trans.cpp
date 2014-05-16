@@ -1797,6 +1797,7 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 
 	for(targ = packages; targ; targ = targ->next) {
 		Package *pkg_new = NULL, *pkg_local = NULL;
+		void *event_arg0 = NULL, *event_arg1 = NULL;
 
 		remain = _pacman_list_count(targ);
 
@@ -1820,15 +1821,25 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 				type &= ~PM_TRANS_TYPE_REMOVE;
 			}
 		}
+		if(pkg_local) {
+			pkg_local->acquire();
+		}
+
+		if(pkg_new != NULL) {
+			event_arg0 = pkg_new;
+			event_arg1 = pkg_local;
+		} else {
+			event_arg0 = pkg_local;
+		}
+
+		EVENT(this, trans_event_table[type].pre.event, event_arg0, event_arg1);
 
 		if(type & PM_TRANS_TYPE_ADD) {
-		EVENT(this, trans_event_table[type].pre.event, pkg_new, NULL);
 		if(type == PM_TRANS_TYPE_UPGRADE)
 		{
 				_pacman_log(PM_LOG_FLOW1, _("upgrading package %s-%s"), pkg_new->name(), pkg_new->version());
 
 				/* we'll need to save some record for backup checks later */
-				pkg_local->acquire();
 					if(!(pkg_local->flags & INFRQ_FILES)) {
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg_local->name());
 						pkg_local->read(INFRQ_FILES);
@@ -1962,15 +1973,9 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 			_pacman_runscriptlet(handle->root, pm_install, trans_event_table[type].post.hook, pkg_new->version(), pkg_local ? pkg_local->version() : NULL, this);
 		}
 
-		EVENT(this, trans_event_table[type].post.event, pkg_new, pkg_local);
-
-		if (pkg_local) {
-			pkg_local->release();
-		}
 		}
 		if(type == PM_TRANS_TYPE_REMOVE) {
 		if(this->type != PM_TRANS_TYPE_UPGRADE) {
-			EVENT(this, PM_TRANS_EVT_REMOVE_START, pkg_local, NULL);
 			_pacman_log(PM_LOG_FLOW1, _("removing package %s-%s"), pkg_local->name(), pkg_local->version());
 
 			/* run the pre-remove scriptlet if it exists */
@@ -2049,9 +2054,10 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 			}
 		}
 
-		if(this->type != PM_TRANS_TYPE_UPGRADE) {
-			EVENT(this, PM_TRANS_EVT_REMOVE_DONE, pkg_local, NULL);
 		}
+		EVENT(this, trans_event_table[type].post.event, event_arg0, event_arg1);
+		if (pkg_local) {
+			pkg_local->release();
 		}
 	}
 
