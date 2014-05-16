@@ -1823,6 +1823,11 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 		}
 		if(pkg_local) {
 			pkg_local->acquire();
+			/* we'll need to save some record for backup checks later */
+			if(!(pkg_local->flags & INFRQ_FILES)) {
+				_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg_local->name());
+				pkg_local->read(INFRQ_FILES);
+			}
 		}
 
 		if(pkg_new != NULL) {
@@ -1838,12 +1843,6 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 		if(type == PM_TRANS_TYPE_UPGRADE)
 		{
 				_pacman_log(PM_LOG_FLOW1, _("upgrading package %s-%s"), pkg_new->name(), pkg_new->version());
-
-				/* we'll need to save some record for backup checks later */
-					if(!(pkg_local->flags & INFRQ_FILES)) {
-						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg_local->name());
-						pkg_local->read(INFRQ_FILES);
-					}
 		} else {
 			_pacman_log(PM_LOG_FLOW1, _("adding package %s-%s"), pkg_new->name(), pkg_new->version());
 		}
