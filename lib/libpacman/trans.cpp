@@ -1761,11 +1761,6 @@ struct trans_event_table_item {
 
 int __pmtrans_t::commit(pmlist_t **data)
 {
-	return commit(type, data);
-}
-
-int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
-{
 	Database *db_local;
 	int howmany, remain;
 	pmlist_t *targ, *lp;
@@ -1798,6 +1793,7 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 	for(targ = packages; targ; targ = targ->next) {
 		Package *pkg_new = NULL, *pkg_local = NULL;
 		void *event_arg0 = NULL, *event_arg1 = NULL;
+		pmtranstype_t type = this->type;
 
 		remain = _pacman_list_count(targ);
 
@@ -1807,7 +1803,6 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 
 		if(type & PM_TRANS_TYPE_ADD) {
 			pkg_new = (Package *)targ->data;
-			type = this->type;
 		} else {
 			pkg_local = (Package *)targ->data;
 		}
