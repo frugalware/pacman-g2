@@ -1838,15 +1838,19 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 		}
 
 		EVENT(this, trans_event_table[type].pre.event, event_arg0, event_arg1);
-
-		if(type & PM_TRANS_TYPE_ADD) {
-		if(type == PM_TRANS_TYPE_UPGRADE)
-		{
-				_pacman_log(PM_LOG_FLOW1, _("upgrading package %s-%s"), pkg_new->name(), pkg_new->version());
-		} else {
+		switch(type) {
+		case PM_TRANS_TYPE_ADD:
 			_pacman_log(PM_LOG_FLOW1, _("adding package %s-%s"), pkg_new->name(), pkg_new->version());
+			break;
+		case PM_TRANS_TYPE_REMOVE:
+			_pacman_log(PM_LOG_FLOW1, _("removing package %s-%s"), pkg_local->name(), pkg_local->version());
+			break;
+		case PM_TRANS_TYPE_UPGRADE:
+			_pacman_log(PM_LOG_FLOW1, _("upgrading package %s-%s"), pkg_new->name(), pkg_new->version());
+			break;
 		}
 
+		if(type & PM_TRANS_TYPE_ADD) {
 		if(pkg_new->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 			_pacman_runscriptlet(handle->root, pkg_new->path(), trans_event_table[type].pre.hook, pkg_new->version(), pkg_local ? pkg_local->version() : NULL, this);
 		}
@@ -1975,8 +1979,6 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 		}
 		if(type == PM_TRANS_TYPE_REMOVE) {
 		if(this->type != PM_TRANS_TYPE_UPGRADE) {
-			_pacman_log(PM_LOG_FLOW1, _("removing package %s-%s"), pkg_local->name(), pkg_local->version());
-
 			/* run the pre-remove scriptlet if it exists */
 			if(pkg_local->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, pkg_local->name(), pkg_local->version());
