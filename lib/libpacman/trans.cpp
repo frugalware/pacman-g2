@@ -1854,31 +1854,91 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 		if(pkg_new->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 			_pacman_runscriptlet(handle->root, pkg_new->path(), trans_event_table[type].pre.hook, pkg_new->version(), pkg_local ? pkg_local->version() : NULL, this);
 		}
-
-		if(pkg_local) {
-			pmtrans_t *tr;
-			pmtrans_cbs_t null_cbs = { NULL };
-
-			_pacman_log(PM_LOG_FLOW1, _("removing old package first (%s-%s)"), pkg_local->name(), pkg_local->version());
-			tr = new __pmtrans_t(PM_TRANS_TYPE_UPGRADE, flags, null_cbs);
-			if(tr == NULL) {
-				RET_ERR(PM_ERR_TRANS_ABORT, -1);
-			}
-			if(tr->add(pkg_new->name(), PM_TRANS_TYPE_REMOVE, 0) == -1) {
-				delete tr;
-				RET_ERR(PM_ERR_TRANS_ABORT, -1);
-			}
-			/* copy the skiplist over */
-			tr->skiplist = _pacman_list_strdup(skiplist);
-			if(tr->commit(PM_TRANS_TYPE_REMOVE, NULL) == -1) {
-				delete tr;
-				RET_ERR(PM_ERR_TRANS_ABORT, -1);
-			}
-			delete tr;
-
-			_pacman_log(PM_LOG_FLOW1, _("adding new package %s-%s"), pkg_new->name(), pkg_new->version());
 		}
 
+		if(pkg_local) {
+			_pacman_log(PM_LOG_FLOW1, _("removing old package first (%s-%s)"), pkg_local->name(), pkg_local->version());
+		if(this->type != PM_TRANS_TYPE_UPGRADE) {
+			/* run the pre-remove scriptlet if it exists */
+			if(pkg_local->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
+				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, pkg_local->name(), pkg_local->version());
+				_pacman_runscriptlet(handle->root, pm_install, "pre_remove", pkg_local->version(), NULL, this);
+			}
+		}
+
+		if(!(flags & PM_TRANS_FLAG_DBONLY)) {
+			_pacman_localpackage_remove(pkg_local, this, howmany, remain);
+		}
+
+		PROGRESS(this, PM_TRANS_PROGRESS_REMOVE_START, pkg_local->name(), 100, howmany, howmany - remain + 1);
+		if(this->type != PM_TRANS_TYPE_UPGRADE) {
+			/* run the post-remove script if it exists */
+			if(pkg_local->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
+				/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
+				_pacman_ldconfig(handle->root);
+				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, pkg_local->name(), pkg_local->version());
+				_pacman_runscriptlet(handle->root, pm_install, "post_remove", pkg_local->version(), NULL, this);
+			}
+		}
+
+		/* remove the package from the database */
+		_pacman_log(PM_LOG_FLOW1, _("updating database"));
+		_pacman_log(PM_LOG_FLOW2, _("removing database entry '%s'"), pkg_local->name());
+		if(pkg_local->remove() == -1) {
+			_pacman_log(PM_LOG_ERROR, _("could not remove database entry %s-%s"), pkg_local->name(), pkg_local->version());
+		}
+		if(_pacman_db_remove_pkgfromcache(db_local, pkg_local) == -1) {
+			_pacman_log(PM_LOG_ERROR, _("could not remove entry '%s' from cache"), pkg_local->name());
+		}
+
+		/* update dependency packages' REQUIREDBY fields */
+		_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
+		for(lp = pkg_local->depends(); lp; lp = lp->next) {
+			Package *depinfo = NULL;
+			pmdepend_t depend;
+			char *data;
+			if(_pacman_splitdep((char*)lp->data, &depend)) {
+				continue;
+			}
+			/* if this dependency is in the transaction targets, no need to update
+			 * its requiredby info: it is in the process of being removed (if not
+			 * already done!)
+			 */
+			if(_pacman_pkg_isin(depend.name, packages)) {
+				continue;
+			}
+			depinfo = _pacman_db_get_pkgfromcache(db_local, depend.name);
+			if(depinfo == NULL) {
+				/* look for a provides package */
+				pmlist_t *provides = _pacman_db_whatprovides(db_local, depend.name);
+				if(provides) {
+					/* TODO: should check _all_ packages listed in provides, not just
+					 *			 the first one.
+					 */
+					/* use the first one */
+					depinfo = _pacman_db_get_pkgfromcache(db_local, ((Package *)provides->data)->name());
+					FREELISTPTR(provides);
+				}
+				if(depinfo == NULL) {
+					_pacman_log(PM_LOG_ERROR, _("could not find dependency '%s'"), depend.name);
+					/* wtf */
+					continue;
+				}
+			}
+			/* splice out this entry from requiredby */
+			depinfo->m_requiredby = _pacman_list_remove(depinfo->requiredby(), pkg_local->name(), str_cmp, (void **)&data);
+			FREE(data);
+			_pacman_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name());
+			if(db_local->write(depinfo, INFRQ_DEPENDS)) {
+				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
+					depinfo->name(), depinfo->version());
+			}
+		}
+
+		}
+
+		if(pkg_new) {
+			_pacman_log(PM_LOG_FLOW1, _("adding new package %s-%s"), pkg_new->name(), pkg_new->version());
 		if(!(this->flags & PM_TRANS_FLAG_DBONLY)) {
 			int errors = _pacman_fpmpackage_install(pkg_new, type, this, trans_event_table[type].pre.event, howmany, remain, pkg_local);
 
@@ -1974,85 +2034,6 @@ int __pmtrans_t::commit(pmtranstype_t type, pmlist_t **data)
 			_pacman_ldconfig(handle->root);
 			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", handle->root, handle->dbpath, db_local->treename, pkg_new->name(), pkg_new->version());
 			_pacman_runscriptlet(handle->root, pm_install, trans_event_table[type].post.hook, pkg_new->version(), pkg_local ? pkg_local->version() : NULL, this);
-		}
-
-		}
-		if(type == PM_TRANS_TYPE_REMOVE) {
-		if(this->type != PM_TRANS_TYPE_UPGRADE) {
-			/* run the pre-remove scriptlet if it exists */
-			if(pkg_local->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, pkg_local->name(), pkg_local->version());
-				_pacman_runscriptlet(handle->root, pm_install, "pre_remove", pkg_local->version(), NULL, this);
-			}
-		}
-
-		if(!(flags & PM_TRANS_FLAG_DBONLY)) {
-			_pacman_localpackage_remove(pkg_local, this, howmany, remain);
-		}
-
-		PROGRESS(this, PM_TRANS_PROGRESS_REMOVE_START, pkg_local->name(), 100, howmany, howmany - remain + 1);
-		if(this->type != PM_TRANS_TYPE_UPGRADE) {
-			/* run the post-remove script if it exists */
-			if(pkg_local->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-				/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
-				_pacman_ldconfig(handle->root);
-				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, pkg_local->name(), pkg_local->version());
-				_pacman_runscriptlet(handle->root, pm_install, "post_remove", pkg_local->version(), NULL, this);
-			}
-		}
-
-		/* remove the package from the database */
-		_pacman_log(PM_LOG_FLOW1, _("updating database"));
-		_pacman_log(PM_LOG_FLOW2, _("removing database entry '%s'"), pkg_local->name());
-		if(pkg_local->remove() == -1) {
-			_pacman_log(PM_LOG_ERROR, _("could not remove database entry %s-%s"), pkg_local->name(), pkg_local->version());
-		}
-		if(_pacman_db_remove_pkgfromcache(db_local, pkg_local) == -1) {
-			_pacman_log(PM_LOG_ERROR, _("could not remove entry '%s' from cache"), pkg_local->name());
-		}
-
-		/* update dependency packages' REQUIREDBY fields */
-		_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
-		for(lp = pkg_local->depends(); lp; lp = lp->next) {
-			Package *depinfo = NULL;
-			pmdepend_t depend;
-			char *data;
-			if(_pacman_splitdep((char*)lp->data, &depend)) {
-				continue;
-			}
-			/* if this dependency is in the transaction targets, no need to update
-			 * its requiredby info: it is in the process of being removed (if not
-			 * already done!)
-			 */
-			if(_pacman_pkg_isin(depend.name, packages)) {
-				continue;
-			}
-			depinfo = _pacman_db_get_pkgfromcache(db_local, depend.name);
-			if(depinfo == NULL) {
-				/* look for a provides package */
-				pmlist_t *provides = _pacman_db_whatprovides(db_local, depend.name);
-				if(provides) {
-					/* TODO: should check _all_ packages listed in provides, not just
-					 *			 the first one.
-					 */
-					/* use the first one */
-					depinfo = _pacman_db_get_pkgfromcache(db_local, ((Package *)provides->data)->name());
-					FREELISTPTR(provides);
-				}
-				if(depinfo == NULL) {
-					_pacman_log(PM_LOG_ERROR, _("could not find dependency '%s'"), depend.name);
-					/* wtf */
-					continue;
-				}
-			}
-			/* splice out this entry from requiredby */
-			depinfo->m_requiredby = _pacman_list_remove(depinfo->requiredby(), pkg_local->name(), str_cmp, (void **)&data);
-			FREE(data);
-			_pacman_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name());
-			if(db_local->write(depinfo, INFRQ_DEPENDS)) {
-				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
-					depinfo->name(), depinfo->version());
-			}
 		}
 
 		}
