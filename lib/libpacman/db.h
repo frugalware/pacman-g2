@@ -27,7 +27,8 @@
 #include <time.h>
 
 #include "handle.h"
-#include "object.h"
+
+#include "kernel/fobject.h"
 
 namespace libpacman {
 
@@ -40,7 +41,7 @@ class Package;
 namespace libpacman {
 
 class Database
-	: public libpacman::Object
+	: public ::flib::FObject
 {
 public:
 	virtual ~Database();

@@ -29,8 +29,9 @@
 
 #include "io/ffilelock.h"
 #include "db.h"
-#include "object.h"
 #include "trans.h"
+
+#include "kernel/fobject.h"
 
 namespace libpacman {
 
@@ -46,7 +47,7 @@ typedef enum __pmaccess_t {
 namespace libpacman {
 
 class Handle
-	: public libpacman::Object
+	: public ::flib::FObject
 {
 public:
 	Handle();

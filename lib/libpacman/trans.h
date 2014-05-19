@@ -28,6 +28,7 @@ typedef struct __pmtrans_t pmtrans_t;
 
 #include "handle.h"
 
+#include "kernel/fobject.h"
 #include "util/stringlist.h"
 
 namespace libpacman {
@@ -55,7 +56,7 @@ typedef struct __pmtrans_cbs_t {
 } pmtrans_cbs_t;
 
 struct __pmtrans_t
-	: public libpacman::Object
+	: public ::flib::FObject
 {
 	__pmtrans_t(pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
 	~__pmtrans_t();

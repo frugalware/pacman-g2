@@ -23,7 +23,7 @@
 
 #include "pacman.h"
 
-#include "object.h"
+#include "kernel/fobject.h"
 
 #define GRP_NAME_LEN 256
 
@@ -31,7 +31,7 @@ namespace libpacman
 {
 
 class Group
-//	: public libpacman::Object // FIXME: Enable when C list search is removed.
+//	: public ::flib::FObject // FIXME: Enable when C list search is removed.
 {
 public:
 	Group();

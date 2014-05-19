@@ -21,51 +21,51 @@
 
 #include "config.h"
 
-#include "object.h"
+#include "kernel/fobject.h"
 
 #include "util.h"
 
 #include <fstdlib.h>
 
-using namespace libpacman;
+using namespace flib;
 
-void Object::operator delete(void *ptr)
+void FObject::operator delete(void *ptr)
 {
 	free(ptr);
 }
 
-void *Object::operator new(std::size_t size)
+void *FObject::operator new(std::size_t size)
 {
 	return f_zalloc(size);
 }
 
-Object::Object()
+FObject::FObject()
 	: m_reference_counter(1)
+{ }
+
+FObject::~FObject()
 {
 }
 
-Object::~Object()
-{
-}
-
-void Object::acquire() const
+void FObject::acquire() const
 {
 	++m_reference_counter;
 }
 
-void Object::release() const
+void FObject::release() const
 {
 	if(--m_reference_counter == 0) {
+		aboutToDestroy(const_cast<FObject *>(this));
 		delete this;
 	}
 }
 
-int Object::get(unsigned val, unsigned long *data) const
+int FObject::get(unsigned val, unsigned long *data) const
 {
 	return -1;
 }
 
-int Object::set(unsigned val, unsigned long data)
+int FObject::set(unsigned val, unsigned long data)
 {
 	return -1;
 }

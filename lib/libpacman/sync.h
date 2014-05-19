@@ -28,7 +28,7 @@
 #include "trans.h"
 
 struct __pmsyncpkg_t
-	: public libpacman::Object
+	: public ::flib::FObject
 {
 	__pmsyncpkg_t(int type, libpacman::Package *spkg, void *data);
 	~__pmsyncpkg_t();

@@ -31,8 +31,9 @@
 
 #include "pacman.h"
 
-#include "object.h"
 #include "trans.h"
+
+#include "kernel/fobject.h"
 
 enum {
 	PKG_FROM_CACHE = 1,
@@ -82,7 +83,7 @@ namespace libpacman {
 
 /* IMPROVEMENT: Add a dirty_flags to know what flags needs to be written */
 class Package
-	: public libpacman::Object
+	: public ::flib::FObject
 {
 #define LIBPACMAN_PACKAGE_PROPERTY(type, name, flag)                           \
 public:                                                                        \

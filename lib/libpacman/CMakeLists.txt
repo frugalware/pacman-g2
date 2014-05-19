@@ -5,6 +5,8 @@ SET(includedir "\${prefix}/include")
 CONFIGURE_FILE("pacman.pc.in" "pacman.pc" @ONLY)
 
 set(FLIB_SOURCES
+	kernel/fobject.cpp
+	kernel/fobject.h
 	kernel/fsignal.h
 	fstdlib/canonicalize.c
 	fstring/basename.c
@@ -55,7 +57,6 @@ set(LIBPACMAN_SOURCES
 	error.cpp
 	group.cpp
 	handle.cpp
-	object.cpp
 	package.cpp
 	packages_transaction.cpp
 	pacman.cpp

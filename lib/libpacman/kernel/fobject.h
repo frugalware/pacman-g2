@@ -18,25 +18,46 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef _PACMAN_OBJECT_H
-#define _PACMAN_OBJECT_H
+#ifndef FOBJECT_H
+#define FOBJECT_H
+
+#include "kernel/fsignal.h"
 
 #include <cstddef>
 
-namespace libpacman
+namespace flib
 {
 
-class Object
+class FObject
 {
+public:
+	static inline
+	void acquire(const flib::FObject *object)
+	{
+		if(object != 0) {
+			object->acquire();
+		}
+	}
+	  
+	static inline
+	void release(const flib::FObject *object)
+	{ 
+		if(object != 0) {
+			object->release();
+		}
+	}
+
 public:
 	void operator delete(void *ptr);
 	void *operator new(std::size_t size);
 
-	Object();
+	FObject();
 protected:
-	virtual ~Object();
+	virtual ~FObject();
 
 public:
+	flib::FSignal<void(FObject *)> aboutToDestroy;
+
 	void acquire() const;
 	void release() const;
 
@@ -47,14 +68,14 @@ private:
 	void operator delete[](void *ptr);
 	void *operator new[](std::size_t size);
 
-	Object(const libpacman::Object &other);
-	libpacman::Object &operator =(const libpacman::Object &other);
+	FObject(const flib::FObject &other);
+	flib::FObject &operator =(const flib::FObject &other);
 
 	mutable unsigned m_reference_counter;
 };
 
 }
 
-#endif /* _PACMAN__OBJECT_H */
+#endif /* FOBJECT_H */
 
 /* vim: set ts=2 sw=2 noet: */
