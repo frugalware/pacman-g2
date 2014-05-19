@@ -19,7 +19,7 @@ SET(PM_VERSION_TEMP "0." ${PACMAN_G2_LIB_VERSION})
 STRING(REPLACE ";" "" PM_VERSION ${PM_VERSION_TEMP})
 
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -std=c99 -Wall -D_GNU_SOURCE")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -std=c99 -Wall -D_GNU_SOURCE -fpermissive")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -std=c++11 -Wall -D_GNU_SOURCE -fpermissive")
 
 OPTION(DISABLE_BINDINGS "disables all libpacman bindings" OFF)
 OPTION(DISABLE_TRANSLATIONS "disables all translations" OFF)
