@@ -5,6 +5,7 @@ SET(includedir "\${prefix}/include")
 CONFIGURE_FILE("pacman.pc.in" "pacman.pc" @ONLY)
 
 set(FLIB_SOURCES
+	kernel/fsignal.h
 	fstdlib/canonicalize.c
 	fstring/basename.c
 	fstring/case.c
