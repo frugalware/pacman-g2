@@ -21,6 +21,8 @@
 #ifndef FSIGNAL_H
 #define FSIGNAL_H
 
+#include "util/falgorithms.h"
+
 #include <memory> // For std::unique_ptr
 #include <vector> // For std::vector
 
@@ -28,48 +30,6 @@
 
 namespace flib
 {
-
-template <typename T>
-T fdefault_constructor()
-{
-	return T();
-}
-
-template <typename T>
-struct FAccumulator
-{
-	T value;
-
-	FAccumulator()
-		: value(fdefault_constructor<T>())
-	{ }
-
-	template <typename Any>
-	const T &operator += (const Any &any)
-	{
-		return value += any;
-	}
-};
-
-template <>
-struct FAccumulator<void>
-{
-	template <typename Any>
-	void operator += (const Any &any)
-	{ }
-};
-
-template <typename>
-class FCallable;
-
-template <typename R, typename... Args>
-struct FCallable<R(Args...)>
-{
-	virtual ~FCallable()
-	{ }
-
-	virtual R operator () (Args...) const = 0;
-};
 
 namespace detail
 {
