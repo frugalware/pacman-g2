@@ -96,8 +96,10 @@ public:                                                                        \
 public:
 	Package(libpacman::Database *database = 0);
 	Package(const char *name, const char *version);
+protected:
 	virtual ~Package();
 
+public:
 	libpacman::Database *database() const;
 
 	virtual int read(unsigned int flags);

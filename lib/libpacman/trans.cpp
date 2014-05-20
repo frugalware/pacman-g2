@@ -56,6 +56,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+using namespace flib;
 using namespace libpacman;
 
 static int check_oldcache(void)
@@ -787,7 +788,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 			_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
 			          pkg_queued->name(), pkg_queued->version(), pkg_new->version());
 		}
-		delete pkg_new;
+		fRelease(pkg_new);
 	} else {
 		add(pkg_new, type, 0);
 	}
@@ -818,7 +819,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	return(0);
 
 error:
-	delete pkg_new;
+	fRelease(pkg_new);
 	return(-1);
 }
 
