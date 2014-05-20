@@ -21,11 +21,6 @@
 #ifndef FALGORITHMS_H
 #define FALGORITHMS_H
 
-#include <memory> // For std::unique_ptr
-#include <vector> // For std::vector
-
-#include "util.h" // for ASSERT
-
 namespace flib
 {
 
@@ -65,10 +60,23 @@ class FCallable;
 template <typename R, typename... Args>
 struct FCallable<R(Args...)>
 {
+	typedef R function_type(Args...);
+
 	virtual ~FCallable()
 	{ }
 
 	virtual R operator () (Args...) const = 0;
+};
+
+template <typename R, typename... Args>
+struct FCallable<R(Args..., ...)>
+{
+	typedef R function_type(Args..., ...);
+
+	virtual ~FCallable()
+	{ }
+
+	virtual R operator () (Args..., ...) const = 0;
 };
 
 }
