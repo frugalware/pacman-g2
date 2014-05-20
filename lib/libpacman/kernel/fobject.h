@@ -31,23 +31,6 @@ namespace flib
 class FObject
 {
 public:
-	static inline
-	void acquire(const flib::FObject *object)
-	{
-		if(object != 0) {
-			object->acquire();
-		}
-	}
-	  
-	static inline
-	void release(const flib::FObject *object)
-	{ 
-		if(object != 0) {
-			object->release();
-		}
-	}
-
-public:
 	void operator delete(void *ptr);
 	void *operator new(std::size_t size);
 
@@ -73,6 +56,20 @@ private:
 
 	mutable unsigned m_reference_counter;
 };
+
+static inline void fAcquire(flib::FObject *object)
+{
+	if(object != nullptr) {
+		object->acquire();
+	}
+}
+
+static inline void fRelease(flib::FObject *object)
+{
+	if(object != nullptr) {
+		object->release();
+	}
+}
 
 }
 
