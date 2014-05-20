@@ -1,5 +1,5 @@
 /*
- *  falgorithms.h
+ *  ffunctional.h
  *
  *  Copyright (c) 2014 by Michel Hermier <hermier@frugalware.org>
  *
@@ -18,44 +18,41 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef FALGORITHMS_H
-#define FALGORITHMS_H
+#ifndef FFUNCTIONAL_H
+#define FFUNCTIONAL_H
+
+#include <functional>
 
 namespace flib
 {
 
-template <typename T>
-T fdefault_constructor()
-{
-	return T();
-}
+template <typename>
+class FCallable;
 
-template <typename T>
-struct FAccumulator
+template <typename R, typename... Args>
+struct FCallable<R(Args...)>
 {
-	T value;
+	typedef R function_type(Args...);
 
-	FAccumulator()
-		: value(fdefault_constructor<T>())
+	virtual ~FCallable()
 	{ }
 
-	template <typename Any>
-	const T &operator += (const Any &any)
-	{
-		return value += any;
-	}
+	virtual R operator () (Args...) const = 0;
 };
 
-template <>
-struct FAccumulator<void>
+template <typename R, typename... Args>
+struct FCallable<R(Args..., ...)>
 {
-	template <typename Any>
-	void operator += (const Any &any)
+	typedef R function_type(Args..., ...);
+
+	virtual ~FCallable()
 	{ }
+
+	virtual R operator () (Args..., ...) const = 0;
 };
 
 }
 
-#endif /* FALGORITHMS_H */
+#endif /* FFUNCTIONAL_H */
 
 /* vim: set ts=2 sw=2 noet: */

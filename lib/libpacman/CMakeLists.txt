@@ -27,6 +27,7 @@ set(FLIB_SOURCES
 	util/flist.h
 	util/ffilelogger.c
 	util/ffilelogger.h
+	util/ffunctional.h
 	util/flog.c
 	util/flog.h
 	util/flogger.c

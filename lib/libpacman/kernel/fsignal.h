@@ -22,6 +22,7 @@
 #define FSIGNAL_H
 
 #include "util/falgorithms.h"
+#include "util/ffunctional.h"
 
 #include <memory> // For std::unique_ptr
 #include <vector> // For std::vector
