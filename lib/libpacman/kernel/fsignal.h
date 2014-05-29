@@ -31,16 +31,12 @@
 namespace flib
 {
 
-namespace detail
-{
-
 template <typename>
-class FSignalBase;
+class FSignal;
 
 template <typename R, typename... Args>
-class FSignalBase<R(Args...)>
+class FSignal<R(Args...)>
 {
-protected:
 	typedef std::vector<flib::FFunction<R(Args...)>> connections_container;
 	typedef typename connections_container::value_type value_type;
 	typedef typename connections_container::const_reference const_reference;
@@ -48,6 +44,25 @@ protected:
 	connections_container m_connections;
 
 public:
+	template <typename Accumulator = flib::FAccumulator<void>>
+	typename std::enable_if<!std::is_void<R>::value, Accumulator>::type operator()(Args... args) const
+	{
+		Accumulator accumulator = flib::fdefault_constructor<Accumulator>();
+
+		for(const_reference connection : m_connections) {
+			accumulator += connection(args...);
+		}
+		return accumulator;
+	}
+
+	template <typename Accumulator = void>
+	typename std::enable_if<std::is_void<R>::value, Accumulator>::type operator()(Args... args) const
+	{
+		for(const_reference connection : m_connections) {
+			connection(args...);
+		}
+	}
+
 	bool connect(const flib::FFunction<R(Args...)>& function)
 	{
 		ASSERT(function, return false);
@@ -67,57 +82,17 @@ public:
 	{
 		return connect(flib::FFunction<R(Args...)>(pointer, method, (const Receiver *)nullptr));
 	}
-};
-
-}
-
-template <typename>
-class FSignal;
-
-template <typename R, typename... Args>
-class FSignal<R(Args...)>
-	: public flib::detail::FSignalBase<R(Args...)>
-{
-	typedef flib::detail::FSignalBase<R(Args...)> super_type;
-	typedef typename super_type::const_reference const_reference;
-
-public:
-	template <typename Accumulator = flib::FAccumulator<void>>
-	Accumulator operator()(Args... args) const
-	{
-		Accumulator accumulator = flib::fdefault_constructor<Accumulator>();
-
-		for(const_reference connection : super_type::m_connections) {
-			accumulator += connection(args...);
-		}
-		return accumulator;
-	}
 
 	template <typename Accumulator = flib::FAccumulator<void>>
-	inline Accumulator emit(Args... args) const
+	inline typename std::enable_if<!std::is_void<R>::value, Accumulator>::type emit(Args... args) const
 	{
 		return operator()<Accumulator> (args...);
 	}
-};
 
-template <typename... Args>
-class FSignal<void(Args...)>
-	: public flib::detail::FSignalBase<void(Args...)>
-{
-	typedef flib::detail::FSignalBase<void(Args...)> super_type;
-	typedef typename super_type::const_reference const_reference;
-
-public:
-	void operator()(Args... args) const
+	template <typename Accumulator = void>
+	inline typename std::enable_if<std::is_void<R>::value, Accumulator>::type emit(Args... args) const
 	{
-		for(const_reference connection : super_type::m_connections) {
-			connection(args...);
-		}
-	}
-
-	inline void emit(Args... args) const
-	{
-		operator()(args...);
+		operator()<void> (args...);
 	}
 };
 
