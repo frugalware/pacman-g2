@@ -34,13 +34,15 @@ public:
 	void operator delete(void *ptr);
 	void *operator new(std::size_t size);
 
+public:
+	flib::FSignal<void(FObject *)> aboutToDestroy;
+
+public:
 	FObject();
 protected:
 	virtual ~FObject();
 
 public:
-	flib::FSignal<void(FObject *)> aboutToDestroy;
-
 	void acquire() const;
 	void release() const;
 
