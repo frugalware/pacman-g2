@@ -179,6 +179,35 @@ struct FMethodImpl<R(Args...), MethodSignature, Target, Pointer, MethodR(MethodA
 	}
 };
 
+template <typename>
+struct FSignature;
+
+template <typename FunctionR, typename... FunctionArgs>
+struct FSignature<FunctionR (*)(FunctionArgs...)>
+{
+	typedef FunctionR return_type;
+	typedef FunctionR(function_type)(FunctionArgs...);
+	typedef function_type *pfunction_type;
+};
+
+template <typename MethodR, typename MethodTarget, typename... MethodArgs>
+struct FSignature<MethodR (MethodTarget::*)(MethodArgs...)>
+{
+	typedef MethodR return_type;
+	typedef MethodR(function_type)(MethodArgs...);
+	typedef MethodTarget target_type;
+	typedef target_type *ptarget_type;
+};
+
+template <typename MethodR, typename MethodTarget, typename... MethodArgs>
+struct FSignature<MethodR (MethodTarget::*)(MethodArgs...) const>
+{
+	typedef MethodR return_type;
+	typedef MethodR(function_type)(MethodArgs...);
+	typedef const MethodTarget target_type;
+	typedef target_type *ptarget_type;
+};
+
 }
 
 template <typename>
@@ -220,26 +249,15 @@ public:
 		d = shared_ptr(new flib::detail::FFunctionImpl<R(Args...), FunctionR (*)(FunctionArgs...), FunctionR(FunctionArgs...)>(function));
 	}
 
-	template <typename Pointer, typename MethodR, typename MethodTarget, typename... MethodArgs>
-	FFunction(Pointer pointer, MethodR (MethodTarget::*method)(MethodArgs...))
-		: FFunction(pointer, method, (MethodTarget *)nullptr)
+	template <typename Pointer, typename MethodSignature>
+	FFunction(Pointer pointer, MethodSignature method)
+		: FFunction(pointer, method, (typename flib::detail::FSignature<MethodSignature>::ptarget_type) nullptr)
 	{ }
 
-	template <typename Pointer, typename MethodR, typename MethodTarget, typename... MethodArgs, typename Target>
-	FFunction(Pointer pointer, MethodR (MethodTarget::*method)(MethodArgs...), Target *)
+	template <typename Pointer, typename MethodSignature, typename Target>
+	FFunction(Pointer pointer, MethodSignature method, Target *)
 	{
-		_connect<Pointer, MethodR (MethodTarget::*)(MethodArgs...), Target *, MethodR(MethodArgs...)>(pointer, method);
-	}
-
-	template <typename Pointer, typename MethodR, typename MethodTarget, typename... MethodArgs>
-	FFunction(Pointer pointer, MethodR (MethodTarget::*method)(MethodArgs...) const)
-		: FFunction(pointer, method, (const MethodTarget *)nullptr)
-	{ }
-
-	template <typename Pointer, typename MethodR, typename MethodTarget, typename... MethodArgs, typename Target>
-	FFunction(Pointer pointer, MethodR (MethodTarget::*method)(MethodArgs...) const, const Target *)
-	{
-		_connect<Pointer, MethodR (MethodTarget::*)(MethodArgs...) const, const Target *, MethodR(MethodArgs...)>(pointer, method);
+		_connect<Pointer, MethodSignature, Target *, typename flib::detail::FSignature<MethodSignature>::function_type>(pointer, method);
 	}
 
 	template <typename T = R>

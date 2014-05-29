@@ -44,8 +44,8 @@ class FSignal<R(Args...)>
 	connections_container m_connections;
 
 public:
-	template <typename Accumulator = flib::FAccumulator<void>>
-	typename std::enable_if<!std::is_void<R>::value, Accumulator>::type operator()(Args... args) const
+	template <typename Accumulator = void>
+	typename std::enable_if<!std::is_void<Accumulator>::value, Accumulator>::type operator()(Args... args) const
 	{
 		Accumulator accumulator = flib::fdefault_constructor<Accumulator>();
 
@@ -56,7 +56,7 @@ public:
 	}
 
 	template <typename Accumulator = void>
-	typename std::enable_if<std::is_void<R>::value, Accumulator>::type operator()(Args... args) const
+	typename std::enable_if<std::is_void<Accumulator>::value, Accumulator>::type operator()(Args... args) const
 	{
 		for(const_reference connection : m_connections) {
 			connection(args...);
@@ -78,19 +78,19 @@ public:
 	}
 
 	template <typename Pointer, typename MethodSignature, typename Receiver>
-	bool connect(Pointer *pointer, MethodSignature method, const Receiver *)
+	bool connect(Pointer *pointer, MethodSignature method, Receiver *)
 	{
-		return connect(flib::FFunction<R(Args...)>(pointer, method, (const Receiver *)nullptr));
+		return connect(flib::FFunction<R(Args...)>(pointer, method, (Receiver *)nullptr));
 	}
 
-	template <typename Accumulator = flib::FAccumulator<void>>
-	inline typename std::enable_if<!std::is_void<R>::value, Accumulator>::type emit(Args... args) const
+	template <typename Accumulator = void>
+	inline typename std::enable_if<!std::is_void<Accumulator>::value, Accumulator>::type emit(Args... args) const
 	{
 		return operator()<Accumulator> (args...);
 	}
 
 	template <typename Accumulator = void>
-	inline typename std::enable_if<std::is_void<R>::value, Accumulator>::type emit(Args... args) const
+	inline typename std::enable_if<std::is_void<Accumulator>::value, Accumulator>::type emit(Args... args) const
 	{
 		operator()<void> (args...);
 	}
