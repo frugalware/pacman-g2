@@ -71,6 +71,12 @@ public:
 		return true;
 	}
 
+	template <typename OtherR, typename... OtherArgs>
+	bool connect(const flib::FSignal<OtherR(OtherArgs...)> *other)
+	{
+		return connect(flib::FFunction<R(Args...)>(other, static_cast<R (flib::FSignal<OtherR(OtherArgs...)>::*)(OtherArgs...) const>(&flib::FSignal<OtherR(OtherArgs...)>::operator())));
+	}
+
 	template <typename Pointer, typename MethodSignature>
 	bool connect(Pointer pointer, MethodSignature method)
 	{

@@ -24,7 +24,8 @@
 #include <functional>
 #include <memory> // For std::shared_ptr
 #include <typeinfo>
-#include <type_traits>
+
+#include "util/ftype_traits.h"
 
 #include "util.h" // For ASSERT
 
@@ -60,19 +61,33 @@ namespace detail
 {
 
 template <typename>
-struct FAbstractFunctionImpl;
+struct FAbstractFunctionImplBase;
 
 template <typename R, typename... Args>
-struct FAbstractFunctionImpl<R(Args...)>
-	: flib::FCallable<void(R*, Args...)>
+struct FAbstractFunctionImplBase<R(Args...)>
+	: flib::FCallable<void(R *, Args...)>
 {
 	virtual const std::type_info &target_type() const = 0;
-	virtual void *target() const = 0;
 
-	virtual const std::type_info &target_method_type() const
+	virtual const std::type_info &method_type() const
 	{
 		return typeid(void);
 	}
+};
+
+template <typename, typename>
+struct FAbstractFunctionImpl;
+
+template <typename R, typename... Args, typename Target>
+struct FAbstractFunctionImpl<R(Args...), Target>
+	: flib::detail::FAbstractFunctionImplBase<R(Args...)>
+{
+	const std::type_info &target_type() const
+	{
+		return typeid(Target);
+	}
+
+	virtual Target target() const = 0;
 };
 
 template <typename, typename, typename>
@@ -80,7 +95,7 @@ struct FFunctionImpl;
 
 template <typename R, typename... Args, typename Target, typename FunctionR, typename... FunctionArgs>
 struct FFunctionImpl<R(Args...), Target, FunctionR(FunctionArgs...)>
-	: flib::detail::FAbstractFunctionImpl<R(Args...)>
+	: flib::detail::FAbstractFunctionImpl<R(Args...), Target>
 {
 	Target m_target;
 
@@ -88,31 +103,73 @@ struct FFunctionImpl<R(Args...), Target, FunctionR(FunctionArgs...)>
 		: m_target(target)
 	{ }
 
-	const std::type_info &target_type() const
-	{
-		return typeid(Target);
-	}
-
-	virtual void *target() const
-	{
-		return (void *)(uintptr_t)m_target;
-	}
-
-	virtual void operator()(R *ret, Args... args) const
+	virtual void operator()(R *ret, Args... args) const override
 	{
 		adapted(ret, args...);
 	}
 
 	template <typename T = R>
-	inline void adapted(typename std::enable_if<!std::is_void<T>::value, FunctionR *>::type ret, FunctionArgs... args, ...) const
+	inline void adapted(typename std::enable_if<!std::is_void<T>::value, T *>::type ret, FunctionArgs... args, ...) const
 	{
 		*ret = m_target(args...);
 	}
 
 	template <typename T = R>
-	inline void adapted(typename std::enable_if<std::is_void<T>::value, void *>::type ret, FunctionArgs... args, ...) const
+	inline void adapted(typename std::enable_if<std::is_void<T>::value, T *>::type ret, FunctionArgs... args, ...) const
 	{
 		m_target(args...);
+	}
+
+	virtual Target target() const override
+	{
+		return m_target;
+	}
+};
+
+template <typename, typename, typename>
+struct FAbstractCallbackImpl;
+
+template <typename R, typename... Args, typename Target, typename CallbackR, typename CallbackData, typename... CallbackArgs>
+struct FAbstractCallbackImpl<R(Args...), Target, CallbackR(CallbackData, CallbackArgs...)>
+  : flib::detail::FFunctionImpl<R(Args...), Target, CallbackR(CallbackArgs...)>
+{
+	virtual CallbackData callback_data() const = 0;
+};
+
+template <typename, typename, typename, typename>
+struct FCallbackImpl;
+
+template <typename R, typename... Args, typename Target, typename CallbackR, typename CallbackData, typename... CallbackArgs, typename CallbackDataHolder>
+struct FCallbackImpl<R(Args...), Target, CallbackR(CallbackData, CallbackArgs...), CallbackDataHolder>
+	: flib::detail::FFunctionImpl<R(Args...), Target, CallbackR(CallbackArgs...)>
+{
+	CallbackDataHolder m_data;
+
+	FCallbackImpl(Target target, CallbackDataHolder data)
+		: flib::detail::FFunctionImpl<R(Args...), Target, CallbackR(CallbackArgs...)>(target)
+		, m_data(data)
+	{ }
+
+	virtual void operator()(R *ret, Args... args) const override
+	{
+		adapted(ret, args...);
+	}
+
+	template <typename T = R>
+	inline void adapted(typename std::enable_if<!std::is_void<T>::value, T *>::type ret, CallbackArgs... args, ...) const
+	{
+		*ret = m_target(m_data, args...);
+	}
+
+	template <typename T = R>
+	inline void adapted(typename std::enable_if<std::is_void<T>::value, T *>::type ret, CallbackArgs... args, ...) const
+	{
+		m_target(m_data, args...);
+	}
+
+	virtual CallbackData callback_data() const override
+	{
+		return m_data;
 	}
 };
 
@@ -121,7 +178,7 @@ struct FAbstractMethodImpl;
 
 template <typename R, typename... Args, typename MethodSignature, typename Target>
 struct FAbstractMethodImpl<R(Args...), MethodSignature, Target>
-	: FAbstractFunctionImpl<R(Args...)>
+	: FAbstractFunctionImpl<R(Args...), Target>
 {
 	MethodSignature m_method;
 
@@ -129,7 +186,7 @@ struct FAbstractMethodImpl<R(Args...), MethodSignature, Target>
 		: m_method(method)
 	{ }
 
-	virtual const std::type_info &target_method_type() const
+	virtual const std::type_info &method_type() const override
 	{
 		return typeid(MethodSignature);
 	}
@@ -151,31 +208,26 @@ struct FMethodImpl<R(Args...), MethodSignature, Target, Pointer, MethodR(MethodA
 		, m_target(target)
 	{ }
 
-  const std::type_info &target_type() const
-	{
-		return typeid(Target);
-	}
-
-	virtual void *target() const
-	{
-		return &(*m_target);
-	}
-
-	virtual void operator()(R *ret, Args... args) const
+	virtual void operator()(R *ret, Args... args) const override
 	{
 		adapted(ret, args...);
 	}
 
 	template <typename T = R>
-	inline void adapted(typename std::enable_if<!std::is_void<T>::value, MethodR *>::type ret, MethodArgs... args, ...) const
+	inline void adapted(typename std::enable_if<!std::is_void<T>::value, T *>::type ret, MethodArgs... args, ...) const
 	{
 		*ret = (m_target->*(super_type::m_method))(args...);
 	}
 
 	template <typename T = R>
-	inline void adapted(typename std::enable_if<std::is_void<T>::value, void *>::type ret, MethodArgs... args, ...) const
+	inline void adapted(typename std::enable_if<std::is_void<T>::value, T *>::type ret, MethodArgs... args, ...) const
 	{
 		((*m_target).*(super_type::m_method))(args...);
+	}
+
+	virtual Target target() const override
+	{
+		return &(*m_target);
 	}
 };
 
@@ -216,7 +268,7 @@ class FFunction;
 template <typename R, typename... Args>
 class FFunction<R(Args...)>
 {
-	typedef std::shared_ptr<flib::detail::FAbstractFunctionImpl<R(Args...)>> shared_ptr;
+	typedef std::shared_ptr<flib::detail::FAbstractFunctionImplBase<R(Args...)>> shared_ptr;
 
 	shared_ptr d;
 
@@ -288,28 +340,26 @@ public:
 	{
 		return d != nullptr ? d->target_type() : typeid(void); 
 	}
-#if 0
-	template <typename T>
-	inline T *target()
-	{
-		T *ret = nullptr;
 
-		if(d != nullptr) {
-			dynamic_cast<flib::detail::FAbstractFunctionImpl<R (Args...)> &>(*d);
-		}
-		return nullptr;
+	template <typename T>
+	inline typename std::enable_if<!flib::is_const_pointer<T>::value, T>::type target() const
+	{
+		auto imp = dynamic_cast<flib::detail::FAbstractFunctionImpl<R(Args...), T> *>(d.get());
+
+		return imp != nullptr ? imp->target() : nullptr;
 	}
 
 	template <typename T>
-	inline const T *target() const
+	inline typename std::enable_if<flib::is_const_pointer<T>::value, T>::type target() const
 	{
-		return d != nullptr ? d->target() : nullptr;
+		auto imp = dynamic_cast<flib::detail::FAbstractFunctionImpl<R(Args...), T> *>(d.get());
+
+		return imp != nullptr ? imp->target() : target<typename flib::is_const_pointer<T>::pointer_type>();
 	}
-#endif
-	template <typename T>
-	inline const std::type_info &target_method_type() const
+
+	inline const std::type_info &method_type() const
 	{
-		return d != nullptr ? d->target_method_type() : typeid(void);
+		return d != nullptr ? d->method_type() : typeid(void);
 	}
 };
 
