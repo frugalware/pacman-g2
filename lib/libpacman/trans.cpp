@@ -2034,9 +2034,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 
 		}
 		EVENT(this, trans_event_table[type].post.event, event_arg0, event_arg1);
-		if (pkg_local) {
-			pkg_local->release();
-		}
+		fRelease(pkg_local);
 	}
 
 	/* run ldconfig if it exists */
