@@ -75,6 +75,7 @@ __pmdepmissing_t::__pmdepmissing_t(const char *target, unsigned char type, unsig
 	}
 }
 
+static
 int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
 {
 	pmlist_t *i;

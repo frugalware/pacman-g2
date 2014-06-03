@@ -49,7 +49,6 @@ typedef struct __pmgraph_t {
 	pmlist_t *childptr; /* points to a child in children list */
 } pmgraph_t;
 
-int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack);
 pmlist_t *_pacman_depmisslist_add(pmlist_t *misslist, pmdepmissing_t *miss);
 
 pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode);
