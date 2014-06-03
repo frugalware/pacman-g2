@@ -74,7 +74,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 		remain = _pacman_list_count(i);
 		percent = (double)(howmany - remain + 1) / howmany;
 
-		if(trans->type == PM_TRANS_TYPE_SYNC) {
+		if(trans->m_type == PM_TRANS_TYPE_SYNC) {
 			PROGRESS(trans, PM_TRANS_PROGRESS_INTERCONFLICTS_START, "",
 					(percent * 100), howmany,
 					howmany - remain + 1);

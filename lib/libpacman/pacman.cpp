@@ -1029,7 +1029,7 @@ void *pacman_trans_getinfo(unsigned char parm)
 	trans = handle->trans;
 
 	switch(parm) {
-		case PM_TRANS_TYPE:     data = (void *)(long)trans->type; break;
+		case PM_TRANS_TYPE:     data = (void *)(long)trans->m_type; break;
 		case PM_TRANS_FLAGS:    data = (void *)(long)trans->flags; break;
 		case PM_TRANS_TARGETS:  data = trans->targets; break;
 		case PM_TRANS_PACKAGES: data = trans->packages ? trans->packages : trans->syncpkgs; break;
@@ -1087,7 +1087,7 @@ int pacman_trans_sysupgrade()
 	trans = handle->trans;
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(trans->state == STATE_INITIALIZED, RET_ERR(PM_ERR_TRANS_NOT_INITIALIZED, -1));
-	ASSERT(trans->type == PM_TRANS_TYPE_SYNC, RET_ERR(PM_ERR_TRANS_TYPE, -1));
+	ASSERT(trans->m_type == PM_TRANS_TYPE_SYNC, RET_ERR(PM_ERR_TRANS_TYPE, -1));
 
 	return(_pacman_trans_sysupgrade(trans));
 }
@@ -1108,7 +1108,7 @@ int pacman_trans_addtarget(const char *target)
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(trans->state == STATE_INITIALIZED, RET_ERR(PM_ERR_TRANS_NOT_INITIALIZED, -1));
 
-	return trans->add(target, trans->type, trans->flags);
+	return trans->add(target, trans->m_type, trans->flags);
 }
 
 /** Prepare a transaction.

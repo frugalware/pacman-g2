@@ -92,7 +92,7 @@ __pmtrans_t::__pmtrans_t(pmtranstype_t type, unsigned int flags, pmtrans_cbs_t c
 	}
 
 	this->handle = ::handle;
-	this->type = type;
+	m_type = type;
 	this->flags = flags;
 	this->cbs = cbs;
 //	packages = f_ptrlist_new();
@@ -292,7 +292,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 			for(j = ps->data; j; j = j->next) {
 				Package *pkg = j->data;
 				if(!_pacman_pkg_isin(pkg->name(), tr->packages)) {
-					if(tr->add(pkg->name(), tr->type, tr->flags) == -1) {
+					if(tr->add(pkg->name(), tr->m_type, tr->flags) == -1) {
 						goto error;
 					}
 					replaces++;
@@ -329,7 +329,7 @@ int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
 		Package *spkg = ps->pkg_new;
 		char str[PATH_MAX];
 		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
-		if(tr->add(str, tr->type, tr->flags) == -1) {
+		if(tr->add(str, tr->m_type, tr->flags) == -1) {
 			goto error;
 		}
 		/* using _pacman_list_last() is ok because addtarget() adds the new target at the
@@ -849,7 +849,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 
 	_pacman_trans_compute_triggers(this);
 
-	if(type == PM_TRANS_TYPE_SYNC) {
+	if(m_type == PM_TRANS_TYPE_SYNC) {
 	for(i = syncpkgs; i; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
 		list = _pacman_list_add(list, ps->pkg_new);
@@ -1221,11 +1221,11 @@ cleanup:
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
 
-		lp = _pacman_checkdeps(this, type, packages);
+		lp = _pacman_checkdeps(this, m_type, packages);
 
 		/* look for unsatisfied dependencies */
 		if(lp != NULL) {
-			if((type == PM_TRANS_TYPE_REMOVE) && (flags & PM_TRANS_FLAG_CASCADE)) {
+			if((m_type == PM_TRANS_TYPE_REMOVE) && (flags & PM_TRANS_FLAG_CASCADE)) {
 				while(lp) {
 					pmlist_t *i;
 					for(i = lp; i; i = i->next) {
@@ -1240,7 +1240,7 @@ cleanup:
 						}
 					}
 					FREELIST(lp);
-					lp = _pacman_checkdeps(this, type, packages);
+					lp = _pacman_checkdeps(this, m_type, packages);
 				}
 			}
 		}
@@ -1253,7 +1253,7 @@ cleanup:
 			RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
 		}
 
-		if(type & PM_TRANS_TYPE_ADD) {
+		if(m_type & PM_TRANS_TYPE_ADD) {
 		/* no unsatisfied deps, so look for conflicts */
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
 		lp = _pacman_checkconflicts(this, packages);
@@ -1274,7 +1274,7 @@ cleanup:
 		packages = lp;
 		}
 
-		if(type == PM_TRANS_TYPE_REMOVE && type != PM_TRANS_TYPE_UPGRADE) {
+		if(m_type == PM_TRANS_TYPE_REMOVE && m_type != PM_TRANS_TYPE_UPGRADE) {
 		if(flags & PM_TRANS_FLAG_RECURSE) {
 			_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
 			packages = _pacman_removedeps(db_local, packages);
@@ -1292,7 +1292,7 @@ cleanup:
 
 	/* Cleaning up
 	 */
-	if(type & PM_TRANS_TYPE_ADD) {
+	if(m_type & PM_TRANS_TYPE_ADD) {
 	EVENT(this, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
 	_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
 	for (lp = packages; lp!=NULL; lp=lp->next) {
@@ -1666,7 +1666,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 					nb = 1;
 				}
 				FREE(hash_orig);
-				if(!nb && trans->type == PM_TRANS_TYPE_UPGRADE) {
+				if(!nb && trans->m_type == PM_TRANS_TYPE_UPGRADE) {
 					/* check noupgrade */
 					if(_pacman_list_is_strin(file, handle->noupgrade)) {
 						nb = 1;
@@ -1701,7 +1701,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 					} else {
 						/* if the file is flagged, back it up to .pacsave */
 						if(nb) {
-							if(trans->type == PM_TRANS_TYPE_UPGRADE) {
+							if(trans->m_type == PM_TRANS_TYPE_UPGRADE) {
 								/* we're upgrading so just leave the file as is. pacman_add() will handle it */
 							} else {
 								if(!(trans->flags & PM_TRANS_FLAG_NOSAVE)) {
@@ -1780,7 +1780,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 
 	_pacman_trans_set_state(this, STATE_COMMITING);
 
-	if(type == PM_TRANS_TYPE_SYNC) {
+	if(m_type == PM_TRANS_TYPE_SYNC) {
 		if(_pacman_trans_download_commit(this, data) == -1) {
 			_pacman_trans_set_state(this, STATE_PREPARED);
 			return(-1);
@@ -1794,7 +1794,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 	for(targ = packages; targ; targ = targ->next) {
 		Package *pkg_new = NULL, *pkg_local = NULL;
 		void *event_arg0 = NULL, *event_arg1 = NULL;
-		pmtranstype_t type = this->type;
+		pmtranstype_t type = m_type;
 
 		remain = _pacman_list_count(targ);
 
@@ -1854,7 +1854,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 
 		if(pkg_local) {
 			_pacman_log(PM_LOG_FLOW1, _("removing old package first (%s-%s)"), pkg_local->name(), pkg_local->version());
-		if(this->type != PM_TRANS_TYPE_UPGRADE) {
+		if(m_type != PM_TRANS_TYPE_UPGRADE) {
 			/* run the pre-remove scriptlet if it exists */
 			if(pkg_local->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, pkg_local->name(), pkg_local->version());
@@ -1867,7 +1867,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 		}
 
 		PROGRESS(this, PM_TRANS_PROGRESS_REMOVE_START, pkg_local->name(), 100, howmany, howmany - remain + 1);
-		if(this->type != PM_TRANS_TYPE_UPGRADE) {
+		if(m_type != PM_TRANS_TYPE_UPGRADE) {
 			/* run the post-remove script if it exists */
 			if(pkg_local->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 				/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
