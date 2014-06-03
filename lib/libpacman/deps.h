@@ -33,6 +33,9 @@ typedef struct __pmdepend_t {
 } pmdepend_t;
 
 struct __pmdepmissing_t {
+	__pmdepmissing_t(const char *target, unsigned char type, unsigned char depmod,
+			const char *depname, const char *depversion);
+
 	char target[PKG_NAME_LEN];
 	unsigned char type;
 	pmdepend_t depend;
@@ -46,9 +49,9 @@ typedef struct __pmgraph_t {
 	pmlist_t *childptr; /* points to a child in children list */
 } pmgraph_t;
 
-pmdepmissing_t *_pacman_depmiss_new(const char *target, unsigned char type, unsigned char depmod,
-                            const char *depname, const char *depversion);
 int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack);
+pmlist_t *_pacman_depmisslist_add(pmlist_t *misslist, pmdepmissing_t *miss);
+
 pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode);
 pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packages);
 int _pacman_splitdep(char *depstr, pmdepend_t *depend);

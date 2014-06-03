@@ -61,26 +61,18 @@ static void _pacman_graph_free(void *data)
 	free(graph);
 }
 
-pmdepmissing_t *_pacman_depmiss_new(const char *target, unsigned char type, unsigned char depmod,
-                                  const char *depname, const char *depversion)
+__pmdepmissing_t::__pmdepmissing_t(const char *target, unsigned char type, unsigned char depmod,
+		const char *depname, const char *depversion)
 {
-	pmdepmissing_t *miss = _pacman_malloc(sizeof(pmdepmissing_t));
-
-	if(miss == NULL) {
-		return(NULL);
-	}
-
-	STRNCPY(miss->target, target, PKG_NAME_LEN);
-	miss->type = type;
-	miss->depend.mod = depmod;
-	STRNCPY(miss->depend.name, depname, PKG_NAME_LEN);
+	STRNCPY(this->target, target, PKG_NAME_LEN);
+	this->type = type;
+	depend.mod = depmod;
+	STRNCPY(depend.name, depname, PKG_NAME_LEN);
 	if(depversion) {
-		STRNCPY(miss->depend.version, depversion, PKG_VERSION_LEN);
+		STRNCPY(depend.version, depversion, PKG_VERSION_LEN);
 	} else {
-		miss->depend.version[0] = 0;
+		depend.version[0] = 0;
 	}
-
-	return(miss);
 }
 
 int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
@@ -94,8 +86,17 @@ int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
 			return(1);
 		}
 	}
-
 	return(0);
+}
+
+pmlist_t *_pacman_depmisslist_add(pmlist_t *misslist, pmdepmissing_t *miss)
+{
+	if(!_pacman_depmiss_isin(miss, misslist)) {
+		misslist = _pacman_list_add(misslist, miss);
+	} else {
+		delete miss;
+	}
+	return misslist;
 }
 
 /* Re-order a list of target packages with respect to their dependencies.
@@ -254,13 +255,9 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 					if(_pacman_depcmp(oldpkg, &depend) && !_pacman_depcmp(tp, &depend)) {
 						_pacman_log(PM_LOG_DEBUG, _("checkdeps: updated '%s' won't satisfy a dependency of '%s'"),
 								oldpkg->name(), p->name());
-						miss = _pacman_depmiss_new(p->name(), PM_DEP_TYPE_DEPEND, depend.mod,
+						miss = new __pmdepmissing_t(p->name(), PM_DEP_TYPE_DEPEND, depend.mod,
 								depend.name, depend.version);
-						if(!_pacman_depmiss_isin(miss, baddeps)) {
-							baddeps = _pacman_list_add(baddeps, miss);
-						} else {
-							FREE(miss);
-						}
+						baddeps = _pacman_depmisslist_add(baddeps, miss);
 					}
 				}
 			}
@@ -391,12 +388,8 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				if(!found) {
 					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s as a dependency for %s"),
 					          depend.name, tp->name());
-					miss = _pacman_depmiss_new(tp->name(), PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
-					if(!_pacman_depmiss_isin(miss, baddeps)) {
-						baddeps = _pacman_list_add(baddeps, miss);
-					} else {
-						FREE(miss);
-					}
+					miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
+					baddeps = _pacman_depmisslist_add(baddeps, miss);
 				}
 			}
 		}
@@ -428,12 +421,8 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 					}
 					if(!found) {
 						_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s which requires %s"), (char *)j->data, tp->name());
-						miss = _pacman_depmiss_new(tp->name(), PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, j->data, NULL);
-						if(!_pacman_depmiss_isin(miss, baddeps)) {
-							baddeps = _pacman_list_add(baddeps, miss);
-						} else {
-							FREE(miss);
-						}
+						miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, (const char *)j->data, NULL);
+						baddeps = _pacman_depmisslist_add(baddeps, miss);
 					}
 				}
 			}
