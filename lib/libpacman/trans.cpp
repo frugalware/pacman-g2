@@ -410,189 +410,6 @@ error:
 	return(-1);
 }
 
-static
-int _pacman_trans_download_commit(pmtrans_t *trans, pmlist_t **data)
-{
-	pmlist_t *i, *j, *files = NULL;
-	char ldir[PATH_MAX];
-	int doremove, retval = 0, tries = 0;
-	int varcache = 1;
-
-	trans->state = STATE_DOWNLOADING;
-	/* group sync records by repository and download */
-	snprintf(ldir, PATH_MAX, "%s%s", handle->root, handle->cachedir);
-
-	for(tries = 0; tries < handle->maxtries; tries++) {
-		retval = 0;
-		FREELIST(*data);
-		int done = 1;
-		for(i = handle->dbs_sync; i; i = i->next) {
-			struct stat buf;
-			Database *current = i->data;
-
-			for(j = trans->syncpkgs; j; j = j->next) {
-				pmsyncpkg_t *ps = j->data;
-				Package *spkg = ps->pkg_new;
-				Database *dbs = spkg->database();
-
-				if(current == dbs) {
-					char filename[PATH_MAX];
-					char lcpath[PATH_MAX];
-					spkg->filename(filename, sizeof(filename));
-					snprintf(lcpath, sizeof(lcpath), "%s/%s", ldir, filename);
-
-					if(trans->flags & PM_TRANS_FLAG_PRINTURIS) {
-						if (!(trans->flags & PM_TRANS_FLAG_PRINTURIS_CACHED)) {
-							if (stat(lcpath, &buf) == 0) {
-								continue;
-							}
-						}
-
-						EVENT(trans, PM_TRANS_EVT_PRINTURI, pacman_db_getinfo(c_cast(current), PM_DB_FIRSTSERVER), filename);
-					} else {
-						if(stat(lcpath, &buf)) {
-							/* file is not in the cache dir, so add it to the list */
-							files = _pacman_stringlist_append(files, filename);
-						} else {
-							_pacman_log(PM_LOG_DEBUG, _("%s is already in the cache\n"), filename);
-						}
-					}
-				}
-			}
-
-			if(files) {
-				EVENT(trans, PM_TRANS_EVT_RETRIEVE_START, current->treename, NULL);
-				if(stat(ldir, &buf)) {
-					/* no cache directory.... try creating it */
-					_pacman_log(PM_LOG_WARNING, _("no %s cache exists.  creating..."), ldir);
-					if(_pacman_makepath(ldir)) {
-						/* couldn't mkdir the cache directory, so fall back to /tmp and unlink
-						 * the package afterwards.
-						 */
-						_pacman_log(PM_LOG_WARNING, _("couldn't create package cache, using /tmp instead"));
-						snprintf(ldir, PATH_MAX, "%s/tmp", handle->root);
-						if(pacman_set_option(PM_OPT_CACHEDIR, (long)"/tmp") == -1) {
-							_pacman_log(PM_LOG_WARNING, _("failed to set option CACHEDIR (%s)\n"), pacman_strerror(pm_errno));
-							RET_ERR(PM_ERR_RETRIEVE, -1);
-						}
-						varcache = 0;
-					}
-				}
-				if(_pacman_downloadfiles(current->servers, ldir, files, tries) == -1) {
-					_pacman_log(PM_LOG_WARNING, _("failed to retrieve some files from %s\n"), current->treename);
-					retval=1;
-					done = 0;
-				}
-				FREELIST(files);
-			}
-		}
-		if (!done)
-			continue;
-		if(trans->flags & PM_TRANS_FLAG_PRINTURIS) {
-			return(0);
-		}
-
-		/* Check integrity of files */
-		if(!(trans->flags & PM_TRANS_FLAG_NOINTEGRITY)) {
-			EVENT(trans, PM_TRANS_EVT_INTEGRITY_START, NULL, NULL);
-
-			for(i = trans->syncpkgs; i; i = i->next) {
-				pmsyncpkg_t *ps = i->data;
-				Package *spkg = ps->pkg_new;
-				char str[PATH_MAX], pkgname[PATH_MAX];
-				char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
-				char *ptr=NULL;
-
-				spkg->filename(pkgname, sizeof(pkgname));
-				md5sum1 = spkg->md5sum;
-				sha1sum1 = spkg->sha1sum;
-
-				if((md5sum1 == NULL) && (sha1sum1 == NULL)) {
-					if((ptr = (char *)malloc(512)) == NULL) {
-						RET_ERR(PM_ERR_MEMORY, -1);
-					}
-					snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
-					*data = _pacman_list_add(*data, ptr);
-					retval = 1;
-					continue;
-				}
-				snprintf(str, PATH_MAX, "%s/%s/%s", handle->root, handle->cachedir, pkgname);
-				md5sum2 = _pacman_MDFile(str);
-				sha1sum2 = _pacman_SHAFile(str);
-				if(md5sum2 == NULL && sha1sum2 == NULL) {
-					if((ptr = (char *)malloc(512)) == NULL) {
-						RET_ERR(PM_ERR_MEMORY, -1);
-					}
-					snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
-					*data = _pacman_list_add(*data, ptr);
-					retval = 1;
-					continue;
-				}
-				if((strcmp(md5sum1, md5sum2) != 0) && (strcmp(sha1sum1, sha1sum2) != 0)) {
-					_pacman_log(PM_LOG_DEBUG, _("expected md5:  '%s'"), md5sum1);
-					_pacman_log(PM_LOG_DEBUG, _("actual md5:    '%s'"), md5sum2);
-					_pacman_log(PM_LOG_DEBUG, _("expected sha1: '%s'"), sha1sum1);
-					_pacman_log(PM_LOG_DEBUG, _("actual sha1:   '%s'"), sha1sum2);
-
-					doremove = 0;
-					if((ptr = (char *)malloc(512)) == NULL) {
-						RET_ERR(PM_ERR_MEMORY, -1);
-					}
-					if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
-						doremove=1;
-					} else {
-						QUESTION(trans, PM_TRANS_CONV_CORRUPTED_PKG, pkgname, NULL, NULL, &doremove);
-					}
-					if(doremove) {
-						snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
-						unlink(str);
-						snprintf(ptr, 512, _("archive %s was corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
-					} else {
-						snprintf(ptr, 512, _("archive %s is corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
-					}
-					*data = _pacman_list_add(*data, ptr);
-					retval = 1;
-				}
-				FREE(md5sum2);
-				FREE(sha1sum2);
-			}
-			if(!retval) {
-				break;
-			}
-		}
-	}
-
-	if(retval) {
-		pm_errno = PM_ERR_PKG_CORRUPTED;
-		goto error;
-	}
-	if(!(trans->flags & PM_TRANS_FLAG_NOINTEGRITY)) {
-		EVENT(trans, PM_TRANS_EVT_INTEGRITY_DONE, NULL, NULL);
-	}
-	if(trans->flags & PM_TRANS_FLAG_DOWNLOADONLY) {
-		return(0);
-	}
-	if(!retval) {
-		trans->state = STATE_COMMITING;
-		retval = _pacman_sync_commit(trans, data);
-		if(retval) {
-			goto error;
-		}
-	}
-
-	if(!varcache && !(trans->flags & PM_TRANS_FLAG_DOWNLOADONLY)) {
-		/* delete packages */
-		for(i = files; i; i = i->next) {
-			unlink(i->data);
-		}
-	}
-	return(retval);
-
-error:
-	/* commiting failed, so this is still just a prepared transaction */
-	return(-1);
-}
-
 pmsyncpkg_t *__pmtrans_t::add(pmsyncpkg_t *syncpkg, int flags)
 {
 	pmsyncpkg_t *syncpkg_queued;
@@ -1781,10 +1598,180 @@ int __pmtrans_t::commit(pmlist_t **data)
 	_pacman_trans_set_state(this, STATE_COMMITING);
 
 	if(m_type == PM_TRANS_TYPE_SYNC) {
-		if(_pacman_trans_download_commit(this, data) == -1) {
-			_pacman_trans_set_state(this, STATE_PREPARED);
-			return(-1);
+	pmlist_t *i, *j, *files = NULL;
+	char ldir[PATH_MAX];
+	int doremove, retval = 0, tries = 0;
+	int varcache = 1;
+
+	state = STATE_DOWNLOADING;
+	/* group sync records by repository and download */
+	snprintf(ldir, PATH_MAX, "%s%s", handle->root, handle->cachedir);
+
+	for(tries = 0; tries < handle->maxtries; tries++) {
+		retval = 0;
+		FREELIST(*data);
+		int done = 1;
+		for(i = handle->dbs_sync; i; i = i->next) {
+			struct stat buf;
+			Database *current = i->data;
+
+			for(j = syncpkgs; j; j = j->next) {
+				pmsyncpkg_t *ps = j->data;
+				Package *spkg = ps->pkg_new;
+				Database *dbs = spkg->database();
+
+				if(current == dbs) {
+					char filename[PATH_MAX];
+					char lcpath[PATH_MAX];
+					spkg->filename(filename, sizeof(filename));
+					snprintf(lcpath, sizeof(lcpath), "%s/%s", ldir, filename);
+
+					if(flags & PM_TRANS_FLAG_PRINTURIS) {
+						if (!(flags & PM_TRANS_FLAG_PRINTURIS_CACHED)) {
+							if (stat(lcpath, &buf) == 0) {
+								continue;
+							}
+						}
+
+						EVENT(this, PM_TRANS_EVT_PRINTURI, pacman_db_getinfo(c_cast(current), PM_DB_FIRSTSERVER), filename);
+					} else {
+						if(stat(lcpath, &buf)) {
+							/* file is not in the cache dir, so add it to the list */
+							files = _pacman_stringlist_append(files, filename);
+						} else {
+							_pacman_log(PM_LOG_DEBUG, _("%s is already in the cache\n"), filename);
+						}
+					}
+				}
+			}
+
+			if(files) {
+				EVENT(this, PM_TRANS_EVT_RETRIEVE_START, current->treename, NULL);
+				if(stat(ldir, &buf)) {
+					/* no cache directory.... try creating it */
+					_pacman_log(PM_LOG_WARNING, _("no %s cache exists.  creating..."), ldir);
+					if(_pacman_makepath(ldir)) {
+						/* couldn't mkdir the cache directory, so fall back to /tmp and unlink
+						 * the package afterwards.
+						 */
+						_pacman_log(PM_LOG_WARNING, _("couldn't create package cache, using /tmp instead"));
+						snprintf(ldir, PATH_MAX, "%s/tmp", handle->root);
+						if(pacman_set_option(PM_OPT_CACHEDIR, (long)"/tmp") == -1) {
+							_pacman_log(PM_LOG_WARNING, _("failed to set option CACHEDIR (%s)\n"), pacman_strerror(pm_errno));
+							RET_ERR(PM_ERR_RETRIEVE, -1);
+						}
+						varcache = 0;
+					}
+				}
+				if(_pacman_downloadfiles(current->servers, ldir, files, tries) == -1) {
+					_pacman_log(PM_LOG_WARNING, _("failed to retrieve some files from %s\n"), current->treename);
+					retval=1;
+					done = 0;
+				}
+				FREELIST(files);
+			}
 		}
+		if (!done)
+			continue;
+		if(flags & PM_TRANS_FLAG_PRINTURIS) {
+			return(0);
+		}
+
+		/* Check integrity of files */
+		if(!(flags & PM_TRANS_FLAG_NOINTEGRITY)) {
+			EVENT(this, PM_TRANS_EVT_INTEGRITY_START, NULL, NULL);
+
+			for(i = syncpkgs; i; i = i->next) {
+				pmsyncpkg_t *ps = i->data;
+				Package *spkg = ps->pkg_new;
+				char str[PATH_MAX], pkgname[PATH_MAX];
+				char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
+				char *ptr=NULL;
+
+				spkg->filename(pkgname, sizeof(pkgname));
+				md5sum1 = spkg->md5sum;
+				sha1sum1 = spkg->sha1sum;
+
+				if((md5sum1 == NULL) && (sha1sum1 == NULL)) {
+					if((ptr = (char *)malloc(512)) == NULL) {
+						RET_ERR(PM_ERR_MEMORY, -1);
+					}
+					snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
+					*data = _pacman_list_add(*data, ptr);
+					retval = 1;
+					continue;
+				}
+				snprintf(str, PATH_MAX, "%s/%s/%s", handle->root, handle->cachedir, pkgname);
+				md5sum2 = _pacman_MDFile(str);
+				sha1sum2 = _pacman_SHAFile(str);
+				if(md5sum2 == NULL && sha1sum2 == NULL) {
+					if((ptr = (char *)malloc(512)) == NULL) {
+						RET_ERR(PM_ERR_MEMORY, -1);
+					}
+					snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
+					*data = _pacman_list_add(*data, ptr);
+					retval = 1;
+					continue;
+				}
+				if((strcmp(md5sum1, md5sum2) != 0) && (strcmp(sha1sum1, sha1sum2) != 0)) {
+					_pacman_log(PM_LOG_DEBUG, _("expected md5:  '%s'"), md5sum1);
+					_pacman_log(PM_LOG_DEBUG, _("actual md5:    '%s'"), md5sum2);
+					_pacman_log(PM_LOG_DEBUG, _("expected sha1: '%s'"), sha1sum1);
+					_pacman_log(PM_LOG_DEBUG, _("actual sha1:   '%s'"), sha1sum2);
+
+					doremove = 0;
+					if((ptr = (char *)malloc(512)) == NULL) {
+						RET_ERR(PM_ERR_MEMORY, -1);
+					}
+					if(flags & PM_TRANS_FLAG_ALLDEPS) {
+						doremove=1;
+					} else {
+						QUESTION(this, PM_TRANS_CONV_CORRUPTED_PKG, pkgname, NULL, NULL, &doremove);
+					}
+					if(doremove) {
+						snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
+						unlink(str);
+						snprintf(ptr, 512, _("archive %s was corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
+					} else {
+						snprintf(ptr, 512, _("archive %s is corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
+					}
+					*data = _pacman_list_add(*data, ptr);
+					retval = 1;
+				}
+				FREE(md5sum2);
+				FREE(sha1sum2);
+			}
+			if(!retval) {
+				break;
+			}
+		}
+	}
+
+	if(retval) {
+		pm_errno = PM_ERR_PKG_CORRUPTED;
+		goto error;
+	}
+	if(!(flags & PM_TRANS_FLAG_NOINTEGRITY)) {
+		EVENT(this, PM_TRANS_EVT_INTEGRITY_DONE, NULL, NULL);
+	}
+	if(flags & PM_TRANS_FLAG_DOWNLOADONLY) {
+		return(0);
+	}
+	if(!retval) {
+		state = STATE_COMMITING;
+		retval = _pacman_sync_commit(this, data);
+		if(retval) {
+			goto error;
+		}
+	}
+
+	if(!varcache && !(flags & PM_TRANS_FLAG_DOWNLOADONLY)) {
+		/* delete packages */
+		for(i = files; i; i = i->next) {
+			unlink(i->data);
+		}
+	}
+	return(retval);
 	} else {
 	int ret = 0;
 	time_t t;
@@ -2044,8 +2031,12 @@ int __pmtrans_t::commit(pmlist_t **data)
 	}
 
 	_pacman_trans_set_state(this, STATE_COMMITED);
-
 	return(0);
+
+error:
+	/* commiting failed, so this is still just a prepared transaction */
+	_pacman_trans_set_state(this, STATE_PREPARED);
+	return(-1);
 }
 
 /* vim: set ts=2 sw=2 noet: */
