@@ -266,150 +266,6 @@ static int check_olddelay(void)
 	return(0);
 }
 
-static
-int _pacman_sync_commit(pmtrans_t *trans, pmlist_t **data)
-{
-	pmlist_t *i, *j;
-	pmtrans_t *tr = NULL;
-	int replaces = 0;
-	Database *db_local = trans->handle->db_local;
-
-	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
-
-	if(handle->sysupgrade) {
-		_pacman_runhook("pre_sysupgrade", trans);
-	}
-	/* remove conflicting and to-be-replaced packages */
-	tr = new __pmtrans_t(PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, trans->cbs);
-	if(tr == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("could not create removal transaction"));
-		pm_errno = PM_ERR_MEMORY;
-		goto error;
-	}
-	for(i = trans->syncpkgs; i; i = i->next) {
-		pmsyncpkg_t *ps = i->data;
-		if(ps->type == PM_SYNC_TYPE_REPLACE) {
-			for(j = ps->data; j; j = j->next) {
-				Package *pkg = j->data;
-				if(!_pacman_pkg_isin(pkg->name(), tr->packages)) {
-					if(tr->add(pkg->name(), tr->m_type, tr->flags) == -1) {
-						goto error;
-					}
-					replaces++;
-				}
-			}
-		}
-	}
-	if(replaces) {
-		_pacman_log(PM_LOG_FLOW1, _("removing conflicting and to-be-replaced packages"));
-		if(tr->prepare(data) == -1) {
-			_pacman_log(PM_LOG_ERROR, _("could not prepare removal transaction"));
-			goto error;
-		}
-		/* we want the frontend to be aware of commit details */
-		tr->cbs.event = trans->cbs.event;
-		if(tr->commit(NULL) == -1) {
-			_pacman_log(PM_LOG_ERROR, _("could not commit removal transaction"));
-			goto error;
-		}
-	}
-	delete tr;
-	tr = NULL;
-
-	/* install targets */
-	_pacman_log(PM_LOG_FLOW1, _("installing packages"));
-	tr = new __pmtrans_t(PM_TRANS_TYPE_UPGRADE, trans->flags | PM_TRANS_FLAG_NODEPS, trans->cbs);
-	if(tr == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("could not create transaction"));
-		pm_errno = PM_ERR_MEMORY;
-		goto error;
-	}
-	for(i = trans->syncpkgs; i; i = i->next) {
-		pmsyncpkg_t *ps = i->data;
-		Package *spkg = ps->pkg_new;
-		char str[PATH_MAX];
-		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
-		if(tr->add(str, tr->m_type, tr->flags) == -1) {
-			goto error;
-		}
-		/* using _pacman_list_last() is ok because addtarget() adds the new target at the
-		 * end of the tr->packages list */
-		spkg = _pacman_list_last(tr->packages)->data;
-		if(ps->type == PM_SYNC_TYPE_DEPEND || trans->flags & PM_TRANS_FLAG_ALLDEPS) {
-			spkg->m_reason = PM_PKG_REASON_DEPEND;
-		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !handle->sysupgrade) {
-			spkg->m_reason = PM_PKG_REASON_EXPLICIT;
-		}
-	}
-	if(tr->prepare(data) == -1) {
-		_pacman_log(PM_LOG_ERROR, _("could not prepare transaction"));
-		/* pm_errno is set by trans_prepare */
-		goto error;
-	}
-	if(tr->commit(NULL) == -1) {
-		_pacman_log(PM_LOG_ERROR, _("could not commit transaction"));
-		goto error;
-	}
-	delete tr;
-	tr = NULL;
-
-	/* propagate replaced packages' requiredby fields to their new owners */
-	if(replaces) {
-		_pacman_log(PM_LOG_FLOW1, _("updating database for replaced packages' dependencies"));
-		for(i = trans->syncpkgs; i; i = i->next) {
-			pmsyncpkg_t *ps = i->data;
-			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				Package *pkg_new = _pacman_db_get_pkgfromcache(db_local, ps->pkg_name);
-				for(j = ps->data; j; j = j->next) {
-					pmlist_t *k;
-					Package *old = j->data;
-					/* merge lists */
-					for(k = old->requiredby(); k; k = k->next) {
-						if(!_pacman_list_is_strin(k->data, pkg_new->requiredby())) {
-							/* replace old's name with new's name in the requiredby's dependency list */
-							pmlist_t *m;
-							Package *depender = _pacman_db_get_pkgfromcache(db_local, k->data);
-							if(depender == NULL) {
-								/* If the depending package no longer exists in the local db,
-								 * then it must have ALSO conflicted with ps->pkg.  If
-								 * that's the case, then we don't have anything to propagate
-								 * here. */
-								continue;
-							}
-							for(m = depender->depends(); m; m = m->next) {
-								if(!strcmp(m->data, old->name())) {
-									FREE(m->data);
-									m->data = strdup(pkg_new->name());
-								}
-							}
-							if(db_local->write(depender, INFRQ_DEPENDS) == -1) {
-								_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
-										  pkg_new->name(), pkg_new->version());
-							}
-							/* add the new requiredby */
-							pkg_new->m_requiredby = _pacman_stringlist_append(pkg_new->m_requiredby, k->data);
-						}
-					}
-				}
-				if(db_local->write(pkg_new, INFRQ_DEPENDS) == -1) {
-					_pacman_log(PM_LOG_ERROR, _("could not update new database entry %s-%s"),
-							  pkg_new->name(), pkg_new->version());
-				}
-			}
-		}
-	}
-
-	if(handle->sysupgrade) {
-		_pacman_runhook("post_sysupgrade", trans);
-	}
-	return(0);
-
-error:
-	delete tr;
-	/* commiting failed, so this is still just a prepared transaction */
-	return(-1);
-}
-
 pmsyncpkg_t *__pmtrans_t::add(pmsyncpkg_t *syncpkg, int flags)
 {
 	pmsyncpkg_t *syncpkg_queued;
@@ -1582,6 +1438,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 	Database *db_local;
 	int howmany, remain;
 	pmlist_t *targ, *lp;
+	pmtrans_t *tr = NULL;
 	char pm_install[PATH_MAX];
 
 	ASSERT((db_local = handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -1759,10 +1616,136 @@ int __pmtrans_t::commit(pmlist_t **data)
 	}
 	if(!retval) {
 		state = STATE_COMMITING;
-		retval = _pacman_sync_commit(this, data);
-		if(retval) {
+		pmlist_t *i, *j;
+	int replaces = 0;
+
+	if(::handle->sysupgrade) {
+		_pacman_runhook("pre_sysupgrade", this);
+	}
+	/* remove conflicting and to-be-replaced packages */
+	tr = new __pmtrans_t(PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, cbs);
+	if(tr == NULL) {
+		_pacman_log(PM_LOG_ERROR, _("could not create removal transaction"));
+		pm_errno = PM_ERR_MEMORY;
+		goto error;
+	}
+	for(i = syncpkgs; i; i = i->next) {
+		pmsyncpkg_t *ps = i->data;
+		if(ps->type == PM_SYNC_TYPE_REPLACE) {
+			for(j = ps->data; j; j = j->next) {
+				Package *pkg = j->data;
+				if(!_pacman_pkg_isin(pkg->name(), tr->packages)) {
+					if(tr->add(pkg->name(), tr->m_type, tr->flags) == -1) {
+						goto error;
+					}
+					replaces++;
+				}
+			}
+		}
+	}
+	if(replaces) {
+		_pacman_log(PM_LOG_FLOW1, _("removing conflicting and to-be-replaced packages"));
+		if(tr->prepare(data) == -1) {
+			_pacman_log(PM_LOG_ERROR, _("could not prepare removal transaction"));
 			goto error;
 		}
+		/* we want the frontend to be aware of commit details */
+		tr->cbs.event = cbs.event;
+		if(tr->commit(NULL) == -1) {
+			_pacman_log(PM_LOG_ERROR, _("could not commit removal transaction"));
+			goto error;
+		}
+	}
+	delete tr;
+	tr = NULL;
+
+	/* install targets */
+	_pacman_log(PM_LOG_FLOW1, _("installing packages"));
+	tr = new __pmtrans_t(PM_TRANS_TYPE_UPGRADE, flags | PM_TRANS_FLAG_NODEPS, cbs);
+	if(tr == NULL) {
+		_pacman_log(PM_LOG_ERROR, _("could not create transaction"));
+		pm_errno = PM_ERR_MEMORY;
+		goto error;
+	}
+	for(i = syncpkgs; i; i = i->next) {
+		pmsyncpkg_t *ps = i->data;
+		Package *spkg = ps->pkg_new;
+		char str[PATH_MAX];
+		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, ::handle->root, ::handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
+		if(tr->add(str, tr->m_type, tr->flags) == -1) {
+			goto error;
+		}
+		/* using _pacman_list_last() is ok because addtarget() adds the new target at the
+		 * end of the tr->packages list */
+		spkg = _pacman_list_last(tr->packages)->data;
+		if(ps->type == PM_SYNC_TYPE_DEPEND || flags & PM_TRANS_FLAG_ALLDEPS) {
+			spkg->m_reason = PM_PKG_REASON_DEPEND;
+		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !::handle->sysupgrade) {
+			spkg->m_reason = PM_PKG_REASON_EXPLICIT;
+		}
+	}
+	if(tr->prepare(data) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("could not prepare transaction"));
+		/* pm_errno is set by trans_prepare */
+		goto error;
+	}
+	if(tr->commit(NULL) == -1) {
+		_pacman_log(PM_LOG_ERROR, _("could not commit transaction"));
+		goto error;
+	}
+	delete tr;
+	tr = NULL;
+
+	/* propagate replaced packages' requiredby fields to their new owners */
+	if(replaces) {
+		_pacman_log(PM_LOG_FLOW1, _("updating database for replaced packages' dependencies"));
+		for(i = syncpkgs; i; i = i->next) {
+			pmsyncpkg_t *ps = i->data;
+			if(ps->type == PM_SYNC_TYPE_REPLACE) {
+				Package *pkg_new = _pacman_db_get_pkgfromcache(db_local, ps->pkg_name);
+				for(j = ps->data; j; j = j->next) {
+					pmlist_t *k;
+					Package *old = j->data;
+					/* merge lists */
+					for(k = old->requiredby(); k; k = k->next) {
+						if(!_pacman_list_is_strin(k->data, pkg_new->requiredby())) {
+							/* replace old's name with new's name in the requiredby's dependency list */
+							pmlist_t *m;
+							Package *depender = _pacman_db_get_pkgfromcache(db_local, k->data);
+							if(depender == NULL) {
+								/* If the depending package no longer exists in the local db,
+								 * then it must have ALSO conflicted with ps->pkg.  If
+								 * that's the case, then we don't have anything to propagate
+								 * here. */
+								continue;
+							}
+							for(m = depender->depends(); m; m = m->next) {
+								if(!strcmp(m->data, old->name())) {
+									FREE(m->data);
+									m->data = strdup(pkg_new->name());
+								}
+							}
+							if(db_local->write(depender, INFRQ_DEPENDS) == -1) {
+								_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
+										  pkg_new->name(), pkg_new->version());
+							}
+							/* add the new requiredby */
+							pkg_new->m_requiredby = _pacman_stringlist_append(pkg_new->m_requiredby, k->data);
+						}
+					}
+				}
+				if(db_local->write(pkg_new, INFRQ_DEPENDS) == -1) {
+					_pacman_log(PM_LOG_ERROR, _("could not update new database entry %s-%s"),
+							  pkg_new->name(), pkg_new->version());
+				}
+			}
+		}
+	}
+
+	if(::handle->sysupgrade) {
+		_pacman_runhook("post_sysupgrade", this);
+	}
+	retval = 0;
 	}
 
 	if(!varcache && !(flags & PM_TRANS_FLAG_DOWNLOADONLY)) {
@@ -2034,6 +2017,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 	return(0);
 
 error:
+	delete tr;
 	/* commiting failed, so this is still just a prepared transaction */
 	_pacman_trans_set_state(this, STATE_PREPARED);
 	return(-1);
