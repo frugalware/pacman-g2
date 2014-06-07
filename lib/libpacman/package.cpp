@@ -114,47 +114,47 @@ int _pacman_pkg_cmp(const void *p1, const void *p2)
 	return pkg1 == pkg2 ? 0: strcmp(pkg1->name(), pkg2->name());
 }
 
-int _pacman_pkg_is_valid(const Package *pkg, const pmtrans_t *trans, const char *pkgfile)
+bool Package::is_valid(const pmtrans_t *trans, const char *pkgfile) const
 {
 	struct utsname name;
 
-	if(_pacman_strempty(pkg->m_name)) {
+	if(_pacman_strempty(m_name)) {
 		_pacman_log(PM_LOG_ERROR, _("missing package name in %s"), pkgfile);
 		goto pkg_error;
 	}
-	if(_pacman_strempty(pkg->m_version)) {
+	if(_pacman_strempty(m_version)) {
 		_pacman_log(PM_LOG_ERROR, _("missing package version in %s"), pkgfile);
 		goto pkg_error;
 	}
-	if(strchr(pkg->m_version, '-') != strrchr(pkg->m_version, '-')) {
+	if(strchr(m_version, '-') != strrchr(m_version, '-')) {
 		_pacman_log(PM_LOG_ERROR, _("version contains additional hyphens in %s"), pkgfile);
 		goto invalid_name_error;
 	}
 	if (trans != NULL && !(trans->flags & PM_TRANS_FLAG_NOARCH)) {
-		if(_pacman_strempty(pkg->arch)) {
+		if(_pacman_strempty(arch)) {
 			_pacman_log(PM_LOG_ERROR, _("missing package architecture in %s"), pkgfile);
 			goto pkg_error;
 		}
 
 		uname (&name);
-		if(strncmp(name.machine, pkg->arch, strlen(pkg->arch))) {
+		if(strncmp(name.machine, arch, strlen(arch))) {
 			_pacman_log(PM_LOG_ERROR, _("wrong package architecture in %s"), pkgfile);
 			goto arch_error;
 		}
 	}
-	return 0;
+	return true;
 
 invalid_name_error:
 	pm_errno = PM_ERR_PKG_INVALID_NAME;
-	return -1;
+	return false;
 
 arch_error:
 	pm_errno = PM_ERR_WRONG_ARCH;
-	return -1;
+	return false;
 
 pkg_error:
 	pm_errno = PM_ERR_PKG_INVALID;
-	return -1;
+	return false;
 }
 
 /* Test for existence of a package in a pmlist_t*

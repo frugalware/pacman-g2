@@ -102,6 +102,8 @@ protected:
 public:
 	libpacman::Database *database() const;
 
+	virtual bool is_valid(const pmtrans_t *trans, const char *pkgfile) const;
+
 	virtual int read(unsigned int flags);
 	virtual int write(unsigned int flags); /* Optional */
 	virtual int remove(); /* Optional */
@@ -165,7 +167,6 @@ public:
 int _pacman_pkg_delete(libpacman::Package *self);
 
 int _pacman_pkg_cmp(const void *p1, const void *p2);
-int _pacman_pkg_is_valid(const libpacman::Package *pkg, const pmtrans_t *trans, const char *pkgfile);
 libpacman::Package *_pacman_pkg_isin(const char *needle, pmlist_t *haystack);
 
 int _pacman_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatcher, int flags);

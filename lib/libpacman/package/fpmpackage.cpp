@@ -191,7 +191,7 @@ Package *_pacman_fpmpackage_load(const char *pkgfile)
 				goto error;
 			}
 			fclose(pkginfo);
-			if(_pacman_pkg_is_valid(info, handle->trans, pkgfile) != 0) {
+			if(!info->is_valid(handle->trans, pkgfile)) {
 				goto error;
 			}
 			config = 1;

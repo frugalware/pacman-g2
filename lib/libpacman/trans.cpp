@@ -411,7 +411,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	}
 
 	pkg_new = _pacman_filedb_load(NULL, target);
-	if(pkg_new == NULL || _pacman_pkg_is_valid(pkg_new, this, target) != 0) {
+	if(pkg_new == NULL || !pkg_new->is_valid(this, target)) {
 		/* pm_errno is already set by _pacman_filedb_load() */
 		goto error;
 	}
