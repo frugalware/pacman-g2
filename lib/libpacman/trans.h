@@ -58,6 +58,10 @@ typedef struct __pmtrans_cbs_t {
 struct __pmtrans_t
 	: public ::flib::FObject
 {
+	flib::FSignal<void(unsigned char, void *, void *)> event;
+	flib::FSignal<void(unsigned char, void *, void *, void *, int *)> conv;
+	flib::FSignal<void(unsigned char, const char *, int, int, int)> progress;
+
 	__pmtrans_t(pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
 	~__pmtrans_t();
 
@@ -93,6 +97,7 @@ do { \
 	if(t && t->cbs.conv) { \
 		t->cbs.conv((q), (d1), (d2), (d3), (r)); \
 	} \
+	t->conv((q), (d1), (d2), (d3), (r)); \
 } while(0)
 #define PROGRESS(_t, e, p, per, h, r) \
 do { \
@@ -100,6 +105,7 @@ do { \
 	if(t && t->cbs.progress) { \
 		t->cbs.progress((e), (p), (per), (h), (r)); \
 	} \
+	t->progress((e), (p), (per), (h), (r)); \
 } while(0)
 
 int _pacman_trans_event(pmtrans_t *trans, unsigned char, void *, void *);

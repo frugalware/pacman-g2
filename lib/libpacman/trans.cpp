@@ -192,6 +192,7 @@ int _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, void
 	if(trans->cbs.event) {
 		trans->cbs.event(event, data1, data2);
 	}
+	trans->event(event, data1, data2);
 	return 0;
 }
 
