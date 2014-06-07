@@ -1405,6 +1405,72 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 	return 0;
 }
 
+static
+int _pacman_cachedpkg_check_integrity(Package *spkg, __pmtrans_t *trans, pmlist_t **data)
+{
+	char str[PATH_MAX], pkgname[PATH_MAX];
+	char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
+	char *ptr=NULL;
+	int retval = 0;
+
+	spkg->filename(pkgname, sizeof(pkgname));
+	md5sum1 = spkg->md5sum;
+	sha1sum1 = spkg->sha1sum;
+
+	if((md5sum1 == NULL) && (sha1sum1 == NULL)) {
+		if((ptr = (char *)malloc(512)) == NULL) {
+			RET_ERR(PM_ERR_MEMORY, -1);
+		}
+		snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
+		*data = _pacman_list_add(*data, ptr);
+		retval = 1;
+		goto out;
+	}
+	snprintf(str, PATH_MAX, "%s/%s/%s", handle->root, handle->cachedir, pkgname);
+	md5sum2 = _pacman_MDFile(str);
+	sha1sum2 = _pacman_SHAFile(str);
+	if(md5sum2 == NULL && sha1sum2 == NULL) {
+		if((ptr = (char *)malloc(512)) == NULL) {
+			RET_ERR(PM_ERR_MEMORY, -1);
+		}
+		snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
+		*data = _pacman_list_add(*data, ptr);
+		retval = 1;
+		goto out;
+	}
+	if((strcmp(md5sum1, md5sum2) != 0) && (strcmp(sha1sum1, sha1sum2) != 0)) {
+		int doremove = 0;
+
+		_pacman_log(PM_LOG_DEBUG, _("expected md5:  '%s'"), md5sum1);
+		_pacman_log(PM_LOG_DEBUG, _("actual md5:    '%s'"), md5sum2);
+		_pacman_log(PM_LOG_DEBUG, _("expected sha1: '%s'"), sha1sum1);
+		_pacman_log(PM_LOG_DEBUG, _("actual sha1:   '%s'"), sha1sum2);
+
+		if((ptr = (char *)malloc(512)) == NULL) {
+			RET_ERR(PM_ERR_MEMORY, -1);
+		}
+		if(trans->flags & PM_TRANS_FLAG_ALLDEPS) {
+			doremove=1;
+		} else {
+			QUESTION(trans, PM_TRANS_CONV_CORRUPTED_PKG, pkgname, NULL, NULL, &doremove);
+		}
+		if(doremove) {
+			snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
+			unlink(str);
+			snprintf(ptr, 512, _("archive %s was corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
+		} else {
+			snprintf(ptr, 512, _("archive %s is corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
+		}
+		*data = _pacman_list_add(*data, ptr);
+		retval = 1;
+	}
+
+out:
+	FREE(md5sum2);
+	FREE(sha1sum2);
+	return retval;
+}
+
 /* Helper function for comparing strings
  */
 static int str_cmp(const void *s1, const void *s2)
@@ -1458,7 +1524,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 	if(m_type == PM_TRANS_TYPE_SYNC) {
 	pmlist_t *i, *j, *files = NULL;
 	char ldir[PATH_MAX];
-	int doremove, retval = 0, tries = 0;
+	int retval = 0, tries = 0;
 	int varcache = 1;
 
 	state = STATE_DOWNLOADING;
@@ -1541,63 +1607,8 @@ int __pmtrans_t::commit(pmlist_t **data)
 
 			for(i = syncpkgs; i; i = i->next) {
 				pmsyncpkg_t *ps = i->data;
-				Package *spkg = ps->pkg_new;
-				char str[PATH_MAX], pkgname[PATH_MAX];
-				char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
-				char *ptr=NULL;
 
-				spkg->filename(pkgname, sizeof(pkgname));
-				md5sum1 = spkg->md5sum;
-				sha1sum1 = spkg->sha1sum;
-
-				if((md5sum1 == NULL) && (sha1sum1 == NULL)) {
-					if((ptr = (char *)malloc(512)) == NULL) {
-						RET_ERR(PM_ERR_MEMORY, -1);
-					}
-					snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
-					*data = _pacman_list_add(*data, ptr);
-					retval = 1;
-					continue;
-				}
-				snprintf(str, PATH_MAX, "%s/%s/%s", handle->root, handle->cachedir, pkgname);
-				md5sum2 = _pacman_MDFile(str);
-				sha1sum2 = _pacman_SHAFile(str);
-				if(md5sum2 == NULL && sha1sum2 == NULL) {
-					if((ptr = (char *)malloc(512)) == NULL) {
-						RET_ERR(PM_ERR_MEMORY, -1);
-					}
-					snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
-					*data = _pacman_list_add(*data, ptr);
-					retval = 1;
-					continue;
-				}
-				if((strcmp(md5sum1, md5sum2) != 0) && (strcmp(sha1sum1, sha1sum2) != 0)) {
-					_pacman_log(PM_LOG_DEBUG, _("expected md5:  '%s'"), md5sum1);
-					_pacman_log(PM_LOG_DEBUG, _("actual md5:    '%s'"), md5sum2);
-					_pacman_log(PM_LOG_DEBUG, _("expected sha1: '%s'"), sha1sum1);
-					_pacman_log(PM_LOG_DEBUG, _("actual sha1:   '%s'"), sha1sum2);
-
-					doremove = 0;
-					if((ptr = (char *)malloc(512)) == NULL) {
-						RET_ERR(PM_ERR_MEMORY, -1);
-					}
-					if(flags & PM_TRANS_FLAG_ALLDEPS) {
-						doremove=1;
-					} else {
-						QUESTION(this, PM_TRANS_CONV_CORRUPTED_PKG, pkgname, NULL, NULL, &doremove);
-					}
-					if(doremove) {
-						snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
-						unlink(str);
-						snprintf(ptr, 512, _("archive %s was corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
-					} else {
-						snprintf(ptr, 512, _("archive %s is corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
-					}
-					*data = _pacman_list_add(*data, ptr);
-					retval = 1;
-				}
-				FREE(md5sum2);
-				FREE(sha1sum2);
+				retval = _pacman_cachedpkg_check_integrity(ps->pkg_new, this, data);
 			}
 			if(!retval) {
 				break;
