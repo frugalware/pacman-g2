@@ -63,11 +63,12 @@ FILE *_pacman_db_fopen_lastupdate(const Database *db, const char *mode)
 {
 	char path[PATH_MAX];
 
-	snprintf(path, sizeof(path), "%s%s/%s.lastupdate", handle->root, handle->dbpath, db->treename);
+	snprintf(path, sizeof(path), "%s%s/%s.lastupdate", db->m_handle->root, db->m_handle->dbpath, db->treename);
 	return fopen(path, mode);
 }
 
-Database::Database(libpacman::Handle *handle, const char *treename)
+Database::Database(Handle *handle, const char *treename)
+	: m_handle(handle)
 {
 	path = f_zalloc(strlen(handle->root)+strlen(handle->dbpath)+strlen(treename)+2);
 //	if(path == NULL) {

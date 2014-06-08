@@ -464,7 +464,7 @@ pmlist_t *LocalDatabase::getowners(const char *filename)
 		for(i = info->files(); i; i = i->next) {
 			char path[PATH_MAX];
 
-			snprintf(path, PATH_MAX, "%s%s", ::handle->root, (char *)i->data);
+			snprintf(path, PATH_MAX, "%s%s", m_handle->root, (char *)i->data);
 			if(!strcmp(path, rpath)) {
 				ret = _pacman_list_add(ret, info);
 				if(rpath[strlen(rpath)-1] != '/') {

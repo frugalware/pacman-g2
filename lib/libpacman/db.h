@@ -67,6 +67,7 @@ public:
 
 	virtual pmlist_t *getowners(const char *filename); /* Make pure virtual */
 
+	::libpacman::Handle *m_handle;
 	char *path;
 	char treename[PATH_MAX];
 	time_t cache_timestamp;
