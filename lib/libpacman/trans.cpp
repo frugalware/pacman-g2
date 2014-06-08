@@ -59,9 +59,9 @@
 using namespace flib;
 using namespace libpacman;
 
-static int check_oldcache(void)
+static
+int check_oldcache(Database *db)
 {
-	Database *db = handle->db_local;
 	time_t timestamp;
 
 	if(db->gettimestamp(&timestamp) == -1) {
@@ -101,7 +101,7 @@ __pmtrans_t::__pmtrans_t(Handle *handle, pmtranstype_t type, unsigned int flags)
 
 	state = STATE_INITIALIZED;
 
-	check_oldcache();
+	check_oldcache(handle->db_local);
 }
 
 __pmtrans_t::~__pmtrans_t()
