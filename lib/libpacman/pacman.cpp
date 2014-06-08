@@ -1406,7 +1406,7 @@ int pacman_parse_config(const char *file, pacman_cb_db_register callback)
 {
 	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
 
-	return _pacman_parse_config(file, callback, NULL);
+	return _pacman_parse_config(handle, file, callback, NULL);
 }
 
 /* @} */

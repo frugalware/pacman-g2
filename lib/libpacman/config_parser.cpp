@@ -63,7 +63,7 @@
 
 using namespace libpacman;
 
-int _pacman_parse_config(const char *file, pacman_cb_db_register callback, const char *this_section)
+int _pacman_parse_config(Handle *handle, const char *file, pacman_cb_db_register callback, const char *this_section)
 {
 	FILE *fp = NULL;
 	char line[PATH_MAX+1];
@@ -152,7 +152,7 @@ int _pacman_parse_config(const char *file, pacman_cb_db_register callback, const
 					char conf[PATH_MAX];
 					strncpy(conf, ptr, PATH_MAX);
 					_pacman_log(PM_LOG_DEBUG, _("config: including %s\n"), conf);
-					_pacman_parse_config(conf, callback, section);
+					_pacman_parse_config(handle, conf, callback, section);
 				} else if(!strcmp(section, "options")) {
 					if(!strcmp(key, "NOUPGRADE")) {
 						char *p = ptr;
