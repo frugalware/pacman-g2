@@ -1066,7 +1066,7 @@ int pacman_trans_init(unsigned char type, unsigned int flags, pacman_trans_cb_ev
 		.progress = progress
 	};
 
-	handle->trans = new __pmtrans_t((pmtranstype_t)type, flags, cbs);
+	handle->trans = new __pmtrans_t(handle, (pmtranstype_t)type, flags, cbs);
 	if(handle->trans == NULL) {
 		RET_ERR(PM_ERR_MEMORY, -1);
 	}

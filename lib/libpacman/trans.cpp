@@ -76,7 +76,7 @@ static int check_oldcache(void)
 	return(0);
 }
 
-__pmtrans_t::__pmtrans_t(pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs)
+__pmtrans_t::__pmtrans_t(Handle *handle, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs)
 	: state(STATE_IDLE)
 {
 	switch(type) {
@@ -91,7 +91,7 @@ __pmtrans_t::__pmtrans_t(pmtranstype_t type, unsigned int flags, pmtrans_cbs_t c
 					_("could not initialize transaction: Unknown Transaction Type %d"), type);
 	}
 
-	this->handle = ::handle;
+	this->handle = handle;
 	m_type = type;
 	this->flags = flags;
 	this->cbs = cbs;
@@ -1631,11 +1631,11 @@ int __pmtrans_t::commit(pmlist_t **data)
 		pmlist_t *i, *j;
 	int replaces = 0;
 
-	if(::handle->sysupgrade) {
+	if(handle->sysupgrade) {
 		_pacman_runhook("pre_sysupgrade", this);
 	}
 	/* remove conflicting and to-be-replaced packages */
-	tr = new __pmtrans_t(PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, cbs);
+	tr = new __pmtrans_t(handle, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, cbs);
 	if(tr == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not create removal transaction"));
 		pm_errno = PM_ERR_MEMORY;
@@ -1673,7 +1673,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 
 	/* install targets */
 	_pacman_log(PM_LOG_FLOW1, _("installing packages"));
-	tr = new __pmtrans_t(PM_TRANS_TYPE_UPGRADE, flags | PM_TRANS_FLAG_NODEPS, cbs);
+	tr = new __pmtrans_t(handle, PM_TRANS_TYPE_UPGRADE, flags | PM_TRANS_FLAG_NODEPS, cbs);
 	if(tr == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not create transaction"));
 		pm_errno = PM_ERR_MEMORY;
@@ -1683,7 +1683,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 		pmsyncpkg_t *ps = i->data;
 		Package *spkg = ps->pkg_new;
 		char str[PATH_MAX];
-		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, ::handle->root, ::handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
+		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
 		if(tr->add(str, tr->m_type, tr->flags) == -1) {
 			goto error;
 		}
@@ -1692,7 +1692,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 		spkg = _pacman_list_last(tr->packages)->data;
 		if(ps->type == PM_SYNC_TYPE_DEPEND || flags & PM_TRANS_FLAG_ALLDEPS) {
 			spkg->m_reason = PM_PKG_REASON_DEPEND;
-		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !::handle->sysupgrade) {
+		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !handle->sysupgrade) {
 			spkg->m_reason = PM_PKG_REASON_EXPLICIT;
 		}
 	}
@@ -1754,7 +1754,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 		}
 	}
 
-	if(::handle->sysupgrade) {
+	if(handle->sysupgrade) {
 		_pacman_runhook("post_sysupgrade", this);
 	}
 	retval = 0;

@@ -62,7 +62,7 @@ struct __pmtrans_t
 	flib::FSignal<void(unsigned char, void *, void *, void *, int *)> conv;
 	flib::FSignal<void(unsigned char, const char *, int, int, int)> progress;
 
-	__pmtrans_t(pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
+	__pmtrans_t(::libpacman::Handle *handle, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
 	~__pmtrans_t();
 
 	pmsyncpkg_t *find(const char *pkgname) const;
