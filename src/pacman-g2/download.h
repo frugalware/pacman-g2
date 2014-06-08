@@ -21,7 +21,7 @@
 #ifndef _PM_DOWNLOAD_H
 #define _PM_DOWNLOAD_H
 
-#include "server.h"
+#include "pacman.h"
 
 #define DLFNM_PROGRESS_LEN 22
 
