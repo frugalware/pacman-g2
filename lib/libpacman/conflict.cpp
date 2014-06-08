@@ -58,7 +58,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 	pmdepmissing_t *miss = NULL;
 	int howmany, remain;
 	double percent;
-	Database *db_local = trans->handle->db_local;
+	Database *db_local = trans->m_handle->db_local;
 
 	if(db_local == NULL) {
 		return(NULL);
@@ -243,8 +243,8 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans)
 	Package *p, *dbpkg;
 	double percent;
 	int howmany, remain;
-	Database *db_local = trans->handle->db_local;
-	const char *root = trans->handle->root;
+	Database *db_local = trans->m_handle->db_local;
+	const char *root = trans->m_handle->root;
 
 	if(db_local == NULL || targets == NULL || root == NULL) {
 		return(NULL);

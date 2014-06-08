@@ -91,7 +91,7 @@ __pmtrans_t::__pmtrans_t(Handle *handle, pmtranstype_t type, unsigned int flags)
 					_("could not initialize transaction: Unknown Transaction Type %d"), type);
 	}
 
-	this->handle = handle;
+	m_handle = handle;
 	m_type = type;
 	this->flags = flags;
 //	packages = f_ptrlist_new();
@@ -307,10 +307,10 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	pmlist_t *i;
 	Package *pkg_new, *pkg_local, *pkg_queued = NULL;
 	Database *db_local;
-	pmlist_t *dbs_sync = handle->dbs_sync;
+	pmlist_t *dbs_sync = m_handle->dbs_sync;
 
 	/* Sanity checks */
-	ASSERT((db_local = handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT((db_local = m_handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	if(_pacman_list_is_strin(target, targets)) {
@@ -474,7 +474,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	}
 
 	/* ignore holdpkgs on upgrade */
-	if((this == handle->trans) && _pacman_list_is_strin(pkg_local->name(), handle->holdpkg)) {
+	if((this == m_handle->trans) && _pacman_list_is_strin(pkg_local->name(), m_handle->holdpkg)) {
 		int resp = 0;
 		QUESTION(this, PM_TRANS_CONV_REMOVE_HOLDPKG, pkg_local, NULL, NULL, &resp);
 		if(!resp) {
@@ -505,7 +505,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 	int ret = 0;
 
 	/* Sanity checks */
-	ASSERT((db_local = handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT((db_local = m_handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	if(data) {
 		*data = NULL;
@@ -972,7 +972,7 @@ cleanup:
 		for (rmlist=pkg_new->removes(); rmlist!=NULL; rmlist=rmlist->next) {
 			char rm_fname[PATH_MAX];
 
-			snprintf(rm_fname, PATH_MAX, "%s%s", handle->root, (char *)rmlist->data);
+			snprintf(rm_fname, PATH_MAX, "%s%s", m_handle->root, (char *)rmlist->data);
 			remove(rm_fname);
 		}
 	}
@@ -1017,7 +1017,8 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 	double percent = 0;
 	struct archive *archive;
 	struct archive_entry *entry;
-	Database *db_local = trans->handle->db_local;
+	Handle *handle = trans->m_handle;
+	Database *db_local = handle->db_local;
 	pmlist_t *lp;
 	char expath[PATH_MAX], cwd[PATH_MAX] = "";
 
@@ -1317,6 +1318,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 	pmlist_t *lp;
 	struct stat buf;
 	int position = 0;
+	Handle *handle = trans->m_handle;
 	char line[PATH_MAX+1];
 
 			int filenum = _pacman_list_count(pkg->files());
@@ -1408,6 +1410,7 @@ int _pacman_cachedpkg_check_integrity(Package *spkg, __pmtrans_t *trans, pmlist_
 	char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
 	char *ptr=NULL;
 	int retval = 0;
+	Handle *handle = trans->m_handle;
 
 	spkg->filename(pkgname, sizeof(pkgname));
 	md5sum1 = spkg->md5sum;
@@ -1504,7 +1507,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 	pmtrans_t *tr = NULL;
 	char pm_install[PATH_MAX];
 
-	ASSERT((db_local = handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT((db_local = m_handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	if(data!=NULL)
 		*data = NULL;
@@ -1525,13 +1528,13 @@ int __pmtrans_t::commit(pmlist_t **data)
 
 	state = STATE_DOWNLOADING;
 	/* group sync records by repository and download */
-	snprintf(ldir, PATH_MAX, "%s%s", handle->root, handle->cachedir);
+	snprintf(ldir, PATH_MAX, "%s%s", m_handle->root, m_handle->cachedir);
 
-	for(tries = 0; tries < handle->maxtries; tries++) {
+	for(tries = 0; tries < m_handle->maxtries; tries++) {
 		retval = 0;
 		FREELIST(*data);
 		int done = 1;
-		for(i = handle->dbs_sync; i; i = i->next) {
+		for(i = m_handle->dbs_sync; i; i = i->next) {
 			struct stat buf;
 			Database *current = i->data;
 
@@ -1575,7 +1578,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 						 * the package afterwards.
 						 */
 						_pacman_log(PM_LOG_WARNING, _("couldn't create package cache, using /tmp instead"));
-						snprintf(ldir, PATH_MAX, "%s/tmp", handle->root);
+						snprintf(ldir, PATH_MAX, "%s/tmp", m_handle->root);
 						if(pacman_set_option(PM_OPT_CACHEDIR, (long)"/tmp") == -1) {
 							_pacman_log(PM_LOG_WARNING, _("failed to set option CACHEDIR (%s)\n"), pacman_strerror(pm_errno));
 							RET_ERR(PM_ERR_RETRIEVE, -1);
@@ -1627,11 +1630,11 @@ int __pmtrans_t::commit(pmlist_t **data)
 		pmlist_t *i, *j;
 	int replaces = 0;
 
-	if(handle->sysupgrade) {
+	if(m_handle->sysupgrade) {
 		_pacman_runhook("pre_sysupgrade", this);
 	}
 	/* remove conflicting and to-be-replaced packages */
-	tr = new __pmtrans_t(handle, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS);
+	tr = new __pmtrans_t(m_handle, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS);
 	if(tr == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not create removal transaction"));
 		pm_errno = PM_ERR_MEMORY;
@@ -1670,7 +1673,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 
 	/* install targets */
 	_pacman_log(PM_LOG_FLOW1, _("installing packages"));
-	tr = new __pmtrans_t(handle, PM_TRANS_TYPE_UPGRADE, flags | PM_TRANS_FLAG_NODEPS);
+	tr = new __pmtrans_t(m_handle, PM_TRANS_TYPE_UPGRADE, flags | PM_TRANS_FLAG_NODEPS);
 	if(tr == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not create transaction"));
 		pm_errno = PM_ERR_MEMORY;
@@ -1683,7 +1686,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 		pmsyncpkg_t *ps = i->data;
 		Package *spkg = ps->pkg_new;
 		char str[PATH_MAX];
-		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, handle->root, handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
+		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, m_handle->root, m_handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
 		if(tr->add(str, tr->m_type, tr->flags) == -1) {
 			goto error;
 		}
@@ -1692,7 +1695,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 		spkg = _pacman_list_last(tr->packages)->data;
 		if(ps->type == PM_SYNC_TYPE_DEPEND || flags & PM_TRANS_FLAG_ALLDEPS) {
 			spkg->m_reason = PM_PKG_REASON_DEPEND;
-		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !handle->sysupgrade) {
+		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !m_handle->sysupgrade) {
 			spkg->m_reason = PM_PKG_REASON_EXPLICIT;
 		}
 	}
@@ -1754,7 +1757,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 		}
 	}
 
-	if(handle->sysupgrade) {
+	if(m_handle->sysupgrade) {
 		_pacman_runhook("post_sysupgrade", this);
 	}
 	retval = 0;
@@ -1780,7 +1783,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 
 		remain = _pacman_list_count(targ);
 
-		if(handle->trans->state == STATE_INTERRUPTED) {
+		if(m_handle->trans->state == STATE_INTERRUPTED) {
 			break;
 		}
 
@@ -1830,7 +1833,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 
 		if(type & PM_TRANS_TYPE_ADD) {
 		if(pkg_new->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
-			_pacman_runscriptlet(handle->root, pkg_new->path(), trans_event_table[type].pre.hook, pkg_new->version(), pkg_local ? pkg_local->version() : NULL, this);
+			_pacman_runscriptlet(m_handle->root, pkg_new->path(), trans_event_table[type].pre.hook, pkg_new->version(), pkg_local ? pkg_local->version() : NULL, this);
 		}
 		}
 
@@ -1840,7 +1843,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 			/* run the pre-remove scriptlet if it exists */
 			if(pkg_local->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, pkg_local->name(), pkg_local->version());
-				_pacman_runscriptlet(handle->root, pm_install, "pre_remove", pkg_local->version(), NULL, this);
+				_pacman_runscriptlet(m_handle->root, pm_install, "pre_remove", pkg_local->version(), NULL, this);
 			}
 		}
 
@@ -1853,9 +1856,9 @@ int __pmtrans_t::commit(pmlist_t **data)
 			/* run the post-remove script if it exists */
 			if(pkg_local->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 				/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
-				_pacman_ldconfig(handle->root);
+				_pacman_ldconfig(m_handle->root);
 				snprintf(pm_install, PATH_MAX, "%s/%s-%s/install", db_local->path, pkg_local->name(), pkg_local->version());
-				_pacman_runscriptlet(handle->root, pm_install, "post_remove", pkg_local->version(), NULL, this);
+				_pacman_runscriptlet(m_handle->root, pm_install, "post_remove", pkg_local->version(), NULL, this);
 			}
 		}
 
@@ -2009,9 +2012,9 @@ int __pmtrans_t::commit(pmlist_t **data)
 		/* run the post-install script if it exists  */
 		if(pkg_new->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 			/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
-			_pacman_ldconfig(handle->root);
-			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", handle->root, handle->dbpath, db_local->treename, pkg_new->name(), pkg_new->version());
-			_pacman_runscriptlet(handle->root, pm_install, trans_event_table[type].post.hook, pkg_new->version(), pkg_local ? pkg_local->version() : NULL, this);
+			_pacman_ldconfig(m_handle->root);
+			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", m_handle->root, m_handle->dbpath, db_local->treename, pkg_new->name(), pkg_new->version());
+			_pacman_runscriptlet(m_handle->root, pm_install, trans_event_table[type].post.hook, pkg_new->version(), pkg_local ? pkg_local->version() : NULL, this);
 		}
 
 		}
@@ -2020,8 +2023,8 @@ int __pmtrans_t::commit(pmlist_t **data)
 	}
 
 	/* run ldconfig if it exists */
-	if(handle->trans->state != STATE_INTERRUPTED) {
-		_pacman_ldconfig(handle->root);
+	if(m_handle->trans->state != STATE_INTERRUPTED) {
+		_pacman_ldconfig(m_handle->root);
 	}
 	}
 

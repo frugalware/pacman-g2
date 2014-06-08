@@ -44,8 +44,8 @@ _pacman_packages_transaction_set_state(pmtrans_t *trans, int new_state)
 	const char *root, *triggersdir, *trigger_function;
 	const pmlist_t *lp;
 
-	triggersdir = trans->handle->triggersdir;
-	root = trans->handle->root;
+	triggersdir = trans->m_handle->triggersdir;
+	root = trans->m_handle->root;
 	trigger_function = trigger_function_table[new_state];
 
 	if(_pacman_strempty(trigger_function)) {

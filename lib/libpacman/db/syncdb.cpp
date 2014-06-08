@@ -156,6 +156,7 @@ int _pacman_syncdb_update(Database *db, int force)
 	time_t newmtime = PM_TIME_INVALID;
 	time_t timestamp = PM_TIME_INVALID;
 	int ret, updated=0;
+	Handle *handle = db->m_handle;
 
 	if(!force) {
 		db->gettimestamp(&timestamp);
@@ -168,7 +169,7 @@ int _pacman_syncdb_update(Database *db, int force)
 	snprintf(path, PATH_MAX, "%s" PM_EXT_DB, db->treename);
 	files = _pacman_stringlist_append(files, path);
 
-	snprintf(path, PATH_MAX, "%s%s", m_handle->root, m_handle->dbpath);
+	snprintf(path, PATH_MAX, "%s%s", handle->root, handle->dbpath);
 
 	ret = _pacman_downloadfiles_forreal(db->servers, path, files, &timestamp, &newmtime, 0);
 	FREELIST(files);
@@ -183,8 +184,8 @@ int _pacman_syncdb_update(Database *db, int force)
 			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %s\n"), db->treename, newmtime);
 			updated = 1;
 		}
-		snprintf(dirpath, PATH_MAX, "%s%s/%s", m_handle->root, m_handle->dbpath, db->treename);
-		snprintf(path, PATH_MAX, "%s%s/%s" PM_EXT_DB, m_handle->root, m_handle->dbpath, db->treename);
+		snprintf(dirpath, PATH_MAX, "%s%s/%s", handle->root, handle->dbpath, db->treename);
+		snprintf(path, PATH_MAX, "%s%s/%s" PM_EXT_DB, handle->root, handle->dbpath, db->treename);
 
 		/* remove the old dir */
 		_pacman_rmrf(dirpath);

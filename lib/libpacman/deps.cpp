@@ -218,7 +218,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 	int found = 0;
 	pmlist_t *baddeps = NULL;
 	pmdepmissing_t *miss = NULL;
-	Database *db_local = trans->handle->db_local;
+	Database *db_local = trans->m_handle->db_local;
 
 	if(db_local == NULL) {
 		return(NULL);
@@ -566,7 +566,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 	pmlist_t *i, *j;
 	pmlist_t *targ;
 	pmlist_t *deps = NULL;
-	pmlist_t *dbs_sync = trans->handle->dbs_sync;
+	pmlist_t *dbs_sync = trans->m_handle->dbs_sync;
 
 	if(dbs_sync == NULL || syncpkg == NULL) {
 		return(-1);

@@ -311,7 +311,7 @@ int _pacman_chroot_system(const char *cmdline, pmtrans_t *trans)
 	}
 	if(pid == 0) {
 		FILE *pp;
-		const char *root = trans->handle->root;
+		const char *root = trans->m_handle->root;
 
 		_pacman_log(PM_LOG_DEBUG, _("chrooting in %s"), root);
 		if(chroot(root) != 0) {
@@ -423,8 +423,8 @@ int _pacman_runhook(const char *hookname, pmtrans_t *trans)
 	DIR *dir;
 	struct dirent *ent;
 
-	hookdir = trans->handle->hooksdir;
-	root = trans->handle->root;
+	hookdir = trans->m_handle->hooksdir;
+	root = trans->m_handle->root;
 
 	_pacman_log(PM_LOG_FLOW2, _("executing %s hooks..."), hookname);
 

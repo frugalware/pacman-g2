@@ -69,7 +69,7 @@ struct __pmtrans_t
 	int add(const char *target, pmtranstype_t type, int flags);
 
 	int (*set_state)(pmtrans_t *trans, int new_state);
-	libpacman::Handle *handle;
+	::libpacman::Handle *m_handle;
 	pmtranstype_t m_type;
 	unsigned int flags;
 	unsigned char state;
