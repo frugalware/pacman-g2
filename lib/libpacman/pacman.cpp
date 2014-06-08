@@ -1381,7 +1381,7 @@ char *pacman_fetch_pkgurl(char *url)
 {
 	ASSERT(strstr(url, "://"), return(NULL));
 
-	return(_pacman_fetch_pkgurl(url));
+	return(_pacman_fetch_pkgurl(handle, url));
 }
 
 /** Match a string against a regular expression.

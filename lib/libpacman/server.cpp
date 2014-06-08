@@ -47,6 +47,8 @@
 #include <unistd.h>
 #include <time.h>
 
+using namespace ::libpacman;
+
 pacman_trans_cb_download pm_dlcb = NULL;
 /* progress bar */
 char *pm_dlfnm=NULL;
@@ -125,6 +127,7 @@ void _pacman_server_free(void *data)
 }
 
 struct __pmcurldownloader_t {
+	Handle *m_handle;
 	CURL *curl;
 	struct timeval previous_update;
 	size_t previous_update_dlnow;
@@ -175,11 +178,13 @@ int _pacman_curl_progresscb(void *clientp, curl_off_t dltotal, curl_off_t dlnow,
 }
 
 static
-int _pacman_curl_init(pmcurldownloader_t *curldownloader)
+int _pacman_curl_init(pmcurldownloader_t *curldownloader, Handle *handle)
 {
 	CURL *curlHandle = NULL;
 
 	ASSERT(curldownloader, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	curldownloader->m_handle = handle;
 
 	if (curl_global_init(CURL_GLOBAL_DEFAULT) != CURLE_OK) {
 		_pacman_log(PM_LOG_WARNING, _("fatal error initializing libcurl\n"));
@@ -249,7 +254,7 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 	gettimeofday(&curldownloader->download.dst_begin, NULL);
 	curldownloader->previous_update = curldownloader->download.dst_begin;
 
-	if(mtime1 && mtime2 && !handle->proxyhost) {
+	if(mtime1 && mtime2 && !curldownloader->m_handle->proxyhost) {
 		curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
 		curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
         curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE , (long)mtime1);
@@ -334,9 +339,9 @@ error:
  *
  * RETURN:  0 for successful download, -1 on error
  */
-int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *files, int skip)
+int _pacman_downloadfiles(Handle *handle, pmlist_t *servers, const char *localpath, pmlist_t *files, int skip)
 {
-	if(_pacman_downloadfiles_forreal(servers, localpath, files, NULL, NULL, skip) != 0) {
+	if(_pacman_downloadfiles_forreal(handle, servers, localpath, files, NULL, NULL, skip) != 0) {
 		return(-1);
 	} else {
 		return(0);
@@ -356,7 +361,7 @@ int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *fi
  *          1 if the mtimes are identical
  *         -1 on error
  */
-int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
+int _pacman_downloadfiles_forreal(Handle *handle, pmlist_t *servers, const char *localpath,
 	pmlist_t *files, const time_t *mtime1, time_t *mtime2, int skip)
 {
 	pmlist_t *lp;
@@ -530,7 +535,7 @@ int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
 					snprintf(url, PATH_MAX, "%s://%s%s%s", server->protocol, server->server,
 									 server->path, fn);
 					if(!curldownloader.curl) {
-							if(_pacman_curl_init(&curldownloader)) {
+							if(_pacman_curl_init(&curldownloader, handle)) {
 									goto error;
 							}
 					}
@@ -579,7 +584,7 @@ error:
 	return(pm_errno == 0 ? !done : -1);
 }
 
-char *_pacman_fetch_pkgurl(char *target)
+char *_pacman_fetch_pkgurl(Handle *handle, char *target)
 {
 	char spath[PATH_MAX], lpath[PATH_MAX], lcache[PATH_MAX];
 	char url[PATH_MAX];
@@ -627,7 +632,7 @@ char *_pacman_fetch_pkgurl(char *target)
 		servers = _pacman_list_add(servers, server);
 
 		files = _pacman_list_add(NULL, fn);
-		if(_pacman_downloadfiles(servers, lcache, files, 0)) {
+		if(_pacman_downloadfiles(handle, servers, lcache, files, 0)) {
 			_pacman_log(PM_LOG_WARNING, _("failed to download %s\n"), target);
 			return(NULL);
 		}

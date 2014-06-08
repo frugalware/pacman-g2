@@ -1586,7 +1586,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 						varcache = 0;
 					}
 				}
-				if(_pacman_downloadfiles(current->servers, ldir, files, tries) == -1) {
+				if(_pacman_downloadfiles(m_handle, current->servers, ldir, files, tries) == -1) {
 					_pacman_log(PM_LOG_WARNING, _("failed to retrieve some files from %s\n"), current->treename);
 					retval=1;
 					done = 0;

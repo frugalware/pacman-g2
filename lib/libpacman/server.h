@@ -25,6 +25,8 @@
 
 #include "pacman.h"
 
+#include "handle.h"
+
 #define FREELISTSERVERS(p) _FREELIST(p, _pacman_server_free)
 
 /* Servers */
@@ -48,11 +50,11 @@ struct __pmdownload_t {
 
 pmserver_t *_pacman_server_new(char *url);
 void _pacman_server_free(void *data);
-int _pacman_downloadfiles(pmlist_t *servers, const char *localpath, pmlist_t *files, int skip);
-int _pacman_downloadfiles_forreal(pmlist_t *servers, const char *localpath,
+int _pacman_downloadfiles(::libpacman::Handle *handle, pmlist_t *servers, const char *localpath, pmlist_t *files, int skip);
+int _pacman_downloadfiles_forreal(::libpacman::Handle *handle, pmlist_t *servers, const char *localpath,
 	pmlist_t *files, const time_t *mtime1, time_t *mtime2, int skip);
 
-char *_pacman_fetch_pkgurl(char *target);
+char *_pacman_fetch_pkgurl(::libpacman::Handle *handle, char *target);
 
 extern pacman_trans_cb_download pm_dlcb;
 
