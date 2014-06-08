@@ -76,7 +76,7 @@ static int check_oldcache(void)
 	return(0);
 }
 
-__pmtrans_t::__pmtrans_t(Handle *handle, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs)
+__pmtrans_t::__pmtrans_t(Handle *handle, pmtranstype_t type, unsigned int flags)
 	: state(STATE_IDLE)
 {
 	switch(type) {
@@ -94,7 +94,6 @@ __pmtrans_t::__pmtrans_t(Handle *handle, pmtranstype_t type, unsigned int flags,
 	this->handle = handle;
 	m_type = type;
 	this->flags = flags;
-	this->cbs = cbs;
 //	packages = f_ptrlist_new();
 	targets = f_stringlist_new();
 	skiplist = f_stringlist_new();
@@ -189,9 +188,6 @@ int _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, void
 		break;
 	}
 
-	if(trans->cbs.event) {
-		trans->cbs.event(event, data1, data2);
-	}
 	trans->event(event, data1, data2);
 	return 0;
 }
@@ -1635,12 +1631,15 @@ int __pmtrans_t::commit(pmlist_t **data)
 		_pacman_runhook("pre_sysupgrade", this);
 	}
 	/* remove conflicting and to-be-replaced packages */
-	tr = new __pmtrans_t(handle, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS, cbs);
+	tr = new __pmtrans_t(handle, PM_TRANS_TYPE_REMOVE, PM_TRANS_FLAG_NODEPS);
 	if(tr == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not create removal transaction"));
 		pm_errno = PM_ERR_MEMORY;
 		goto error;
 	}
+	tr->event.connect(&event);
+	tr->conv.connect(&conv);
+	tr->progress.connect(&progress);
 	for(i = syncpkgs; i; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
 		if(ps->type == PM_SYNC_TYPE_REPLACE) {
@@ -1661,8 +1660,6 @@ int __pmtrans_t::commit(pmlist_t **data)
 			_pacman_log(PM_LOG_ERROR, _("could not prepare removal transaction"));
 			goto error;
 		}
-		/* we want the frontend to be aware of commit details */
-		tr->cbs.event = cbs.event;
 		if(tr->commit(NULL) == -1) {
 			_pacman_log(PM_LOG_ERROR, _("could not commit removal transaction"));
 			goto error;
@@ -1673,12 +1670,15 @@ int __pmtrans_t::commit(pmlist_t **data)
 
 	/* install targets */
 	_pacman_log(PM_LOG_FLOW1, _("installing packages"));
-	tr = new __pmtrans_t(handle, PM_TRANS_TYPE_UPGRADE, flags | PM_TRANS_FLAG_NODEPS, cbs);
+	tr = new __pmtrans_t(handle, PM_TRANS_TYPE_UPGRADE, flags | PM_TRANS_FLAG_NODEPS);
 	if(tr == NULL) {
 		_pacman_log(PM_LOG_ERROR, _("could not create transaction"));
 		pm_errno = PM_ERR_MEMORY;
 		goto error;
 	}
+	tr->event.connect(&event);
+	tr->conv.connect(&conv);
+	tr->progress.connect(&progress);
 	for(i = syncpkgs; i; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
 		Package *spkg = ps->pkg_new;

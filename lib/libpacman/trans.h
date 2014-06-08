@@ -49,12 +49,6 @@ enum {
 	STATE_MAX
 };
 
-typedef struct __pmtrans_cbs_t {
-	pacman_trans_cb_event event;
-	pacman_trans_cb_conv conv;
-	pacman_trans_cb_progress progress;
-} pmtrans_cbs_t;
-
 struct __pmtrans_t
 	: public ::flib::FObject
 {
@@ -62,7 +56,7 @@ struct __pmtrans_t
 	flib::FSignal<void(unsigned char, void *, void *, void *, int *)> conv;
 	flib::FSignal<void(unsigned char, const char *, int, int, int)> progress;
 
-	__pmtrans_t(::libpacman::Handle *handle, pmtranstype_t type, unsigned int flags, pmtrans_cbs_t cbs);
+	__pmtrans_t(::libpacman::Handle *handle, pmtranstype_t type, unsigned int flags);
 	~__pmtrans_t();
 
 	pmsyncpkg_t *find(const char *pkgname) const;
@@ -84,7 +78,6 @@ struct __pmtrans_t
 	FPtrList *syncpkgs; /* FPtrList of (pmsyncpkg_t *) */
 	FStringList *skiplist;
 	FStringList *triggers;
-	pmtrans_cbs_t cbs;
 
 private:
 };
@@ -94,17 +87,11 @@ private:
 #define QUESTION(_t, q, d1, d2, d3, r) \
 do { \
 	pmtrans_t *t = (_t); \
-	if(t && t->cbs.conv) { \
-		t->cbs.conv((q), (d1), (d2), (d3), (r)); \
-	} \
 	t->conv((q), (d1), (d2), (d3), (r)); \
 } while(0)
 #define PROGRESS(_t, e, p, per, h, r) \
 do { \
 	pmtrans_t *t = (_t); \
-	if(t && t->cbs.progress) { \
-		t->cbs.progress((e), (p), (per), (h), (r)); \
-	} \
 	t->progress((e), (p), (per), (h), (r)); \
 } while(0)
 

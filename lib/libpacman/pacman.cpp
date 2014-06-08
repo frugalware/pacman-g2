@@ -1060,16 +1060,13 @@ int pacman_trans_init(unsigned char type, unsigned int flags, pacman_trans_cb_ev
 		return -1;
 	}
 
-	pmtrans_cbs_t cbs = {
-		.event = event,
-		.conv = conv,
-		.progress = progress
-	};
-
-	handle->trans = new __pmtrans_t(handle, (pmtranstype_t)type, flags, cbs);
+	handle->trans = new __pmtrans_t(handle, (pmtranstype_t)type, flags);
 	if(handle->trans == NULL) {
 		RET_ERR(PM_ERR_MEMORY, -1);
 	}
+	handle->trans->event.connect(event);
+	handle->trans->conv.connect(conv);
+	handle->trans->progress.connect(progress);
 
 	return _pacman_packages_transaction_init(handle->trans);
 }
