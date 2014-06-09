@@ -72,6 +72,8 @@ private:
 
 }
 
+int _pacman_localpackage_remove(libpacman::Package *pkg, pmtrans_t *trans, int howmany, int remain);
+
 #endif /* _PACMAN_LOCALDB_H */
 
 /* vim: set ts=2 sw=2 noet: */
