@@ -174,6 +174,26 @@ pmlist_t *_pacman_db_whatprovides(Database *db, char *package)
 	return(pkgs);
 }
 
+static
+Group *_pacman_db_get_grpfromlist(pmlist_t *list, const char *target)
+{
+	pmlist_t *i;
+
+	if(_pacman_strempty(target)) {
+		return(NULL);
+	}
+
+	for(i = list; i; i = i->next) {
+		Group *info = i->data;
+
+		if(strcmp(info->name, target) == 0) {
+			return(info);
+		}
+	}
+
+	return(NULL);
+}
+
 /* Returns a new group cache from db.
  */
 int _pacman_db_load_grpcache(Database *db)
@@ -195,24 +215,16 @@ int _pacman_db_load_grpcache(Database *db)
 		}
 
 		for(i = pkg->groups(); i; i = i->next) {
-			if(!_pacman_list_is_strin(i->data, db->grpcache)) {
-				Group *grp = new Group();
+			Group *grp = _pacman_db_get_grpfromlist(db->grpcache, i->data);
+
+			if(grp == NULL) {
+				grp = new Group();
 
 				STRNCPY(grp->name, (char *)i->data, GRP_NAME_LEN);
-				grp->packages = _pacman_list_add_sorted(grp->packages, pkg->name(), strcmp);
 				db->grpcache = _pacman_list_add_sorted(db->grpcache, grp, _pacman_grp_cmp);
-			} else {
-				pmlist_t *j;
-
-				for(j = db->grpcache; j; j = j->next) {
-					Group *grp = j->data;
-
-					if(strcmp(grp->name, i->data) == 0) {
-						if(!_pacman_list_is_strin(pkg->name(), grp->packages)) {
-							grp->packages = _pacman_list_add_sorted(grp->packages, pkg->name(), strcmp);
-						}
-					}
-				}
+			}
+			if(!_pacman_list_is_strin(pkg->name(), grp->packages)) {
+				grp->packages = _pacman_list_add_sorted(grp->packages, pkg->name(), strcmp);
 			}
 		}
 	}
@@ -247,22 +259,9 @@ pmlist_t *_pacman_db_get_grpcache(Database *db)
 
 Group *_pacman_db_get_grpfromcache(Database *db, const char *target)
 {
-	pmlist_t *i;
-
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
-	if(_pacman_strempty(target)) {
-		return(NULL);
-	}
 
-	for(i = _pacman_db_get_grpcache(db); i; i = i->next) {
-		Group *info = i->data;
-
-		if(strcmp(info->name, target) == 0) {
-			return(info);
-		}
-	}
-
-	return(NULL);
+	return _pacman_db_get_grpfromlist(_pacman_db_get_grpcache(db), target);
 }
 
 /* vim: set ts=2 sw=2 noet: */
