@@ -32,10 +32,9 @@
 
 using namespace libpacman;
 
-Group::Group()
-	: packages(NULL)
+Group::Group(const char *name)
 {
-	memset(name, 0, sizeof(name));
+	STRNCPY(this->name, name, GRP_NAME_LEN);
 }
 
 Group::~Group()

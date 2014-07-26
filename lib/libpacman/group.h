@@ -31,10 +31,10 @@ namespace libpacman
 {
 
 class Group
-//	: public ::flib::FObject // FIXME: Enable when C list search is removed.
+	: public ::flib::FObject
 {
 public:
-	Group();
+	Group(const char *name);
 	~Group();
 
 	char name[GRP_NAME_LEN];

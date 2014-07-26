@@ -218,9 +218,7 @@ int _pacman_db_load_grpcache(Database *db)
 			Group *grp = _pacman_db_get_grpfromlist(db->grpcache, i->data);
 
 			if(grp == NULL) {
-				grp = new Group();
-
-				STRNCPY(grp->name, (char *)i->data, GRP_NAME_LEN);
+				grp = new Group((char *)i->data);
 				db->grpcache = _pacman_list_add_sorted(db->grpcache, grp, _pacman_grp_cmp);
 			}
 			if(!_pacman_list_is_strin(pkg->name(), grp->packages)) {
