@@ -1,6 +1,19 @@
-include_directories (${PACMAN-G2_SOURCE_DIR}/lib/libpacman/)
-SWIG_ADD_MODULE(pacman_perl perl ../pacman.i)
-SET_SOURCE_FILES_PROPERTIES(pacman.i PROPERTIES SWIG_FLAGS "-includeall")
-include_directories(${PERL_INCLUDE_PATH})
-SWIG_LINK_LIBRARIES(pacman_perl pacman)
-install(TARGETS ${SWIG_MODULE_pacman_perl_REAL_NAME} DESTINATION lib)
+INCLUDE_DIRECTORIES("${PACMAN-G2_SOURCE_DIR}/lib/libpacman/")
+INCLUDE_DIRECTORIES("${PERL_INCLUDE_PATH}")
+
+ADD_LIBRARY(pacman_perl_binding
+	pacman_wrap.c Core.pm)
+SET_TARGET_PROPERTIES(pacman_perl_binding PROPERTIES
+	PREFIX ""
+	OUTPUT_NAME "Core")
+TARGET_LINK_LIBRARIES(pacman_perl_binding pacman)
+
+ADD_CUSTOM_COMMAND(OUTPUT pacman_wrap.c Core.pm
+	DEPENDS "${PACMAN_SWIG_SRC}"
+	COMMAND "swig" "-perl" ${CMAKE_SWIG_FLAGS} "-outcurrentdir" "${PACMAN_SWIG_SRC}")
+
+INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/Core.pm"
+	DESTINATION "${PERL_SITEARCH}/Pacman")
+INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/Core.so"
+	DESTINATION "${PERL_SITEARCH}/auto/Pacman/Core")
+
