@@ -93,8 +93,8 @@ if(HAS_DOXYGEN)
   add_custom_command(TARGET pacman
                    POST_BUILD
                    COMMAND doxygen Doxyfile
-                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-  install(DIRECTORY ../../doc/man3/ DESTINATION share/man/man3/)
+                   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+  install(DIRECTORY "${CMAKE_SOURCE_DIR}/doc/man3/" DESTINATION share/man/man3/)
 endif(HAS_DOXYGEN)
 
 install(TARGETS pacman DESTINATION lib)
