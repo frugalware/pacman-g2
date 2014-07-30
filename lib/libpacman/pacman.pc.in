@@ -5,6 +5,6 @@ includedir=@includedir@
 
 Name: pacman-g2 library
 Description: package management library
-Version: @PM_VERSION@
+Version: @LIBPACMAN_VERSION@
 Libs: -L${libdir} -lpacman
 Cflags: -I${includedir}
