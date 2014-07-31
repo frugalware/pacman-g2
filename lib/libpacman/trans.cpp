@@ -1392,20 +1392,24 @@ struct trans_event_table_item {
 	struct {
 		int event;
 		const char *hook;
-	} pre, post;   
+	} pre, post;
+	int progress;	
 } trans_event_table[4] = {
 	{ 0 }, // PM_TRANS_TYPE_...
 	{ // PM_TRANS_TYPE_ADD
 		{ PM_TRANS_EVT_ADD_START, "pre_install" }, // .pre
-		{ PM_TRANS_EVT_ADD_DONE,  "post_install" } // .post
+		{ PM_TRANS_EVT_ADD_DONE,  "post_install" }, // .post
+		PM_TRANS_PROGRESS_ADD_START,
 	},
 	{ // PM_TRANS_TYPE_REMOVE
 		{ PM_TRANS_EVT_REMOVE_START, "pre_remove" }, // .pre
-		{ PM_TRANS_EVT_REMOVE_DONE,  "post_remove" } // .post
+		{ PM_TRANS_EVT_REMOVE_DONE,  "post_remove" }, // .post
+		PM_TRANS_PROGRESS_REMOVE_START,
 	},
 	{ // PM_TRANS_TYPE_UPGRADE
 		{ PM_TRANS_EVT_UPGRADE_START, "pre_upgrade" }, // .pre
-		{ PM_TRANS_EVT_UPGRADE_DONE,  "post_upgrade" } // .post
+		{ PM_TRANS_EVT_UPGRADE_DONE,  "post_upgrade" }, // .post
+		PM_TRANS_PROGRESS_UPGRADE_START,
 	}
 };
 
@@ -1831,14 +1835,14 @@ int __pmtrans_t::commit(pmlist_t **data)
 		if(pkg_new) {
 			_pacman_log(PM_LOG_FLOW1, _("adding new package %s-%s"), pkg_new->name(), pkg_new->version());
 		if(!(this->flags & PM_TRANS_FLAG_DBONLY)) {
-			int errors = _pacman_fpmpackage_install(pkg_new, type, this, trans_event_table[type].pre.event, howmany, remain, pkg_local);
+			int errors = _pacman_fpmpackage_install(pkg_new, type, this, trans_event_table[type].progress, howmany, remain, pkg_local);
 
 			if(errors) {
 				ret = 1;
 				_pacman_log(PM_LOG_WARNING, _("errors occurred while %s %s"),
 					(type == PM_TRANS_TYPE_UPGRADE ? _("upgrading") : _("installing")), pkg_new->name());
 			} else {
-			PROGRESS(this, trans_event_table[type].pre.event, pkg_new->name(), 100, howmany, howmany - remain + 1);
+			PROGRESS(this, trans_event_table[type].progress, pkg_new->name(), 100, howmany, howmany - remain + 1);
 			}
 		}
 
