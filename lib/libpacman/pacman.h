@@ -58,19 +58,6 @@ typedef struct __pmlist_iterator_t pmlist_iterator_t;
 typedef struct __pmpkg_t pmpkg_t;
 typedef struct __pmsyncpkg_t pmsyncpkg_t;
 
-/* Compatibility definitions */
-typedef struct __pmlist_t PM_LIST;
-typedef struct __pmdb_t PM_DB;
-typedef struct __pmpkg_t PM_PKG;
-typedef struct __pmgrp_t PM_GRP;
-typedef struct __pmsyncpkg_t PM_SYNCPKG;
-typedef struct __pmdepmissing_t PM_DEPMISS;
-typedef struct __pmconflict_t PM_CONFLICT;
-
-#define pacman_list_first pacman_list_begin
-#define pacman_list_next pacman_list_iterator_next
-#define pacman_list_getdata pacman_list_iterator_getdata
-
 /*
  * Library
  */
@@ -539,6 +526,22 @@ extern enum __pmerrno_t {
 
 char *pacman_strerror(int err);
 enum __pmerrno_t pacman_geterror(void);
+
+#ifndef PACMAN_NO_COMPAT
+
+typedef struct __pmlist_t PM_LIST;
+typedef struct __pmdb_t PM_DB;
+typedef struct __pmpkg_t PM_PKG;
+typedef struct __pmgrp_t PM_GRP;
+typedef struct __pmsyncpkg_t PM_SYNCPKG;
+typedef struct __pmdepmissing_t PM_DEPMISS;
+typedef struct __pmconflict_t PM_CONFLICT;
+
+#define pacman_list_first pacman_list_begin
+#define pacman_list_next pacman_list_iterator_next
+#define pacman_list_getdata pacman_list_iterator_getdata
+
+#endif /* PACMAN_NO_COMPAT */
 
 #ifdef __cplusplus
 }
