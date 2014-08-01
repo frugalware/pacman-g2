@@ -181,7 +181,7 @@ int _pacman_syncdb_update(Database *db, int force)
 		return 1; /* Means up2date */
 	} else {
 		if(newmtime.isValid()) {
-			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %s\n"), db->treename, newmtime);
+			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %li\n"), db->treename, (long)newmtime.toEpoch());
 			updated = 1;
 		}
 		snprintf(dirpath, PATH_MAX, "%s%s/%s", handle->root, handle->dbpath, db->treename);
