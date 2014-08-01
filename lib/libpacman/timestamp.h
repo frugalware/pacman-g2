@@ -35,19 +35,24 @@ struct Timestamp
 		: m_value(epoch)
 	{ }
 
-  double operator - (const libpacman::Timestamp &other) const
-	{
-		return difftime(m_value, &other.m_value);
-	}
-
   bool operator == (const time_t &epoch) const
 	{
 		return m_value == epoch;
 	}
 
+  double operator - (const libpacman::Timestamp &other) const
+	{
+		return difftime(m_value, other.m_value);
+	}
+
   bool isValid() const
 	{
 		return m_value != PM_TIME_INVALID;
+	}
+
+	time_t toEpoch() const
+	{
+		return m_value;
 	}
 
 	time_t m_value;
