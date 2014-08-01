@@ -257,7 +257,7 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 	if(mtime1 && mtime2 && !curldownloader->m_handle->proxyhost) {
 		long cache_time = mtime1->toEpoch(); /* curl_easy_setopt require it as long */
 
-		_pacman_log(PM_LOG_DEBUG, _("setting cache time '%l' (epoch) for file: %s\n"), cache_time, url);
+		_pacman_log(PM_LOG_DEBUG, _("setting cache time '%li' (epoch) for file: %s\n"), cache_time, url);
 		curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
 		curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
 		curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE, cache_time);
