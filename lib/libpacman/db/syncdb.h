@@ -59,7 +59,7 @@ public:
 	virtual libpacman::Package *scan(const char *target, unsigned int inforeq);
 
 protected:
-	virtual int open(int flags, time_t *timestamp);
+	virtual int open(int flags, libpacman::Timestamp *timestamp);
 
 public: // FIXME: Make private
 	struct archive *m_archive;

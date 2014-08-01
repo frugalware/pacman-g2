@@ -242,7 +242,7 @@ int _pacman_curl_fini(pmcurldownloader_t *curldownloader)
 
 static
 pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, const char *url,
-		const time_t *mtime1, time_t *mtime2, const char *output, pmfiletype_t dlFileType)
+		const Timestamp *mtime1, Timestamp *mtime2, const char *output, pmfiletype_t dlFileType)
 {
 	CURL *curlHandle = curldownloader->curl;
 	FILE *outputFile;
@@ -257,7 +257,7 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 	if(mtime1 && mtime2 && !curldownloader->m_handle->proxyhost) {
 		curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
 		curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
-		curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE , (long)*mtime1);
+		curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE , (long)mtime1->m_value);
 		outputFile = fopen(output,"wb");
 	} else {
 		struct stat st;
@@ -362,7 +362,7 @@ int _pacman_downloadfiles(Handle *handle, pmlist_t *servers, const char *localpa
  *         -1 on error
  */
 int _pacman_downloadfiles_forreal(Handle *handle, pmlist_t *servers, const char *localpath,
-	pmlist_t *files, const time_t *mtime1, time_t *mtime2, int skip)
+	pmlist_t *files, const Timestamp *mtime1, Timestamp *mtime2, int skip)
 {
 	pmlist_t *lp;
 	int done = 0;

@@ -153,14 +153,14 @@ int _pacman_syncdb_update(Database *db, int force)
 {
 	char path[PATH_MAX], dirpath[PATH_MAX];
 	pmlist_t *files = NULL;
-	time_t newmtime = PM_TIME_INVALID;
-	time_t timestamp = PM_TIME_INVALID;
+	Timestamp newmtime;
+	Timestamp timestamp;
 	int ret, updated=0;
 	Handle *handle = db->m_handle;
 
 	if(!force) {
 		db->gettimestamp(&timestamp);
-		if(timestamp == PM_TIME_INVALID) {
+		if(!timestamp.isValid()) {
 			_pacman_log(PM_LOG_DEBUG, _("failed to get timestamp for %s (no big deal)\n"), db->treename);
 		}
 	}
@@ -180,7 +180,7 @@ int _pacman_syncdb_update(Database *db, int force)
 		}
 		return 1; /* Means up2date */
 	} else {
-		if(newmtime != PM_TIME_INVALID) {
+		if(newmtime.isValid()) {
 			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %s\n"), db->treename, newmtime);
 			updated = 1;
 		}
@@ -200,7 +200,7 @@ int _pacman_syncdb_update(Database *db, int force)
 	return 0;
 }
 
-int SyncDatabase::open(int flags, time_t *timestamp)
+int SyncDatabase::open(int flags, Timestamp *timestamp)
 {
 	struct stat buf;
 	char dbpath[PATH_MAX];

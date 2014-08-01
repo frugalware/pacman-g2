@@ -1,7 +1,7 @@
 /*
- *  ftp.c
+ *  timestamp.h
  *
- *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
+ *  Copyright (c) 2014 by Michel Hermier <hermier@frugalware.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,40 +18,43 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-
-#include "config.h"
-
-#include <stdio.h>
-
-#include "io/ftp.h"
+#ifndef _PACMAN_TIMESTAMP_H
+#define _PACMAN_TIMESTAMP_H
 
 #include "util/time.h"
-#include "util.h"
 
-#define PM_FTP_MDTM_FORMAT "%Y%m%d%H%M%S"
+namespace libpacman {
 
-size_t _pacman_ftp_strfmdtm(char *s, size_t max, const time_t *time)
+struct Timestamp
 {
-	return strftime(s, max, PM_FTP_MDTM_FORMAT, time != NULL ? gmtime(time) : f_localtime(NULL));
-}
+  Timestamp()
+		: m_value(PM_TIME_INVALID)
+	{ }
 
-char *_pacman_ftp_strpmdtm(const char *s, time_t *time)
-{
-	char *ret;
-	struct tm ptimestamp = { 0 };
+  Timestamp(const time_t &epoch)
+		: m_value(epoch)
+	{ }
 
-	ASSERT(time != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-
-	if((ret = strptime(s, PM_FTP_MDTM_FORMAT, &ptimestamp)) != NULL) {
-		time_t tmp;
-		
-		if((tmp = mktime(&ptimestamp)) != PM_TIME_INVALID) {
-			*time = tmp;
-		} else {
-			ret = NULL;
-		}
+  double operator - (const libpacman::Timestamp &other) const
+	{
+		return difftime(m_value, &other.m_value);
 	}
-	return ret;
+
+  bool operator == (const time_t &epoch) const
+	{
+		return m_value == epoch;
+	}
+
+  bool isValid() const
+	{
+		return m_value != PM_TIME_INVALID;
+	}
+
+	time_t m_value;
+};
+
 }
+
+#endif /* _PACMAN_TIMESTAMP_H */
 
 /* vim: set ts=2 sw=2 noet: */

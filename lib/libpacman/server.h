@@ -21,11 +21,10 @@
 #ifndef _PACMAN_SERVER_H
 #define _PACMAN_SERVER_H
 
-#include <time.h>
-
 #include "pacman.h"
 
 #include "handle.h"
+#include "timestamp.h"
 
 #define FREELISTSERVERS(p) _FREELIST(p, _pacman_server_free)
 
@@ -52,7 +51,7 @@ pmserver_t *_pacman_server_new(char *url);
 void _pacman_server_free(void *data);
 int _pacman_downloadfiles(::libpacman::Handle *handle, pmlist_t *servers, const char *localpath, pmlist_t *files, int skip);
 int _pacman_downloadfiles_forreal(::libpacman::Handle *handle, pmlist_t *servers, const char *localpath,
-	pmlist_t *files, const time_t *mtime1, time_t *mtime2, int skip);
+	pmlist_t *files, const libpacman::Timestamp *mtime1, libpacman::Timestamp *mtime2, int skip);
 
 char *_pacman_fetch_pkgurl(::libpacman::Handle *handle, char *target);
 

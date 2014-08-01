@@ -64,7 +64,7 @@ public:
 	virtual pmlist_t *getowners(const char *filename);
 
 protected:
-	virtual int open(int flags, time_t *timestamp);
+	virtual int open(int flags, libpacman::Timestamp *timestamp);
 
 private:
 	DIR *m_dir;

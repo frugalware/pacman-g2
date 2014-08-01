@@ -63,12 +63,12 @@ using namespace libpacman;
 static
 int check_oldcache(Database *db)
 {
-	time_t timestamp;
+	Timestamp timestamp;
 
 	if(db->gettimestamp(&timestamp) == -1) {
 		return(-1);
 	}
-	if(difftime(timestamp, db->cache_timestamp) != 0) {
+	if(timestamp - db->cache_timestamp != 0) {
 		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is too old"), db->treename);
 		_pacman_db_free_pkgcache(db);
 	} else {
@@ -246,7 +246,7 @@ static int pkg_cmp(const void *p1, const void *p2)
 static int check_olddelay(void)
 {
 	pmlist_t *i;
-	time_t tm;
+	Timestamp tm;
 
 	if(!handle->olddelay) {
 		return(0);
@@ -257,7 +257,7 @@ static int check_olddelay(void)
 		if(db->gettimestamp(&tm) == -1) {
 			continue;
 		}
-		if(difftime(time(NULL), tm) > handle->olddelay) {
+		if(difftime(time(NULL), tm.m_value) > handle->olddelay) {
 			_pacman_log(PM_LOG_WARNING, _("local copy of '%s' repo is too old"), db->treename);
 		}
 	}

@@ -27,6 +27,7 @@
 #include <time.h>
 
 #include "handle.h"
+#include "timestamp.h"
 
 #include "kernel/fobject.h"
 
@@ -52,8 +53,8 @@ public:
 	virtual int open(int flags = 0);
 	virtual int close();
 
-	virtual int gettimestamp(time_t *timestamp);
-	virtual int settimestamp(const time_t *timestamp);
+	virtual int gettimestamp(libpacman::Timestamp *timestamp);
+	virtual int settimestamp(const libpacman::Timestamp *timestamp);
 
 	/* Package iterator */
 	virtual int rewind();
@@ -70,7 +71,7 @@ public:
 	::libpacman::Handle *m_handle;
 	char *path;
 	char treename[PATH_MAX];
-	time_t cache_timestamp;
+	libpacman::Timestamp cache_timestamp;
 	pmlist_t *pkgcache;
 	pmlist_t *grpcache;
 	pmlist_t *servers;
@@ -78,7 +79,7 @@ public:
 protected:
 	Database(libpacman::Handle *handle, const char *treename);
 
-	virtual int open(int flags, time_t *timestamp);
+	virtual int open(int flags, libpacman::Timestamp *timestamp);
 
 private:
 };

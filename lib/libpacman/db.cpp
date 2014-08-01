@@ -133,7 +133,7 @@ int Database::open(int flags)
 	return open(flags, &cache_timestamp);
 }
 
-int Database::open(int flags, time_t *timestamp)
+int Database::open(int flags, Timestamp *timestamp)
 {
 	return -1;
 }
@@ -143,14 +143,14 @@ int Database::close()
 	return -1;
 }
 
-int Database::gettimestamp(time_t *timestamp)
+int Database::gettimestamp(Timestamp *timestamp)
 {
 	ASSERT(timestamp != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	char buffer[PM_FMT_MDTM_MAX];
 
 	if(_pacman_db_getlastupdate(this, buffer) == 0 &&
-		_pacman_ftp_strpmdtm(buffer, timestamp) != NULL) {
+		_pacman_ftp_strpmdtm(buffer, timestamp != NULL ? &timestamp->m_value : NULL) != NULL) {
 		return 0;
 	}
 	return -1;
@@ -158,11 +158,11 @@ int Database::gettimestamp(time_t *timestamp)
 
 /* A NULL timestamp means now per f_localtime definition.
  */
-int Database::settimestamp(const time_t *timestamp)
+int Database::settimestamp(const Timestamp *timestamp)
 {
 	char buffer[PM_FMT_MDTM_MAX];
 
-	_pacman_ftp_strfmdtm(buffer, sizeof(buffer), timestamp);
+	_pacman_ftp_strfmdtm(buffer, sizeof(buffer), timestamp != NULL ? &timestamp->m_value : NULL);
 	return _pacman_db_setlastupdate(this, buffer);
 }
 

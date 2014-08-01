@@ -64,6 +64,7 @@ set(LIBPACMAN_SOURCES
 	pacman.cpp
 	server.cpp
 	sync.cpp
+	timestamp.h
 	trans.cpp
 	trans_sysupgrade.cpp
 	util.cpp

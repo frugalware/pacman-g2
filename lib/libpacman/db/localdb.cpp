@@ -287,7 +287,7 @@ pmlist_t *LocalDatabase::test() const
 	return(ret);
 }
 
-int LocalDatabase::open(int flags, time_t *timestamp)
+int LocalDatabase::open(int flags, Timestamp *timestamp)
 {
 	struct stat buf;
 
