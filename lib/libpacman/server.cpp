@@ -323,9 +323,12 @@ again:
 			//also check for download size as in some cases (proxy) ret codes won't work
 			ret = PM_DOWNLOAD_OK_CACHE;
 		} else {
-			if(curl_easy_getinfo(curlHandle, CURLINFO_FILETIME,  mtime2) != CURLE_OK) {
-				*mtime2 = PM_TIME_INVALID;
+			long filetime = PM_TIME_INVALID;
+
+			if(curl_easy_getinfo(curlHandle, CURLINFO_FILETIME, &filetime) == CURLE_OK) {
+				_pacman_log(PM_LOG_DEBUG, _("cache time '%li' (epoch) for downloaded file: %s\n"), filetime, url);
 			}
+			mtime2->fromEpoch(filetime);
 		}
 	}
 	fclose(outputFile);
