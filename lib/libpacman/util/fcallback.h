@@ -58,8 +58,9 @@ FComparator *f_comparator_new(FComparatorFunc fn, const void *data)
 {
 	FComparator *self;
 
-	ASSERT((self = f_zalloc(sizeof(*self))) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-	return f_comparator_init(self, fn, data) == 0 ? self: NULL;
+	ASSERT((self = (FComparator *)f_zalloc(sizeof(*self))) != NULL, return NULL);
+	f_comparator_init(self, fn, data);
+	return self;
 }
 
 static inline
@@ -129,8 +130,9 @@ FMatcher *f_matcher_new(FMatcherFunc fn, const void *data)
 {
 	FMatcher *self;
 
-	ASSERT((self = f_zalloc(sizeof(*self))) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-	return f_matcher_init(self, fn, data) == 0 ? self: NULL;
+	ASSERT((self = (FMatcher *)f_zalloc(sizeof(*self))) != NULL, return NULL);
+	f_matcher_init(self, fn, data);
+	return self;
 }
 
 static inline
@@ -221,9 +223,9 @@ FVisitor *f_visitor_new(FVisitorFunc fn, void *data)
 {
 	FVisitor *self;
 
-	ASSERT((self = f_zalloc(sizeof(*self))) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-
-	return f_visitor_init(self, fn, data) == 0 ? self: NULL;
+	ASSERT((self = (FVisitor *)f_zalloc(sizeof(*self))) != NULL, return NULL);
+	f_visitor_init(self, fn, data);
+	return self;
 }
 
 static inline
