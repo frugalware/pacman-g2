@@ -357,7 +357,7 @@ int _pacman_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatc
 
 	ASSERT(matcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT(strmatcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT((data = f_zalloc(sizeof(*data))) != NULL, return -1);
+	ASSERT((data = (FPackageStrMatcher *)f_zalloc(sizeof(*data))) != NULL, return -1);
 
 	matcher->fn = _pacman_packagestrmatcher_match;
 	matcher->data = data;
