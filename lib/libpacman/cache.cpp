@@ -161,7 +161,7 @@ pmlist_t *_pacman_db_whatprovides(Database *db, char *package)
 {
 	FPtrList *pkgs = NULL;
 	FStrMatcher strmatcher = { NULL };
-	FMatcher packagestrmatcher = { NULL };
+	FMatcher packagestrmatcher;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 

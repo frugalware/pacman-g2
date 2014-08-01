@@ -1,7 +1,7 @@
 /*
  *  fcallbacks.h
  *
- *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
+ *  Copyright (c) 2013-2014 by Michel Hermier <hermier@frugalware.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,6 +29,16 @@ typedef int (*FComparatorFunc)(const void *ptr, const void *comparator_data);
 typedef struct FComparator FComparator;
 
 struct FComparator {
+#ifdef __cplusplus
+	FComparator()
+		: fn(NULL), data(NULL)
+	{ }
+
+	FComparator(FComparatorFunc _fn, const void *_data)
+		: fn(_fn), data(_data)
+	{ }
+#endif
+
 	FComparatorFunc fn;
 	const void *data;
 };
@@ -101,6 +111,16 @@ typedef int (*FMatcherFunc)(const void *ptr, const void *matcher_data);
 typedef struct FMatcher FMatcher;
 
 struct FMatcher {
+#ifdef __cplusplus
+	FMatcher()
+		: fn(NULL), data(NULL)
+	{ }
+
+	FMatcher(FMatcherFunc _fn, const void *_data)
+		: fn(_fn), data(_data)
+	{ }
+#endif
+
 	FMatcherFunc fn;
 	const void *data;
 };
@@ -194,6 +214,16 @@ typedef void (*FVisitorFunc)(void *ptr, void *visitor_data);
 typedef struct FVisitor FVisitor;
 
 struct FVisitor {
+#ifdef __cplusplus
+	FVisitor()
+		: fn(NULL), data(NULL)
+	{ }
+
+	FVisitor(FVisitorFunc _fn, void *_data)
+		: fn(_fn), data(_data)
+	{ }
+#endif
+
 	FVisitorFunc fn;
 	void *data;
 };

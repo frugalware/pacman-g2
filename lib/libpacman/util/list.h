@@ -27,9 +27,12 @@
 
 #ifdef __cplusplus
 extern "C" {
+
+#define _FREELIST(p, f) do { if(p) { FVisitor visitor((FVisitorFunc)f, NULL); f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
+#else
+#define _FREELIST(p, f) do { if(p) { FVisitor visitor = { .fn = (FVisitorFunc)f, .data = NULL, }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
 #endif
 
-#define _FREELIST(p, f) do { if(p) { FVisitor visitor = { .fn = (FVisitorFunc)f, .data = NULL, }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
 #define FREELIST(p) _FREELIST(p, free)
 #define FREELISTPTR(p) _FREELIST(p, NULL)
 

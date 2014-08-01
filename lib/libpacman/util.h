@@ -34,7 +34,11 @@
 
 #define FREE(p) do { if (p) { free(p); p = NULL; } } while(0)
 
+#if 1
+#define ASSERT(cond, action) do { if(!(cond)) { _pacman_log(PM_LOG_ERROR, _("ASSERT failed: %s"), #cond); action; } } while(0)
+#else
 #define ASSERT(cond, action) do { if(!(cond)) { action; } } while(0)
+#endif
 
 #define STRNCPY(s1, s2, len) do { \
 	strncpy(s1, s2, (len)-1); \
