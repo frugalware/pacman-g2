@@ -254,18 +254,17 @@ pmdownloadsuccess_t _pacman_curl_download(pmcurldownloader_t *curldownloader, co
 	gettimeofday(&curldownloader->download.dst_begin, NULL);
 	curldownloader->previous_update = curldownloader->download.dst_begin;
 
-	if(mtime1 && mtime2 && !curldownloader->m_handle->proxyhost) {
+	curl_easy_setopt(curlHandle, CURLOPT_FILETIME, mtime2 != NULL ? 1 : 0);
+	if(mtime1 != NULL) {
 		long cache_time = mtime1->toEpoch(); /* curl_easy_setopt require it as long */
 
 		_pacman_log(PM_LOG_DEBUG, _("setting cache time '%li' (epoch) for file: %s\n"), cache_time, url);
-		curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 1);
 		curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
 		curl_easy_setopt(curlHandle, CURLOPT_TIMEVALUE, cache_time);
 		outputFile = fopen(output,"wb");
 	} else {
 		struct stat st;
 
-		curl_easy_setopt(curlHandle, CURLOPT_FILETIME, 0);
 		curl_easy_setopt(curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_NONE);
 		if(dlFileType != PM_FILE_DB && stat(output, &st) == 0) {
 			curldownloader->download.dst_resume = st.st_size;
@@ -386,6 +385,10 @@ int _pacman_downloadfiles_forreal(Handle *handle, pmlist_t *servers, const char 
 	}
 	if(remain) {
 		*remain = 1;
+	}
+
+	if(curldownloader->m_handle->proxyhost) {
+		mtime1 = mtime2 = NULL;
 	}
 
 	if(mtime1 && *mtime1 == PM_TIME_INVALID) {
