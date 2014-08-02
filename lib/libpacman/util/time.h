@@ -32,6 +32,10 @@ double f_difftimeval(struct timeval timeval1, struct timeval timeval2)
 		((double)(timeval1.tv_usec - timeval2.tv_usec) / 1000000);
 }
 
+/* Return the gmtime for timep. If timep is NULL, return the conversion for time(NULL) (libc returns NULL instead).
+ */
+struct tm *f_gmtime(const time_t *timep);
+
 /* Return the localtime for timep. If timep is NULL, return the conversion for time(NULL) (libc returns NULL instead).
  */
 struct tm *f_localtime(const time_t *timep);

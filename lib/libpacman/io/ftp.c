@@ -32,7 +32,7 @@
 
 size_t _pacman_ftp_strfmdtm(char *s, size_t max, const time_t *time)
 {
-	return strftime(s, max, PM_FTP_MDTM_FORMAT, time != NULL ? gmtime(time) : f_localtime(NULL));
+	return strftime(s, max, PM_FTP_MDTM_FORMAT, f_gmtime(time));
 }
 
 char *_pacman_ftp_strpmdtm(const char *s, time_t *time)
@@ -45,7 +45,7 @@ char *_pacman_ftp_strpmdtm(const char *s, time_t *time)
 	if((ret = strptime(s, PM_FTP_MDTM_FORMAT, &ptimestamp)) != NULL) {
 		time_t tmp;
 		
-		if((tmp = mktime(&ptimestamp)) != PM_TIME_INVALID) {
+		if((tmp = timegm(&ptimestamp)) != PM_TIME_INVALID) {
 			*time = tmp;
 		} else {
 			ret = NULL;

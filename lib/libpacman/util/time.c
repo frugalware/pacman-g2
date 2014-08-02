@@ -46,6 +46,17 @@ locale_t f_locale_c(void)
 	return locale_c;
 }
 
+struct tm *f_gmtime(const time_t *timep)
+{
+	time_t now;
+
+	if(timep == NULL &&
+		(now = time(NULL)) != PM_TIME_INVALID) {
+		timep = &now;
+	}
+	return gmtime(timep);
+}
+
 struct tm *f_localtime(const time_t *timep)
 {
 	time_t now;
