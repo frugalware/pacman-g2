@@ -387,7 +387,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, pmlist_t *servers, const char 
 		*remain = 1;
 	}
 
-	if(curldownloader->m_handle->proxyhost) {
+	if(handle->proxyhost) {
 		mtime1 = mtime2 = NULL;
 	}
 
