@@ -88,6 +88,8 @@ PM_PKG_SCRIPTLET_PATH: Access to package scriptlet path (.install).
 
 PM_PKG_TRIGGERS: Access to package triggers list.
 
+PM_TRANS_EVT_FILECONFLICTS_PROGRESS, PM_TRANS_EVT_INTERCONFLICTS_PROGRESS, PM_TRANS_EVT_ADD_PROGRESS, PM_TRANS_EVT_REMOVE_PROGRESS, PM_TRANS_EVT_UPGRADE_PROGRESS: Added in preparation of an unification of event system. Also defines the values for PM_TRANS_PROGRESS_*_START.
+
 PM_TRANS_SYNCPKGS: Access to transaction syncpkgs list.
 
 ==== Symbols removed:
