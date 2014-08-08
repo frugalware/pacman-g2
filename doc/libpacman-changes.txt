@@ -60,6 +60,8 @@ pacman_download_resume: Access to resume download size.
 
 pacman_download_size: Access to final download size.
 
+pacman_download_source_tostr: Access to source url as cstring.
+
 pacman_download_tell: Access to current download size.
 
 pacman_download_xfered: Access to a xfered download size.
