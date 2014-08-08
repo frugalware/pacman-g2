@@ -136,7 +136,18 @@ int pacman_release(void)
  */
 pmhandle_t *pacman_get_handle(void)
 {
-	    return c_cast(handle);
+	return c_cast(handle);
+}
+
+/** Return the current transaction handle.
+ * @return a @pmtrans_t* on success, or NULL if the library is not initialised or there is no transaction yet
+ */
+pmtrans_t *pacman_get_trans(void)
+{
+	/* Sanity checks */
+	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, NULL));
+
+	return handle->trans;
 }
 /** @} */
 

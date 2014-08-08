@@ -66,6 +66,8 @@ pacman_download_xfered: Access to a xfered download size.
 
 pacman_get_handle: Access to internal library handle (to help source migration).
 
+pacman_get_trans: Access to current transaction handle (to help source migration).
+
 pacman_list_begin: Access to iterator at bigging of list.
 
 pacman_list_end: Access to iterator at end of list.
