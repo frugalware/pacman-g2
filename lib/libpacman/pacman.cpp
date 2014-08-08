@@ -130,6 +130,14 @@ int pacman_release(void)
 	handle = NULL;
 	return(0);
 }
+
+/** Return the current library handle.
+ * @return a @pmhandle_t* on success, or NULL if the library is not initialised
+ */
+pmhandle_t *pacman_get_handle(void)
+{
+	    return c_cast(handle);
+}
 /** @} */
 
 /** @defgroup pacman_options Library Options

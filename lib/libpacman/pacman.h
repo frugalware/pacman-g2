@@ -53,6 +53,7 @@ typedef struct __pmdb_t pmdb_t;
 typedef struct __pmdepmissing_t pmdepmissing_t;
 typedef struct __pmdownload_t pmdownload_t;
 typedef struct __pmgrp_t pmgrp_t;
+typedef struct __pmhandle_t pmhandle_t;
 typedef struct __pmlist_t pmlist_t;
 typedef struct __pmlist_iterator_t pmlist_iterator_t;
 typedef struct __pmpkg_t pmpkg_t;
@@ -64,6 +65,8 @@ typedef struct __pmsyncpkg_t pmsyncpkg_t;
 
 int pacman_initialize(const char *root);
 int pacman_release(void);
+
+pmhandle_t *pacman_get_handle(void);
 
 /*
  * Logging facilities
