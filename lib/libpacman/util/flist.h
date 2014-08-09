@@ -2,7 +2,7 @@
  *  flist.h
  *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
- *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
+ *  Copyright (c) 2013-2014 by Michel Hermier <hermier@frugalware.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,28 +29,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 #ifndef F_NOCOMPAT
 typedef struct __pmlist_t FList;
 typedef struct __pmlist_t FListItem;
-
-/* Chained list struct */
-struct __pmlist_t {
-	struct __pmlist_t *prev;
-	struct __pmlist_t *next;
-	void *data;
-};
 #else
 typedef struct FList FList;
 typedef struct FListItem FListItem;
-
-struct FListItem {
-	FListItem *next;
-	FListItem *previous;
-};
-
-struct FList {
-	FListItem as_FListItem;
-};
 #endif
 
 typedef int (*FListItemComparatorFunc)(const FListItem *item, const void *comparator_data);
@@ -87,9 +72,12 @@ const FListItem *f_list_last_const(const FList *self);
 FListItem *f_list_rend(FList *self);
 const FListItem *f_list_rend_const(const FList *self);
 
+#include "util/flist_p.h"
+
 #ifdef __cplusplus
 }
 #endif
+
 #endif /* F_LIST_H */
 
 /* vim: set ts=2 sw=2 noet: */

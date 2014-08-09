@@ -2,7 +2,7 @@
  *  fptrlist.h
  *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
- *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
+ *  Copyright (c) 2013-2014 by Michel Hermier <hermier@frugalware.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,15 +36,6 @@ typedef struct __pmlist_t FPtrListItem;
 #else
 typedef struct FPtrList FPtrList;
 typedef struct FPtrListItem FPtrListItem;
-
-struct FPtrList {
-	FList as_FList;
-};
-
-struct FPtrListItem {
-	FListItem as_FListItem;
-	void *data;
-};
 #endif
 
 FPtrListItem *f_ptrlistitem_new(void *data);
