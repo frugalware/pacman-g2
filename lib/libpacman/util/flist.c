@@ -22,7 +22,7 @@
 
 #include "config.h"
 
-#include "util/flist.h"
+#include "util/flist_p.h"
 
 #include "fstdlib.h"
 
@@ -57,6 +57,20 @@ int f_listitem_insert_after(FListItem *self, FListItem *previous)
 #endif
 	next->previous = self;
 	return 0;
+}
+
+FListItem *f_listitem_next(FListItem *self)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	return self->next;
+}
+
+FListItem *f_listitem_previous(FListItem *self)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	return self->previous;
 }
 
 FList *f_list_new()

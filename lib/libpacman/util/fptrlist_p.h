@@ -24,6 +24,8 @@
 
 #include "util/fptrlist.h"
 
+#include "util/flist_p.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

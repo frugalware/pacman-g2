@@ -44,6 +44,8 @@ typedef void (*FListItemVisitorFunc)(FListItem *item, void *visitor_data);
 int f_listitem_delete(FListItem *self, FVisitor *visitor);
 
 int f_listitem_insert_after(FListItem *self, FListItem *previous);
+FListItem *f_listitem_next(FListItem *self);
+FListItem *f_listitem_previous(FListItem *self);
 
 FList *f_list_new(void);
 int f_list_delete(FList *self, FVisitor *visitor);

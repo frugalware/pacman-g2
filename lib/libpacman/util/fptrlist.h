@@ -42,6 +42,8 @@ FPtrListItem *f_ptrlistitem_new(void *data);
 int f_ptrlistitem_delete(FListItem *self, FVisitor *visitor);
 
 void *f_ptrlistitem_data(const FPtrListItem *self);
+#define f_ptrlistitem_next(self) ((FPtrListItem *)f_listitem_next((FListItem *)(self)))
+#define f_ptrlistitem_previous(self) ((FPtrListItem *)f_listitem_previous((FListItem *)(self)))
 
 int f_ptrlistitem_match(const FPtrListItem *item, const FMatcher *matcher);
 int f_ptrlistitem_ptrcmp(const FPtrListItem *item, const void *ptr);

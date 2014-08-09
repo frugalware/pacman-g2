@@ -26,6 +26,7 @@
 
 /* pacman-g2 */
 #include "list.h"
+#include "fptrlist_p.h"
 
 #include "fstdlib.h"
 #include "util.h"

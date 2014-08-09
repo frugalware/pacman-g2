@@ -22,7 +22,7 @@
 
 #include "config.h"
 
-#include "util/fptrlist.h"
+#include "util/fptrlist_p.h"
 
 #include "fstdlib.h"
 

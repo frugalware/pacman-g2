@@ -28,6 +28,7 @@
 /* pacman-g2 */
 #include "stringlist.h"
 
+#include "util/fptrlist_p.h"
 #include "util.h"
 
 /* Test for existence of a string in a FStringList
