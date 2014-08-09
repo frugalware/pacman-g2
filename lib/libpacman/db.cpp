@@ -97,7 +97,7 @@ pmlist_t *Database::search(pmlist_t *needles)
 	for(i = needles; i; i = i->next) {
 		FStrMatcher strmatcher = { NULL };
 		FMatcher packagestrmatcher;
-		const char *targ = i->data;
+		const char *targ = f_stringlistitem_to_str(i);
 
 		if(f_strempty(targ)) {
 			continue;

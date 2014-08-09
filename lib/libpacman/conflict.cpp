@@ -269,7 +269,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans)
 						}
 						conflict->type = PM_CONFLICT_TYPE_TARGET;
 						STRNCPY(conflict->target, p1->name(), PKG_NAME_LEN);
-						STRNCPY(conflict->file, k->data, CONFLICT_FILE_LEN);
+						STRNCPY(conflict->file, f_stringlistitem_to_str(k), CONFLICT_FILE_LEN);
 						STRNCPY(conflict->ctarget, p2->name(), PKG_NAME_LEN);
 						conflicts = _pacman_list_add(conflicts, conflict);
 				}

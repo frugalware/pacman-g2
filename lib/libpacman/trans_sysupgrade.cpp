@@ -92,7 +92,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 				pmlist_t *m;
 				for(m = _pacman_db_get_pkgcache(db_local); m; m = m->next) {
 					Package *lpkg = m->data;
-					if(!strcmp(k->data, lpkg->name())) {
+					if(!strcmp(f_stringlistitem_to_str(k), lpkg->name())) {
 						_pacman_log(PM_LOG_DEBUG, _("checking replacement '%s' for package '%s'"), k->data, spkg->name());
 						if(_pacman_list_is_strin(lpkg->name(), handle->ignorepkg)) {
 							_pacman_log(PM_LOG_WARNING, _("%s-%s: ignoring package upgrade (to be replaced by %s-%s)"),

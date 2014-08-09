@@ -242,7 +242,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				//char *ver;
 				Package *p;
 				found = 0;
-				if((p = _pacman_db_get_pkgfromcache(db_local, j->data)) == NULL) {
+				if((p = _pacman_db_get_pkgfromcache(db_local, f_stringlistitem_to_str(j))) == NULL) {
 					/* hmmm... package isn't installed.. */
 					continue;
 				}
@@ -532,7 +532,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 
 			/* see if other packages need it */
 			for(k = dep->requiredby(); k && !needed; k = k->next) {
-				Package *dummy = _pacman_db_get_pkgfromcache(db, k->data);
+				Package *dummy = _pacman_db_get_pkgfromcache(db, f_stringlistitem_to_str(k));
 				if(!_pacman_pkg_isin(dummy->name(), targs)) {
 					needed = 1;
 				}

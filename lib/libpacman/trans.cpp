@@ -342,8 +342,8 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 					if(p == NULL) {
 						RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 					}
-					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), p->data, targ);
-					spkg = _pacman_db_get_pkgfromcache(dbs, p->data);
+					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), f_stringlistitem_to_str(p), targ);
+					spkg = _pacman_db_get_pkgfromcache(dbs, f_stringlistitem_to_str(p));
 					FREELISTPTR(p);
 				}
 			}
@@ -361,8 +361,8 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 				Database *dbs = i->data;
 				pmlist_t *p = _pacman_db_whatprovides(dbs, targ);
 				if(p) {
-					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), p->data, targ);
-					spkg = _pacman_db_get_pkgfromcache(dbs, p->data);
+					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), f_stringlistitem_to_str(p), targ);
+					spkg = _pacman_db_get_pkgfromcache(dbs, f_stringlistitem_to_str(p));
 					FREELISTPTR(p);
 				}
 			}
@@ -817,7 +817,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 						for(k = conflictp->depends(); k && !pfound; k = k->next) {
 							pmlist_t *m;
 							for(m = leavingp->provides(); m && !pfound; m = m->next) {
-								if(!strcmp(k->data, m->data)) {
+								if(!strcmp(f_stringlistitem_to_str(k), f_stringlistitem_to_str(m))) {
 									/* Found a match -- now look through final for a package that
 									 * provides the same thing.  If none are found, then it truly
 									 * is an unresolvable conflict. */
@@ -825,7 +825,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 									for(n = syncpkgs; n && !pfound; n = n->next) {
 										pmsyncpkg_t *sp = n->data;
 										for(o = sp->pkg_new->provides(); o && !pfound; o = o->next) {
-											if(!strcmp(m->data, o->data)) {
+											if(!strcmp(f_stringlistitem_to_str(m), f_stringlistitem_to_str(o))) {
 												/* found matching provisio -- we're good to go */
 												_pacman_log(PM_LOG_FLOW2, _("found '%s' as a provision for '%s' -- conflict aborted"),
 														sp->pkg_name, (char *)o->data);
@@ -1637,10 +1637,10 @@ int __pmtrans_t::commit(pmlist_t **data)
 					Package *old = j->data;
 					/* merge lists */
 					for(k = old->requiredby(); k; k = k->next) {
-						if(!_pacman_list_is_strin(k->data, pkg_new->requiredby())) {
+						if(!_pacman_list_is_strin(f_stringlistitem_to_str(k), pkg_new->requiredby())) {
 							/* replace old's name with new's name in the requiredby's dependency list */
 							pmlist_t *m;
-							Package *depender = _pacman_db_get_pkgfromcache(db_local, k->data);
+							Package *depender = _pacman_db_get_pkgfromcache(db_local, f_stringlistitem_to_str(k));
 							if(depender == NULL) {
 								/* If the depending package no longer exists in the local db,
 								 * then it must have ALSO conflicted with ps->pkg.  If
@@ -1649,7 +1649,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 								continue;
 							}
 							for(m = depender->depends(); m; m = m->next) {
-								if(!strcmp(m->data, old->name())) {
+								if(!strcmp(f_stringlistitem_to_str(m), old->name())) {
 									FREE(m->data);
 									m->data = strdup(pkg_new->name());
 								}
@@ -1659,7 +1659,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 										  pkg_new->name(), pkg_new->version());
 							}
 							/* add the new requiredby */
-							pkg_new->m_requiredby = _pacman_stringlist_append(pkg_new->m_requiredby, k->data);
+							pkg_new->m_requiredby = _pacman_stringlist_append(pkg_new->m_requiredby, f_stringlistitem_to_str(k));
 						}
 					}
 				}
@@ -1680,7 +1680,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 	if(!varcache && !(flags & PM_TRANS_FLAG_DOWNLOADONLY)) {
 		/* delete packages */
 		for(i = files; i; i = i->next) {
-			unlink(i->data);
+			unlink(f_stringlistitem_to_str(i));
 		}
 	}
 	return(retval);

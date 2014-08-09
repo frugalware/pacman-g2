@@ -259,7 +259,7 @@ char *Package::fileneedbackup(const char *file) const
 
 	/* run through the backup list and parse out the md5 or sha1 hash for our file */
 	for(lp = m_backup; lp; lp = lp->next) {
-		char *str = strdup(lp->data);
+		char *str = strdup(f_stringlistitem_to_str(lp));
 		char *ptr;
 
 		/* tab delimiter */
