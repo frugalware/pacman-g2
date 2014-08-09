@@ -81,7 +81,8 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 		}
 
 		for(j = tp->conflicts(); j; j = j->next) {
-			if(!strcmp(tp->name(), j->data)) {
+			const char *conflict = f_stringlistitem_to_str(j);
+			if(!strcmp(tp->name(), conflict)) {
 				/* a package cannot conflict with itself -- that's just not nice */
 				continue;
 			}
@@ -93,7 +94,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 					/* a package cannot conflict with itself -- that's just not nice */
 					continue;
 				}
-				if(!strcmp(j->data, dp->name())) {
+				if(!strcmp(dp->name(), conflict)) {
 					/* conflict */
 					_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
 					          dp->name(), tp->name());
@@ -103,7 +104,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 					/* see if dp provides something in tp's conflict list */
 					pmlist_t *m;
 					for(m = dp->provides(); m; m = m->next) {
-						if(!strcmp(m->data, j->data)) {
+						if(!strcmp(f_stringlistitem_to_str(m), conflict)) {
 							/* confict */
 							_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
 							          dp->name(), tp->name());
@@ -121,7 +122,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 					/* a package cannot conflict with itself -- that's just not nice */
 					continue;
 				}
-				if(!strcmp(otp->name(), (char *)j->data)) {
+				if(!strcmp(otp->name(), conflict)) {
 					/* otp is listed in tp's conflict list */
 					_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
 					          otp->name(), tp->name());
@@ -131,7 +132,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 					/* see if otp provides something in tp's conflict list */
 					pmlist_t *m;
 					for(m = otp->provides(); m; m = m->next) {
-						if(!strcmp(m->data, j->data)) {
+						if(!strcmp(f_stringlistitem_to_str(m), conflict)) {
 							_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
 							          otp->name(), tp->name());
 							miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, otp->name(), NULL);
@@ -168,7 +169,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 				conflicts = info->conflicts();
 			}
 			for(j = conflicts; j; j = j->next) {
-				if(!strcmp((char *)j->data, tp->name())) {
+				if(!strcmp(tp->name(), f_stringlistitem_to_str(j))) {
 					_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
 					          info->name(), tp->name());
 					miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name(), NULL);
@@ -179,7 +180,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 					for(m = conflicts; m; m = m->next) {
 						pmlist_t *n;
 						for(n = tp->provides(); n; n = n->next) {
-							if(!strcmp(m->data, n->data)) {
+							if(!strcmp(f_stringlistitem_to_str(m), f_stringlistitem_to_str(n))) {
 								_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
 								          info->name(), tp->name());
 								miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name(), NULL);
@@ -205,8 +206,8 @@ static pmlist_t *chk_fileconflicts(pmlist_t *filesA, pmlist_t *filesB)
 	pmlist_t *pA = filesA, *pB = filesB;
 
 	while(pA && pB) {
-		const char *strA = pA->data;
-		const char *strB = pB->data;
+		const char *strA = f_stringlistitem_to_str(pA);
+		const char *strB = f_stringlistitem_to_str(pB);
 		/* skip directories, we don't care about dir conflicts */
 		if(strA[strlen(strA)-1] == '/') {
 			pA = pA->next;
@@ -280,7 +281,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans)
 		p = (Package*)i->data;
 		dbpkg = NULL;
 		for(j = p->files(); j; j = j->next) {
-			filestr = (char*)j->data;
+			filestr = f_stringlistitem_to_str(j);
 			snprintf(path, PATH_MAX, "%s%s", root, filestr);
 			/* is this target a file or directory? */
 			if(path[strlen(path)-1] == '/') {
@@ -301,7 +302,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans)
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg->name());
 						dbpkg->read(INFRQ_FILES);
 					}
-					if(dbpkg && _pacman_list_is_strin(j->data, dbpkg->files())) {
+					if(dbpkg && _pacman_list_is_strin(filestr, dbpkg->files())) {
 						ok = 1;
 					}
 					/* Check if the conflicting file has been moved to another package/target */

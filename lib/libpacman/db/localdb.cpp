@@ -144,10 +144,10 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 	_pacman_log(PM_LOG_FLOW1, _("removing files"));
 
 	/* iterate through the list backwards, unlinking files */
-	for(lp = _pacman_list_last(pkg->files()); lp; lp = lp->prev) {
+	for(lp = _pacman_list_last(pkg->files()); lp; lp = f_ptrlistitem_previous(lp)) {
 		int nb = 0;
 		double percent = 0;
-		char *file = lp->data;
+		const char *file = f_stringlistitem_to_str(lp);
 		char *hash_orig = pkg->fileneedbackup(file);
 
 		if (position != 0) {
@@ -182,7 +182,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 			int skipit = 0;
 			pmlist_t *j;
 			for(j = trans->skiplist; j; j = j->next) {
-				if(!strcmp(file, (char*)j->data)) {
+				if(!strcmp(file, f_stringlistitem_to_str(j))) {
 					skipit = 1;
 				}
 			}

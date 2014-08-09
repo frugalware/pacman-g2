@@ -215,7 +215,7 @@ int _pacman_db_load_grpcache(Database *db)
 		}
 
 		for(i = pkg->groups(); i; i = i->next) {
-			Group *grp = _pacman_db_get_grpfromlist(db->grpcache, i->data);
+			Group *grp = _pacman_db_get_grpfromlist(db->grpcache, f_stringlistitem_to_str(i));
 
 			if(grp == NULL) {
 				grp = new Group((char *)i->data);

@@ -76,9 +76,10 @@ int _pacman_localdb_desc_fread(Package *info, FILE *fp)
 			_pacman_db_read_lines(&info->desc_localized, line, sline, fp);
 			STRNCPY(info->m_description, (char*)info->desc_localized->data, sizeof(info->m_description));
 			for (i = info->desc_localized; i; i = i->next) {
-				if (!strncmp(i->data, handle->language, strlen(handle->language)) &&
-						*((char*)i->data+strlen(handle->language)) == ' ') {
-					STRNCPY(info->m_description, (char*)i->data+strlen(handle->language)+1, sizeof(info->m_description));
+				const char *desc = f_stringlistitem_to_str(i);
+				const size_t language_len = strlen(handle->language);
+				if (!strncmp(desc, handle->language, language_len) && *(desc+language_len) == ' ') {
+					STRNCPY(info->m_description, desc+language_len+1, sizeof(info->m_description));
 				}
 			}
 			f_strtrim(info->m_description);
