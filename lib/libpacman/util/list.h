@@ -46,9 +46,9 @@ typedef int (*_pacman_fn_cmp)(const void *, const void *);
 #define _pacman_list_empty f_ptrlist_empty
 #define _pacman_list_last f_ptrlist_last
 
-pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn);
-pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp fn, void **data);
-pmlist_t *_pacman_list_reverse(pmlist_t *list);
+FPtrList *_pacman_list_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
+FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
+FPtrList *_pacman_list_reverse(FPtrList *list);
 
 #ifdef __cplusplus
 }

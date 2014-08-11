@@ -38,8 +38,8 @@ void f_dispatchlogger_log(unsigned char flag, const char *message, void *data)
 	FPtrListItem *end, *it;
 
 	end = f_ptrlist_end(list);
-	for (it = f_ptrlist_first(list); it != end; it = it->next) {
-		f_logger_logs((FLogger *)it->data, flag, message);
+	for (it = f_ptrlist_first(list); it != end; it = f_ptrlistitem_next(it)) {
+		f_logger_logs((FLogger *)f_ptrlistitem_data(it), flag, message);
 	}
 }
 

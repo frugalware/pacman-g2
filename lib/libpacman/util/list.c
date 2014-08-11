@@ -34,17 +34,15 @@
 /* Add items to a list in sorted order. Use the given comparison function to
  * determine order.
  */
-pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn)
+FPtrList *_pacman_list_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 {
-	pmlist_t *add;
-	pmlist_t *prev = NULL;
-	pmlist_t *iter = list;
+	FPtrListItem *add, *end = f_ptrlist_end(list), *prev = NULL, *iter = f_ptrlist_first(list);
 
 	add = _pacman_list_new();
 	add->data = data;
 
 	/* Find insertion point. */
-	while(iter) {
+	while(iter != end) {
 		if(fn(add->data, iter->data) <= 0) break;
 		prev = iter;
 		iter = iter->next;
@@ -73,11 +71,11 @@ pmlist_t *_pacman_list_add_sorted(pmlist_t *list, void *data, _pacman_fn_cmp fn)
  * Otherwise, it is set to NULL.
  * Return the new list (without the removed element).
  */
-pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp fn, void **data)
+FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data)
 {
-	pmlist_t *i = haystack;
+	FPtrListItem *end = f_ptrlist_end(haystack), *i = f_ptrlist_first(haystack);
 
-	if(data) {
+	if(data != end) {
 		*data = NULL;
 	}
 
@@ -118,16 +116,16 @@ pmlist_t *_pacman_list_remove(pmlist_t *haystack, void *needle, _pacman_fn_cmp f
  *
  * The caller is responsible for freeing the old list
  */
-pmlist_t *_pacman_list_reverse(pmlist_t *list)
+FPtrList *_pacman_list_reverse(FPtrList *list)
 {
 	/* simple but functional -- we just build a new list, starting
 	 * with the old list's tail
 	 */
-	pmlist_t *newlist = NULL;
-	pmlist_t *lp;
+	FPtrList *newlist = f_ptrlist_new();
+	FPtrListItem *it;
 
-	for(lp = f_ptrlist_last(list); lp; lp = lp->prev) {
-		newlist = _pacman_list_add(newlist, lp->data);
+	for(it = f_ptrlist_last(list); it; it = f_ptrlistitem_previous(it)) {
+		newlist = _pacman_list_add(newlist, it->data);
 	}
 
 	return(newlist);

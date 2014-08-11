@@ -156,15 +156,15 @@ int f_ptrlist_append(FPtrList *self, void *data)
 
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 {
-	FPtrList *next;
+	FPtrListItem *end = f_ptrlist_end(list), *it = f_ptrlist_first(list), *next;
 
-	while(list != NULL) {
-		next = list->next;
+	while(it != end) {
+		next = f_ptrlistitem_next(it);
 		if(visitor != NULL) {
-			f_visit(list->data, visitor);
+			f_visit(f_ptrlistitem_data(it), visitor);
 		}
-		free(list);
-		list = next;
+		free(it);
+		it = next;
 	}
 	return 0;
 }
@@ -177,11 +177,16 @@ int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr)
 FPtrList *f_ptrlist_filter(const FPtrList *list, const FMatcher *matcher)
 {
 	FPtrList *retlist = NULL;
+	const FPtrListItem *end = f_ptrlist_end_const(list), *it = f_ptrlist_first_const(list);
 
-	for(; list != NULL; list = list->next) {
-		if(f_match(list->data, matcher)) {
-			retlist = f_ptrlist_append(retlist, list->data);
+	for(; it != end; it = f_ptrlistitem_next(it)) {
+		void *data = f_ptrlistitem_data(it);
+
+		if(f_match(data, matcher)) {
+			retlist = f_ptrlist_append(retlist, data);
 		}
 	}
 	return retlist;
 }
+
+/* vim: set ts=2 sw=2 noet: */
