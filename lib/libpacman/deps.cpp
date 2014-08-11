@@ -566,7 +566,8 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 	pmlist_t *i, *j;
 	pmlist_t *targ;
 	pmlist_t *deps = NULL;
-	pmlist_t *dbs_sync = trans->m_handle->dbs_sync;
+	Handle *handle = trans->m_handle;
+	pmlist_t *dbs_sync = handle->dbs_sync;
 
 	if(dbs_sync == NULL || syncpkg == NULL) {
 		return(-1);

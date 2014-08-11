@@ -243,7 +243,7 @@ static int pkg_cmp(const void *p1, const void *p2)
 	return(strcmp(((Package *)p1)->name(), ((pmsyncpkg_t *)p2)->pkg_name));
 }
 
-static int check_olddelay(void)
+static int check_olddelay(Handle *handle)
 {
 	pmlist_t *i;
 	Timestamp tm;
@@ -875,7 +875,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 #endif
 
 	/* issue warning if the local db is too old */
-	check_olddelay();
+	check_olddelay(m_handle);
 
 cleanup:
 	FREELISTPTR(list);

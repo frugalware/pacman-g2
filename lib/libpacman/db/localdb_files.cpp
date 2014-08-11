@@ -66,6 +66,7 @@ int _pacman_localdb_desc_fread(Package *info, FILE *fp)
 	char line[512];
 	int sline = sizeof(line)-1;
 	pmlist_t *i;
+	Handle *handle = info->database()->m_handle;
 
 	while(!feof(fp)) {
 		if(fgets(line, 256, fp) == NULL) {

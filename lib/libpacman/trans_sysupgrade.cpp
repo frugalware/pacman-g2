@@ -61,6 +61,8 @@ using namespace libpacman;
 static int istoonew(Package *pkg)
 {
 	time_t t;
+	Handle *handle = pkg->database()->m_handle;
+
 	if (!handle->upgradedelay)
 		return 0;
 	time(&t);
