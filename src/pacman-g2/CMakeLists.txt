@@ -1,5 +1,4 @@
 set(PACMAN_SOURCES 
-	add.c
 	conf.c
 	deptest.c
 	download.c

@@ -41,7 +41,6 @@
 #include "download.h"
 #include "conf.h"
 #include "package.h"
-#include "add.h"
 #include "remove.h"
 #include "upgrade.h"
 #include "query.h"

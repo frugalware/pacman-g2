@@ -33,6 +33,8 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 
 void cb_trans_progress(unsigned char event, const char *pkgname, int percent, int howmany, int remain);
 
+int addpkg(list_t *targets);
+
 #endif /* _PM_TRANS_H */
 
 /* vim: set ts=2 sw=2 noet: */

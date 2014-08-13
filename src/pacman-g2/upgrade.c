@@ -26,7 +26,7 @@
 #include <pacman.h>
 /* pacman-g2 */
 #include "list.h"
-#include "add.h"
+#include "trans.h"
 #include "upgrade.h"
 #include "conf.h"
 
