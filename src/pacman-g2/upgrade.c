@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <pacman.h>
 /* pacman-g2 */
 #include "list.h"
 #include "trans.h"

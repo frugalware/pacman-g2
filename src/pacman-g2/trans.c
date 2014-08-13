@@ -30,7 +30,6 @@
 #include <math.h>
 #include <libintl.h>
 
-#include <pacman.h>
 /* pacman-g2 */
 #include "util.h"
 #include "log.h"
@@ -378,7 +377,7 @@ cleanup:
 	FREE(pkgname_short);
 }
 
-int addpkg(list_t *targets)
+int trans_commit(pmtranstype_t transtype, list_t *targets)
 {
 	PM_LIST *data;
 	list_t *i;
@@ -404,8 +403,8 @@ int addpkg(list_t *targets)
 
 	/* Step 1: create a new transaction
 	 */
-	if(pacman_trans_init((config->upgrade == 0) ? PM_TRANS_TYPE_ADD : PM_TRANS_TYPE_UPGRADE,
-	                   config->flags, cb_trans_evt, cb_trans_conv, cb_trans_progress) == -1) {
+	if(pacman_trans_init(transtype, config->flags,
+				cb_trans_evt, cb_trans_conv, cb_trans_progress) == -1) {
 		ERR(NL, "%s\n", pacman_strerror(pm_errno));
 		if(pm_errno == PM_ERR_HANDLE_LOCK) {
 			MSG(NL, _("       if you're sure a package manager is not already running,\n"
@@ -508,6 +507,11 @@ cleanup:
 	}
 
 	return(retval);
+}
+
+int addpkg(list_t *targets)
+{
+	return trans_commit((config->upgrade == 0) ? PM_TRANS_TYPE_ADD : PM_TRANS_TYPE_UPGRADE, targets);
 }
 
 /* vim: set ts=2 sw=2 noet: */

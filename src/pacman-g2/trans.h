@@ -23,6 +23,8 @@
 
 #include <stdbool.h>
 
+#include <pacman.h>
+
 bool trans_has_usable_syncs(void);
 
 /* callback to handle messages/notifications from libpacman transactions */
@@ -32,6 +34,8 @@ void cb_trans_evt(unsigned char event, void *data1, void *data2);
 void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, int *response);
 
 void cb_trans_progress(unsigned char event, const char *pkgname, int percent, int howmany, int remain);
+
+int trans_commit(pmtranstype_t transtype, list_t *targets);
 
 int addpkg(list_t *targets);
 
