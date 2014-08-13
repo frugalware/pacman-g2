@@ -110,7 +110,7 @@ PM_TRANS: Unused in the public API.
 
 === Behaviour changes
 
-None.
+pacman_db_unregister: Was accepting any database as long as it has a correct treename. Now it only accept valid database pointers. Previous behaviour, if necessary, should be implemented with a pacman_db_unregister_by_name API entry.
 
 == AUTHORS
 

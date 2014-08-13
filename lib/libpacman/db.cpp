@@ -85,11 +85,6 @@ Database::~Database()
 	free(path);
 }
 
-int _pacman_db_cmp(const void *db1, const void *db2)
-{
-	return(strcmp(((Database *)db1)->treename, ((Database *)db2)->treename));
-}
-
 pmlist_t *Database::search(pmlist_t *needles)
 {
 	pmlist_t *i, *j, *ret = NULL;
