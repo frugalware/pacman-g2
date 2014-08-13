@@ -509,9 +509,4 @@ cleanup:
 	return(retval);
 }
 
-int addpkg(list_t *targets)
-{
-	return trans_commit((config->upgrade == 0) ? PM_TRANS_TYPE_ADD : PM_TRANS_TYPE_UPGRADE, targets);
-}
-
 /* vim: set ts=2 sw=2 noet: */

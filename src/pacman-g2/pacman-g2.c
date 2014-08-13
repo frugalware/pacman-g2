@@ -42,7 +42,6 @@
 #include "conf.h"
 #include "package.h"
 #include "remove.h"
-#include "upgrade.h"
 #include "query.h"
 #include "sync.h"
 #include "deptest.h"
@@ -612,9 +611,9 @@ int main(int argc, char *argv[])
 
 	/* start the requested operation */
 	switch(config->op) {
-		case PM_OP_ADD:     ret = addpkg(pm_targets);     break;
+		case PM_OP_ADD:     ret = trans_commit(PM_TRANS_TYPE_ADD, pm_targets);     break;
 		case PM_OP_REMOVE:  ret = removepkg(pm_targets);  break;
-		case PM_OP_UPGRADE: ret = upgradepkg(pm_targets); break;
+		case PM_OP_UPGRADE: ret = trans_commit(PM_TRANS_TYPE_UPGRADE, pm_targets); break;
 		case PM_OP_QUERY:   ret = querypkg(pm_targets);   break;
 		case PM_OP_SYNC:    ret = syncpkg(pm_targets);    break;
 		case PM_OP_PS:      ret = pspkg(0);      break;

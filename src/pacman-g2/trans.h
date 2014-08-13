@@ -37,8 +37,6 @@ void cb_trans_progress(unsigned char event, const char *pkgname, int percent, in
 
 int trans_commit(pmtranstype_t transtype, list_t *targets);
 
-int addpkg(list_t *targets);
-
 #endif /* _PM_TRANS_H */
 
 /* vim: set ts=2 sw=2 noet: */

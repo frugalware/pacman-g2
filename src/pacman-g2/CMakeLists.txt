@@ -11,7 +11,6 @@ set(PACMAN_SOURCES
 	remove.c
 	sync.c
 	trans.c
-	upgrade.c
 	util.c
 )
 
