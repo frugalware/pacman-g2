@@ -77,11 +77,12 @@ int removepkg(list_t *targets)
 
 	/* Step 1: create a new transaction
 	 */
-	if(pacman_trans_init(PM_TRANS_TYPE_REMOVE, config->flags, cb_trans_evt, cb_trans_conv, cb_trans_progress) == -1) {
+	if(pacman_trans_init(PM_TRANS_TYPE_REMOVE, config->flags,
+				cb_trans_evt, cb_trans_conv, cb_trans_progress) == -1) {
 		ERR(NL, _("failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
 		if(pm_errno == PM_ERR_HANDLE_LOCK) {
 			MSG(NL, _("       if you're sure a package manager is not already running,\n"
-			  			"       you can remove %s%s\n"), config->root, PM_LOCK);
+						"       you can remove %s%s\n"), config->root, PM_LOCK);
 		}
 		FREELIST(finaltargs);
 		return(1);
@@ -90,6 +91,7 @@ int removepkg(list_t *targets)
 	for(i = finaltargs; i; i = i->next) {
 		if(pacman_trans_addtarget(i->data) == -1) {
 			int found=0;
+
 			/* check for regex */
 			if(config->regex) {
 				PM_LIST *k;
@@ -120,6 +122,7 @@ int removepkg(list_t *targets)
 	 */
 	if(pacman_trans_prepare(&data) == -1) {
 		PM_LIST *lp;
+
 		ERR(NL, _("failed to prepare transaction (%s)\n"), pacman_strerror(pm_errno));
 		switch(pm_errno) {
 			case PM_ERR_UNSATISFIED_DEPS:
@@ -128,11 +131,11 @@ int removepkg(list_t *targets)
 					MSG(NL, _("  %s: is required by %s\n"), pacman_dep_getinfo(miss, PM_DEP_TARGET),
 					    pacman_dep_getinfo(miss, PM_DEP_NAME));
 				}
-				pacman_list_free(data);
 			break;
 			default:
 			break;
 		}
+		pacman_list_free(data);
 		retval = 1;
 		goto cleanup;
 	}
@@ -157,7 +160,7 @@ int removepkg(list_t *targets)
 		MSG(NL, "\n");
 	}
 
-	/* Step 3: actually perform the removal
+	/* Step 3: actually perform the transaction
 	 */
 	if(pacman_trans_commit(NULL) == -1) {
 		ERR(NL, _("failed to commit transaction (%s)\n"), pacman_strerror(pm_errno));

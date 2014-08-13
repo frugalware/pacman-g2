@@ -405,14 +405,13 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 	 */
 	if(pacman_trans_init(transtype, config->flags,
 				cb_trans_evt, cb_trans_conv, cb_trans_progress) == -1) {
-		ERR(NL, "%s\n", pacman_strerror(pm_errno));
+		ERR(NL, _("failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
 		if(pm_errno == PM_ERR_HANDLE_LOCK) {
 			MSG(NL, _("       if you're sure a package manager is not already running,\n"
-			  "       you can remove %s%s\n"), config->root, PM_LOCK);
+						"       you can remove %s%s\n"), config->root, PM_LOCK);
 		}
 		return(1);
 	}
-
 	/* and add targets to it */
 	MSG(NL, _("loading package data... "));
 	for(i = targets; i; i = i->next) {
@@ -424,7 +423,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 	}
 	MSG(CL, _("done.\n"));
 
-	/* Step 2: "compute" the transaction based on targets and flags
+	/* Step 2: prepare the transaction based on its type, targets and flags
 	 */
 	if(pacman_trans_prepare(&data) == -1) {
 		long long *pkgsize, *freespace;
@@ -444,7 +443,6 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 					}
 					MSG(CL, "\n");
 				}
-				pacman_list_free(data);
 			break;
 			case PM_ERR_CONFLICTING_DEPS:
 				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
@@ -452,7 +450,6 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 					MSG(NL, _(":: %s: conflicts with %s"),
 						pacman_dep_getinfo(miss, PM_DEP_TARGET), pacman_dep_getinfo(miss, PM_DEP_NAME));
 				}
-				pacman_list_free(data);
 			break;
 			case PM_ERR_FILE_CONFLICTS:
 				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
@@ -473,7 +470,6 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 						break;
 					}
 				}
-				pacman_list_free(data);
 				MSG(NL, _("\nerrors occurred, no packages were upgraded.\n"));
 			break;
 			case PM_ERR_DISK_FULL:
@@ -483,27 +479,29 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 				freespace = pacman_list_getdata(lp);
 					MSG(NL, _(":: %.1f MB required, have %.1f MB"),
 						(double)(*pkgsize / 1048576.0), (double)(*freespace / 1048576.0));
-				pacman_list_free(data);
 			break;
 			default:
 			break;
 		}
-		retval=1;
+		pacman_list_free(data);
+		retval = 1;
 		goto cleanup;
 	}
 
-	/* Step 3: actually perform the installation
+	/* Step 3: actually perform the transaction
 	 */
 	if(pacman_trans_commit(NULL) == -1) {
 		ERR(NL, _("failed to commit transaction (%s)\n"), pacman_strerror(pm_errno));
-		retval=1;
+		retval = 1;
 		goto cleanup;
 	}
 
+	/* Step 4: release transaction resources
+	 */
 cleanup:
 	if(pacman_trans_release() == -1) {
 		ERR(NL, _("failed to release transaction (%s)\n"), pacman_strerror(pm_errno));
-		retval=1;
+		retval = 1;
 	}
 
 	return(retval);
