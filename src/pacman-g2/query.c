@@ -83,11 +83,8 @@ int querypkg(list_t *targets)
 		return(0);
 	}
 
-	if(config->op_q_foreign) {
-		if(pmc_syncs == NULL || !list_count(pmc_syncs)) {
-			ERR(NL, _("no usable package repositories configured.\n"));
-			return(1);
-		}
+	if(config->op_q_foreign && !trans_has_usable_syncs()) {
+		return(1);
 	}
 
 	for(targ = targets; !done; targ = (targ ? targ->next : NULL)) {

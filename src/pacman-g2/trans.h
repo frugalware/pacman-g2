@@ -21,6 +21,10 @@
 #ifndef _PM_TRANS_H
 #define _PM_TRANS_H
 
+#include <stdbool.h>
+
+bool trans_has_usable_syncs(void);
+
 /* callback to handle messages/notifications from libpacman transactions */
 void cb_trans_evt(unsigned char event, void *data1, void *data2);
 

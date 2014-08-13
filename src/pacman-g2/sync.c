@@ -261,8 +261,7 @@ int syncpkg(list_t *targets)
 	list_t *i;
 	PM_LIST *packages, *data, *lp;
 
-	if(pmc_syncs == NULL || !list_count(pmc_syncs)) {
-		ERR(NL, _("no usable package repositories configured.\n"));
+	if(!trans_has_usable_syncs()) {
 		return(1);
 	}
 

@@ -43,6 +43,16 @@
 
 extern config_t *config;
 extern unsigned int maxcols;
+extern list_t *pmc_syncs;
+
+bool trans_has_usable_syncs()
+{
+	if(pmc_syncs == NULL || !list_count(pmc_syncs)) {
+		ERR(NL, _("no usable package repositories configured.\n"));
+		return false;
+	}
+	return true;
+}
 
 /* Callback to handle transaction events
  */
