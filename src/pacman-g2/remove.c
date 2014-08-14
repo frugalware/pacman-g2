@@ -26,12 +26,12 @@
 
 #include <pacman.h>
 /* pacman-g2 */
-#include "util.h"
-#include "log.h"
-#include "list.h"
-#include "trans.h"
-#include "remove.h"
 #include "conf.h"
+#include "list.h"
+#include "log.h"
+#include "remove.h"
+#include "trans.h"
+#include "util.h"
 
 extern config_t *config;
 

@@ -21,6 +21,8 @@
 #ifndef _PM_CONF_H
 #define _PM_CONF_H
 
+#include "list.h"
+
 typedef struct __config_t {
 	/* command line options */
 	char *root;
@@ -33,8 +35,8 @@ typedef struct __config_t {
 	unsigned short help;
 	unsigned short noconfirm;
 	unsigned short noprogressbar;
-    unsigned short op_d_all;
-    unsigned short op_d_vertest;
+	unsigned short op_d_all;
+	unsigned short op_d_vertest;
 	unsigned short op_d_resolve;
 	unsigned short op_q_isfile;
 	unsigned short op_q_info;

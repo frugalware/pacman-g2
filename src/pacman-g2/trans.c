@@ -31,12 +31,12 @@
 #include <libintl.h>
 
 /* pacman-g2 */
-#include "util.h"
-#include "log.h"
-#include "trans.h"
-#include "list.h"
 #include "conf.h"
 #include "download.h"
+#include "list.h"
+#include "log.h"
+#include "trans.h"
+#include "util.h"
 
 #define LOG_STR_LEN 256
 
@@ -381,6 +381,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 {
 	PM_LIST *data;
 	list_t *i;
+	list_t *finaltargs = NULL;
 	int retval = 0;
 
 	if(targets == NULL) {
@@ -395,9 +396,10 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 			if(str == NULL) {
 				return(1);
 			} else {
-				free(i->data);
-				i->data = str;
+				finaltargs = list_add(finaltargs, str);
 			}
+		} else {
+			finaltargs = list_add(finaltargs, strdup(i->data));
 		}
 	}
 
@@ -410,11 +412,12 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 			MSG(NL, _("       if you're sure a package manager is not already running,\n"
 						"       you can remove %s%s\n"), config->root, PM_LOCK);
 		}
+		FREELIST(finaltargs);
 		return(1);
 	}
 	/* and add targets to it */
 	MSG(NL, _("loading package data... "));
-	for(i = targets; i; i = i->next) {
+	for(i = finaltargs; i; i = i->next) {
 		if(pacman_trans_addtarget(i->data) == -1) {
 			ERR(NL, _("failed to add target '%s' (%s)\n"), (char *)i->data, pacman_strerror(pm_errno));
 			retval = 1;
@@ -499,6 +502,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 	/* Step 4: release transaction resources
 	 */
 cleanup:
+	FREELIST(finaltargs);
 	if(pacman_trans_release() == -1) {
 		ERR(NL, _("failed to release transaction (%s)\n"), pacman_strerror(pm_errno));
 		retval = 1;
