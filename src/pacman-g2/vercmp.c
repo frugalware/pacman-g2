@@ -1,7 +1,7 @@
 /*
- *  deptest.c
+ *  vercmp.c
  *
- *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
+ *  Copyright (c) 2014 by Michel Hermier <hermier@frugalware.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,21 +21,13 @@
 
 #include "config.h"
 
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <libintl.h>
 #include <pacman.h>
 /* pacman-g2 */
 #include "util.h"
 #include "list.h"
-#include "conf.h"
 #include "log.h"
-#include "sync.h"
-#include "deptest.h"
-
-extern config_t *config;
-extern list_t *pmc_syncs;
 
 int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist);
 
