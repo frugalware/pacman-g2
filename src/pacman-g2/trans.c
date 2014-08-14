@@ -452,7 +452,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 	/* and add targets to it */
 	MSG(NL, _("loading package data... "));
 	for(i = finaltargs; i; i = i->next) {
-		if(pacman_trans_addtarget(i->data) == -1) {
+		if(pacman_trans_addtarget(pacman_get_trans(), transtype, i->data, config->flags) == -1) {
 			int match = 0;
 
 			switch (transtype) {
@@ -466,8 +466,9 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 						char *pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
 
 						match = pacman_reg_match(pkgname, i->data);
-						if(match > 0) {
-							pacman_trans_addtarget(pkgname);
+						if(match > 0 &&
+								pacman_trans_addtarget(pacman_get_trans(), transtype, pkgname, config->flags) == -1) {
+							match = 0;
 						}
 					}
 				}

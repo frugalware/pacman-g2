@@ -361,7 +361,7 @@ int syncpkg(list_t *targets)
 						}
 						return(1);
 					}
-					if(pacman_trans_addtarget("pacman-g2") == -1) {
+					if(pacman_trans_addtarget(pacman_get_trans(), PM_TRANS_TYPE_SYNC, "pacman-g2", config->flags) == -1) {
 						ERR(NL, _("could not add target '%s': %s\n"), "pacman-g2", pacman_strerror(pm_errno));
 						retval = 1;
 						goto cleanup;
@@ -374,7 +374,7 @@ int syncpkg(list_t *targets)
 		/* process targets */
 		for(i = targets; i; i = i->next) {
 			char *targ = i->data;
-			if(pacman_trans_addtarget(targ) == -1) {
+			if(pacman_trans_addtarget(pacman_get_trans(), PM_TRANS_TYPE_SYNC, targ, config->flags) == -1) {
 				PM_GRP *grp = NULL;
 				list_t *j;
 				int found=0;

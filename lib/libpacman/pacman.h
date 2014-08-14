@@ -369,7 +369,7 @@ enum {
 void *pacman_trans_getinfo(unsigned char parm);
 int pacman_trans_init(unsigned char type, unsigned int flags, pacman_trans_cb_event cb_event, pacman_trans_cb_conv conv, pacman_trans_cb_progress cb_progress);
 int pacman_trans_sysupgrade(void);
-int pacman_trans_addtarget(const char *target);
+int pacman_trans_addtarget(pmtrans_t *trans, pmtranstype_t transtype, const char *target, int flags);
 int pacman_trans_prepare(pmlist_t **data);
 int pacman_trans_commit(pmlist_t **data);
 int pacman_trans_release(void);

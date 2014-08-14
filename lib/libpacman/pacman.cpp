@@ -1109,22 +1109,22 @@ int pacman_trans_sysupgrade()
 }
 
 /** Add a target to the transaction.
+ * @param trans the transaction
+ * @param transtype the current type of transaction to perform to the target
+ * @param flags the flags used to help to interpret the target
  * @param target the name of the target to add
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int pacman_trans_addtarget(const char *target)
+int pacman_trans_addtarget(pmtrans_t *trans, pmtranstype_t transtype, const char *target, int flags)
 {
-	pmtrans_t *trans;
-
 	/* Sanity checks */
-	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, -1));
-	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	trans = handle->trans;
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(trans->state == STATE_INITIALIZED, RET_ERR(PM_ERR_TRANS_NOT_INITIALIZED, -1));
+	ASSERT(transtype == trans->m_type, RET_ERR(PM_ERR_WRONG_ARGS, -1)); // FIXME: Only identical transtype is supported for now
+	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(flags == trans->flags, RET_ERR(PM_ERR_WRONG_ARGS, -1)); // FIXME: Only identical flags are supported for now
 
-	return trans->add(target, trans->m_type, trans->flags);
+	return trans->add(target, transtype, flags);
 }
 
 /** Prepare a transaction.

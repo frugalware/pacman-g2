@@ -38,6 +38,8 @@ pacman_trans_cb_download:
 
 pacman_trans_cb_progress: Make 'pkgname' argument a constant.
 
+pacman_trans_addtarget: Change method signature to make the API more versatile in the future. This should allow mixed mode targets with addition, removal and upgrades in the the same transaction.
+
 PM_PKG_SCRIPTLET: Remove typo to PM_PKG_SCRIPLET (compatibility symbol is provided).
 
 ==== Symbols added:
