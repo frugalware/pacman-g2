@@ -135,7 +135,7 @@ int Handle::unlock()
 	return ret;
 }
 
-Database *Handle::getDatabase(const char *treename, pacman_cb_db_register callback)
+Database *Handle::createDatabase(const char *treename, pacman_cb_db_register callback)
 {
 	Database *db;
 

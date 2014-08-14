@@ -87,7 +87,7 @@ int _pacman_parse_config(Handle *handle, const char *file, pacman_cb_db_register
 			RET_ERR(PM_ERR_CONF_LOCAL, -1);
 		}
 		if(strcmp(section, "options")) {
-			db = handle->getDatabase(section, callback);
+			db = handle->createDatabase(section, callback);
 		}
 	} else {
 		FREELIST(handle->ignorepkg);
@@ -117,7 +117,7 @@ int _pacman_parse_config(Handle *handle, const char *file, pacman_cb_db_register
 				RET_ERR(PM_ERR_CONF_LOCAL, -1);
 			}
 			if(strcmp(section, "options")) {
-				db = handle->getDatabase(section, callback);
+				db = handle->createDatabase(section, callback);
 				if(db == NULL) {
 					/* pm_errno is set by pacman_db_register */
 					return(-1);

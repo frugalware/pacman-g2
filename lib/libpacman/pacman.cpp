@@ -402,7 +402,7 @@ pmdb_t *pacman_db_register(const char *treename)
 	/* Do not register a database if a transaction is on-going */
 	ASSERT(handle->trans == NULL, RET_ERR(PM_ERR_TRANS_NOT_NULL, NULL));
 
-	return c_cast(handle->getDatabase(treename, NULL));
+	return c_cast(handle->createDatabase(treename, NULL));
 }
 
 /** Unregister a package database
