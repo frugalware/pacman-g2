@@ -55,6 +55,9 @@ pacman-g2 packages are in a bzipped tar format.
 	CGroup is "name=systemd:/system/sshd.service", you can run "systemctl restart
 	sshd.service".
 
+-Y, --vercmp::
+	Perform a version comparison of the 2 version strings arguments.
+
 -V, --version::
 	Display version and exit.
 

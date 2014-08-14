@@ -44,7 +44,9 @@
 #include "query.h"
 #include "sync.h"
 #include "deptest.h"
+#include "pacman-g2.h"
 #include "ps.h"
+#include "trans.h"
 
 #define PACCONF "/etc/pacman-g2.conf"
 
@@ -57,7 +59,8 @@ enum {
 	PM_OP_QUERY,
 	PM_OP_SYNC,
 	PM_OP_DEPTEST,
-	PM_OP_PS
+	PM_OP_PS,
+	PM_OP_VERCMP,
 };
 
 /* Long operations */
@@ -102,6 +105,7 @@ static void usage(int op, char *myname)
 		printf(_("        %s {-Q --query}   [options] [package]\n"), myname);
 		printf(_("        %s {-S --sync}    [options] [package]\n"), myname);
 		printf(_("        %s {-P --ps}      [options]\n"), myname);
+		printf(_("        %s {-Y --vercmp}  [options] <version1> <version2>\n"), myname);
 		printf(_("\nuse '%s --help' with other options for more syntax\n"), myname);
 	} else {
 		if(op == PM_OP_ADD) {
@@ -160,6 +164,10 @@ static void usage(int op, char *myname)
 			printf(_("  -y, --refresh       download fresh package databases from the server\n"));
 			printf(_("      --ignore <pkg>  ignore a package upgrade (can be used more than once)\n"));
 			printf(_("      --nointegrity   don't check the integrity of the packages using sha1\n"));
+		} else if(op == PM_OP_VERCMP) {
+			printf(_("        %s {-Y --vercmp}  [options] <version1> <version2>\n"), myname);
+			printf(_("options:\n"));
+			return;
 		}
 		printf(_("      --config <path> set an alternate configuration file\n"));
 		printf(_("      --noconfirm     do not ask for anything confirmation\n"));
@@ -189,7 +197,7 @@ static void version(void)
 
 static void cleanup(int exitcode)
 {
-	if(exitcode != 0 && config->op_d_vertest == 0) {
+	if(exitcode != 0) {
 		fprintf(stderr, "\n");
 	}
 
@@ -256,8 +264,8 @@ static int parseargs(int argc, char *argv[])
 		{"deptest",    no_argument,       0, 'T'}, /* used by makepkg */
 		{"upgrade",    no_argument,       0, 'U'},
 		{"version",    no_argument,       0, 'V'},
-        {"vertest",    no_argument,       0, 'Y'}, /* does the same as the 'vercmp' binary */
-        {"all",        no_argument,       0, 'a'},
+		{"vercmp",     no_argument,       0, 'Y'}, /* does the same as the 'vercmp' binary */
+		{"all",        no_argument,       0, 'a'},
 		{"dbpath",     required_argument, 0, 'b'},
 		{"cascade",    no_argument,       0, 'c'},
 		{"changelog",  no_argument,       0, 'c'},
@@ -299,7 +307,7 @@ static int parseargs(int argc, char *argv[])
 	};
 	char root[PATH_MAX];
 
-    while((opt = getopt_long(argc, argv, "ARUFQSPTDYr:b:vkhsacVfmnoldepituwyg", opts, &option_index))) {
+	while((opt = getopt_long(argc, argv, "ARUFQSPTDYr:b:vkhsacVfmnoldepituwyg", opts, &option_index))) {
 		if(opt < 0) {
 			break;
 		}
@@ -341,11 +349,8 @@ static int parseargs(int argc, char *argv[])
 			case 'T': config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_DEPTEST); break;
 			case 'U': config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_UPGRADE); break;
 			case 'V': config->version = 1; break;
-			case 'Y':
-				config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_DEPTEST);
-				config->op_d_vertest = 1;
-			break;
-            case 'a': config->op_d_all = 1; break;
+			case 'Y': config->op = (config->op != PM_OP_MAIN ? 0 : PM_OP_VERCMP); break;
+			case 'a': config->op_d_all = 1; break;
 			case 'b':
 				if(config->dbpath) {
 					free(config->dbpath);
@@ -501,7 +506,7 @@ int main(int argc, char *argv[])
 
 	/* check if we have sufficient permission for the requested operation */
 	if(myuid > 0) {
-		if(config->op != PM_OP_MAIN && config->op != PM_OP_QUERY && config->op != PM_OP_DEPTEST && config->op != PM_OP_PS) {
+		if(config->op != PM_OP_MAIN && config->op != PM_OP_QUERY && config->op != PM_OP_DEPTEST && config->op != PM_OP_PS && config->op != PM_OP_VERCMP) {
 			if((config->op == PM_OP_SYNC && !config->op_s_sync && (config->op_s_search
 				 || config->group || config->op_q_list || config->op_q_info
 				 || (config->flags & PM_TRANS_FLAG_PRINTURIS)))
@@ -617,6 +622,7 @@ int main(int argc, char *argv[])
 		case PM_OP_SYNC:    ret = syncpkg(pm_targets);    break;
 		case PM_OP_PS:      ret = pspkg(0);      break;
 		case PM_OP_DEPTEST: ret = deptestpkg(pm_targets); break;
+		case PM_OP_VERCMP:	ret = vercmp(pm_targets); break;
 		default:
 			ERR(NL, _("no operation specified (use -h for help)\n"));
 			ret = 1;

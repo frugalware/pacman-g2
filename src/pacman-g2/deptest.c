@@ -50,19 +50,10 @@ int deptestpkg(list_t *targets)
 		return(0);
 	}
 
-	if(config->op_d_vertest) {
-		if(targets->data && targets->next && targets->next->data) {
-			int ret = pacman_pkg_vercmp(targets->data, targets->next->data);
-			printf("%d\n", ret);
-			return(ret);
-		}
+	if(config->op_d_all) {
+		pacman_output_generate(targets, pmc_syncs);
 		return(0);
 	}
-
-    if(config->op_d_all) {
-        pacman_output_generate(targets, pmc_syncs);
-        return(0);
-    }
 
 	/* we create a transaction to hold a dummy package to be able to use
 	 * deps checkings from pacman_trans_prepare() */

@@ -11,6 +11,7 @@ set(PACMAN_SOURCES
 	sync.c
 	trans.c
 	util.c
+	vercmp.c
 )
 
 include_directories (${PACMAN-G2_SOURCE_DIR})
