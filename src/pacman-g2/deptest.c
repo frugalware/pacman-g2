@@ -84,7 +84,7 @@ int deptestpkg(list_t *targets)
 		strcat(str, i->data);
 	}
 	vprint(_("add target %s\n"), str);
-	if(pacman_trans_addtarget(pacman_get_trans, PM_TRANS_TYPE_ADD, str, 0) == -1) {
+	if(pacman_trans_addtarget(pacman_get_trans(), PM_TRANS_TYPE_ADD, str, 0) == -1) {
 		FREE(str);
 		ERR(NL, _("could not add target (%s)\n"), pacman_strerror(pm_errno));
 		retval = 1;
