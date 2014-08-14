@@ -388,19 +388,24 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 		return(0);
 	}
 
-	/* Check for URL targets and process them
-	 */
-	for(i = targets; i; i = i->next) {
-		if(strstr(i->data, "://")) {
-			char *str = pacman_fetch_pkgurl(i->data);
-			if(str == NULL) {
-				return(1);
+	switch (transtype) {
+	case PM_TRANS_TYPE_ADD:
+	case PM_TRANS_TYPE_UPGRADE:
+		/* Check for URL targets and process them
+		 */
+		for(i = targets; i; i = i->next) {
+			if(strstr(i->data, "://")) {
+				char *str = pacman_fetch_pkgurl(i->data);
+				if(str == NULL) {
+					return(1);
+				} else {
+					finaltargs = list_add(finaltargs, str);
+				}
 			} else {
-				finaltargs = list_add(finaltargs, str);
+				finaltargs = list_add(finaltargs, strdup(i->data));
 			}
-		} else {
-			finaltargs = list_add(finaltargs, strdup(i->data));
 		}
+		break;
 	}
 
 	/* Step 1: create a new transaction
@@ -437,14 +442,20 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 			case PM_ERR_UNSATISFIED_DEPS:
 				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
 					PM_DEPMISS *miss = pacman_list_getdata(lp);
-					MSG(NL, _(":: %s: requires %s"), pacman_dep_getinfo(miss, PM_DEP_TARGET),
-					                              pacman_dep_getinfo(miss, PM_DEP_NAME));
-					switch((long)pacman_dep_getinfo(miss, PM_DEP_MOD)) {
-						case PM_DEP_MOD_EQ: MSG(CL, "=%s", pacman_dep_getinfo(miss, PM_DEP_VERSION));  break;
-						case PM_DEP_MOD_GE: MSG(CL, ">=%s", pacman_dep_getinfo(miss, PM_DEP_VERSION)); break;
-						case PM_DEP_MOD_LE: MSG(CL, "<=%s", pacman_dep_getinfo(miss, PM_DEP_VERSION)); break;
+
+					switch (transtype) {
+					case PM_TRANS_TYPE_ADD:
+					case PM_TRANS_TYPE_UPGRADE:
+						MSG(NL, _(":: %s: requires %s"), pacman_dep_getinfo(miss, PM_DEP_TARGET),
+						                              pacman_dep_getinfo(miss, PM_DEP_NAME));
+						switch((long)pacman_dep_getinfo(miss, PM_DEP_MOD)) {
+							case PM_DEP_MOD_EQ: MSG(CL, "=%s", pacman_dep_getinfo(miss, PM_DEP_VERSION));  break;
+							case PM_DEP_MOD_GE: MSG(CL, ">=%s", pacman_dep_getinfo(miss, PM_DEP_VERSION)); break;
+							case PM_DEP_MOD_LE: MSG(CL, "<=%s", pacman_dep_getinfo(miss, PM_DEP_VERSION)); break;
+						}
+						MSG(CL, "\n");
+						break;
 					}
-					MSG(CL, "\n");
 				}
 			break;
 			case PM_ERR_CONFLICTING_DEPS:

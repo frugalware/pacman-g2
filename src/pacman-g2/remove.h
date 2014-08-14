@@ -21,7 +21,7 @@
 #ifndef _PM_REMOVE_H
 #define _PM_REMOVE_H
 
-int removepkg(list_t *targets);
+int removepkg(pmtranstype_t transtype, list_t *targets);
 
 #endif /* _PM_REMOVE_H */
 
