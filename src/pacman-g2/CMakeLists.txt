@@ -8,7 +8,6 @@ set(PACMAN_SOURCES
 	pacman-g2.c
 	ps.c
 	query.c
-	remove.c
 	sync.c
 	trans.c
 	util.c

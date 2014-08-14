@@ -41,6 +41,7 @@
 #define LOG_STR_LEN 256
 
 extern config_t *config;
+extern PM_DB *db_local;
 extern unsigned int maxcols;
 extern list_t *pmc_syncs;
 
@@ -406,6 +407,34 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 			}
 		}
 		break;
+	case PM_TRANS_TYPE_REMOVE:
+		/* If the target is a group, ask if its packages should be removed
+		 * (the library can't remove groups for now)
+		 */
+		for(i = targets; i; i = i->next) {
+			PM_GRP *grp;
+
+			grp = pacman_db_readgrp(db_local, i->data);
+			if(grp) {
+				PM_LIST *lp, *pkgnames;
+				int all;
+
+				pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
+
+				MSG(NL, _(":: group %s:\n"), pacman_grp_getinfo(grp, PM_GRP_NAME));
+				PM_LIST_display("   ", pkgnames);
+				all = yesno(_("    Remove whole content? [Y/n] "));
+				for(lp = pacman_list_first(pkgnames); lp; lp = pacman_list_next(lp)) {
+					if(all || yesno(_(":: Remove %s from group %s? [Y/n] "), (char *)pacman_list_getdata(lp), i->data)) {
+						finaltargs = list_add(finaltargs, strdup(pacman_list_getdata(lp)));
+					}
+				}
+			} else {
+				/* not a group, so add it to the final targets */
+				finaltargs = list_add(finaltargs, strdup(i->data));
+			}
+		}
+		break;
 	}
 
 	/* Step 1: create a new transaction
@@ -424,6 +453,27 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 	MSG(NL, _("loading package data... "));
 	for(i = finaltargs; i; i = i->next) {
 		if(pacman_trans_addtarget(i->data) == -1) {
+			int match = 0;
+
+			switch (transtype) {
+			case PM_TRANS_TYPE_REMOVE:
+				/* check for regex */
+				if(config->regex) {
+					PM_LIST *k;
+
+					for(k = pacman_db_getpkgcache(db_local); k; k = pacman_list_next(k)) {
+						PM_PKG *p = pacman_list_getdata(k);
+						char *pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
+
+						match = pacman_reg_match(pkgname, i->data);
+						if(match > 0) {
+							pacman_trans_addtarget(pkgname);
+						}
+					}
+				}
+				break;
+			}
+			if (match > 0) continue;
 			ERR(NL, _("failed to add target '%s' (%s)\n"), (char *)i->data, pacman_strerror(pm_errno));
 			retval = 1;
 			goto cleanup;
@@ -455,6 +505,11 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 						}
 						MSG(CL, "\n");
 						break;
+					case PM_TRANS_TYPE_REMOVE:
+						MSG(NL, _("  %s: is required by %s\n"), pacman_dep_getinfo(miss, PM_DEP_TARGET),
+						    pacman_dep_getinfo(miss, PM_DEP_NAME));
+						break;
+
 					}
 				}
 			break;
@@ -500,6 +555,30 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 		pacman_list_free(data);
 		retval = 1;
 		goto cleanup;
+	}
+
+	switch (transtype) {
+	case PM_TRANS_TYPE_REMOVE:
+		/* Warn user in case of dangerous operation
+		 */
+		if(config->flags & PM_TRANS_FLAG_RECURSE || config->flags & PM_TRANS_FLAG_CASCADE) {
+			PM_LIST *lp;
+			/* list transaction targets */
+			i = NULL;
+			for(lp = pacman_list_first(pacman_trans_getinfo(PM_TRANS_PACKAGES)); lp; lp = pacman_list_next(lp)) {
+				PM_PKG *pkg = pacman_list_getdata(lp);
+				i = list_add(i, strdup(pacman_pkg_getinfo(pkg, PM_PKG_NAME)));
+			}
+			list_display(_("\nTargets:"), i);
+			FREELIST(i);
+			/* get confirmation */
+			if(yesno(_("\nDo you want to remove these packages? [Y/n] ")) == 0) {
+				retval = 1;
+				goto cleanup;
+			}
+			MSG(NL, "\n");
+		}
+		break;
 	}
 
 	/* Step 3: actually perform the transaction
