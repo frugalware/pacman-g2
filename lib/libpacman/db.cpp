@@ -111,6 +111,36 @@ pmlist_t *Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_
 	return ret;
 }
 
+FPtrList *Database::filter(const FStringList *needles, int strmatcher_flags, int packagestrmatcher_flags)
+{
+	pmlist_t *i, *j, *ret = NULL;
+
+	for(i = needles; i; i = i->next) {
+		FStrMatcher strmatcher = { NULL };
+		FMatcher packagestrmatcher;
+		const char *targ = f_stringlistitem_to_str(i);
+
+		if(f_strempty(targ)) {
+			continue;
+		}
+		_pacman_log(PM_LOG_DEBUG, "searching for target '%s'\n", targ);
+		if(f_strmatcher_init(&strmatcher, targ, strmatcher_flags) == 0 &&
+				_pacman_packagestrmatcher_init(&packagestrmatcher, &strmatcher, packagestrmatcher_flags) == 0) {
+			for(j = _pacman_db_get_pkgcache(this); j; j = j->next) {
+				Package *pkg = j->data;
+
+				if(f_match(pkg, &packagestrmatcher)) {
+					ret = f_ptrlist_append(ret, pkg);
+				}
+			}
+		}
+		_pacman_packagestrmatcher_fini(&packagestrmatcher);
+		f_strmatcher_fini(&strmatcher);
+	}
+
+	return(ret);
+}
+
 Package *Database::find(const FMatcher *packagestrmatcher)
 {
 	// FIXME: search for provide in the same pass ?
@@ -136,36 +166,6 @@ Package *Database::find(const FStrMatcher *strmatcher, int packagestrmatcher_fla
 		_pacman_packagestrmatcher_fini(&packagestrmatcher);
 	}
 	return ret;
-}
-
-pmlist_t *Database::search(pmlist_t *needles)
-{
-	pmlist_t *i, *j, *ret = NULL;
-
-	for(i = needles; i; i = i->next) {
-		FStrMatcher strmatcher = { NULL };
-		FMatcher packagestrmatcher;
-		const char *targ = f_stringlistitem_to_str(i);
-
-		if(f_strempty(targ)) {
-			continue;
-		}
-		_pacman_log(PM_LOG_DEBUG, "searching for target '%s'\n", targ);
-		if(f_strmatcher_init(&strmatcher, targ, F_STRMATCHER_ALL_IGNORE_CASE) == 0 &&
-				_pacman_packagestrmatcher_init(&packagestrmatcher, &strmatcher, PM_PACKAGE_FLAG_NAME | PM_PACKAGE_FLAG_DESCRIPTION | PM_PACKAGE_FLAG_PROVIDES) == 0) {
-			for(j = _pacman_db_get_pkgcache(this); j; j = j->next) {
-				Package *pkg = j->data;
-
-				if(f_match(pkg, &packagestrmatcher)) {
-					ret = f_ptrlist_append(ret, pkg);
-				}
-			}
-		}
-		_pacman_packagestrmatcher_fini(&packagestrmatcher);
-		f_strmatcher_fini(&strmatcher);
-	}
-
-	return(ret);
 }
 
 pmlist_t *Database::test() const

@@ -35,6 +35,12 @@
 
 #include "kernel/fobject.h"
 
+namespace libpacman {
+
+	class Database;
+
+}
+
 enum {
 	PKG_FROM_CACHE = 1,
 	PKG_FROM_FILE

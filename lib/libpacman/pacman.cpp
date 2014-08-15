@@ -1029,7 +1029,7 @@ pmlist_t *pacman_db_search(pmdb_t *_db)
 	ASSERT(handle->needles->data != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
-	ret = db->search(handle->needles);
+	ret = db->filter(handle->needles);
 	FREELIST(handle->needles);
 	return(ret);
 }

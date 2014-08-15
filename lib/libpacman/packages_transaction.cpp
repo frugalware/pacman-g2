@@ -21,6 +21,8 @@
 
 #include "config.h"
 
+#include <limits.h> /* PATH_MAX */
+
 #include "packages_transaction.h"
 
 #include "util.h"

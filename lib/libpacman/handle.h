@@ -28,7 +28,6 @@
 #include "pacman.h"
 
 #include "io/ffilelock.h"
-#include "db.h"
 #include "trans.h"
 
 #include "kernel/fobject.h"

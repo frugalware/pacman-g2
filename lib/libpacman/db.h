@@ -27,14 +27,16 @@
 #include <time.h>
 
 #include "handle.h"
+#include "package.h"
 #include "timestamp.h"
 
 #include "kernel/fobject.h"
+#include "util/fptrlist.h"
+#include "util/stringlist.h"
 #include "fstring.h"
 
 namespace libpacman {
 
-class Database;
 class Handle;
 class Package;
 
@@ -65,12 +67,13 @@ public:
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
 
 	// Cache operations
-	pmlist_t *Database::filter(const FMatcher *packagestrmatcher);
-	pmlist_t *Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
-	libpacman::Package *Database::find(const FMatcher *packagestrmatcher);
-	libpacman::Package *Database::find(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
-
-	pmlist_t *search(pmlist_t *needles);
+	pmlist_t *filter(const FMatcher *packagestrmatcher);
+	pmlist_t *filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
+	FPtrList *filter(const FStringList *needles,
+			int strmatcher_flags = F_STRMATCHER_ALL_IGNORE_CASE,
+			int packagestrmatcher_flags = PM_PACKAGE_FLAG_NAME | PM_PACKAGE_FLAG_DESCRIPTION | PM_PACKAGE_FLAG_PROVIDES);
+	libpacman::Package *find(const FMatcher *packagestrmatcher);
+	libpacman::Package *find(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
 
 	virtual pmlist_t *getowners(const char *filename); /* Make pure virtual */
 
