@@ -180,24 +180,19 @@ Package *Database::find(const FStrMatcher *strmatcher, int packagestrmatcher_fla
 	return ret;
 }
 
-Package *Database::find(const char *target)
-{
-	if(_pacman_strempty(target)) {
-		return NULL;
-	}
-
-	return _pacman_pkg_isin(target, _pacman_db_get_pkgcache(this));
-}
-
 Package *Database::find(const char *target, int packagestrmatcher_flags, int strmatcher_flags)
 {
 	Package *ret = NULL;
 	FStrMatcher strmatcher = { NULL };
 
-	if(!_pacman_strempty(target) &&
-			f_strmatcher_init(&strmatcher, target, strmatcher_flags) == 0) {
-		ret = find(&strmatcher, packagestrmatcher_flags);
-		f_strmatcher_fini(&strmatcher);
+	if(!_pacman_strempty(target)) {
+		if (packagestrmatcher_flags == PM_PACKAGE_FLAG_NAME &&
+				strmatcher_flags == F_STRMATCHER_EQUAL) {
+			ret = _pacman_pkg_isin(target, _pacman_db_get_pkgcache(this));
+		} else if (f_strmatcher_init(&strmatcher, target, strmatcher_flags) == 0) {
+			ret = find(&strmatcher, packagestrmatcher_flags);
+			f_strmatcher_fini(&strmatcher);
+		}
 	}
 	return ret;
 }

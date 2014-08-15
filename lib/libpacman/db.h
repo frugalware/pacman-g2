@@ -73,8 +73,9 @@ public:
 	FPtrList *filter(const char *target, int packagestrmatcher_flags, int strmatcher_flags = F_STRMATCHER_EQUAL);
 	libpacman::Package *find(const FMatcher *packagestrmatcher);
 	libpacman::Package *find(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
-	libpacman::Package *find(const char *target);
-	libpacman::Package *find(const char *target, int packagestrmatcher_flags, int strmatcher_flags = F_STRMATCHER_EQUAL);
+	libpacman::Package *find(const char *target,
+			int packagestrmatcher_flags = PM_PACKAGE_FLAG_NAME,
+			int strmatcher_flags = F_STRMATCHER_EQUAL);
 	FPtrList *whatPackagesProvide(const char *target);
 
 	virtual pmlist_t *getowners(const char *filename); /* Make pure virtual */
