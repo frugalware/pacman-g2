@@ -618,7 +618,7 @@ pmlist_t *pacman_db_whatprovides(pmdb_t *_db, char *name)
 	ASSERT(db != NULL, return(NULL));
 	ASSERT(!_pacman_strempty(name), return(NULL));
 
-	return(_pacman_db_whatprovides(db, name));
+	return db->whatPackagesProvide(name);
 }
 
 /** Get a group entry from a package database

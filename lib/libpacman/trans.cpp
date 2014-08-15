@@ -338,7 +338,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 					/* Search provides */
 					pmlist_t *p;
 					_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
-					p = _pacman_db_whatprovides(dbs, targ);
+					p = dbs->whatPackagesProvide(targ);
 					if(p == NULL) {
 						RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 					}
@@ -359,7 +359,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
 			for(i = dbs_sync; i && !spkg; i = i->next) {
 				Database *dbs = i->data;
-				pmlist_t *p = _pacman_db_whatprovides(dbs, targ);
+				pmlist_t *p = dbs->whatPackagesProvide(targ);
 				if(p) {
 					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), f_stringlistitem_to_str(p), targ);
 					spkg = dbs->find(f_stringlistitem_to_str(p));
@@ -1805,7 +1805,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 			depinfo = db_local->find(depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
-				pmlist_t *provides = _pacman_db_whatprovides(db_local, depend.name);
+				pmlist_t *provides = db_local->whatPackagesProvide(depend.name);
 				if(provides) {
 					/* TODO: should check _all_ packages listed in provides, not just
 					 *			 the first one.
@@ -1898,7 +1898,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 			depinfo = db_local->find(depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
-				pmlist_t *provides = _pacman_db_whatprovides(db_local, depend.name);
+				pmlist_t *provides = db_local->whatPackagesProvide(depend.name);
 				if(provides) {
 					/* TODO: should check _all_ packages listed in provides, not just
 					 *       the first one.

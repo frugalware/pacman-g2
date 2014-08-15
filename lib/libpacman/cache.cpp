@@ -145,25 +145,6 @@ int _pacman_db_remove_pkgfromcache(Database *db, Package *pkg)
 	return(0);
 }
 
-/* return a pmlist_t of packages in "db" that provide "package"
- */
-pmlist_t *_pacman_db_whatprovides(Database *db, char *package)
-{
-	FPtrList *pkgs = NULL;
-	FStrMatcher strmatcher = { NULL };
-	FMatcher packagestrmatcher;
-
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
-
-	if(f_strmatcher_init(&strmatcher, package, F_STRMATCHER_EQUAL) == 0 &&
-			_pacman_packagestrmatcher_init(&packagestrmatcher, &strmatcher, PM_PACKAGE_FLAG_PROVIDES) == 0) {
-		pkgs = f_ptrlist_filter(_pacman_db_get_pkgcache(db), &packagestrmatcher);
-	}
-	_pacman_packagestrmatcher_fini(&packagestrmatcher);
-	f_strmatcher_fini(&strmatcher);
-	return(pkgs);
-}
-
 static
 Group *_pacman_db_get_grpfromlist(pmlist_t *list, const char *target)
 {

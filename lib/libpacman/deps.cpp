@@ -337,7 +337,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
  				/* check database for provides matches */
  				if(!found) {
  					pmlist_t *m;
- 					k = _pacman_db_whatprovides(db_local, depend.name);
+ 					k = db_local->whatPackagesProvide(depend.name);
  					for(m = k; m && !found; m = m->next) {
  						/* look for a match that isn't one of the packages we're trying
  						 * to install.  this way, if we match against a to-be-installed
@@ -502,7 +502,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 			dep = db->find(depend.name);
 			if(dep == NULL) {
 				/* package not found... look for a provisio instead */
-				k = _pacman_db_whatprovides(db, depend.name);
+				k = db->whatPackagesProvide(depend.name);
 				if(k == NULL) {
 					_pacman_log(PM_LOG_WARNING, _("cannot find package \"%s\" or anything that provides it!"), depend.name);
 					continue;
@@ -602,7 +602,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 		/* check provides */
 		for(j = dbs_sync; !ps && j; j = j->next) {
 			pmlist_t *provides;
-			provides = _pacman_db_whatprovides(j->data, miss->depend.name);
+			provides = ((Database *)j->data)->whatPackagesProvide(miss->depend.name);
 			if(provides) {
 				ps = provides->data;
 			}
