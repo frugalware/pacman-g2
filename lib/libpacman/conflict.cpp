@@ -296,7 +296,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans)
 					ok = 1;
 				} else {
 					if(dbpkg == NULL) {
-						dbpkg = _pacman_db_get_pkgfromcache(db_local, p->name());
+						dbpkg = db_local->find(p->name());
 					}
 					if(dbpkg && !(dbpkg->flags & INFRQ_FILES)) {
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg->name());
@@ -313,7 +313,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans)
 							/* As long as they're not the current package */
 							if(strcmp(p2->name(), p->name())) {
 								Package *dbpkg2 = NULL;
-								dbpkg2 = _pacman_db_get_pkgfromcache(db_local, p2->name());
+								dbpkg2 = db_local->find(p2->name());
 								if(dbpkg2 && !(dbpkg2->flags & INFRQ_FILES)) {
 									_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg2->name());
 									dbpkg2->read(INFRQ_FILES);

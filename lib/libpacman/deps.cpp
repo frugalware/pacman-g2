@@ -233,7 +233,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 		}
 
 		if(op == PM_TRANS_TYPE_UPGRADE) {
-			pkg_local = _pacman_db_get_pkgfromcache(db_local, tp->name());
+			pkg_local = db_local->find(tp->name());
 		} else if (PM_TRANS_TYPE_REMOVE) {
 			pkg_local = tp;
 		}
@@ -249,7 +249,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 					 */
 					Package *p;
 				
-					if((p = _pacman_db_get_pkgfromcache(db_local, requiredby_name)) == NULL) {
+					if((p = db_local->find(requiredby_name)) == NULL) {
 						/* hmmm... package isn't installed.. */
 						continue;
 					}
@@ -499,7 +499,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 				continue;
 			}
 
-			dep = _pacman_db_get_pkgfromcache(db, depend.name);
+			dep = db->find(depend.name);
 			if(dep == NULL) {
 				/* package not found... look for a provisio instead */
 				k = _pacman_db_whatprovides(db, depend.name);
@@ -507,7 +507,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 					_pacman_log(PM_LOG_WARNING, _("cannot find package \"%s\" or anything that provides it!"), depend.name);
 					continue;
 				}
-				dep = _pacman_db_get_pkgfromcache(db, ((Package *)k->data)->name());
+				dep = db->find(((Package *)k->data)->name());
 				if(dep == NULL) {
 					_pacman_log(PM_LOG_ERROR, _("dep is NULL!"));
 					/* wtf */
@@ -527,7 +527,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 
 			/* see if other packages need it */
 			for(k = dep->requiredby(); k && !needed; k = k->next) {
-				Package *dummy = _pacman_db_get_pkgfromcache(db, f_stringlistitem_to_str(k));
+				Package *dummy = db->find(f_stringlistitem_to_str(k));
 				if(!_pacman_pkg_isin(dummy->name(), targs)) {
 					needed = 1;
 				}
@@ -597,7 +597,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 		/* find the package in one of the repositories */
 		/* check literals */
 		for(j = dbs_sync; !ps && j; j = j->next) {
-			ps = _pacman_db_get_pkgfromcache(j->data, miss->depend.name);
+			ps = ((Database *)j->data)->find(miss->depend.name);
 		}
 		/* check provides */
 		for(j = dbs_sync; !ps && j; j = j->next) {

@@ -333,7 +333,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 		for(i = dbs_sync; i && !spkg; i = i->next) {
 			Database *dbs = i->data;
 			if(strcmp(dbs->treename, targline) == 0) {
-				spkg = _pacman_db_get_pkgfromcache(dbs, targ);
+				spkg = dbs->find(targ);
 				if(spkg == NULL) {
 					/* Search provides */
 					pmlist_t *p;
@@ -343,7 +343,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 						RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 					}
 					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), f_stringlistitem_to_str(p), targ);
-					spkg = _pacman_db_get_pkgfromcache(dbs, f_stringlistitem_to_str(p));
+					spkg = dbs->find(f_stringlistitem_to_str(p));
 					FREELISTPTR(p);
 				}
 			}
@@ -352,7 +352,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 		targ = targline;
 		for(i = dbs_sync; i && !spkg; i = i->next) {
 			Database *dbs = i->data;
-			spkg = _pacman_db_get_pkgfromcache(dbs, targ);
+			spkg = dbs->find(targ);
 		}
 		if(spkg == NULL) {
 			/* Search provides */
@@ -362,7 +362,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 				pmlist_t *p = _pacman_db_whatprovides(dbs, targ);
 				if(p) {
 					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), f_stringlistitem_to_str(p), targ);
-					spkg = _pacman_db_get_pkgfromcache(dbs, f_stringlistitem_to_str(p));
+					spkg = dbs->find(f_stringlistitem_to_str(p));
 					FREELISTPTR(p);
 				}
 			}
@@ -372,7 +372,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 	}
 
-	pkg_local = _pacman_db_get_pkgfromcache(db_local, spkg->name());
+	pkg_local = db_local->find(spkg->name());
 	if(pkg_local) {
 		cmp = _pacman_versioncmp(pkg_local->version(), spkg->version());
 		if(cmp > 0) {
@@ -414,7 +414,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 		goto error;
 	}
 
-	pkg_local = _pacman_db_get_pkgfromcache(db_local, pkg_new->name());
+	pkg_local = db_local->find(pkg_new->name());
 	if(type != PM_TRANS_TYPE_UPGRADE) {
 		/* only install this package if it is not already installed */
 		if(pkg_local != NULL) {
@@ -639,7 +639,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 							  miss->target);
 					continue;
 				}
-				local = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
+				local = db_local->find(miss->depend.name);
 				/* check if this package also "provides" the package it's conflicting with
 				 */
 				if(ps->pkg_new->provides(miss->depend.name)) {
@@ -805,8 +805,8 @@ int __pmtrans_t::prepare(pmlist_t **data)
 						int pfound = 0;
 						/* If miss->depend.name depends on something that miss->target and a
 						 * package in final both provide, then it's okay...  */
-						Package *leavingp  = _pacman_db_get_pkgfromcache(db_local, miss->target);
-						Package *conflictp = _pacman_db_get_pkgfromcache(db_local, miss->depend.name);
+						Package *leavingp  = db_local->find(miss->target);
+						Package *conflictp = db_local->find(miss->depend.name);
 						if(!leavingp || !conflictp) {
 							_pacman_log(PM_LOG_ERROR, _("something has gone horribly wrong"));
 							ret = -1;
@@ -1631,7 +1631,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 		for(i = syncpkgs; i; i = i->next) {
 			pmsyncpkg_t *ps = i->data;
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				Package *pkg_new = _pacman_db_get_pkgfromcache(db_local, ps->pkg_name);
+				Package *pkg_new = db_local->find(ps->pkg_name);
 				for(j = ps->data; j; j = j->next) {
 					pmlist_t *k;
 					Package *old = j->data;
@@ -1640,7 +1640,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 						if(!_pacman_list_is_strin(f_stringlistitem_to_str(k), pkg_new->requiredby())) {
 							/* replace old's name with new's name in the requiredby's dependency list */
 							pmlist_t *m;
-							Package *depender = _pacman_db_get_pkgfromcache(db_local, f_stringlistitem_to_str(k));
+							Package *depender = db_local->find(f_stringlistitem_to_str(k));
 							if(depender == NULL) {
 								/* If the depending package no longer exists in the local db,
 								 * then it must have ALSO conflicted with ps->pkg.  If
@@ -1709,7 +1709,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 
 		/* see if this is an upgrade.  if so, remove the old package first */
 		if(pkg_local == NULL) {
-			pkg_local = _pacman_db_get_pkgfromcache(db_local, pkg_new->name());
+			pkg_local = db_local->find(pkg_new->name());
 			if(pkg_local == NULL) {
 				/* no previous package version is installed, so this is actually
 				 * just an install.  */
@@ -1802,7 +1802,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 			if(_pacman_pkg_isin(depend.name, packages)) {
 				continue;
 			}
-			depinfo = _pacman_db_get_pkgfromcache(db_local, depend.name);
+			depinfo = db_local->find(depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
 				pmlist_t *provides = _pacman_db_whatprovides(db_local, depend.name);
@@ -1811,7 +1811,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 					 *			 the first one.
 					 */
 					/* use the first one */
-					depinfo = _pacman_db_get_pkgfromcache(db_local, ((Package *)provides->data)->name());
+					depinfo = db_local->find(((Package *)provides->data)->name());
 					FREELISTPTR(provides);
 				}
 				if(depinfo == NULL) {
@@ -1895,7 +1895,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 			if(_pacman_splitdep(lp->data, &depend)) {
 				continue;
 			}
-			depinfo = _pacman_db_get_pkgfromcache(db_local, depend.name);
+			depinfo = db_local->find(depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
 				pmlist_t *provides = _pacman_db_whatprovides(db_local, depend.name);
@@ -1904,7 +1904,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 					 *       the first one.
 					 */
 					/* use the first one */
-					depinfo = _pacman_db_get_pkgfromcache(db_local, ((Package *)provides->data)->name());
+					depinfo = db_local->find(((Package *)provides->data)->name());
 					FREELISTPTR(provides);
 				}
 				if(depinfo == NULL) {

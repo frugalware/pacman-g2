@@ -585,7 +585,7 @@ pmpkg_t *pacman_db_readpkg(pmdb_t *_db, const char *name)
 	ASSERT(db != NULL, return(NULL));
 	ASSERT(!_pacman_strempty(name), return(NULL));
 
-	return c_cast(_pacman_db_get_pkgfromcache(db, name));
+	return c_cast(db->find(name));
 }
 
 /** Get the package cache of a package database
