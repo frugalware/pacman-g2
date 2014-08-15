@@ -140,6 +140,19 @@ FPtrList *Database::filter(const FStringList *needles, int strmatcher_flags, int
 	return(ret);
 }
 
+FPtrList *Database::filter(const char *target, int strmatcher_flags, int packagestrmatcher_flags)
+{
+	FPtrList *ret = NULL;
+	FStrMatcher strmatcher = { NULL };
+
+	if(!f_strempty(target) &&
+		f_strmatcher_init(&strmatcher, target, strmatcher_flags) == 0) {
+		ret = filter(&strmatcher, packagestrmatcher_flags);
+		f_strmatcher_fini(&strmatcher);
+	}
+	return(ret);
+}
+
 Package *Database::find(const FMatcher *packagestrmatcher)
 {
 	// FIXME: search for provide in the same pass ?
@@ -187,6 +200,11 @@ Package *Database::find(const char *target, int strmatcher_flags, int packagestr
 		f_strmatcher_fini(&strmatcher);
 	}
 	return ret;
+}
+
+FPtrList *Database::whatPackagesProvide(const char *target)
+{
+	return filter(target, F_STRMATCHER_EQUAL, PM_PACKAGE_FLAG_PROVIDES);
 }
 
 pmlist_t *Database::test() const

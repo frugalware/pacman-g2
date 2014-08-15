@@ -72,11 +72,13 @@ public:
 	FPtrList *filter(const FStringList *needles,
 			int strmatcher_flags = F_STRMATCHER_ALL_IGNORE_CASE,
 			int packagestrmatcher_flags = PM_PACKAGE_FLAG_NAME | PM_PACKAGE_FLAG_DESCRIPTION | PM_PACKAGE_FLAG_PROVIDES);
+	FPtrList *filter(const char *target, int strmatcher_flags, int packagestrmatcher_flags);
 	libpacman::Package *find(const FMatcher *packagestrmatcher);
 	libpacman::Package *find(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
-	Package *Database::find(const char *target);
-	Package *Database::find(const char *target, int strmatcher_flags,
+	libpacman::Package *find(const char *target);
+	libpacman::Package *find(const char *target, int strmatcher_flags,
 			int packagestrmatcher_flags = PM_PACKAGE_FLAG_NAME);
+	FPtrList *whatPackagesProvide(const char *target);
 
 	virtual pmlist_t *getowners(const char *filename); /* Make pure virtual */
 
