@@ -1029,7 +1029,9 @@ pmlist_t *pacman_db_search(pmdb_t *_db)
 	ASSERT(handle->needles->data != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
-	ret = db->filter(handle->needles);
+	ret = db->filter(handle->needles,
+			PM_PACKAGE_FLAG_NAME | PM_PACKAGE_FLAG_DESCRIPTION | PM_PACKAGE_FLAG_PROVIDES,
+			F_STRMATCHER_ALL_IGNORE_CASE);
 	FREELIST(handle->needles);
 	return(ret);
 }

@@ -111,7 +111,7 @@ pmlist_t *Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_
 	return ret;
 }
 
-FPtrList *Database::filter(const FStringList *needles, int strmatcher_flags, int packagestrmatcher_flags)
+FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_flags, int strmatcher_flags)
 {
 	pmlist_t *i, *j, *ret = NULL;
 
@@ -140,7 +140,7 @@ FPtrList *Database::filter(const FStringList *needles, int strmatcher_flags, int
 	return(ret);
 }
 
-FPtrList *Database::filter(const char *target, int strmatcher_flags, int packagestrmatcher_flags)
+FPtrList *Database::filter(const char *target, int packagestrmatcher_flags, int strmatcher_flags)
 {
 	FPtrList *ret = NULL;
 	FStrMatcher strmatcher = { NULL };
@@ -189,7 +189,7 @@ Package *Database::find(const char *target)
 	return _pacman_pkg_isin(target, _pacman_db_get_pkgcache(this));
 }
 
-Package *Database::find(const char *target, int strmatcher_flags, int packagestrmatcher_flags)
+Package *Database::find(const char *target, int packagestrmatcher_flags, int strmatcher_flags)
 {
 	Package *ret = NULL;
 	FStrMatcher strmatcher = { NULL };
@@ -204,7 +204,7 @@ Package *Database::find(const char *target, int strmatcher_flags, int packagestr
 
 FPtrList *Database::whatPackagesProvide(const char *target)
 {
-	return filter(target, F_STRMATCHER_EQUAL, PM_PACKAGE_FLAG_PROVIDES);
+	return filter(target, PM_PACKAGE_FLAG_PROVIDES);
 }
 
 pmlist_t *Database::test() const
