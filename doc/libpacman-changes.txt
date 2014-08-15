@@ -20,6 +20,8 @@ None.
 
 pacman_cb_log: Make 'message' argument a constant.
 
+pacman_handle_get_database: Get a database handle by its name.
+
 pacman_logaction: Now returns a void instead of a int to reflect success. Logging should allways success and not be intrusive.
 
 pacman_parse_config: Make 'file' argument a constant. Remove 'this_section' argument, it is internal and should not have been exposed publicly.
@@ -111,6 +113,8 @@ PM_PKG_DATA: Was unusable since output type was dependent of the package origin 
 PM_TRANS: Unused in the public API.
 
 === Behaviour changes
+
+pacman_db_register: Do not fails anymore trying to register 'local' again, it will output the same warning as other db and will return the local handle.
 
 pacman_db_unregister: Was accepting any database as long as it has a correct treename. Now it only accept valid database pointers. Previous behaviour, if necessary, should be implemented with a pacman_db_unregister_by_name API entry.
 

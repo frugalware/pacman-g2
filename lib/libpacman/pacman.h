@@ -70,6 +70,8 @@ int pacman_release(void);
 pmhandle_t *pacman_get_handle(void);
 pmtrans_t *pacman_get_trans(void);
 
+pmdb_t *pacman_handle_get_database(pmhandle_t *handle, const char *treename);
+
 /*
  * Logging facilities
  */

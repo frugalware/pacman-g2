@@ -57,6 +57,7 @@ public:
 	int unlock();
 
 	libpacman::Database *createDatabase(const char *treename, pacman_cb_db_register callback);
+	libpacman::Database *getDatabase(const char *treename);
 
 	pmaccess_t access;
 	uid_t uid;

@@ -149,6 +149,14 @@ pmtrans_t *pacman_get_trans(void)
 
 	return handle->trans;
 }
+
+pmdb_t *pacman_handle_get_database(pmhandle_t *handle, const char *treename)
+{
+	ASSERT(handle != NULL, RET_ERR(PM_ERR_HANDLE_NULL, NULL));
+
+	return c_cast(cxx_cast(handle)->getDatabase(treename));
+}
+
 /** @} */
 
 /** @defgroup pacman_options Library Options
