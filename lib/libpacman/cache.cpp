@@ -148,11 +148,7 @@ int _pacman_db_remove_pkgfromcache(Database *db, Package *pkg)
 Package *_pacman_db_get_pkgfromcache(Database *db, const char *target)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
-	if(_pacman_strempty(target)) {
-		return NULL;
-	}
-
-	return(_pacman_pkg_isin(target, _pacman_db_get_pkgcache(db)));
+	return db->find(target);
 }
 
 /* return a pmlist_t of packages in "db" that provide "package"

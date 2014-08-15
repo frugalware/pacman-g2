@@ -137,7 +137,6 @@ FPtrList *Database::filter(const FStringList *needles, int strmatcher_flags, int
 		_pacman_packagestrmatcher_fini(&packagestrmatcher);
 		f_strmatcher_fini(&strmatcher);
 	}
-
 	return(ret);
 }
 
@@ -164,6 +163,28 @@ Package *Database::find(const FStrMatcher *strmatcher, int packagestrmatcher_fla
 	if(_pacman_packagestrmatcher_init(&packagestrmatcher, strmatcher, packagestrmatcher_flags) == 0) {
 		ret = find(&packagestrmatcher);
 		_pacman_packagestrmatcher_fini(&packagestrmatcher);
+	}
+	return ret;
+}
+
+Package *Database::find(const char *target)
+{
+	if(_pacman_strempty(target)) {
+		return NULL;
+	}
+
+	return _pacman_pkg_isin(target, _pacman_db_get_pkgcache(this));
+}
+
+Package *Database::find(const char *target, int strmatcher_flags, int packagestrmatcher_flags)
+{
+	Package *ret = NULL;
+	FStrMatcher strmatcher = { NULL };
+
+	if(!_pacman_strempty(target) &&
+			f_strmatcher_init(&strmatcher, target, strmatcher_flags) == 0) {
+		ret = find(&strmatcher, packagestrmatcher_flags);
+		f_strmatcher_fini(&strmatcher);
 	}
 	return ret;
 }

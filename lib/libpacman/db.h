@@ -74,6 +74,9 @@ public:
 			int packagestrmatcher_flags = PM_PACKAGE_FLAG_NAME | PM_PACKAGE_FLAG_DESCRIPTION | PM_PACKAGE_FLAG_PROVIDES);
 	libpacman::Package *find(const FMatcher *packagestrmatcher);
 	libpacman::Package *find(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
+	Package *Database::find(const char *target);
+	Package *Database::find(const char *target, int strmatcher_flags,
+			int packagestrmatcher_flags = PM_PACKAGE_FLAG_NAME);
 
 	virtual pmlist_t *getowners(const char *filename); /* Make pure virtual */
 
