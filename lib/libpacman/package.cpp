@@ -319,12 +319,8 @@ struct FPackageStrMatcher
 };
 
 static
-int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
-	Package *pkg = (void *)ptr; /* FIXME: Make const when const accessors are available */
-	const FPackageStrMatcher *data = matcher_data;
-	const int flags = data->flags;
-	const FStrMatcher *strmatcher = data->strmatcher;
-
+int _pacman_strmatcher_match(const FStrMatcher *strmatcher, Package *pkg, int flags) {
+	/* FIXME: Make const when const accessors are available */
 	if(((flags & PM_PACKAGE_FLAG_NAME) && f_str_match(pkg->name(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_VERSION) && f_str_match(pkg->version(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_DESCRIPTION) && f_str_match(pkg->description(), strmatcher)) ||
@@ -351,6 +347,13 @@ int _pacman_packagestrmatcher_match(const void *ptr, const void *matcher_data) {
 	return 0;
 }
 
+static
+int _pacman_packagestrmatcher_match_cb(const void *ptr, const void *matcher_data) {
+	const FPackageStrMatcher *data = matcher_data;
+
+	return _pacman_strmatcher_match(data->strmatcher, (const Package *)ptr, data->flags);
+}
+
 int _pacman_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatcher, int flags)
 {
 	FPackageStrMatcher *data = NULL;
@@ -359,10 +362,11 @@ int _pacman_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatc
 	ASSERT(strmatcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT((data = (FPackageStrMatcher *)f_zalloc(sizeof(*data))) != NULL, return -1);
 
-	matcher->fn = _pacman_packagestrmatcher_match;
+	matcher->fn = _pacman_packagestrmatcher_match_cb;
 	matcher->data = data;
 	data->strmatcher = strmatcher;
-	return _pacman_packagestrmatcher_set_flags(matcher, flags);
+	data->flags = flags;
+	return 0;
 }
 
 int _pacman_packagestrmatcher_fini(FMatcher *matcher)
@@ -370,23 +374,22 @@ int _pacman_packagestrmatcher_fini(FMatcher *matcher)
 	FPackageStrMatcher *data = NULL;
 
 	ASSERT(matcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(matcher->fn == _pacman_packagestrmatcher_match, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(matcher->fn == _pacman_packagestrmatcher_match_cb, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT((data = (FPackageStrMatcher *)matcher->data) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	free(data);
 	return 0;
 }
 
-int _pacman_packagestrmatcher_set_flags(FMatcher *matcher, int flags)
+int _pacman_packagestrmatcher_match(const FMatcher *matcher, const Package *package, int mask)
 {
 	FPackageStrMatcher *data = NULL;
 
 	ASSERT(matcher != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(matcher->fn == _pacman_packagestrmatcher_match, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(matcher->fn == _pacman_packagestrmatcher_match_cb, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT((data = (FPackageStrMatcher *)matcher->data) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	data->flags = flags;
-	return 0;
+	return _pacman_strmatcher_match(data->strmatcher, package, data->flags & mask);
 }
 
 /* vim: set ts=2 sw=2 noet: */

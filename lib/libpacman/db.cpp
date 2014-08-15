@@ -155,17 +155,22 @@ FPtrList *Database::filter(const char *target, int packagestrmatcher_flags, int 
 
 Package *Database::find(const FMatcher *packagestrmatcher)
 {
-	// FIXME: search for provide in the same pass ?
+	Package *ret = NULL;
 	pmlist_t *i;
 
 	for(i = _pacman_db_get_pkgcache(this); i; i = i->next) {
 		Package *pkg = i->data;
 
 		if(f_match(pkg, packagestrmatcher)) {
-			return pkg;
+			if(_pacman_packagestrmatcher_match(packagestrmatcher, pkg, ~PM_PACKAGE_FLAG_PROVIDES)) {
+				return pkg;
+			} else if (ret == NULL) {
+				/* Store provide match */
+				ret = pkg;
+			}
 		}
 	}
-	return NULL;
+	return ret;
 }
 
 Package *Database::find(const FStrMatcher *strmatcher, int packagestrmatcher_flags)

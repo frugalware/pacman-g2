@@ -178,7 +178,7 @@ libpacman::Package *_pacman_pkg_isin(const char *needle, pmlist_t *haystack);
 int _pacman_packagestrmatcher_init(FMatcher *matcher, const FStrMatcher *strmatcher, int flags);
 int _pacman_packagestrmatcher_fini(FMatcher *matcher);
 
-int _pacman_packagestrmatcher_set_flags(FMatcher *matcher, int flags);
+int _pacman_packagestrmatcher_match(const FMatcher *matcher, const libpacman::Package *package, int mask = ~0);
 
 #endif /* _PACMAN_PACKAGE_H */
 
