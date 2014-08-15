@@ -30,6 +30,7 @@
 #include "timestamp.h"
 
 #include "kernel/fobject.h"
+#include "fstring.h"
 
 namespace libpacman {
 
@@ -64,6 +65,11 @@ public:
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
 
 	// Cache operations
+	pmlist_t *Database::filter(const FMatcher *packagestrmatcher);
+	pmlist_t *Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
+	libpacman::Package *Database::find(const FMatcher *packagestrmatcher);
+	libpacman::Package *Database::find(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
+
 	pmlist_t *search(pmlist_t *needles);
 
 	virtual pmlist_t *getowners(const char *filename); /* Make pure virtual */

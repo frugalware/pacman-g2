@@ -85,6 +85,59 @@ Database::~Database()
 	free(path);
 }
 
+pmlist_t *Database::filter(const FMatcher *packagestrmatcher)
+{
+	pmlist_t *i, *ret = NULL;
+
+	for(i = _pacman_db_get_pkgcache(this); i; i = i->next) {
+		Package *pkg = i->data;
+		
+		if(f_match(pkg, packagestrmatcher)) {
+			ret = f_ptrlist_append(ret, pkg);
+		}
+	}
+	return ret;
+}
+
+pmlist_t *Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags)
+{
+	pmlist_t *ret = NULL;
+	FMatcher packagestrmatcher;
+
+	if(_pacman_packagestrmatcher_init(&packagestrmatcher, strmatcher, packagestrmatcher_flags) == 0) {
+		ret = filter(&packagestrmatcher);
+		_pacman_packagestrmatcher_fini(&packagestrmatcher);
+	}
+	return ret;
+}
+
+Package *Database::find(const FMatcher *packagestrmatcher)
+{
+	// FIXME: search for provide in the same pass ?
+	pmlist_t *i;
+
+	for(i = _pacman_db_get_pkgcache(this); i; i = i->next) {
+		Package *pkg = i->data;
+
+		if(f_match(pkg, packagestrmatcher)) {
+			return pkg;
+		}
+	}
+	return NULL;
+}
+
+Package *Database::find(const FStrMatcher *strmatcher, int packagestrmatcher_flags)
+{
+	Package *ret = NULL;
+	FMatcher packagestrmatcher;
+
+	if(_pacman_packagestrmatcher_init(&packagestrmatcher, strmatcher, packagestrmatcher_flags) == 0) {
+		ret = find(&packagestrmatcher);
+		_pacman_packagestrmatcher_fini(&packagestrmatcher);
+	}
+	return ret;
+}
+
 pmlist_t *Database::search(pmlist_t *needles)
 {
 	pmlist_t *i, *j, *ret = NULL;
