@@ -166,6 +166,23 @@ public:
 	char *m_path;
 };
 
+class PackageMatcher
+	: FMatcher
+{
+public:
+	PackageMatcher(const FStrMatcher *strmatcher, int flags);
+	~PackageMatcher();
+
+#if 0
+	virtual bool match(const libpacman::Package *package) const override;
+#endif
+	bool match(const libpacman::Package *package, int mask = ~0) const;
+
+private:
+	const FStrMatcher *m_strmatcher;
+	int m_flags;
+};
+
 }
 
 #define FREELISTPKGS(p) _FREELIST(p, _pacman_pkg_delete)

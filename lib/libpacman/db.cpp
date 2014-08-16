@@ -85,14 +85,14 @@ Database::~Database()
 	free(path);
 }
 
-pmlist_t *Database::filter(const FMatcher *packagestrmatcher)
+pmlist_t *Database::filter(const PackageMatcher &packagematcher)
 {
 	pmlist_t *i, *ret = NULL;
 
 	for(i = _pacman_db_get_pkgcache(this); i; i = i->next) {
 		Package *pkg = i->data;
 		
-		if(f_match(pkg, packagestrmatcher)) {
+		if(packagematcher.match(pkg)) {
 			ret = f_ptrlist_append(ret, pkg);
 		}
 	}
@@ -101,14 +101,7 @@ pmlist_t *Database::filter(const FMatcher *packagestrmatcher)
 
 pmlist_t *Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags)
 {
-	pmlist_t *ret = NULL;
-	FMatcher packagestrmatcher;
-
-	if(_pacman_packagestrmatcher_init(&packagestrmatcher, strmatcher, packagestrmatcher_flags) == 0) {
-		ret = filter(&packagestrmatcher);
-		_pacman_packagestrmatcher_fini(&packagestrmatcher);
-	}
-	return ret;
+	return filter(PackageMatcher(strmatcher, packagestrmatcher_flags));
 }
 
 FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_flags, int strmatcher_flags)
@@ -153,7 +146,7 @@ FPtrList *Database::filter(const char *target, int packagestrmatcher_flags, int 
 	return(ret);
 }
 
-Package *Database::find(const FMatcher *packagestrmatcher)
+Package *Database::find(const PackageMatcher &packagematcher)
 {
 	Package *ret = NULL;
 	pmlist_t *i;
@@ -161,8 +154,8 @@ Package *Database::find(const FMatcher *packagestrmatcher)
 	for(i = _pacman_db_get_pkgcache(this); i; i = i->next) {
 		Package *pkg = i->data;
 
-		if(f_match(pkg, packagestrmatcher)) {
-			if(_pacman_packagestrmatcher_match(packagestrmatcher, pkg, ~PM_PACKAGE_FLAG_PROVIDES)) {
+		if(packagematcher.match(pkg)) {
+			if(packagematcher.match(pkg, ~PM_PACKAGE_FLAG_PROVIDES)) {
 				return pkg;
 			} else if (ret == NULL) {
 				/* Store provide match */
@@ -175,14 +168,7 @@ Package *Database::find(const FMatcher *packagestrmatcher)
 
 Package *Database::find(const FStrMatcher *strmatcher, int packagestrmatcher_flags)
 {
-	Package *ret = NULL;
-	FMatcher packagestrmatcher;
-
-	if(_pacman_packagestrmatcher_init(&packagestrmatcher, strmatcher, packagestrmatcher_flags) == 0) {
-		ret = find(&packagestrmatcher);
-		_pacman_packagestrmatcher_fini(&packagestrmatcher);
-	}
-	return ret;
+	return find(PackageMatcher(strmatcher, packagestrmatcher_flags));
 }
 
 Package *Database::find(const char *target, int packagestrmatcher_flags, int strmatcher_flags)

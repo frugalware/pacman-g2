@@ -392,4 +392,33 @@ int _pacman_packagestrmatcher_match(const FMatcher *matcher, const Package *pack
 	return _pacman_strmatcher_match(data->strmatcher, package, data->flags & mask);
 }
 
+static
+int PackageMatcher_match_cb(const void *ptr, const void *matcher_data)
+{
+	return ((const PackageMatcher *)matcher_data)->match((const Package *)ptr);
+}
+
+PackageMatcher::PackageMatcher(const FStrMatcher *strmatcher, int flags)
+	: m_strmatcher(strmatcher), m_flags(flags)
+{
+	fn = PackageMatcher_match_cb;
+	data = this;
+}
+
+PackageMatcher::~PackageMatcher()
+{
+}
+
+#if 0
+bool PackageMatcher::match(const libpacman::Package *package) const
+{
+	return match(package, ~0);
+}
+#endif
+
+bool PackageMatcher::match(const Package *package, int mask = ~0) const
+{
+	return _pacman_strmatcher_match(m_strmatcher, package, m_flags & mask);
+}
+
 /* vim: set ts=2 sw=2 noet: */

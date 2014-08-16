@@ -67,11 +67,11 @@ public:
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
 
 	// Cache operations
-	pmlist_t *filter(const FMatcher *packagestrmatcher);
+	pmlist_t *filter(const libpacman::PackageMatcher &packagematcher);
 	pmlist_t *filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
 	FPtrList *filter(const FStringList *needles, int packagestrmatcher_flags, int strmatcher_flags = F_STRMATCHER_EQUAL);
 	FPtrList *filter(const char *target, int packagestrmatcher_flags, int strmatcher_flags = F_STRMATCHER_EQUAL);
-	libpacman::Package *find(const FMatcher *packagestrmatcher);
+	libpacman::Package *find(const libpacman::PackageMatcher &packagematcher);
 	libpacman::Package *find(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
 	libpacman::Package *find(const char *target,
 			int packagestrmatcher_flags = PM_PACKAGE_FLAG_NAME,
