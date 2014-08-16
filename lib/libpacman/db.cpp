@@ -110,24 +110,23 @@ FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_fla
 
 	for(i = needles; i; i = i->next) {
 		FStrMatcher strmatcher = { NULL };
-		FMatcher packagestrmatcher;
 		const char *targ = f_stringlistitem_to_str(i);
 
 		if(f_strempty(targ)) {
 			continue;
 		}
 		_pacman_log(PM_LOG_DEBUG, "searching for target '%s'\n", targ);
-		if(f_strmatcher_init(&strmatcher, targ, strmatcher_flags) == 0 &&
-				_pacman_packagestrmatcher_init(&packagestrmatcher, &strmatcher, packagestrmatcher_flags) == 0) {
+		if(f_strmatcher_init(&strmatcher, targ, strmatcher_flags) == 0) {
+			PackageMatcher packagematcher(&strmatcher, packagestrmatcher_flags);
+
 			for(j = _pacman_db_get_pkgcache(this); j; j = j->next) {
 				Package *pkg = j->data;
 
-				if(f_match(pkg, &packagestrmatcher)) {
+				if(packagematcher.match(pkg)) {
 					ret = f_ptrlist_append(ret, pkg);
 				}
 			}
 		}
-		_pacman_packagestrmatcher_fini(&packagestrmatcher);
 		f_strmatcher_fini(&strmatcher);
 	}
 	return(ret);
