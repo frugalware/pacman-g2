@@ -339,12 +339,12 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 					pmlist_t *p;
 					_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
 					p = dbs->whatPackagesProvide(targ);
-					if(p == NULL) {
-						RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
+					if(p != NULL) {
+						_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), f_stringlistitem_to_str(p), targ);
+						spkg = dbs->find(f_stringlistitem_to_str(p));
+						FREELISTPTR(p);
 					}
-					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), f_stringlistitem_to_str(p), targ);
-					spkg = dbs->find(f_stringlistitem_to_str(p));
-					FREELISTPTR(p);
+					break;
 				}
 			}
 		}
@@ -360,7 +360,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 			for(i = dbs_sync; i && !spkg; i = i->next) {
 				Database *dbs = i->data;
 				pmlist_t *p = dbs->whatPackagesProvide(targ);
-				if(p) {
+				if(p != NULL) {
 					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), f_stringlistitem_to_str(p), targ);
 					spkg = dbs->find(f_stringlistitem_to_str(p));
 					FREELISTPTR(p);
