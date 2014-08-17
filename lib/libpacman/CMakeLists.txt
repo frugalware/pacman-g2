@@ -8,11 +8,12 @@ set(FLIB_SOURCES
 	kernel/fobject.cpp
 	kernel/fobject.h
 	kernel/fsignal.h
+	kernel/fstr.cpp
+	kernel/fstr.h
 	fstdlib/canonicalize.c
 	fstring/basename.c
 	fstring/case.c
 	fstring/dirname.c
-	fstring/matcher.c
 	hash/md5.c
 	hash/md5driver.c
 	hash/sha1.c

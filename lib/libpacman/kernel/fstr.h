@@ -1,7 +1,7 @@
 /*
- *  fstring.h
+ *  fstr.h
  *
- *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
+ *  Copyright (c) 2014 by Michel Hermier <hermier@frugalware.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,48 +18,45 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef F_STRING_H
-#define F_STRING_H
+#ifndef F_STR_H
+#define F_STR_H
 
-#include <string.h>
+#include "fstring.h"
 
-#include "util/fcallback.h"
+#include "util/fmatcher.h"
+#include "util/stringlist.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <regex.h>
 
-char *f_basename(const char *path);
-char *f_dirname(const char *path);
-
-static inline
-char *f_strdup(const char *s)
+class FStrMatcher
+	: public FMatcher<const char *>
 {
-	return s != NULL ? strdup(s) : NULL;
-}
+public:
+	enum {
+		EQUAL						= (1<<0),
+		IGNORE_CASE			= (1<<1),
+		REGEXP					= (1<<2),
+		SUBSTRING				= (1<<3),
 
-static inline
-int f_strempty(const char *s)
-{
-	return s != NULL ? s[0] == '\0' : !0;
-}
+		ALL							= (EQUAL | REGEXP | SUBSTRING),
+		ALL_IGNORE_CASE	= (IGNORE_CASE | ALL),
+	};
 
-static inline
-size_t f_strlen(const char *s)
-{
-	return s != NULL ? strlen(s) : 0;
-}
+	FStrMatcher();
+	FStrMatcher(const char *pattern, int flags = EQUAL/*, owner*/);
 
-char *f_strtolower(char *str);
-char *f_strtoupper(char *str);
-char *f_strtrim(char *str);
+	~FStrMatcher();
 
-int f_str_tolower(char *dst, const char *src);
-int f_str_toupper(char *dst, const char *src);
+	virtual bool match(const char *str) const override;
 
-#ifdef __cplusplus
-}
-#endif
-#endif /* F_STRING_H */
+protected:
+	int m_flags;
+	char *m_str;
+	regex_t m_regex;
+};
+
+int f_stringlist_any_match(const FStringList *list, const FStrMatcher *matcher);
+
+#endif /* F_STR_H */
 
 /* vim: set ts=2 sw=2 noet: */

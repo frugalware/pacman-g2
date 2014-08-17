@@ -50,10 +50,6 @@ void *f_ptrlistitem_data(const FPtrListItem *self)
 	return self->data;
 }
 
-int f_ptrlistitem_match(const FPtrListItem *item, const FMatcher *matcher) {
-	return f_match(item->data, matcher);
-}
-
 int f_ptrlistitem_ptrcmp(const FPtrListItem *item, const void *ptr) {
 	return f_ptrcmp(item->data, ptr);
 }
@@ -97,26 +93,6 @@ const FList *f_ptrlist_as_FList_const(const FPtrList *self)
 
 	return &self->as_FList;
 #endif
-}
-
-int f_ptrlist_all_match(const FPtrList *list, const FMatcher *matcher)
-{
-	FMatcher itemmatcher = {
-		.fn = (FMatcherFunc)f_ptrlistitem_match,
-		.data = matcher,
-	};
-
-	return f_list_all_match(f_ptrlist_as_FList_const(list), &itemmatcher);
-}
-
-int f_ptrlist_any_match(const FPtrList *list, const FMatcher *matcher)
-{
-	FMatcher itemmatcher = {
-		.fn = (FMatcherFunc)f_ptrlistitem_match,
-		.data = matcher,
-	};
-
-	return f_list_any_match(f_ptrlist_as_FList_const(list), &itemmatcher);
 }
 
 #ifndef F_NOCOMPAT
@@ -172,21 +148,6 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr)
 {
 	return f_ptrlist_contains(list, f_ptrlistitem_ptrcmp, ptr);
-}
-
-FPtrList *f_ptrlist_filter(const FPtrList *list, const FMatcher *matcher)
-{
-	FPtrList *retlist = NULL;
-	const FPtrListItem *end = f_ptrlist_end_const(list), *it = f_ptrlist_first_const(list);
-
-	for(; it != end; it = f_ptrlistitem_next(it)) {
-		void *data = f_ptrlistitem_data(it);
-
-		if(f_match(data, matcher)) {
-			retlist = f_ptrlist_append(retlist, data);
-		}
-	}
-	return retlist;
 }
 
 /* vim: set ts=2 sw=2 noet: */

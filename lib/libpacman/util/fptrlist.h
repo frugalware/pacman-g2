@@ -45,7 +45,6 @@ void *f_ptrlistitem_data(const FPtrListItem *self);
 #define f_ptrlistitem_next(self) ((FPtrListItem *)f_listitem_next((FListItem *)(self)))
 #define f_ptrlistitem_previous(self) ((FPtrListItem *)f_listitem_previous((FListItem *)(self)))
 
-int f_ptrlistitem_match(const FPtrListItem *item, const FMatcher *matcher);
 int f_ptrlistitem_ptrcmp(const FPtrListItem *item, const void *ptr);
 
 FPtrList *f_ptrlist_new(void);
@@ -58,8 +57,6 @@ FList *f_ptrlist_as_FList(FPtrList *self);
 const FList *f_ptrlist_as_FList_const(const FPtrList *self);
 
 #define f_ptrlist_add f_ptrlist_append
-int f_ptrlist_all_match(const FPtrList *list, const FMatcher *matcher);
-int f_ptrlist_any_match(const FPtrList *list, const FMatcher *matcher);
 #ifndef F_NOCOMPAT
 FPtrList *f_ptrlist_append(FPtrList *list, void *data);
 #else
@@ -72,7 +69,6 @@ int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
 #define f_ptrlist_empty f_list_empty
 #define f_ptrlist_end(list) ((FPtrListItem *)f_ptrlist_end_const(list))
 #define f_ptrlist_end_const(list) ((const FPtrListItem *)f_list_end_const(f_ptrlist_as_FList_const(list)))
-FPtrList *f_ptrlist_filter(const FPtrList *list, const FMatcher *matcher);
 #define f_ptrlist_first(self) ((FPtrListItem *)f_ptrlist_first_const(self))
 #define f_ptrlist_first_const(self) ((const FPtrListItem *)f_list_first_const(f_ptrlist_as_FList_const(self)))
 #define f_ptrlist_last(self) ((FPtrListItem *)f_ptrlist_last_const(self))

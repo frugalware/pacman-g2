@@ -116,16 +116,6 @@ int f_stringlist_delete(FStringList *self)
 	return f_ptrlist_delete(self, &f_stringlistitem_destroyvisitor);
 }
 
-int f_stringlist_all_match(const FStringList *list, const FStrMatcher *matcher)
-{
-	return f_ptrlist_all_match(list, (const FMatcher *)matcher);
-}
-
-int f_stringlist_any_match(const FStringList *list, const FStrMatcher *matcher)
-{
-	return f_ptrlist_any_match(list, (const FMatcher *)matcher);
-}
-
 FStringList *f_stringlist_append(FStringList *list, const char *s)
 {
 	return f_ptrlist_append(list, f_strdup(s));

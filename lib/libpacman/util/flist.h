@@ -54,8 +54,6 @@ int f_list_init(FList *self);
 int f_list_fini(FList *self, FVisitor *visitor);
 
 #define f_list_add f_list_append
-int f_list_all_match(const FList *list, const FMatcher *matcher);
-int f_list_any_match(const FList *list, const FMatcher *matcher);
 int f_list_append(FList *self, FListItem *item);
 int f_list_append_unique(FList *self, FListItem *item, FListItemComparatorFunc comparator);
 int f_list_clear(FList *self, FVisitor *visitor);

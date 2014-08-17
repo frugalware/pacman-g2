@@ -69,13 +69,13 @@ public:
 	// Cache operations
 	pmlist_t *filter(const libpacman::PackageMatcher &packagematcher);
 	pmlist_t *filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
-	FPtrList *filter(const FStringList *needles, int packagestrmatcher_flags, int strmatcher_flags = F_STRMATCHER_EQUAL);
-	FPtrList *filter(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags = F_STRMATCHER_EQUAL);
+	FPtrList *filter(const FStringList *needles, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);
+	FPtrList *filter(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);
 	libpacman::Package *find(const libpacman::PackageMatcher &packagematcher);
 	libpacman::Package *find(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
 	libpacman::Package *find(const char *target,
 			int packagestrmatcher_flags = PM_PACKAGE_FLAG_NAME,
-			int strmatcher_flags = F_STRMATCHER_EQUAL);
+			int strmatcher_flags = FStrMatcher::EQUAL);
 	FPtrList *whatPackagesProvide(const char *target);
 
 	virtual pmlist_t *getowners(const char *filename); /* Make pure virtual */

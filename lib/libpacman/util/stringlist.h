@@ -59,8 +59,6 @@ const char *f_stringlistitem_to_str(const FStringListItem *self);
 FStringList *f_stringlist_new(void);
 int f_stringlist_delete(FStringList *self);
 
-int f_stringlist_all_match(const FStringList *list, const FStrMatcher *matcher);
-int f_stringlist_any_match(const FStringList *list, const FStrMatcher *matcher);
 FStringList *f_stringlist_append(FStringList *list, const char *s);
 FStringList *f_stringlist_append_stringlist(FStringList *dest, const FStringList *src);
 int f_stringlist_clear(FStringList *self);

@@ -1,7 +1,7 @@
 /*
- *  fstring.h
+ *  fcomparator.h
  *
- *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
+ *  Copyright (c) 2014 by Michel Hermier <hermier@frugalware.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,48 +18,41 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef F_STRING_H
-#define F_STRING_H
+#ifndef F_COMPARATOR_H
+#define F_COMPARATOR_H
 
-#include <string.h>
+#include "fmatcher.h"
 
-#include "util/fcallback.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-char *f_basename(const char *path);
-char *f_dirname(const char *path);
-
-static inline
-char *f_strdup(const char *s)
+template <typename T>
+class FComparator
+	: public FMatcher<T>
 {
-	return s != NULL ? strdup(s) : NULL;
-}
+public:
+	FComparator()
+	{ }
 
-static inline
-int f_strempty(const char *s)
-{
-	return s != NULL ? s[0] == '\0' : !0;
-}
+	virtual ~FComparator() override
+	{ }
 
-static inline
-size_t f_strlen(const char *s)
-{
-	return s != NULL ? strlen(s) : 0;
-}
+	virtual int compare(const T &o) const = 0;
 
-char *f_strtolower(char *str);
-char *f_strtoupper(char *str);
-char *f_strtrim(char *str);
+	bool match(const T &o) const override
+	{
+		return compare(o) == 0;
+	}
 
-int f_str_tolower(char *dst, const char *src);
-int f_str_toupper(char *dst, const char *src);
+protected:
+	FComparator(const FComparator<T> &o)
+	{ }
 
-#ifdef __cplusplus
-}
-#endif
-#endif /* F_STRING_H */
+	FComparator<T> &operator = (const FComparator<T> &o)
+	{
+		return *this;
+	}
+};
+
+// FIXME: Add FComparatorList with compare_all
+
+#endif /* F_COMPARATOR_H */
 
 /* vim: set ts=2 sw=2 noet: */

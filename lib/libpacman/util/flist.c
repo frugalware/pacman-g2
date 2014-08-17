@@ -109,34 +109,6 @@ int f_list_fini(FList *self, FVisitor *visitor)
 	return f_list_clear(self, visitor);
 }
 
-int f_list_all_match(const FList *list, const FMatcher *matcher)
-{
-	const FListItem *it;
-
-	if(f_list_empty(list)) {
-		return 0;
-	}
-
-	for(it = f_list_first_const(list); it != f_list_end_const(list); it = it->next) {
-		if(f_match(it, matcher) == 0) {
-			return 0;
-		}
-	}
-	return 1;
-}
-
-int f_list_any_match(const FList *list, const FMatcher *matcher)
-{
-	const FListItem *it;
-
-	for(it = f_list_first_const(list); it != f_list_end_const(list); it = it->next) {
-		if(f_match(it, matcher) != 0) {
-			return 1;
-		}
-	}
-	return 0;
-}
-
 int f_list_append(FList *self, FListItem *item)
 {
 	return f_listitem_insert_after(item, f_list_last(self));

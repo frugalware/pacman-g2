@@ -321,15 +321,15 @@ struct FPackageStrMatcher
 static
 int _pacman_strmatcher_match(const FStrMatcher *strmatcher, Package *pkg, int flags) {
 	/* FIXME: Make const when const accessors are available */
-	if(((flags & PM_PACKAGE_FLAG_NAME) && f_str_match(pkg->name(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_VERSION) && f_str_match(pkg->version(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_DESCRIPTION) && f_str_match(pkg->description(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_BUILDDATE) && f_str_match(pkg->builddate, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_BUILDTYPE) && f_str_match(pkg->buildtype, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_INSTALLDATE) && f_str_match(pkg->installdate, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_PACKAGER) && f_str_match(pkg->packager, strmatcher)) ||
+	if(((flags & PM_PACKAGE_FLAG_NAME) && strmatcher->match(pkg->name())) ||
+			((flags & PM_PACKAGE_FLAG_VERSION) && strmatcher->match(pkg->version())) ||
+			((flags & PM_PACKAGE_FLAG_DESCRIPTION) && strmatcher->match(pkg->description())) ||
+			((flags & PM_PACKAGE_FLAG_BUILDDATE) && strmatcher->match(pkg->builddate)) ||
+			((flags & PM_PACKAGE_FLAG_BUILDTYPE) && strmatcher->match(pkg->buildtype)) ||
+			((flags & PM_PACKAGE_FLAG_INSTALLDATE) && strmatcher->match(pkg->installdate)) ||
+			((flags & PM_PACKAGE_FLAG_PACKAGER) && strmatcher->match(pkg->packager)) ||
 //			((flags & PM_PACKAGE_FLAG_HASH) && ) ||
-			((flags & PM_PACKAGE_FLAG_ARCH) && f_str_match(pkg->arch, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_ARCH) && strmatcher->match(pkg->arch)) ||
 			((flags & PM_PACKAGE_FLAG_LOCALISED_DESCRIPTION) && f_stringlist_any_match(pkg->desc_localized, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_LICENSE) && f_stringlist_any_match(pkg->license, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REPLACES) && f_stringlist_any_match(pkg->replaces(), strmatcher)) ||
@@ -353,32 +353,21 @@ int PackageMatcher_match_cb(const void *ptr, const void *matcher_data)
 	return ((const PackageMatcher *)matcher_data)->match((const Package *)ptr);
 }
 
-PackageMatcher::PackageMatcher(const char *pattern, int flags = PM_PACKAGE_FLAG_NAME, int strmatcher_flags = F_STRMATCHER_EQUAL)
-	: m_strmatcher(&m_strmatcher_internal), m_flags(flags)
-{
-	f_strmatcher_init(m_strmatcher, pattern, strmatcher_flags);
-}
+PackageMatcher::PackageMatcher(const char *pattern, int flags, int strmatcher_flags)
+	: m_strmatcher(&m_strmatcher_internal), m_flags(flags), m_strmatcher_internal(pattern, strmatcher_flags)
+{ }
 
 PackageMatcher::PackageMatcher(const FStrMatcher *strmatcher, int flags)
 	: m_strmatcher(strmatcher), m_flags(flags)
-{
-	fn = PackageMatcher_match_cb;
-	data = this;
-}
+{ }
 
 PackageMatcher::~PackageMatcher()
-{
-	if(m_strmatcher == &m_strmatcher_internal) {
-		f_strmatcher_fini(m_strmatcher);
-	}
-}
+{ }
 
-#if 0
 bool PackageMatcher::match(const libpacman::Package *package) const
 {
 	return match(package, ~0);
 }
-#endif
 
 bool PackageMatcher::match(const Package *package, int mask = ~0) const
 {

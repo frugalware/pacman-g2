@@ -1,7 +1,7 @@
 /*
- *  fstring.h
+ *  fmatcher.h
  *
- *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
+ *  Copyright (c) 2014 by Michel Hermier <hermier@frugalware.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,48 +18,36 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef F_STRING_H
-#define F_STRING_H
+#ifndef F_MATCHER_H
+#define F_MATCHER_H
 
-#include <string.h>
+#include "fstdlib.h"
+#include "util.h"
 
-#include "util/fcallback.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-char *f_basename(const char *path);
-char *f_dirname(const char *path);
-
-static inline
-char *f_strdup(const char *s)
+template <typename T>
+class FMatcher
 {
-	return s != NULL ? strdup(s) : NULL;
-}
+public:
+	FMatcher()
+	{ }
 
-static inline
-int f_strempty(const char *s)
-{
-	return s != NULL ? s[0] == '\0' : !0;
-}
+	virtual ~FMatcher()
+	{ }
 
-static inline
-size_t f_strlen(const char *s)
-{
-	return s != NULL ? strlen(s) : 0;
-}
+	virtual bool match(T data) const = 0;
 
-char *f_strtolower(char *str);
-char *f_strtoupper(char *str);
-char *f_strtrim(char *str);
+protected:
+	FMatcher(const FMatcher<T> &o)
+	{ }
 
-int f_str_tolower(char *dst, const char *src);
-int f_str_toupper(char *dst, const char *src);
+	FMatcher<T> &operator = (const FMatcher<T> &o)
+	{
+		return *this;
+	}
+};
 
-#ifdef __cplusplus
-}
-#endif
-#endif /* F_STRING_H */
+// FIXME: Add FMatcherList with match_all match_any
+
+#endif /* F_MATCHER_H */
 
 /* vim: set ts=2 sw=2 noet: */

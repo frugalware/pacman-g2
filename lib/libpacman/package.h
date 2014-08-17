@@ -34,6 +34,7 @@
 #include "trans.h"
 
 #include "kernel/fobject.h"
+#include "kernel/fstr.h"
 
 namespace libpacman {
 
@@ -167,17 +168,15 @@ public:
 };
 
 class PackageMatcher
-	: FMatcher
+	: FMatcher<const libpacman::Package *>
 {
 public:
-	PackageMatcher(const char *str, int flags = PM_PACKAGE_FLAG_NAME, int strmatcher_flags = F_STRMATCHER_EQUAL);
+	PackageMatcher(const char *str, int flags = PM_PACKAGE_FLAG_NAME, int strmatcher_flags = FStrMatcher::EQUAL);
 	PackageMatcher(const FStrMatcher *strmatcher, int flags);
 	~PackageMatcher();
 
-#if 0
 	virtual bool match(const libpacman::Package *package) const override;
-#endif
-	bool match(const libpacman::Package *package, int mask = ~0) const;
+	bool match(const libpacman::Package *package, int mask) const;
 
 private:
 	const FStrMatcher *m_strmatcher;
