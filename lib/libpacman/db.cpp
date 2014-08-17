@@ -109,40 +109,32 @@ FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_fla
 	pmlist_t *i, *j, *ret = NULL;
 
 	for(i = needles; i; i = i->next) {
-		FStrMatcher strmatcher = { NULL };
-		const char *targ = f_stringlistitem_to_str(i);
+		const char *pattern = f_stringlistitem_to_str(i);
 
-		if(f_strempty(targ)) {
+		if(f_strempty(pattern)) {
 			continue;
 		}
-		_pacman_log(PM_LOG_DEBUG, "searching for target '%s'\n", targ);
-		if(f_strmatcher_init(&strmatcher, targ, strmatcher_flags) == 0) {
-			PackageMatcher packagematcher(&strmatcher, packagestrmatcher_flags);
+		_pacman_log(PM_LOG_DEBUG, "searching for target '%s'\n", pattern);
 
-			for(j = _pacman_db_get_pkgcache(this); j; j = j->next) {
-				Package *pkg = j->data;
+		PackageMatcher packagematcher(pattern, packagestrmatcher_flags, strmatcher_flags);
 
-				if(packagematcher.match(pkg)) {
-					ret = f_ptrlist_append(ret, pkg);
-				}
+		for(j = _pacman_db_get_pkgcache(this); j; j = j->next) {
+			Package *pkg = j->data;
+
+			if(packagematcher.match(pkg)) {
+				ret = f_ptrlist_append(ret, pkg);
 			}
 		}
-		f_strmatcher_fini(&strmatcher);
 	}
 	return(ret);
 }
 
-FPtrList *Database::filter(const char *target, int packagestrmatcher_flags, int strmatcher_flags)
+FPtrList *Database::filter(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags)
 {
-	FPtrList *ret = NULL;
-	FStrMatcher strmatcher = { NULL };
-
-	if(!f_strempty(target) &&
-		f_strmatcher_init(&strmatcher, target, strmatcher_flags) == 0) {
-		ret = filter(&strmatcher, packagestrmatcher_flags);
-		f_strmatcher_fini(&strmatcher);
+	if(!f_strempty(pattern)) {
+		return filter(PackageMatcher(pattern, packagestrmatcher_flags, strmatcher_flags));
 	}
-	return(ret);
+	return NULL;
 }
 
 Package *Database::find(const PackageMatcher &packagematcher)
@@ -170,21 +162,12 @@ Package *Database::find(const FStrMatcher *strmatcher, int packagestrmatcher_fla
 	return find(PackageMatcher(strmatcher, packagestrmatcher_flags));
 }
 
-Package *Database::find(const char *target, int packagestrmatcher_flags, int strmatcher_flags)
+Package *Database::find(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags)
 {
-	Package *ret = NULL;
-	FStrMatcher strmatcher = { NULL };
-
-	if(!_pacman_strempty(target)) {
-		if (packagestrmatcher_flags == PM_PACKAGE_FLAG_NAME &&
-				strmatcher_flags == F_STRMATCHER_EQUAL) {
-			ret = _pacman_pkg_isin(target, _pacman_db_get_pkgcache(this));
-		} else if (f_strmatcher_init(&strmatcher, target, strmatcher_flags) == 0) {
-			ret = find(&strmatcher, packagestrmatcher_flags);
-			f_strmatcher_fini(&strmatcher);
-		}
+	if(!_pacman_strempty(pattern)) {
+		return find(PackageMatcher(pattern, packagestrmatcher_flags, strmatcher_flags));
 	}
-	return ret;
+	return NULL;
 }
 
 FPtrList *Database::whatPackagesProvide(const char *target)

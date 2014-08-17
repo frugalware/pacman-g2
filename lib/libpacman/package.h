@@ -170,6 +170,7 @@ class PackageMatcher
 	: FMatcher
 {
 public:
+	PackageMatcher(const char *str, int flags = PM_PACKAGE_FLAG_NAME, int strmatcher_flags = F_STRMATCHER_EQUAL);
 	PackageMatcher(const FStrMatcher *strmatcher, int flags);
 	~PackageMatcher();
 
@@ -181,6 +182,7 @@ public:
 private:
 	const FStrMatcher *m_strmatcher;
 	int m_flags;
+	FStrMatcher m_strmatcher_internal;
 };
 
 }

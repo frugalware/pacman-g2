@@ -353,6 +353,12 @@ int PackageMatcher_match_cb(const void *ptr, const void *matcher_data)
 	return ((const PackageMatcher *)matcher_data)->match((const Package *)ptr);
 }
 
+PackageMatcher::PackageMatcher(const char *pattern, int flags = PM_PACKAGE_FLAG_NAME, int strmatcher_flags = F_STRMATCHER_EQUAL)
+	: m_strmatcher(&m_strmatcher_internal), m_flags(flags)
+{
+	f_strmatcher_init(m_strmatcher, pattern, strmatcher_flags);
+}
+
 PackageMatcher::PackageMatcher(const FStrMatcher *strmatcher, int flags)
 	: m_strmatcher(strmatcher), m_flags(flags)
 {
@@ -362,6 +368,9 @@ PackageMatcher::PackageMatcher(const FStrMatcher *strmatcher, int flags)
 
 PackageMatcher::~PackageMatcher()
 {
+	if(m_strmatcher == &m_strmatcher_internal) {
+		f_strmatcher_fini(m_strmatcher);
+	}
 }
 
 #if 0
