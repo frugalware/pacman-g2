@@ -130,15 +130,6 @@ FPtrList *_pacman_list_reverse(FPtrList *list)
 	return(newlist);
 }
 
-int f_listitem_delete(FPtrListItem *self, FVisitor *visitor)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	f_visit(self, visitor);
-	free(self);
-	return 0;
-}
-
 FPtrList *f_list_new()
 {
 #ifndef F_NOCOMPAT
@@ -219,7 +210,9 @@ int f_ptrlistitem_delete(FPtrListItem *self, FVisitor *visitor)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	return f_listitem_delete(self, visitor);
+	f_visit(self, visitor);
+	free(self);
+	return 0;
 }
 
 void *f_ptrlistitem_data(const FPtrListItem *self)

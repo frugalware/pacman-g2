@@ -71,8 +71,6 @@ FPtrList *_pacman_list_reverse(FPtrList *list);
 typedef int (*FPtrListItemComparatorFunc)(const FPtrListItem *item, const void *comparator_data);
 typedef void (*FPtrListItemVisitorFunc)(FPtrListItem *item, void *visitor_data);
 
-int f_listitem_delete(FPtrListItem *self, FVisitor *visitor);
-
 FPtrList *f_list_new(void);
 
 int f_list_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data);
