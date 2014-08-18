@@ -139,38 +139,6 @@ int f_listitem_delete(FPtrListItem *self, FVisitor *visitor)
 	return 0;
 }
 
-int f_listitem_insert_after(FPtrListItem *self, FPtrListItem *previous)
-{
-	FPtrListItem *next;
-
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(previous != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	next = previous->next;
-	previous->next = self;
-	self->next = next;
-	self->previous = previous;
-#ifndef F_NOCOMPAT
-	if (next != NULL)
-#endif
-	next->previous = self;
-	return 0;
-}
-
-FPtrListItem *f_listitem_next(FPtrListItem *self)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-
-	return self->next;
-}
-
-FPtrListItem *f_listitem_previous(FPtrListItem *self)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-
-	return self->previous;
-}
-
 FPtrList *f_list_new()
 {
 #ifndef F_NOCOMPAT
@@ -259,6 +227,38 @@ void *f_ptrlistitem_data(const FPtrListItem *self)
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	return self->data;
+}
+
+int f_ptrlistitem_insert_after(FPtrListItem *self, FPtrListItem *previous)
+{
+	FPtrListItem *next;
+
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(previous != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	next = previous->next;
+	previous->next = self;
+	self->next = next;
+	self->previous = previous;
+#ifndef F_NOCOMPAT
+	if (next != NULL)
+#endif
+	next->previous = self;
+	return 0;
+}
+
+FPtrListItem *f_ptrlistitem_next(FPtrListItem *self)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	return self->next;
+}
+
+FPtrListItem *f_ptrlistitem_previous(FPtrListItem *self)
+{
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	return self->previous;
 }
 
 int f_ptrlistitem_ptrcmp(const FPtrListItem *item, const void *ptr) {

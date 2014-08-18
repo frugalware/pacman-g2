@@ -73,10 +73,6 @@ typedef void (*FPtrListItemVisitorFunc)(FPtrListItem *item, void *visitor_data);
 
 int f_listitem_delete(FPtrListItem *self, FVisitor *visitor);
 
-int f_listitem_insert_after(FPtrListItem *self, FPtrListItem *previous);
-FPtrListItem *f_listitem_next(FPtrListItem *self);
-FPtrListItem *f_listitem_previous(FPtrListItem *self);
-
 FPtrList *f_list_new(void);
 
 int f_list_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data);
@@ -93,8 +89,9 @@ FPtrListItem *f_ptrlistitem_new(void *data);
 int f_ptrlistitem_delete(FPtrListItem *self, FVisitor *visitor);
 
 void *f_ptrlistitem_data(const FPtrListItem *self);
-#define f_ptrlistitem_next(self) ((FPtrListItem *)f_listitem_next((FPtrListItem *)(self)))
-#define f_ptrlistitem_previous(self) ((FPtrListItem *)f_listitem_previous((FPtrListItem *)(self)))
+int f_ptrlistitem_insert_after(FPtrListItem *self, FPtrListItem *previous);
+FPtrListItem *f_ptrlistitem_next(FPtrListItem *self);
+FPtrListItem *f_ptrlistitem_previous(FPtrListItem *self);
 
 int f_ptrlistitem_ptrcmp(const FPtrListItem *item, const void *ptr);
 
