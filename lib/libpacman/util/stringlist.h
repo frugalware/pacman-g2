@@ -21,7 +21,7 @@
 #ifndef _PACMAN_STRINGLIST_H
 #define _PACMAN_STRINGLIST_H
 
-#include "util/list.h"
+#include "util/fptrlist.h"
 #include "fstring.h"
 
 #ifdef __cplusplus

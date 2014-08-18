@@ -24,19 +24,27 @@
 
 #include "pacman.h"
 
-#include "util/flist.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #ifndef F_NOCOMPAT
+/* Chained list struct */
+struct __pmlist_t {
+	struct __pmlist_t *prev;
+	struct __pmlist_t *next;
+  void *data;
+};
+
 typedef struct __pmlist_t FPtrList;
 typedef struct __pmlist_t FPtrListItem;
 #else
 typedef struct FPtrList FPtrList;
 typedef struct FPtrListItem FPtrListItem;
 #endif
+
+#include "util/flist.h"
+#include "util/list.h"
 
 FPtrListItem *f_ptrlistitem_new(void *data);
 int f_ptrlistitem_delete(FListItem *self, FVisitor *visitor);

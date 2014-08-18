@@ -59,7 +59,6 @@
 #define _pacman_basename f_basename
 int _pacman_copyfile(char *src, char *dest);
 int _pacman_unpack(const char *archive, const char *prefix, const char *fn);
-int _pacman_rmrf(char *path);
 int _pacman_ldconfig(char *root);
 #ifdef _PACMAN_TRANS_H
 int _pacman_chroot_system(const char *cmdline, pmtrans_t *trans);
@@ -84,6 +83,7 @@ extern "C" {
 #endif
 
 int _pacman_makepath(const char *path);
+int _pacman_rmrf(char *path);
 
 #ifdef __cplusplus
 }
