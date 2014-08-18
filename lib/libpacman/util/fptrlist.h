@@ -79,9 +79,6 @@ FPtrListItem *f_listitem_previous(FPtrListItem *self);
 
 FPtrList *f_list_new(void);
 
-#define f_list_add f_list_append
-int f_list_append(FPtrList *self, FPtrListItem *item);
-int f_list_append_unique(FPtrList *self, FPtrListItem *item, FPtrListItemComparatorFunc comparator);
 int f_list_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data);
 FPtrListItem *f_list_end(FPtrList *self);
 const FPtrListItem *f_list_end_const(const FPtrList *self);

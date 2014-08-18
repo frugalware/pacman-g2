@@ -185,19 +185,6 @@ FPtrList *f_list_new()
 #endif
 }
 
-int f_list_append(FPtrList *self, FPtrListItem *item)
-{
-	return f_listitem_insert_after(item, f_ptrlist_last(self));
-}
-
-int f_list_append_unique(FPtrList *self, FPtrListItem *item, FPtrListItemComparatorFunc comparator)
-{
-	if (!f_list_contains(self, comparator, item)) {
-		return f_list_append(self, item);
-	}
-	return -1;
-}
-
 int f_list_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data)
 {
 	return f_list_find_const(list, comparator, comparator_data) != NULL;
