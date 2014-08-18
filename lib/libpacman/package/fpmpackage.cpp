@@ -82,7 +82,7 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 				STRNCPY(info->m_version, ptr, sizeof(info->m_version));
 			} else if(!strcmp(key, "PKGDESC")) {
 				info->desc_localized = f_stringlist_append(info->desc_localized, ptr);
-				if(_pacman_list_count(info->desc_localized) == 1) {
+				if(f_ptrlist_count(info->desc_localized) == 1) {
 					STRNCPY(info->m_description, ptr, sizeof(info->m_description));
 				} else if (!strncmp(ptr, handle->language, strlen(handle->language))) {
 					STRNCPY(info->m_description, ptr+strlen(handle->language)+1, sizeof(info->m_description));
@@ -223,7 +223,7 @@ Package *_pacman_fpmpackage_load(const char *pkgfile)
 				/* no .FILELIST present in this package..  build the filelist the */
 				/* old-fashioned way, one at a time */
 				expath = strdup(archive_entry_pathname (entry));
-				info->m_files = _pacman_list_add(info->m_files, expath);
+				info->m_files = f_ptrlist_add(info->m_files, expath);
 			}
 		}
 

@@ -162,7 +162,7 @@ Database *Handle::createDatabase(const char *treename, pacman_cb_db_register cal
 	if(strcmp(treename, "local") == 0) {
 		db_local = db;
 	} else {
-		dbs_sync = _pacman_list_add(dbs_sync, db);
+		dbs_sync = f_ptrlist_add(dbs_sync, db);
 	}
 	return(db);
 }

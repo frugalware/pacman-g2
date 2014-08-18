@@ -140,11 +140,11 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 	Handle *handle = trans->m_handle;
 	char line[PATH_MAX+1];
 
-	int filenum = _pacman_list_count(pkg->files());
+	int filenum = f_ptrlist_count(pkg->files());
 	_pacman_log(PM_LOG_FLOW1, _("removing files"));
 
 	/* iterate through the list backwards, unlinking files */
-	for(lp = _pacman_list_last(pkg->files()); lp; lp = f_ptrlistitem_previous(lp)) {
+	for(lp = f_ptrlist_last(pkg->files()); lp; lp = f_ptrlistitem_previous(lp)) {
 		int nb = 0;
 		double percent = 0;
 		const char *file = f_stringlistitem_to_str(lp);
@@ -556,7 +556,7 @@ pmlist_t *LocalDatabase::getowners(const char *filename)
 
 			snprintf(path, PATH_MAX, "%s%s", m_handle->root, (char *)i->data);
 			if(!strcmp(path, rpath)) {
-				ret = _pacman_list_add(ret, info);
+				ret = f_ptrlist_add(ret, info);
 				if(rpath[strlen(rpath)-1] != '/') {
 					/* we are searching for a file and multiple packages won't contain
 					 * the same file */

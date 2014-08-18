@@ -92,7 +92,7 @@ int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
 pmlist_t *_pacman_depmisslist_add(pmlist_t *misslist, pmdepmissing_t *miss)
 {
 	if(!_pacman_depmiss_isin(miss, misslist)) {
-		misslist = _pacman_list_add(misslist, miss);
+		misslist = f_ptrlist_add(misslist, miss);
 	} else {
 		delete miss;
 	}
@@ -133,7 +133,7 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 	for(i = targets; i; i = i->next) {
 		pmgraph_t *v = _pacman_graph_new();
 		v->data = (void *)i->data;
-		vertices = _pacman_list_add(vertices, v);
+		vertices = f_ptrlist_add(vertices, v);
 	}
 
 	/* We compute the edges */
@@ -151,7 +151,7 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 				child = _pacman_depcmp(p_j, &depend);
 			}
 			if(child) {
-				vertex_i->children = _pacman_list_add(vertex_i->children, vertex_j);
+				vertex_i->children = f_ptrlist_add(vertex_i->children, vertex_j);
 			}
 		}
 		vertex_i->childptr = vertex_i->children;
@@ -175,7 +175,7 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 			}
 		}
 		if(!found) {
-			newtargs = _pacman_list_add(newtargs, vertex->data);
+			newtargs = f_ptrlist_add(newtargs, vertex->data);
 			/* mark that we've left this vertex */
 			vertex->state = 1;
 			vertex = vertex->parent;
@@ -539,7 +539,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 				/* add it to the target list */
 				_pacman_log(PM_LOG_DEBUG, _("loading ALL info for '%s'"), pkg->name());
 				pkg->read(INFRQ_ALL);
-				newtargs = _pacman_list_add(newtargs, pkg);
+				newtargs = f_ptrlist_add(newtargs, pkg);
 				_pacman_log(PM_LOG_FLOW2, _("adding '%s' to the targets"), pkg->name());
 				newtargs = _pacman_removedeps(db, newtargs);
 			}
@@ -567,7 +567,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 		return(-1);
 	}
 
-	targ = _pacman_list_add(NULL, syncpkg);
+	targ = f_ptrlist_add(NULL, syncpkg);
 	deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_ADD, targ);
 	FREELISTPTR(targ);
 
@@ -616,7 +616,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 					goto error;
 				}
 				*miss = *(pmdepmissing_t *)i->data;
-				*data = _pacman_list_add(*data, miss);
+				*data = f_ptrlist_add(*data, miss);
 			}
 			pm_errno = PM_ERR_UNSATISFIED_DEPS;
 			goto error;
@@ -639,13 +639,13 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 				dummypkg->release();
 			}
 			if(usedep) {
-				trail = _pacman_list_add(trail, ps);
+				trail = f_ptrlist_add(trail, ps);
 				if(_pacman_resolvedeps(trans, ps, list, trail, data)) {
 					goto error;
 				}
 				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s (needed by %s)"),
 				          ps->name(), syncpkg->name());
-				list = _pacman_list_add(list, ps);
+				list = f_ptrlist_add(list, ps);
 			} else {
 				_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\""), miss->target);
 				if(data) {
@@ -654,7 +654,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 						goto error;
 					}
 					*miss = *(pmdepmissing_t *)i->data;
-					*data = _pacman_list_add(*data, miss);
+					*data = f_ptrlist_add(*data, miss);
 				}
 				pm_errno = PM_ERR_UNSATISFIED_DEPS;
 				goto error;
@@ -765,12 +765,12 @@ int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist) {
                         }
                         strcpy(fullDep, depend.name);
                         if(!inList(found, fullDep) && !inList(targets, fullDep)) {
-                            targets = _pacman_list_add(targets, fullDep);
+                            targets = f_ptrlist_add(targets, fullDep);
                         }
                     }
                     if(!inList(found,pname)) {
                         printf("%s ", pname);
-                        found = _pacman_list_add(found, pname);
+                        found = f_ptrlist_add(found, pname);
                     }
                     FREE(match);
                 }

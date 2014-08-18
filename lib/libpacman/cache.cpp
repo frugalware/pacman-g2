@@ -73,7 +73,7 @@ int _pacman_db_load_pkgcache(Database *db)
 	db->rewind();
 	while((info = db->readpkg(inforeq)) != NULL) {
 		/* add to the collective */
-		db->pkgcache = _pacman_list_add_sorted(db->pkgcache, info, _pacman_pkg_cmp);
+		db->pkgcache = f_ptrlist_add_sorted(db->pkgcache, info, _pacman_pkg_cmp);
 	}
 
 	return(0);
@@ -114,7 +114,7 @@ int _pacman_db_add_pkgincache(Database *db, Package *pkg)
 
 	pkg->acquire(); // FIXME: Should not be necessary, but required during migration to refcounted object
 	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), pkg->name(), db->treename);
-	db->pkgcache = _pacman_list_add_sorted(db->pkgcache, pkg, _pacman_pkg_cmp);
+	db->pkgcache = f_ptrlist_add_sorted(db->pkgcache, pkg, _pacman_pkg_cmp);
 
 	_pacman_db_clear_grpcache(db);
 
@@ -189,10 +189,10 @@ int _pacman_db_load_grpcache(Database *db)
 
 			if(grp == NULL) {
 				grp = new Group((char *)i->data);
-				db->grpcache = _pacman_list_add_sorted(db->grpcache, grp, _pacman_grp_cmp);
+				db->grpcache = f_ptrlist_add_sorted(db->grpcache, grp, _pacman_grp_cmp);
 			}
 			if(!_pacman_list_is_strin(pkg->name(), grp->packages)) {
-				grp->packages = _pacman_list_add_sorted(grp->packages, pkg->name(), strcmp);
+				grp->packages = f_ptrlist_add_sorted(grp->packages, pkg->name(), strcmp);
 			}
 		}
 	}

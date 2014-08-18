@@ -527,7 +527,7 @@ int pacman_db_setserver(pmdb_t *_db, char *url)
 			/* pm_errno is set by _pacman_server_new */
 			return(-1);
 		}
-		db->servers = _pacman_list_add(db->servers, server);
+		db->servers = f_ptrlist_add(db->servers, server);
 		_pacman_log(PM_LOG_FLOW2, _("adding new server to database '%s': protocol '%s', server '%s', path '%s'"),
 				db->treename, server->protocol, server->server, server->path);
 	} else {
@@ -1337,7 +1337,7 @@ int pacman_list_count(pmlist_t *list)
 {
 	ASSERT(list != NULL, return(-1));
 
-	return(_pacman_list_count(list));
+	return(f_ptrlist_count(list));
 }
 
 /** Free a list iterator.

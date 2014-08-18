@@ -63,14 +63,14 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 		return(NULL);
 	}
 
-	howmany = _pacman_list_count(packages);
+	howmany = f_ptrlist_count(packages);
 
 	for(i = packages; i; i = i->next) {
 		Package *tp = i->data;
 		if(tp == NULL) {
 			continue;
 		}
-		remain = _pacman_list_count(i);
+		remain = f_ptrlist_count(i);
 		percent = (double)(howmany - remain + 1) / howmany;
 
 		if(trans->m_type == PM_TRANS_TYPE_SYNC) {
@@ -249,12 +249,12 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans)
 	if(db_local == NULL || targets == NULL || root == NULL) {
 		return(NULL);
 	}
-	howmany = _pacman_list_count(targets);
+	howmany = f_ptrlist_count(targets);
 
 	/* CHECK 1: check every target against every target */
 	for(i = targets; i; i = i->next) {
 		Package *p1 = (Package*)i->data;
-		remain = _pacman_list_count(i);
+		remain = f_ptrlist_count(i);
 		percent = (double)(howmany - remain + 1) / howmany;
 		PROGRESS(trans, PM_TRANS_PROGRESS_CONFLICTS_START, "", (percent * 100), howmany, howmany - remain + 1);
 		for(j = i; j; j = j->next) {
@@ -270,7 +270,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans)
 						STRNCPY(conflict->target, p1->name(), PKG_NAME_LEN);
 						STRNCPY(conflict->file, f_stringlistitem_to_str(k), CONFLICT_FILE_LEN);
 						STRNCPY(conflict->ctarget, p2->name(), PKG_NAME_LEN);
-						conflicts = _pacman_list_add(conflicts, conflict);
+						conflicts = f_ptrlist_add(conflicts, conflict);
 				}
 				FREELIST(ret);
 			}
@@ -351,7 +351,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans)
 					STRNCPY(conflict->target, p->name(), PKG_NAME_LEN);
 					STRNCPY(conflict->file, filestr, CONFLICT_FILE_LEN);
 					conflict->ctarget[0] = 0;
-					conflicts = _pacman_list_add(conflicts, conflict);
+					conflicts = f_ptrlist_add(conflicts, conflict);
 				}
 			}
 		}

@@ -380,7 +380,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, pmlist_t *servers, const char 
 	}
 
 	if(howmany) {
-		*howmany = _pacman_list_count(files);
+		*howmany = f_ptrlist_count(files);
 	}
 	if(remain) {
 		*remain = 1;
@@ -494,7 +494,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, pmlist_t *servers, const char 
 					_pacman_log(PM_LOG_DEBUG, _("XferCommand command returned non-zero status code (%d)\n"), ret);
 				} else {
 					/* download was successful */
-					complete = _pacman_list_add(complete, fn);
+					complete = f_ptrlist_add(complete, fn);
 					if(usepart) {
 						char fnpart[PATH_MAX];
 						/* rename "output.part" file to "output" file */
@@ -561,7 +561,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, pmlist_t *servers, const char 
 						if(!strcmp(server->protocol, "file")) {
 							EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
 						}
-						complete = _pacman_list_add(complete, fn);
+						complete = f_ptrlist_add(complete, fn);
 						/* rename "output.part" file to "output" file */
 						snprintf(completefile, PATH_MAX, "%s/%s", localpath, fn);
 						rename(output, completefile);
@@ -581,7 +581,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, pmlist_t *servers, const char 
 			}
 		}
 
-		if(_pacman_list_count(complete) == _pacman_list_count(files)) {
+		if(f_ptrlist_count(complete) == f_ptrlist_count(files)) {
 			done = 1;
 		}
 	}
@@ -637,9 +637,9 @@ char *_pacman_fetch_pkgurl(Handle *handle, char *target)
 		server->protocol = url;
 		server->server = host;
 		server->path = spath;
-		servers = _pacman_list_add(servers, server);
+		servers = f_ptrlist_add(servers, server);
 
-		files = _pacman_list_add(NULL, fn);
+		files = f_ptrlist_add(NULL, fn);
 		if(_pacman_downloadfiles(handle, servers, lcache, files, 0)) {
 			_pacman_log(PM_LOG_WARNING, _("failed to download %s\n"), target);
 			return(NULL);

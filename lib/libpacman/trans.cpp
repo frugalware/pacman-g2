@@ -274,7 +274,7 @@ pmsyncpkg_t *__pmtrans_t::add(pmsyncpkg_t *syncpkg, int flags)
 		return NULL;
 	}
 	_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), syncpkg->pkg_name);
-	syncpkgs = _pacman_list_add(syncpkgs, syncpkg);
+	syncpkgs = f_ptrlist_add(syncpkgs, syncpkg);
 	return syncpkg;
 }
 
@@ -283,7 +283,7 @@ int __pmtrans_t::add(Package *pkg, pmtranstype_t type, int flags)
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), pkg->name());
-	packages = _pacman_list_add(packages, pkg);
+	packages = f_ptrlist_add(packages, pkg);
 	return 0;
 }
 
@@ -512,8 +512,8 @@ int __pmtrans_t::prepare(pmlist_t **data)
 	}
 
 	/* If there's nothing to do, return without complaining */
-	if(_pacman_list_empty(packages) &&
-		_pacman_list_empty(syncpkgs)) {
+	if(f_ptrlist_empty(packages) &&
+		f_ptrlist_empty(syncpkgs)) {
 		return(0);
 	}
 
@@ -522,7 +522,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 	if(m_type == PM_TRANS_TYPE_SYNC) {
 	for(i = syncpkgs; i; i = i->next) {
 		pmsyncpkg_t *ps = i->data;
-		list = _pacman_list_add(list, ps->pkg_new);
+		list = f_ptrlist_add(list, ps->pkg_new);
 	}
 
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
@@ -549,7 +549,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 					ret = -1;
 					goto cleanup;
 				}
-				syncpkgs = _pacman_list_add(syncpkgs, ps);
+				syncpkgs = f_ptrlist_add(syncpkgs, ps);
 				_pacman_log(PM_LOG_FLOW2, _("adding package %s-%s to the transaction targets"),
 						spkg->name(), spkg->version());
 			} else {
@@ -565,14 +565,14 @@ int __pmtrans_t::prepare(pmlist_t **data)
 		k = l = NULL;
 		for(i=syncpkgs; i; i=i->next) {
 			pmsyncpkg_t *s = (pmsyncpkg_t*)i->data;
-			k = _pacman_list_add(k, s->pkg_new);
+			k = f_ptrlist_add(k, s->pkg_new);
 		}
 		m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
 		for(i=m; i; i=i->next) {
 			for(j=syncpkgs; j; j=j->next) {
 				pmsyncpkg_t *s = (pmsyncpkg_t*)j->data;
 				if(s->pkg_new == i->data) {
-					l = _pacman_list_add(l, s);
+					l = f_ptrlist_add(l, s);
 				}
 			}
 		}
@@ -719,7 +719,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 							}
 							/* append to the replaces list */
 							_pacman_log(PM_LOG_FLOW2, _("electing '%s' for removal"), miss->depend.name);
-							ps->data = _pacman_list_add(ps->data, q);
+							ps->data = f_ptrlist_add(ps->data, q);
 							if(rsync) {
 								/* remove it from the target list */
 								pmsyncpkg_t *spkg = NULL;
@@ -739,7 +739,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 									goto cleanup;
 								}
 								*miss = *(pmdepmissing_t *)i->data;
-								*data = _pacman_list_add(*data, miss);
+								*data = f_ptrlist_add(*data, miss);
 							}
 						}
 					}
@@ -753,7 +753,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 							goto cleanup;
 						}
 						*miss = *(pmdepmissing_t *)i->data;
-						*data = _pacman_list_add(*data, miss);
+						*data = f_ptrlist_add(*data, miss);
 					}
 				}
 			}
@@ -789,7 +789,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 			pmsyncpkg_t *ps = i->data;
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
 				for(j = ps->data; j; j = j->next) {
-					list = _pacman_list_add(list, j->data);
+					list = f_ptrlist_add(list, j->data);
 				}
 			}
 		}
@@ -846,7 +846,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 									goto cleanup;
 								}
 								*miss = *(pmdepmissing_t *)i->data;
-								*data = _pacman_list_add(*data, miss);
+								*data = f_ptrlist_add(*data, miss);
 							}
 						}
 					}
@@ -903,7 +903,7 @@ cleanup:
 						Package *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
 						if(pkg_local) {
 							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), pkg_local->name());
-							packages = _pacman_list_add(packages, pkg_local);
+							packages = f_ptrlist_add(packages, pkg_local);
 						} else {
 							_pacman_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
 								miss->depend.name);
@@ -1330,7 +1330,7 @@ int _pacman_cachedpkg_check_integrity(Package *spkg, __pmtrans_t *trans, pmlist_
 			RET_ERR(PM_ERR_MEMORY, -1);
 		}
 		snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
-		*data = _pacman_list_add(*data, ptr);
+		*data = f_ptrlist_add(*data, ptr);
 		retval = 1;
 		goto out;
 	}
@@ -1342,7 +1342,7 @@ int _pacman_cachedpkg_check_integrity(Package *spkg, __pmtrans_t *trans, pmlist_
 			RET_ERR(PM_ERR_MEMORY, -1);
 		}
 		snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
-		*data = _pacman_list_add(*data, ptr);
+		*data = f_ptrlist_add(*data, ptr);
 		retval = 1;
 		goto out;
 	}
@@ -1369,7 +1369,7 @@ int _pacman_cachedpkg_check_integrity(Package *spkg, __pmtrans_t *trans, pmlist_
 		} else {
 			snprintf(ptr, 512, _("archive %s is corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
 		}
-		*data = _pacman_list_add(*data, ptr);
+		*data = f_ptrlist_add(*data, ptr);
 		retval = 1;
 	}
 
@@ -1426,8 +1426,8 @@ int __pmtrans_t::commit(pmlist_t **data)
 		*data = NULL;
 
 	/* If there's nothing to do, return without complaining */
-	if(_pacman_list_empty(packages) &&
-		_pacman_list_empty(syncpkgs)) {
+	if(f_ptrlist_empty(packages) &&
+		f_ptrlist_empty(syncpkgs)) {
 		return(0);
 	}
 
@@ -1603,9 +1603,9 @@ int __pmtrans_t::commit(pmlist_t **data)
 		if(tr->add(str, tr->m_type, tr->flags) == -1) {
 			goto error;
 		}
-		/* using _pacman_list_last() is ok because addtarget() adds the new target at the
+		/* using f_ptrlist_last() is ok because addtarget() adds the new target at the
 		 * end of the tr->packages list */
-		spkg = _pacman_list_last(tr->packages)->data;
+		spkg = f_ptrlist_last(tr->packages)->data;
 		if(ps->type == PM_SYNC_TYPE_DEPEND || flags & PM_TRANS_FLAG_ALLDEPS) {
 			spkg->m_reason = PM_PKG_REASON_DEPEND;
 		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !m_handle->sysupgrade) {
@@ -1687,14 +1687,14 @@ int __pmtrans_t::commit(pmlist_t **data)
 	int ret = 0;
 	time_t t;
 
-	howmany = _pacman_list_count(packages);
+	howmany = f_ptrlist_count(packages);
 
 	for(targ = packages; targ; targ = targ->next) {
 		Package *pkg_new = NULL, *pkg_local = NULL;
 		void *event_arg0 = NULL, *event_arg1 = NULL;
 		pmtranstype_t type = m_type;
 
-		remain = _pacman_list_count(targ);
+		remain = f_ptrlist_count(targ);
 
 		if(m_handle->trans->state == STATE_INTERRUPTED) {
 			break;

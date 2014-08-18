@@ -33,7 +33,7 @@
 /* Add items to a list in sorted order. Use the given comparison function to
  * determine order.
  */
-FPtrList *_pacman_list_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
+FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 {
 	FPtrListItem *add, *end = f_ptrlist_end(list), *prev = NULL, *iter = f_ptrlist_first(list);
 
@@ -124,7 +124,7 @@ FPtrList *_pacman_list_reverse(FPtrList *list)
 	FPtrListItem *it;
 
 	for(it = f_ptrlist_last(list); it; it = f_ptrlistitem_previous(it)) {
-		newlist = _pacman_list_add(newlist, it->data);
+		newlist = f_ptrlist_add(newlist, it->data);
 	}
 
 	return(newlist);
