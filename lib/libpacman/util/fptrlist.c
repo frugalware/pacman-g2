@@ -37,7 +37,7 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 {
 	FPtrListItem *add, *end = f_ptrlist_end(list), *prev = NULL, *iter = f_ptrlist_first(list);
 
-	add = _pacman_list_new();
+	add = f_ptrlist_new();
 	add->data = data;
 
 	/* Find insertion point. */

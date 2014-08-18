@@ -256,7 +256,7 @@ pmlist_t *LocalDatabase::test() const
 	struct dirent *ent;
 	char path[PATH_MAX];
 	struct stat buf;
-	pmlist_t *ret = _pacman_list_new();
+	pmlist_t *ret = f_ptrlist_new();
 
 	while ((ent = readdir(m_dir)) != NULL) {
 		snprintf(path, PATH_MAX, "%s/%s", this->path, ent->d_name);

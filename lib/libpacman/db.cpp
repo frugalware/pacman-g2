@@ -177,7 +177,7 @@ FPtrList *Database::whatPackagesProvide(const char *target)
 pmlist_t *Database::test() const
 {
 	/* testing sync dbs is not supported */
-	return _pacman_list_new();
+	return f_ptrlist_new();
 }
 
 int Database::open(int flags)

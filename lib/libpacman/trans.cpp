@@ -526,7 +526,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 	}
 
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
-		trail = _pacman_list_new();
+		trail = f_ptrlist_new();
 
 		/* Resolve targets dependencies */
 		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
