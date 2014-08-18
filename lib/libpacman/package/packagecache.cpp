@@ -27,7 +27,6 @@
 /* pacman-g2 */
 #include "package/packagecache.h"
 
-#include "util/list.h"
 #include "package.h"
 #include "handle.h"
 

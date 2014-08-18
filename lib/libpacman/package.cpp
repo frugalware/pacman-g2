@@ -36,7 +36,6 @@
 #include "pacman.h"
 
 #include "io/archive.h"
-#include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
 #include "fstdlib.h"

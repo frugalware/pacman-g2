@@ -36,7 +36,6 @@ set(FLIB_SOURCES
 	util/fptrlist.h
 	util/fsyslogger.c
 	util/fsyslogger.h
-	util/list.c
 	util/log.c
 	util/stringlist.c
 	util/time.c

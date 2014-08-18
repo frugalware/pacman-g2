@@ -43,7 +43,6 @@
 #include "db/syncdb.h"
 #include "hash/md5.h"
 #include "hash/sha1.h"
-#include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
 #include "fstring.h"

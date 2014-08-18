@@ -24,6 +24,8 @@
 
 #include "pacman.h"
 
+#include "util/fcallback.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -44,7 +46,6 @@ typedef struct FPtrListItem FPtrListItem;
 #endif
 
 #include "util/flist.h"
-#include "util/list.h"
 
 #ifndef F_NOCOMPAT
 typedef struct __pmlist_t FList;
@@ -53,6 +54,25 @@ typedef struct __pmlist_t FListItem;
 typedef struct FList FList;
 typedef struct FListItem FListItem;
 #endif
+
+#define _FREELIST(p, f) do { if(p) { FVisitor visitor = { (FVisitorFunc)f, NULL }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
+
+#define FREELIST(p) _FREELIST(p, free)
+#define FREELISTPTR(p) _FREELIST(p, NULL)
+
+/* Sort comparison callback function declaration */
+typedef int (*_pacman_fn_cmp)(const void *, const void *);
+
+#define _pacman_list_new f_ptrlist_new
+
+#define _pacman_list_add f_ptrlist_append
+#define _pacman_list_count f_ptrlist_count
+#define _pacman_list_empty f_ptrlist_empty
+#define _pacman_list_last f_ptrlist_last
+
+FPtrList *_pacman_list_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
+FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
+FPtrList *_pacman_list_reverse(FPtrList *list);
 
 typedef int (*FListItemComparatorFunc)(const FListItem *item, const void *comparator_data);
 typedef void (*FListItemVisitorFunc)(FListItem *item, void *visitor_data);

@@ -38,7 +38,6 @@
 #include "db/localdb.h"
 #include "db/syncdb.h"
 #include "io/ftp.h"
-#include "util/list.h"
 #include "util/log.h"
 #include "util/time.h"
 #include "fstdlib.h"

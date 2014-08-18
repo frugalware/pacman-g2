@@ -30,7 +30,6 @@
 #include "handle.h"
 
 #include "io/archive.h"
-#include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
 #include "util/time.h"

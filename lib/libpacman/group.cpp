@@ -25,7 +25,7 @@
 
 #include "pacman.h"
 
-#include "util/list.h"
+#include "util/fptrlist.h"
 #include "fstdlib.h"
 
 #include <string.h>

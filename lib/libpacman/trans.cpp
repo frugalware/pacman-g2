@@ -46,7 +46,6 @@
 #include "hash/md5.h"
 #include "hash/sha1.h"
 #include "io/archive.h"
-#include "util/list.h"
 #include "util/log.h"
 #include "util/stringlist.h"
 #include "fstdlib.h"
