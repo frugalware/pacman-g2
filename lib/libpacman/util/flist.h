@@ -343,57 +343,8 @@ private:
 		RET_ERR(PM_ERR_WRONG_ARGS, NULL);
 	}
 };
-
 #endif /* F_NOCOMPAT */
-
-extern "C" {
 #endif /* __cplusplus */
-
-#ifndef F_NOCOMPAT
-typedef struct __pmlist_t FList;
-typedef struct __pmlist_t FListItem;
-#else
-typedef struct FList FList;
-typedef struct FListItem FListItem;
-#endif
-
-typedef int (*FListItemComparatorFunc)(const FListItem *item, const void *comparator_data);
-typedef void (*FListItemVisitorFunc)(FListItem *item, void *visitor_data);
-
-int f_listitem_delete(FListItem *self, FVisitor *visitor);
-
-int f_listitem_insert_after(FListItem *self, FListItem *previous);
-FListItem *f_listitem_next(FListItem *self);
-FListItem *f_listitem_previous(FListItem *self);
-
-FList *f_list_new(void);
-int f_list_delete(FList *self, FVisitor *visitor);
-
-int f_list_init(FList *self);
-int f_list_fini(FList *self, FVisitor *visitor);
-
-#define f_list_add f_list_append
-int f_list_append(FList *self, FListItem *item);
-int f_list_append_unique(FList *self, FListItem *item, FListItemComparatorFunc comparator);
-int f_list_clear(FList *self, FVisitor *visitor);
-int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
-int f_list_count(const FList *list);
-int f_list_empty(const FList *list);
-FListItem *f_list_end(FList *self);
-const FListItem *f_list_end_const(const FList *self);
-FListItem *f_list_find(FList *self, FListItemComparatorFunc comparator, const void *comparator_data);
-const FListItem *f_list_find_const(const FList *self, FListItemComparatorFunc comparator, const void *comparator_data);
-FListItem *f_list_first(FList *self);
-const FListItem *f_list_first_const(const FList *self);
-void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data);
-FListItem *f_list_last(FList *self);
-const FListItem *f_list_last_const(const FList *self);
-FListItem *f_list_rend(FList *self);
-const FListItem *f_list_rend_const(const FList *self);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* F_LIST_H */
 

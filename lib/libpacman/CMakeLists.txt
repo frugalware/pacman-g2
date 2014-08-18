@@ -24,7 +24,6 @@ set(FLIB_SOURCES
 	util/fcallback.h
 	util/fdispatchlogger.c
 	util/fdispatchlogger.h
-	util/flist.c
 	util/flist.h
 	util/ffilelogger.c
 	util/ffilelogger.h
