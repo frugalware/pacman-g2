@@ -149,16 +149,6 @@ int f_list_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator,
 	return f_list_find_const(list, comparator, comparator_data) != NULL;
 }
 
-FPtrListItem *f_list_end(FPtrList *self)
-{
-	return (FPtrListItem *)f_list_end_const(self);
-}
-
-const FPtrListItem *f_list_end_const(const FPtrList *self)
-{
-	return NULL;
-}
-
 FPtrListItem *f_list_find(FPtrList *self, FPtrListItemComparatorFunc comparator, const void *comparator_data)
 {
 	return (FPtrListItem *)f_list_find_const(self, comparator, comparator_data);
@@ -166,7 +156,7 @@ FPtrListItem *f_list_find(FPtrList *self, FPtrListItemComparatorFunc comparator,
 
 const FPtrListItem *f_list_find_const(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data)
 {
-	const FPtrListItem *end = f_list_end_const(list);
+	const FPtrListItem *end = f_ptrlist_end_const(list);
 	const FPtrListItem *it;
 
 	for(it = f_ptrlist_first_const(list); it != end; it = it->next) {
@@ -181,19 +171,9 @@ void f_list_foreach(const FPtrList *list, FPtrListItemVisitorFunc visitor, void 
 {
 	const FPtrListItem *it;
 
-	for(it = f_ptrlist_first_const(list); it != f_list_end_const(list); it = it->next) {
+	for(it = f_ptrlist_first_const(list); it != f_ptrlist_end_const(list); it = it->next) {
 		visitor((FPtrListItem *)it, visitor_data);
 	}
-}
-
-FPtrListItem *f_list_rend(FPtrList *self)
-{
-	return (FPtrListItem *)f_list_rend_const(self);
-}
-
-const FPtrListItem *f_list_rend_const(const FPtrList *self)
-{
-	return NULL;
 }
 
 FPtrListItem *f_ptrlistitem_new(void *ptr)
@@ -345,13 +325,23 @@ int f_ptrlist_count(const FPtrList *self)
 	const FPtrListItem *it;
 	int i;
 
-	for(i = 0, it = f_ptrlist_first_const(self); it != f_list_end_const(self); it = it->next, i++);
+	for(i = 0, it = f_ptrlist_first_const(self); it != f_ptrlist_end_const(self); it = it->next, i++);
 	return i;
 }
 
 bool f_ptrlist_empty(const FPtrList *self)
 {
 	return self == NULL;
+}
+
+FPtrListItem *f_ptrlist_end(FPtrList *self)
+{
+	return (FPtrListItem *)f_ptrlist_end_const(self);
+}
+
+const FPtrListItem *f_ptrlist_end_const(const FPtrList *self)
+{
+	return NULL;
 }
 
 FPtrListItem *f_ptrlist_first(FPtrList *self)
@@ -380,6 +370,16 @@ const FPtrListItem *f_ptrlist_last_const(const FPtrList *self)
 		it = it->next;
 	}
 	return it;
+}
+
+FPtrListItem *f_ptrlist_rend(FPtrList *self)
+{
+	return (FPtrListItem *)f_ptrlist_rend_const(self);
+}
+
+const FPtrListItem *f_ptrlist_rend_const(const FPtrList *self)
+{
+	return NULL;
 }
 
 /* vim: set ts=2 sw=2 noet: */

@@ -74,14 +74,10 @@ typedef void (*FPtrListItemVisitorFunc)(FPtrListItem *item, void *visitor_data);
 FPtrList *f_list_new(void);
 
 int f_list_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data);
-FPtrListItem *f_list_end(FPtrList *self);
-const FPtrListItem *f_list_end_const(const FPtrList *self);
 FPtrListItem *f_list_find(FPtrList *self, FPtrListItemComparatorFunc comparator, const void *comparator_data);
 const FPtrListItem *f_list_find_const(const FPtrList *self, FPtrListItemComparatorFunc comparator, const void *comparator_data);
 void f_list_foreach(const FPtrList *list, FPtrListItemVisitorFunc visitor, void *visitor_data);
 
-FPtrListItem *f_list_rend(FPtrList *self);
-const FPtrListItem *f_list_rend_const(const FPtrList *self);
 
 FPtrListItem *f_ptrlistitem_new(void *data);
 int f_ptrlistitem_delete(FPtrListItem *self, FVisitor *visitor);
@@ -110,12 +106,14 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
 int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
 int f_ptrlist_count(const FPtrList *self);
 bool f_ptrlist_empty(const FPtrList *self);
-#define f_ptrlist_end(list) ((FPtrListItem *)f_ptrlist_end_const(list))
-#define f_ptrlist_end_const(list) ((const FPtrListItem *)f_list_end_const(list))
+FPtrListItem *f_ptrlist_end(FPtrList *self);
+const FPtrListItem *f_ptrlist_end_const(const FPtrList *self);
 FPtrListItem *f_ptrlist_first(FPtrList *self);
 const FPtrListItem *f_ptrlist_first_const(const FPtrList *self);
 FPtrListItem *f_ptrlist_last(FPtrList *self);
 const FPtrListItem *f_ptrlist_last_const(const FPtrList *self);
+FPtrListItem *f_ptrlist_rend(FPtrList *self);
+const FPtrListItem *f_ptrlist_rend_const(const FPtrList *self);
 
 #ifdef __cplusplus
 }
