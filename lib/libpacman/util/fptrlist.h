@@ -73,12 +73,6 @@ typedef void (*FPtrListItemVisitorFunc)(FPtrListItem *item, void *visitor_data);
 
 FPtrList *f_list_new(void);
 
-int f_list_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data);
-FPtrListItem *f_list_find(FPtrList *self, FPtrListItemComparatorFunc comparator, const void *comparator_data);
-const FPtrListItem *f_list_find_const(const FPtrList *self, FPtrListItemComparatorFunc comparator, const void *comparator_data);
-void f_list_foreach(const FPtrList *list, FPtrListItemVisitorFunc visitor, void *visitor_data);
-
-
 FPtrListItem *f_ptrlistitem_new(void *data);
 int f_ptrlistitem_delete(FPtrListItem *self, FVisitor *visitor);
 
@@ -102,14 +96,17 @@ FPtrList *f_ptrlist_append(FPtrList *list, void *data);
 int f_ptrlist_append(FPtrList *list, void *data);
 #endif
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
-#define f_ptrlist_contains(self, comparator, comparator_data) f_list_contains(self, (FPtrListItemComparatorFunc)comparator, comparator_data)
-int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
+bool f_ptrlist_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data);
+bool f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
 int f_ptrlist_count(const FPtrList *self);
 bool f_ptrlist_empty(const FPtrList *self);
 FPtrListItem *f_ptrlist_end(FPtrList *self);
 const FPtrListItem *f_ptrlist_end_const(const FPtrList *self);
+FPtrListItem *f_ptrlist_find(FPtrList *self, FPtrListItemComparatorFunc comparator, const void *comparator_data);
+const FPtrListItem *f_ptrlist_find_const(const FPtrList *self, FPtrListItemComparatorFunc comparator, const void *comparator_data);
 FPtrListItem *f_ptrlist_first(FPtrList *self);
 const FPtrListItem *f_ptrlist_first_const(const FPtrList *self);
+void f_ptrlist_foreach(const FPtrList *list, FPtrListItemVisitorFunc visitor, void *visitor_data);
 FPtrListItem *f_ptrlist_last(FPtrList *self);
 const FPtrListItem *f_ptrlist_last_const(const FPtrList *self);
 FPtrListItem *f_ptrlist_rend(FPtrList *self);

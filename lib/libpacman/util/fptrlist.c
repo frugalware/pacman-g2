@@ -144,38 +144,6 @@ FPtrList *f_list_new()
 #endif
 }
 
-int f_list_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data)
-{
-	return f_list_find_const(list, comparator, comparator_data) != NULL;
-}
-
-FPtrListItem *f_list_find(FPtrList *self, FPtrListItemComparatorFunc comparator, const void *comparator_data)
-{
-	return (FPtrListItem *)f_list_find_const(self, comparator, comparator_data);
-}
-
-const FPtrListItem *f_list_find_const(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data)
-{
-	const FPtrListItem *end = f_ptrlist_end_const(list);
-	const FPtrListItem *it;
-
-	for(it = f_ptrlist_first_const(list); it != end; it = it->next) {
-		if(comparator(it, comparator_data) == 0) {
-			break;
-		}
-	}
-	return it != end ? it : NULL;
-}
-
-void f_list_foreach(const FPtrList *list, FPtrListItemVisitorFunc visitor, void *visitor_data)
-{
-	const FPtrListItem *it;
-
-	for(it = f_ptrlist_first_const(list); it != f_ptrlist_end_const(list); it = it->next) {
-		visitor((FPtrListItem *)it, visitor_data);
-	}
-}
-
 FPtrListItem *f_ptrlistitem_new(void *ptr)
 {
 	FPtrListItem *item = f_zalloc(sizeof(*item));
@@ -315,7 +283,12 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 	return 0;
 }
 
-int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr)
+bool f_ptrlist_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data)
+{
+	return f_ptrlist_find_const(list, comparator, comparator_data) != NULL;
+}
+
+bool f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr)
 {
 	return f_ptrlist_contains(list, f_ptrlistitem_ptrcmp, ptr);
 }
@@ -344,6 +317,24 @@ const FPtrListItem *f_ptrlist_end_const(const FPtrList *self)
 	return NULL;
 }
 
+FPtrListItem *f_ptrlist_find(FPtrList *self, FPtrListItemComparatorFunc comparator, const void *comparator_data)
+{
+	return (FPtrListItem *)f_ptrlist_find_const(self, comparator, comparator_data);
+}
+
+const FPtrListItem *f_ptrlist_find_const(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data)
+{
+	const FPtrListItem *end = f_ptrlist_end_const(list);
+	const FPtrListItem *it;
+
+	for(it = f_ptrlist_first_const(list); it != end; it = it->next) {
+		if(comparator(it, comparator_data) == 0) {
+			break;
+		}
+	}
+	return it != end ? it : NULL;
+}
+
 FPtrListItem *f_ptrlist_first(FPtrList *self)
 {
 	return (FPtrListItem *)f_ptrlist_first_const(self);
@@ -352,6 +343,15 @@ FPtrListItem *f_ptrlist_first(FPtrList *self)
 const FPtrListItem *f_ptrlist_first_const(const FPtrList *self)
 {
 	return (FPtrListItem *)self;
+}
+
+void f_list_foreach(const FPtrList *list, FPtrListItemVisitorFunc visitor, void *visitor_data)
+{
+	const FPtrListItem *it;
+
+	for(it = f_ptrlist_first_const(list); it != f_ptrlist_end_const(list); it = it->next) {
+		visitor((FPtrListItem *)it, visitor_data);
+	}
 }
 
 FPtrListItem *f_ptrlist_last(FPtrList *self)
