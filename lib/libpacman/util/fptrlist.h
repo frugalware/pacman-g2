@@ -49,14 +49,6 @@ typedef struct FPtrListItem FPtrListItem;
 
 #include "util/flist.h"
 
-#ifndef F_NOCOMPAT
-typedef struct __pmlist_t FList;
-typedef struct __pmlist_t FListItem;
-#else
-typedef struct FList FList;
-typedef struct FListItem FListItem;
-#endif
-
 #define _FREELIST(p, f) do { if(p) { FVisitor visitor = { (FVisitorFunc)f, NULL }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
 
 #define FREELIST(p) _FREELIST(p, free)
@@ -76,41 +68,41 @@ FPtrList *_pacman_list_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 FPtrList *_pacman_list_reverse(FPtrList *list);
 
-typedef int (*FListItemComparatorFunc)(const FListItem *item, const void *comparator_data);
-typedef void (*FListItemVisitorFunc)(FListItem *item, void *visitor_data);
+typedef int (*FPtrListItemComparatorFunc)(const FPtrListItem *item, const void *comparator_data);
+typedef void (*FPtrListItemVisitorFunc)(FPtrListItem *item, void *visitor_data);
 
-int f_listitem_delete(FListItem *self, FVisitor *visitor);
+int f_listitem_delete(FPtrListItem *self, FVisitor *visitor);
 
-int f_listitem_insert_after(FListItem *self, FListItem *previous);
-FListItem *f_listitem_next(FListItem *self);
-FListItem *f_listitem_previous(FListItem *self);
+int f_listitem_insert_after(FPtrListItem *self, FPtrListItem *previous);
+FPtrListItem *f_listitem_next(FPtrListItem *self);
+FPtrListItem *f_listitem_previous(FPtrListItem *self);
 
-FList *f_list_new(void);
-int f_list_delete(FList *self, FVisitor *visitor);
+FPtrList *f_list_new(void);
+int f_list_delete(FPtrList *self, FVisitor *visitor);
 
-int f_list_init(FList *self);
-int f_list_fini(FList *self, FVisitor *visitor);
+int f_list_init(FPtrList *self);
+int f_list_fini(FPtrList *self, FVisitor *visitor);
 
 #define f_list_add f_list_append
-int f_list_append(FList *self, FListItem *item);
-int f_list_append_unique(FList *self, FListItem *item, FListItemComparatorFunc comparator);
-int f_list_clear(FList *self, FVisitor *visitor);
-int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
-FListItem *f_list_end(FList *self);
-const FListItem *f_list_end_const(const FList *self);
-FListItem *f_list_find(FList *self, FListItemComparatorFunc comparator, const void *comparator_data);
-const FListItem *f_list_find_const(const FList *self, FListItemComparatorFunc comparator, const void *comparator_data);
-void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data);
+int f_list_append(FPtrList *self, FPtrListItem *item);
+int f_list_append_unique(FPtrList *self, FPtrListItem *item, FPtrListItemComparatorFunc comparator);
+int f_list_clear(FPtrList *self, FVisitor *visitor);
+int f_list_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data);
+FPtrListItem *f_list_end(FPtrList *self);
+const FPtrListItem *f_list_end_const(const FPtrList *self);
+FPtrListItem *f_list_find(FPtrList *self, FPtrListItemComparatorFunc comparator, const void *comparator_data);
+const FPtrListItem *f_list_find_const(const FPtrList *self, FPtrListItemComparatorFunc comparator, const void *comparator_data);
+void f_list_foreach(const FPtrList *list, FPtrListItemVisitorFunc visitor, void *visitor_data);
 
-FListItem *f_list_rend(FList *self);
-const FListItem *f_list_rend_const(const FList *self);
+FPtrListItem *f_list_rend(FPtrList *self);
+const FPtrListItem *f_list_rend_const(const FPtrList *self);
 
 FPtrListItem *f_ptrlistitem_new(void *data);
-int f_ptrlistitem_delete(FListItem *self, FVisitor *visitor);
+int f_ptrlistitem_delete(FPtrListItem *self, FVisitor *visitor);
 
 void *f_ptrlistitem_data(const FPtrListItem *self);
-#define f_ptrlistitem_next(self) ((FPtrListItem *)f_listitem_next((FListItem *)(self)))
-#define f_ptrlistitem_previous(self) ((FPtrListItem *)f_listitem_previous((FListItem *)(self)))
+#define f_ptrlistitem_next(self) ((FPtrListItem *)f_listitem_next((FPtrListItem *)(self)))
+#define f_ptrlistitem_previous(self) ((FPtrListItem *)f_listitem_previous((FPtrListItem *)(self)))
 
 int f_ptrlistitem_ptrcmp(const FPtrListItem *item, const void *ptr);
 
@@ -120,9 +112,6 @@ int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
 int f_ptrlist_init(FPtrList *self);
 int f_ptrlist_fini(FPtrList *self, FVisitor *visitor);
 
-FList *f_ptrlist_as_FList(FPtrList *self);
-const FList *f_ptrlist_as_FList_const(const FPtrList *self);
-
 #define f_ptrlist_add f_ptrlist_append
 #ifndef F_NOCOMPAT
 FPtrList *f_ptrlist_append(FPtrList *list, void *data);
@@ -130,12 +119,12 @@ FPtrList *f_ptrlist_append(FPtrList *list, void *data);
 int f_ptrlist_append(FPtrList *list, void *data);
 #endif
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
-#define f_ptrlist_contains(self, comparator, comparator_data) f_list_contains(f_ptrlist_as_FList_const(self), (FListItemComparatorFunc)comparator, comparator_data)
+#define f_ptrlist_contains(self, comparator, comparator_data) f_list_contains(self, (FPtrListItemComparatorFunc)comparator, comparator_data)
 int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
 int f_ptrlist_count(const FPtrList *self);
 bool f_ptrlist_empty(const FPtrList *self);
 #define f_ptrlist_end(list) ((FPtrListItem *)f_ptrlist_end_const(list))
-#define f_ptrlist_end_const(list) ((const FPtrListItem *)f_list_end_const(f_ptrlist_as_FList_const(list)))
+#define f_ptrlist_end_const(list) ((const FPtrListItem *)f_list_end_const(list))
 FPtrListItem *f_ptrlist_first(FPtrList *self);
 const FPtrListItem *f_ptrlist_first_const(const FPtrList *self);
 FPtrListItem *f_ptrlist_last(FPtrList *self);

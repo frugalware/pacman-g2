@@ -130,7 +130,7 @@ FPtrList *_pacman_list_reverse(FPtrList *list)
 	return(newlist);
 }
 
-int f_listitem_delete(FListItem *self, FVisitor *visitor)
+int f_listitem_delete(FPtrListItem *self, FVisitor *visitor)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
@@ -139,9 +139,9 @@ int f_listitem_delete(FListItem *self, FVisitor *visitor)
 	return 0;
 }
 
-int f_listitem_insert_after(FListItem *self, FListItem *previous)
+int f_listitem_insert_after(FPtrListItem *self, FPtrListItem *previous)
 {
-	FListItem *next;
+	FPtrListItem *next;
 
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT(previous != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
@@ -157,26 +157,26 @@ int f_listitem_insert_after(FListItem *self, FListItem *previous)
 	return 0;
 }
 
-FListItem *f_listitem_next(FListItem *self)
+FPtrListItem *f_listitem_next(FPtrListItem *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	return self->next;
 }
 
-FListItem *f_listitem_previous(FListItem *self)
+FPtrListItem *f_listitem_previous(FPtrListItem *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	return self->previous;
 }
 
-FList *f_list_new()
+FPtrList *f_list_new()
 {
 #ifndef F_NOCOMPAT
 	return NULL;
 #else
-	FList *self;
+	FPtrList *self;
 
 	ASSERT((self = f_zalloc(sizeof(*self))) != NULL, return NULL);
 
@@ -185,34 +185,31 @@ FList *f_list_new()
 #endif
 }
 
-int f_list_delete(FList *self, FVisitor *visitor)
+int f_list_delete(FPtrList *self, FVisitor *visitor)
 {
 	return f_list_fini(self, visitor);
 }
 
-int f_list_init(FList *self)
+int f_list_init(FPtrList *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-#ifdef F_NOCOMPAT
-	self->as_FListItem.next = self->as_FListItem.previous = &self->as_FListItem;
-#endif
 	return 0;
 }
 
-int f_list_fini(FList *self, FVisitor *visitor)
+int f_list_fini(FPtrList *self, FVisitor *visitor)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	return f_list_clear(self, visitor);
 }
 
-int f_list_append(FList *self, FListItem *item)
+int f_list_append(FPtrList *self, FPtrListItem *item)
 {
 	return f_listitem_insert_after(item, f_ptrlist_last(self));
 }
 
-int f_list_append_unique(FList *self, FListItem *item, FListItemComparatorFunc comparator)
+int f_list_append_unique(FPtrList *self, FPtrListItem *item, FPtrListItemComparatorFunc comparator)
 {
 	if (!f_list_contains(self, comparator, item)) {
 		return f_list_append(self, item);
@@ -220,41 +217,35 @@ int f_list_append_unique(FList *self, FListItem *item, FListItemComparatorFunc c
 	return -1;
 }
 
-int f_list_clear(FList *self, FVisitor *visitor)
+int f_list_clear(FPtrList *self, FVisitor *visitor)
 {
 	return -1;
 }
 
-int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
+int f_list_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data)
 {
 	return f_list_find_const(list, comparator, comparator_data) != NULL;
 }
 
-FListItem *f_list_end(FList *self)
+FPtrListItem *f_list_end(FPtrList *self)
 {
-	return (FListItem *)f_list_end_const(self);
+	return (FPtrListItem *)f_list_end_const(self);
 }
 
-const FListItem *f_list_end_const(const FList *self)
+const FPtrListItem *f_list_end_const(const FPtrList *self)
 {
-#ifndef F_NOCOMPAT
 	return NULL;
-#else
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-
-	return &self->as_FListItem;
-#endif
 }
 
-FListItem *f_list_find(FList *self, FListItemComparatorFunc comparator, const void *comparator_data)
+FPtrListItem *f_list_find(FPtrList *self, FPtrListItemComparatorFunc comparator, const void *comparator_data)
 {
-	return (FListItem *)f_list_find_const(self, comparator, comparator_data);
+	return (FPtrListItem *)f_list_find_const(self, comparator, comparator_data);
 }
 
-const FListItem *f_list_find_const(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data)
+const FPtrListItem *f_list_find_const(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data)
 {
-	const FListItem *end = f_list_end_const(list);
-	const FListItem *it;
+	const FPtrListItem *end = f_list_end_const(list);
+	const FPtrListItem *it;
 
 	for(it = f_ptrlist_first_const(list); it != end; it = it->next) {
 		if(comparator(it, comparator_data) == 0) {
@@ -264,29 +255,23 @@ const FListItem *f_list_find_const(const FList *list, FListItemComparatorFunc co
 	return it != end ? it : NULL;
 }
 
-void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data)
+void f_list_foreach(const FPtrList *list, FPtrListItemVisitorFunc visitor, void *visitor_data)
 {
-	const FListItem *it;
+	const FPtrListItem *it;
 
 	for(it = f_ptrlist_first_const(list); it != f_list_end_const(list); it = it->next) {
-		visitor((FListItem *)it, visitor_data);
+		visitor((FPtrListItem *)it, visitor_data);
 	}
 }
 
-FListItem *f_list_rend(FList *self)
+FPtrListItem *f_list_rend(FPtrList *self)
 {
-	return (FListItem *)f_list_rend_const(self);
+	return (FPtrListItem *)f_list_rend_const(self);
 }
 
-const FListItem *f_list_rend_const(const FList *self)
+const FPtrListItem *f_list_rend_const(const FPtrList *self)
 {
-#ifndef F_NOCOMPAT
 	return NULL;
-#else
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-
-	return &self->as_FListItem;
-#endif
 }
 
 FPtrListItem *f_ptrlistitem_new(void *ptr)
@@ -299,7 +284,7 @@ FPtrListItem *f_ptrlistitem_new(void *ptr)
 	return item;
 }
 
-int f_ptrlistitem_delete(FListItem *self, FVisitor *visitor)
+int f_ptrlistitem_delete(FPtrListItem *self, FVisitor *visitor)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
@@ -334,28 +319,12 @@ int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
 
 int f_ptrlist_init(FPtrList *self)
 {
-	return f_list_init(f_ptrlist_as_FList(self));
+	return f_list_init(self);
 }
 
 int f_ptrlist_fini(FPtrList *self, FVisitor *visitor)
 {
 	return f_ptrlist_clear(self, visitor);
-}
-
-FList *f_ptrlist_as_FList(FPtrList *self)
-{
-	return (FList *)f_ptrlist_as_FList_const(self);
-}
-
-const FList *f_ptrlist_as_FList_const(const FPtrList *self)
-{
-#ifndef F_NOCOMPAT
-	return (FList *)self;
-#else
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-
-	return &self->as_FList;
-#endif
 }
 
 #ifndef F_NOCOMPAT
@@ -415,7 +384,7 @@ int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr)
 
 int f_ptrlist_count(const FPtrList *self)
 {
-	const FListItem *it;
+	const FPtrListItem *it;
 	int i;
 
 	for(i = 0, it = f_ptrlist_first_const(self); it != f_list_end_const(self); it = it->next, i++);
