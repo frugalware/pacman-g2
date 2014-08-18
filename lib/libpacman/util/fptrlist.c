@@ -230,20 +230,6 @@ int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const
 	return f_list_find_const(list, comparator, comparator_data) != NULL;
 }
 
-int f_list_count(const FList *list)
-{
-	const FListItem *it;
-	int i;
-
-	for(i = 0, it = f_ptrlist_first_const(list); it != f_list_end_const(list); it = it->next, i++);
-	return i;
-}
-
-int f_list_empty(const FList *list)
-{
-	return list == NULL;
-}
-
 FListItem *f_list_end(FList *self)
 {
 	return (FListItem *)f_list_end_const(self);
@@ -425,6 +411,20 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr)
 {
 	return f_ptrlist_contains(list, f_ptrlistitem_ptrcmp, ptr);
+}
+
+int f_ptrlist_count(const FPtrList *self)
+{
+	const FListItem *it;
+	int i;
+
+	for(i = 0, it = f_ptrlist_first_const(self); it != f_list_end_const(self); it = it->next, i++);
+	return i;
+}
+
+bool f_ptrlist_empty(const FPtrList *self)
+{
+	return self == NULL;
 }
 
 FPtrListItem *f_ptrlist_first(FPtrList *self)

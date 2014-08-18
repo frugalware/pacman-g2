@@ -24,6 +24,8 @@
 
 #include "pacman.h"
 
+#include "stdbool.h"
+
 #include "util/fcallback.h"
 
 #ifdef __cplusplus
@@ -94,8 +96,6 @@ int f_list_append(FList *self, FListItem *item);
 int f_list_append_unique(FList *self, FListItem *item, FListItemComparatorFunc comparator);
 int f_list_clear(FList *self, FVisitor *visitor);
 int f_list_contains(const FList *list, FListItemComparatorFunc comparator, const void *comparator_data);
-int f_list_count(const FList *list);
-int f_list_empty(const FList *list);
 FListItem *f_list_end(FList *self);
 const FListItem *f_list_end_const(const FList *self);
 FListItem *f_list_find(FList *self, FListItemComparatorFunc comparator, const void *comparator_data);
@@ -132,8 +132,8 @@ int f_ptrlist_append(FPtrList *list, void *data);
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
 #define f_ptrlist_contains(self, comparator, comparator_data) f_list_contains(f_ptrlist_as_FList_const(self), (FListItemComparatorFunc)comparator, comparator_data)
 int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
-#define f_ptrlist_count f_list_count
-#define f_ptrlist_empty f_list_empty
+int f_ptrlist_count(const FPtrList *self);
+bool f_ptrlist_empty(const FPtrList *self);
 #define f_ptrlist_end(list) ((FPtrListItem *)f_ptrlist_end_const(list))
 #define f_ptrlist_end_const(list) ((const FPtrListItem *)f_list_end_const(f_ptrlist_as_FList_const(list)))
 FPtrListItem *f_ptrlist_first(FPtrList *self);
