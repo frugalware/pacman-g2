@@ -209,7 +209,7 @@ int f_list_fini(FList *self, FVisitor *visitor)
 
 int f_list_append(FList *self, FListItem *item)
 {
-	return f_listitem_insert_after(item, f_list_last(self));
+	return f_listitem_insert_after(item, f_ptrlist_last(self));
 }
 
 int f_list_append_unique(FList *self, FListItem *item, FListItemComparatorFunc comparator)
@@ -235,7 +235,7 @@ int f_list_count(const FList *list)
 	const FListItem *it;
 	int i;
 
-	for(i = 0, it = f_list_first_const(list); it != f_list_end_const(list); it = it->next, i++);
+	for(i = 0, it = f_ptrlist_first_const(list); it != f_list_end_const(list); it = it->next, i++);
 	return i;
 }
 
@@ -270,7 +270,7 @@ const FListItem *f_list_find_const(const FList *list, FListItemComparatorFunc co
 	const FListItem *end = f_list_end_const(list);
 	const FListItem *it;
 
-	for(it = f_list_first_const(list); it != end; it = it->next) {
+	for(it = f_ptrlist_first_const(list); it != end; it = it->next) {
 		if(comparator(it, comparator_data) == 0) {
 			break;
 		}
@@ -278,41 +278,13 @@ const FListItem *f_list_find_const(const FList *list, FListItemComparatorFunc co
 	return it != end ? it : NULL;
 }
 
-FListItem *f_list_first(FList *self)
-{
-	return (FListItem *)f_list_first_const(self);
-}
-
-const FListItem *f_list_first_const(const FList *self)
-{
-	return (FListItem *)self;
-}
-
 void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data)
 {
 	const FListItem *it;
 
-	for(it = f_list_first_const(list); it != f_list_end_const(list); it = it->next) {
+	for(it = f_ptrlist_first_const(list); it != f_list_end_const(list); it = it->next) {
 		visitor((FListItem *)it, visitor_data);
 	}
-}
-
-FListItem *f_list_last(FList *self)
-{
-	return (FListItem *)f_list_last_const(self);
-}
-
-const FListItem *f_list_last_const(const FList *self)
-{
-	const FListItem *it;
-
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-
-	it = f_list_first_const(self);
-	while(it->next != f_list_end_const(self)) {
-		it = it->next;
-	}
-	return it;
 }
 
 FListItem *f_list_rend(FList *self)
@@ -453,6 +425,34 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr)
 {
 	return f_ptrlist_contains(list, f_ptrlistitem_ptrcmp, ptr);
+}
+
+FPtrListItem *f_ptrlist_first(FPtrList *self)
+{
+	return (FPtrListItem *)f_ptrlist_first_const(self);
+}
+
+const FPtrListItem *f_ptrlist_first_const(const FPtrList *self)
+{
+	return (FPtrListItem *)self;
+}
+
+FPtrListItem *f_ptrlist_last(FPtrList *self)
+{
+	return (FPtrListItem *)f_ptrlist_last_const(self);
+}
+
+const FPtrListItem *f_ptrlist_last_const(const FPtrList *self)
+{
+	const FPtrListItem *it;
+
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+
+	it = f_ptrlist_first_const(self);
+	while(it->next != f_ptrlist_end_const(self)) {
+		it = it->next;
+	}
+	return it;
 }
 
 /* vim: set ts=2 sw=2 noet: */

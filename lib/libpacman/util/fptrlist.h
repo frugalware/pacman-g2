@@ -100,11 +100,8 @@ FListItem *f_list_end(FList *self);
 const FListItem *f_list_end_const(const FList *self);
 FListItem *f_list_find(FList *self, FListItemComparatorFunc comparator, const void *comparator_data);
 const FListItem *f_list_find_const(const FList *self, FListItemComparatorFunc comparator, const void *comparator_data);
-FListItem *f_list_first(FList *self);
-const FListItem *f_list_first_const(const FList *self);
 void f_list_foreach(const FList *list, FListItemVisitorFunc visitor, void *visitor_data);
-FListItem *f_list_last(FList *self);
-const FListItem *f_list_last_const(const FList *self);
+
 FListItem *f_list_rend(FList *self);
 const FListItem *f_list_rend_const(const FList *self);
 
@@ -139,10 +136,10 @@ int f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
 #define f_ptrlist_empty f_list_empty
 #define f_ptrlist_end(list) ((FPtrListItem *)f_ptrlist_end_const(list))
 #define f_ptrlist_end_const(list) ((const FPtrListItem *)f_list_end_const(f_ptrlist_as_FList_const(list)))
-#define f_ptrlist_first(self) ((FPtrListItem *)f_ptrlist_first_const(self))
-#define f_ptrlist_first_const(self) ((const FPtrListItem *)f_list_first_const(f_ptrlist_as_FList_const(self)))
-#define f_ptrlist_last(self) ((FPtrListItem *)f_ptrlist_last_const(self))
-#define f_ptrlist_last_const(self) ((const FPtrListItem *)f_list_last_const(f_ptrlist_as_FList_const(self)))
+FPtrListItem *f_ptrlist_first(FPtrList *self);
+const FPtrListItem *f_ptrlist_first_const(const FPtrList *self);
+FPtrListItem *f_ptrlist_last(FPtrList *self);
+const FPtrListItem *f_ptrlist_last_const(const FPtrList *self);
 
 #ifdef __cplusplus
 }
