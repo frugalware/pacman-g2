@@ -78,15 +78,10 @@ FPtrListItem *f_listitem_next(FPtrListItem *self);
 FPtrListItem *f_listitem_previous(FPtrListItem *self);
 
 FPtrList *f_list_new(void);
-int f_list_delete(FPtrList *self, FVisitor *visitor);
-
-int f_list_init(FPtrList *self);
-int f_list_fini(FPtrList *self, FVisitor *visitor);
 
 #define f_list_add f_list_append
 int f_list_append(FPtrList *self, FPtrListItem *item);
 int f_list_append_unique(FPtrList *self, FPtrListItem *item, FPtrListItemComparatorFunc comparator);
-int f_list_clear(FPtrList *self, FVisitor *visitor);
 int f_list_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data);
 FPtrListItem *f_list_end(FPtrList *self);
 const FPtrListItem *f_list_end_const(const FPtrList *self);

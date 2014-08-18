@@ -180,28 +180,9 @@ FPtrList *f_list_new()
 
 	ASSERT((self = f_zalloc(sizeof(*self))) != NULL, return NULL);
 
-	f_list_init(self);
+	f_ptrlist_init(self);
 	return self;
 #endif
-}
-
-int f_list_delete(FPtrList *self, FVisitor *visitor)
-{
-	return f_list_fini(self, visitor);
-}
-
-int f_list_init(FPtrList *self)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	return 0;
-}
-
-int f_list_fini(FPtrList *self, FVisitor *visitor)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	return f_list_clear(self, visitor);
 }
 
 int f_list_append(FPtrList *self, FPtrListItem *item)
@@ -214,11 +195,6 @@ int f_list_append_unique(FPtrList *self, FPtrListItem *item, FPtrListItemCompara
 	if (!f_list_contains(self, comparator, item)) {
 		return f_list_append(self, item);
 	}
-	return -1;
-}
-
-int f_list_clear(FPtrList *self, FVisitor *visitor)
-{
 	return -1;
 }
 
@@ -319,7 +295,9 @@ int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
 
 int f_ptrlist_init(FPtrList *self)
 {
-	return f_list_init(self);
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	return 0;
 }
 
 int f_ptrlist_fini(FPtrList *self, FVisitor *visitor)
