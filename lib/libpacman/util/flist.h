@@ -25,80 +25,24 @@
 #include "pacman.h"
 
 #include "util/fcallback.h"
-
-/* Chained list struct */
-struct __pmlist_t {
-	struct __pmlist_t *m_previous;
-	struct __pmlist_t *m_next;
-	void *m_data;
-};
+#include "util/fptrlist.h"
 
 #ifdef __cplusplus
-
-#ifdef F_NOCOMPAT
-class FListItemBase
-	: public __pmlist_t
-{
-public:
-	ListItem()
-		: ListItem(NULL, NULL)
-	{ }
-
-	ListItem(FListItemBase *previous, FListItemBase *next)
-		: m_next(next), m_previous(previous)
-	{ }
-
-	virtual ~FListItemBase() = 0;
-
-	ListItemBase *next()
-	{
-		return m_next;
-	}
-
-	ListItemBase *next() const
-	{
-		return m_next;
-	}
-
-	ListItemBase *previous()
-	{
-		return m_previous;
-	}
-
-	const ListItemBase *previous() const
-	{
-		return m_previous;
-	}
-
-protected:
-	virtual void *c_data() const = 0;
-
-	bool insert_after(FListItemBase *previous);	
-
-	ListItemBase *m_next;
-	ListItemBase *m_previous;
-};
-
 template <typename T>
 class FListItem
-	: public FListItemBase
+	: public FCListItem
 {
-	ListItem()
+	FListItem()
 	{ }
 
-	explicit ListItem(T &data)
+	explicit FListItem(T &data)
 		: m_data(data)
 	{ }
 
-	virtual ~ListItem()
+	virtual ~FListItem()
 	{ }
 
 	virtual void *c_data() const override
-	{
-		return &m_data;
-	}
-
-	T *c_data() const
 	{
 		return &m_data;
 	}
@@ -113,127 +57,48 @@ class FListItem
 		return m_data;
 	}
 
-	ListItem<T> *next()
+	FListItem<T> *next()
 	{
-		return FListItemBase::next();
+		return FCListItem::next();
 	}
 
-	ListItem<T> *next() const
+	const FListItem<T> *next() const
 	{
-		return FListItemBase::next();
+		return FCListItem::next();
 	}
 
-	ListItem<T> *previous()
+	FListItem<T> *previous()
 	{
-		return FListItemBase::previous();
+		return FCListItem::previous();
 	}
 
-	const ListItem<T> *previous() const
+	const FListItem<T> *previous() const
 	{
-		return FListItemBase::previous();
+		return FCListItem::previous();
 	}
 
 protected:
 	T m_data;
 
 private:
-	ListItem(const ListItem<T> &o);
+	FListItem(const FListItem<T> &o);
 
-	ListItem<T> &operator = (const ListItem<T> &o);
-};
-
-class FListBase
-	: private FListItemBase
-{
-public:
-	/* std::list compatibility */
-	typedef ListItem<T> *iterator;
-	typedef const List<T>::iterator const_iterator;
-
-	FListBase()
-		: FListBase(this, this)
-	{ }
-
-	~FListBase()
-	{
-		clear();
-	}
-	
-	size_t count() const;
-
-	FList::iterator begin()
-	{
-		return first();
-	}
-
-	FList::const_iterator begin() const
-	{
-		return first();
-	}
-
-	FList::const_iterator cbegin() const
-	{
-		return first();
-	}
-
-	List::iterator end()
-	{
-		return last();
-	}
-
-	List::const_iterator end() const
-	{
-		return last();
-	}
-
-	List::const_iterator cend() const
-	{
-		return last();
-	}
-
-	ListItemBase *first()
-	{
-		return FListItemBase::next();
-	}
-
-	const ListItemBase *first() const
-	{
-		return FListItemBase::next();
-	}
-
-	ListItemBase *last()
-	{
-		return FListItemBase::previous();
-	}
-
-	const ListItemBase *last() const
-	{
-		return FListItemBase::previous();
-	}
-	
-protected:
-	virtual bool add(FListItem *item);
-
-protected:
-	ListBase(const ListItem<T> &o);
-
-	ListBase &operator = (const ListBase &o);
-
+	FListItem<T> &operator = (const FListItem<T> &o);
 };
 
 template <typename T>
-class List
-	: private FListBase
+class FList
+	: private FCList
 {
 public:
 	/* std::list compatibility */
-	typedef ListItem<T> *iterator;
-	typedef const List<T>::iterator const_iterator;
+	typedef FListItem<T> *iterator;
+	typedef const iterator const_iterator;
 
-	List()
+	FList()
 	{ }
 
-	~List()
+	~FList()
 	{
 		clear();
 	}
@@ -241,32 +106,32 @@ public:
 	void clear();
 	bool empty() const;
 
-	FList::iterator begin()
+	iterator begin()
 	{
 		return first();
 	}
 
-	FList::const_iterator begin() const
+	const_iterator begin() const
 	{
 		return first();
 	}
 
-	FList::const_iterator cbegin() const
+	const_iterator cbegin() const
 	{
 		return first();
 	}
 
-	List::iterator end()
+	iterator end()
 	{
 		return last();
 	}
 
-	List::const_iterator end() const
+	const_iterator end() const
 	{
 		return last();
 	}
 
-	List::const_iterator cend() const
+	const_iterator cend() const
 	{
 		return last();
 	}
@@ -285,6 +150,7 @@ public:
 
 public:
 	/* extensions */
+#if 0
 	bool all_match(const FMatcher &matcher) const
 	{
 		const_iterator end = cend();
@@ -320,38 +186,38 @@ public:
 		}
 		return NULL;
 	}
+#endif
 
-	ListItem<T> *first()
+	iterator first()
 	{
-		return FListBase::first();
+		return FCList::first();
 	}
 
-	const ListItem<T> *first() const
+	const_iterator first() const
 	{
-		return FListBase::first();
+		return FCList::first();
 	}
 
-	ListItem<T> *last()
+	iterator last()
 	{
-		return FListBase::last();
+		return FCList::last();
 	}
 
-	const ListItem<T> *last() const
+	const_iterator last() const
 	{
-		return FListBase::last();
+		return FCList::last();
 	}
 
 private:
-	List(const List &);
+	FList(const FList &);
 
-	List &operator = (const List &);
+	FList &operator = (const FList &);
 
 	virtual void *c_data() const override
 	{
 		RET_ERR(PM_ERR_WRONG_ARGS, NULL);
 	}
 };
-#endif /* F_NOCOMPAT */
 #endif /* __cplusplus */
 
 #endif /* F_LIST_H */

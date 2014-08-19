@@ -27,14 +27,151 @@
 #include "stdbool.h"
 
 #include "util/fcallback.h"
-#include "util/flist.h"
 
-#ifdef __cplusplus
+/* Chained list struct */
+struct __pmlist_t {
+	struct __pmlist_t *m_previous;
+	struct __pmlist_t *m_next;
+	void *m_data;
+};
+
+#ifndef __cplusplus
+
+typedef struct FCList FCList;
+typedef struct FCListItem FCListItem;
+
+#else
+
+class FCListItem
+	: public __pmlist_t
+{
+public:
+	FCListItem()
+		: FCListItem(NULL, NULL)
+	{ }
+
+	FCListItem(FCListItem *previous, FCListItem *next)
+		: m_next(next), m_previous(previous)
+	{ }
+
+	virtual ~FCListItem() = 0;
+
+	virtual void *c_data() const = 0;
+
+	FCListItem *next()
+	{
+		return m_next;
+	}
+
+	FCListItem *next() const
+	{
+		return m_next;
+	}
+
+	FCListItem *previous()
+	{
+		return m_previous;
+	}
+
+	const FCListItem *previous() const
+	{
+		return m_previous;
+	}
+
+protected:
+	bool insert_after(FCListItem *previous);	
+
+	FCListItem *m_next;
+	FCListItem *m_previous;
+};
+
+class FCList
+	: private FCListItem
+{
+public:
+	/* std::list compatibility */
+	typedef FCListItem *iterator;
+	typedef const iterator const_iterator;
+
+	FCList()
+		: FCListItem(this, this)
+	{ }
+
+	~FCList()
+	{
+		clear();
+	}
+
+	void clear()
+	{ }
+
+	size_t count() const;
+
+	iterator begin()
+	{
+		return first();
+	}
+
+	const_iterator begin() const
+	{
+		return first();
+	}
+
+	const_iterator cbegin() const
+	{
+		return first();
+	}
+
+	iterator end()
+	{
+		return last();
+	}
+
+	const_iterator end() const
+	{
+		return last();
+	}
+
+	const_iterator cend() const
+	{
+		return last();
+	}
+
+public:
+	/* extensions */
+	iterator first()
+	{
+		return FCListItem::next();
+	}
+
+	const_iterator first() const
+	{
+		return FCListItem::next();
+	}
+
+	iterator last()
+	{
+		return FCListItem::previous();
+	}
+
+	const_iterator last() const
+	{
+		return FCListItem::previous();
+	}
+	
+protected:
+	virtual bool add(FCListItem *item);
+
+protected:
+	FCList(const FCList &o);
+
+	FCList &operator = (const FCList &o);
+};
+
 extern "C" {
 #endif
 
 #ifndef F_NOCOMPAT
-
 typedef struct __pmlist_t FPtrList;
 typedef struct __pmlist_t FPtrListItem;
 #else
