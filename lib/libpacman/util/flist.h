@@ -28,7 +28,7 @@
 
 /* Chained list struct */
 struct __pmlist_t {
-	struct __pmlist_t *prev;
+	struct __pmlist_t *m_previous;
 	struct __pmlist_t *next;
 	void *m_data;
 };

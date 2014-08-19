@@ -26,16 +26,12 @@
 
 #include "fstdlib.h"
 
-#ifndef F_NOCOMPAT
-#define previous prev
-#endif
-
 /* Add items to a list in sorted order. Use the given comparison function to
  * determine order.
  */
 FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 {
-	FPtrListItem *add, *end = f_ptrlist_end(list), *prev = NULL, *iter = f_ptrlist_first(list);
+	FPtrListItem *add, *end = f_ptrlist_end(list), *previous = NULL, *iter = f_ptrlist_first(list);
 
 	add = f_ptrlist_new();
 	add->m_data = data;
@@ -43,20 +39,20 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 	/* Find insertion point. */
 	while(iter != end) {
 		if(fn(f_ptrlistitem_data(add), f_ptrlistitem_data(iter)) <= 0) break;
-		prev = iter;
+		previous = iter;
 		iter = iter->next;
 	}
 
 	/*  Insert node before insertion point. */
-	add->prev = prev;
+	add->m_previous = previous;
 	add->next = iter;
 
 	if(iter != NULL) {
-		iter->prev = add;   /*  Not at end.  */
+		iter->m_previous = add;   /*  Not at end.  */
 	}
 
-	if(prev != NULL) {
-		prev->next = add;       /*  In middle.  */
+	if(previous != NULL) {
+		previous->next = add;       /*  In middle.  */
 	} else {
 		list = add;           /*  Start or empty, new list head.  */
 	}
@@ -74,7 +70,7 @@ FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp f
 {
 	FPtrListItem *end = f_ptrlist_end(haystack), *i = f_ptrlist_first(haystack);
 
-	if(data != end) {
+	if(*data != end) {
 		*data = NULL;
 	}
 
@@ -91,10 +87,10 @@ FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp f
 	if(i) {
 		/* we found a matching item */
 		if(i->next) {
-			i->next->prev = i->prev;
+			i->next->m_previous = i->m_previous;
 		}
-		if(i->prev) {
-			i->prev->next = i->next;
+		if(i->m_previous) {
+			i->m_previous->next = i->next;
 		}
 		if(i == haystack) {
 			/* The item found is the first in the chain */
@@ -180,11 +176,11 @@ int f_ptrlistitem_insert_after(FPtrListItem *self, FPtrListItem *previous)
 	next = previous->next;
 	previous->next = self;
 	self->next = next;
-	self->previous = previous;
+	self->m_previous = previous;
 #ifndef F_NOCOMPAT
 	if (next != NULL)
 #endif
-	next->previous = self;
+	next->m_previous = self;
 	return 0;
 }
 
@@ -199,7 +195,7 @@ FPtrListItem *f_ptrlistitem_previous(FPtrListItem *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-	return self->previous;
+	return self->m_previous;
 }
 
 int f_ptrlistitem_ptrcmp(const FPtrListItem *item, const void *ptr) {
@@ -254,7 +250,7 @@ FPtrList *f_ptrlist_append(FPtrList *list, void *data)
 		if(lp->next == NULL) {
 			return(NULL);
 		}
-		lp->next->prev = lp;
+		lp->next->m_previous = lp;
 		lp = lp->next;
 	}
 
