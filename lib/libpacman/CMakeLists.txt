@@ -32,7 +32,7 @@ set(FLIB_SOURCES
 	util/flog.h
 	util/flogger.c
 	util/flogger.h
-	util/fptrlist.c
+	util/fptrlist.cpp
 	util/fptrlist.h
 	util/fsyslogger.c
 	util/fsyslogger.h

@@ -1,5 +1,5 @@
 /*
- *  fptrlist.c
+ *  fptrlist.cpp
  *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
