@@ -51,7 +51,7 @@ int querypkg(list_t *targets)
 	int done = 0, errors = 0;
 
 	if(config->op_q_search) {
-		for(i = targets; i; i = i->next) {
+		for(i = targets; i; i = list_next(i)) {
 			pacman_set_option(PM_OPT_NEEDLES, (long)list_data(i));
 		}
 		ret = pacman_db_search(db_local);
@@ -87,11 +87,11 @@ int querypkg(list_t *targets)
 		return(1);
 	}
 
-	for(targ = targets; !done; targ = (targ ? targ->next : NULL)) {
+	for(targ = targets; !done; targ = (targ ? list_next(targ) : NULL)) {
 		if(targets == NULL) {
 			done = 1;
 		} else {
-			if(targ->next == NULL) {
+			if(list_next(targ) == NULL) {
 				done = 1;
 			}
 			package = list_data(targ);
@@ -201,7 +201,7 @@ int querypkg(list_t *targets)
 					}
 					if(config->op_q_foreign) {
 						int match = 0;
-						for(i = pmc_syncs; i; i = i->next) {
+						for(i = pmc_syncs; i; i = list_next(i)) {
 							PM_DB *db = list_data(i);
 							for(j = pacman_db_getpkgcache(db); j; j = pacman_list_next(j)) {
 								PM_PKG *pkg = pacman_list_getdata(j);

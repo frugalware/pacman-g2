@@ -88,7 +88,7 @@ pmlist_t *Database::filter(const PackageMatcher &packagematcher)
 {
 	pmlist_t *i, *ret = NULL;
 
-	for(i = _pacman_db_get_pkgcache(this); i; i = i->next) {
+	for(i = _pacman_db_get_pkgcache(this); i; i = f_ptrlistitem_next(i)) {
 		Package *pkg = (Package *)f_ptrlistitem_data(i);
 		
 		if(packagematcher.match(pkg)) {
@@ -107,7 +107,7 @@ FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_fla
 {
 	pmlist_t *i, *j, *ret = NULL;
 
-	for(i = needles; i; i = i->next) {
+	for(i = needles; i; i = f_ptrlistitem_next(i)) {
 		const char *pattern = f_stringlistitem_to_str(i);
 
 		if(f_strempty(pattern)) {
@@ -117,7 +117,7 @@ FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_fla
 
 		PackageMatcher packagematcher(pattern, packagestrmatcher_flags, strmatcher_flags);
 
-		for(j = _pacman_db_get_pkgcache(this); j; j = j->next) {
+		for(j = _pacman_db_get_pkgcache(this); j; j = f_ptrlistitem_next(j)) {
 			Package *pkg = (Package *)f_ptrlistitem_data(j);
 
 			if(packagematcher.match(pkg)) {
@@ -141,7 +141,7 @@ Package *Database::find(const PackageMatcher &packagematcher)
 	Package *ret = NULL;
 	pmlist_t *i;
 
-	for(i = _pacman_db_get_pkgcache(this); i; i = i->next) {
+	for(i = _pacman_db_get_pkgcache(this); i; i = f_ptrlistitem_next(i)) {
 		Package *pkg = (Package *)f_ptrlistitem_data(i);
 
 		if(packagematcher.match(pkg)) {

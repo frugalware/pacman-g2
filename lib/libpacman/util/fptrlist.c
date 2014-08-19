@@ -40,19 +40,19 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 	while(iter != end) {
 		if(fn(f_ptrlistitem_data(add), f_ptrlistitem_data(iter)) <= 0) break;
 		previous = iter;
-		iter = iter->next;
+		iter = iter->m_next;
 	}
 
 	/*  Insert node before insertion point. */
 	add->m_previous = previous;
-	add->next = iter;
+	add->m_next = iter;
 
 	if(iter != NULL) {
 		iter->m_previous = add;   /*  Not at end.  */
 	}
 
 	if(previous != NULL) {
-		previous->next = add;       /*  In middle.  */
+		previous->m_next = add;       /*  In middle.  */
 	} else {
 		list = add;           /*  Start or empty, new list head.  */
 	}
@@ -81,20 +81,20 @@ FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp f
 		if(fn(needle, i->m_data) == 0) {
 			break;
 		}
-		i = i->next;
+		i = i->m_next;
 	}
 
 	if(i) {
 		/* we found a matching item */
-		if(i->next) {
-			i->next->m_previous = i->m_previous;
+		if(i->m_next) {
+			i->m_next->m_previous = i->m_previous;
 		}
 		if(i->m_previous) {
-			i->m_previous->next = i->next;
+			i->m_previous->m_next = i->m_next;
 		}
 		if(i == haystack) {
 			/* The item found is the first in the chain */
-			haystack = haystack->next;
+			haystack = haystack->m_next;
 		}
 
 		if(data) {
@@ -173,9 +173,9 @@ int f_ptrlistitem_insert_after(FPtrListItem *self, FPtrListItem *previous)
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT(previous != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	next = previous->next;
-	previous->next = self;
-	self->next = next;
+	next = previous->m_next;
+	previous->m_next = self;
+	self->m_next = next;
 	self->m_previous = previous;
 #ifndef F_NOCOMPAT
 	if (next != NULL)
@@ -188,7 +188,7 @@ FPtrListItem *f_ptrlistitem_next(FPtrListItem *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-	return self->next;
+	return self->m_next;
 }
 
 FPtrListItem *f_ptrlistitem_previous(FPtrListItem *self)
@@ -246,12 +246,12 @@ FPtrList *f_ptrlist_append(FPtrList *list, void *data)
 	if(lp == ptr && lp->m_data == NULL) {
 		/* nada */
 	} else {
-		lp->next = f_ptrlist_new();
-		if(lp->next == NULL) {
+		lp->m_next = f_ptrlist_new();
+		if(lp->m_next == NULL) {
 			return(NULL);
 		}
-		lp->next->m_previous = lp;
-		lp = lp->next;
+		lp->m_next->m_previous = lp;
+		lp = lp->m_next;
 	}
 
 	lp->m_data = data;
@@ -294,7 +294,7 @@ int f_ptrlist_count(const FPtrList *self)
 	const FPtrListItem *it;
 	int i;
 
-	for(i = 0, it = f_ptrlist_first_const(self); it != f_ptrlist_end_const(self); it = it->next, i++);
+	for(i = 0, it = f_ptrlist_first_const(self); it != f_ptrlist_end_const(self); it = it->m_next, i++);
 	return i;
 }
 
@@ -323,7 +323,7 @@ const FPtrListItem *f_ptrlist_find_const(const FPtrList *list, FPtrListItemCompa
 	const FPtrListItem *end = f_ptrlist_end_const(list);
 	const FPtrListItem *it;
 
-	for(it = f_ptrlist_first_const(list); it != end; it = it->next) {
+	for(it = f_ptrlist_first_const(list); it != end; it = it->m_next) {
 		if(comparator(it, comparator_data) == 0) {
 			break;
 		}
@@ -345,7 +345,7 @@ void f_list_foreach(const FPtrList *list, FPtrListItemVisitorFunc visitor, void 
 {
 	const FPtrListItem *it;
 
-	for(it = f_ptrlist_first_const(list); it != f_ptrlist_end_const(list); it = it->next) {
+	for(it = f_ptrlist_first_const(list); it != f_ptrlist_end_const(list); it = it->m_next) {
 		visitor((FPtrListItem *)it, visitor_data);
 	}
 }
@@ -362,8 +362,8 @@ const FPtrListItem *f_ptrlist_last_const(const FPtrList *self)
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	it = f_ptrlist_first_const(self);
-	while(it->next != f_ptrlist_end_const(self)) {
-		it = it->next;
+	while(it->m_next != f_ptrlist_end_const(self)) {
+		it = it->m_next;
 	}
 	return it;
 }

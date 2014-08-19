@@ -94,7 +94,7 @@ char *buildstring(list_t *strlist)
 	int size = 1;
 	list_t *lp;
 
-	for(lp = strlist; lp; lp = lp->next) {
+	for(lp = strlist; lp; lp = list_next(lp)) {
 		size += strlen(list_data(lp)) + 1;
 	}
 	str = (char *)malloc(size);
@@ -102,7 +102,7 @@ char *buildstring(list_t *strlist)
 		ERR(NL, _("failed to allocated %d bytes\n"), size);
 	}
 	str[0] = '\0';
-	for(lp = strlist; lp; lp = lp->next) {
+	for(lp = strlist; lp; lp = list_next(lp)) {
 		strcat(str, list_data(lp));
 		strcat(str, " ");
 	}

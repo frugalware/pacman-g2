@@ -29,7 +29,7 @@
 /* Chained list struct */
 struct __pmlist_t {
 	struct __pmlist_t *m_previous;
-	struct __pmlist_t *next;
+	struct __pmlist_t *m_next;
 	void *m_data;
 };
 

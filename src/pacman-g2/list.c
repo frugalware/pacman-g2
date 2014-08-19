@@ -35,7 +35,7 @@ void list_free(list_t *list)
 	list_t *ptr, *it = list;
 
 	while(it) {
-		ptr = it->next;
+		ptr = list_next(it);
 		free(list_data(it));
 		free(it);
 		it = ptr;
@@ -49,7 +49,7 @@ int list_is_strin(char *needle, list_t *haystack)
 {
 	list_t *lp;
 
-	for(lp = haystack; lp; lp = lp->next) {
+	for(lp = haystack; lp; lp = list_next(lp)) {
 		char *str = list_data(lp);
 
 		if(str && !strcmp(str, needle)) {
@@ -70,7 +70,7 @@ void list_display(const char *title, const FStringList *list)
 	printf("%s ", title);
 
 	if(list) {
-		for(lp = list, cols = len; lp; lp = lp->next) {
+		for(lp = list, cols = len; lp; lp = list_next(lp)) {
 			int s = strlen((char *)list_data(lp))+1;
 			if(s+cols >= maxcols) {
 				int i;

@@ -510,7 +510,7 @@ int pacman_db_setserver(pmdb_t *_db, char *url)
 		}
 	} else {
 		pmlist_t *i;
-		for(i = handle->dbs_sync; i && !found; i = i->next) {
+		for(i = handle->dbs_sync; i && !found; i = f_ptrlistitem_next(i)) {
 			Database *sdb = f_ptrlistitem_data(i);
 			if(strcmp(db->treename, sdb->treename) == 0) {
 				found = 1;
@@ -1359,7 +1359,7 @@ pmlist_iterator_t *pacman_list_iterator_next(pmlist_iterator_t *iterator)
 {
 	ASSERT(iterator != NULL, return NULL);
 
-	return c_cast(cxx_cast(iterator)->next);
+	return c_cast(f_ptrlistitem_next(cxx_cast(iterator)));
 }
 
 /** Get the data of a list iterator.

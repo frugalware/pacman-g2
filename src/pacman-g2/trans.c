@@ -394,7 +394,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 	case PM_TRANS_TYPE_UPGRADE:
 		/* Check for URL targets and process them
 		 */
-		for(i = targets; i; i = i->next) {
+		for(i = targets; i; i = list_next(i)) {
 			if(strstr(list_data(i), "://")) {
 				char *str = pacman_fetch_pkgurl(list_data(i));
 				if(str == NULL) {
@@ -411,7 +411,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 		/* If the target is a group, ask if its packages should be removed
 		 * (the library can't remove groups for now)
 		 */
-		for(i = targets; i; i = i->next) {
+		for(i = targets; i; i = list_next(i)) {
 			PM_GRP *grp;
 
 			grp = pacman_db_readgrp(db_local, list_data(i));
@@ -451,7 +451,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 	}
 	/* and add targets to it */
 	MSG(NL, _("loading package data... "));
-	for(i = finaltargs; i; i = i->next) {
+	for(i = finaltargs; i; i = list_next(i)) {
 		if(pacman_trans_addtarget(pacman_get_trans(), transtype, list_data(i), config->flags) == -1) {
 			int match = 0;
 

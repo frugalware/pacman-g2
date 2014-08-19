@@ -76,7 +76,7 @@ int _pacman_localdb_desc_fread(Package *info, FILE *fp)
 		if(!strcmp(line, "%DESC%")) {
 			_pacman_db_read_lines(&info->desc_localized, line, sline, fp);
 			STRNCPY(info->m_description, f_stringlistitem_to_str(info->desc_localized), sizeof(info->m_description));
-			for (i = info->desc_localized; i; i = i->next) {
+			for (i = info->desc_localized; i; i = f_ptrlistitem_next(i)) {
 				const char *desc = f_stringlistitem_to_str(i);
 				const size_t language_len = strlen(handle->language);
 				if (!strncmp(desc, handle->language, language_len) && *(desc+language_len) == ' ') {

@@ -60,7 +60,7 @@ static int sync_synctree(int level, list_t *syncs)
 	list_t *i;
 	int success = 0, ret;
 
-	for(i = syncs; i; i = i->next) {
+	for(i = syncs; i; i = list_next(i)) {
 		PM_DB *db = list_data(i);
 
 		ret = pacman_db_update((level < 2 ? 0 : 1), db);
@@ -86,11 +86,11 @@ static int sync_search(list_t *syncs, list_t *targets)
 	PM_LIST *ret;
 	PM_PKG *ipkg;
 
-	for(i = syncs; i; i = i->next) {
+	for(i = syncs; i; i = list_next(i)) {
 		PM_DB *db = list_data(i);
 		PM_LIST *lp;
 
-		for(j = targets; j; j = j->next) {
+		for(j = targets; j; j = list_next(j)) {
 			pacman_set_option(PM_OPT_NEEDLES, (long)list_data(j));
 		}
 		ret = pacman_db_search(db);
@@ -126,9 +126,9 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 	int ret = 0;
 
 	if(targets) {
-		for(i = targets; i; i = i->next) {
+		for(i = targets; i; i = list_next(i)) {
 			int found = 0;
-			for(j = syncs; j; j = j->next) {
+			for(j = syncs; j; j = list_next(j)) {
 				PM_DB *db = list_data(j);
 				PM_GRP *grp = pacman_db_readgrp(db, list_data(i));
 
@@ -144,7 +144,7 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 			}
 		}
 	} else {
-		for(j = syncs; j; j = j->next) {
+		for(j = syncs; j; j = list_next(j)) {
 			PM_DB *db = list_data(j);
 			PM_LIST *lp;
 
@@ -167,10 +167,10 @@ static int sync_info(list_t *syncs, list_t *targets)
 	list_t *i, *j;
 
 	if(targets) {
-		for(i = targets; i; i = i->next) {
+		for(i = targets; i; i = list_next(i)) {
 			int found = 0;
 
-			for(j = syncs; j && !found; j = j->next) {
+			for(j = syncs; j && !found; j = list_next(j)) {
 				PM_DB *db = list_data(j);
 				PM_LIST *lp;
 
@@ -190,7 +190,7 @@ static int sync_info(list_t *syncs, list_t *targets)
 			}
 		}
 	} else {
-		for(j = syncs; j; j = j->next) {
+		for(j = syncs; j; j = list_next(j)) {
 			PM_DB *db = list_data(j);
 			PM_LIST *lp;
 
@@ -210,11 +210,11 @@ static int sync_list(list_t *syncs, list_t *targets)
 	list_t *ls = NULL;
 
 	if(targets) {
-		for(i = targets; i; i = i->next) {
+		for(i = targets; i; i = list_next(i)) {
 			list_t *j;
 			PM_DB *db = NULL;
 
-			for(j = syncs; j && !db; j = j->next) {
+			for(j = syncs; j && !db; j = list_next(j)) {
 				PM_DB *d = list_data(j);
 
 				if(strcmp(list_data(i), (char *)pacman_db_getinfo(d, PM_DB_TREENAME)) == 0) {
@@ -234,7 +234,7 @@ static int sync_list(list_t *syncs, list_t *targets)
 		ls = syncs;
 	}
 
-	for(i = ls; i; i = i->next) {
+	for(i = ls; i; i = list_next(i)) {
 		PM_LIST *lp;
 		PM_DB *db = list_data(i);
 
@@ -372,7 +372,7 @@ int syncpkg(list_t *targets)
 		}
 	} else {
 		/* process targets */
-		for(i = targets; i; i = i->next) {
+		for(i = targets; i; i = list_next(i)) {
 			char *targ = list_data(i);
 			if(pacman_trans_addtarget(pacman_get_trans(), PM_TRANS_TYPE_SYNC, targ, config->flags) == -1) {
 				PM_GRP *grp = NULL;
@@ -388,7 +388,7 @@ int syncpkg(list_t *targets)
 					goto cleanup;
 				}
 				/* target not found: check if it's a group */
-				for(j = pmc_syncs; j; j = j->next) {
+				for(j = pmc_syncs; j; j = list_next(j)) {
 					PM_DB *db = list_data(j);
 					grp = pacman_db_readgrp(db, targ);
 					if(grp) {
@@ -402,11 +402,11 @@ int syncpkg(list_t *targets)
 						pkgs = PM_LIST_remove_dupes(pmpkgs);
 						list_display("   ", pkgs);
 						if(yesno(_(":: Install whole content? [Y/n] "))) {
-							for(k = pkgs; k; k = k->next) {
+							for(k = pkgs; k; k = list_next(k)) {
 								targets = list_add(targets, strdup(list_data(k)));
 							}
 						} else {
-							for(k = pkgs; k; k = k->next) {
+							for(k = pkgs; k; k = list_next(k)) {
 								char *pkgname = list_data(k);
 								if(yesno(_(":: Install %s from group %s? [Y/n] "), pkgname, targ)) {
 									targets = list_add(targets, strdup(pkgname));
@@ -418,7 +418,7 @@ int syncpkg(list_t *targets)
 				}
 				/* targ is not a group, see if it's a regex */
 				if(!found && config->regex) {
-					for(j = pmc_syncs; j; j = j->next) {
+					for(j = pmc_syncs; j; j = list_next(j)) {
 						PM_DB *db = list_data(j);
 						PM_LIST *k;
 						for(k = pacman_db_getpkgcache(db); k; k = pacman_list_next(k)) {
@@ -441,7 +441,7 @@ int syncpkg(list_t *targets)
 					PM_LIST *k = NULL;
 					PM_PKG *pkg;
 					char *pname;
-					for(j = pmc_syncs; j && !k; j = j->next) {
+					for(j = pmc_syncs; j && !k; j = list_next(j)) {
 						PM_DB *db = list_data(j);
 						k = pacman_db_whatprovides(db, targ);
 						pkg = (PM_PKG*)pacman_list_getdata(pacman_list_first(k));
