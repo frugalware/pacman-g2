@@ -35,8 +35,8 @@ int vercmp(list_t *targets)
 {
 	// FIXME: should count targets
 
-	if(targets != NULL && targets->data && targets->next && targets->next->data) {
-		int ret = pacman_pkg_vercmp(targets->data, targets->next->data);
+	if(targets != NULL && list_data(targets) && targets->next && list_data(targets->next)) {
+		int ret = pacman_pkg_vercmp(list_data(targets), list_data(targets->next));
 		printf("%d\n", ret);
 		return(ret);
 	}

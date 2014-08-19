@@ -214,7 +214,7 @@ int pspkg(int countonly)
 	list_t* ret = ps_parse(fpout);
 
 	for (i = ret; i; i = i->next) {
-		ps_t *ps = i->data;
+		ps_t *ps = list_data(i);
 		if (!ps)
 			continue;
 		if (!countonly) {

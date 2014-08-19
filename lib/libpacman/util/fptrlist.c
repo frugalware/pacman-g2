@@ -38,11 +38,11 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 	FPtrListItem *add, *end = f_ptrlist_end(list), *prev = NULL, *iter = f_ptrlist_first(list);
 
 	add = f_ptrlist_new();
-	add->data = data;
+	add->m_data = data;
 
 	/* Find insertion point. */
 	while(iter != end) {
-		if(fn(add->data, iter->data) <= 0) break;
+		if(fn(f_ptrlistitem_data(add), f_ptrlistitem_data(iter)) <= 0) break;
 		prev = iter;
 		iter = iter->next;
 	}
@@ -79,10 +79,10 @@ FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp f
 	}
 
 	while(i) {
-		if(i->data == NULL) {
+		if(i->m_data == NULL) {
 			continue;
 		}
-		if(fn(needle, i->data) == 0) {
+		if(fn(needle, i->m_data) == 0) {
 			break;
 		}
 		i = i->next;
@@ -102,9 +102,9 @@ FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp f
 		}
 
 		if(data) {
-			*data = i->data;
+			*data = i->m_data;
 		}
-		i->data = NULL;
+		i->m_data = NULL;
 		free(i);
 	}
 
@@ -124,7 +124,7 @@ FPtrList *_pacman_list_reverse(FPtrList *list)
 	FPtrListItem *it;
 
 	for(it = f_ptrlist_last(list); it; it = f_ptrlistitem_previous(it)) {
-		newlist = f_ptrlist_add(newlist, it->data);
+		newlist = f_ptrlist_add(newlist, f_ptrlistitem_data(it));
 	}
 
 	return(newlist);
@@ -149,7 +149,7 @@ FPtrListItem *f_ptrlistitem_new(void *ptr)
 	FPtrListItem *item = f_zalloc(sizeof(*item));
 
 	if(item != NULL) {
-		item->data = ptr;
+		item->m_data = ptr;
 	}
 	return item;
 }
@@ -167,7 +167,7 @@ void *f_ptrlistitem_data(const FPtrListItem *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-	return self->data;
+	return self->m_data;
 }
 
 int f_ptrlistitem_insert_after(FPtrListItem *self, FPtrListItem *previous)
@@ -203,7 +203,7 @@ FPtrListItem *f_ptrlistitem_previous(FPtrListItem *self)
 }
 
 int f_ptrlistitem_ptrcmp(const FPtrListItem *item, const void *ptr) {
-	return f_ptrcmp(item->data, ptr);
+	return f_ptrcmp(item->m_data, ptr);
 }
 
 FPtrList *f_ptrlist_new(void)
@@ -247,7 +247,7 @@ FPtrList *f_ptrlist_append(FPtrList *list, void *data)
 	}
 
 	lp = f_ptrlist_last(ptr);
-	if(lp == ptr && lp->data == NULL) {
+	if(lp == ptr && lp->m_data == NULL) {
 		/* nada */
 	} else {
 		lp->next = f_ptrlist_new();
@@ -258,7 +258,7 @@ FPtrList *f_ptrlist_append(FPtrList *list, void *data)
 		lp = lp->next;
 	}
 
-	lp->data = data;
+	lp->m_data = data;
 
 	return(ptr);
 }

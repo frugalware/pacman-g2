@@ -37,7 +37,7 @@ extern "C" {
 struct __pmlist_t {
 	struct __pmlist_t *prev;
 	struct __pmlist_t *next;
-	void *data;
+	void *m_data;
 };
 
 typedef struct __pmlist_t FPtrList;

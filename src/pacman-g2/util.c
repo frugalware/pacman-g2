@@ -95,7 +95,7 @@ char *buildstring(list_t *strlist)
 	list_t *lp;
 
 	for(lp = strlist; lp; lp = lp->next) {
-		size += strlen(lp->data) + 1;
+		size += strlen(list_data(lp)) + 1;
 	}
 	str = (char *)malloc(size);
 	if(str == NULL) {
@@ -103,7 +103,7 @@ char *buildstring(list_t *strlist)
 	}
 	str[0] = '\0';
 	for(lp = strlist; lp; lp = lp->next) {
-		strcat(str, lp->data);
+		strcat(str, list_data(lp));
 		strcat(str, " ");
 	}
 	/* shave off the last space */

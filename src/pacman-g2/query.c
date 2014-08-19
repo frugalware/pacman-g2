@@ -52,7 +52,7 @@ int querypkg(list_t *targets)
 
 	if(config->op_q_search) {
 		for(i = targets; i; i = i->next) {
-			pacman_set_option(PM_OPT_NEEDLES, (long)i->data);
+			pacman_set_option(PM_OPT_NEEDLES, (long)list_data(i));
 		}
 		ret = pacman_db_search(db_local);
 		if(ret == NULL) {
@@ -94,7 +94,7 @@ int querypkg(list_t *targets)
 			if(targ->next == NULL) {
 				done = 1;
 			}
-			package = targ->data;
+			package = list_data(targ);
 		}
 
 		/* looking for groups */
@@ -202,7 +202,7 @@ int querypkg(list_t *targets)
 					if(config->op_q_foreign) {
 						int match = 0;
 						for(i = pmc_syncs; i; i = i->next) {
-							PM_DB *db = i->data;
+							PM_DB *db = list_data(i);
 							for(j = pacman_db_getpkgcache(db); j; j = pacman_list_next(j)) {
 								PM_PKG *pkg = pacman_list_getdata(j);
 								char *haystack;

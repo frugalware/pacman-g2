@@ -429,7 +429,7 @@ void _pacman_localdb_write_stringlist(const char *entry, const pmlist_t *values,
 	if(values != NULL) {
 		fprintf(stream, "%%%s%%\n", entry);
 		for(lp = values; lp; lp = lp->next) {
-			fprintf(stream, "%s\n", (char *)lp->data);
+			fprintf(stream, "%s\n", f_stringlistitem_to_str(lp));
 		}
 		fputc('\n', stream);
 	}
@@ -546,15 +546,13 @@ pmlist_t *LocalDatabase::getowners(const char *filename)
 	}
 
 	for(lp = _pacman_db_get_pkgcache(this); lp; lp = lp->next) {
-		Package *info;
+		Package *info = (Package *)f_ptrlistitem_data(lp);
 		pmlist_t *i;
-
-		info = lp->data;
 
 		for(i = info->files(); i; i = i->next) {
 			char path[PATH_MAX];
 
-			snprintf(path, PATH_MAX, "%s%s", m_handle->root, (char *)i->data);
+			snprintf(path, PATH_MAX, "%s%s", m_handle->root, f_stringlistitem_to_str(i));
 			if(!strcmp(path, rpath)) {
 				ret = f_ptrlist_add(ret, info);
 				if(rpath[strlen(rpath)-1] != '/') {

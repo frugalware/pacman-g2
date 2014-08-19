@@ -79,9 +79,9 @@ int deptestpkg(list_t *targets)
 	}
 	strcpy(str, "name=dummy|version=1.0-1");
 	for(i = targets; i; i = i->next) {
-		str = (char *)realloc(str, strlen(str)+8+strlen(i->data)+1);
+		str = (char *)realloc(str, strlen(str)+8+strlen(list_data(i))+1);
 		strcat(str, "|depend=");
-		strcat(str, i->data);
+		strcat(str, list_data(i));
 	}
 	vprint(_("add target %s\n"), str);
 	if(pacman_trans_addtarget(pacman_get_trans(), PM_TRANS_TYPE_ADD, str, 0) == -1) {

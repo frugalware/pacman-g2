@@ -80,7 +80,7 @@ int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
 	pmlist_t *i;
 
 	for(i = haystack; i; i = i->next) {
-		pmdepmissing_t *miss = i->data;
+		pmdepmissing_t *miss = f_ptrlistitem_data(i);
 		if(!memcmp(needle, miss, sizeof(pmdepmissing_t))
 		   && !memcmp(&needle->depend, &miss->depend, sizeof(pmdepend_t))) {
 			return(1);
@@ -132,22 +132,22 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 	/* We create the vertices */
 	for(i = targets; i; i = i->next) {
 		pmgraph_t *v = _pacman_graph_new();
-		v->data = (void *)i->data;
+		v->data = f_ptrlistitem_data(i);
 		vertices = f_ptrlist_add(vertices, v);
 	}
 
 	/* We compute the edges */
 	for(i = vertices; i; i = i->next) {
-		pmgraph_t *vertex_i = i->data;
+		pmgraph_t *vertex_i = f_ptrlistitem_data(i);
 		Package *p_i = vertex_i->data;
 		/* TODO this should be somehow combined with _pacman_checkdeps */
 		for(j = vertices; j; j = j->next) {
-			pmgraph_t *vertex_j = j->data;
+			pmgraph_t *vertex_j = f_ptrlistitem_data(j);
 			Package *p_j = vertex_j->data;
 			int child = 0;
 			for(k = p_i->depends(); k && !child; k = k->next) {
 				pmdepend_t depend;
-				_pacman_splitdep(k->data, &depend);
+				_pacman_splitdep(f_ptrlistitem_data(k), &depend);
 				child = _pacman_depcmp(p_j, &depend);
 			}
 			if(child) {
@@ -158,13 +158,13 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 	}
 
 	vptr = vertices;
-	vertex = vertices->data;
+	vertex = f_ptrlistitem_data(vertices);
 	while(vptr) {
 		/* mark that we touched the vertex */
 		vertex->state = -1;
 		found = 0;
 		while(vertex->childptr && !found) {
-			pmgraph_t *nextchild = (vertex->childptr)->data;
+			pmgraph_t *nextchild = f_ptrlistitem_data(vertex->childptr);
 			vertex->childptr = (vertex->childptr)->next;
 			if (nextchild->state == 0) {
 				found = 1;
@@ -182,7 +182,7 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 			if(!vertex) {
 				vptr = vptr->next;
 				while(vptr) {
-					vertex = vptr->data;
+					vertex = f_ptrlistitem_data(vptr);
 					if (vertex->state == 0) break;
 					vptr = vptr->next;
 				}
@@ -224,7 +224,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 	}
 
 	for(i = packages; i; i = i->next) {
-		Package *tp = i->data;
+		Package *tp = f_ptrlistitem_data(i);
 		Package *pkg_local;
 
 		if(tp == NULL) {
@@ -274,14 +274,14 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 					if(!_pacman_pkg_isin(requiredby_name, packages)) {
 						/* check if a package in trans->packages provides this package */
 						for(k=trans->packages; !found && k; k=k->next) {
-							Package *spkg = k->data;
+							Package *spkg = f_ptrlistitem_data(k);
 
 							if(spkg && spkg->provides(pkg_local->name())) {
 								found=1;
 							}
 						}
 						for(k=trans->syncpkgs; !found && k; k=k->next) {
-							pmsyncpkg_t *ps = k->data;
+							pmsyncpkg_t *ps = f_ptrlistitem_data(k);
 
 							if(ps->pkg_new->provides(pkg_local->name())) {
 								found=1;
@@ -306,7 +306,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				found = 0;
 				/* check database for literal packages */
 				for(k = _pacman_db_get_pkgcache(db_local); k && !found; k = k->next) {
-					Package *p = (Package *)k->data;
+					Package *p = (Package *)f_ptrlistitem_data(k);
 					if(!strcmp(p->name(), depend.name)) {
 						if(depend.mod == PM_DEP_MOD_ANY) {
 							/* accept any version */
@@ -342,11 +342,11 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
  						 * to install.  this way, if we match against a to-be-installed
  						 * package, we'll defer to the NEW one, not the one already
  						 * installed. */
- 						Package *p = m->data;
+ 						Package *p = f_ptrlistitem_data(m);
  						pmlist_t *n;
  						int skip = 0;
  						for(n = packages; n && !skip; n = n->next) {
- 							Package *ptp = n->data;
+ 							Package *ptp = f_ptrlistitem_data(n);
  							if(!strcmp(ptp->name(), p->name())) {
  								skip = 1;
  							}
@@ -383,7 +383,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				}
  				/* check other targets */
  				for(k = packages; k && !found; k = k->next) {
- 					Package *p = (Package *)k->data;
+ 					Package *p = (Package *)f_ptrlistitem_data(k);
  					/* see if the package names match OR if p provides depend.name */
  					if(!strcmp(p->name(), depend.name) || p->provides(depend.name)) {
 						if(depend.mod == PM_DEP_MOD_ANY ||
@@ -489,12 +489,12 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 	}
 
 	for(i = targs; i; i = i->next) {
-		for(j = ((Package *)i->data)->depends(); j; j = j->next) {
+		for(j = ((Package *)f_ptrlistitem_data(i))->depends(); j; j = j->next) {
 			pmdepend_t depend;
 			Package *dep;
 			int needed = 0;
 
-			if(_pacman_splitdep(j->data, &depend)) {
+			if(_pacman_splitdep(f_stringlistitem_to_str(j), &depend)) {
 				continue;
 			}
 
@@ -506,7 +506,7 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
 					_pacman_log(PM_LOG_WARNING, _("cannot find package \"%s\" or anything that provides it!"), depend.name);
 					continue;
 				}
-				dep = db->find(((Package *)k->data)->name());
+				dep = db->find(((Package *)f_ptrlistitem_data(k))->name());
 				if(dep == NULL) {
 					_pacman_log(PM_LOG_ERROR, _("dep is NULL!"));
 					/* wtf */
@@ -577,12 +577,12 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 
 	for(i = deps; i; i = i->next) {
 		int found = 0;
-		pmdepmissing_t *miss = i->data;
+		pmdepmissing_t *miss = f_ptrlistitem_data(i);
 		Package *ps = NULL;
 
 		/* check if one of the packages in *list already provides this dependency */
 		for(j = list; j && !found; j = j->next) {
-			Package *sp = (Package *)j->data;
+			Package *sp = (Package *)f_ptrlistitem_data(j);
 			if(sp->provides(miss->depend.name)) {
 				_pacman_log(PM_LOG_DEBUG, _("%s provides dependency %s -- skipping"),
 				          sp->name(), miss->depend.name);
@@ -596,14 +596,14 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 		/* find the package in one of the repositories */
 		/* check literals */
 		for(j = dbs_sync; !ps && j; j = j->next) {
-			ps = ((Database *)j->data)->find(miss->depend.name);
+			ps = ((Database *)f_ptrlistitem_data(j))->find(miss->depend.name);
 		}
 		/* check provides */
 		for(j = dbs_sync; !ps && j; j = j->next) {
 			pmlist_t *provides;
-			provides = ((Database *)j->data)->whatPackagesProvide(miss->depend.name);
+			provides = ((Database *)f_ptrlistitem_data(j))->whatPackagesProvide(miss->depend.name);
 			if(provides) {
-				ps = provides->data;
+				ps = f_ptrlistitem_data(provides);
 			}
 			FREELISTPTR(provides);
 		}
@@ -615,7 +615,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 					FREELIST(*data);
 					goto error;
 				}
-				*miss = *(pmdepmissing_t *)i->data;
+				*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
 				*data = f_ptrlist_add(*data, miss);
 			}
 			pm_errno = PM_ERR_UNSATISFIED_DEPS;
@@ -653,7 +653,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 						FREELIST(*data);
 						goto error;
 					}
-					*miss = *(pmdepmissing_t *)i->data;
+					*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
 					*data = f_ptrlist_add(*data, miss);
 				}
 				pm_errno = PM_ERR_UNSATISFIED_DEPS;
@@ -731,7 +731,7 @@ int inList(pmlist_t *lst, char *lItem) {
     pmlist_t *ll;
     ll = lst;
     while(ll) {
-        if(!strcmp(lItem, (char *)ll->data)) {
+        if(!strcmp(lItem, (char *)f_ptrlistitem_data(ll))) {
            return 1;
         }
         ll = ll->next;
@@ -748,7 +748,7 @@ int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist) {
     int foundMatch = 0;
     unsigned int inforeq =  INFRQ_DEPENDS;
     for(j = dblist; j; j = j->next) {
-        Database *db = j->data;
+        Database *db = f_ptrlistitem_data(j);
         do {
             foundMatch = 0;
             pkg = db->readpkg(inforeq);
@@ -758,7 +758,7 @@ int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist) {
                 if(match) {
                     foundMatch = 1;
                     for(k = pkg->depends(); k; k = k->next) {
-                        char *fullDep = (char *)k->data;
+                        char *fullDep = f_stringlistitem_to_str(k);
                         pmdepend_t depend;
                         if(_pacman_splitdep(fullDep, &depend)) {
                             continue;

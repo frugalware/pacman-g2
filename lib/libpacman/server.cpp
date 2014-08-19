@@ -401,11 +401,11 @@ int _pacman_downloadfiles_forreal(Handle *handle, pmlist_t *servers, const char 
 		if (count < skip)
 			continue; /* the caller requested skip of this server */
 		_pacman_log(PM_LOG_DEBUG, _("server check, done? %d\n"),done);
-		server = (pmserver_t*)i->data;
+		server = (pmserver_t*)f_ptrlistitem_data(i);
 
 		/* get each file in the list */
 		for(lp = files; lp; lp = lp->next) {
-			char *fn = (char *)lp->data;
+			char *fn = f_stringlistitem_to_str(lp);
 
 			if(_pacman_list_is_strin(fn, complete)) {
 				continue;

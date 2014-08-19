@@ -145,7 +145,7 @@ int _pacman_db_remove_pkgfromcache(Database *db, Package *pkg)
 }
 
 static
-Group *_pacman_db_get_grpfromlist(pmlist_t *list, const char *target)
+Group *_pacman_db_get_grpfromlist(FPtrList *list, const char *target)
 {
 	pmlist_t *i;
 
@@ -154,7 +154,7 @@ Group *_pacman_db_get_grpfromlist(pmlist_t *list, const char *target)
 	}
 
 	for(i = list; i; i = i->next) {
-		Group *info = i->data;
+		Group *info = f_ptrlistitem_data(i);
 
 		if(strcmp(info->name, target) == 0) {
 			return(info);
@@ -178,17 +178,19 @@ int _pacman_db_load_grpcache(Database *db)
 
 	for(; lp; lp = lp->next) {
 		pmlist_t *i;
-		Package *pkg = lp->data;
+		Package *pkg = f_ptrlistitem_data(lp);
 
 		if(!(pkg->flags & INFRQ_DESC)) {
 			pkg->read(INFRQ_DESC);
 		}
 
 		for(i = pkg->groups(); i; i = i->next) {
-			Group *grp = _pacman_db_get_grpfromlist(db->grpcache, f_stringlistitem_to_str(i));
+			const char *grp_name = f_stringlistitem_to_str(i);
+
+			Group *grp = _pacman_db_get_grpfromlist(db->grpcache, grp_name);
 
 			if(grp == NULL) {
-				grp = new Group((char *)i->data);
+				grp = new Group(grp_name);
 				db->grpcache = f_ptrlist_add_sorted(db->grpcache, grp, _pacman_grp_cmp);
 			}
 			if(!_pacman_list_is_strin(pkg->name(), grp->packages)) {

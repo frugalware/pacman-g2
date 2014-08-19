@@ -60,7 +60,7 @@ int _pacman_packagecache_clean(int level)
 		closedir(dir);
 
 		for(i = cache; i; i = i->next) {
-			char *str = i->data;
+			char *str = f_stringlistitem_to_str(i);
 			char name[PKG_NAME_LEN], version[PKG_VERSION_LEN];
 
 			if(strstr(str, PM_EXT_PKG) == NULL) {
@@ -76,7 +76,7 @@ int _pacman_packagecache_clean(int level)
 				continue;
 			}
 			for(j = i->next; j; j = j->next) {
-				char *s = j->data;
+				char *s = f_stringlistitem_to_str(j);
 				char n[PKG_NAME_LEN], v[PKG_VERSION_LEN];
 
 				if(strstr(s, PM_EXT_PKG) == NULL) {
@@ -101,7 +101,7 @@ int _pacman_packagecache_clean(int level)
 		for(i = clean; i; i = i->next) {
 			char path[PATH_MAX];
 
-			snprintf(path, PATH_MAX, "%s/%s", dirpath, (char *)i->data);
+			snprintf(path, PATH_MAX, "%s/%s", dirpath, f_stringlistitem_to_str(i));
 			unlink(path);
 		}
 		FREELIST(clean);

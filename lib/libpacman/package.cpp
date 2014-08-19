@@ -168,10 +168,10 @@ Package *_pacman_pkg_isin(const char *needle, pmlist_t *haystack)
 	}
 
 	for(lp = haystack; lp; lp = lp->next) {
-		Package *info = lp->data;
+		Package *info = f_ptrlistitem_data(lp);
 
 		if(info && !strcmp(info->name(), needle)) {
-			return(lp->data);
+			return info;
 		}
 	}
 	return(NULL);

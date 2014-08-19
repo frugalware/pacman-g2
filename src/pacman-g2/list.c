@@ -36,7 +36,7 @@ void list_free(list_t *list)
 
 	while(it) {
 		ptr = it->next;
-		free(it->data);
+		free(list_data(it));
 		free(it);
 		it = ptr;
 	}
@@ -50,7 +50,9 @@ int list_is_strin(char *needle, list_t *haystack)
 	list_t *lp;
 
 	for(lp = haystack; lp; lp = lp->next) {
-		if(lp->data && !strcmp(lp->data, needle)) {
+		char *str = list_data(lp);
+
+		if(str && !strcmp(str, needle)) {
 			return(1);
 		}
 	}
@@ -69,7 +71,7 @@ void list_display(const char *title, const FStringList *list)
 
 	if(list) {
 		for(lp = list, cols = len; lp; lp = lp->next) {
-			int s = strlen((char *)lp->data)+1;
+			int s = strlen((char *)list_data(lp))+1;
 			if(s+cols >= maxcols) {
 				int i;
 				cols = len;
@@ -78,7 +80,7 @@ void list_display(const char *title, const FStringList *list)
 					printf(" ");
 				}
 			}
-			printf("%s ", (char *)lp->data);
+			printf("%s ", (char *)list_data(lp));
 			cols += s;
 		}
 		printf("\n");

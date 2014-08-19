@@ -89,7 +89,7 @@ pmlist_t *Database::filter(const PackageMatcher &packagematcher)
 	pmlist_t *i, *ret = NULL;
 
 	for(i = _pacman_db_get_pkgcache(this); i; i = i->next) {
-		Package *pkg = i->data;
+		Package *pkg = (Package *)f_ptrlistitem_data(i);
 		
 		if(packagematcher.match(pkg)) {
 			ret = f_ptrlist_append(ret, pkg);
@@ -118,7 +118,7 @@ FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_fla
 		PackageMatcher packagematcher(pattern, packagestrmatcher_flags, strmatcher_flags);
 
 		for(j = _pacman_db_get_pkgcache(this); j; j = j->next) {
-			Package *pkg = j->data;
+			Package *pkg = (Package *)f_ptrlistitem_data(j);
 
 			if(packagematcher.match(pkg)) {
 				ret = f_ptrlist_append(ret, pkg);
@@ -142,7 +142,7 @@ Package *Database::find(const PackageMatcher &packagematcher)
 	pmlist_t *i;
 
 	for(i = _pacman_db_get_pkgcache(this); i; i = i->next) {
-		Package *pkg = i->data;
+		Package *pkg = (Package *)f_ptrlistitem_data(i);
 
 		if(packagematcher.match(pkg)) {
 			if(packagematcher.match(pkg, ~PM_PACKAGE_FLAG_PROVIDES)) {

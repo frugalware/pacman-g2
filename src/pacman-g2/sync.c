@@ -61,7 +61,7 @@ static int sync_synctree(int level, list_t *syncs)
 	int success = 0, ret;
 
 	for(i = syncs; i; i = i->next) {
-		PM_DB *db = i->data;
+		PM_DB *db = list_data(i);
 
 		ret = pacman_db_update((level < 2 ? 0 : 1), db);
 		if(ret == -1) {
@@ -87,11 +87,11 @@ static int sync_search(list_t *syncs, list_t *targets)
 	PM_PKG *ipkg;
 
 	for(i = syncs; i; i = i->next) {
-		PM_DB *db = i->data;
+		PM_DB *db = list_data(i);
 		PM_LIST *lp;
 
 		for(j = targets; j; j = j->next) {
-			pacman_set_option(PM_OPT_NEEDLES, (long)j->data);
+			pacman_set_option(PM_OPT_NEEDLES, (long)list_data(j));
 		}
 		ret = pacman_db_search(db);
 		if(ret == NULL) {
@@ -129,8 +129,8 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 		for(i = targets; i; i = i->next) {
 			int found = 0;
 			for(j = syncs; j; j = j->next) {
-				PM_DB *db = j->data;
-				PM_GRP *grp = pacman_db_readgrp(db, i->data);
+				PM_DB *db = list_data(j);
+				PM_GRP *grp = pacman_db_readgrp(db, list_data(i));
 
 				if(grp) {
 					MSG(NL, "%s\n", (char *)pacman_grp_getinfo(grp, PM_GRP_NAME));
@@ -139,13 +139,13 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 				}
 			}
 			if (!found) {
-				ERR(NL, _("group \"%s\" was not found\n"), (char *)i->data);
+				ERR(NL, _("group \"%s\" was not found\n"), (char *)list_data(i));
 				ret = 1;
 			}
 		}
 	} else {
 		for(j = syncs; j; j = j->next) {
-			PM_DB *db = j->data;
+			PM_DB *db = list_data(j);
 			PM_LIST *lp;
 
 			for(lp = pacman_db_getgrpcache(db); lp; lp = pacman_list_next(lp)) {
@@ -171,13 +171,13 @@ static int sync_info(list_t *syncs, list_t *targets)
 			int found = 0;
 
 			for(j = syncs; j && !found; j = j->next) {
-				PM_DB *db = j->data;
+				PM_DB *db = list_data(j);
 				PM_LIST *lp;
 
 				for(lp = pacman_db_getpkgcache(db); !found && lp; lp = pacman_list_next(lp)) {
 					PM_PKG *pkg = pacman_list_getdata(lp);
 
-					if(!strcmp(pacman_pkg_getinfo(pkg, PM_PKG_NAME), i->data)) {
+					if(!strcmp(pacman_pkg_getinfo(pkg, PM_PKG_NAME), list_data(i))) {
 						dump_pkg_sync(pkg, (char *)pacman_db_getinfo(db, PM_DB_TREENAME));
 						MSG(NL, "\n");
 						found = 1;
@@ -185,13 +185,13 @@ static int sync_info(list_t *syncs, list_t *targets)
 				}
 			}
 			if(!found) {
-				ERR(NL, _("package \"%s\" was not found.\n"), (char *)i->data);
+				ERR(NL, _("package \"%s\" was not found.\n"), (char *)list_data(i));
 				break;
 			}
 		}
 	} else {
 		for(j = syncs; j; j = j->next) {
-			PM_DB *db = j->data;
+			PM_DB *db = list_data(j);
 			PM_LIST *lp;
 
 			for(lp = pacman_db_getpkgcache(db); lp; lp = pacman_list_next(lp)) {
@@ -215,15 +215,15 @@ static int sync_list(list_t *syncs, list_t *targets)
 			PM_DB *db = NULL;
 
 			for(j = syncs; j && !db; j = j->next) {
-				PM_DB *d = j->data;
+				PM_DB *d = list_data(j);
 
-				if(strcmp(i->data, (char *)pacman_db_getinfo(d, PM_DB_TREENAME)) == 0) {
+				if(strcmp(list_data(i), (char *)pacman_db_getinfo(d, PM_DB_TREENAME)) == 0) {
 					db = d;
 				}
 			}
 
 			if(db == NULL) {
-				ERR(NL, _("repository \"%s\" was not found.\n"), (char *)i->data);
+				ERR(NL, _("repository \"%s\" was not found.\n"), (char *)list_data(i));
 				FREELISTPTR(ls);
 				return(1);
 			}
@@ -236,7 +236,7 @@ static int sync_list(list_t *syncs, list_t *targets)
 
 	for(i = ls; i; i = i->next) {
 		PM_LIST *lp;
-		PM_DB *db = i->data;
+		PM_DB *db = list_data(i);
 
 		for(lp = pacman_db_getpkgcache(db); lp; lp = pacman_list_next(lp)) {
 			PM_PKG *pkg = pacman_list_getdata(lp);
@@ -373,7 +373,7 @@ int syncpkg(list_t *targets)
 	} else {
 		/* process targets */
 		for(i = targets; i; i = i->next) {
-			char *targ = i->data;
+			char *targ = list_data(i);
 			if(pacman_trans_addtarget(pacman_get_trans(), PM_TRANS_TYPE_SYNC, targ, config->flags) == -1) {
 				PM_GRP *grp = NULL;
 				list_t *j;
@@ -383,13 +383,13 @@ int syncpkg(list_t *targets)
 					continue;
 				}
 				if(pm_errno != PM_ERR_PKG_NOT_FOUND) {
-					ERR(NL, _("could not add target '%s': %s\n"), (char *)i->data, pacman_strerror(pm_errno));
+					ERR(NL, _("could not add target '%s': %s\n"), (char *)list_data(i), pacman_strerror(pm_errno));
 					retval = 1;
 					goto cleanup;
 				}
 				/* target not found: check if it's a group */
 				for(j = pmc_syncs; j; j = j->next) {
-					PM_DB *db = j->data;
+					PM_DB *db = list_data(j);
 					grp = pacman_db_readgrp(db, targ);
 					if(grp) {
 						PM_LIST *pmpkgs;
@@ -403,11 +403,11 @@ int syncpkg(list_t *targets)
 						list_display("   ", pkgs);
 						if(yesno(_(":: Install whole content? [Y/n] "))) {
 							for(k = pkgs; k; k = k->next) {
-								targets = list_add(targets, strdup(k->data));
+								targets = list_add(targets, strdup(list_data(k)));
 							}
 						} else {
 							for(k = pkgs; k; k = k->next) {
-								char *pkgname = k->data;
+								char *pkgname = list_data(k);
 								if(yesno(_(":: Install %s from group %s? [Y/n] "), pkgname, targ)) {
 									targets = list_add(targets, strdup(pkgname));
 								}
@@ -419,7 +419,7 @@ int syncpkg(list_t *targets)
 				/* targ is not a group, see if it's a regex */
 				if(!found && config->regex) {
 					for(j = pmc_syncs; j; j = j->next) {
-						PM_DB *db = j->data;
+						PM_DB *db = list_data(j);
 						PM_LIST *k;
 						for(k = pacman_db_getpkgcache(db); k; k = pacman_list_next(k)) {
 							PM_PKG *p = pacman_list_getdata(k);
@@ -442,7 +442,7 @@ int syncpkg(list_t *targets)
 					PM_PKG *pkg;
 					char *pname;
 					for(j = pmc_syncs; j && !k; j = j->next) {
-						PM_DB *db = j->data;
+						PM_DB *db = list_data(j);
 						k = pacman_db_whatprovides(db, targ);
 						pkg = (PM_PKG*)pacman_list_getdata(pacman_list_first(k));
 						pname = (char*)pacman_pkg_getinfo(pkg, PM_PKG_NAME);

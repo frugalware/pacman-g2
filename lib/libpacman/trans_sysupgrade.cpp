@@ -87,21 +87,21 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	/* check for "recommended" package replacements */
 	_pacman_log(PM_LOG_FLOW1, _("checking for package replacements"));
 	for(i = dbs_sync; i; i = i->next) {
-		for(j = _pacman_db_get_pkgcache(i->data); j; j = j->next) {
-			Package *spkg = j->data;
+		for(j = _pacman_db_get_pkgcache(f_ptrlistitem_data(i)); j; j = j->next) {
+			Package *spkg = f_ptrlistitem_data(j);
 			for(k = spkg->replaces(); k; k = k->next) {
 				pmlist_t *m;
 				for(m = _pacman_db_get_pkgcache(db_local); m; m = m->next) {
-					Package *lpkg = m->data;
+					Package *lpkg = f_ptrlistitem_data(m);
 					if(!strcmp(f_stringlistitem_to_str(k), lpkg->name())) {
-						_pacman_log(PM_LOG_DEBUG, _("checking replacement '%s' for package '%s'"), k->data, spkg->name());
+						_pacman_log(PM_LOG_DEBUG, _("checking replacement '%s' for package '%s'"), f_stringlistitem_to_str(k), spkg->name());
 						if(_pacman_list_is_strin(lpkg->name(), handle->ignorepkg)) {
 							_pacman_log(PM_LOG_WARNING, _("%s-%s: ignoring package upgrade (to be replaced by %s-%s)"),
 								lpkg->name(), lpkg->version(), spkg->name(), spkg->version());
 						} else {
 							/* get confirmation for the replacement */
 							int doreplace = 0;
-							QUESTION(trans, PM_TRANS_CONV_REPLACE_PKG, lpkg, spkg, ((Database *)i->data)->treename, &doreplace);
+							QUESTION(trans, PM_TRANS_CONV_REPLACE_PKG, lpkg, spkg, ((Database *)f_ptrlistitem_data(i))->treename, &doreplace);
 
 							if(doreplace) {
 								/* if confirmed, add this to the 'final' list, designating 'lpkg' as
@@ -141,12 +141,12 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	for(i = _pacman_db_get_pkgcache(db_local); i; i = i->next) {
 		int cmp;
 		int replace=0;
-		Package *local = i->data;
+		Package *local = f_ptrlistitem_data(i);
 		Package *spkg = NULL;
 		pmsyncpkg_t *ps;
 
 		for(j = dbs_sync; !spkg && j; j = j->next) {
-			spkg = ((Database *)j->data)->find(local->name());
+			spkg = ((Database *)f_ptrlistitem_data(j))->find(local->name());
 		}
 		if(spkg == NULL) {
 			_pacman_log(PM_LOG_DEBUG, _("'%s' not found in sync db -- skipping"), local->name());
@@ -155,7 +155,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 
 		/* we don't care about a to-be-replaced package's newer version */
 		for(j = trans->syncpkgs; j && !replace; j=j->next) {
-			ps = j->data;
+			ps = f_ptrlistitem_data(j);
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
 				if(_pacman_pkg_isin(spkg->name(), ps->data)) {
 					replace=1;

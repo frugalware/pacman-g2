@@ -395,15 +395,15 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 		/* Check for URL targets and process them
 		 */
 		for(i = targets; i; i = i->next) {
-			if(strstr(i->data, "://")) {
-				char *str = pacman_fetch_pkgurl(i->data);
+			if(strstr(list_data(i), "://")) {
+				char *str = pacman_fetch_pkgurl(list_data(i));
 				if(str == NULL) {
 					return(1);
 				} else {
 					finaltargs = list_add(finaltargs, str);
 				}
 			} else {
-				finaltargs = list_add(finaltargs, strdup(i->data));
+				finaltargs = list_add(finaltargs, strdup(list_data(i)));
 			}
 		}
 		break;
@@ -414,7 +414,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 		for(i = targets; i; i = i->next) {
 			PM_GRP *grp;
 
-			grp = pacman_db_readgrp(db_local, i->data);
+			grp = pacman_db_readgrp(db_local, list_data(i));
 			if(grp) {
 				PM_LIST *lp, *pkgnames;
 				int all;
@@ -425,13 +425,13 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 				PM_LIST_display("   ", pkgnames);
 				all = yesno(_("    Remove whole content? [Y/n] "));
 				for(lp = pacman_list_first(pkgnames); lp; lp = pacman_list_next(lp)) {
-					if(all || yesno(_(":: Remove %s from group %s? [Y/n] "), (char *)pacman_list_getdata(lp), i->data)) {
+					if(all || yesno(_(":: Remove %s from group %s? [Y/n] "), (char *)pacman_list_getdata(lp), list_data(i))) {
 						finaltargs = list_add(finaltargs, strdup(pacman_list_getdata(lp)));
 					}
 				}
 			} else {
 				/* not a group, so add it to the final targets */
-				finaltargs = list_add(finaltargs, strdup(i->data));
+				finaltargs = list_add(finaltargs, strdup(list_data(i)));
 			}
 		}
 		break;
@@ -452,7 +452,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 	/* and add targets to it */
 	MSG(NL, _("loading package data... "));
 	for(i = finaltargs; i; i = i->next) {
-		if(pacman_trans_addtarget(pacman_get_trans(), transtype, i->data, config->flags) == -1) {
+		if(pacman_trans_addtarget(pacman_get_trans(), transtype, list_data(i), config->flags) == -1) {
 			int match = 0;
 
 			switch (transtype) {
@@ -465,7 +465,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 						PM_PKG *p = pacman_list_getdata(k);
 						char *pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
 
-						match = pacman_reg_match(pkgname, i->data);
+						match = pacman_reg_match(pkgname, list_data(i));
 						if(match > 0 &&
 								pacman_trans_addtarget(pacman_get_trans(), transtype, pkgname, config->flags) == -1) {
 							match = 0;
@@ -475,7 +475,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 				break;
 			}
 			if (match > 0) continue;
-			ERR(NL, _("failed to add target '%s' (%s)\n"), (char *)i->data, pacman_strerror(pm_errno));
+			ERR(NL, _("failed to add target '%s' (%s)\n"), (char *)list_data(i), pacman_strerror(pm_errno));
 			retval = 1;
 			goto cleanup;
 		}

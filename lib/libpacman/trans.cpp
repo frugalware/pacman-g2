@@ -134,12 +134,12 @@ int _pacman_trans_compute_triggers(pmtrans_t *trans)
 
 	/* NOTE: Not the most efficient way, but will do until we add some string hash. */
 	for(lp = trans->packages; lp; lp = lp->next) {
-		Package *pkg = lp->data;
+		Package *pkg = f_ptrlistitem_data(lp);
 
 		trans->triggers = f_stringlist_append_stringlist(trans->triggers, pkg->triggers());
 	}
 	for(lp = trans->syncpkgs; lp; lp = lp->next) {
-		Package *pkg = ((pmsyncpkg_t *)lp->data)->pkg_new;
+		Package *pkg = ((pmsyncpkg_t *)f_ptrlistitem_data(lp))->pkg_new;
 
 		/* FIXME: might be incomplete */
 		trans->triggers = f_stringlist_append_stringlist(trans->triggers, pkg->triggers());
@@ -200,7 +200,7 @@ pmsyncpkg_t *__pmtrans_t::find(const char *pkgname) const
 	pmlist_t *i;
 
 	for(i = syncpkgs; i != NULL ; i = i->next) {
-		pmsyncpkg_t *ps = i->data;
+		pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 
 		if(ps && !strcmp(ps->pkg_name, pkgname)) {
 			return ps;
@@ -252,7 +252,7 @@ static int check_olddelay(Handle *handle)
 	}
 
 	for(i = handle->dbs_sync; i; i= i->next) {
-		Database *db = i->data;
+		Database *db = f_ptrlistitem_data(i);
 		if(db->gettimestamp(&tm) == -1) {
 			continue;
 		}
@@ -330,7 +330,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 		*targ = '\0';
 		targ++;
 		for(i = dbs_sync; i && !spkg; i = i->next) {
-			Database *dbs = i->data;
+			Database *dbs = f_ptrlistitem_data(i);
 			if(strcmp(dbs->treename, targline) == 0) {
 				spkg = dbs->find(targ);
 				if(spkg == NULL) {
@@ -350,14 +350,14 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	} else {
 		targ = targline;
 		for(i = dbs_sync; i && !spkg; i = i->next) {
-			Database *dbs = i->data;
+			Database *dbs = f_ptrlistitem_data(i);
 			spkg = dbs->find(targ);
 		}
 		if(spkg == NULL) {
 			/* Search provides */
 			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
 			for(i = dbs_sync; i && !spkg; i = i->next) {
-				Database *dbs = i->data;
+				Database *dbs = f_ptrlistitem_data(i);
 				pmlist_t *p = dbs->whatPackagesProvide(targ);
 				if(p != NULL) {
 					spkg = f_ptrlistitem_data(p);
@@ -442,7 +442,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	/* check if an older version of said package is already in transaction packages.
 	 * if so, replace it in the list */
 	for(i = packages; i; i = i->next) {
-		Package *pkg = i->data;
+		Package *pkg = f_ptrlistitem_data(i);
 		if(strcmp(pkg->name(), pkg_new->name()) == 0) {
 			pkg_queued = pkg;
 			break;
@@ -453,7 +453,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 		if(_pacman_versioncmp(pkg_queued->version(), pkg_new->version()) < 0) {
 			_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
 			          pkg_queued->name(), pkg_queued->version(), pkg_new->version());
-			f_ptrswap(&i->data, (void **)&pkg_new);
+			f_ptrswap(&i->m_data, (void **)&pkg_new);
 		} else {
 			_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
 			          pkg_queued->name(), pkg_queued->version(), pkg_new->version());
@@ -521,7 +521,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 
 	if(m_type == PM_TRANS_TYPE_SYNC) {
 	for(i = syncpkgs; i; i = i->next) {
-		pmsyncpkg_t *ps = i->data;
+		pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 		list = f_ptrlist_add(list, ps->pkg_new);
 	}
 
@@ -532,7 +532,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 		for(i = syncpkgs; i; i = i->next) {
-			Package *spkg = ((pmsyncpkg_t *)i->data)->pkg_new;
+			Package *spkg = ((pmsyncpkg_t *)f_ptrlistitem_data(i))->pkg_new;
 			if(_pacman_resolvedeps(this, spkg, list, trail, data) == -1) {
 				/* pm_errno is set by resolvedeps */
 				ret = -1;
@@ -542,7 +542,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 
 		for(i = list; i; i = i->next) {
 			/* add the dependencies found by resolvedeps to the transaction set */
-			Package *spkg = i->data;
+			Package *spkg = f_ptrlistitem_data(i);
 			if(!find(spkg->name())) {
 				pmsyncpkg_t *ps = new __pmsyncpkg_t(PM_SYNC_TYPE_DEPEND, spkg, NULL);
 				if(ps == NULL) {
@@ -564,14 +564,14 @@ int __pmtrans_t::prepare(pmlist_t **data)
 		/* re-order w.r.t. dependencies */
 		k = l = NULL;
 		for(i=syncpkgs; i; i=i->next) {
-			pmsyncpkg_t *s = (pmsyncpkg_t*)i->data;
+			pmsyncpkg_t *s = (pmsyncpkg_t*)f_ptrlistitem_data(i);
 			k = f_ptrlist_add(k, s->pkg_new);
 		}
 		m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
 		for(i=m; i; i=i->next) {
 			for(j=syncpkgs; j; j=j->next) {
-				pmsyncpkg_t *s = (pmsyncpkg_t*)j->data;
-				if(s->pkg_new == i->data) {
+				pmsyncpkg_t *s = (pmsyncpkg_t*)f_ptrlistitem_data(j);
+				if(s->pkg_new == f_ptrlistitem_data(i)) {
 					l = f_ptrlist_add(l, s);
 				}
 			}
@@ -607,7 +607,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 			int errorout = 0;
 
 			for(i = deps; i && !errorout; i = i->next) {
-				pmdepmissing_t *miss = i->data;
+				pmdepmissing_t *miss = f_ptrlistitem_data(i);
 				int found = 0;
 				pmsyncpkg_t *ps;
 				Package *local;
@@ -619,7 +619,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 				 * if so, then just ignore it
 				 */
 				for(j = syncpkgs; j && !found; j = j->next) {
-					ps = j->data;
+					ps = f_ptrlistitem_data(j);
 					if(ps->type == PM_SYNC_TYPE_REPLACE) {
 						if(_pacman_pkg_isin(miss->depend.name, ps->data)) {
 							found = 1;
@@ -738,7 +738,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 									ret = -1;
 									goto cleanup;
 								}
-								*miss = *(pmdepmissing_t *)i->data;
+								*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
 								*data = f_ptrlist_add(*data, miss);
 							}
 						}
@@ -752,7 +752,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 							ret = -1;
 							goto cleanup;
 						}
-						*miss = *(pmdepmissing_t *)i->data;
+						*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
 						*data = f_ptrlist_add(*data, miss);
 					}
 				}
@@ -786,10 +786,10 @@ int __pmtrans_t::prepare(pmlist_t **data)
 		 */
 		/*EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
 		for(i = syncpkgs; i; i = i->next) {
-			pmsyncpkg_t *ps = i->data;
+			pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
 				for(j = ps->data; j; j = j->next) {
-					list = f_ptrlist_add(list, j->data);
+					list = f_ptrlist_add(list, f_ptrlistitem_data(j));
 				}
 			}
 		}
@@ -799,7 +799,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 			if(deps) {
 				int errorout = 0;
 				for(i = deps; i; i = i->next) {
-					pmdepmissing_t *miss = i->data;
+					pmdepmissing_t *miss = f_ptrlistitem_data(i);
 					if(!find(miss->depend.name)) {
 						int pfound = 0;
 						/* If miss->depend.name depends on something that miss->target and a
@@ -822,12 +822,12 @@ int __pmtrans_t::prepare(pmlist_t **data)
 									 * is an unresolvable conflict. */
 									pmlist_t *n, *o;
 									for(n = syncpkgs; n && !pfound; n = n->next) {
-										pmsyncpkg_t *sp = n->data;
+										pmsyncpkg_t *sp = f_ptrlistitem_data(n);
 										for(o = sp->pkg_new->provides(); o && !pfound; o = o->next) {
 											if(!strcmp(f_stringlistitem_to_str(m), f_stringlistitem_to_str(o))) {
 												/* found matching provisio -- we're good to go */
 												_pacman_log(PM_LOG_FLOW2, _("found '%s' as a provision for '%s' -- conflict aborted"),
-														sp->pkg_name, (char *)o->data);
+														sp->pkg_name, f_stringlistitem_to_str(o));
 												pfound = 1;
 											}
 										}
@@ -845,7 +845,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 									ret = -1;
 									goto cleanup;
 								}
-								*miss = *(pmdepmissing_t *)i->data;
+								*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
 								*data = f_ptrlist_add(*data, miss);
 							}
 						}
@@ -899,7 +899,7 @@ cleanup:
 				while(lp) {
 					pmlist_t *i;
 					for(i = lp; i; i = i->next) {
-						pmdepmissing_t *miss = (pmdepmissing_t *)i->data;
+						pmdepmissing_t *miss = (pmdepmissing_t *)f_ptrlistitem_data(i);
 						Package *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
 						if(pkg_local) {
 							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), pkg_local->name());
@@ -966,13 +966,13 @@ cleanup:
 	EVENT(this, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
 	_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
 	for (lp = packages; lp!=NULL; lp=lp->next) {
-		Package *pkg_new=(Package *)lp->data;
+		Package *pkg_new = (Package *)f_ptrlistitem_data(lp);
 		pmlist_t *rmlist;
 
 		for (rmlist=pkg_new->removes(); rmlist!=NULL; rmlist=rmlist->next) {
 			char rm_fname[PATH_MAX];
 
-			snprintf(rm_fname, PATH_MAX, "%s%s", m_handle->root, (char *)rmlist->data);
+			snprintf(rm_fname, PATH_MAX, "%s%s", m_handle->root, f_stringlistitem_to_str(rmlist));
 			remove(rm_fname);
 		}
 	}
@@ -1142,7 +1142,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 					 */
 					for(lp = pkg->backup(); lp; lp = lp->next) {
 						char *fn;
-						char *file = lp->data;
+						char *file = f_stringlistitem_to_str(lp);
 
 						if(!file) continue;
 						if(!strcmp(file, pathname)) {
@@ -1153,7 +1153,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 								}
 								sprintf(fn, "%s\t%s", file, md5_pkg);
 								FREE(file);
-								lp->data = fn;
+								lp->m_data = fn;
 							} else {
 								/* 41 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
 								if((fn = (char *)malloc(strlen(file)+43)) == NULL) {
@@ -1161,7 +1161,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 								}
 								sprintf(fn, "%s\t%s", file, sha1_pkg);
 								FREE(file);
-								lp->data = fn;
+								lp->m_data = fn;
 							}
 						}
 					}
@@ -1273,7 +1273,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 					for(lp = pkg->backup(); lp; lp = lp->next) {
 						char *fn, *md5, *sha1;
 						char path[PATH_MAX];
-						char *file = lp->data;
+						char *file = f_stringlistitem_to_str(lp);
 
 						if(!file) continue;
 						if(!strcmp(file, pathname)) {
@@ -1297,7 +1297,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 								FREE(sha1);
 							}
 							FREE(file);
-							lp->data = fn;
+							lp->m_data = fn;
 						}
 					}
 				}
@@ -1449,10 +1449,10 @@ int __pmtrans_t::commit(pmlist_t **data)
 		int done = 1;
 		for(i = m_handle->dbs_sync; i; i = i->next) {
 			struct stat buf;
-			Database *current = i->data;
+			Database *current = f_ptrlistitem_data(i);
 
 			for(j = syncpkgs; j; j = j->next) {
-				pmsyncpkg_t *ps = j->data;
+				pmsyncpkg_t *ps = f_ptrlistitem_data(j);
 				Package *spkg = ps->pkg_new;
 				Database *dbs = spkg->database();
 
@@ -1518,7 +1518,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 			EVENT(this, PM_TRANS_EVT_INTEGRITY_START, NULL, NULL);
 
 			for(i = syncpkgs; i; i = i->next) {
-				pmsyncpkg_t *ps = i->data;
+				pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 
 				retval = _pacman_cachedpkg_check_integrity(ps->pkg_new, this, data);
 			}
@@ -1557,10 +1557,10 @@ int __pmtrans_t::commit(pmlist_t **data)
 	tr->conv.connect(&conv);
 	tr->progress.connect(&progress);
 	for(i = syncpkgs; i; i = i->next) {
-		pmsyncpkg_t *ps = i->data;
+		pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 		if(ps->type == PM_SYNC_TYPE_REPLACE) {
 			for(j = ps->data; j; j = j->next) {
-				Package *pkg = j->data;
+				Package *pkg = f_ptrlistitem_data(j);
 				if(!_pacman_pkg_isin(pkg->name(), tr->packages)) {
 					if(tr->add(pkg->name(), tr->m_type, tr->flags) == -1) {
 						goto error;
@@ -1596,7 +1596,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 	tr->conv.connect(&conv);
 	tr->progress.connect(&progress);
 	for(i = syncpkgs; i; i = i->next) {
-		pmsyncpkg_t *ps = i->data;
+		pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 		Package *spkg = ps->pkg_new;
 		char str[PATH_MAX];
 		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, m_handle->root, m_handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
@@ -1605,7 +1605,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 		}
 		/* using f_ptrlist_last() is ok because addtarget() adds the new target at the
 		 * end of the tr->packages list */
-		spkg = f_ptrlist_last(tr->packages)->data;
+		spkg = f_ptrlistitem_data(f_ptrlist_last(tr->packages));
 		if(ps->type == PM_SYNC_TYPE_DEPEND || flags & PM_TRANS_FLAG_ALLDEPS) {
 			spkg->m_reason = PM_PKG_REASON_DEPEND;
 		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !m_handle->sysupgrade) {
@@ -1628,12 +1628,12 @@ int __pmtrans_t::commit(pmlist_t **data)
 	if(replaces) {
 		_pacman_log(PM_LOG_FLOW1, _("updating database for replaced packages' dependencies"));
 		for(i = syncpkgs; i; i = i->next) {
-			pmsyncpkg_t *ps = i->data;
+			pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
 				Package *pkg_new = db_local->find(ps->pkg_name);
 				for(j = ps->data; j; j = j->next) {
 					pmlist_t *k;
-					Package *old = j->data;
+					Package *old = f_ptrlistitem_data(j);
 					/* merge lists */
 					for(k = old->requiredby(); k; k = k->next) {
 						if(!_pacman_list_is_strin(f_stringlistitem_to_str(k), pkg_new->requiredby())) {
@@ -1649,8 +1649,8 @@ int __pmtrans_t::commit(pmlist_t **data)
 							}
 							for(m = depender->depends(); m; m = m->next) {
 								if(!strcmp(f_stringlistitem_to_str(m), old->name())) {
-									FREE(m->data);
-									m->data = strdup(pkg_new->name());
+									FREE(m->m_data);
+									m->m_data = strdup(pkg_new->name());
 								}
 							}
 							if(db_local->write(depender, INFRQ_DEPENDS) == -1) {
@@ -1701,9 +1701,9 @@ int __pmtrans_t::commit(pmlist_t **data)
 		}
 
 		if(type & PM_TRANS_TYPE_ADD) {
-			pkg_new = (Package *)targ->data;
+			pkg_new = (Package *)f_ptrlistitem_data(targ);
 		} else {
-			pkg_local = (Package *)targ->data;
+			pkg_local = (Package *)f_ptrlistitem_data(targ);
 		}
 
 		/* see if this is an upgrade.  if so, remove the old package first */
@@ -1791,7 +1791,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 			Package *depinfo = NULL;
 			pmdepend_t depend;
 			char *data;
-			if(_pacman_splitdep((char*)lp->data, &depend)) {
+			if(_pacman_splitdep((char*)f_stringlistitem_to_str(lp), &depend)) {
 				continue;
 			}
 			/* if this dependency is in the transaction targets, no need to update
@@ -1810,7 +1810,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 					 *			 the first one.
 					 */
 					/* use the first one */
-					depinfo = db_local->find(((Package *)provides->data)->name());
+					depinfo = db_local->find(((Package *)f_ptrlistitem_data(provides))->name());
 					FREELISTPTR(provides);
 				}
 				if(depinfo == NULL) {
@@ -1851,17 +1851,17 @@ int __pmtrans_t::commit(pmlist_t **data)
 		/* Update the requiredby field by scanning the whole database
 		 * looking for packages depending on the package to add */
 		for(lp = _pacman_db_get_pkgcache(db_local); lp; lp = lp->next) {
-			Package *tmpp = lp->data;
+			Package *tmpp = f_ptrlistitem_data(lp);
 			pmlist_t *tmppm = NULL;
 			if(tmpp == NULL) {
 				continue;
 			}
 			for(tmppm = tmpp->depends(); tmppm; tmppm = tmppm->next) {
 				pmdepend_t depend;
-				if(_pacman_splitdep(tmppm->data, &depend)) {
+				if(_pacman_splitdep(f_ptrlistitem_data(tmppm), &depend)) {
 					continue;
 				}
-				if(tmppm->data && (!strcmp(depend.name, pkg_new->name()) || pkg_new->provides(depend.name))) {
+				if(f_ptrlistitem_data(tmppm) && (!strcmp(depend.name, pkg_new->name()) || pkg_new->provides(depend.name))) {
 					_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), tmpp->name(), pkg_new->name());
 					pkg_new->m_requiredby = _pacman_stringlist_append(pkg_new->m_requiredby, tmpp->name());
 				}
@@ -1891,7 +1891,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 		for(lp = pkg_new->depends(); lp; lp = lp->next) {
 			Package *depinfo;
 			pmdepend_t depend;
-			if(_pacman_splitdep(lp->data, &depend)) {
+			if(_pacman_splitdep(f_stringlistitem_to_str(lp), &depend)) {
 				continue;
 			}
 			depinfo = db_local->find(depend.name);
@@ -1903,7 +1903,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 					 *       the first one.
 					 */
 					/* use the first one */
-					depinfo = db_local->find(((Package *)provides->data)->name());
+					depinfo = db_local->find(((Package *)f_ptrlistitem_data(provides))->name());
 					FREELISTPTR(provides);
 				}
 				if(depinfo == NULL) {

@@ -129,7 +129,7 @@ static int list_startswith(char *needle, pmlist_t *haystack)
 	pmlist_t *i;
 
 	for (i = haystack; i; i = i->next) {
-		cache_t *c = i->data;
+		cache_t *c = f_ptrlistitem_data(i);
 		if (!strncmp(c->str, needle, strlen(c->str))) {
 			c->hit = 1;
 			return(1);
@@ -199,7 +199,7 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 
 	/* finally delete the old ones */
 	for (i = cache; i; i = i->next) {
-		cache_t *c = i->data;
+		cache_t *c = f_ptrlistitem_data(i);
 		if (!c->hit) {
 			snprintf(expath, PATH_MAX, "%s/%s", prefix, c->str);
 			_pacman_rmrf(expath);
@@ -485,11 +485,11 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 	long long pkgsize=0, freespace;
 
 	for(i = trans->packages; i; i = i->next) {
-		Package *pkg = i->data;
+		Package *pkg = f_ptrlistitem_data(i);
 		pkgsize += pkg->size;
 	}
 	for(i = trans->syncpkgs; i; i = i->next) {
-		pmsyncpkg_t *ps = i->data;
+		pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 
 		if(ps->type != PM_SYNC_TYPE_REPLACE) {
 			Package *pkg = ps->pkg_new;

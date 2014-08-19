@@ -176,7 +176,7 @@ Database *Handle::getDatabase(const char *treename)
 	}
 
 	for(i = dbs_sync; i; i = i->next) {
-			Database *sdb = (Database *)i->data;
+			Database *sdb = (Database *)f_ptrlistitem_data(i);
 			if(strcmp(treename, sdb->treename) == 0) {
 				return sdb;
 		}

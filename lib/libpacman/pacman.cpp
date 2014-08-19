@@ -119,7 +119,7 @@ int pacman_release(void)
 	/* and also sync ones */
 	while(handle->dbs_sync) {
 		/* db_unregister() will also update the handle->dbs_sync list */
-		pacman_db_unregister(handle->dbs_sync->data);
+		pacman_db_unregister(f_ptrlistitem_data(handle->dbs_sync));
 	}
 
 	if(handle->unlock() != 0) {
@@ -474,7 +474,7 @@ void *pacman_db_getinfo(pmdb_t *_db, unsigned char parm)
 	switch(parm) {
 		case PM_DB_TREENAME:   data = db->treename; break;
 		case PM_DB_FIRSTSERVER:
-			server = (pmserver_t*)db->servers->data;
+			server = (pmserver_t*)f_ptrlistitem_data(db->servers);
 			if(!strcmp(server->protocol, "file")) {
 				snprintf(path, PATH_MAX, "%s://%s", server->protocol, server->path);
 			} else {
@@ -511,7 +511,7 @@ int pacman_db_setserver(pmdb_t *_db, char *url)
 	} else {
 		pmlist_t *i;
 		for(i = handle->dbs_sync; i && !found; i = i->next) {
-			Database *sdb = i->data;
+			Database *sdb = f_ptrlistitem_data(i);
 			if(strcmp(db->treename, sdb->treename) == 0) {
 				found = 1;
 			}
@@ -1025,7 +1025,7 @@ pmlist_t *pacman_db_search(pmdb_t *_db)
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(handle->needles != NULL, return(NULL));
-	ASSERT(handle->needles->data != NULL, return(NULL));
+	ASSERT(f_ptrlistitem_data(handle->needles) != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
 	ret = db->filter(handle->needles,
@@ -1370,7 +1370,7 @@ void *pacman_list_iterator_getdata(pmlist_iterator_t *iterator)
 {
 	ASSERT(iterator != NULL, return NULL);
 
-	return cxx_cast(iterator)->data;
+	return f_ptrlistitem_data(cxx_cast(iterator));
 }
 /** @} */
 
