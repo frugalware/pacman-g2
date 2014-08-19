@@ -26,10 +26,18 @@
 
 #include "util/fcallback.h"
 
+/* Chained list struct */
+struct __pmlist_t {
+	struct __pmlist_t *prev;
+	struct __pmlist_t *next;
+	void *m_data;
+};
+
 #ifdef __cplusplus
 
 #ifdef F_NOCOMPAT
 class FListItemBase
+	: public __pmlist_t
 {
 public:
 	ListItem()

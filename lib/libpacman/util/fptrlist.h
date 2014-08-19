@@ -27,18 +27,13 @@
 #include "stdbool.h"
 
 #include "util/fcallback.h"
+#include "util/flist.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #ifndef F_NOCOMPAT
-/* Chained list struct */
-struct __pmlist_t {
-	struct __pmlist_t *prev;
-	struct __pmlist_t *next;
-	void *m_data;
-};
 
 typedef struct __pmlist_t FPtrList;
 typedef struct __pmlist_t FPtrListItem;
@@ -46,8 +41,6 @@ typedef struct __pmlist_t FPtrListItem;
 typedef struct FPtrList FPtrList;
 typedef struct FPtrListItem FPtrListItem;
 #endif
-
-#include "util/flist.h"
 
 #define _FREELIST(p, f) do { if(p) { FVisitor visitor = { (FVisitorFunc)f, NULL }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
 
