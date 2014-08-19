@@ -43,7 +43,7 @@ static int
 _pacman_packages_transaction_set_state(pmtrans_t *trans, int new_state)
 {
 	const char *root, *triggersdir, *trigger_function;
-	const pmlist_t *lp;
+	const FPtrList *lp;
 
 	triggersdir = trans->m_handle->triggersdir;
 	root = trans->m_handle->root;

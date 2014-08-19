@@ -75,9 +75,9 @@ __pmdepmissing_t::__pmdepmissing_t(const char *target, unsigned char type, unsig
 }
 
 static
-int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
+int _pacman_depmiss_isin(pmdepmissing_t *needle, FPtrList *haystack)
 {
-	pmlist_t *i;
+	FPtrList *i;
 
 	for(i = haystack; i; i = f_ptrlistitem_next(i)) {
 		pmdepmissing_t *miss = f_ptrlistitem_data(i);
@@ -89,7 +89,7 @@ int _pacman_depmiss_isin(pmdepmissing_t *needle, pmlist_t *haystack)
 	return(0);
 }
 
-pmlist_t *_pacman_depmisslist_add(pmlist_t *misslist, pmdepmissing_t *miss)
+FPtrList *_pacman_depmisslist_add(FPtrList *misslist, pmdepmissing_t *miss)
 {
 	if(!_pacman_depmiss_isin(miss, misslist)) {
 		misslist = f_ptrlist_add(misslist, miss);
@@ -111,15 +111,15 @@ pmlist_t *_pacman_depmisslist_add(pmlist_t *misslist, pmdepmissing_t *miss)
  * mode should be either PM_TRANS_TYPE_ADD or PM_TRANS_TYPE_REMOVE.  This
  * affects the dependency order sortbydeps() will use.
  *
- * This function returns the new pmlist_t* target list.
+ * This function returns the new FPtrList* target list.
  *
  */
-pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
+FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
 {
-	pmlist_t *newtargs = NULL;
-	pmlist_t *i, *j, *k;
-	pmlist_t *vertices = NULL;
-	pmlist_t *vptr;
+	FPtrList *newtargs = NULL;
+	FPtrList *i, *j, *k;
+	FPtrList *vertices = NULL;
+	FPtrList *vptr;
 	pmgraph_t *vertex;
 	int found;
 
@@ -193,7 +193,7 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 
 	if(mode == PM_TRANS_TYPE_REMOVE) {
 		/* we're removing packages, so reverse the order */
-		pmlist_t *tmptargs = _pacman_list_reverse(newtargs);
+		FPtrList *tmptargs = _pacman_list_reverse(newtargs);
 		/* free the old one */
 		FREELISTPTR(newtargs);
 		newtargs = tmptargs;
@@ -204,18 +204,18 @@ pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode)
 	return(newtargs);
 }
 
-/* Returns a pmlist_t* of missing_t pointers.
+/* Returns a FPtrList* of missing_t pointers.
  *
  * dependencies can include versions with depmod operators.
  *
  */
-pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packages)
+FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packages)
 {
 	pmdepend_t depend;
-	pmlist_t *i, *j, *k;
+	FPtrList *i, *j, *k;
 	int cmp;
 	int found = 0;
-	pmlist_t *baddeps = NULL;
+	FPtrList *baddeps = NULL;
 	pmdepmissing_t *miss = NULL;
 	Database *db_local = trans->m_handle->db_local;
 
@@ -335,7 +335,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
 				}
  				/* check database for provides matches */
  				if(!found) {
- 					pmlist_t *m;
+ 					FPtrList *m;
  					k = db_local->whatPackagesProvide(depend.name);
  					for(m = k; m && !found; m = f_ptrlistitem_next(m)) {
  						/* look for a match that isn't one of the packages we're trying
@@ -343,7 +343,7 @@ pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packag
  						 * package, we'll defer to the NEW one, not the one already
  						 * installed. */
  						Package *p = f_ptrlistitem_data(m);
- 						pmlist_t *n;
+ 						FPtrList *n;
  						int skip = 0;
  						for(n = packages; n && !skip; n = f_ptrlistitem_next(n)) {
  							Package *ptp = f_ptrlistitem_data(n);
@@ -474,15 +474,15 @@ out:
 	return(0);
 }
 
-/* return a new pmlist_t target list containing all packages in the original
+/* return a new FPtrList target list containing all packages in the original
  * target list, as well as all their un-needed dependencies.  By un-needed,
  * I mean dependencies that are *only* required for packages in the target
  * list, so they can be safely removed.  This function is recursive.
  */
-pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
+FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
 {
-	pmlist_t *i, *j, *k;
-	pmlist_t *newtargs = targs;
+	FPtrList *i, *j, *k;
+	FPtrList *newtargs = targs;
 
 	if(db == NULL) {
 		return(newtargs);
@@ -554,14 +554,14 @@ pmlist_t *_pacman_removedeps(Database *db, pmlist_t *targs)
  *
  * make sure *list and *trail are already initialized
  */
-int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
-                      pmlist_t *trail, pmlist_t **data)
+int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
+                      FPtrList *trail, FPtrList **data)
 {
-	pmlist_t *i, *j;
-	pmlist_t *targ;
-	pmlist_t *deps = NULL;
+	FPtrList *i, *j;
+	FPtrList *targ;
+	FPtrList *deps = NULL;
 	Handle *handle = trans->m_handle;
-	pmlist_t *dbs_sync = handle->dbs_sync;
+	FPtrList *dbs_sync = handle->dbs_sync;
 
 	if(dbs_sync == NULL || syncpkg == NULL) {
 		return(-1);
@@ -600,7 +600,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, pmlist_t *list,
 		}
 		/* check provides */
 		for(j = dbs_sync; !ps && j; j = f_ptrlistitem_next(j)) {
-			pmlist_t *provides;
+			FPtrList *provides;
 			provides = ((Database *)f_ptrlistitem_data(j))->whatPackagesProvide(miss->depend.name);
 			if(provides) {
 				ps = f_ptrlistitem_data(provides);
@@ -727,8 +727,8 @@ static int str_cmp(const void *s1, const void *s2)
     return(strcmp(s1, s2));
 }
 
-int inList(pmlist_t *lst, char *lItem) {
-    pmlist_t *ll;
+int inList(FPtrList *lst, char *lItem) {
+    FPtrList *ll;
     ll = lst;
     while(ll) {
         if(!strcmp(lItem, (char *)f_ptrlistitem_data(ll))) {
@@ -740,9 +740,9 @@ int inList(pmlist_t *lst, char *lItem) {
 }
 
 extern "C" {
-int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist) {
-    pmlist_t *found = NULL;
-    pmlist_t *k = NULL, *j = NULL;
+int pacman_output_generate(FPtrList *targets, FPtrList *dblist) {
+    FPtrList *found = NULL;
+    FPtrList *k = NULL, *j = NULL;
     Package *pkg = NULL;
     char *match = NULL;
     int foundMatch = 0;

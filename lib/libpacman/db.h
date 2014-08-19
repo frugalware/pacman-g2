@@ -51,7 +51,7 @@ public:
 	virtual ~Database();
 
 	/* Prototypes for backends functions */
-	virtual pmlist_t *test() const;
+	virtual FPtrList *test() const;
 
 	virtual int open(int flags = 0);
 	virtual int close();
@@ -67,8 +67,8 @@ public:
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
 
 	// Cache operations
-	pmlist_t *filter(const libpacman::PackageMatcher &packagematcher);
-	pmlist_t *filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
+	FPtrList *filter(const libpacman::PackageMatcher &packagematcher);
+	FPtrList *filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
 	FPtrList *filter(const FStringList *needles, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);
 	FPtrList *filter(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);
 	libpacman::Package *find(const libpacman::PackageMatcher &packagematcher);
@@ -78,15 +78,15 @@ public:
 			int strmatcher_flags = FStrMatcher::EQUAL);
 	FPtrList *whatPackagesProvide(const char *target);
 
-	virtual pmlist_t *getowners(const char *filename); /* Make pure virtual */
+	virtual FPtrList *getowners(const char *filename); /* Make pure virtual */
 
 	::libpacman::Handle *m_handle;
 	char *path;
 	char treename[PATH_MAX];
 	libpacman::Timestamp cache_timestamp;
-	pmlist_t *pkgcache;
-	pmlist_t *grpcache;
-	pmlist_t *servers;
+	FPtrList *pkgcache;
+	FPtrList *grpcache;
+	FPtrList *servers;
 
 protected:
 	Database(libpacman::Handle *handle, const char *treename);

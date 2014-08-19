@@ -134,7 +134,7 @@ int LocalPackage::remove()
 
 int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int remain)
 {
-	pmlist_t *lp;
+	FPtrList *lp;
 	struct stat buf;
 	int position = 0;
 	Handle *handle = trans->m_handle;
@@ -180,7 +180,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 			 * see the big comment block in db_find_conflicts() for an
 			 * explanation. */
 			int skipit = 0;
-			pmlist_t *j;
+			FPtrList *j;
 			for(j = trans->skiplist; j; j = f_ptrlistitem_next(j)) {
 				if(!strcmp(file, f_stringlistitem_to_str(j))) {
 					skipit = 1;
@@ -251,12 +251,12 @@ LocalPackage *_pacman_localdb_pkg_new(LocalDatabase *db, const struct dirent *di
 	return pkg;
 }
 
-pmlist_t *LocalDatabase::test() const
+FPtrList *LocalDatabase::test() const
 {
 	struct dirent *ent;
 	char path[PATH_MAX];
 	struct stat buf;
-	pmlist_t *ret = f_ptrlist_new();
+	FPtrList *ret = f_ptrlist_new();
 
 	while ((ent = readdir(m_dir)) != NULL) {
 		snprintf(path, PATH_MAX, "%s/%s", this->path, ent->d_name);
@@ -422,9 +422,9 @@ void _pacman_localdb_write_string(const char *entry, const char *value, FILE *st
 }
 
 static
-void _pacman_localdb_write_stringlist(const char *entry, const pmlist_t *values, FILE *stream)
+void _pacman_localdb_write_stringlist(const char *entry, const FPtrList *values, FILE *stream)
 {
-	const pmlist_t *lp;
+	const FPtrList *lp;
 
 	if(values != NULL) {
 		fprintf(stream, "%%%s%%\n", entry);
@@ -527,12 +527,12 @@ cleanup:
 	return(retval);
 }
 
-pmlist_t *LocalDatabase::getowners(const char *filename)
+FPtrList *LocalDatabase::getowners(const char *filename)
 {
 	struct stat buf;
 	int gotcha = 0;
 	char rpath[PATH_MAX];
-	pmlist_t *lp, *ret = NULL;
+	FPtrList *lp, *ret = NULL;
 
 	if(stat(filename, &buf) == -1 || realpath(filename, rpath) == NULL) {
 		RET_ERR(PM_ERR_PKG_OPEN, NULL);
@@ -547,7 +547,7 @@ pmlist_t *LocalDatabase::getowners(const char *filename)
 
 	for(lp = _pacman_db_get_pkgcache(this); lp; lp = f_ptrlistitem_next(lp)) {
 		Package *info = (Package *)f_ptrlistitem_data(lp);
-		pmlist_t *i;
+		FPtrList *i;
 
 		for(i = info->files(); i; i = f_ptrlistitem_next(i)) {
 			char path[PATH_MAX];

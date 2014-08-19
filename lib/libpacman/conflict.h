@@ -33,8 +33,8 @@ struct __pmconflict_t {
 	char ctarget[PKG_NAME_LEN];
 };
 
-pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages);
-pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans);
+FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages);
+FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans);
 
 #endif /* _PACMAN_CONFLICT_H */
 

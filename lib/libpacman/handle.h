@@ -31,6 +31,7 @@
 #include "trans.h"
 
 #include "kernel/fobject.h"
+#include "util/fptrlist.h"
 
 namespace libpacman {
 
@@ -61,7 +62,7 @@ public:
 	pmaccess_t access;
 	uid_t uid;
 	libpacman::Database *db_local;
-	pmlist_t *dbs_sync; /* List of (libpacman::Database *) */
+	FPtrList *dbs_sync; /* List of (libpacman::Database *) */
 	FILE *logfd;
 	FFileLock *filelock;
 	pmtrans_t *trans;
@@ -72,10 +73,10 @@ public:
 	char *logfile;
 	char *hooksdir;
 	char *triggersdir;
-	pmlist_t *noupgrade; /* List of strings */
-	pmlist_t *noextract; /* List of strings */
-	pmlist_t *ignorepkg; /* List of strings */
-	pmlist_t *holdpkg; /* List of strings */
+	FPtrList *noupgrade; /* List of strings */
+	FPtrList *noextract; /* List of strings */
+	FPtrList *ignorepkg; /* List of strings */
+	FPtrList *holdpkg; /* List of strings */
 	unsigned char usesyslog;
 	time_t upgradedelay;
 	time_t olddelay;
@@ -86,7 +87,7 @@ public:
 	unsigned short nopassiveftp;
 	unsigned short chomp; /* if eye-candy features should be enabled or not */
 	unsigned short maxtries; /* for downloading */
-	pmlist_t *needles; /* for searching */
+	FPtrList *needles; /* for searching */
 	char *language;
 	int *dlremain;
 	int *dlhowmany;

@@ -156,12 +156,12 @@ pkg_error:
 	return false;
 }
 
-/* Test for existence of a package in a pmlist_t*
+/* Test for existence of a package in a FPtrList*
  * of Package*
  */
-Package *_pacman_pkg_isin(const char *needle, pmlist_t *haystack)
+Package *_pacman_pkg_isin(const char *needle, FPtrList *haystack)
 {
-	pmlist_t *lp;
+	FPtrList *lp;
 
 	if(needle == NULL || haystack == NULL) {
 		return(NULL);
@@ -252,7 +252,7 @@ int Package::filename(char *str, size_t size) const
  */
 char *Package::fileneedbackup(const char *file) const
 {
-	const pmlist_t *lp;
+	const FPtrList *lp;
 
 	ASSERT(!_pacman_strempty(file), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 

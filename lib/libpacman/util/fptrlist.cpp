@@ -232,7 +232,7 @@ int f_ptrlist_fini(FPtrList *self, FVisitor *visitor)
 #ifndef F_NOCOMPAT
 FPtrList *f_ptrlist_append(FPtrList *list, void *data)
 {
-	pmlist_t *ptr, *lp;
+	FPtrList *ptr, *lp;
 
 	ptr = list;
 	if(ptr == NULL) {

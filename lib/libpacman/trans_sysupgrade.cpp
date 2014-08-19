@@ -70,10 +70,10 @@ static int istoonew(Package *pkg)
 
 int _pacman_trans_sysupgrade(pmtrans_t *trans)
 {
-	pmlist_t *i, *j, *k;
+	FPtrList *i, *j, *k;
 	Handle *handle;
 	Database *db_local;
-	pmlist_t *dbs_sync;
+	FPtrList *dbs_sync;
 
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
@@ -90,7 +90,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 		for(j = _pacman_db_get_pkgcache(f_ptrlistitem_data(i)); j; j = f_ptrlistitem_next(j)) {
 			Package *spkg = f_ptrlistitem_data(j);
 			for(k = spkg->replaces(); k; k = f_ptrlistitem_next(k)) {
-				pmlist_t *m;
+				FPtrList *m;
 				for(m = _pacman_db_get_pkgcache(db_local); m; m = f_ptrlistitem_next(m)) {
 					Package *lpkg = f_ptrlistitem_data(m);
 					if(!strcmp(f_stringlistitem_to_str(k), lpkg->name())) {

@@ -152,7 +152,7 @@ SyncPackage *_pacman_syncdb_pkg_new(SyncDatabase *db, const struct archive_entry
 int _pacman_syncdb_update(Database *db, int force)
 {
 	char path[PATH_MAX], dirpath[PATH_MAX];
-	pmlist_t *files = NULL;
+	FPtrList *files = NULL;
 	Timestamp newmtime;
 	Timestamp timestamp;
 	int ret, updated=0;

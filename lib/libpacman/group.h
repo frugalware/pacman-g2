@@ -24,6 +24,7 @@
 #include "pacman.h"
 
 #include "kernel/fobject.h"
+#include "util/fptrlist.h"
 
 #define GRP_NAME_LEN 256
 
@@ -38,7 +39,7 @@ public:
 	~Group();
 
 	char name[GRP_NAME_LEN];
-	pmlist_t *packages; /* List of unowned strings */
+	FPtrList *packages; /* List of unowned strings */
 };
 
 }

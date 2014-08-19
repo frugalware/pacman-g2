@@ -51,7 +51,7 @@ public:
 	LocalDatabase(libpacman::Handle *handle, const char *treename);
 	virtual ~LocalDatabase();
 
-	virtual pmlist_t *test() const;
+	virtual FPtrList *test() const;
 
 	virtual int close();
 
@@ -61,7 +61,7 @@ public:
 
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
 
-	virtual pmlist_t *getowners(const char *filename);
+	virtual FPtrList *getowners(const char *filename);
 
 protected:
 	virtual int open(int flags, libpacman::Timestamp *timestamp);

@@ -94,7 +94,7 @@ void _pacman_db_free_pkgcache(Database *db)
 	_pacman_db_clear_grpcache(db);
 }
 
-pmlist_t *_pacman_db_get_pkgcache(Database *db)
+FPtrList *_pacman_db_get_pkgcache(Database *db)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
@@ -147,7 +147,7 @@ int _pacman_db_remove_pkgfromcache(Database *db, Package *pkg)
 static
 Group *_pacman_db_get_grpfromlist(FPtrList *list, const char *target)
 {
-	pmlist_t *i;
+	FPtrList *i;
 
 	if(_pacman_strempty(target)) {
 		return(NULL);
@@ -168,7 +168,7 @@ Group *_pacman_db_get_grpfromlist(FPtrList *list, const char *target)
  */
 int _pacman_db_load_grpcache(Database *db)
 {
-	pmlist_t *lp;
+	FPtrList *lp;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
@@ -177,7 +177,7 @@ int _pacman_db_load_grpcache(Database *db)
 	_pacman_log(PM_LOG_DEBUG, _("loading group cache for repository '%s'"), db->treename);
 
 	for(; lp; lp = f_ptrlistitem_next(lp)) {
-		pmlist_t *i;
+		FPtrList *i;
 		Package *pkg = f_ptrlistitem_data(lp);
 
 		if(!(pkg->flags & INFRQ_DESC)) {
@@ -216,7 +216,7 @@ int _pacman_db_clear_grpcache(Database *db)
 	return 0;
 }
 
-pmlist_t *_pacman_db_get_grpcache(Database *db)
+FPtrList *_pacman_db_get_grpcache(Database *db)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 

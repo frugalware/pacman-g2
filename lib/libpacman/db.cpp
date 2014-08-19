@@ -84,9 +84,9 @@ Database::~Database()
 	free(path);
 }
 
-pmlist_t *Database::filter(const PackageMatcher &packagematcher)
+FPtrList *Database::filter(const PackageMatcher &packagematcher)
 {
-	pmlist_t *i, *ret = NULL;
+	FPtrList *i, *ret = NULL;
 
 	for(i = _pacman_db_get_pkgcache(this); i; i = f_ptrlistitem_next(i)) {
 		Package *pkg = (Package *)f_ptrlistitem_data(i);
@@ -98,14 +98,14 @@ pmlist_t *Database::filter(const PackageMatcher &packagematcher)
 	return ret;
 }
 
-pmlist_t *Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags)
+FPtrList *Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags)
 {
 	return filter(PackageMatcher(strmatcher, packagestrmatcher_flags));
 }
 
 FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_flags, int strmatcher_flags)
 {
-	pmlist_t *i, *j, *ret = NULL;
+	FPtrList *i, *j, *ret = NULL;
 
 	for(i = needles; i; i = f_ptrlistitem_next(i)) {
 		const char *pattern = f_stringlistitem_to_str(i);
@@ -139,7 +139,7 @@ FPtrList *Database::filter(const char *pattern, int packagestrmatcher_flags, int
 Package *Database::find(const PackageMatcher &packagematcher)
 {
 	Package *ret = NULL;
-	pmlist_t *i;
+	FPtrList *i;
 
 	for(i = _pacman_db_get_pkgcache(this); i; i = f_ptrlistitem_next(i)) {
 		Package *pkg = (Package *)f_ptrlistitem_data(i);
@@ -174,7 +174,7 @@ FPtrList *Database::whatPackagesProvide(const char *target)
 	return filter(target, PM_PACKAGE_FLAG_PROVIDES);
 }
 
-pmlist_t *Database::test() const
+FPtrList *Database::test() const
 {
 	/* testing sync dbs is not supported */
 	return f_ptrlist_new();
@@ -236,7 +236,7 @@ int Database::write(Package *info, unsigned int inforeq)
 	RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
 }
 
-pmlist_t *Database::getowners(const char *filename)
+FPtrList *Database::getowners(const char *filename)
 {
 	return NULL;
 }

@@ -343,7 +343,7 @@ error:
  *
  * RETURN:  0 for successful download, -1 on error
  */
-int _pacman_downloadfiles(Handle *handle, pmlist_t *servers, const char *localpath, pmlist_t *files, int skip)
+int _pacman_downloadfiles(Handle *handle, FPtrList *servers, const char *localpath, FPtrList *files, int skip)
 {
 	if(_pacman_downloadfiles_forreal(handle, servers, localpath, files, NULL, NULL, skip) != 0) {
 		return(-1);
@@ -365,13 +365,13 @@ int _pacman_downloadfiles(Handle *handle, pmlist_t *servers, const char *localpa
  *          1 if the mtimes are identical
  *         -1 on error
  */
-int _pacman_downloadfiles_forreal(Handle *handle, pmlist_t *servers, const char *localpath,
-	pmlist_t *files, const Timestamp *mtime1, Timestamp *mtime2, int skip)
+int _pacman_downloadfiles_forreal(Handle *handle, FPtrList *servers, const char *localpath,
+	FPtrList *files, const Timestamp *mtime1, Timestamp *mtime2, int skip)
 {
-	pmlist_t *lp;
+	FPtrList *lp;
 	int done = 0;
-	pmlist_t *complete = NULL;
-	pmlist_t *i;
+	FPtrList *complete = NULL;
+	FPtrList *i;
 	pmserver_t *server;
 	int *remain = handle->dlremain, *howmany = handle->dlhowmany;
 
@@ -628,8 +628,8 @@ char *_pacman_fetch_pkgurl(Handle *handle, char *target)
 		_pacman_log(PM_LOG_DEBUG, _("%s is already in the cache\n"), fn);
 	} else {
 		pmserver_t *server;
-		pmlist_t *servers = NULL;
-		pmlist_t *files;
+		FPtrList *servers = NULL;
+		FPtrList *files;
 
 		if((server = _pacman_malloc(sizeof(pmserver_t))) == NULL) {
 			return(NULL);

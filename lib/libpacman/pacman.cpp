@@ -172,7 +172,7 @@ void _pacman_handle_set_option_string(const char *option, char **string, const c
 }
 
 static
-void _pacman_handle_set_option_stringlist(const char *option, pmlist_t **stringlist, const char *value)
+void _pacman_handle_set_option_stringlist(const char *option, FStringList **stringlist, const char *value)
 {
 	if(!_pacman_strempty(value)) {
 		*stringlist = _pacman_stringlist_append(*stringlist, value);
@@ -509,7 +509,7 @@ int pacman_db_setserver(pmdb_t *_db, char *url)
 			found = 1;
 		}
 	} else {
-		pmlist_t *i;
+		FPtrList *i;
 		for(i = handle->dbs_sync; i && !found; i = f_ptrlistitem_next(i)) {
 			Database *sdb = f_ptrlistitem_data(i);
 			if(strcmp(db->treename, sdb->treename) == 0) {
@@ -600,7 +600,7 @@ pmlist_t *pacman_db_getpkgcache(pmdb_t *_db)
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
-	return(_pacman_db_get_pkgcache(db));
+	return c_cast(_pacman_db_get_pkgcache(db));
 }
 
 /** Get the list of packages that a package provides
@@ -617,7 +617,7 @@ pmlist_t *pacman_db_whatprovides(pmdb_t *_db, char *name)
 	ASSERT(db != NULL, return(NULL));
 	ASSERT(!_pacman_strempty(name), return(NULL));
 
-	return db->whatPackagesProvide(name);
+	return c_cast(db->whatPackagesProvide(name));
 }
 
 /** Get a group entry from a package database
@@ -650,7 +650,7 @@ pmlist_t *pacman_db_getgrpcache(pmdb_t *_db)
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
-	return(_pacman_db_get_grpcache(db));
+	return c_cast(_pacman_db_get_grpcache(db));
 }
 
 /** @} */
@@ -872,7 +872,7 @@ pmlist_t *pacman_pkg_getowners(const char *filename)
 	ASSERT(handle->db_local != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 	ASSERT(!_pacman_strempty(filename), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-	return handle->db_local->getowners(filename);
+	return c_cast(handle->db_local->getowners(filename));
 }
 
 /** Create a package from a file.
@@ -1010,7 +1010,7 @@ pmlist_t *pacman_db_test(pmdb_t *_db)
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
-	return db->test();
+	return c_cast(db->test());
 }
 
 /** Searches a database
@@ -1020,7 +1020,7 @@ pmlist_t *pacman_db_test(pmdb_t *_db)
 pmlist_t *pacman_db_search(pmdb_t *_db)
 {
 	Database *db = cxx_cast(_db);
-	pmlist_t *ret;
+	FPtrList *ret;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
@@ -1032,7 +1032,7 @@ pmlist_t *pacman_db_search(pmdb_t *_db)
 			PM_PACKAGE_FLAG_NAME | PM_PACKAGE_FLAG_DESCRIPTION | PM_PACKAGE_FLAG_PROVIDES,
 			FStrMatcher::ALL_IGNORE_CASE);
 	FREELIST(handle->needles);
-	return(ret);
+	return c_cast(ret);
 }
 /** @} */
 
@@ -1150,7 +1150,7 @@ int pacman_trans_prepare(pmlist_t **data)
 	ASSERT(handle->trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT(handle->trans->state == STATE_INITIALIZED, RET_ERR(PM_ERR_TRANS_NOT_INITIALIZED, -1));
 
-	return handle->trans->prepare(data);
+	return handle->trans->prepare((FPtrList **)data);
 }
 
 /** Commit a transaction.
@@ -1170,7 +1170,7 @@ int pacman_trans_commit(pmlist_t **data)
 	ASSERT((handle->access == PM_ACCESS_RW) || (handle->trans->flags & PM_TRANS_FLAG_PRINTURIS),
 			RET_ERR(PM_ERR_BADPERMS, -1));
 
-	return handle->trans->commit(data);
+	return handle->trans->commit((FPtrList **)data);
 }
 
 /** Release a transaction.
@@ -1304,7 +1304,7 @@ int pacman_logaction(const char *format, ...)
  */
 pmlist_iterator_t *pacman_list_begin(pmlist_t *list)
 {
-	return c_cast(list);
+	return (pmlist_iterator_t *)f_ptrlist_first(cxx_cast(list));
 }
 
 /** Get the iterator to end of a list.
@@ -1313,7 +1313,7 @@ pmlist_iterator_t *pacman_list_begin(pmlist_t *list)
  */
 pmlist_iterator_t *pacman_list_end(pmlist_t *list)
 {
-	return NULL;
+	return (pmlist_iterator_t *)f_ptrlist_end(cxx_cast(list));
 }
 
 /** Free a list.
@@ -1324,7 +1324,8 @@ int pacman_list_free(pmlist_t *list)
 {
 	ASSERT(list != NULL, return(-1));
 
-	FREELIST(list);
+	FPtrList *tmp = cxx_cast(list);
+	FREELIST(tmp);
 
 	return(0);
 }
@@ -1337,7 +1338,7 @@ int pacman_list_count(pmlist_t *list)
 {
 	ASSERT(list != NULL, return(-1));
 
-	return(f_ptrlist_count(list));
+	return f_ptrlist_count(cxx_cast(list));
 }
 
 /** Free a list iterator.
@@ -1359,7 +1360,7 @@ pmlist_iterator_t *pacman_list_iterator_next(pmlist_iterator_t *iterator)
 {
 	ASSERT(iterator != NULL, return NULL);
 
-	return c_cast(f_ptrlistitem_next(cxx_cast(iterator)));
+	return (pmlist_iterator_t *)f_ptrlistitem_next((FPtrListItem *)iterator);
 }
 
 /** Get the data of a list iterator.
@@ -1370,7 +1371,7 @@ void *pacman_list_iterator_getdata(pmlist_iterator_t *iterator)
 {
 	ASSERT(iterator != NULL, return NULL);
 
-	return f_ptrlistitem_data(cxx_cast(iterator));
+	return f_ptrlistitem_data((FPtrListItem *)iterator);
 }
 /** @} */
 

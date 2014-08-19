@@ -49,9 +49,9 @@ struct __pmdownload_t {
 
 pmserver_t *_pacman_server_new(char *url);
 void _pacman_server_free(void *data);
-int _pacman_downloadfiles(::libpacman::Handle *handle, pmlist_t *servers, const char *localpath, pmlist_t *files, int skip);
-int _pacman_downloadfiles_forreal(::libpacman::Handle *handle, pmlist_t *servers, const char *localpath,
-	pmlist_t *files, const libpacman::Timestamp *mtime1, libpacman::Timestamp *mtime2, int skip);
+int _pacman_downloadfiles(::libpacman::Handle *handle, FPtrList *servers, const char *localpath, FPtrList *files, int skip);
+int _pacman_downloadfiles_forreal(::libpacman::Handle *handle, FPtrList *servers, const char *localpath,
+	FPtrList *files, const libpacman::Timestamp *mtime1, libpacman::Timestamp *mtime2, int skip);
 
 char *_pacman_fetch_pkgurl(::libpacman::Handle *handle, char *target);
 

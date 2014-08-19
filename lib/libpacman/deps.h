@@ -45,18 +45,18 @@ typedef struct __pmgraph_t {
 	int state; /* 0: untouched, -1: entered, other: leaving time */
 	void *data;
 	struct __pmgraph_t *parent; /* where did we come from? */
-	pmlist_t *children;
-	pmlist_t *childptr; /* points to a child in children list */
+	FPtrList *children;
+	FPtrList *childptr; /* points to a child in children list */
 } pmgraph_t;
 
-pmlist_t *_pacman_depmisslist_add(pmlist_t *misslist, pmdepmissing_t *miss);
+FPtrList *_pacman_depmisslist_add(FPtrList *misslist, pmdepmissing_t *miss);
 
-pmlist_t *_pacman_sortbydeps(pmlist_t *targets, int mode);
-pmlist_t *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, pmlist_t *packages);
+FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode);
+FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packages);
 int _pacman_splitdep(char *depstr, pmdepend_t *depend);
-pmlist_t *_pacman_removedeps(libpacman::Database *db, pmlist_t *targs);
-int _pacman_resolvedeps(pmtrans_t *trans, libpacman::Package *syncpkg, pmlist_t *list,
-                pmlist_t *trail, pmlist_t **data);
+FPtrList *_pacman_removedeps(libpacman::Database *db, FPtrList *targs);
+int _pacman_resolvedeps(pmtrans_t *trans, libpacman::Package *syncpkg, FPtrList *list,
+                FPtrList *trail, FPtrList **data);
 int _pacman_depcmp(libpacman::Package *pkg, pmdepend_t *dep);
 
 #endif /* _PACMAN_DEPS_H */

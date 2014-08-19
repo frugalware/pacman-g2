@@ -42,9 +42,9 @@ int _pacman_packagecache_clean(int level)
 		/* incomplete cleanup: we keep latest packages and partial downloads */
 		DIR *dir;
 		struct dirent *ent;
-		pmlist_t *cache = NULL;
-		pmlist_t *clean = NULL;
-		pmlist_t *i, *j;
+		FPtrList *cache = NULL;
+		FPtrList *clean = NULL;
+		FPtrList *i, *j;
 
 		dir = opendir(dirpath);
 		if(dir == NULL) {

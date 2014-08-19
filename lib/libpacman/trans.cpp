@@ -130,7 +130,7 @@ __pmtrans_t::~__pmtrans_t()
 static
 int _pacman_trans_compute_triggers(pmtrans_t *trans)
 {
-	pmlist_t *lp;
+	FPtrList *lp;
 
 	/* NOTE: Not the most efficient way, but will do until we add some string hash. */
 	for(lp = trans->packages; lp; lp = f_ptrlistitem_next(lp)) {
@@ -192,12 +192,12 @@ int _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, void
 	return 0;
 }
 
-/* Test for existence of a package in a pmlist_t* of pmsyncpkg_t*
+/* Test for existence of a package in a FPtrList* of pmsyncpkg_t*
  * If found, return a pointer to the respective pmsyncpkg_t*
  */
 pmsyncpkg_t *__pmtrans_t::find(const char *pkgname) const
 {
-	pmlist_t *i;
+	FPtrList *i;
 
 	for(i = syncpkgs; i != NULL ; i = f_ptrlistitem_next(i)) {
 		pmsyncpkg_t *ps = f_ptrlistitem_data(i);
@@ -244,7 +244,7 @@ static int pkg_cmp(const void *p1, const void *p2)
 
 static int check_olddelay(Handle *handle)
 {
-	pmlist_t *i;
+	FPtrList *i;
 	Timestamp tm;
 
 	if(!handle->olddelay) {
@@ -304,10 +304,10 @@ Package *_pacman_filedb_load(Database *db, const char *name)
 // FIXME: Make returning a pmsyncpkg_t in the future
 int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 {
-	pmlist_t *i;
+	FPtrList *i;
 	Package *pkg_new, *pkg_local, *pkg_queued = NULL;
 	Database *db_local;
-	pmlist_t *dbs_sync = m_handle->dbs_sync;
+	FPtrList *dbs_sync = m_handle->dbs_sync;
 
 	/* Sanity checks */
 	ASSERT((db_local = m_handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -335,7 +335,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 				spkg = dbs->find(targ);
 				if(spkg == NULL) {
 					/* Search provides */
-					pmlist_t *p;
+					FPtrList *p;
 					_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
 					p = dbs->whatPackagesProvide(targ);
 					if(p != NULL) {
@@ -358,7 +358,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
 			for(i = dbs_sync; i && !spkg; i = f_ptrlistitem_next(i)) {
 				Database *dbs = f_ptrlistitem_data(i);
-				pmlist_t *p = dbs->whatPackagesProvide(targ);
+				FPtrList *p = dbs->whatPackagesProvide(targ);
 				if(p != NULL) {
 					spkg = f_ptrlistitem_data(p);
 					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), spkg->name(), targ);
@@ -493,15 +493,15 @@ error:
 	return(-1);
 }
 
-int __pmtrans_t::prepare(pmlist_t **data)
+int __pmtrans_t::prepare(FPtrList **data)
 {
 	Database *db_local;
-	pmlist_t *lp;
-	pmlist_t *deps = NULL;
-	pmlist_t *list = NULL; /* list allowing checkdeps usage with data from packages */
-	pmlist_t *trail = NULL; /* breadcrum list to avoid running into circles */
-	pmlist_t *asked = NULL;
-	pmlist_t *i, *j, *k, *l, *m;
+	FPtrList *lp;
+	FPtrList *deps = NULL;
+	FPtrList *list = NULL; /* list allowing checkdeps usage with data from packages */
+	FPtrList *trail = NULL; /* breadcrum list to avoid running into circles */
+	FPtrList *asked = NULL;
+	FPtrList *i, *j, *k, *l, *m;
 	int ret = 0;
 
 	/* Sanity checks */
@@ -814,13 +814,13 @@ int __pmtrans_t::prepare(pmlist_t **data)
 						/* Look through the upset package's dependencies and try to match one up
 						 * to a provisio from the package we want to remove */
 						for(k = conflictp->depends(); k && !pfound; k = f_ptrlistitem_next(k)) {
-							pmlist_t *m;
+							FPtrList *m;
 							for(m = leavingp->provides(); m && !pfound; m = f_ptrlistitem_next(m)) {
 								if(!strcmp(f_stringlistitem_to_str(k), f_stringlistitem_to_str(m))) {
 									/* Found a match -- now look through final for a package that
 									 * provides the same thing.  If none are found, then it truly
 									 * is an unresolvable conflict. */
-									pmlist_t *n, *o;
+									FPtrList *n, *o;
 									for(n = syncpkgs; n && !pfound; n = f_ptrlistitem_next(n)) {
 										pmsyncpkg_t *sp = f_ptrlistitem_data(n);
 										for(o = sp->pkg_new->provides(); o && !pfound; o = f_ptrlistitem_next(o)) {
@@ -865,7 +865,7 @@ int __pmtrans_t::prepare(pmlist_t **data)
 #ifndef __sun__
 	/* check for free space only in case the packages will be extracted */
 	if(!(flags & PM_TRANS_FLAG_NOCONFLICTS)) {
-		if(_pacman_check_freespace(this, data) == -1) {
+		if(_pacman_check_freespace(this, (pmlist_t **)data) == -1) {
 				/* pm_errno is set by check_freespace */
 				ret = -1;
 				goto cleanup;
@@ -897,7 +897,7 @@ cleanup:
 		if(lp != NULL) {
 			if((m_type == PM_TRANS_TYPE_REMOVE) && (flags & PM_TRANS_FLAG_CASCADE)) {
 				while(lp) {
-					pmlist_t *i;
+					FPtrList *i;
 					for(i = lp; i; i = f_ptrlistitem_next(i)) {
 						pmdepmissing_t *miss = (pmdepmissing_t *)f_ptrlistitem_data(i);
 						Package *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
@@ -967,7 +967,7 @@ cleanup:
 	_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
 	for (lp = packages; lp!=NULL; lp = f_ptrlistitem_next(lp)) {
 		Package *pkg_new = (Package *)f_ptrlistitem_data(lp);
-		pmlist_t *rmlist;
+		FPtrList *rmlist;
 
 		for (rmlist=pkg_new->removes(); rmlist!=NULL; rmlist = f_ptrlistitem_next(rmlist)) {
 			char rm_fname[PATH_MAX];
@@ -997,7 +997,7 @@ cleanup:
 	}
 
 #ifndef __sun__
-	if(_pacman_check_freespace(this, data) == -1) {
+	if(_pacman_check_freespace(this, (pmlist_t **)data) == -1) {
 			/* pm_errno is set by check_freespace */
 			return(-1);
 	}
@@ -1019,7 +1019,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 	struct archive_entry *entry;
 	Handle *handle = trans->m_handle;
 	Database *db_local = handle->db_local;
-	pmlist_t *lp;
+	FPtrList *lp;
 	char expath[PATH_MAX], cwd[PATH_MAX] = "";
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -1313,7 +1313,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 }
 
 static
-int _pacman_cachedpkg_check_integrity(Package *spkg, __pmtrans_t *trans, pmlist_t **data)
+int _pacman_cachedpkg_check_integrity(Package *spkg, __pmtrans_t *trans, FPtrList **data)
 {
 	char str[PATH_MAX], pkgname[PATH_MAX];
 	char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
@@ -1412,11 +1412,11 @@ struct trans_event_table_item {
 	}
 };
 
-int __pmtrans_t::commit(pmlist_t **data)
+int __pmtrans_t::commit(FPtrList **data)
 {
 	Database *db_local;
 	int howmany, remain;
-	pmlist_t *targ, *lp;
+	FPtrList *targ, *lp;
 	pmtrans_t *tr = NULL;
 	char pm_install[PATH_MAX];
 
@@ -1434,7 +1434,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 	_pacman_trans_set_state(this, STATE_COMMITING);
 
 	if(m_type == PM_TRANS_TYPE_SYNC) {
-	pmlist_t *i, *j, *files = NULL;
+	FPtrList *i, *j, *files = NULL;
 	char ldir[PATH_MAX];
 	int retval = 0, tries = 0;
 	int varcache = 1;
@@ -1540,7 +1540,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 	}
 	if(!retval) {
 		state = STATE_COMMITING;
-		pmlist_t *i, *j;
+		FPtrList *i, *j;
 	int replaces = 0;
 
 	if(m_handle->sysupgrade) {
@@ -1632,13 +1632,13 @@ int __pmtrans_t::commit(pmlist_t **data)
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
 				Package *pkg_new = db_local->find(ps->pkg_name);
 				for(j = ps->data; j; j = f_ptrlistitem_next(j)) {
-					pmlist_t *k;
+					FPtrList *k;
 					Package *old = f_ptrlistitem_data(j);
 					/* merge lists */
 					for(k = old->requiredby(); k; k = f_ptrlistitem_next(k)) {
 						if(!_pacman_list_is_strin(f_stringlistitem_to_str(k), pkg_new->requiredby())) {
 							/* replace old's name with new's name in the requiredby's dependency list */
-							pmlist_t *m;
+							FPtrList *m;
 							Package *depender = db_local->find(f_stringlistitem_to_str(k));
 							if(depender == NULL) {
 								/* If the depending package no longer exists in the local db,
@@ -1804,7 +1804,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 			depinfo = db_local->find(depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
-				pmlist_t *provides = db_local->whatPackagesProvide(depend.name);
+				FPtrList *provides = db_local->whatPackagesProvide(depend.name);
 				if(provides) {
 					/* TODO: should check _all_ packages listed in provides, not just
 					 *			 the first one.
@@ -1852,7 +1852,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 		 * looking for packages depending on the package to add */
 		for(lp = _pacman_db_get_pkgcache(db_local); lp; lp = f_ptrlistitem_next(lp)) {
 			Package *tmpp = f_ptrlistitem_data(lp);
-			pmlist_t *tmppm = NULL;
+			FPtrList *tmppm = NULL;
 			if(tmpp == NULL) {
 				continue;
 			}
@@ -1897,7 +1897,7 @@ int __pmtrans_t::commit(pmlist_t **data)
 			depinfo = db_local->find(depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
-				pmlist_t *provides = db_local->whatPackagesProvide(depend.name);
+				FPtrList *provides = db_local->whatPackagesProvide(depend.name);
 				if(provides) {
 					/* TODO: should check _all_ packages listed in provides, not just
 					 *       the first one.

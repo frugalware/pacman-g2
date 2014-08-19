@@ -61,8 +61,8 @@ struct __pmtrans_t
 
 	pmsyncpkg_t *find(const char *pkgname) const;
 
-	int prepare(pmlist_t **data);
-	int commit(pmlist_t **data);
+	int prepare(FPtrList **data);
+	int commit(FPtrList **data);
 
 	pmsyncpkg_t *add(pmsyncpkg_t *syncpkg, int flags);
 	int add(libpacman::Package *pkg, pmtranstype_t type, int flags);
@@ -74,7 +74,7 @@ struct __pmtrans_t
 	unsigned int flags;
 	unsigned char state;
 	FStringList *targets;
-	pmlist_t *packages;    /* pmlist_t of (pmpkg_t *) or (pmsyncpkg_t *) */
+	FPtrList *packages;    /* FPtrList of (pmpkg_t *) or (pmsyncpkg_t *) */
 	FPtrList *syncpkgs; /* FPtrList of (pmsyncpkg_t *) */
 	FStringList *skiplist;
 	FStringList *triggers;

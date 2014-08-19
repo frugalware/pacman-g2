@@ -36,6 +36,7 @@
 #include "sync.h"
 #include "error.h"
 #include "pacman.h"
+#include "pacman_p.h"
 
 #include <sys/wait.h>
 #include <sys/statvfs.h>
@@ -124,9 +125,9 @@ typedef struct __cache_t {
 	int hit;
 } cache_t;
 
-static int list_startswith(char *needle, pmlist_t *haystack)
+static int list_startswith(char *needle, FPtrList *haystack)
 {
-	pmlist_t *i;
+	FPtrList *i;
 
 	for (i = haystack; i; i = f_ptrlistitem_next(i)) {
 		cache_t *c = f_ptrlistitem_data(i);
@@ -143,7 +144,7 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 	register struct archive *_archive;
 	struct archive_entry *entry;
 	char expath[PATH_MAX];
-	pmlist_t *cache = NULL, *i;
+	FPtrList *cache = NULL, *i;
 	DIR *handle;
 	struct dirent *ent;
 	struct stat buf;
@@ -481,7 +482,7 @@ static long long get_freespace(void)
 
 int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 {
-	pmlist_t *i;
+	FPtrList *i;
 	long long pkgsize=0, freespace;
 
 	for(i = trans->packages; i; i = f_ptrlistitem_next(i)) {
@@ -509,13 +510,15 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 				return(-1);
 			}
 			*ptr = pkgsize;
-			*data = f_ptrlist_add(*data, ptr);
+			*data = c_cast(f_ptrlist_add(cxx_cast(*data), ptr));
 			if((ptr = (long long*)malloc(sizeof(long long)))==NULL) {
-				FREELIST(*data);
+				FPtrList *tmp = cxx_cast(*data);
+				FREELIST(tmp);
+				*data = NULL;
 				return(-1);
 			}
 			*ptr = freespace;
-			*data = f_ptrlist_add(*data, ptr);
+			*data = c_cast(f_ptrlist_add(cxx_cast(*data), ptr));
 		}
 		pm_errno = PM_ERR_DISK_FULL;
 		return(-1);

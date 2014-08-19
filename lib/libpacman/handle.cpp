@@ -169,7 +169,7 @@ Database *Handle::createDatabase(const char *treename, pacman_cb_db_register cal
 
 Database *Handle::getDatabase(const char *treename)
 {
-	pmlist_t *i;
+	FPtrList *i;
 
 	if(strcmp(treename, "local") == 0) {
 		return db_local;

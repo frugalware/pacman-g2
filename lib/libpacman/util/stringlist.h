@@ -29,8 +29,8 @@ extern "C" {
 #endif
 
 #ifndef F_NOCOMPAT
-typedef struct __pmlist_t FStringList;
-typedef struct __pmlist_t FStringListItem;
+typedef FPtrList FStringList;
+typedef FPtrList FStringListItem;
 #else
 typedef struct FStringList FStringList;
 typedef struct FStringListItem FStringListItem;

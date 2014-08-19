@@ -28,22 +28,20 @@
 
 #include "util/fcallback.h"
 
-/* Chained list struct */
-struct __pmlist_t {
-	struct __pmlist_t *m_previous;
-	struct __pmlist_t *m_next;
-	void *m_data;
-};
-
 #ifndef __cplusplus
 
 typedef struct FCList FCList;
 typedef struct FCListItem FCListItem;
 
+typedef struct FCListItem FPtrList;
+typedef struct FCListItem FPtrListItem;
+
 #else
 
+typedef class FCListItem FPtrList;
+typedef class FCListItem FPtrListItem;
+
 class FCListItem
-	: public __pmlist_t
 {
 public:
 	FCListItem()
@@ -54,9 +52,11 @@ public:
 		: m_next(next), m_previous(previous)
 	{ }
 
-	virtual ~FCListItem() = 0;
+	virtual ~FCListItem()
+	{ } // FIXME: Make pure virtual
 
-	virtual void *c_data() const = 0;
+	virtual void *c_data() const
+	{ return m_data; } // FIXME: Make pure virtual
 
 	FCListItem *next()
 	{
@@ -78,11 +78,12 @@ public:
 		return m_previous;
 	}
 
-protected:
+//protected: // Disable for now
 	bool insert_after(FCListItem *previous);	
 
 	FCListItem *m_next;
 	FCListItem *m_previous;
+	void *m_data; // Enabled for now
 };
 
 class FCList
@@ -169,14 +170,6 @@ protected:
 };
 
 extern "C" {
-#endif
-
-#ifndef F_NOCOMPAT
-typedef struct __pmlist_t FPtrList;
-typedef struct __pmlist_t FPtrListItem;
-#else
-typedef struct FPtrList FPtrList;
-typedef struct FPtrListItem FPtrListItem;
 #endif
 
 #define _FREELIST(p, f) do { if(p) { FVisitor visitor = { (FVisitorFunc)f, NULL }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)

@@ -45,15 +45,15 @@
 
 using namespace libpacman;
 
-/* Returns a pmlist_t* of pmdepmissing_t pointers.
+/* Returns a FPtrList* of pmdepmissing_t pointers.
  *
  * conflicts are always name only
  */
-pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
+FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 {
 	Package *info = NULL;
-	pmlist_t *i, *j, *k;
-	pmlist_t *baddeps = NULL;
+	FPtrList *i, *j, *k;
+	FPtrList *baddeps = NULL;
 	pmdepmissing_t *miss = NULL;
 	int howmany, remain;
 	double percent;
@@ -101,7 +101,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 					baddeps = _pacman_depmisslist_add(baddeps, miss);
 				} else {
 					/* see if dp provides something in tp's conflict list */
-					pmlist_t *m;
+					FPtrList *m;
 					for(m = dp->provides(); m; m = f_ptrlistitem_next(m)) {
 						if(!strcmp(f_stringlistitem_to_str(m), conflict)) {
 							/* confict */
@@ -129,7 +129,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 					baddeps = _pacman_depmisslist_add(baddeps, miss);
 				} else {
 					/* see if otp provides something in tp's conflict list */
-					pmlist_t *m;
+					FPtrList *m;
 					for(m = otp->provides(); m; m = f_ptrlistitem_next(m)) {
 						if(!strcmp(f_stringlistitem_to_str(m), conflict)) {
 							_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
@@ -144,7 +144,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 		/* CHECK 3: check database against targets */
 		_pacman_log(PM_LOG_DEBUG, _("checkconflicts: db vs targ '%s'"), tp->name());
 		for(k = _pacman_db_get_pkgcache(db_local); k; k = f_ptrlistitem_next(k)) {
-			pmlist_t *conflicts = NULL;
+			FPtrList *conflicts = NULL;
 			int usenewconflicts = 0;
 
 			info = (Package *)f_ptrlistitem_data(k);
@@ -152,7 +152,7 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 				/* a package cannot conflict with itself -- that's just not nice */
 				continue;
 			}
-			/* If this package (*info) is also in our packages pmlist_t, use the
+			/* If this package (*info) is also in our packages FPtrList, use the
 			 * conflicts list from the new package, not the old one (*info)
 			 */
 			for(j = packages; j; j = f_ptrlistitem_next(j)) {
@@ -175,9 +175,9 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 					baddeps = _pacman_depmisslist_add(baddeps, miss);
 				} else {
 					/* see if the db package conflicts with something we provide */
-					pmlist_t *m;
+					FPtrList *m;
 					for(m = conflicts; m; m = f_ptrlistitem_next(m)) {
-						pmlist_t *n;
+						FPtrList *n;
 						for(n = tp->provides(); n; n = f_ptrlistitem_next(n)) {
 							if(!strcmp(f_stringlistitem_to_str(m), f_stringlistitem_to_str(n))) {
 								_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
@@ -195,14 +195,14 @@ pmlist_t *_pacman_checkconflicts(pmtrans_t *trans, pmlist_t *packages)
 	return(baddeps);
 }
 
-/* Returns a pmlist_t* of file conflicts.
+/* Returns a FPtrList* of file conflicts.
  *  Hooray for set-intersects!
  *  Pre-condition: both lists are sorted!
  */
-static pmlist_t *chk_fileconflicts(pmlist_t *filesA, pmlist_t *filesB)
+static FPtrList *chk_fileconflicts(FPtrList *filesA, FPtrList *filesB)
 {
-	pmlist_t *ret = NULL;
-	pmlist_t *pA = filesA, *pB = filesB;
+	FPtrList *ret = NULL;
+	FPtrList *pA = filesA, *pB = filesB;
 
 	while(pA && pB) {
 		const char *strA = f_stringlistitem_to_str(pA);
@@ -232,14 +232,14 @@ static pmlist_t *chk_fileconflicts(pmlist_t *filesA, pmlist_t *filesB)
 	return(ret);
 }
 
-pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans)
+FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 {
-	pmlist_t *i, *j, *k;
+	FPtrList *i, *j, *k;
 	char *filestr = NULL;
 	char path[PATH_MAX+1];
 	struct stat buf;
-	pmlist_t *conflicts = NULL;
-	pmlist_t *targets = trans->packages;
+	FPtrList *conflicts = NULL;
+	FPtrList *targets = trans->packages;
 	Package *p, *dbpkg;
 	double percent;
 	int howmany, remain;
@@ -260,7 +260,7 @@ pmlist_t *_pacman_db_find_conflicts(pmtrans_t *trans)
 		for(j = i; j; j = f_ptrlistitem_next(j)) {
 			Package *p2 = (Package*)f_ptrlistitem_data(j);
 			if(strcmp(p1->name(), p2->name())) {
-				pmlist_t *ret = chk_fileconflicts(p1->files(), p2->files());
+				FPtrList *ret = chk_fileconflicts(p1->files(), p2->files());
 				for(k = ret; k; k = f_ptrlistitem_next(k)) {
 						pmconflict_t *conflict = _pacman_malloc(sizeof(pmconflict_t));
 						if(conflict == NULL) {
