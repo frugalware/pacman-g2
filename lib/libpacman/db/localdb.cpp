@@ -454,7 +454,7 @@ int LocalDatabase::write(Package *info, unsigned int inforeq)
 	if(inforeq & INFRQ_DESC) {
 		snprintf(path, PATH_MAX, "%s/%s-%s/desc", this->path, info->name(), info->version());
 		if((fp = fopen(path, "w")) == NULL) {
-			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/desc"), treename);
+			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/desc"), treename());
 			retval = 1;
 			goto cleanup;
 		}
@@ -488,7 +488,7 @@ int LocalDatabase::write(Package *info, unsigned int inforeq)
 	if(inforeq & INFRQ_FILES) {
 		snprintf(path, PATH_MAX, "%s/%s-%s/files", this->path, info->name(), info->version());
 		if((fp = fopen(path, "w")) == NULL) {
-			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/files"), treename);
+			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/files"), treename());
 			retval = -1;
 			goto cleanup;
 		}
@@ -502,7 +502,7 @@ int LocalDatabase::write(Package *info, unsigned int inforeq)
 	if(inforeq & INFRQ_DEPENDS) {
 		snprintf(path, PATH_MAX, "%s/%s-%s/depends", this->path, info->name(), info->version());
 		if((fp = fopen(path, "w")) == NULL) {
-			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/depends"), treename);
+			_pacman_log(PM_LOG_ERROR, _("db_write: could not open file %s/depends"), treename());
 			retval = -1;
 			goto cleanup;
 		}

@@ -62,7 +62,7 @@ FILE *_pacman_db_fopen_lastupdate(const Database *db, const char *mode)
 {
 	char path[PATH_MAX];
 
-	snprintf(path, sizeof(path), "%s%s/%s.lastupdate", db->m_handle->root, db->m_handle->dbpath, db->treename);
+	snprintf(path, sizeof(path), "%s%s/%s.lastupdate", db->m_handle->root, db->m_handle->dbpath, db->treename());
 	return fopen(path, mode);
 }
 
@@ -75,7 +75,7 @@ Database::Database(Handle *handle, const char *treename)
 //	}
 	sprintf(path, "%s%s/%s", handle->root, handle->dbpath, treename);
 
-	STRNCPY(this->treename, treename, PATH_MAX);
+	STRNCPY(m_treename, treename, PATH_MAX);
 }
 
 Database::~Database()
@@ -93,7 +93,7 @@ bool Database::add_server(const char *url)
 
 	servers = f_ptrlist_add(servers, server);
 	_pacman_log(PM_LOG_FLOW2, _("adding new server to database '%s': protocol '%s', server '%s', path '%s'"),
-			treename, server->protocol, server->server, server->path);
+			treename(), server->protocol, server->server, server->path);
 	return true;
 }
 
@@ -241,6 +241,11 @@ int Database::rewind()
 Package *Database::readpkg(unsigned int inforeq)
 {
 	return NULL;
+}
+
+const char *Database::treename() const
+{
+	return m_treename;
 }
 
 int Database::write(Package *info, unsigned int inforeq)

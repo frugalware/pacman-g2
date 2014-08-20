@@ -68,7 +68,7 @@ int _pacman_db_load_pkgcache(Database *db)
 	if (db != db->m_handle->db_local)
 		inforeq = INFRQ_DESC | INFRQ_DEPENDS;
 	_pacman_log(PM_LOG_DEBUG, _("loading package cache (infolevel=%#x) for repository '%s'"),
-	                        inforeq, db->treename);
+	                        inforeq, db->treename());
 
 	db->rewind();
 	while((info = db->readpkg(inforeq)) != NULL) {
@@ -87,7 +87,7 @@ void _pacman_db_free_pkgcache(Database *db)
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("freeing package cache for repository '%s'"),
-	                        db->treename);
+	                        db->treename());
 
 	FREELISTPKGS(db->pkgcache);
 
@@ -113,7 +113,7 @@ int _pacman_db_add_pkgincache(Database *db, Package *pkg)
 	}
 
 	pkg->acquire(); // FIXME: Should not be necessary, but required during migration to refcounted object
-	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), pkg->name(), db->treename);
+	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), pkg->name(), db->treename());
 	db->pkgcache = f_ptrlist_add_sorted(db->pkgcache, pkg, _pacman_pkg_cmp);
 
 	_pacman_db_clear_grpcache(db);
@@ -136,7 +136,7 @@ int _pacman_db_remove_pkgfromcache(Database *db, Package *pkg)
 		return(-1);
 	}
 
-	_pacman_log(PM_LOG_DEBUG, _("removing entry '%s' from '%s' cache"), pkg->name(), db->treename);
+	_pacman_log(PM_LOG_DEBUG, _("removing entry '%s' from '%s' cache"), pkg->name(), db->treename());
 	data->release(); // FIXME: Should not be necessary, but required during migration to refcounted object
 
 	_pacman_db_clear_grpcache(db);
@@ -174,7 +174,7 @@ int _pacman_db_load_grpcache(Database *db)
 
 	lp = _pacman_db_get_pkgcache(db);
 
-	_pacman_log(PM_LOG_DEBUG, _("loading group cache for repository '%s'"), db->treename);
+	_pacman_log(PM_LOG_DEBUG, _("loading group cache for repository '%s'"), db->treename());
 
 	for(; lp; lp = f_ptrlistitem_next(lp)) {
 		FPtrList *i;

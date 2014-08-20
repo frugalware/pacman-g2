@@ -51,6 +51,7 @@ public:
 	virtual ~Database();
 
 	virtual bool add_server(const char *url);
+	const char *treename() const;
 
 	/* Prototypes for backends functions */
 	virtual FPtrList *test() const;
@@ -84,7 +85,6 @@ public:
 
 	::libpacman::Handle *m_handle;
 	char *path;
-	char treename[PATH_MAX];
 	libpacman::Timestamp cache_timestamp;
 	FPtrList *pkgcache;
 	FPtrList *grpcache;
@@ -96,6 +96,7 @@ protected:
 	virtual int open(int flags, libpacman::Timestamp *timestamp);
 
 private:
+	char m_treename[PATH_MAX];
 };
 
 }

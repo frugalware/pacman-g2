@@ -101,7 +101,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 						} else {
 							/* get confirmation for the replacement */
 							int doreplace = 0;
-							QUESTION(trans, PM_TRANS_CONV_REPLACE_PKG, lpkg, spkg, ((Database *)f_ptrlistitem_data(i))->treename, &doreplace);
+							QUESTION(trans, PM_TRANS_CONV_REPLACE_PKG, lpkg, spkg, (void *)((Database *)f_ptrlistitem_data(i))->treename(), &doreplace);
 
 							if(doreplace) {
 								/* if confirmed, add this to the 'final' list, designating 'lpkg' as

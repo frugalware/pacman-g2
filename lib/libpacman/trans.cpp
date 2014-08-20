@@ -68,10 +68,10 @@ int check_oldcache(Database *db)
 		return(-1);
 	}
 	if(timestamp - db->cache_timestamp != 0) {
-		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is too old"), db->treename);
+		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is too old"), db->treename());
 		_pacman_db_free_pkgcache(db);
 	} else {
-		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is up to date"), db->treename);
+		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is up to date"), db->treename());
 	}
 	return(0);
 }
@@ -257,7 +257,7 @@ static int check_olddelay(Handle *handle)
 			continue;
 		}
 		if(difftime(time(NULL), tm.m_value) > handle->olddelay) {
-			_pacman_log(PM_LOG_WARNING, _("local copy of '%s' repo is too old"), db->treename);
+			_pacman_log(PM_LOG_WARNING, _("local copy of '%s' repo is too old"), db->treename());
 		}
 	}
 	return(0);
@@ -331,7 +331,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 		targ++;
 		for(i = dbs_sync; i && !spkg; i = f_ptrlistitem_next(i)) {
 			Database *dbs = f_ptrlistitem_data(i);
-			if(strcmp(dbs->treename, targline) == 0) {
+			if(strcmp(dbs->treename(), targline) == 0) {
 				spkg = dbs->find(targ);
 				if(spkg == NULL) {
 					/* Search provides */
@@ -1482,7 +1482,7 @@ int __pmtrans_t::commit(FPtrList **data)
 			}
 
 			if(files) {
-				EVENT(this, PM_TRANS_EVT_RETRIEVE_START, current->treename, NULL);
+				EVENT(this, PM_TRANS_EVT_RETRIEVE_START, current->treename(), NULL);
 				if(stat(ldir, &buf)) {
 					/* no cache directory.... try creating it */
 					_pacman_log(PM_LOG_WARNING, _("no %s cache exists.  creating..."), ldir);
@@ -1500,7 +1500,7 @@ int __pmtrans_t::commit(FPtrList **data)
 					}
 				}
 				if(_pacman_downloadfiles(m_handle, current->servers, ldir, files, tries) == -1) {
-					_pacman_log(PM_LOG_WARNING, _("failed to retrieve some files from %s\n"), current->treename);
+					_pacman_log(PM_LOG_WARNING, _("failed to retrieve some files from %s\n"), current->treename());
 					retval=1;
 					done = 0;
 				}
@@ -1926,7 +1926,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		if(pkg_new->scriptlet && !(flags & PM_TRANS_FLAG_NOSCRIPTLET)) {
 			/* must run ldconfig here because some scriptlets fail due to missing libs otherwise */
 			_pacman_ldconfig(m_handle->root);
-			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", m_handle->root, m_handle->dbpath, db_local->treename, pkg_new->name(), pkg_new->version());
+			snprintf(pm_install, PATH_MAX, "%s%s/%s/%s-%s/install", m_handle->root, m_handle->dbpath, db_local->treename(), pkg_new->name(), pkg_new->version());
 			_pacman_runscriptlet(m_handle->root, pm_install, trans_event_table[type].post.hook, pkg_new->version(), pkg_local ? pkg_local->version() : NULL, this);
 		}
 

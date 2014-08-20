@@ -139,7 +139,7 @@ Database *Handle::createDatabase(const char *treename, pacman_cb_db_register cal
 	Database *db;
 
 	if((db = getDatabase(treename)) != NULL) {
-		_pacman_log(PM_LOG_WARNING, _("attempt to re-register the '%s' database, using existing\n"), db->treename);
+		_pacman_log(PM_LOG_WARNING, _("attempt to re-register the '%s' database, using existing\n"), db->treename());
 		return db;
 	}
 
@@ -150,7 +150,7 @@ Database *Handle::createDatabase(const char *treename, pacman_cb_db_register cal
 		RET_ERR(PM_ERR_DB_CREATE, NULL);
 	}
 
-	_pacman_log(PM_LOG_DEBUG, _("opening database '%s'"), db->treename);
+	_pacman_log(PM_LOG_DEBUG, _("opening database '%s'"), db->treename());
 	if(db->open(0) == -1) {
 		delete db;
 		RET_ERR(PM_ERR_DB_OPEN, NULL);
@@ -177,7 +177,7 @@ Database *Handle::getDatabase(const char *treename)
 
 	for(i = dbs_sync; i; i = f_ptrlistitem_next(i)) {
 			Database *sdb = (Database *)f_ptrlistitem_data(i);
-			if(strcmp(treename, sdb->treename) == 0) {
+			if(strcmp(treename, sdb->treename()) == 0) {
 				return sdb;
 		}
 	}

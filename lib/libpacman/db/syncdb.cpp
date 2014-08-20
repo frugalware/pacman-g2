@@ -161,12 +161,12 @@ int _pacman_syncdb_update(Database *db, int force)
 	if(!force) {
 		db->gettimestamp(&timestamp);
 		if(!timestamp.isValid()) {
-			_pacman_log(PM_LOG_DEBUG, _("failed to get timestamp for %s (no big deal)\n"), db->treename);
+			_pacman_log(PM_LOG_DEBUG, _("failed to get timestamp for %s (no big deal)\n"), db->treename());
 		}
 	}
 
 	/* build a one-element list */
-	snprintf(path, PATH_MAX, "%s" PM_EXT_DB, db->treename);
+	snprintf(path, PATH_MAX, "%s" PM_EXT_DB, db->treename());
 	files = _pacman_stringlist_append(files, path);
 
 	snprintf(path, PATH_MAX, "%s%s", handle->root, handle->dbpath);
@@ -181,11 +181,11 @@ int _pacman_syncdb_update(Database *db, int force)
 		return 1; /* Means up2date */
 	} else {
 		if(newmtime.isValid()) {
-			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %li\n"), db->treename, (long)newmtime.toEpoch());
+			_pacman_log(PM_LOG_DEBUG, _("sync: new mtime for %s: %li\n"), db->treename(), (long)newmtime.toEpoch());
 			updated = 1;
 		}
-		snprintf(dirpath, PATH_MAX, "%s%s/%s", handle->root, handle->dbpath, db->treename);
-		snprintf(path, PATH_MAX, "%s%s/%s" PM_EXT_DB, handle->root, handle->dbpath, db->treename);
+		snprintf(dirpath, PATH_MAX, "%s%s/%s", handle->root, handle->dbpath, db->treename());
+		snprintf(path, PATH_MAX, "%s%s/%s" PM_EXT_DB, handle->root, handle->dbpath, db->treename());
 
 		/* remove the old dir */
 		_pacman_rmrf(dirpath);

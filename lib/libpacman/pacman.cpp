@@ -442,12 +442,12 @@ int pacman_db_unregister(pmdb_t *_db)
 		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
 	}
 
-	_pacman_log(PM_LOG_FLOW1, _("unregistering database '%s'"), db->treename);
+	_pacman_log(PM_LOG_FLOW1, _("unregistering database '%s'"), db->treename());
 
 	/* Cleanup */
 	_pacman_db_free_pkgcache(db);
 
-	_pacman_log(PM_LOG_DEBUG, _("closing database '%s'"), db->treename);
+	_pacman_log(PM_LOG_DEBUG, _("closing database '%s'"), db->treename());
 	db->close();
 
 	delete db;
@@ -472,7 +472,7 @@ void *pacman_db_getinfo(pmdb_t *_db, unsigned char parm)
 	ASSERT(db != NULL, return(NULL));
 
 	switch(parm) {
-		case PM_DB_TREENAME:   data = db->treename; break;
+		case PM_DB_TREENAME:   data = db->treename(); break;
 		case PM_DB_FIRSTSERVER:
 			server = (pmserver_t*)f_ptrlistitem_data(db->servers);
 			if(!strcmp(server->protocol, "file")) {
@@ -508,7 +508,7 @@ int pacman_db_setserver(pmdb_t *_db, char *url)
 		return db->add_server(url) ? 0 : -1;
 	} else {
 		FREELIST(db->servers);
-		_pacman_log(PM_LOG_FLOW2, _("serverlist flushed for '%s'"), db->treename);
+		_pacman_log(PM_LOG_FLOW2, _("serverlist flushed for '%s'"), db->treename());
 	}
 
 	return(0);
