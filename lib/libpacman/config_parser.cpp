@@ -292,7 +292,7 @@ int _pacman_parse_config(Handle *handle, const char *file, pacman_cb_db_register
 					if(!strcmp(key, "SERVER")) {
 						/* add to the list */
 						_pacman_log(PM_LOG_DEBUG, _("config: %s: server: %s\n"), section, ptr);
-						if(pacman_db_setserver(c_cast(db), ptr) != 0) {
+						if(!db->add_server(ptr)) {
 							/* pm_errno is set by pacman_set_option */
 							return(-1);
 						}

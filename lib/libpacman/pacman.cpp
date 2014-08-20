@@ -504,32 +504,8 @@ int pacman_db_setserver(pmdb_t *_db, char *url)
 	/* Sanity checks */
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if(strcmp(db->treename, "local") == 0) {
-		if(handle->db_local != NULL) {
-			found = 1;
-		}
-	} else {
-		FPtrList *i;
-		for(i = handle->dbs_sync; i && !found; i = f_ptrlistitem_next(i)) {
-			Database *sdb = f_ptrlistitem_data(i);
-			if(strcmp(db->treename, sdb->treename) == 0) {
-				found = 1;
-			}
-		}
-	}
-	if(!found) {
-		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
-	}
-
 	if(!_pacman_strempty(url)) {
-		pmserver_t *server;
-		if((server = _pacman_server_new(url)) == NULL) {
-			/* pm_errno is set by _pacman_server_new */
-			return(-1);
-		}
-		db->servers = f_ptrlist_add(db->servers, server);
-		_pacman_log(PM_LOG_FLOW2, _("adding new server to database '%s': protocol '%s', server '%s', path '%s'"),
-				db->treename, server->protocol, server->server, server->path);
+		return db->add_server(url) ? 0 : -1;
 	} else {
 		FREELIST(db->servers);
 		_pacman_log(PM_LOG_FLOW2, _("serverlist flushed for '%s'"), db->treename);

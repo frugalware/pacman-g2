@@ -50,6 +50,8 @@ class Database
 public:
 	virtual ~Database();
 
+	virtual bool add_server(const char *url);
+
 	/* Prototypes for backends functions */
 	virtual FPtrList *test() const;
 
@@ -66,7 +68,7 @@ public:
 
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
 
-	// Cache operations
+	/* Cache operations */
 	FPtrList *filter(const libpacman::PackageMatcher &packagematcher);
 	FPtrList *filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
 	FPtrList *filter(const FStringList *needles, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);

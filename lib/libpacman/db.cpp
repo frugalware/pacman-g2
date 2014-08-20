@@ -84,6 +84,19 @@ Database::~Database()
 	free(path);
 }
 
+bool Database::add_server(const char *url)
+{
+	pmserver_t *server;
+
+	ASSERT(!_pacman_strempty(url), RET_ERR(PM_ERR_WRONG_ARGS, false));
+	ASSERT((server = _pacman_server_new(url)) != NULL, return false);
+
+	servers = f_ptrlist_add(servers, server);
+	_pacman_log(PM_LOG_FLOW2, _("adding new server to database '%s': protocol '%s', server '%s', path '%s'"),
+			treename, server->protocol, server->server, server->path);
+	return true;
+}
+
 FPtrList *Database::filter(const PackageMatcher &packagematcher)
 {
 	FPtrList *i, *ret = NULL;
