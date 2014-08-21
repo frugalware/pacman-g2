@@ -147,13 +147,11 @@ int _pacman_db_remove_pkgfromcache(Database *db, Package *pkg)
 static
 Group *_pacman_db_get_grpfromlist(FPtrList *list, const char *target)
 {
-	FPtrList *i;
-
 	if(_pacman_strempty(target)) {
 		return(NULL);
 	}
 
-	for(i = list; i; i = f_ptrlistitem_next(i)) {
+	for(auto i = list->begin(), end = list->end(); i != end; i = f_ptrlistitem_next(i)) {
 		Group *info = f_ptrlistitem_data(i);
 
 		if(strcmp(info->name, target) == 0) {
@@ -168,24 +166,22 @@ Group *_pacman_db_get_grpfromlist(FPtrList *list, const char *target)
  */
 int _pacman_db_load_grpcache(Database *db)
 {
-	FPtrList *lp;
-
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	lp = _pacman_db_get_pkgcache(db);
+	FPtrList *cache = _pacman_db_get_pkgcache(db);
 
 	_pacman_log(PM_LOG_DEBUG, _("loading group cache for repository '%s'"), db->treename());
 
-	for(; lp; lp = f_ptrlistitem_next(lp)) {
-		FPtrList *i;
-		Package *pkg = f_ptrlistitem_data(lp);
+	for(auto it = cache->begin(), end = cache->end(); it != end; it = f_ptrlistitem_next(it)) {
+		Package *pkg = f_ptrlistitem_data(it);
 
 		if(!(pkg->flags & INFRQ_DESC)) {
 			pkg->read(INFRQ_DESC);
 		}
 
-		for(i = pkg->groups(); i; i = f_ptrlistitem_next(i)) {
-			const char *grp_name = f_stringlistitem_to_str(i);
+		FStringList *groups = pkg->groups();
+		for(auto git = groups->begin(), git_end = groups->end(); git != git_end; git = f_ptrlistitem_next(git)) {
+			const char *grp_name = f_stringlistitem_to_str(git);
 
 			Group *grp = _pacman_db_get_grpfromlist(db->grpcache, grp_name);
 

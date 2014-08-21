@@ -33,12 +33,20 @@
 typedef struct FCList FCList;
 typedef struct FCListItem FCListItem;
 
+#ifndef F_NOCOMPAT
 typedef struct FCListItem FPtrList;
+#else
+typedef struct FCList FPtrList;
+#endif
 typedef struct FCListItem FPtrListItem;
 
 #else
 
+#ifndef F_NOCOMPAT
 typedef class FCListItem FPtrList;
+#else
+typedef class FCList FPtrList;
+#endif
 typedef class FCListItem FPtrListItem;
 
 #include <memory> // for std::allocator, std::allocator_traits
@@ -279,6 +287,50 @@ public:
 	const FCListItem *previous() const
 	{
 		return m_previous;
+	}
+
+	void *&operator * ()
+	{
+		return m_data;
+	}
+
+	const void *operator * () const
+	{
+		return m_data;
+	}
+
+//	Migration code
+	typedef FCListItem *iterator;
+	typedef const iterator const_iterator;
+
+	iterator begin()
+	{
+		return this;
+	}
+
+	iterator begin() const
+	{
+		return this;
+	}
+
+	iterator cbegin() const
+	{
+		return this;
+	}
+
+	iterator end()
+	{
+		return NULL;
+	}
+
+	iterator end() const
+	{
+		return NULL;
+	}
+
+	iterator cend() const
+	{
+		return NULL;
 	}
 
 //protected: // Disable for now

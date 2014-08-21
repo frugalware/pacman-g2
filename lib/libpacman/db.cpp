@@ -99,10 +99,10 @@ bool Database::add_server(const char *url)
 
 FPtrList *Database::filter(const PackageMatcher &packagematcher)
 {
-	FPtrList *i, *ret = NULL;
+	FPtrList *cache = _pacman_db_get_pkgcache(this), *ret = f_list_new();
 
-	for(i = _pacman_db_get_pkgcache(this); i; i = f_ptrlistitem_next(i)) {
-		Package *pkg = (Package *)f_ptrlistitem_data(i);
+	for(auto it = cache->begin(), end = cache->end(); it != end; it = f_ptrlistitem_next(it)) {
+		Package *pkg = (Package *)f_ptrlistitem_data(it);
 		
 		if(packagematcher.match(pkg)) {
 			ret = f_ptrlist_append(ret, pkg);
@@ -118,9 +118,9 @@ FPtrList *Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_
 
 FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_flags, int strmatcher_flags)
 {
-	FPtrList *i, *j, *ret = NULL;
+	FPtrList *ret = f_list_new();
 
-	for(i = needles; i; i = f_ptrlistitem_next(i)) {
+	for(auto i = needles->begin(), end = needles->end(); i != end; i = f_ptrlistitem_next(i)) {
 		const char *pattern = f_stringlistitem_to_str(i);
 
 		if(f_strempty(pattern)) {
@@ -130,7 +130,8 @@ FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_fla
 
 		PackageMatcher packagematcher(pattern, packagestrmatcher_flags, strmatcher_flags);
 
-		for(j = _pacman_db_get_pkgcache(this); j; j = f_ptrlistitem_next(j)) {
+		FPtrList *cache = _pacman_db_get_pkgcache(this);
+		for(auto j = cache->begin(), j_end = cache->end(); j != j_end; j = f_ptrlistitem_next(j)) {
 			Package *pkg = (Package *)f_ptrlistitem_data(j);
 
 			if(packagematcher.match(pkg)) {
