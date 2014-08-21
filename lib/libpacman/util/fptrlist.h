@@ -41,9 +41,212 @@ typedef struct FCListItem FPtrListItem;
 typedef class FCListItem FPtrList;
 typedef class FCListItem FPtrListItem;
 
+#include <memory> // for std::allocator, std::allocator_traits
+
+namespace flib
+{
+	template <typename Iter, typename Alloc = std::allocator<Iter>>
+	struct iterable_traits
+		: std::allocator_traits<Alloc>
+	{
+		typedef std::allocator_traits<Alloc> super_type;
+		typedef iterable_traits<Iter, Alloc> self_type;
+		typedef Iter iterable;
+		typedef typename super_type::pointer pointer;
+		typedef typename super_type::const_pointer const_pointer;
+		typedef typename iterable::reference reference;
+		typedef typename iterable::const_reference const_reference;
+
+		static pointer next(pointer p)
+		{
+			return p->next();
+		}
+
+		static const_pointer next(const_pointer p)
+		{
+			return p->next();
+		}
+
+		static pointer previous(pointer p)
+		{ 
+			return p->previous();
+		}
+
+		static const_pointer previous(const_pointer p)
+		{
+			return p->previous();
+		}
+
+		static reference dereference(pointer p)
+		{
+			return *p;
+		}
+
+		static const_reference dereference(const_pointer p)
+		{
+			return *p;
+		}
+	};
+
+	template <typename T>
+	struct const_iterator
+	{
+	public:
+		typedef const_iterator<T> self_type;
+		typedef self_type &self_reference_type;
+		typedef const self_reference_type const_self_reference_type;
+		typedef flib::iterable_traits<T> iterable_traits;
+		typedef typename iterable_traits::const_pointer const_pointer;
+		typedef typename iterable_traits::const_reference const_reference;
+
+		explicit const_iterator(const_pointer iterable)
+			: m_iterable(iterable)
+		{ }
+
+		const_iterator(const const_iterator &o)
+			: m_iterable(o.m_iterable)
+		{ }
+
+		~const_iterator()
+		{ }
+
+		self_reference_type operator = (const_self_reference_type o)
+		{
+			m_iterable = o.m_iterable;
+			return *this;
+		}
+
+		bool operator == (const_self_reference_type o)
+		{
+			return m_iterable == o.m_iterable;
+		}
+
+		bool operator != (const_self_reference_type o)
+		{
+			return !operator == (o.m_iterable);
+		}
+
+		self_reference_type operator ++ ()
+		{
+			m_iterable = iterable_traits::next(m_iterable);
+			return *this;
+		}
+
+		self_type operator ++ (int)
+		{
+			self_type tmp(*this);
+			operator ++ ();
+			return tmp;
+		}
+
+		self_reference_type operator -- ()
+		{
+			m_iterable = iterable_traits::previous(m_iterable);
+			return *this;
+		}
+
+		self_type operator -- (int)
+		{
+			self_type tmp(*this);
+			operator -- ();
+			return tmp;
+		}
+
+		const_reference operator * () const
+		{
+			return iterable_traits::dereference(m_iterable);
+		}
+
+	protected:
+		const_pointer m_iterable;
+	};
+
+	template <typename T>
+	struct iterator
+	{
+	public:
+		typedef const_iterator<T> self_type;
+		typedef self_type &self_reference_type;
+		typedef const self_reference_type const_self_reference_type;
+		typedef flib::iterable_traits<T> iterable_traits;
+		typedef typename iterable_traits::pointer pointer;
+		typedef typename iterable_traits::reference reference;
+		typedef typename iterable_traits::const_reference const_reference;
+
+		explicit iterator(pointer iterable)
+			: m_iterable(iterable)
+		{ }
+
+		iterator(const_self_reference_type o)
+			: m_iterable(o.m_iterable)
+		{ }
+
+		~iterator()
+		{ }
+
+		const_self_reference_type operator = (const_self_reference_type o)
+		{
+			m_iterable = o.m_iterable;
+			return *this;
+		}
+
+		bool operator == (const_self_reference_type o)
+		{
+			return m_iterable == o.m_iterable;
+		}
+
+		bool operator != (const_self_reference_type o)
+		{
+			return !operator == (o.m_iterable);
+		}
+
+		self_reference_type operator ++ ()
+		{
+			m_iterable = iterable_traits::next(m_iterable);
+			return *this;
+		}
+
+		self_type operator ++ (int)
+		{
+			self_type tmp(*this);
+			operator ++ ();
+			return tmp;
+		}
+
+		self_reference_type operator -- ()
+		{ 
+			m_iterable = iterable_traits::previous(m_iterable);
+			return *this;
+		}
+
+		self_type operator -- (int)
+		{
+			self_type tmp(*this);
+			operator -- ();
+			return tmp;
+		}
+
+		reference operator * ()
+		{
+			return iterable_traits::dereference(m_iterable);
+		}
+
+		const_reference operator * () const
+		{
+			return iterable_traits::dereference(m_iterable);
+		}
+
+	protected:
+		pointer m_iterable;
+	};
+}
+
 class FCListItem
 {
 public:
+	typedef void * &reference;
+	typedef const reference const_reference;
+
 	FCListItem()
 		: FCListItem(NULL, NULL)
 	{ }
@@ -91,8 +294,8 @@ class FCList
 {
 public:
 	/* std::list compatibility */
-	typedef FCListItem *iterator;
-	typedef const iterator const_iterator;
+	typedef flib::iterator<FCListItem> iterator;
+	typedef flib::const_iterator<FCListItem> const_iterator;
 
 	FCList()
 		: FCListItem(this, this)
@@ -142,22 +345,22 @@ public:
 	/* extensions */
 	iterator first()
 	{
-		return FCListItem::next();
+		return iterator(FCListItem::next());
 	}
 
 	const_iterator first() const
 	{
-		return FCListItem::next();
+		return const_iterator(FCListItem::next());
 	}
 
 	iterator last()
 	{
-		return FCListItem::previous();
+		return iterator(FCListItem::previous());
 	}
 
 	const_iterator last() const
 	{
-		return FCListItem::previous();
+		return const_iterator(FCListItem::previous());
 	}
 	
 protected:
