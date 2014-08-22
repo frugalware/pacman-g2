@@ -77,7 +77,7 @@ __pmdepmissing_t::__pmdepmissing_t(const char *target, unsigned char type, unsig
 static
 int _pacman_depmiss_isin(pmdepmissing_t *needle, FPtrList *haystack)
 {
-	for(auto i = haystack->begin(), end = haystack->end(); i != end; i = f_ptrlistitem_next(i)) {
+	for(auto i = haystack->begin(), end = haystack->end(); i != end; i = i->next()) {
 		pmdepmissing_t *miss = f_ptrlistitem_data(i);
 		if(!memcmp(needle, miss, sizeof(pmdepmissing_t))
 		   && !memcmp(&needle->depend, &miss->depend, sizeof(pmdepend_t))) {
@@ -127,23 +127,23 @@ FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
 	_pacman_log(PM_LOG_DEBUG, _("started sorting dependencies"));
 
 	/* We create the vertices */
-	for(auto i = targets->begin(), end = targets->end(); i != end; i = f_ptrlistitem_next(i)) {
+	for(auto i = targets->begin(), end = targets->end(); i != end; i = i->next()) {
 		pmgraph_t *v = _pacman_graph_new();
 		v->data = f_ptrlistitem_data(i);
 		vertices = f_ptrlist_add(vertices, v);
 	}
 
 	/* We compute the edges */
-	for(auto i = vertices->begin(), end = vertices->end(); i; i = f_ptrlistitem_next(i)) {
+	for(auto i = vertices->begin(), end = vertices->end(); i; i = i->next()) {
 		pmgraph_t *vertex_i = f_ptrlistitem_data(i);
 		Package *p_i = vertex_i->data;
 		/* TODO this should be somehow combined with _pacman_checkdeps */
-		for(auto j = vertices->begin(); j != end; j = f_ptrlistitem_next(j)) {
+		for(auto j = vertices->begin(); j != end; j = j->next()) {
 			pmgraph_t *vertex_j = f_ptrlistitem_data(j);
 			Package *p_j = vertex_j->data;
 			int child = 0;
 			FStringList *depends = p_i->depends();
-			for(auto k = depends->begin(), k_end = depends->end(); k != k_end && !child; k = f_ptrlistitem_next(k)) {
+			for(auto k = depends->begin(), k_end = depends->end(); k != k_end && !child; k = k->next()) {
 				pmdepend_t depend;
 				_pacman_splitdep(f_ptrlistitem_data(k), &depend);
 				child = _pacman_depcmp(p_j, &depend);
@@ -163,7 +163,7 @@ FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
 		found = 0;
 		while(vertex->childptr && !found) {
 			pmgraph_t *nextchild = f_ptrlistitem_data(vertex->childptr);
-			vertex->childptr = f_ptrlistitem_next(vertex->childptr);
+			vertex->childptr = vertex->childptr->next();
 			if (nextchild->state == 0) {
 				found = 1;
 				nextchild->parent = vertex;
@@ -178,11 +178,11 @@ FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
 			vertex->state = 1;
 			vertex = vertex->parent;
 			if(!vertex) {
-				vptr = f_ptrlistitem_next(vptr);
+				vptr = vptr->next();
 				while(vptr) {
 					vertex = f_ptrlistitem_data(vptr);
 					if (vertex->state == 0) break;
-					vptr = f_ptrlistitem_next(vptr);
+					vptr = vptr->next();
 				}
 			}
 		}
@@ -220,7 +220,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 		return(NULL);
 	}
 
-	for(auto i = packages->begin(), end = packages->end(); i; i = f_ptrlistitem_next(i)) {
+	for(auto i = packages->begin(), end = packages->end(); i; i = i->next()) {
 		Package *tp = f_ptrlistitem_data(i);
 		Package *pkg_local;
 
@@ -237,7 +237,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 		if(pkg_local != NULL) {
 			found = 0;
 			FStringList *requiredby = pkg_local->requiredby();
-			for(auto j = requiredby->begin(), j_end = requiredby->end(); j != j_end; j = f_ptrlistitem_next(j)) {
+			for(auto j = requiredby->begin(), j_end = requiredby->end(); j != j_end; j = j->next()) {
 				const char *requiredby_name = f_stringlistitem_to_str(j);
 
 				if(op == PM_TRANS_TYPE_UPGRADE) {
@@ -255,7 +255,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 						continue;
 					}
 					auto depends = p->depends();
-					for(auto k = depends->begin(), k_end = depends->end(); k != k_end; k = f_ptrlistitem_next(k)) {
+					for(auto k = depends->begin(), k_end = depends->end(); k != k_end; k = k->next()) {
 						const char *depend_name = f_stringlistitem_to_str(k);
 
 						/* don't break any existing dependencies (possible provides) */
@@ -272,14 +272,14 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 					/* check requiredby fields */
 					if(!_pacman_pkg_isin(requiredby_name, packages)) {
 						/* check if a package in trans->packages provides this package */
-						for(auto k = trans->packages->begin(), k_end = trans->packages->end(); !found && k != k_end; k = f_ptrlistitem_next(k)) {
+						for(auto k = trans->packages->begin(), k_end = trans->packages->end(); !found && k != k_end; k = k->next()) {
 							Package *spkg = f_ptrlistitem_data(k);
 
 							if(spkg && spkg->provides(pkg_local->name())) {
 								found=1;
 							}
 						}
-						for(auto k = trans->syncpkgs->begin(), k_end = trans->syncpkgs->end(); !found && k != k_end; k = f_ptrlistitem_next(k)) {
+						for(auto k = trans->syncpkgs->begin(), k_end = trans->syncpkgs->end(); !found && k != k_end; k = k->next()) {
 							pmsyncpkg_t *ps = f_ptrlistitem_data(k);
 
 							if(ps->pkg_new->provides(pkg_local->name())) {
@@ -298,7 +298,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 		if(op == PM_TRANS_TYPE_ADD || op == PM_TRANS_TYPE_UPGRADE) {
 			/* DEPENDENCIES -- look for unsatisfied dependencies */
 			FStringList *depends = tp->depends();
-			for(auto j = depends->begin(), j_end = depends->end(); j != j_end; j = f_ptrlistitem_next(j)) {
+			for(auto j = depends->begin(), j_end = depends->end(); j != j_end; j = j->next()) {
 				const char *depend_name = f_stringlistitem_to_str(j);
 
 				/* split into name/version pairs */
@@ -306,7 +306,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 				found = 0;
 				/* check database for literal packages */
 				auto cache = _pacman_db_get_pkgcache(db_local);
-				for(auto k = cache->begin(), k_end = cache->end(); k != k_end && !found; k = f_ptrlistitem_next(k)) {
+				for(auto k = cache->begin(), k_end = cache->end(); k != k_end && !found; k = k->next()) {
 					Package *p = (Package *)f_ptrlistitem_data(k);
 					if(!strcmp(p->name(), depend.name)) {
 						if(depend.mod == PM_DEP_MOD_ANY) {
@@ -337,14 +337,14 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
  				/* check database for provides matches */
  				if(!found) {
  					auto whatPackagesProvide = db_local->whatPackagesProvide(depend.name);
- 					for(auto m = whatPackagesProvide->begin(), m_end = whatPackagesProvide->end(); m != m_end && !found; m = f_ptrlistitem_next(m)) {
+ 					for(auto m = whatPackagesProvide->begin(), m_end = whatPackagesProvide->end(); m != m_end && !found; m = m->next()) {
  						/* look for a match that isn't one of the packages we're trying
  						 * to install.  this way, if we match against a to-be-installed
  						 * package, we'll defer to the NEW one, not the one already
  						 * installed. */
  						Package *p = f_ptrlistitem_data(m);
  						int skip = 0;
- 						for(auto n = packages->begin(), n_end = packages->end(); n != n_end && !skip; n = f_ptrlistitem_next(n)) {
+ 						for(auto n = packages->begin(), n_end = packages->end(); n != n_end && !skip; n = n->next()) {
  							Package *ptp = f_ptrlistitem_data(n);
  							if(!strcmp(ptp->name(), p->name())) {
  								skip = 1;
@@ -381,7 +381,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 					FREELISTPTR(whatPackagesProvide);
 				}
  				/* check other targets */
- 				for(auto k = packages->begin(), k_end = packages->end(); k != k_end && !found; k = f_ptrlistitem_next(k)) {
+ 				for(auto k = packages->begin(), k_end = packages->end(); k != k_end && !found; k = k->next()) {
  					Package *p = (Package *)f_ptrlistitem_data(k);
  					/* see if the package names match OR if p provides depend.name */
  					if(!strcmp(p->name(), depend.name) || p->provides(depend.name)) {
@@ -486,9 +486,9 @@ FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
 		return(newtargs);
 	}
 
-	for(auto i = targs->begin(), end = targs->end(); i != end; i = f_ptrlistitem_next(i)) {
+	for(auto i = targs->begin(), end = targs->end(); i != end; i = i->next()) {
 		auto depends = ((Package *)f_ptrlistitem_data(i))->depends();
-		for(auto j = depends->begin(), j_end = depends->end(); j != j_end; j = f_ptrlistitem_next(j)) {
+		for(auto j = depends->begin(), j_end = depends->end(); j != j_end; j = j->next()) {
 			pmdepend_t depend;
 			Package *dep;
 			int needed = 0;
@@ -525,7 +525,7 @@ FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
 
 			/* see if other packages need it */
 			auto requiredby = dep->requiredby();
-			for(auto k = requiredby->begin(), k_end = requiredby->end(); k != k_end && !needed; k = f_ptrlistitem_next(k)) {
+			for(auto k = requiredby->begin(), k_end = requiredby->end(); k != k_end && !needed; k = k->next()) {
 				Package *dummy = db->find(f_stringlistitem_to_str(k));
 				if(!_pacman_pkg_isin(dummy->name(), targs)) {
 					needed = 1;
@@ -574,13 +574,13 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 		return(0);
 	}
 
-	for(auto i = deps->begin(), end = deps->end(); i != end; i = f_ptrlistitem_next(i)) {
+	for(auto i = deps->begin(), end = deps->end(); i != end; i = i->next()) {
 		int found = 0;
 		pmdepmissing_t *miss = f_ptrlistitem_data(i);
 		Package *ps = NULL;
 
 		/* check if one of the packages in *list already provides this dependency */
-		for(auto j = list->begin(), j_end = list->end(); j != j_end && !found; j = f_ptrlistitem_next(j)) {
+		for(auto j = list->begin(), j_end = list->end(); j != j_end && !found; j = j->next()) {
 			Package *sp = (Package *)f_ptrlistitem_data(j);
 			if(sp->provides(miss->depend.name)) {
 				_pacman_log(PM_LOG_DEBUG, _("%s provides dependency %s -- skipping"),
@@ -594,11 +594,11 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 
 		/* find the package in one of the repositories */
 		/* check literals */
-		for(auto j = dbs_sync->begin(), j_end = dbs_sync->end(); !ps && j != j_end; j = f_ptrlistitem_next(j)) {
+		for(auto j = dbs_sync->begin(), j_end = dbs_sync->end(); !ps && j != j_end; j = j->next()) {
 			ps = ((Database *)f_ptrlistitem_data(j))->find(miss->depend.name);
 		}
 		/* check provides */
-		for(auto j = dbs_sync->begin(), j_end = dbs_sync->end(); !ps && j != j_end; j = f_ptrlistitem_next(j)) {
+		for(auto j = dbs_sync->begin(), j_end = dbs_sync->end(); !ps && j != j_end; j = j->next()) {
 			FPtrList *provides;
 			provides = ((Database *)f_ptrlistitem_data(j))->whatPackagesProvide(miss->depend.name);
 			if(provides) {
@@ -733,7 +733,7 @@ int inList(FPtrList *lst, char *lItem) {
         if(!strcmp(lItem, (char *)f_ptrlistitem_data(ll))) {
            return 1;
         }
-        ll = f_ptrlistitem_next(ll);
+        ll = ll->next();
     }
     return 0;
 }
@@ -745,7 +745,7 @@ int pacman_output_generate(FPtrList *targets, FPtrList *dblist) {
     char *match = NULL;
     int foundMatch = 0;
     unsigned int inforeq =  INFRQ_DEPENDS;
-    for(auto j = dblist->begin(), end = dblist->end(); j != end; j = f_ptrlistitem_next(j)) {
+    for(auto j = dblist->begin(), end = dblist->end(); j != end; j = j->next()) {
         Database *db = f_ptrlistitem_data(j);
         do {
             foundMatch = 0;
@@ -756,7 +756,7 @@ int pacman_output_generate(FPtrList *targets, FPtrList *dblist) {
                 if(match) {
                     foundMatch = 1;
 										auto depends = pkg->depends();
-                    for(auto k = depends->begin(), k_end = depends->end(); k != k_end; k = f_ptrlistitem_next(k)) {
+                    for(auto k = depends->begin(), k_end = depends->end(); k != k_end; k = k->next()) {
                         char *fullDep = f_stringlistitem_to_str(k);
                         pmdepend_t depend;
                         if(_pacman_splitdep(fullDep, &depend)) {

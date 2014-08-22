@@ -151,7 +151,7 @@ Group *_pacman_db_get_grpfromlist(FPtrList *list, const char *target)
 		return(NULL);
 	}
 
-	for(auto i = list->begin(), end = list->end(); i != end; i = f_ptrlistitem_next(i)) {
+	for(auto i = list->begin(), end = list->end(); i != end; i = i->next()) {
 		Group *info = f_ptrlistitem_data(i);
 
 		if(strcmp(info->name, target) == 0) {
@@ -172,7 +172,7 @@ int _pacman_db_load_grpcache(Database *db)
 
 	_pacman_log(PM_LOG_DEBUG, _("loading group cache for repository '%s'"), db->treename());
 
-	for(auto it = cache->begin(), end = cache->end(); it != end; it = f_ptrlistitem_next(it)) {
+	for(auto it = cache->begin(), end = cache->end(); it != end; it = it->next()) {
 		Package *pkg = f_ptrlistitem_data(it);
 
 		if(!(pkg->flags & INFRQ_DESC)) {
@@ -180,7 +180,7 @@ int _pacman_db_load_grpcache(Database *db)
 		}
 
 		FStringList *groups = pkg->groups();
-		for(auto git = groups->begin(), git_end = groups->end(); git != git_end; git = f_ptrlistitem_next(git)) {
+		for(auto git = groups->begin(), git_end = groups->end(); git != git_end; git = git->next()) {
 			const char *grp_name = f_stringlistitem_to_str(git);
 
 			Group *grp = _pacman_db_get_grpfromlist(db->grpcache, grp_name);

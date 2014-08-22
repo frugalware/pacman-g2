@@ -64,7 +64,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 
 	howmany = f_ptrlist_count(packages);
 
-	for(auto i = packages->begin(), end = packages->end(); i != end; i = f_ptrlistitem_next(i)) {
+	for(auto i = packages->begin(), end = packages->end(); i != end; i = i->next()) {
 		Package *tp = (Package *)f_ptrlistitem_data(i);
 		if(tp == NULL) {
 			continue;
@@ -79,7 +79,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 		}
 
 		auto conflicts = tp->conflicts();
-		for(auto j = conflicts->begin(), j_end = conflicts->end(); j != j_end; j = f_ptrlistitem_next(j)) {
+		for(auto j = conflicts->begin(), j_end = conflicts->end(); j != j_end; j = j->next()) {
 			const char *conflict = f_stringlistitem_to_str(j);
 			if(!strcmp(tp->name(), conflict)) {
 				/* a package cannot conflict with itself -- that's just not nice */
@@ -88,7 +88,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 			/* CHECK 1: check targets against database */
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs db"), tp->name());
 			auto cache = _pacman_db_get_pkgcache(db_local);
-			for(auto k = cache->begin(), k_end = cache->end(); k != k_end; k = f_ptrlistitem_next(k)) {
+			for(auto k = cache->begin(), k_end = cache->end(); k != k_end; k = k->next()) {
 				Package *dp = (Package *)f_ptrlistitem_data(k);
 				if(!strcmp(dp->name(), tp->name())) {
 					/* a package cannot conflict with itself -- that's just not nice */
@@ -103,7 +103,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 				} else {
 					/* see if dp provides something in tp's conflict list */
 					auto provides = dp->provides();
-					for(auto m = provides->begin(), m_end = provides->end(); m != m_end; m = f_ptrlistitem_next(m)) {
+					for(auto m = provides->begin(), m_end = provides->end(); m != m_end; m = m->next()) {
 						if(!strcmp(f_stringlistitem_to_str(m), conflict)) {
 							/* confict */
 							_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
@@ -116,7 +116,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 			}
 			/* CHECK 2: check targets against targets */
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs targs"), tp->name());
-			for(auto k = packages->begin(), k_end = packages->end(); k != k_end; k = f_ptrlistitem_next(k)) {
+			for(auto k = packages->begin(), k_end = packages->end(); k != k_end; k = k->next()) {
 				Package *otp = (Package *)f_ptrlistitem_data(k);
 				if(!strcmp(otp->name(), tp->name())) {
 					/* a package cannot conflict with itself -- that's just not nice */
@@ -131,7 +131,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 				} else {
 					/* see if otp provides something in tp's conflict list */
 					auto provides = otp->provides();
-					for(auto m = provides->begin(), m_end = provides->end(); m != m_end; m = f_ptrlistitem_next(m)) {
+					for(auto m = provides->begin(), m_end = provides->end(); m != m_end; m = m->next()) {
 						if(!strcmp(f_stringlistitem_to_str(m), conflict)) {
 							_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
 							          otp->name(), tp->name());
@@ -145,7 +145,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 		/* CHECK 3: check database against targets */
 		_pacman_log(PM_LOG_DEBUG, _("checkconflicts: db vs targ '%s'"), tp->name());
 		auto cache = _pacman_db_get_pkgcache(db_local);
-		for(auto k = cache->begin(), k_end = cache->end(); k != k_end; k = f_ptrlistitem_next(k)) {
+		for(auto k = cache->begin(), k_end = cache->end(); k != k_end; k = k->next()) {
 			FPtrList *conflicts = NULL;
 			int usenewconflicts = 0;
 
@@ -157,7 +157,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 			/* If this package (*info) is also in our packages FPtrList, use the
 			 * conflicts list from the new package, not the old one (*info)
 			 */
-			for(auto j = packages->begin(), j_end = packages->end(); j; j = f_ptrlistitem_next(j)) {
+			for(auto j = packages->begin(), j_end = packages->end(); j; j = j->next()) {
 				Package *pkg = (Package *)f_ptrlistitem_data(j);
 				if(!strcmp(pkg->name(), info->name())) {
 					/* Use the new, to-be-installed package's conflicts */
@@ -169,7 +169,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 				/* Use the old package's conflicts, it's the only set we have */
 				conflicts = info->conflicts();
 			}
-			for(auto j = conflicts->begin(), j_end = conflicts->end(); j != j_end; j = f_ptrlistitem_next(j)) {
+			for(auto j = conflicts->begin(), j_end = conflicts->end(); j != j_end; j = j->next()) {
 				if(!strcmp(tp->name(), f_stringlistitem_to_str(j))) {
 					_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
 					          info->name(), tp->name());
@@ -177,9 +177,9 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 					baddeps = _pacman_depmisslist_add(baddeps, miss);
 				} else {
 					/* see if the db package conflicts with something we provide */
-					for(auto m = conflicts->begin(), m_end = conflicts->end(); m != m_end; m = f_ptrlistitem_next(m)) {
+					for(auto m = conflicts->begin(), m_end = conflicts->end(); m != m_end; m = m->next()) {
 						auto provides = tp->provides();
-						for(auto n = provides->begin(), n_end = provides->end(); n != n_end; n = f_ptrlistitem_next(n)) {
+						for(auto n = provides->begin(), n_end = provides->end(); n != n_end; n = n->next()) {
 							if(!strcmp(f_stringlistitem_to_str(m), f_stringlistitem_to_str(n))) {
 								_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
 								          info->name(), tp->name());
@@ -210,22 +210,22 @@ static FPtrList *chk_fileconflicts(FPtrList *filesA, FPtrList *filesB)
 		const char *strB = f_stringlistitem_to_str(pB);
 		/* skip directories, we don't care about dir conflicts */
 		if(strA[strlen(strA)-1] == '/') {
-			pA = f_ptrlistitem_next(pA);
+			pA = pA->next();
 		} else if(strB[strlen(strB)-1] == '/') {
-			pB = f_ptrlistitem_next(pB);
+			pB = pB->next();
 		} else {
 			int cmp = strcmp(strA, strB);
 			if(cmp < 0) {
 				/* item only in filesA, ignore it */
-				pA = f_ptrlistitem_next(pA);
+				pA = pA->next();
 			} else if(cmp > 0) {
 				/* item only in filesB, ignore it */
-				pB = f_ptrlistitem_next(pB);
+				pB = pB->next();
 			} else {
 				/* item in both, record it */
 				ret = _pacman_stringlist_append(ret, strA);
-				pA = f_ptrlistitem_next(pA);
-				pB = f_ptrlistitem_next(pB);
+				pA = pA->next();
+				pB = pB->next();
 			}
 	  }
 	}
@@ -252,16 +252,16 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 	howmany = f_ptrlist_count(targets);
 
 	/* CHECK 1: check every target against every target */
-	for(auto i = targets->begin(), end = targets->end(); i != end; i = f_ptrlistitem_next(i)) {
+	for(auto i = targets->begin(), end = targets->end(); i != end; i = i->next()) {
 		Package *p1 = (Package*)f_ptrlistitem_data(i);
 		remain = f_ptrlist_count(i);
 		percent = (double)(howmany - remain + 1) / howmany;
 		PROGRESS(trans, PM_TRANS_PROGRESS_CONFLICTS_START, "", (percent * 100), howmany, howmany - remain + 1);
-		for(auto j = i; j != end; j = f_ptrlistitem_next(j)) {
+		for(auto j = i; j != end; j = j->next()) {
 			Package *p2 = (Package*)f_ptrlistitem_data(j);
 			if(strcmp(p1->name(), p2->name())) {
 				auto ret = chk_fileconflicts(p1->files(), p2->files());
-				for(auto k = ret->begin(), k_end = ret->end(); k != k_end; k = f_ptrlistitem_next(k)) {
+				for(auto k = ret->begin(), k_end = ret->end(); k != k_end; k = k->next()) {
 						pmconflict_t *conflict = _pacman_malloc(sizeof(pmconflict_t));
 						if(conflict == NULL) {
 							continue;
@@ -280,7 +280,7 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 		p = (Package*)f_ptrlistitem_data(i);
 		dbpkg = NULL;
 		auto files = p->files();
-		for(auto j = files->begin(), j_end = files->end(); j != j_end; j = f_ptrlistitem_next(j)) {
+		for(auto j = files->begin(), j_end = files->end(); j != j_end; j = j->next()) {
 			filestr = f_stringlistitem_to_str(j);
 			snprintf(path, PATH_MAX, "%s%s", root, filestr);
 			/* is this target a file or directory? */
@@ -308,7 +308,7 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 					/* Check if the conflicting file has been moved to another package/target */
 					if(!ok) {
 						/* Look at all the targets */
-						for(auto k = targets->begin(), k_end = targets->end(); k != k_end && !ok; k = f_ptrlistitem_next(k)) {
+						for(auto k = targets->begin(), k_end = targets->end(); k != k_end && !ok; k = k->next()) {
 							Package *p2 = (Package *)f_ptrlistitem_data(k);
 							/* As long as they're not the current package */
 							if(strcmp(p2->name(), p->name())) {

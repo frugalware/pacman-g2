@@ -308,12 +308,12 @@ public:
 		return this;
 	}
 
-	iterator begin() const
+	const_iterator begin() const
 	{
 		return this;
 	}
 
-	iterator cbegin() const
+	const_iterator cbegin() const
 	{
 		return this;
 	}
@@ -323,12 +323,50 @@ public:
 		return NULL;
 	}
 
-	iterator end() const
+	const_iterator end() const
 	{
 		return NULL;
 	}
 
-	iterator cend() const
+	const_iterator cend() const
+	{
+		return NULL;
+	}
+
+	iterator last()
+	{
+		return const_cast<iterator>(clast());
+	}
+
+	const_iterator last() const
+	{
+		auto it = cbegin(), end = cend();
+
+		if (it != end)
+		{
+			while (it->next() != end) {
+				it = it->next();
+			}
+		}
+		return it;
+	}
+
+	const_iterator clast() const
+	{
+		return last();
+	}
+
+	iterator rend()
+	{
+		return NULL;
+	}
+
+	const_iterator rend() const
+	{
+		return NULL;
+	}
+
+	const_iterator crend() const
 	{
 		return NULL;
 	}

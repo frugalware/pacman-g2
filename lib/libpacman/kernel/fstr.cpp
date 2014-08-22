@@ -80,9 +80,7 @@ bool FStrMatcher::match(const char *str) const
 
 int f_stringlist_any_match(const FStringList *list, const FStrMatcher *matcher)
 {
-	const FStringListItem *it;
-
-	for(it = f_ptrlist_first_const(list); it != f_ptrlist_end_const(list); it = f_ptrlistitem_next(it)) {
+	for(auto it = list->begin(), end = list->end(); it != end; it = it->next()) {
 		if(matcher->match(f_stringlistitem_to_str(it)) != 0) {
 			return 1;
 		}

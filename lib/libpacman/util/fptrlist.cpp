@@ -117,9 +117,8 @@ FPtrList *_pacman_list_reverse(FPtrList *list)
 	 * with the old list's tail
 	 */
 	FPtrList *newlist = f_ptrlist_new();
-	FPtrListItem *it;
 
-	for(it = f_ptrlist_last(list); it; it = f_ptrlistitem_previous(it)) {
+	for(auto it = list->last(), end = list->rend(); it != end; it = it->previous()) {
 		newlist = f_ptrlist_add(newlist, f_ptrlistitem_data(it));
 	}
 
@@ -269,7 +268,7 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 	FPtrListItem *end = f_ptrlist_end(list), *it = f_ptrlist_first(list), *next;
 
 	while(it != end) {
-		next = f_ptrlistitem_next(it);
+		next = it->next();
 		if(visitor != NULL) {
 			f_visit(f_ptrlistitem_data(it), visitor);
 		}
@@ -291,10 +290,9 @@ bool f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr)
 
 int f_ptrlist_count(const FPtrList *self)
 {
-	const FPtrListItem *it;
-	int i;
+	int i = 0;
 
-	for(i = 0, it = f_ptrlist_first_const(self); it != f_ptrlist_end_const(self); it = it->m_next, i++);
+	for(auto it = self->cbegin(), end = self->cend(); it != end; it = it->next(), i++);
 	return i;
 }
 
@@ -320,15 +318,12 @@ FPtrListItem *f_ptrlist_find(FPtrList *self, FPtrListItemComparatorFunc comparat
 
 const FPtrListItem *f_ptrlist_find_const(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data)
 {
-	const FPtrListItem *end = f_ptrlist_end_const(list);
-	const FPtrListItem *it;
-
-	for(it = f_ptrlist_first_const(list); it != end; it = it->m_next) {
+	for(auto it = list->cbegin(), end = list->cend(); it != end; it = it->m_next) {
 		if(comparator(it, comparator_data) == 0) {
-			break;
+			return it;
 		}
 	}
-	return it != end ? it : NULL;
+	return NULL;
 }
 
 FPtrListItem *f_ptrlist_first(FPtrList *self)
@@ -343,9 +338,7 @@ const FPtrListItem *f_ptrlist_first_const(const FPtrList *self)
 
 void f_list_foreach(const FPtrList *list, FPtrListItemVisitorFunc visitor, void *visitor_data)
 {
-	const FPtrListItem *it;
-
-	for(it = f_ptrlist_first_const(list); it != f_ptrlist_end_const(list); it = it->m_next) {
+	for(auto it = list->cbegin(), end = list->cend(); it != end; it = it->m_next) {
 		visitor((FPtrListItem *)it, visitor_data);
 	}
 }

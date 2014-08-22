@@ -181,7 +181,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 			 * explanation. */
 			int skipit = 0;
 			FPtrList *j;
-			for(j = trans->skiplist; j; j = f_ptrlistitem_next(j)) {
+			for(j = trans->skiplist; j; j = j->next()) {
 				if(!strcmp(file, f_stringlistitem_to_str(j))) {
 					skipit = 1;
 				}
@@ -428,7 +428,7 @@ void _pacman_localdb_write_stringlist(const char *entry, const FPtrList *values,
 
 	if(values != NULL) {
 		fprintf(stream, "%%%s%%\n", entry);
-		for(lp = values; lp; lp = f_ptrlistitem_next(lp)) {
+		for(lp = values; lp; lp = lp->next()) {
 			fprintf(stream, "%s\n", f_stringlistitem_to_str(lp));
 		}
 		fputc('\n', stream);
@@ -545,11 +545,11 @@ FPtrList *LocalDatabase::getowners(const char *filename)
 		rpath[strlen(rpath)] = '/';
 	}
 
-	for(lp = _pacman_db_get_pkgcache(this); lp; lp = f_ptrlistitem_next(lp)) {
+	for(lp = _pacman_db_get_pkgcache(this); lp; lp = lp->next()) {
 		Package *info = (Package *)f_ptrlistitem_data(lp);
 		FPtrList *i;
 
-		for(i = info->files(); i; i = f_ptrlistitem_next(i)) {
+		for(i = info->files(); i; i = i->next()) {
 			char path[PATH_MAX];
 
 			snprintf(path, PATH_MAX, "%s%s", m_handle->root, f_stringlistitem_to_str(i));

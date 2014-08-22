@@ -153,9 +153,7 @@ public:
 #if 0
 	bool all_match(const FMatcher &matcher) const
 	{
-		const_iterator end = cend();
-
-		for(const_iterator it = beging(); it != end; it = it->next()) {
+		for(auto it = cbegin(), end = cend(); it != end; it = it->next()) {
 			if(matcher.match(it.data()) == false) {
 				return false;
 			}
@@ -165,9 +163,7 @@ public:
 
 	bool any_match(const FList *list, const FMatcher &matcher) const
 	{
-		const_iterator end = cend();
-
-		for(const_iterator it = begin(); it != end; it = it->next()) {
+		for(auto it = cbegin(), end = cend(); it != end; it = it->next()) {
 			if(matcher.match(it->data()) == true) {
 				return true;
 			}
@@ -177,9 +173,7 @@ public:
 
 	ListItem<T> *find(const FComparator &comparator)
 	{
-		iterator end = this->end();
-
-		for(iterator it = begin(); it != end; it = it->next()) {
+		for(auto it = cbegin(), end = cend(); it != end; it = it->next()) {
 			if(comparator->compare(it->data()) == 0) {
 				return it;
 			}

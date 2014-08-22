@@ -167,7 +167,7 @@ Package *_pacman_pkg_isin(const char *needle, FPtrList *haystack)
 		return(NULL);
 	}
 
-	for(lp = haystack; lp; lp = f_ptrlistitem_next(lp)) {
+	for(lp = haystack; lp; lp = lp->next()) {
 		Package *info = f_ptrlistitem_data(lp);
 
 		if(info && !strcmp(info->name(), needle)) {
@@ -257,7 +257,7 @@ char *Package::fileneedbackup(const char *file) const
 	ASSERT(!_pacman_strempty(file), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	/* run through the backup list and parse out the md5 or sha1 hash for our file */
-	for(lp = m_backup; lp; lp = f_ptrlistitem_next(lp)) {
+	for(lp = m_backup; lp; lp = lp->next()) {
 		char *str = strdup(f_stringlistitem_to_str(lp));
 		char *ptr;
 
