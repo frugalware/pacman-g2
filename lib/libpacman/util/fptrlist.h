@@ -124,14 +124,14 @@ namespace flib
 			return *this;
 		}
 
-		bool operator == (const_self_reference_type o)
+		bool operator == (const_self_reference_type o) const
 		{
 			return m_iterable == o.m_iterable;
 		}
 
-		bool operator != (const_self_reference_type o)
+		bool operator != (const_self_reference_type o) const
 		{
-			return !operator == (o.m_iterable);
+			return !operator == (o);
 		}
 
 		self_reference_type operator ++ ()
@@ -198,14 +198,14 @@ namespace flib
 			return *this;
 		}
 
-		bool operator == (const_self_reference_type o)
+		bool operator == (const_self_reference_type o) const
 		{
 			return m_iterable == o.m_iterable;
 		}
 
-		bool operator != (const_self_reference_type o)
+		bool operator != (const_self_reference_type o) const
 		{
-			return !operator == (o.m_iterable);
+			return !operator == (o);
 		}
 
 		self_reference_type operator ++ ()
