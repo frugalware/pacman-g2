@@ -1786,7 +1786,8 @@ int __pmtrans_t::commit(FPtrList **data)
 
 		/* update dependency packages' REQUIREDBY fields */
 		_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
-		for(lp = pkg_local->depends(); lp; lp = lp->next()) {
+		auto depends = pkg_local->depends();
+		for(auto lp = depends->begin(), lp_end = depends->end(); lp != lp_end; lp = lp->next()) {
 			Package *depinfo = NULL;
 			pmdepend_t depend;
 			char *data;
@@ -1849,7 +1850,8 @@ int __pmtrans_t::commit(FPtrList **data)
 
 		/* Update the requiredby field by scanning the whole database
 		 * looking for packages depending on the package to add */
-		for(lp = _pacman_db_get_pkgcache(db_local); lp; lp = lp->next()) {
+		auto cache = _pacman_db_get_pkgcache(db_local);
+		for(auto lp = cache->begin(), lp_end = cache->end(); lp != lp_end; lp = lp->next()) {
 			Package *tmpp = f_ptrlistitem_data(lp);
 			FPtrList *tmppm = NULL;
 			if(tmpp == NULL) {
@@ -1887,7 +1889,8 @@ int __pmtrans_t::commit(FPtrList **data)
 		if(pkg_new->depends()) {
 			_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
 		}
-		for(lp = pkg_new->depends(); lp; lp = lp->next()) {
+		auto depends = pkg_new->depends();
+		for(auto lp = depends->begin(), lp_end = depends->end(); lp; lp = lp->next()) {
 			Package *depinfo;
 			pmdepend_t depend;
 			if(_pacman_splitdep(f_stringlistitem_to_str(lp), &depend)) {
