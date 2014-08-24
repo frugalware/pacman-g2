@@ -222,9 +222,10 @@ int f_ptrlist_fini(FPtrList *self, FVisitor *visitor)
 	return f_ptrlist_clear(self, visitor);
 }
 
-#ifndef F_NOCOMPAT
+// FIXME: Change return value to bool
 FPtrList *f_ptrlist_append(FPtrList *list, void *data)
 {
+#ifndef F_NOCOMPAT
 	FPtrList *ptr, *lp;
 
 	ptr = list;
@@ -250,12 +251,12 @@ FPtrList *f_ptrlist_append(FPtrList *list, void *data)
 	lp->m_data = data;
 
 	return(ptr);
-}
 #else
-int f_ptrlist_append(FPtrList *self, void *data)
-{
-}
+	list->add(data);
+
+	return list;
 #endif
+}
 
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 {

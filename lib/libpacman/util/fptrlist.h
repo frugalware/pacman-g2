@@ -316,14 +316,24 @@ public:
 		return m_previous;
 	}
 
-	void *&operator * ()
+	reference operator * ()
 	{
 		return m_data;
 	}
 
-	const void *operator * () const
+	const value_type operator * () const
 	{
 		return m_data;
+	}
+
+	pointer operator -> ()
+	{
+		return &m_data;
+	}
+
+	const pointer operator -> () const
+	{
+		return &m_data;
 	}
 
 #ifndef F_NOCOMPAT
@@ -414,34 +424,20 @@ class FCList
 public:
 	/* std::list compatibility */
 	typedef FCListItem *iterable;
-	typedef flib::const_iterator<FCListItem *> const_iterator;
-	typedef flib::iterator<FCListItem *> iterator;
+	typedef flib::const_iterator<iterable> const_iterator;
+	typedef flib::iterator<iterable> iterator;
 	typedef size_t size_type;
 
 	FCList()
 		: FCListItem(this, this)
 	{ }
 
-	~FCList()
+	virtual ~FCList() override
 	{
 		clear();
 	}
 
-	void clear()
-	{ }
-
-	size_type size() const
-	{
-		size_type size = 0;
-		for(auto dummy: *this) ++size;
-		return size;
-	}
-
-	bool empty() const
-	{
-		return next() == this;
-	}
-
+	/* Iterators */
 	iterator begin()
 	{
 		return first();
@@ -472,8 +468,28 @@ public:
 		return const_iterator(const_cast<FCList *>(this));
 	}
 
+	/* Capacity */
+	bool empty() const
+	{
+		return next() == this;
+	}
+
+	size_type size() const
+	{
+		size_type size = 0;
+		for(auto dummy: *this) ++size;
+		return size;
+	}
+
+	/* Element access */
+	
+	/* Modifiers */
+	void clear()
+	{ }
+
 public:
-	/* extensions */
+	/* Extensions */
+	/* Element access */
 	iterator first()
 	{
 		return iterator(FCListItem::next());
@@ -494,8 +510,8 @@ public:
 		return const_iterator(FCListItem::previous());
 	}
 	
-protected:
-	virtual bool add(FCListItem *item);
+	/* Modifiers */
+	virtual bool add(const reference val);
 
 protected:
 	FCList(const FCList &o);
@@ -540,11 +556,7 @@ int f_ptrlist_init(FPtrList *self);
 int f_ptrlist_fini(FPtrList *self, FVisitor *visitor);
 
 #define f_ptrlist_add f_ptrlist_append
-#ifndef F_NOCOMPAT
 FPtrList *f_ptrlist_append(FPtrList *list, void *data);
-#else
-int f_ptrlist_append(FPtrList *list, void *data);
-#endif
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
 bool f_ptrlist_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data);
 bool f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
