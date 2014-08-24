@@ -338,13 +338,6 @@ const FPtrListItem *f_ptrlist_first_const(const FPtrList *self)
 	return (FPtrListItem *)self;
 }
 
-void f_list_foreach(const FPtrList *list, FPtrListItemVisitorFunc visitor, void *visitor_data)
-{
-	for(auto it = list->cbegin(), end = list->cend(); it != end; it = it->m_next) {
-		visitor((FPtrListItem *)it, visitor_data);
-	}
-}
-
 FPtrListItem *f_ptrlist_last(FPtrList *self)
 {
 	return (FPtrListItem *)f_ptrlist_last_const(self);

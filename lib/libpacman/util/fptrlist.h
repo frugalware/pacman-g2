@@ -556,7 +556,6 @@ FPtrListItem *f_ptrlist_find(FPtrList *self, FPtrListItemComparatorFunc comparat
 const FPtrListItem *f_ptrlist_find_const(const FPtrList *self, FPtrListItemComparatorFunc comparator, const void *comparator_data);
 FPtrListItem *f_ptrlist_first(FPtrList *self);
 const FPtrListItem *f_ptrlist_first_const(const FPtrList *self);
-void f_ptrlist_foreach(const FPtrList *list, FPtrListItemVisitorFunc visitor, void *visitor_data);
 FPtrListItem *f_ptrlist_last(FPtrList *self);
 const FPtrListItem *f_ptrlist_last_const(const FPtrList *self);
 FPtrListItem *f_ptrlist_rend(FPtrList *self);
