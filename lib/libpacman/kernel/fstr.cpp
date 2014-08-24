@@ -80,12 +80,21 @@ bool FStrMatcher::match(const char *str) const
 
 int f_stringlist_any_match(const FStringList *list, const FStrMatcher *matcher)
 {
+#ifndef F_NOCOMPAT
 	for(auto it = list->begin(), end = list->end(); it != end; it = it->next()) {
 		if(matcher->match(f_stringlistitem_to_str(it)) != 0) {
 			return 1;
 		}
 	}
 	return 0;
+#else
+	for(auto str: *list) {
+		if(matcher->match((const char *)str) != 0) {
+			return 1;
+		}
+	}
+	return 0;
+#endif
 }
 
 /* vim: set ts=2 sw=2 noet: */

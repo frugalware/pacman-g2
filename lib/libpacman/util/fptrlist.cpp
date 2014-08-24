@@ -33,8 +33,7 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 {
 	FPtrListItem *add, *end = f_ptrlist_end(list), *previous = NULL, *iter = f_ptrlist_first(list);
 
-	add = f_ptrlist_new();
-	add->m_data = data;
+	add = f_ptrlistitem_new(data);
 
 	/* Find insertion point. */
 	while(iter != end) {
@@ -130,12 +129,7 @@ FPtrList *f_list_new()
 #ifndef F_NOCOMPAT
 	return NULL;
 #else
-	FPtrList *self;
-
-	ASSERT((self = f_zalloc(sizeof(*self))) != NULL, return NULL);
-
-	f_ptrlist_init(self);
-	return self;
+	return new FPtrList();
 #endif
 }
 
@@ -290,15 +284,23 @@ bool f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr)
 
 int f_ptrlist_count(const FPtrList *self)
 {
+#ifndef F_NOCOMPAT
 	int i = 0;
 
 	for(auto it = self->cbegin(), end = self->cend(); it != end; it = it->next(), i++);
 	return i;
+#else
+	return self->size();
+#endif
 }
 
 bool f_ptrlist_empty(const FPtrList *self)
 {
+#ifndef F_NOCOMPAT
 	return self == NULL;
+#else
+	return self->empty();
+#endif
 }
 
 FPtrListItem *f_ptrlist_end(FPtrList *self)
