@@ -31,6 +31,7 @@
  */
 FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 {
+#ifndef F_NOCOMPAT
 	FPtrListIterator *add, *end = f_ptrlist_end(list), *previous = NULL, *iter = f_ptrlist_first(list);
 
 	add = f_ptrlistitem_new(data);
@@ -57,6 +58,15 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 	}
 
 	return(list);
+#else
+	if (list == NULL) {
+		list = new FPtrList();
+		list->add(data);
+	} else {
+		// FIXME: Search insertion point.
+	}
+	return list;
+#endif
 }
 
 /* Remove an item in a list. Use the given comparison function to find the
@@ -67,6 +77,7 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
  */
 FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data)
 {
+#ifndef F_NOCOMPAT
 	FPtrListIterator *end = f_ptrlist_end(haystack), *i = f_ptrlist_first(haystack);
 
 	if(*data != end) {
@@ -104,6 +115,10 @@ FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp f
 	}
 
 	return(haystack);
+#else
+	// FIXME: Implement me
+	return haystack;
+#endif
 }
 
 /* Reverse the order of a list
@@ -117,7 +132,7 @@ FPtrList *_pacman_list_reverse(FPtrList *list)
 	 */
 	FPtrList *newlist = f_ptrlist_new();
 
-	for(auto it = list->last(), end = list->rend(); it != end; it = it->previous()) {
+	for(auto it = list->rbegin(), end = list->rend(); it != end; it = it->previous()) {
 		newlist = f_ptrlist_add(newlist, f_ptrlistitem_data(it));
 	}
 
@@ -135,12 +150,16 @@ FPtrList *f_list_new()
 
 FPtrListIterator *f_ptrlistitem_new(void *ptr)
 {
+#ifndef F_NOCOMPAT
 	FPtrListIterator *item = f_zalloc(sizeof(*item));
 
 	if(item != NULL) {
 		item->m_data = ptr;
 	}
 	return item;
+#else
+	return new FPtrListIterator(ptr);
+#endif
 }
 
 int f_ptrlistitem_delete(FPtrListIterator *self, FVisitor *visitor)
@@ -197,29 +216,25 @@ int f_ptrlistitem_ptrcmp(const FPtrListIterator *item, const void *ptr) {
 
 FPtrList *f_ptrlist_new(void)
 {
+#ifndef F_NOCOMPAT
 	FPtrList *self;
 
 	ASSERT((self = f_zalloc(sizeof(*self))) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-	f_ptrlist_init(self);
 	return self;
+#else
+	return new FPtrList();
+#endif
 }
 
 int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
 {
-	return f_ptrlist_fini(self, visitor);
-}
-
-int f_ptrlist_init(FPtrList *self)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	return 0;
-}
-
-int f_ptrlist_fini(FPtrList *self, FVisitor *visitor)
-{
+#ifndef F_NOCOMPAT
 	return f_ptrlist_clear(self, visitor);
+#else
+	self->clear(visitor);
+	delete self;
+#endif
 }
 
 // FIXME: Change return value to bool

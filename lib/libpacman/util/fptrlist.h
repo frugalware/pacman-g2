@@ -121,7 +121,7 @@ namespace flib
 		}
 	};
 
-	template <typename Iterable>
+	template <typename Iterable, bool Reverse = false>
 	struct const_iterator
 	{
 	public:
@@ -159,7 +159,7 @@ namespace flib
 
 		const_iterator &operator ++ ()
 		{
-			m_iterable = iterable_traits<Iterable>::next(m_iterable);
+			m_iterable = !Reverse ? iterable_traits<Iterable>::next(m_iterable) : iterable_traits<Iterable>::previous(m_iterable);
 			return *this;
 		}
 
@@ -172,7 +172,7 @@ namespace flib
 
 		const_iterator &operator -- ()
 		{
-			m_iterable = iterable_traits<Iterable>::previous(m_iterable);
+			m_iterable = !Reverse ? iterable_traits<Iterable>::previous(m_iterable) : iterable_traits<Iterable>::next(m_iterable);
 			return *this;
 		}
 
@@ -197,7 +197,7 @@ namespace flib
 		iterable m_iterable;
 	};
 
-	template <typename Iterable>
+	template <typename Iterable, bool Reverse = false>
 	struct iterator
 	{
 	public:
@@ -394,6 +394,21 @@ public:
 		return last();
 	}
 
+	iterator rbegin()
+	{
+		return last();
+	}
+
+	const_iterator rbegin() const
+	{
+		return last();
+	}
+
+	const_iterator crbegin() const
+	{
+		return last();
+	}
+
 	iterator rend()
 	{
 		return NULL;
@@ -424,8 +439,10 @@ class FCList
 public:
 	/* std::list compatibility */
 	typedef FCListItem *iterable;
-	typedef flib::const_iterator<iterable> const_iterator;
 	typedef flib::iterator<iterable> iterator;
+	typedef flib::iterator<iterable, true> reverse_iterator;
+	typedef flib::const_iterator<iterable> const_iterator;
+	typedef flib::const_iterator<iterable, true> const_reverse_iterator;
 	typedef size_t size_type;
 
 	FCList()
@@ -453,6 +470,21 @@ public:
 		return first();
 	}
 
+	reverse_iterator rbegin()
+	{
+		return reverse_iterator(FCListItem::previous());
+	}
+
+	const_reverse_iterator rbegin() const
+	{
+		return crbegin();
+	}
+
+	const_reverse_iterator crbegin() const
+	{
+		return const_reverse_iterator(FCListItem::previous());
+	}
+
 	iterator end()
 	{
 		return iterator(this);
@@ -466,6 +498,21 @@ public:
 	const_iterator cend() const
 	{
 		return const_iterator(const_cast<FCList *>(this));
+	}
+
+	reverse_iterator rend()
+	{
+		return reverse_iterator(this);
+	}
+
+	const_reverse_iterator rend() const
+	{
+		return crend();
+	}
+
+	const_reverse_iterator crend() const
+	{
+		return const_reverse_iterator(const_cast<FCList *>(this));
 	}
 
 	/* Capacity */
@@ -551,9 +598,6 @@ int f_ptrlistitem_ptrcmp(const FPtrListIterator *item, const void *ptr);
 
 FPtrList *f_ptrlist_new(void);
 int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
-
-int f_ptrlist_init(FPtrList *self);
-int f_ptrlist_fini(FPtrList *self, FVisitor *visitor);
 
 #define f_ptrlist_add f_ptrlist_append
 FPtrList *f_ptrlist_append(FPtrList *list, void *data);
