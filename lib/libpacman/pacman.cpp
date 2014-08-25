@@ -1336,7 +1336,7 @@ pmlist_iterator_t *pacman_list_iterator_next(pmlist_iterator_t *iterator)
 {
 	ASSERT(iterator != NULL, return NULL);
 
-	return (pmlist_iterator_t *)((FPtrListItem *)iterator)->next();
+	return (pmlist_iterator_t *)((FPtrListIterator *)iterator)->next();
 }
 
 /** Get the data of a list iterator.
@@ -1347,7 +1347,7 @@ void *pacman_list_iterator_getdata(pmlist_iterator_t *iterator)
 {
 	ASSERT(iterator != NULL, return NULL);
 
-	return f_ptrlistitem_data((FPtrListItem *)iterator);
+	return f_ptrlistitem_data((FPtrListIterator *)iterator);
 }
 /** @} */
 

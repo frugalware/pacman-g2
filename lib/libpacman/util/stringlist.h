@@ -30,16 +30,16 @@ extern "C" {
 
 #if 1
 typedef FPtrList FStringList;
-typedef FPtrListItem FStringListItem;
+typedef FPtrListIterator FStringListIterator;
 #else
 typedef struct FStringList FStringList;
-typedef struct FStringListItem FStringListItem;
+typedef struct FStringListIterator FStringListIterator;
 
 struct FStringList {
 	FList as_FList;
 };
 
-struct FStringListItem {
+struct FStringListIterator {
 	FListItem as_FListItem;
 	char to_str[0];
 };
@@ -51,10 +51,10 @@ int _pacman_list_is_strin(const char *needle, FStringList *haystack);
 FStringList *_pacman_list_remove_dupes(FStringList *list);
 FStringList *_pacman_list_strdup(FStringList *list);
 
-FStringListItem *f_stringlistitem_new(const char *str);
-int f_stringlistitem_delete(FStringListItem *self);
+FStringListIterator *f_stringlistitem_new(const char *str);
+int f_stringlistitem_delete(FStringListIterator *self);
 
-const char *f_stringlistitem_to_str(const FStringListItem *self);
+const char *f_stringlistitem_to_str(const FStringListIterator *self);
 
 FStringList *f_stringlist_new(void);
 int f_stringlist_delete(FStringList *self);

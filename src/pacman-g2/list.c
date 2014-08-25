@@ -63,7 +63,7 @@ int list_is_strin(char *needle, list_t *haystack)
  */
 void list_display(const char *title, const FStringList *list)
 {
-	const FStringListItem *lp;
+	const FStringListIterator *lp;
 	int cols, len;
 
 	len = strlen(title);

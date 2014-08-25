@@ -31,7 +31,7 @@
  */
 FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 {
-	FPtrListItem *add, *end = f_ptrlist_end(list), *previous = NULL, *iter = f_ptrlist_first(list);
+	FPtrListIterator *add, *end = f_ptrlist_end(list), *previous = NULL, *iter = f_ptrlist_first(list);
 
 	add = f_ptrlistitem_new(data);
 
@@ -67,7 +67,7 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
  */
 FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data)
 {
-	FPtrListItem *end = f_ptrlist_end(haystack), *i = f_ptrlist_first(haystack);
+	FPtrListIterator *end = f_ptrlist_end(haystack), *i = f_ptrlist_first(haystack);
 
 	if(*data != end) {
 		*data = NULL;
@@ -133,9 +133,9 @@ FPtrList *f_list_new()
 #endif
 }
 
-FPtrListItem *f_ptrlistitem_new(void *ptr)
+FPtrListIterator *f_ptrlistitem_new(void *ptr)
 {
-	FPtrListItem *item = f_zalloc(sizeof(*item));
+	FPtrListIterator *item = f_zalloc(sizeof(*item));
 
 	if(item != NULL) {
 		item->m_data = ptr;
@@ -143,7 +143,7 @@ FPtrListItem *f_ptrlistitem_new(void *ptr)
 	return item;
 }
 
-int f_ptrlistitem_delete(FPtrListItem *self, FVisitor *visitor)
+int f_ptrlistitem_delete(FPtrListIterator *self, FVisitor *visitor)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
@@ -152,16 +152,16 @@ int f_ptrlistitem_delete(FPtrListItem *self, FVisitor *visitor)
 	return 0;
 }
 
-void *f_ptrlistitem_data(const FPtrListItem *self)
+void *f_ptrlistitem_data(const FPtrListIterator *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	return self->m_data;
 }
 
-int f_ptrlistitem_insert_after(FPtrListItem *self, FPtrListItem *previous)
+int f_ptrlistitem_insert_after(FPtrListIterator *self, FPtrListIterator *previous)
 {
-	FPtrListItem *next;
+	FPtrListIterator *next;
 
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 	ASSERT(previous != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
@@ -177,21 +177,21 @@ int f_ptrlistitem_insert_after(FPtrListItem *self, FPtrListItem *previous)
 	return 0;
 }
 
-FPtrListItem *f_ptrlistitem_next(FPtrListItem *self)
+FPtrListIterator *f_ptrlistitem_next(FPtrListIterator *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	return self->m_next;
 }
 
-FPtrListItem *f_ptrlistitem_previous(FPtrListItem *self)
+FPtrListIterator *f_ptrlistitem_previous(FPtrListIterator *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	return self->m_previous;
 }
 
-int f_ptrlistitem_ptrcmp(const FPtrListItem *item, const void *ptr) {
+int f_ptrlistitem_ptrcmp(const FPtrListIterator *item, const void *ptr) {
 	return f_ptrcmp(item->m_data, ptr);
 }
 
@@ -260,7 +260,7 @@ FPtrList *f_ptrlist_append(FPtrList *list, void *data)
 
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 {
-	FPtrListItem *end = f_ptrlist_end(list), *it = f_ptrlist_first(list), *next;
+	FPtrListIterator *end = f_ptrlist_end(list), *it = f_ptrlist_first(list), *next;
 
 	while(it != end) {
 		next = it->next();
@@ -273,7 +273,7 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 	return 0;
 }
 
-bool f_ptrlist_contains(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data)
+bool f_ptrlist_contains(const FPtrList *list, FPtrListIteratorComparatorFunc comparator, const void *comparator_data)
 {
 	return f_ptrlist_find_const(list, comparator, comparator_data) != NULL;
 }
@@ -304,22 +304,22 @@ bool f_ptrlist_empty(const FPtrList *self)
 #endif
 }
 
-FPtrListItem *f_ptrlist_end(FPtrList *self)
+FPtrListIterator *f_ptrlist_end(FPtrList *self)
 {
-	return (FPtrListItem *)f_ptrlist_end_const(self);
+	return (FPtrListIterator *)f_ptrlist_end_const(self);
 }
 
-const FPtrListItem *f_ptrlist_end_const(const FPtrList *self)
+const FPtrListIterator *f_ptrlist_end_const(const FPtrList *self)
 {
 	return NULL;
 }
 
-FPtrListItem *f_ptrlist_find(FPtrList *self, FPtrListItemComparatorFunc comparator, const void *comparator_data)
+FPtrListIterator *f_ptrlist_find(FPtrList *self, FPtrListIteratorComparatorFunc comparator, const void *comparator_data)
 {
-	return (FPtrListItem *)f_ptrlist_find_const(self, comparator, comparator_data);
+	return (FPtrListIterator *)f_ptrlist_find_const(self, comparator, comparator_data);
 }
 
-const FPtrListItem *f_ptrlist_find_const(const FPtrList *list, FPtrListItemComparatorFunc comparator, const void *comparator_data)
+const FPtrListIterator *f_ptrlist_find_const(const FPtrList *list, FPtrListIteratorComparatorFunc comparator, const void *comparator_data)
 {
 	for(auto it = list->cbegin(), end = list->cend(); it != end; it = it->m_next) {
 		if(comparator(it, comparator_data) == 0) {
@@ -329,24 +329,24 @@ const FPtrListItem *f_ptrlist_find_const(const FPtrList *list, FPtrListItemCompa
 	return NULL;
 }
 
-FPtrListItem *f_ptrlist_first(FPtrList *self)
+FPtrListIterator *f_ptrlist_first(FPtrList *self)
 {
-	return (FPtrListItem *)f_ptrlist_first_const(self);
+	return (FPtrListIterator *)f_ptrlist_first_const(self);
 }
 
-const FPtrListItem *f_ptrlist_first_const(const FPtrList *self)
+const FPtrListIterator *f_ptrlist_first_const(const FPtrList *self)
 {
-	return (FPtrListItem *)self;
+	return (FPtrListIterator *)self;
 }
 
-FPtrListItem *f_ptrlist_last(FPtrList *self)
+FPtrListIterator *f_ptrlist_last(FPtrList *self)
 {
-	return (FPtrListItem *)f_ptrlist_last_const(self);
+	return (FPtrListIterator *)f_ptrlist_last_const(self);
 }
 
-const FPtrListItem *f_ptrlist_last_const(const FPtrList *self)
+const FPtrListIterator *f_ptrlist_last_const(const FPtrList *self)
 {
-	const FPtrListItem *it;
+	const FPtrListIterator *it;
 
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
@@ -357,12 +357,12 @@ const FPtrListItem *f_ptrlist_last_const(const FPtrList *self)
 	return it;
 }
 
-FPtrListItem *f_ptrlist_rend(FPtrList *self)
+FPtrListIterator *f_ptrlist_rend(FPtrList *self)
 {
-	return (FPtrListItem *)f_ptrlist_rend_const(self);
+	return (FPtrListIterator *)f_ptrlist_rend_const(self);
 }
 
-const FPtrListItem *f_ptrlist_rend_const(const FPtrList *self)
+const FPtrListIterator *f_ptrlist_rend_const(const FPtrList *self)
 {
 	return NULL;
 }

@@ -435,7 +435,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 
 	/* check if an older version of said package is already in transaction packages.
 	 * if so, replace it in the list */
-	FPtrListItem *i;
+	FPtrListIterator *i;
 	auto end = packages->end();
 	for(i = packages->begin(); i != end; i = i->next()) {
 		Package *pkg = f_ptrlistitem_data(i);
