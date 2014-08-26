@@ -58,6 +58,7 @@ namespace flib
 //		typedef typename iterable::difference_type difference_type;
 		typedef typename iterable::pointer pointer;
 		typedef typename iterable::reference reference;
+		typedef typename iterable::size_type size_type;
 		typedef typename iterable::value_type value_type;
 
 		static iterable next(const iterable &i)
@@ -93,6 +94,7 @@ namespace flib
 //		typedef typename Iterable::difference_type difference_type;
 		typedef typename Iterable::pointer pointer;
 		typedef typename Iterable::reference reference;
+		typedef typename Iterable::size_type size_type;
 		typedef typename Iterable::value_type value_type;
 
 		static iterable next(const iterable &i)
@@ -290,6 +292,7 @@ class FCListItem
 public:
 	typedef void *value_type;
 	typedef value_type *pointer;
+	typedef size_t size_type;
 	typedef value_type &reference;
 
 	FCListItem()

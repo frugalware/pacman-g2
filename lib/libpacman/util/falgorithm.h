@@ -38,6 +38,23 @@ namespace flib
 	}
 
 	template <class InputIterable, class T>
+	auto count(const InputIterable &iterable)
+	{
+		return count(iterable.begin(), iterable.end());
+	}
+
+	template <class InputIterator>
+	auto count(InputIterator first, InputIterator last)
+	{
+		flib::iterable_traits<InputIterator::iterable>::size_type size;
+
+		for(size = 0; first != last; ++first, ++size) {
+			/* Nothing to do but iterate */
+		}
+		return size;
+	}
+
+	template <class InputIterable, class T>
 	auto find(InputIterable iterable, const T &val)
 	{
 		return find(iterable.begin(), iterable.end(), val);
