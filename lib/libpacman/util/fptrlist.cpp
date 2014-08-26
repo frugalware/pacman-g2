@@ -288,16 +288,6 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 	return 0;
 }
 
-bool f_ptrlist_contains(const FPtrList *list, FPtrListIteratorComparatorFunc comparator, const void *comparator_data)
-{
-	return f_ptrlist_find_const(list, comparator, comparator_data) != NULL;
-}
-
-bool f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr)
-{
-	return f_ptrlist_contains(list, f_ptrlistitem_ptrcmp, ptr);
-}
-
 int f_ptrlist_count(const FPtrList *self)
 {
 #ifndef F_NOCOMPAT
@@ -326,21 +316,6 @@ FPtrListIterator *f_ptrlist_end(FPtrList *self)
 
 const FPtrListIterator *f_ptrlist_end_const(const FPtrList *self)
 {
-	return NULL;
-}
-
-FPtrListIterator *f_ptrlist_find(FPtrList *self, FPtrListIteratorComparatorFunc comparator, const void *comparator_data)
-{
-	return (FPtrListIterator *)f_ptrlist_find_const(self, comparator, comparator_data);
-}
-
-const FPtrListIterator *f_ptrlist_find_const(const FPtrList *list, FPtrListIteratorComparatorFunc comparator, const void *comparator_data)
-{
-	for(auto it = list->cbegin(), end = list->cend(); it != end; it = it->m_next) {
-		if(comparator(it, comparator_data) == 0) {
-			return it;
-		}
-	}
 	return NULL;
 }
 

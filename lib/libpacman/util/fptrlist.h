@@ -581,7 +581,6 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
 FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 FPtrList *_pacman_list_reverse(FPtrList *list);
 
-typedef int (*FPtrListIteratorComparatorFunc)(const FPtrListIterator *item, const void *comparator_data);
 typedef void (*FPtrListIteratorVisitorFunc)(FPtrListIterator *item, void *visitor_data);
 
 FPtrList *f_list_new(void);
@@ -602,14 +601,10 @@ int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
 #define f_ptrlist_add f_ptrlist_append
 FPtrList *f_ptrlist_append(FPtrList *list, void *data);
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
-bool f_ptrlist_contains(const FPtrList *list, FPtrListIteratorComparatorFunc comparator, const void *comparator_data);
-bool f_ptrlist_contains_ptr(const FPtrList *list, const void *ptr);
 int f_ptrlist_count(const FPtrList *self);
 bool f_ptrlist_empty(const FPtrList *self);
 FPtrListIterator *f_ptrlist_end(FPtrList *self);
 const FPtrListIterator *f_ptrlist_end_const(const FPtrList *self);
-FPtrListIterator *f_ptrlist_find(FPtrList *self, FPtrListIteratorComparatorFunc comparator, const void *comparator_data);
-const FPtrListIterator *f_ptrlist_find_const(const FPtrList *self, FPtrListIteratorComparatorFunc comparator, const void *comparator_data);
 FPtrListIterator *f_ptrlist_first(FPtrList *self);
 const FPtrListIterator *f_ptrlist_first_const(const FPtrList *self);
 FPtrListIterator *f_ptrlist_last(FPtrList *self);

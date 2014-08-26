@@ -535,9 +535,6 @@ int pacman_db_update(int force, pmdb_t *_db)
 	if(handle->lock() != 0) {
 		return -1;
 	}
-	if(!f_ptrlist_contains_ptr(handle->dbs_sync, db)) {
-		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
-	}
 
 	status = _pacman_syncdb_update(db, force);
 	if(handle->unlock() != 0) {
