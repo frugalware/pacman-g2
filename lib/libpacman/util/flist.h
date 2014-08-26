@@ -150,38 +150,6 @@ public:
 
 public:
 	/* extensions */
-#if 0
-	bool all_match(const FMatcher &matcher) const
-	{
-		for(auto it = cbegin(), end = cend(); it != end; it = it->next()) {
-			if(matcher.match(it.data()) == false) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	bool any_match(const FList *list, const FMatcher &matcher) const
-	{
-		for(auto it = cbegin(), end = cend(); it != end; it = it->next()) {
-			if(matcher.match(it->data()) == true) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	ListItem<T> *find(const FComparator &comparator)
-	{
-		for(auto it = cbegin(), end = cend(); it != end; it = it->next()) {
-			if(comparator->compare(it->data()) == 0) {
-				return it;
-			}
-		}
-		return NULL;
-	}
-#endif
-
 	iterator first()
 	{
 		return FCList::first();

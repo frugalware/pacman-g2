@@ -46,6 +46,21 @@ protected:
 	}
 };
 
+namespace flib
+{
+	template <class T, class U>
+	bool match(const T &val, const FMatcher<U> &matcher)
+	{
+		return flib::match(matcher, val);
+	}
+
+	template <class T, class U>
+	bool match(const FMatcher<T> &matcher, const U &val)
+	{
+		return matcher.match(val);
+	}
+}
+
 // FIXME: Add FMatcherList with match_all match_any
 
 #endif /* F_MATCHER_H */
