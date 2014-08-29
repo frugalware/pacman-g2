@@ -67,7 +67,7 @@ static Package *_pacman_fakedb_pkg_new(pmdb_t *fakedb, const char *name)
 		} else if(strncmp("version", p, q-p) == 0) {
 			STRNCPY(dummy->m_version, q+1, PKG_VERSION_LEN);
 		} else if(strncmp("depend", p, q-p) == 0) {
-			dummy->m_depends = _pacman_stringlist_append(dummy->m_depends, q+1);
+			dummy->m_depends = f_stringlist_add(dummy->m_depends, q+1);
 		} else {
 			_pacman_log(PM_LOG_ERROR, _("could not parse token %s"), p);
 		}

@@ -105,7 +105,7 @@ FPtrList *Database::filter(const PackageMatcher &packagematcher)
 		Package *pkg = (Package *)f_ptrlistitem_data(it);
 		
 		if(packagematcher.match(pkg)) {
-			ret = f_ptrlist_append(ret, pkg);
+			ret = f_ptrlist_add(ret, pkg);
 		}
 	}
 	return ret;
@@ -135,7 +135,7 @@ FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_fla
 			Package *pkg = (Package *)f_ptrlistitem_data(j);
 
 			if(packagematcher.match(pkg)) {
-				ret = f_ptrlist_append(ret, pkg);
+				ret = f_ptrlist_add(ret, pkg);
 			}
 		}
 	}

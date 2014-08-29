@@ -58,7 +58,7 @@ FStringList *_pacman_list_remove_dupes(FStringList *list)
 		const char *str = f_stringlistitem_to_str(i);
 
 		if(!_pacman_list_is_strin(str, newlist)) {
-			newlist = _pacman_stringlist_append(newlist, str);
+			newlist = f_stringlist_add(newlist, str);
 		}
 	}
 	return newlist;
@@ -69,7 +69,7 @@ FStringList *_pacman_list_strdup(FStringList *list)
 	FStringList *newlist = f_stringlist_new();
 
 	for(auto lp = list->begin(), end = list->end(); lp != end; lp = lp->next()) {
-		newlist = f_stringlist_append(newlist, f_stringlistitem_to_str(lp));
+		newlist = f_stringlist_add(newlist, f_stringlistitem_to_str(lp));
 	}
 
 	return(newlist);
@@ -116,15 +116,15 @@ int f_stringlist_delete(FStringList *self)
 	return f_ptrlist_delete(self, &f_stringlistitem_destroyvisitor);
 }
 
-FStringList *f_stringlist_append(FStringList *list, const char *s)
+FStringList *f_stringlist_add(FStringList *list, const char *s)
 {
-	return f_ptrlist_append(list, f_strdup(s));
+	return f_ptrlist_add(list, f_strdup(s));
 }
 
-FStringList *f_stringlist_append_stringlist(FStringList *dest, const FStringList *src)
+FStringList *f_stringlist_add_stringlist(FStringList *dest, const FStringList *src)
 {
 	for(auto lp = src->begin(), end = src->end(); lp != end; lp = lp->next()) {
-		dest = f_stringlist_append(dest, f_stringlistitem_to_str(lp));
+		dest = f_stringlist_add(dest, f_stringlistitem_to_str(lp));
 	}
 	return dest;
 }

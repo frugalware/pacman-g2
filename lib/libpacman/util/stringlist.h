@@ -45,8 +45,6 @@ struct FStringListIterator {
 };
 #endif
 
-#define _pacman_stringlist_append f_stringlist_append
-
 int _pacman_list_is_strin(const char *needle, FStringList *haystack);
 FStringList *_pacman_list_remove_dupes(FStringList *list);
 FStringList *_pacman_list_strdup(FStringList *list);
@@ -59,8 +57,8 @@ const char *f_stringlistitem_to_str(const FStringListIterator *self);
 FStringList *f_stringlist_new(void);
 int f_stringlist_delete(FStringList *self);
 
-FStringList *f_stringlist_append(FStringList *list, const char *s);
-FStringList *f_stringlist_append_stringlist(FStringList *dest, const FStringList *src);
+FStringList *f_stringlist_add(FStringList *list, const char *s);
+FStringList *f_stringlist_add_stringlist(FStringList *dest, const FStringList *src);
 int f_stringlist_clear(FStringList *self);
 
 #ifdef __cplusplus

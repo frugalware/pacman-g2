@@ -223,11 +223,12 @@ int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
 #else
 	self->clear(visitor);
 	delete self;
+	return 0;
 #endif
 }
 
 // FIXME: Change return value to bool
-FPtrList *f_ptrlist_append(FPtrList *list, void *data)
+FPtrList *f_ptrlist_add(FPtrList *list, void *data)
 {
 #ifndef F_NOCOMPAT
 	FPtrList *ptr, *lp;

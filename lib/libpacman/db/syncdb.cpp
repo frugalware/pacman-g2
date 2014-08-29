@@ -167,7 +167,7 @@ int _pacman_syncdb_update(Database *db, int force)
 
 	/* build a one-element list */
 	snprintf(path, PATH_MAX, "%s" PM_EXT_DB, db->treename());
-	files = _pacman_stringlist_append(files, path);
+	files = f_stringlist_add(files, path);
 
 	snprintf(path, PATH_MAX, "%s%s", handle->root, handle->dbpath);
 

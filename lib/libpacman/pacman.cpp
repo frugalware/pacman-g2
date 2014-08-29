@@ -175,7 +175,7 @@ static
 void _pacman_handle_set_option_stringlist(const char *option, FStringList **stringlist, const char *value)
 {
 	if(!_pacman_strempty(value)) {
-		*stringlist = _pacman_stringlist_append(*stringlist, value);
+		*stringlist = f_stringlist_add(*stringlist, value);
 		_pacman_log(PM_LOG_FLOW2, _("'%s' added to %s"), value, option);
 	} else {
 		FREELIST(*stringlist);

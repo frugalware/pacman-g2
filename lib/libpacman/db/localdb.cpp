@@ -267,19 +267,19 @@ FPtrList *LocalDatabase::test() const
 		if(stat(path, &buf))
 		{
 			snprintf(path, LOG_STR_LEN, _("%s: description file is missing"), ent->d_name);
-			ret = _pacman_stringlist_append(ret, path);
+			ret = f_stringlist_add(ret, path);
 		}
 		snprintf(path, PATH_MAX, "%s/%s/depends", this->path, ent->d_name);
 		if(stat(path, &buf))
 		{
 			snprintf(path, LOG_STR_LEN, _("%s: dependency information is missing"), ent->d_name);
-			ret = _pacman_stringlist_append(ret, path);
+			ret = f_stringlist_add(ret, path);
 		}
 		snprintf(path, PATH_MAX, "%s/%s/files", this->path, ent->d_name);
 		if(stat(path, &buf))
 		{
 			snprintf(path, LOG_STR_LEN, _("%s: file list is missing"), ent->d_name);
-			ret = _pacman_stringlist_append(ret, path);
+			ret = f_stringlist_add(ret, path);
 		}
 	}
 

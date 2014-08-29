@@ -566,7 +566,7 @@ public:
 	}
 	
 	/* Modifiers */
-	virtual bool add(const reference val);
+	virtual bool add(const reference val); // Make default implementation to happend
 
 protected:
 	FCList(const FCList &o);
@@ -603,8 +603,7 @@ FPtrListIterator *f_ptrlistitem_next(FPtrListIterator *self);
 FPtrList *f_ptrlist_new(void);
 int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
 
-#define f_ptrlist_add f_ptrlist_append
-FPtrList *f_ptrlist_append(FPtrList *list, void *data);
+FPtrList *f_ptrlist_add(FPtrList *list, void *data);
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
 int f_ptrlist_count(const FPtrList *self);
 FPtrListIterator *f_ptrlist_end(FPtrList *self);

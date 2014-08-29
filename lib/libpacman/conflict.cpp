@@ -223,7 +223,7 @@ static FPtrList *chk_fileconflicts(FPtrList *filesA, FPtrList *filesB)
 				pB = pB->next();
 			} else {
 				/* item in both, record it */
-				ret = _pacman_stringlist_append(ret, strA);
+				ret = f_stringlist_add(ret, strA);
 				pA = pA->next();
 				pB = pB->next();
 			}
@@ -337,7 +337,7 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 									 * Our workaround is to scan through all "old" packages and all "new"
 									 * ones, looking for files that jump to different packages.
 									 */
-									trans->skiplist = _pacman_stringlist_append(trans->skiplist, filestr);
+									trans->skiplist = f_stringlist_add(trans->skiplist, filestr);
 								}
 							}
 						}

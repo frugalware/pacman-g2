@@ -55,7 +55,7 @@ int _pacman_packagecache_clean(int level)
 			if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
 				continue;
 			}
-			cache = _pacman_stringlist_append(cache, ent->d_name);
+			cache = f_stringlist_add(cache, ent->d_name);
 		}
 		closedir(dir);
 
@@ -64,7 +64,7 @@ int _pacman_packagecache_clean(int level)
 			char name[PKG_NAME_LEN], version[PKG_VERSION_LEN];
 
 			if(strstr(str, PM_EXT_PKG) == NULL) {
-				clean = _pacman_stringlist_append(clean, str);
+				clean = f_stringlist_add(clean, str);
 				continue;
 			}
 			/* we keep partially downloaded files */
@@ -72,7 +72,7 @@ int _pacman_packagecache_clean(int level)
 				continue;
 			}
 			if(!Package::splitname(str, name, version, 1)) {
-				clean = _pacman_stringlist_append(clean, str);
+				clean = f_stringlist_add(clean, str);
 				continue;
 			}
 			for(auto j = i->next(); j != end; j = j->next()) {
@@ -91,7 +91,7 @@ int _pacman_packagecache_clean(int level)
 				if(!strcmp(name, n)) {
 					char *ptr = (pacman_pkg_vercmp(version, v) < 0) ? str : s;
 					if(!_pacman_list_is_strin(ptr, clean)) {
-						clean = _pacman_stringlist_append(clean, ptr);
+						clean = f_stringlist_add(clean, ptr);
 					}
 				}
 			}
