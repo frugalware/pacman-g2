@@ -23,6 +23,10 @@
 
 #include "pacman.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define LOG_STR_LEN 256
 
 typedef struct FLogger FLogger;
@@ -44,6 +48,9 @@ void f_logger_log(FLogger *logger, unsigned char flag, const char *format, ...);
 void f_logger_logs(FLogger *logger, unsigned char flag, const char *s);
 void f_logger_vlog(FLogger *logger, unsigned char flag, const char *format, va_list ap);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* F_LOGGER_H */
 
 /* vim: set ts=2 sw=2 noet: */

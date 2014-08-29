@@ -36,7 +36,7 @@ void f_dispatchlogger_log(unsigned char flag, const char *message, void *data)
 {
 	FPtrList *list = (FPtrList *)data;
 
-	for (auto it = f_ptrlist_first(list), end = f_ptrlist_end(list); it != end; it = f_ptrlistitem_next(it)) {
+	for (auto it = f_ptrlist_first(list), end = f_ptrlist_end(list); it != end; it = it->next()) {
 		f_logger_logs((FLogger *)f_ptrlistitem_data(it), flag, message);
 	}
 }

@@ -22,7 +22,7 @@ set(FLIB_SOURCES
 	io/ftp.c
 	util/falgorithms.h
 	util/fcallback.h
-	util/fdispatchlogger.c
+	util/fdispatchlogger.cpp
 	util/fdispatchlogger.h
 	util/flist.h
 	util/ffilelogger.c

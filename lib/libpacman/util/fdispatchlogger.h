@@ -25,11 +25,17 @@
 
 #include "util/flogger.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 typedef struct FDispatchLogger FDispatchLogger;
 
 FDispatchLogger *f_dispatchlogger_new(unsigned char mask);
 void f_dispatchlogger_delete(FDispatchLogger *dispatchlogger);
 
-#endif /* F_FILELOGGER_H */
+#ifdef __cplusplus
+}
+#endif
+#endif /* F_DISPATCHLOGGER_H */
 
 /* vim: set ts=2 sw=2 noet: */
