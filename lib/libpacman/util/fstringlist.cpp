@@ -1,5 +1,5 @@
 /*
- *  stringlist.c
+ *  fstringlist.cpp
  *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *
