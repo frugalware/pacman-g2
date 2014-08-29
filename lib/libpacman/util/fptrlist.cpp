@@ -210,10 +210,6 @@ FPtrListIterator *f_ptrlistitem_previous(FPtrListIterator *self)
 	return self->m_previous;
 }
 
-int f_ptrlistitem_ptrcmp(const FPtrListIterator *item, const void *ptr) {
-	return f_ptrcmp(item->m_data, ptr);
-}
-
 FPtrList *f_ptrlist_new(void)
 {
 #ifndef F_NOCOMPAT
