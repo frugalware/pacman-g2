@@ -599,7 +599,6 @@ int f_ptrlistitem_delete(FPtrListIterator *self, FVisitor *visitor);
 void *f_ptrlistitem_data(const FPtrListIterator *self);
 int f_ptrlistitem_insert_after(FPtrListIterator *self, FPtrListIterator *previous);
 FPtrListIterator *f_ptrlistitem_next(FPtrListIterator *self);
-FPtrListIterator *f_ptrlistitem_previous(FPtrListIterator *self);
 
 FPtrList *f_ptrlist_new(void);
 int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);

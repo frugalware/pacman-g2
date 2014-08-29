@@ -134,7 +134,6 @@ int LocalPackage::remove()
 
 int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int remain)
 {
-	FPtrList *lp;
 	struct stat buf;
 	int position = 0;
 	Handle *handle = trans->m_handle;
@@ -144,7 +143,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 	_pacman_log(PM_LOG_FLOW1, _("removing files"));
 
 	/* iterate through the list backwards, unlinking files */
-	for(lp = f_ptrlist_last(pkg->files()); lp; lp = f_ptrlistitem_previous(lp)) {
+	for(auto lp = pkg->files()->rbegin(), end = pkg->files()->rend(); lp != end; lp = lp->previous()) {
 		int nb = 0;
 		double percent = 0;
 		const char *file = f_stringlistitem_to_str(lp);

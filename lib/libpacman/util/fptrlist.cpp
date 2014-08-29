@@ -203,13 +203,6 @@ FPtrListIterator *f_ptrlistitem_next(FPtrListIterator *self)
 	return self->m_next;
 }
 
-FPtrListIterator *f_ptrlistitem_previous(FPtrListIterator *self)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-
-	return self->m_previous;
-}
-
 FPtrList *f_ptrlist_new(void)
 {
 #ifndef F_NOCOMPAT
