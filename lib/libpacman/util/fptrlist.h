@@ -426,6 +426,11 @@ public:
 	{
 		return NULL;
 	}
+
+	bool empty() const
+	{
+		return this == NULL;
+	}
 #endif
 
 //protected: // Disable for now
@@ -603,7 +608,6 @@ int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
 FPtrList *f_ptrlist_append(FPtrList *list, void *data);
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
 int f_ptrlist_count(const FPtrList *self);
-bool f_ptrlist_empty(const FPtrList *self);
 FPtrListIterator *f_ptrlist_end(FPtrList *self);
 const FPtrListIterator *f_ptrlist_end_const(const FPtrList *self);
 FPtrListIterator *f_ptrlist_first(FPtrList *self);

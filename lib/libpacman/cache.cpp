@@ -82,7 +82,7 @@ int _pacman_db_load_pkgcache(Database *db)
 void _pacman_db_free_pkgcache(Database *db)
 {
 	ASSERT(db != NULL, pm_errno = PM_ERR_DB_NULL; return);
-	if(f_ptrlist_empty(db->pkgcache)) {
+	if(db->pkgcache->empty()) {
 		return;
 	}
 
@@ -98,7 +98,7 @@ FPtrList *_pacman_db_get_pkgcache(Database *db)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
-	if(f_ptrlist_empty(db->pkgcache)) {
+	if(db->pkgcache->empty()) {
 		_pacman_db_load_pkgcache(db);
 	}
 

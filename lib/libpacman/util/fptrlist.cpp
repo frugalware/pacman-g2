@@ -296,15 +296,6 @@ int f_ptrlist_count(const FPtrList *self)
 #endif
 }
 
-bool f_ptrlist_empty(const FPtrList *self)
-{
-#ifndef F_NOCOMPAT
-	return self == NULL;
-#else
-	return self->empty();
-#endif
-}
-
 FPtrListIterator *f_ptrlist_end(FPtrList *self)
 {
 	return (FPtrListIterator *)f_ptrlist_end_const(self);

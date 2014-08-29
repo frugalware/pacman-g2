@@ -508,8 +508,8 @@ int __pmtrans_t::prepare(FPtrList **data)
 	}
 
 	/* If there's nothing to do, return without complaining */
-	if(f_ptrlist_empty(packages) &&
-		f_ptrlist_empty(syncpkgs)) {
+	if(packages->empty() &&
+		syncpkgs->empty()) {
 		return(0);
 	}
 
@@ -581,7 +581,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for unresolvable dependencies"));
 		deps = _pacman_checkdeps(this, PM_TRANS_TYPE_UPGRADE, list);
-		if(!f_ptrlist_empty(deps)) {
+		if(!deps->empty()) {
 			if(data) {
 				*data = deps;
 			}
@@ -599,7 +599,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
 		deps = _pacman_checkconflicts(this, list);
-		if(!f_ptrlist_empty(deps)) {
+		if(!deps->empty()) {
 			int errorout = 0;
 
 			for(auto i = deps->begin(), end = deps->end(); i != end && !errorout; i = i->next()) {
@@ -1425,8 +1425,8 @@ int __pmtrans_t::commit(FPtrList **data)
 		*data = NULL;
 
 	/* If there's nothing to do, return without complaining */
-	if(f_ptrlist_empty(packages) &&
-		f_ptrlist_empty(syncpkgs)) {
+	if(packages->empty() &&
+		syncpkgs->empty()) {
 		return(0);
 	}
 
