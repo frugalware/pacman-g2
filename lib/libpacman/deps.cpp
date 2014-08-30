@@ -90,7 +90,7 @@ int _pacman_depmiss_isin(pmdepmissing_t *needle, FPtrList *haystack)
 FPtrList *_pacman_depmisslist_add(FPtrList *misslist, pmdepmissing_t *miss)
 {
 	if(!_pacman_depmiss_isin(miss, misslist)) {
-		misslist = f_ptrlist_add(misslist, miss);
+		misslist = misslist->add(miss);
 	} else {
 		delete miss;
 	}
@@ -130,7 +130,7 @@ FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
 	for(auto i = targets->begin(), end = targets->end(); i != end; i = i->next()) {
 		pmgraph_t *v = _pacman_graph_new();
 		v->data = f_ptrlistitem_data(i);
-		vertices = f_ptrlist_add(vertices, v);
+		vertices = vertices->add(v);
 	}
 
 	/* We compute the edges */
@@ -149,7 +149,7 @@ FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
 				child = _pacman_depcmp(p_j, &depend);
 			}
 			if(child) {
-				vertex_i->children = f_ptrlist_add(vertex_i->children, vertex_j);
+				vertex_i->children = vertex_i->children->add(vertex_j);
 			}
 		}
 		vertex_i->childptr = vertex_i->children;
@@ -173,7 +173,7 @@ FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
 			}
 		}
 		if(!found) {
-			newtargs = f_ptrlist_add(newtargs, vertex->data);
+			newtargs = newtargs->add(vertex->data);
 			/* mark that we've left this vertex */
 			vertex->state = 1;
 			vertex = vertex->parent;
@@ -539,7 +539,7 @@ FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
 				/* add it to the target list */
 				_pacman_log(PM_LOG_DEBUG, _("loading ALL info for '%s'"), pkg->name());
 				pkg->read(INFRQ_ALL);
-				newtargs = f_ptrlist_add(newtargs, pkg);
+				newtargs = newtargs->add(pkg);
 				_pacman_log(PM_LOG_FLOW2, _("adding '%s' to the targets"), pkg->name());
 				newtargs = _pacman_removedeps(db, newtargs);
 			}
@@ -557,7 +557,7 @@ FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
 int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
                       FPtrList *trail, FPtrList **data)
 {
-	FPtrList *targ;
+	FPtrList *targ = f_ptrlist_new();
 	FPtrList *deps = NULL;
 	Handle *handle = trans->m_handle;
 	FPtrList *dbs_sync = handle->dbs_sync;
@@ -566,7 +566,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 		return(-1);
 	}
 
-	targ = f_ptrlist_add(NULL, syncpkg);
+	targ = targ->add(syncpkg);
 	deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_ADD, targ);
 	FREELISTPTR(targ);
 
@@ -615,7 +615,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 					goto error;
 				}
 				*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
-				*data = f_ptrlist_add(*data, miss);
+				*data = ((FPtrList *)*data)->add(miss);
 			}
 			pm_errno = PM_ERR_UNSATISFIED_DEPS;
 			goto error;
@@ -638,13 +638,13 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 				dummypkg->release();
 			}
 			if(usedep) {
-				trail = f_ptrlist_add(trail, ps);
+				trail = trail->add(ps);
 				if(_pacman_resolvedeps(trans, ps, list, trail, data)) {
 					goto error;
 				}
 				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s (needed by %s)"),
 				          ps->name(), syncpkg->name());
-				list = f_ptrlist_add(list, ps);
+				list = list->add(ps);
 			} else {
 				_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\""), miss->target);
 				if(data) {
@@ -653,7 +653,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 						goto error;
 					}
 					*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
-					*data = f_ptrlist_add(*data, miss);
+					*data = ((FPtrList *)*data)->add(miss);
 				}
 				pm_errno = PM_ERR_UNSATISFIED_DEPS;
 				goto error;
@@ -740,7 +740,7 @@ int inList(FPtrList *lst, char *lItem) {
 
 extern "C" {
 int pacman_output_generate(FPtrList *targets, FPtrList *dblist) {
-    FPtrList *found = NULL;
+    FPtrList *found = f_ptrlist_new();
     Package *pkg = NULL;
     char *match = NULL;
     int foundMatch = 0;
@@ -764,12 +764,12 @@ int pacman_output_generate(FPtrList *targets, FPtrList *dblist) {
                         }
                         strcpy(fullDep, depend.name);
                         if(!inList(found, fullDep) && !inList(targets, fullDep)) {
-                            targets = f_ptrlist_add(targets, fullDep);
+                            targets = targets->add(fullDep);
                         }
                     }
                     if(!inList(found,pname)) {
                         printf("%s ", pname);
-                        found = f_ptrlist_add(found, pname);
+                        found = found->add(pname);
                     }
                     FREE(match);
                 }

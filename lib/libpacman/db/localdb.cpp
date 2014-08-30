@@ -553,7 +553,7 @@ FPtrList *LocalDatabase::getowners(const char *filename)
 
 			snprintf(path, PATH_MAX, "%s%s", m_handle->root, f_stringlistitem_to_str(i));
 			if(!strcmp(path, rpath)) {
-				ret = f_ptrlist_add(ret, info);
+				ret = ret->add(info);
 				if(rpath[strlen(rpath)-1] != '/') {
 					/* we are searching for a file and multiple packages won't contain
 					 * the same file */

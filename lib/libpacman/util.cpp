@@ -167,7 +167,7 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 				return(-1);
 			memset(c, 0, sizeof(cache_t));
 			c->str = strdup(ent->d_name);
-			cache = f_ptrlist_add(cache, c);
+			cache = cache->add(c);
 		}
 	}
 	closedir(handle);
@@ -509,7 +509,7 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 				return(-1);
 			}
 			*ptr = pkgsize;
-			*data = c_cast(f_ptrlist_add(cxx_cast(*data), ptr));
+			*data = c_cast(cxx_cast(*data)->add(ptr));
 			if((ptr = (long long*)malloc(sizeof(long long)))==NULL) {
 				FPtrList *tmp = cxx_cast(*data);
 				FREELIST(tmp);
@@ -517,7 +517,7 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 				return(-1);
 			}
 			*ptr = freespace;
-			*data = c_cast(f_ptrlist_add(cxx_cast(*data), ptr));
+			*data = c_cast(cxx_cast(*data)->add(ptr));
 		}
 		pm_errno = PM_ERR_DISK_FULL;
 		return(-1);

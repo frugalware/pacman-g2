@@ -118,7 +118,7 @@ int f_stringlist_delete(FStringList *self)
 
 FStringList *f_stringlist_add(FStringList *list, const char *s)
 {
-	return f_ptrlist_add(list, f_strdup(s));
+	return list->add(f_strdup(s));
 }
 
 FStringList *f_stringlist_add_stringlist(FStringList *dest, const FStringList *src)

@@ -270,7 +270,7 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 						STRNCPY(conflict->target, p1->name(), PKG_NAME_LEN);
 						STRNCPY(conflict->file, f_stringlistitem_to_str(k), CONFLICT_FILE_LEN);
 						STRNCPY(conflict->ctarget, p2->name(), PKG_NAME_LEN);
-						conflicts = f_ptrlist_add(conflicts, conflict);
+						conflicts = conflicts->add(conflict);
 				}
 				FREELIST(ret);
 			}
@@ -352,7 +352,7 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 					STRNCPY(conflict->target, p->name(), PKG_NAME_LEN);
 					STRNCPY(conflict->file, filestr, CONFLICT_FILE_LEN);
 					conflict->ctarget[0] = 0;
-					conflicts = f_ptrlist_add(conflicts, conflict);
+					conflicts = conflicts->add(conflict);
 				}
 			}
 		}

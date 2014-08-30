@@ -431,6 +431,8 @@ public:
 	{
 		return this == NULL;
 	}
+
+	FPtrList *add(const void *data);
 #endif
 
 //protected: // Disable for now

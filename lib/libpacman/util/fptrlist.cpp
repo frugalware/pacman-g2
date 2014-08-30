@@ -133,7 +133,7 @@ FPtrList *_pacman_list_reverse(FPtrList *list)
 	FPtrList *newlist = f_ptrlist_new();
 
 	for(auto it = list->rbegin(), end = list->rend(); it != end; it = it->previous()) {
-		newlist = f_ptrlist_add(newlist, f_ptrlistitem_data(it));
+		newlist = newlist->add(f_ptrlistitem_data(it));
 	}
 
 	return(newlist);
@@ -226,6 +226,13 @@ int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
 	return 0;
 #endif
 }
+
+#ifndef F_NOCOMPAT
+FPtrList *FCListItem::add(const void *data)
+{
+	return f_ptrlist_add(this, data);
+}
+#endif
 
 // FIXME: Change return value to bool
 FPtrList *f_ptrlist_add(FPtrList *list, void *data)

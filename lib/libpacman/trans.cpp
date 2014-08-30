@@ -269,7 +269,7 @@ pmsyncpkg_t *__pmtrans_t::add(pmsyncpkg_t *syncpkg, int flags)
 		return NULL;
 	}
 	_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), syncpkg->pkg_name);
-	syncpkgs = f_ptrlist_add(syncpkgs, syncpkg);
+	syncpkgs = syncpkgs->add(syncpkg);
 	return syncpkg;
 }
 
@@ -278,7 +278,7 @@ int __pmtrans_t::add(Package *pkg, pmtranstype_t type, int flags)
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), pkg->name());
-	packages = f_ptrlist_add(packages, pkg);
+	packages = packages->add(pkg);
 	return 0;
 }
 
@@ -518,7 +518,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 	if(m_type == PM_TRANS_TYPE_SYNC) {
 	for(auto i = syncpkgs->begin(), end = syncpkgs->end(); i != end; i = i->next()) {
 		pmsyncpkg_t *ps = f_ptrlistitem_data(i);
-		list = f_ptrlist_add(list, ps->pkg_new);
+		list = list->add(ps->pkg_new);
 	}
 
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
@@ -545,7 +545,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 					ret = -1;
 					goto cleanup;
 				}
-				syncpkgs = f_ptrlist_add(syncpkgs, ps);
+				syncpkgs = syncpkgs->add(ps);
 				_pacman_log(PM_LOG_FLOW2, _("adding package %s-%s to the transaction targets"),
 						spkg->name(), spkg->version());
 			} else {
@@ -561,14 +561,14 @@ int __pmtrans_t::prepare(FPtrList **data)
 		k = l = NULL;
 		for(auto i = syncpkgs->begin(), end = syncpkgs->end(); i != end; i = i->next()) {
 			pmsyncpkg_t *s = (pmsyncpkg_t*)f_ptrlistitem_data(i);
-			k = f_ptrlist_add(k, s->pkg_new);
+			k = k->add(s->pkg_new);
 		}
 		m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
 		for(auto i = m->begin(), end = m->end(); i != end; i = i->next()) {
 			for(auto j = syncpkgs->begin(), j_end = syncpkgs->end(); j != j_end; j = j->next()) {
 				pmsyncpkg_t *s = (pmsyncpkg_t*)f_ptrlistitem_data(j);
 				if(s->pkg_new == f_ptrlistitem_data(i)) {
-					l = f_ptrlist_add(l, s);
+					l = l->add(s);
 				}
 			}
 		}
@@ -715,7 +715,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 							}
 							/* append to the replaces list */
 							_pacman_log(PM_LOG_FLOW2, _("electing '%s' for removal"), miss->depend.name);
-							ps->data = f_ptrlist_add(ps->data, q);
+							ps->data = ((FPtrList*)ps->data)->add(q);
 							if(rsync) {
 								/* remove it from the target list */
 								pmsyncpkg_t *spkg = NULL;
@@ -735,7 +735,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 									goto cleanup;
 								}
 								*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
-								*data = f_ptrlist_add(*data, miss);
+								*data = ((FPtrList *)*data)->add(miss);
 							}
 						}
 					}
@@ -749,7 +749,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 							goto cleanup;
 						}
 						*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
-						*data = f_ptrlist_add(*data, miss);
+						*data = ((FPtrList *)*data)->add(miss);
 					}
 				}
 			}
@@ -786,7 +786,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
 				FPtrList *replaces = (FPtrList *)ps->data;
 				for(auto j = replaces->begin(), j_end = replaces->end(); j != j_end; j = j->next()) {
-					list = f_ptrlist_add(list, f_ptrlistitem_data(j));
+					list = list->add(f_ptrlistitem_data(j));
 				}
 			}
 		}
@@ -844,7 +844,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 									goto cleanup;
 								}
 								*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
-								*data = f_ptrlist_add(*data, miss);
+								*data = ((FPtrList *)*data)->add(miss);
 							}
 						}
 					}
@@ -900,7 +900,7 @@ cleanup:
 						Package *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
 						if(pkg_local) {
 							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), pkg_local->name());
-							packages = f_ptrlist_add(packages, pkg_local);
+							packages = packages->add(pkg_local);
 						} else {
 							_pacman_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
 								miss->depend.name);
@@ -1329,7 +1329,7 @@ int _pacman_cachedpkg_check_integrity(Package *spkg, __pmtrans_t *trans, FPtrLis
 			RET_ERR(PM_ERR_MEMORY, -1);
 		}
 		snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
-		*data = f_ptrlist_add(*data, ptr);
+		*data = ((FPtrList *)*data)->add(ptr);
 		retval = 1;
 		goto out;
 	}
@@ -1341,7 +1341,7 @@ int _pacman_cachedpkg_check_integrity(Package *spkg, __pmtrans_t *trans, FPtrLis
 			RET_ERR(PM_ERR_MEMORY, -1);
 		}
 		snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
-		*data = f_ptrlist_add(*data, ptr);
+		*data = ((FPtrList *)*data)->add(ptr);
 		retval = 1;
 		goto out;
 	}
@@ -1368,7 +1368,7 @@ int _pacman_cachedpkg_check_integrity(Package *spkg, __pmtrans_t *trans, FPtrLis
 		} else {
 			snprintf(ptr, 512, _("archive %s is corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
 		}
-		*data = f_ptrlist_add(*data, ptr);
+		*data = ((FPtrList *)*data)->add(ptr);
 		retval = 1;
 	}
 

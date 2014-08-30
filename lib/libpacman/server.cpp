@@ -494,7 +494,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, FPtrList *servers, const char 
 					_pacman_log(PM_LOG_DEBUG, _("XferCommand command returned non-zero status code (%d)\n"), ret);
 				} else {
 					/* download was successful */
-					complete = f_ptrlist_add(complete, fn);
+					complete = complete->add(fn);
 					if(usepart) {
 						char fnpart[PATH_MAX];
 						/* rename "output.part" file to "output" file */
@@ -561,7 +561,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, FPtrList *servers, const char 
 						if(!strcmp(server->protocol, "file")) {
 							EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
 						}
-						complete = f_ptrlist_add(complete, fn);
+						complete = complete->add(fn);
 						/* rename "output.part" file to "output" file */
 						snprintf(completefile, PATH_MAX, "%s/%s", localpath, fn);
 						rename(output, completefile);
@@ -629,7 +629,7 @@ char *_pacman_fetch_pkgurl(Handle *handle, char *target)
 	} else {
 		pmserver_t *server;
 		FPtrList *servers = NULL;
-		FPtrList *files;
+		FPtrList *files = f_ptrlist_new();
 
 		if((server = _pacman_malloc(sizeof(pmserver_t))) == NULL) {
 			return(NULL);
@@ -637,9 +637,9 @@ char *_pacman_fetch_pkgurl(Handle *handle, char *target)
 		server->protocol = url;
 		server->server = host;
 		server->path = spath;
-		servers = f_ptrlist_add(servers, server);
+		servers = servers->add(server);
 
-		files = f_ptrlist_add(NULL, fn);
+		files = files->add(fn);
 		if(_pacman_downloadfiles(handle, servers, lcache, files, 0)) {
 			_pacman_log(PM_LOG_WARNING, _("failed to download %s\n"), target);
 			return(NULL);
