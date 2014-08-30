@@ -67,13 +67,14 @@ typedef void (*FPtrListIteratorVisitorFunc)(FPtrListIterator *item, void *visito
 void *f_ptrlistitem_data(const FPtrListIterator *self);
 int f_ptrlistitem_insert_after(FPtrListIterator *self, FPtrListIterator *previous);
 FPtrListIterator *f_ptrlistitem_next(FPtrListIterator *self);
+size_t f_ptrlistiterator_count(const FPtrListIterator *self, const FPtrListIterator *to);
 
 FPtrList *f_ptrlist_new(void);
 int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
 
 FPtrList *f_ptrlist_add(FPtrList *list, void *data);
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
-int f_ptrlist_count(const FPtrList *self);
+size_t f_ptrlist_count(const FPtrList *self);
 FPtrListIterator *f_ptrlist_end(FPtrList *self);
 const FPtrListIterator *f_ptrlist_end_const(const FPtrList *self);
 FPtrListIterator *f_ptrlist_first(FPtrList *self);

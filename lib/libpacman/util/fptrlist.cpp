@@ -172,6 +172,14 @@ FPtrListIterator *f_ptrlistitem_next(FPtrListIterator *self)
 	return self->m_next;
 }
 
+size_t f_ptrlistiterator_count(const FPtrListIterator *self, const FPtrListIterator *end)
+{
+	int size = 0;
+
+	for(const FPtrListIterator *it = self; it != end; it = it->next(), size++);
+	return size;
+}
+
 FPtrList *f_ptrlist_new(void)
 {
 #ifndef F_NOCOMPAT
@@ -254,13 +262,10 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 	return 0;
 }
 
-int f_ptrlist_count(const FPtrList *self)
+size_t f_ptrlist_count(const FPtrList *self)
 {
 #ifndef F_NOCOMPAT
-	int i = 0;
-
-	for(auto it = self->cbegin(), end = self->cend(); it != end; it = it->next(), i++);
-	return i;
+	return f_ptrlistiterator_count(self->begin(), self->end());
 #else
 	return self->size();
 #endif
