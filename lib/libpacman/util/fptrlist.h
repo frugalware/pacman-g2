@@ -29,26 +29,65 @@
 #include "util/fcallback.h"
 
 #ifndef __cplusplus
-
 typedef struct FCList FCList;
 typedef struct FCListItem FCListItem;
-
 #ifndef F_NOCOMPAT
 typedef struct FPtrList FPtrList;
-#else
+#else /* F_NOCOMPAT */
 typedef struct FCList FPtrList;
-#endif
+#endif /* F_NOCOMPAT */
 typedef struct FCListItem FPtrListIterator;
-
-#else
-
+#else /* __cplusplus */
 #ifndef F_NOCOMPAT
 typedef class FPtrList FPtrList;
-#else
+#else /* F_NOCOMPAT */
 typedef class FCList FPtrList;
-#endif
+#endif /* F_NOCOMPAT */
 typedef class FCListItem FPtrListIterator;
+#endif /* __cplusplus */
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+#define _FREELIST(p, f) do { if(p) { FVisitor visitor = { (FVisitorFunc)f, NULL }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
+
+#define FREELIST(p) _FREELIST(p, free)
+#define FREELISTPTR(p) _FREELIST(p, NULL)
+
+/* Sort comparison callback function declaration */
+typedef int (*_pacman_fn_cmp)(const void *, const void *);
+
+FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
+FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
+FPtrList *_pacman_list_reverse(FPtrList *list);
+
+typedef void (*FPtrListIteratorVisitorFunc)(FPtrListIterator *item, void *visitor_data);
+
+void *f_ptrlistitem_data(const FPtrListIterator *self);
+int f_ptrlistitem_insert_after(FPtrListIterator *self, FPtrListIterator *previous);
+FPtrListIterator *f_ptrlistitem_next(FPtrListIterator *self);
+
+FPtrList *f_ptrlist_new(void);
+int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
+
+FPtrList *f_ptrlist_add(FPtrList *list, void *data);
+int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
+int f_ptrlist_count(const FPtrList *self);
+FPtrListIterator *f_ptrlist_end(FPtrList *self);
+const FPtrListIterator *f_ptrlist_end_const(const FPtrList *self);
+FPtrListIterator *f_ptrlist_first(FPtrList *self);
+const FPtrListIterator *f_ptrlist_first_const(const FPtrList *self);
+FPtrListIterator *f_ptrlist_last(FPtrList *self);
+const FPtrListIterator *f_ptrlist_last_const(const FPtrList *self);
+FPtrListIterator *f_ptrlist_rend(FPtrList *self);
+const FPtrListIterator *f_ptrlist_rend_const(const FPtrList *self);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#ifdef __cplusplus
 namespace flib
 {
 	template <typename Iterable>
@@ -579,45 +618,6 @@ protected:
 
 	FCList &operator = (const FCList &o);
 };
-
-extern "C" {
-#endif
-
-#define _FREELIST(p, f) do { if(p) { FVisitor visitor = { (FVisitorFunc)f, NULL }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
-
-#define FREELIST(p) _FREELIST(p, free)
-#define FREELISTPTR(p) _FREELIST(p, NULL)
-
-/* Sort comparison callback function declaration */
-typedef int (*_pacman_fn_cmp)(const void *, const void *);
-
-FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
-FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
-FPtrList *_pacman_list_reverse(FPtrList *list);
-
-typedef void (*FPtrListIteratorVisitorFunc)(FPtrListIterator *item, void *visitor_data);
-
-void *f_ptrlistitem_data(const FPtrListIterator *self);
-int f_ptrlistitem_insert_after(FPtrListIterator *self, FPtrListIterator *previous);
-FPtrListIterator *f_ptrlistitem_next(FPtrListIterator *self);
-
-FPtrList *f_ptrlist_new(void);
-int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
-
-FPtrList *f_ptrlist_add(FPtrList *list, void *data);
-int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
-int f_ptrlist_count(const FPtrList *self);
-FPtrListIterator *f_ptrlist_end(FPtrList *self);
-const FPtrListIterator *f_ptrlist_end_const(const FPtrList *self);
-FPtrListIterator *f_ptrlist_first(FPtrList *self);
-const FPtrListIterator *f_ptrlist_first_const(const FPtrList *self);
-FPtrListIterator *f_ptrlist_last(FPtrList *self);
-const FPtrListIterator *f_ptrlist_last_const(const FPtrList *self);
-FPtrListIterator *f_ptrlist_rend(FPtrList *self);
-const FPtrListIterator *f_ptrlist_rend_const(const FPtrList *self);
-
-#ifdef __cplusplus
-}
 #endif
 #endif /* F_PTRLIST_H */
 
