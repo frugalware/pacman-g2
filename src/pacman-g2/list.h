@@ -24,7 +24,7 @@
 #include <pacman.h>
 
 #include <util/fptrlist.h>
-#include <util/stringlist.h>
+#include <util/fstringlist.h>
 
 typedef FPtrList list_t;
 

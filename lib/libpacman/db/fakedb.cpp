@@ -31,8 +31,6 @@
 #include "package.h"
 #include "util.h"
 
-#include "util/stringlist.h"
-
 #include <time.h>
 
 using namespace libpacman;

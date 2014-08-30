@@ -27,8 +27,6 @@
 
 #include <time.h>
 
-#include "util/stringlist.h"
-
 #include "pacman.h"
 
 #include "trans.h"

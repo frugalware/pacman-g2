@@ -37,7 +37,6 @@
 #include "db/syncdb.h"
 #include "io/archive.h"
 #include "util/log.h"
-#include "util/stringlist.h"
 #include "util/time.h"
 #include "fstring.h"
 #include "util.h"

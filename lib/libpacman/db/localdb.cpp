@@ -35,7 +35,6 @@
 #include "handle.h"
 
 #include "util/log.h"
-#include "util/stringlist.h"
 #include "fstring.h"
 
 #include <sys/stat.h>

@@ -47,7 +47,6 @@
 #include "hash/sha1.h"
 #include "io/archive.h"
 #include "util/log.h"
-#include "util/stringlist.h"
 #include "fstdlib.h"
 
 #include <sys/stat.h>

@@ -35,7 +35,6 @@
 
 #include "db/localdb_files.h"
 #include "util/log.h"
-#include "util/stringlist.h"
 #include "fstring.h"
 #include "pacman.h"
 #include "util.h"

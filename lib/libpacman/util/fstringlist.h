@@ -1,5 +1,5 @@
 /*
- *  stringlist.h
+ *  fstringlist.h
  *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *
@@ -18,8 +18,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef _PACMAN_STRINGLIST_H
-#define _PACMAN_STRINGLIST_H
+#ifndef F_STRINGLIST_H
+#define F_STRINGLIST_H
 
 #include "util/fptrlist.h"
 #include "fstring.h"
@@ -60,6 +60,6 @@ int f_stringlist_clear(FStringList *self);
 #ifdef __cplusplus
 }
 #endif
-#endif /* _PACMAN_STRINGLIST_H */
+#endif /* F_STRINGLIST_H */
 
 /* vim: set ts=2 sw=2 noet: */

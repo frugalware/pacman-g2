@@ -26,7 +26,7 @@
 #include <assert.h>
 
 /* pacman-g2 */
-#include "stringlist.h"
+#include "fstringlist.h"
 
 #include "util.h"
 

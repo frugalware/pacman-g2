@@ -24,7 +24,7 @@
 #include "fstring.h"
 
 #include "util/fmatcher.h"
-#include "util/stringlist.h"
+#include "util/fstringlist.h"
 
 #include <regex.h>
 

@@ -32,7 +32,7 @@
 
 #include "kernel/fobject.h"
 #include "util/fptrlist.h"
-#include "util/stringlist.h"
+#include "util/fstringlist.h"
 #include "fstring.h"
 
 namespace libpacman {

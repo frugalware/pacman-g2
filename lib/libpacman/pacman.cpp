@@ -48,7 +48,6 @@
 #include "hash/sha1.h"
 #include "package/packagecache.h"
 #include "util/log.h"
-#include "util/stringlist.h"
 #include "fstring.h"
 
 #include <sys/stat.h>

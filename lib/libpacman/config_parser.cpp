@@ -44,7 +44,6 @@
 #include "hash/md5.h"
 #include "hash/sha1.h"
 #include "util/log.h"
-#include "util/stringlist.h"
 #include "fstring.h"
 #include "error.h"
 #include "deps.h"
