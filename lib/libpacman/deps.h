@@ -46,7 +46,7 @@ typedef struct __pmgraph_t {
 	void *data;
 	struct __pmgraph_t *parent; /* where did we come from? */
 	FPtrList *children;
-	FPtrList *childptr; /* points to a child in children list */
+	FPtrListIterator *childptr; /* points to a child in children list */
 } pmgraph_t;
 
 FPtrList *_pacman_depmisslist_add(FPtrList *misslist, pmdepmissing_t *miss);

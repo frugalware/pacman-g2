@@ -43,7 +43,6 @@ static int
 _pacman_packages_transaction_set_state(pmtrans_t *trans, int new_state)
 {
 	const char *root, *triggersdir, *trigger_function;
-	const FPtrList *lp;
 
 	triggersdir = trans->m_handle->triggersdir;
 	root = trans->m_handle->root;
@@ -56,7 +55,7 @@ _pacman_packages_transaction_set_state(pmtrans_t *trans, int new_state)
 	}
 
 	_pacman_log(PM_LOG_FLOW2, _("executing %s triggers..."), trigger_function);
-	for(lp = trans->triggers; lp; lp = lp->next()) {
+	for(auto lp = trans->triggers->begin(), end = trans->triggers->end(); lp != end; lp = lp->next()) {
 		const char *trigger = f_stringlistitem_to_str(lp);
 		char buf[PATH_MAX];
 

@@ -178,8 +178,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 			 * see the big comment block in db_find_conflicts() for an
 			 * explanation. */
 			int skipit = 0;
-			FPtrList *j;
-			for(j = trans->skiplist; j; j = j->next()) {
+			for(auto j = trans->skiplist->begin(), end = trans->skiplist->end(); j != end; j = j->next()) {
 				if(!strcmp(file, f_stringlistitem_to_str(j))) {
 					skipit = 1;
 				}
@@ -422,11 +421,9 @@ void _pacman_localdb_write_string(const char *entry, const char *value, FILE *st
 static
 void _pacman_localdb_write_stringlist(const char *entry, const FPtrList *values, FILE *stream)
 {
-	const FPtrList *lp;
-
 	if(values != NULL) {
 		fprintf(stream, "%%%s%%\n", entry);
-		for(lp = values; lp; lp = lp->next()) {
+		for(auto lp = values->begin(), end = values->end(); lp != end; lp = lp->next()) {
 			fprintf(stream, "%s\n", f_stringlistitem_to_str(lp));
 		}
 		fputc('\n', stream);
@@ -530,7 +527,7 @@ FPtrList *LocalDatabase::getowners(const char *filename)
 	struct stat buf;
 	int gotcha = 0;
 	char rpath[PATH_MAX];
-	FPtrList *lp, *ret = NULL;
+	FPtrList *ret = NULL;
 
 	if(stat(filename, &buf) == -1 || realpath(filename, rpath) == NULL) {
 		RET_ERR(PM_ERR_PKG_OPEN, NULL);
@@ -543,11 +540,12 @@ FPtrList *LocalDatabase::getowners(const char *filename)
 		rpath[strlen(rpath)] = '/';
 	}
 
-	for(lp = _pacman_db_get_pkgcache(this); lp; lp = lp->next()) {
+	FPtrList *cache = _pacman_db_get_pkgcache(this);
+	for(auto lp = cache->begin(), end = cache->end(); lp != end; lp = lp->next()) {
 		Package *info = (Package *)f_ptrlistitem_data(lp);
-		FPtrList *i;
 
-		for(i = info->files(); i; i = i->next()) {
+		FPtrList *files = info->files();
+		for(auto i = files->begin(), end = files->end(); i != end; i = i->next()) {
 			char path[PATH_MAX];
 
 			snprintf(path, PATH_MAX, "%s%s", m_handle->root, f_stringlistitem_to_str(i));

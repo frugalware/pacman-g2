@@ -389,9 +389,14 @@ public:
 
 #ifndef F_NOCOMPAT
 class FPtrList
-	: public FCListItem
+	: protected FCListItem
+//	: public FCListItem
 {
 public:
+	friend FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
+	friend FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
+	friend FPtrList *f_ptrlist_add(FPtrList *list, void *data);
+
 	typedef FCListItem *iterator;
 	typedef const iterator const_iterator;
 

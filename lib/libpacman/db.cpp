@@ -153,9 +153,9 @@ FPtrList *Database::filter(const char *pattern, int packagestrmatcher_flags, int
 Package *Database::find(const PackageMatcher &packagematcher)
 {
 	Package *ret = NULL;
-	FPtrList *i;
 
-	for(i = _pacman_db_get_pkgcache(this); i; i = i->next()) {
+	FPtrList *cache = _pacman_db_get_pkgcache(this);
+	for(auto i = cache->begin(), end = cache->end(); i != end; i = i->next()) {
 		Package *pkg = (Package *)f_ptrlistitem_data(i);
 
 		if(packagematcher.match(pkg)) {

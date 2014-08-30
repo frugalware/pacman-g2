@@ -160,13 +160,11 @@ pkg_error:
  */
 Package *_pacman_pkg_isin(const char *needle, FPtrList *haystack)
 {
-	FPtrList *lp;
-
 	if(needle == NULL || haystack == NULL) {
 		return(NULL);
 	}
 
-	for(lp = haystack; lp; lp = lp->next()) {
+	for(auto lp = haystack->begin(), end = haystack->end(); lp != end; lp = lp->next()) {
 		Package *info = f_ptrlistitem_data(lp);
 
 		if(info && !strcmp(info->name(), needle)) {
@@ -251,12 +249,10 @@ int Package::filename(char *str, size_t size) const
  */
 char *Package::fileneedbackup(const char *file) const
 {
-	const FPtrList *lp;
-
 	ASSERT(!_pacman_strempty(file), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	/* run through the backup list and parse out the md5 or sha1 hash for our file */
-	for(lp = m_backup; lp; lp = lp->next()) {
+	for(auto lp = m_backup->begin(), end = m_backup->end(); lp != end; lp = lp->next()) {
 		char *str = strdup(f_stringlistitem_to_str(lp));
 		char *ptr;
 

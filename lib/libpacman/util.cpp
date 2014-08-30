@@ -127,9 +127,7 @@ typedef struct __cache_t {
 
 static int list_startswith(char *needle, FPtrList *haystack)
 {
-	FPtrList *i;
-
-	for (i = haystack; i; i = i->next()) {
+	for (auto i = haystack->begin(), end = haystack->end(); i != end; i = i->next()) {
 		cache_t *c = f_ptrlistitem_data(i);
 		if (!strncmp(c->str, needle, strlen(c->str))) {
 			c->hit = 1;
@@ -199,7 +197,7 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 	archive_read_finish (_archive);
 
 	/* finally delete the old ones */
-	for (i = cache; i; i = i->next()) {
+	for (auto i = cache->begin(), end = cache->end(); i != end; i = i->next()) {
 		cache_t *c = f_ptrlistitem_data(i);
 		if (!c->hit) {
 			snprintf(expath, PATH_MAX, "%s/%s", prefix, c->str);

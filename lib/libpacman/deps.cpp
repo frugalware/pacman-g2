@@ -115,7 +115,7 @@ FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
 {
 	FPtrList *newtargs = NULL;
 	FPtrList *vertices = NULL;
-	FPtrList *vptr;
+	FPtrListIterator *vptr;
 	pmgraph_t *vertex;
 	int found;
 
@@ -151,11 +151,11 @@ FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
 				vertex_i->children = vertex_i->children->add(vertex_j);
 			}
 		}
-		vertex_i->childptr = vertex_i->children;
+		vertex_i->childptr = vertex_i->children->begin();
 	}
 
-	vptr = vertices;
-	vertex = f_ptrlistitem_data(vertices);
+	vptr = vertices->begin();
+	vertex = f_ptrlistitem_data(vertices->begin());
 	while(vptr) {
 		/* mark that we touched the vertex */
 		vertex->state = -1;
@@ -504,7 +504,7 @@ FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
 					_pacman_log(PM_LOG_WARNING, _("cannot find package \"%s\" or anything that provides it!"), depend.name);
 					continue;
 				}
-				dep = db->find(((Package *)f_ptrlistitem_data(whatPackagesProvide))->name());
+				dep = db->find(((Package *)f_ptrlistitem_data(whatPackagesProvide->begin()))->name());
 				if(dep == NULL) {
 					_pacman_log(PM_LOG_ERROR, _("dep is NULL!"));
 					/* wtf */
@@ -601,7 +601,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 			FPtrList *provides;
 			provides = ((Database *)f_ptrlistitem_data(j))->whatPackagesProvide(miss->depend.name);
 			if(provides) {
-				ps = f_ptrlistitem_data(provides);
+				ps = f_ptrlistitem_data(provides->begin());
 			}
 			FREELISTPTR(provides);
 		}
@@ -726,9 +726,8 @@ static int str_cmp(const void *s1, const void *s2)
 }
 
 int inList(FPtrList *lst, char *lItem) {
-    FPtrList *ll;
-    ll = lst;
-    while(ll) {
+    auto ll = lst->begin(), end = lst->end();
+    while(ll != end) {
         if(!strcmp(lItem, (char *)f_ptrlistitem_data(ll))) {
            return 1;
         }

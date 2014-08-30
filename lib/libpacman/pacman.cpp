@@ -118,7 +118,7 @@ int pacman_release(void)
 	/* and also sync ones */
 	while(handle->dbs_sync) {
 		/* db_unregister() will also update the handle->dbs_sync list */
-		pacman_db_unregister(f_ptrlistitem_data(handle->dbs_sync));
+		pacman_db_unregister(f_ptrlistitem_data(handle->dbs_sync->begin()));
 	}
 
 	if(handle->unlock() != 0) {
@@ -473,7 +473,7 @@ void *pacman_db_getinfo(pmdb_t *_db, unsigned char parm)
 	switch(parm) {
 		case PM_DB_TREENAME:   data = db->treename(); break;
 		case PM_DB_FIRSTSERVER:
-			server = (pmserver_t*)f_ptrlistitem_data(db->servers);
+			server = (pmserver_t*)f_ptrlistitem_data(db->servers->begin());
 			if(!strcmp(server->protocol, "file")) {
 				snprintf(path, PATH_MAX, "%s://%s", server->protocol, server->path);
 			} else {
@@ -997,7 +997,7 @@ pmlist_t *pacman_db_search(pmdb_t *_db)
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(handle->needles != NULL, return(NULL));
-	ASSERT(f_ptrlistitem_data(handle->needles) != NULL, return(NULL));
+	ASSERT(f_ptrlistitem_data(handle->needles->begin()) != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
 	ret = db->filter(handle->needles,

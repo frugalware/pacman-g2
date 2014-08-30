@@ -168,13 +168,11 @@ Database *Handle::createDatabase(const char *treename, pacman_cb_db_register cal
 
 Database *Handle::getDatabase(const char *treename)
 {
-	FPtrList *i;
-
 	if(strcmp(treename, "local") == 0) {
 		return db_local;
 	}
 
-	for(i = dbs_sync; i; i = i->next()) {
+	for(auto i = dbs_sync->begin(), end = dbs_sync->end(); i != end; i = i->next()) {
 			Database *sdb = (Database *)f_ptrlistitem_data(i);
 			if(strcmp(treename, sdb->treename()) == 0) {
 				return sdb;

@@ -68,7 +68,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 		if(tp == NULL) {
 			continue;
 		}
-		remain = f_ptrlist_count(i);
+		remain = f_ptrlistiterator_count(i, end);
 		percent = (double)(howmany - remain + 1) / howmany;
 
 		if(trans->m_type == PM_TRANS_TYPE_SYNC) {
@@ -156,7 +156,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 			/* If this package (*info) is also in our packages FPtrList, use the
 			 * conflicts list from the new package, not the old one (*info)
 			 */
-			for(auto j = packages->begin(), j_end = packages->end(); j; j = j->next()) {
+			for(auto j = packages->begin(), j_end = packages->end(); j != j_end; j = j->next()) {
 				Package *pkg = (Package *)f_ptrlistitem_data(j);
 				if(!strcmp(pkg->name(), info->name())) {
 					/* Use the new, to-be-installed package's conflicts */
@@ -202,7 +202,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 static FPtrList *chk_fileconflicts(FPtrList *filesA, FPtrList *filesB)
 {
 	FPtrList *ret = NULL;
-	FPtrList *pA = filesA, *pB = filesB;
+	auto pA = filesA->begin(), pB = filesB->begin();
 
 	while(pA && pB) {
 		const char *strA = f_stringlistitem_to_str(pA);
@@ -253,7 +253,7 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 	/* CHECK 1: check every target against every target */
 	for(auto i = targets->begin(), end = targets->end(); i != end; i = i->next()) {
 		Package *p1 = (Package*)f_ptrlistitem_data(i);
-		remain = f_ptrlist_count(i);
+		remain = f_ptrlistiterator_count(i, end);
 		percent = (double)(howmany - remain + 1) / howmany;
 		PROGRESS(trans, PM_TRANS_PROGRESS_CONFLICTS_START, "", (percent * 100), howmany, howmany - remain + 1);
 		for(auto j = i; j != end; j = j->next()) {

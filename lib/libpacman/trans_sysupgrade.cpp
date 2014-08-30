@@ -69,7 +69,6 @@ static int istoonew(Package *pkg)
 
 int _pacman_trans_sysupgrade(pmtrans_t *trans)
 {
-	FPtrList *i, *j, *k;
 	Handle *handle;
 	Database *db_local;
 	FPtrList *dbs_sync;
@@ -85,12 +84,15 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 
 	/* check for "recommended" package replacements */
 	_pacman_log(PM_LOG_FLOW1, _("checking for package replacements"));
-	for(i = dbs_sync; i; i = i->next()) {
-		for(j = _pacman_db_get_pkgcache(f_ptrlistitem_data(i)); j; j = j->next()) {
+	for(auto i = dbs_sync->begin(), end = dbs_sync->end(); i != end; i = i->next()) {
+		FPtrList *cache = _pacman_db_get_pkgcache(f_ptrlistitem_data(i));
+		for(auto j = cache->begin(), end = cache->end(); j != end; j = j->next()) {
 			Package *spkg = f_ptrlistitem_data(j);
-			for(k = spkg->replaces(); k; k = k->next()) {
+			FPtrList *replaces = spkg->replaces();
+			for(auto k = replaces->begin(), end = replaces->end(); k != end; k = k->next()) {
 				FPtrList *m;
-				for(m = _pacman_db_get_pkgcache(db_local); m; m = m->next()) {
+				FPtrList *cache_local = _pacman_db_get_pkgcache(db_local);
+				for(auto m = cache_local->begin(), end = cache_local->end(); m != end; m = m->next()) {
 					Package *lpkg = f_ptrlistitem_data(m);
 					if(!strcmp(f_stringlistitem_to_str(k), lpkg->name())) {
 						_pacman_log(PM_LOG_DEBUG, _("checking replacement '%s' for package '%s'"), f_stringlistitem_to_str(k), spkg->name());
@@ -116,10 +118,6 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 								} else {
 									/* none found -- enter pkg into the final sync list */
 									ps = new __pmsyncpkg_t(PM_SYNC_TYPE_REPLACE, spkg, NULL);
-									if(ps == NULL) {
-										pm_errno = PM_ERR_MEMORY;
-										goto error;
-									}
 									lpkg->acquire();
 									ps->data = f_ptrlist_new();
 									ps->data = ((FPtrList *)ps->data)->add(lpkg);
@@ -138,14 +136,15 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 
 	/* match installed packages with the sync dbs and compare versions */
 	_pacman_log(PM_LOG_FLOW1, _("checking for package upgrades"));
-	for(i = _pacman_db_get_pkgcache(db_local); i; i = i->next()) {
+	FPtrList *cache_local = _pacman_db_get_pkgcache(db_local);
+	for(auto i = cache_local->begin(), end= cache_local->end(); i != end; i = i->next()) {
 		int cmp;
 		int replace=0;
 		Package *local = f_ptrlistitem_data(i);
 		Package *spkg = NULL;
 		pmsyncpkg_t *ps;
 
-		for(j = dbs_sync; !spkg && j; j = j->next()) {
+		for(auto j = dbs_sync->begin(), end = dbs_sync->end(); !spkg && j != end; j = j->next()) {
 			spkg = ((Database *)f_ptrlistitem_data(j))->find(local->name());
 		}
 		if(spkg == NULL) {
@@ -154,7 +153,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 		}
 
 		/* we don't care about a to-be-replaced package's newer version */
-		for(j = trans->syncpkgs; j && !replace; j = j->next()) {
+		for(auto j = trans->syncpkgs->begin(), end = trans->syncpkgs->end(); j != end && !replace; j = j->next()) {
 			ps = f_ptrlistitem_data(j);
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
 				if(_pacman_pkg_isin(spkg->name(), ps->data)) {
