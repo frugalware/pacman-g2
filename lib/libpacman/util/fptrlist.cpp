@@ -34,7 +34,8 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 #ifndef F_NOCOMPAT
 	FPtrListIterator *add, *end = f_ptrlist_end(list), *previous = NULL, *iter = f_ptrlist_first(list);
 
-	add = f_ptrlistitem_new(data);
+	add = new FCListItem();
+	add->m_data = data;
 
 	/* Find insertion point. */
 	while(iter != end) {
@@ -146,29 +147,6 @@ FPtrList *f_list_new()
 #else
 	return new FPtrList();
 #endif
-}
-
-FPtrListIterator *f_ptrlistitem_new(void *ptr)
-{
-#ifndef F_NOCOMPAT
-	FPtrListIterator *item = f_zalloc(sizeof(*item));
-
-	if(item != NULL) {
-		item->m_data = ptr;
-	}
-	return item;
-#else
-	return new FPtrListIterator(ptr);
-#endif
-}
-
-int f_ptrlistitem_delete(FPtrListIterator *self, FVisitor *visitor)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	f_visit(self, visitor);
-	free(self);
-	return 0;
 }
 
 void *f_ptrlistitem_data(const FPtrListIterator *self)

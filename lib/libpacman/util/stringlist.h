@@ -49,9 +49,6 @@ int _pacman_list_is_strin(const char *needle, FStringList *haystack);
 FStringList *_pacman_list_remove_dupes(FStringList *list);
 FStringList *_pacman_list_strdup(FStringList *list);
 
-FStringListIterator *f_stringlistitem_new(const char *str);
-int f_stringlistitem_delete(FStringListIterator *self);
-
 const char *f_stringlistitem_to_str(const FStringListIterator *self);
 
 FStringList *f_stringlist_new(void);
