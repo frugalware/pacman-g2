@@ -34,7 +34,7 @@ typedef struct FCList FCList;
 typedef struct FCListItem FCListItem;
 
 #ifndef F_NOCOMPAT
-typedef struct FCListItem FPtrList;
+typedef struct FPtrList FPtrList;
 #else
 typedef struct FCList FPtrList;
 #endif
@@ -43,7 +43,7 @@ typedef struct FCListItem FPtrListIterator;
 #else
 
 #ifndef F_NOCOMPAT
-typedef class FCListItem FPtrList;
+typedef class FPtrList FPtrList;
 #else
 typedef class FCList FPtrList;
 #endif
@@ -339,8 +339,19 @@ public:
 		return &m_data;
 	}
 
+//protected: // Disable for now
+	bool insert_after(FCListItem *previous);	
+
+	FCListItem *m_next;
+	FCListItem *m_previous;
+	void *m_data; // Enabled for now
+};
+
 #ifndef F_NOCOMPAT
-//	Migration code
+class FPtrList
+	: public FCListItem
+{
+public:
 	typedef FCListItem *iterator;
 	typedef const iterator const_iterator;
 
@@ -356,7 +367,7 @@ public:
 
 	const_iterator cbegin() const
 	{
-		return const_cast<const_iterator>(this);
+		return const_cast<const_iterator>((const FCListItem * const)this);
 	}
 
 	iterator end()
@@ -433,15 +444,8 @@ public:
 	}
 
 	FPtrList *add(const void *data);
-#endif
-
-//protected: // Disable for now
-	bool insert_after(FCListItem *previous);	
-
-	FCListItem *m_next;
-	FCListItem *m_previous;
-	void *m_data; // Enabled for now
 };
+#endif
 
 class FCList
 	: private FCListItem
