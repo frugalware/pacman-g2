@@ -99,7 +99,7 @@ bool Database::add_server(const char *url)
 
 FPtrList *Database::filter(const PackageMatcher &packagematcher)
 {
-	FPtrList *cache = _pacman_db_get_pkgcache(this), *ret = f_list_new();
+	FPtrList *cache = _pacman_db_get_pkgcache(this), *ret = NULL;
 
 	for(auto it = cache->begin(), end = cache->end(); it != end; it = it->next()) {
 		Package *pkg = (Package *)f_ptrlistitem_data(it);
@@ -118,7 +118,7 @@ FPtrList *Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_
 
 FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_flags, int strmatcher_flags)
 {
-	FPtrList *ret = f_list_new();
+	FPtrList *ret = NULL;
 
 	for(auto i = needles->begin(), end = needles->end(); i != end; i = i->next()) {
 		const char *pattern = f_stringlistitem_to_str(i);

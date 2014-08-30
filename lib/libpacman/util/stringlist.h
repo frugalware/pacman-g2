@@ -51,7 +51,6 @@ FStringList *_pacman_list_strdup(FStringList *list);
 
 const char *f_stringlistitem_to_str(const FStringListIterator *self);
 
-FStringList *f_stringlist_new(void);
 int f_stringlist_delete(FStringList *self);
 
 FStringList *f_stringlist_add(FStringList *list, const char *s);

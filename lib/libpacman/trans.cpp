@@ -94,10 +94,6 @@ __pmtrans_t::__pmtrans_t(Handle *handle, pmtranstype_t type, unsigned int flags)
 	m_handle = handle;
 	m_type = type;
 	this->flags = flags;
-//	packages = f_ptrlist_new();
-	targets = f_stringlist_new();
-	skiplist = f_stringlist_new();
-	triggers = f_stringlist_new();
 
 	state = STATE_INITIALIZED;
 

@@ -140,15 +140,6 @@ FPtrList *_pacman_list_reverse(FPtrList *list)
 	return(newlist);
 }
 
-FPtrList *f_list_new()
-{
-#ifndef F_NOCOMPAT
-	return NULL;
-#else
-	return new FPtrList();
-#endif
-}
-
 void *f_ptrlistitem_data(const FPtrListIterator *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));

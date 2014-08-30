@@ -52,7 +52,7 @@ int _pacman_list_is_strin(const char *needle, FStringList *haystack)
  */
 FStringList *_pacman_list_remove_dupes(FStringList *list)
 {
-	FStringList *newlist = f_stringlist_new();
+	FStringList *newlist = NULL;
 
 	for(auto i = list->begin(), end = list->end(); i != end; i = i->next()) {
 		const char *str = f_stringlistitem_to_str(i);
@@ -66,7 +66,7 @@ FStringList *_pacman_list_remove_dupes(FStringList *list)
 
 FStringList *_pacman_list_strdup(FStringList *list)
 {
-	FStringList *newlist = f_stringlist_new();
+	FStringList *newlist = NULL;
 
 	for(auto lp = list->begin(), end = list->end(); lp != end; lp = lp->next()) {
 		newlist = f_stringlist_add(newlist, f_stringlistitem_to_str(lp));
@@ -88,11 +88,6 @@ const char *f_stringlistitem_to_str(const FStringListIterator *self)
 #else
 	return self->to_str;
 #endif
-}
-
-FStringList *f_stringlist_new(void)
-{
-	return f_list_new();
 }
 
 int f_stringlist_delete(FStringList *self)
