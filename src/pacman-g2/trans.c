@@ -394,7 +394,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 	case PM_TRANS_TYPE_UPGRADE:
 		/* Check for URL targets and process them
 		 */
-		for(i = targets; i; i = list_next(i)) {
+		for(i = list_begin(targets); i; i = list_next(i)) {
 			if(strstr(list_data(i), "://")) {
 				char *str = pacman_fetch_pkgurl(list_data(i));
 				if(str == NULL) {
@@ -411,20 +411,17 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 		/* If the target is a group, ask if its packages should be removed
 		 * (the library can't remove groups for now)
 		 */
-		for(i = targets; i; i = list_next(i)) {
+		for(i = list_begin(targets); i; i = list_next(i)) {
 			PM_GRP *grp;
 
 			grp = pacman_db_readgrp(db_local, list_data(i));
 			if(grp) {
-				PM_LIST *lp, *pkgnames;
-				int all;
-
-				pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
+				pmlist_t *pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
 
 				MSG(NL, _(":: group %s:\n"), pacman_grp_getinfo(grp, PM_GRP_NAME));
 				PM_LIST_display("   ", pkgnames);
-				all = yesno(_("    Remove whole content? [Y/n] "));
-				for(lp = pacman_list_first(pkgnames); lp; lp = pacman_list_next(lp)) {
+				int all = yesno(_("    Remove whole content? [Y/n] "));
+				for(pmlist_iterator_t *lp = pacman_list_begin(pkgnames), *end = pacman_list_end(pkgnames); lp != end; lp = pacman_list_next(lp)) {
 					if(all || yesno(_(":: Remove %s from group %s? [Y/n] "), (char *)pacman_list_getdata(lp), list_data(i))) {
 						finaltargs = list_add(finaltargs, strdup(pacman_list_getdata(lp)));
 					}
@@ -451,7 +448,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 	}
 	/* and add targets to it */
 	MSG(NL, _("loading package data... "));
-	for(i = finaltargs; i; i = list_next(i)) {
+	for(i = list_begin(finaltargs); i; i = list_next(i)) {
 		if(pacman_trans_addtarget(pacman_get_trans(), transtype, list_data(i), config->flags) == -1) {
 			int match = 0;
 
@@ -459,9 +456,8 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 			case PM_TRANS_TYPE_REMOVE:
 				/* check for regex */
 				if(config->regex) {
-					PM_LIST *k;
-
-					for(k = pacman_db_getpkgcache(db_local); k; k = pacman_list_next(k)) {
+					pmlist_t *cache = pacman_db_getpkgcache(db_local);
+					for(pmlist_iterator_t *k = pacman_list_begin(cache), *end = pacman_list_end(cache); k != end; k = pacman_list_next(k)) {
 						PM_PKG *p = pacman_list_getdata(k);
 						char *pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
 
@@ -491,7 +487,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 		ERR(NL, _("failed to prepare transaction (%s)\n"), pacman_strerror(pm_errno));
 		switch(pm_errno) {
 			case PM_ERR_UNSATISFIED_DEPS:
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				for(pmlist_iterator_t *lp = pacman_list_begin(data), *end = pacman_list_end(data); lp != end; lp = pacman_list_next(lp)) {
 					PM_DEPMISS *miss = pacman_list_getdata(lp);
 
 					switch (transtype) {
@@ -515,14 +511,14 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 				}
 			break;
 			case PM_ERR_CONFLICTING_DEPS:
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				for(pmlist_iterator_t *lp = pacman_list_begin(data), *end = pacman_list_end(data); lp != end; lp = pacman_list_next(lp)) {
 					PM_DEPMISS *miss = pacman_list_getdata(lp);
 					MSG(NL, _(":: %s: conflicts with %s"),
 						pacman_dep_getinfo(miss, PM_DEP_TARGET), pacman_dep_getinfo(miss, PM_DEP_NAME));
 				}
 			break;
 			case PM_ERR_FILE_CONFLICTS:
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				for(pmlist_iterator_t *lp = pacman_list_begin(data), *end = pacman_list_end(data); lp != end; lp = pacman_list_next(lp)) {
 					PM_CONFLICT *conflict = pacman_list_getdata(lp);
 					switch((long)pacman_conflict_getinfo(conflict, PM_CONFLICT_TYPE)) {
 						case PM_CONFLICT_TYPE_TARGET:
@@ -543,7 +539,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 				MSG(NL, _("\nerrors occurred, no packages were upgraded.\n"));
 			break;
 			case PM_ERR_DISK_FULL:
-				lp = pacman_list_first(data);
+				lp = pacman_list_begin(data);
 				pkgsize = pacman_list_getdata(lp);
 				lp = pacman_list_next(lp);
 				freespace = pacman_list_getdata(lp);
@@ -563,10 +559,10 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 		/* Warn user in case of dangerous operation
 		 */
 		if(config->flags & PM_TRANS_FLAG_RECURSE || config->flags & PM_TRANS_FLAG_CASCADE) {
-			PM_LIST *lp;
 			/* list transaction targets */
 			i = NULL;
-			for(lp = pacman_list_first(pacman_trans_getinfo(PM_TRANS_PACKAGES)); lp; lp = pacman_list_next(lp)) {
+			pmlist_t *packages = pacman_trans_getinfo(PM_TRANS_PACKAGES);
+			for(pmlist_iterator_t *lp = pacman_list_begin(packages), *end = pacman_list_end(packages); lp != end; lp = pacman_list_next(lp)) {
 				PM_PKG *pkg = pacman_list_getdata(lp);
 				i = list_add(i, strdup(pacman_pkg_getinfo(pkg, PM_PKG_NAME)));
 			}

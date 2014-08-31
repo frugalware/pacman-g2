@@ -92,11 +92,11 @@ void dump_pkg_full(PM_PKG *pkg, int level)
 	printf("\n");
 
 	if(level > 1) {
-		PM_LIST *i;
 		char *root;
 		pacman_get_option(PM_OPT_ROOT, (long *)&root);
 		fprintf(stdout, "\n");
-		for(i = pacman_list_first(pacman_pkg_getinfo(pkg, PM_PKG_BACKUP)); i; i = pacman_list_next(i)) {
+		pmlist_t *backup = pacman_pkg_getinfo(pkg, PM_PKG_BACKUP);
+		for(pmlist_iterator_t *i = pacman_list_begin(backup), *end = pacman_list_begin(backup); i != end; i = pacman_list_next(i)) {
 			struct stat buf;
 			char path[PATH_MAX];
 			char *str = strdup(pacman_list_getdata(i));
@@ -171,12 +171,12 @@ void dump_pkg_sync(PM_PKG *pkg, char *treename)
 void dump_pkg_files(PM_PKG *pkg)
 {
 	char *pkgname;
-	PM_LIST *i, *pkgfiles;
+	PM_LIST *pkgfiles;
 
 	pkgname = pacman_pkg_getinfo(pkg, PM_PKG_NAME);
 	pkgfiles = pacman_pkg_getinfo(pkg, PM_PKG_FILES);
 
-	for(i = pkgfiles; i; i = pacman_list_next(i)) {
+	for(pmlist_iterator_t *i = pacman_list_begin(pkgfiles), *end = pacman_list_begin(pkgfiles); i != end; i = pacman_list_next(i)) {
 		fprintf(stdout, "%s %s%s\n", (char *)pkgname, config->root, (char *)pacman_list_getdata(i));
 	}
 
@@ -211,7 +211,7 @@ void dump_pkg_changelog(char *clfile, char *pkgname)
 /* check if the package's files are still were they should be */
 void pkg_fsck(PM_PKG *pkg){
 	char *pkgname, path[PATH_MAX];
-	PM_LIST *i, *pkgfiles;
+	PM_LIST *pkgfiles;
 
 	pkgname = pacman_pkg_getinfo(pkg, PM_PKG_NAME);
 	pkgfiles = pacman_pkg_getinfo(pkg, PM_PKG_FILES);
@@ -219,7 +219,7 @@ void pkg_fsck(PM_PKG *pkg){
 	/* maybe this can be used also to get more information about files */
 	struct stat buf;
 
-	for(i = pkgfiles; i; i = pacman_list_next(i)) {
+	for(pmlist_iterator_t *i = pacman_list_begin(pkgfiles), *end = pacman_list_begin(pkgfiles); i != end; i = pacman_list_next(i)) {
 		snprintf(path, PATH_MAX, "%s%s", config->root, (char *)pacman_list_getdata(i));
 		if(lstat(path, &buf) == -1) {
 			fprintf(stdout, "%s %s\t%s.\n", pkgname, path, strerror(errno));

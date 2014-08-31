@@ -46,7 +46,7 @@ int querypkg(list_t *targets)
 	PM_PKG *info = NULL;
 	list_t *targ;
 	list_t *i;
-	PM_LIST *j, *ret;
+	PM_LIST *ret;
 	char *package = NULL;
 	int done = 0, errors = 0;
 
@@ -58,7 +58,7 @@ int querypkg(list_t *targets)
 		if(ret == NULL) {
 			return(1);
 		}
-		for(j = ret; j; j = pacman_list_next(j)) {
+		for(pmlist_iterator_t *j = pacman_list_begin(ret), *end = pacman_list_end(ret); j != end; j = pacman_list_next(j)) {
 			PM_PKG *pkg = pacman_list_getdata(j);
 
 			printf("local/%s %s-%s [Desc: %s]\n",
@@ -76,7 +76,7 @@ int querypkg(list_t *targets)
 			printf(_(":: the database seems to be consistent\n"));
 			return(0);
 		}
-		for(j = ret; j; j = pacman_list_next(j)) {
+		for(pmlist_iterator_t *j = pacman_list_begin(ret), *end = pacman_list_end(ret); j != end; j = pacman_list_next(j)) {
 			char *str = pacman_list_getdata(j);
 			printf(":: %s\n", str);
 		}
@@ -99,25 +99,22 @@ int querypkg(list_t *targets)
 
 		/* looking for groups */
 		if(config->group) {
-			PM_LIST *lp;
 			if(targets == NULL) {
-				for(lp = pacman_db_getgrpcache(db_local); lp; lp = pacman_list_next(lp)) {
+				pmlist_t *cache = pacman_db_getgrpcache(db_local);
+				for(pmlist_iterator_t *lp = pacman_list_begin(cache), *end = pacman_list_end(cache); lp != end; lp = pacman_list_next(lp)) {
 					PM_GRP *grp = pacman_list_getdata(lp);
-					PM_LIST *lq, *pkgnames;
-					char *grpname;
+					char *grpname = pacman_grp_getinfo(grp, PM_GRP_NAME);
+					pmlist_t *pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
 
-					grpname = pacman_grp_getinfo(grp, PM_GRP_NAME);
-					pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
-
-					for(lq = pkgnames; lq; lq = pacman_list_next(lq)) {
+					for(pmlist_iterator_t *lq = pacman_list_begin(pkgnames), *end = pacman_list_end(pkgnames); lq != end; lq = pacman_list_next(lq)) {
 						MSG(NL, "%s %s\n", grpname, (char *)pacman_list_getdata(lq));
 					}
 				}
 			} else {
 				PM_GRP *grp = pacman_db_readgrp(db_local, package);
 				if(grp) {
-					PM_LIST *lq, *pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
-					for(lq = pkgnames; lq; lq = pacman_list_next(lq)) {
+					pmlist_t *pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
+					for(pmlist_iterator_t *lq = pacman_list_begin(pkgnames), *end = pacman_list_end(pkgnames); lq != end; lq = pacman_list_next(lq)) {
 						MSG(NL, "%s %s\n", package, (char *)pacman_list_getdata(lq));
 					}
 				} else {
@@ -160,8 +157,7 @@ int querypkg(list_t *targets)
 				ERR(NL, _("No package owns %s\n"), package);
 				errors++;
 			} else {
-				PM_LIST *lp;
-				for(lp = pacman_list_first(data); lp; lp = pacman_list_next(lp)) {
+				for(pmlist_iterator_t *lp = pacman_list_begin(data), *end = pacman_list_end(data); lp != end; lp = pacman_list_next(lp)) {
 					PM_PKG *pkg = pacman_list_getdata(lp);
 					printf(_("%s %s is an owner of %s\n"), (char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME),
 							(char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION), package);
@@ -184,9 +180,9 @@ int querypkg(list_t *targets)
 				return(1);
 			}
 
-			PM_LIST *lp;
 			/* no target */
-			for(lp = pacman_db_getpkgcache(db_local); lp; lp = pacman_list_next(lp)) {
+			pmlist_t *cache = pacman_db_getpkgcache(db_local);
+			for(pmlist_iterator_t *lp = pacman_list_begin(cache), *end = pacman_list_end(cache); lp != end; lp = pacman_list_next(lp)) {
 				PM_PKG *tmpp = pacman_list_getdata(lp);
 				char *pkgname, *pkgver;
 
@@ -203,7 +199,8 @@ int querypkg(list_t *targets)
 						int match = 0;
 						for(i = pmc_syncs; i; i = list_next(i)) {
 							PM_DB *db = list_data(i);
-							for(j = pacman_db_getpkgcache(db); j; j = pacman_list_next(j)) {
+							pmlist_t *cache = pacman_db_getpkgcache(db);
+							for(pmlist_iterator_t *j = pacman_list_begin(cache), *end = pacman_list_end(cache); j != end; j = pacman_list_next(j)) {
 								PM_PKG *pkg = pacman_list_getdata(j);
 								char *haystack;
 								char *needle;

@@ -30,6 +30,7 @@ typedef FPtrList list_t;
 
 #define list_new f_ptrlist_new
 void list_free(list_t *list);
+#define list_begin f_ptrlist_first
 #define list_add f_ptrlist_add
 #define list_count f_ptrlist_count
 #define list_data f_ptrlistitem_data
