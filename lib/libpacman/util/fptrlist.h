@@ -330,6 +330,11 @@ namespace flib
 class FCListItem
 {
 public:
+	friend FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
+	friend FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
+	friend FPtrList *f_ptrlist_add(FPtrList *list, void *data);
+	friend int f_ptrlistitem_insert_after(FPtrListIterator *self, FPtrListIterator *previous);
+
 	typedef void *value_type;
 	typedef value_type *pointer;
 	typedef size_t size_type;
@@ -382,9 +387,11 @@ public:
 //protected: // Disable for now
 	bool insert_after(FCListItem *previous);	
 
+	void *m_data; // Enabled for now
+
+private:
 	FCListItem *m_next;
 	FCListItem *m_previous;
-	void *m_data; // Enabled for now
 };
 
 #ifndef F_NOCOMPAT

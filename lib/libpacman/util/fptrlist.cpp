@@ -169,7 +169,7 @@ FPtrListIterator *f_ptrlistitem_next(FPtrListIterator *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-	return self->m_next;
+	return self->next();
 }
 
 size_t f_ptrlistiterator_count(const FPtrListIterator *self, const FPtrListIterator *end)
@@ -295,8 +295,8 @@ const FPtrListIterator *f_ptrlist_last_const(const FPtrList *self)
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	it = f_ptrlist_first_const(self);
-	while(it->m_next != f_ptrlist_end_const(self)) {
-		it = it->m_next;
+	while(it->next() != f_ptrlist_end_const(self)) {
+		it = it->next();
 	}
 	return it;
 }
