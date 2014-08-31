@@ -390,7 +390,6 @@ public:
 #ifndef F_NOCOMPAT
 class FPtrList
 	: protected FCListItem
-//	: public FCListItem
 {
 public:
 	friend FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);

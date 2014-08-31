@@ -19,7 +19,7 @@
  *  USA.
  */
 
-#include "fstr.h"
+#include "kernel/fstr.h"
 
 #include "fstring.h"
 

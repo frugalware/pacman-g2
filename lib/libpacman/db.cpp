@@ -224,7 +224,7 @@ int Database::gettimestamp(Timestamp *timestamp)
 	return -1;
 }
 
-/* A NULL timestamp means now per f_localtime definition.
+/* A NULL timestamp means f_gmtime per definition.
  */
 int Database::settimestamp(const Timestamp *timestamp)
 {

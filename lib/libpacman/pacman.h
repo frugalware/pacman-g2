@@ -523,9 +523,9 @@ extern enum __pmerrno_t {
 	PM_ERR_NO_CACHE_ACCESS,
 	PM_ERR_CANT_REMOVE_CACHE,
 	PM_ERR_CANT_CREATE_CACHE,
-    PM_ERR_WRONG_ARCH,
-    /* Files */
-    PM_FILE_INVALID
+	PM_ERR_WRONG_ARCH,
+	/* Files */
+	PM_FILE_INVALID
 } pm_errno;
 
 char *pacman_strerror(int err);
