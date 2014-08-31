@@ -182,15 +182,7 @@ size_t f_ptrlistiterator_count(const FPtrListIterator *self, const FPtrListItera
 
 FPtrList *f_ptrlist_new(void)
 {
-#ifndef F_NOCOMPAT
-	FPtrList *self;
-
-	ASSERT((self = f_zalloc(sizeof(*self))) != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-
-	return self;
-#else
 	return new FPtrList();
-#endif
 }
 
 int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
