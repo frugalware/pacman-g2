@@ -29,7 +29,6 @@
 typedef FPtrList list_t;
 
 void list_free(list_t *list);
-#define list_begin f_ptrlist_first
 #define list_count f_ptrlist_count
 #define list_data f_ptrlistitem_data
 #define list_next f_ptrlistitem_next

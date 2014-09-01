@@ -42,7 +42,6 @@ int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist);
 int deptestpkg(list_t *targets)
 {
 	PM_LIST *data;
-	list_t *i;
 	char *str;
 	int retval = 0;
 
@@ -78,7 +77,7 @@ int deptestpkg(list_t *targets)
 		goto cleanup;
 	}
 	strcpy(str, "name=dummy|version=1.0-1");
-	for(i = list_begin(targets); i; i = list_next(i)) {
+	for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = f_ptrlistitem_next(i)) {
 		str = (char *)realloc(str, strlen(str)+8+strlen(list_data(i))+1);
 		strcat(str, "|depend=");
 		strcat(str, list_data(i));
