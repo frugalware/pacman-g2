@@ -55,7 +55,7 @@ void list_display(const char *title, const FStringList *list)
 	printf("%s ", title);
 
 	if(list) {
-		for(lp = f_ptrlist_first(list), end = f_ptrlist_first(list), cols = len; lp != end; lp = f_ptrlistitem_next(lp)) {
+		for(lp = f_ptrlist_first(list), end = f_ptrlist_end(list), cols = len; lp != end; lp = f_ptrlistitem_next(lp)) {
 			int s = strlen((char *)list_data(lp))+1;
 			if(s+cols >= maxcols) {
 				int i;
