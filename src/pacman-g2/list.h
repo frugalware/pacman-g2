@@ -30,7 +30,6 @@ typedef FPtrList list_t;
 
 void list_free(list_t *list);
 #define list_data f_ptrlistitem_data
-#define list_next f_ptrlistitem_next
 int list_is_strin(char *needle, list_t *haystack);
 void list_display(const char *title, const FStringList *list);
 

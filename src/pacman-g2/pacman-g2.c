@@ -446,10 +446,7 @@ int main(int argc, char *argv[])
 	char *cenv = NULL, *lang = NULL;
 #ifndef CYGWIN
 	uid_t myuid;
-#endif
-	list_t *lp;
 
-#ifndef CYGWIN
 #ifndef BSD
 	/* debug */
 	mtrace();
@@ -586,7 +583,7 @@ int main(int argc, char *argv[])
 	FREE(config->cachedir);
 	pacman_get_option(PM_OPT_CACHEDIR, (long *)&config->cachedir);
 
-	for(lp = config->op_s_ignore; lp; lp = list_next(lp)) {
+	for(FPtrListIterator *lp = f_ptrlist_first(config->op_s_ignore), *end = f_ptrlist_end(config->op_s_ignore); lp != end; lp = f_ptrlistitem_next(lp)) {
 		if(pacman_set_option(PM_OPT_IGNOREPKG, (long)list_data(lp)) == -1) {
 			ERR(NL, _("failed to set option IGNOREPKG (%s)\n"), pacman_strerror(pm_errno));
 			cleanup(1);

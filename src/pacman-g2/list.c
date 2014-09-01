@@ -32,10 +32,10 @@ extern int maxcols;
 
 void list_free(list_t *list)
 {
-	list_t *ptr, *it = list;
+	FPtrListIterator *ptr, *it = list;
 
 	while(it) {
-		ptr = list_next(it);
+		ptr = f_ptrlistitem_next(it);
 		free(list_data(it));
 		free(it);
 		it = ptr;
@@ -47,9 +47,7 @@ void list_free(list_t *list)
  */
 int list_is_strin(char *needle, list_t *haystack)
 {
-	list_t *lp;
-
-	for(lp = haystack; lp; lp = list_next(lp)) {
+	for(FPtrListIterator *lp = f_ptrlist_first(haystack), *end = f_ptrlist_end(haystack); lp != end; lp = f_ptrlistitem_next(lp)) {
 		char *str = list_data(lp);
 
 		if(str && !strcmp(str, needle)) {
@@ -63,14 +61,14 @@ int list_is_strin(char *needle, list_t *haystack)
  */
 void list_display(const char *title, const FStringList *list)
 {
-	const FStringListIterator *lp;
+	const FStringListIterator *lp, *end;
 	int cols, len;
 
 	len = strlen(title);
 	printf("%s ", title);
 
 	if(list) {
-		for(lp = list, cols = len; lp; lp = list_next(lp)) {
+		for(lp = f_ptrlist_first(list), end = f_ptrlist_first(list), cols = len; lp != end; lp = f_ptrlistitem_next(lp)) {
 			int s = strlen((char *)list_data(lp))+1;
 			if(s+cols >= maxcols) {
 				int i;

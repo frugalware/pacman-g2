@@ -87,7 +87,7 @@ static int sync_search(list_t *syncs, list_t *targets)
 	for(FPtrListIterator *i = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); i != end; i = f_ptrlistitem_next(i)) {
 		PM_DB *db = list_data(i);
 
-		for(FPtrListIterator *j = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); j != end; j = list_next(j)) {
+		for(FPtrListIterator *j = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); j != end; j = f_ptrlistitem_next(j)) {
 			pacman_set_option(PM_OPT_NEEDLES, (long)list_data(j));
 		}
 		ret = pacman_db_search(db);
@@ -122,9 +122,9 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 	int ret = 0;
 
 	if(targets) {
-		for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = list_next(i)) {
+		for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = f_ptrlistitem_next(i)) {
 			int found = 0;
-			for(FPtrListIterator *j = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); j != end; j = list_next(j)) {
+			for(FPtrListIterator *j = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); j != end; j = f_ptrlistitem_next(j)) {
 				PM_DB *db = list_data(j);
 				PM_GRP *grp = pacman_db_readgrp(db, list_data(i));
 
@@ -140,7 +140,7 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 			}
 		}
 	} else {
-		for(FPtrListIterator *j = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); j != end; j = list_next(j)) {
+		for(FPtrListIterator *j = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); j != end; j = f_ptrlistitem_next(j)) {
 			PM_DB *db = list_data(j);
 
 			pmlist_t *cache = pacman_db_getgrpcache(db);
@@ -163,10 +163,10 @@ static int sync_info(list_t *syncs, list_t *targets)
 	list_t *i, *j;
 
 	if(targets) {
-		for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = list_next(i)) {
+		for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = f_ptrlistitem_next(i)) {
 			int found = 0;
 
-			for(FPtrListIterator *j = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); j != end && !found; j = list_next(j)) {
+			for(FPtrListIterator *j = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); j != end && !found; j = f_ptrlistitem_next(j)) {
 				PM_DB *db = list_data(j);
 
 				pmlist_t *cache = pacman_db_getpkgcache(db);
@@ -186,7 +186,7 @@ static int sync_info(list_t *syncs, list_t *targets)
 			}
 		}
 	} else {
-		for(j = syncs; j; j = list_next(j)) {
+		for(FPtrListIterator *j = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); j != end; j = f_ptrlistitem_next(j)) {
 			PM_DB *db = list_data(j);
 			PM_LIST *lp;
 
@@ -231,7 +231,7 @@ static int sync_list(list_t *syncs, list_t *targets)
 		ls = syncs;
 	}
 
-	for(FPtrListIterator *i = f_ptrlist_first(ls), *end = f_ptrlist_end(ls); i != end; i = list_next(i)) {
+	for(FPtrListIterator *i = f_ptrlist_first(ls), *end = f_ptrlist_end(ls); i != end; i = f_ptrlistitem_next(i)) {
 		PM_LIST *lp;
 		PM_DB *db = list_data(i);
 
@@ -370,7 +370,7 @@ int syncpkg(list_t *targets)
 		}
 	} else {
 		/* process targets */
-		for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = list_next(i)) {
+		for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = f_ptrlistitem_next(i)) {
 			char *targ = list_data(i);
 			if(pacman_trans_addtarget(pacman_get_trans(), PM_TRANS_TYPE_SYNC, targ, config->flags) == -1) {
 				PM_GRP *grp = NULL;
@@ -386,7 +386,7 @@ int syncpkg(list_t *targets)
 					goto cleanup;
 				}
 				/* target not found: check if it's a group */
-				for(j = pmc_syncs; j; j = list_next(j)) {
+				for(FPtrListIterator *j = f_ptrlist_first(pmc_syncs), *end = f_ptrlist_end(pmc_syncs); j != end; j = f_ptrlistitem_next(j)) {
 					PM_DB *db = list_data(j);
 					grp = pacman_db_readgrp(db, targ);
 					if(grp) {
@@ -400,11 +400,11 @@ int syncpkg(list_t *targets)
 						pkgs = PM_LIST_remove_dupes(pmpkgs);
 						list_display("   ", pkgs);
 						if(yesno(_(":: Install whole content? [Y/n] "))) {
-							for(k = pkgs; k; k = list_next(k)) {
+							for(FPtrListIterator *k = f_ptrlist_first(pkgs), *end = f_ptrlist_end(pkgs); k != end; k = f_ptrlistitem_next(k)) {
 								targets = f_stringlist_add(targets, list_data(k));
 							}
 						} else {
-							for(k = pkgs; k; k = list_next(k)) {
+							for(FPtrListIterator *k = f_ptrlist_first(pkgs), *end = f_ptrlist_end(pkgs); k != end; k = f_ptrlistitem_next(k)) {
 								char *pkgname = list_data(k);
 								if(yesno(_(":: Install %s from group %s? [Y/n] "), pkgname, targ)) {
 									targets = f_stringlist_add(targets, pkgname);
@@ -416,7 +416,7 @@ int syncpkg(list_t *targets)
 				}
 				/* targ is not a group, see if it's a regex */
 				if(!found && config->regex) {
-					for(j = pmc_syncs; j; j = list_next(j)) {
+					for(FPtrListIterator *j = f_ptrlist_first(pmc_syncs), *end = f_ptrlist_end(pmc_syncs); j != end; j = f_ptrlistitem_next(j)) {
 						PM_DB *db = list_data(j);
 						PM_LIST *k;
 						pmlist_t *cache = pacman_db_getpkgcache(db);
@@ -440,7 +440,7 @@ int syncpkg(list_t *targets)
 					PM_LIST *k = NULL;
 					PM_PKG *pkg;
 					char *pname;
-					for(j = pmc_syncs; j && !k; j = list_next(j)) {
+					for(FPtrListIterator *j = f_ptrlist_first(pmc_syncs), *end = f_ptrlist_end(pmc_syncs); j != end && !k; j = f_ptrlistitem_next(j)) {
 						PM_DB *db = list_data(j);
 						k = pacman_db_whatprovides(db, targ);
 						pkg = (PM_PKG*)pacman_list_getdata(pacman_list_begin(k));

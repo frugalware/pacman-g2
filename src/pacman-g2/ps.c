@@ -198,7 +198,6 @@ int pspkg(int countonly)
 {
 	FILE *fpout = NULL;
 	pid_t pid;
-	list_t* i;
 	int count = 0;
 
 	if (strcmp(config->root, "/") != 0) {
@@ -211,9 +210,9 @@ int pspkg(int countonly)
 	if (start_lsof(&fpout, &pid, countonly) < 0)
 		return -1;
 
-	list_t* ret = ps_parse(fpout);
+	FPtrList *ret = ps_parse(fpout);
 
-	for (i = ret; i; i = list_next(i)) {
+	for (FPtrListIterator *i = f_ptrlist_first(ret), *end = f_ptrlist_end(ret); i != end; i = f_ptrlistitem_next(i)) {
 		ps_t *ps = list_data(i);
 		if (!ps)
 			continue;
