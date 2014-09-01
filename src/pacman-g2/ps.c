@@ -36,6 +36,14 @@
 
 extern config_t *config;
 
+typedef struct __ps_t {
+	pid_t pid;
+	char *cmd;
+	char *user;
+	FStringList *files;
+	FStringList *cgroups;
+} ps_t;
+
 static int start_lsof(FILE** childout, pid_t* childpid, int silent)
 {
 	char *args[] = { "lsof", "-n", "-FLpcnf0", NULL };
@@ -101,8 +109,9 @@ static int ps_free(ps_t *ps)
 
 	FREE(ps->cmd);
 	FREE(ps->user);
-	FREELIST(ps->files);
-	FREELIST(ps->cgroups);
+	f_stringlist_delete(ps->files);
+	f_stringlist_delete(ps->cgroups);
+	free(ps);
 	return 0;
 }
 

@@ -21,14 +21,6 @@
 #ifndef _PM_PS_H
 #define _PM_PS_H
 
-typedef struct __ps_t {
-	pid_t pid;
-	char *cmd;
-	char *user;
-	list_t *files;
-	list_t *cgroups;
-} ps_t;
-
 int pspkg(int countonly);
 
 #endif /* _PM_PS_H */
