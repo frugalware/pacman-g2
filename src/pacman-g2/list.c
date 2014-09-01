@@ -30,19 +30,6 @@
 
 extern int maxcols;
 
-void list_free(list_t *list)
-{
-	FPtrListIterator *ptr, *it = list;
-
-	while(it) {
-		ptr = f_ptrlistitem_next(it);
-		free(list_data(it));
-		free(it);
-		it = ptr;
-	}
-	return;
-}
-
 /* Test for existence of a string in a list_t
  */
 int list_is_strin(char *needle, list_t *haystack)
