@@ -47,7 +47,7 @@ extern list_t *pmc_syncs;
 
 bool trans_has_usable_syncs()
 {
-	if(pmc_syncs == NULL || !list_count(pmc_syncs)) {
+	if(pmc_syncs == NULL || !f_ptrlist_count(pmc_syncs)) {
 		ERR(NL, _("no usable package repositories configured.\n"));
 		return false;
 	}

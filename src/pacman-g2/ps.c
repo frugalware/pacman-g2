@@ -109,7 +109,7 @@ static int ps_free(ps_t *ps)
 static list_t* add_or_free(list_t* l, ps_t* ps)
 {
 	if (ps) {
-		if (list_count(ps->files) > 0) {
+		if (f_ptrlist_count(ps->files) > 0) {
 			l = f_ptrlist_add(l, ps);
 		} else
 			ps_free(ps);
