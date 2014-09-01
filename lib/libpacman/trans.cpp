@@ -1011,7 +1011,6 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 	struct archive_entry *entry;
 	Handle *handle = trans->m_handle;
 	Database *db_local = handle->db_local;
-	FPtrList *lp;
 	char expath[PATH_MAX], cwd[PATH_MAX] = "";
 
 	ASSERT(db_local != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -1410,7 +1409,6 @@ int __pmtrans_t::commit(FPtrList **data)
 {
 	Database *db_local;
 	int howmany, remain;
-	FPtrList *lp;
 	pmtrans_t *tr = NULL;
 	char pm_install[PATH_MAX];
 
@@ -1441,7 +1439,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		retval = 0;
 		FREELIST(*data);
 		int done = 1;
-		for(auto i = m_handle->dbs_sync->begin(), end = m_handle->dbs_sync->end(); i; i = i->next()) {
+		for(auto i = m_handle->dbs_sync->begin(), end = m_handle->dbs_sync->end(); i != end; i = i->next()) {
 			struct stat buf;
 			Database *current = f_ptrlistitem_data(i);
 
@@ -1534,7 +1532,6 @@ int __pmtrans_t::commit(FPtrList **data)
 	}
 	if(!retval) {
 		state = STATE_COMMITING;
-		FPtrList *i, *j;
 	int replaces = 0;
 
 	if(m_handle->sysupgrade) {
@@ -1628,14 +1625,12 @@ int __pmtrans_t::commit(FPtrList **data)
 				Package *pkg_new = db_local->find(ps->pkg_name);
 				FPtrList *list = (FPtrList *)ps->data;
 				for(auto j = list->begin(), end = list->end(); j != end; j = j->next()) {
-					FPtrList *k;
 					Package *old = f_ptrlistitem_data(j);
 					/* merge lists */
 					FPtrList *requiredby = old->requiredby();
 					for(auto k = requiredby->begin(), end = requiredby->end(); k != end; k = k->next()) {
 						if(!_pacman_list_is_strin(f_stringlistitem_to_str(k), pkg_new->requiredby())) {
 							/* replace old's name with new's name in the requiredby's dependency list */
-							FPtrList *m;
 							Package *depender = db_local->find(f_stringlistitem_to_str(k));
 							if(depender == NULL) {
 								/* If the depending package no longer exists in the local db,
@@ -1889,7 +1884,7 @@ int __pmtrans_t::commit(FPtrList **data)
 			_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
 		}
 		auto depends = pkg_new->depends();
-		for(auto lp = depends->begin(), lp_end = depends->end(); lp; lp = lp->next()) {
+		for(auto lp = depends->begin(), lp_end = depends->end(); lp != lp_end; lp = lp->next()) {
 			Package *depinfo;
 			pmdepend_t depend;
 			if(_pacman_splitdep(f_stringlistitem_to_str(lp), &depend)) {

@@ -219,7 +219,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 		return(NULL);
 	}
 
-	for(auto i = packages->begin(), end = packages->end(); i; i = i->next()) {
+	for(auto i = packages->begin(), end = packages->end(); i != end; i = i->next()) {
 		Package *tp = f_ptrlistitem_data(i);
 		Package *pkg_local;
 

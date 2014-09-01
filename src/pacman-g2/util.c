@@ -92,7 +92,6 @@ char *buildstring(list_t *strlist)
 {
 	char *str;
 	int size = 1;
-	list_t *lp;
 
 	for(FPtrListIterator *lp = f_ptrlist_first(strlist), *end = f_ptrlist_first(strlist); lp != end; lp = f_ptrlistitem_next(lp)) {
 		size += strlen(list_data(lp)) + 1;

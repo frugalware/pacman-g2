@@ -498,7 +498,6 @@ void *pacman_db_getinfo(pmdb_t *_db, unsigned char parm)
 int pacman_db_setserver(pmdb_t *_db, char *url)
 {
 	Database *db = cxx_cast(_db);
-	int found = 0;
 
 	/* Sanity checks */
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));

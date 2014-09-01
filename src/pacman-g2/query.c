@@ -45,7 +45,6 @@ int querypkg(list_t *targets)
 {
 	PM_PKG *info = NULL;
 	list_t *targ;
-	list_t *i;
 	PM_LIST *ret;
 	char *package = NULL;
 	int done = 0, errors = 0;

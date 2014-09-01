@@ -44,7 +44,6 @@ int _pacman_packagecache_clean(int level)
 		struct dirent *ent;
 		FPtrList *cache = NULL;
 		FPtrList *clean = NULL;
-		FPtrList *i, *j;
 
 		dir = opendir(dirpath);
 		if(dir == NULL) {
@@ -98,7 +97,7 @@ int _pacman_packagecache_clean(int level)
 		}
 		FREELIST(cache);
 
-		for(auto i = clean->begin(), end = clean->end(); i; i = i->next()) {
+		for(auto i = clean->begin(), end = clean->end(); i != end; i = i->next()) {
 			char path[PATH_MAX];
 
 			snprintf(path, PATH_MAX, "%s/%s", dirpath, f_stringlistitem_to_str(i));

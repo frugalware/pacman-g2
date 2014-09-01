@@ -589,7 +589,10 @@ public:
 	size_type size() const
 	{
 		size_type size = 0;
-		for(auto dummy: *this) ++size;
+		for(auto unused: *this) {
+			(void) unused;
+			++size;
+		}
 		return size;
 	}
 

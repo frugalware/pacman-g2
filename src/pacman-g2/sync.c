@@ -160,8 +160,6 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 
 static int sync_info(list_t *syncs, list_t *targets)
 {
-	list_t *i, *j;
-
 	if(targets) {
 		for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = f_ptrlistitem_next(i)) {
 			int found = 0;
@@ -188,7 +186,6 @@ static int sync_info(list_t *syncs, list_t *targets)
 	} else {
 		for(FPtrListIterator *j = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); j != end; j = f_ptrlistitem_next(j)) {
 			PM_DB *db = list_data(j);
-			PM_LIST *lp;
 
 			pmlist_t *cache = pacman_db_getpkgcache(db);
 			for(pmlist_iterator_t *lp = pacman_list_begin(cache), *end = pacman_list_end(cache); lp != end; lp = pacman_list_next(lp)) {
@@ -203,12 +200,10 @@ static int sync_info(list_t *syncs, list_t *targets)
 
 static int sync_list(list_t *syncs, list_t *targets)
 {
-	list_t *i;
 	list_t *ls = NULL;
 
 	if(targets) {
 		for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = f_ptrlistitem_next(i)) {
-			list_t *j;
 			PM_DB *db = NULL;
 
 			for(FPtrListIterator *j = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); j != end && !db; j = f_ptrlistitem_next(j)) {
@@ -232,7 +227,6 @@ static int sync_list(list_t *syncs, list_t *targets)
 	}
 
 	for(FPtrListIterator *i = f_ptrlist_first(ls), *end = f_ptrlist_end(ls); i != end; i = f_ptrlistitem_next(i)) {
-		PM_LIST *lp;
 		PM_DB *db = list_data(i);
 
 		pmlist_t *cache = pacman_db_getpkgcache(db);
@@ -256,7 +250,6 @@ int syncpkg(list_t *targets)
 {
 	int confirm = 0;
 	int retval = 0;
-	list_t *i;
 	PM_LIST *packages, *data, *lp;
 
 	if(!trans_has_usable_syncs()) {
@@ -374,7 +367,6 @@ int syncpkg(list_t *targets)
 			char *targ = list_data(i);
 			if(pacman_trans_addtarget(pacman_get_trans(), PM_TRANS_TYPE_SYNC, targ, config->flags) == -1) {
 				PM_GRP *grp = NULL;
-				list_t *j;
 				int found=0;
 				if(pm_errno == PM_ERR_TRANS_DUP_TARGET) {
 					/* just ignore duplicate targets */
@@ -391,7 +383,7 @@ int syncpkg(list_t *targets)
 					grp = pacman_db_readgrp(db, targ);
 					if(grp) {
 						PM_LIST *pmpkgs;
-						list_t *k, *pkgs;
+						list_t *pkgs;
 						found++;
 						MSG(NL, _(":: group %s:\n"), targ);
 						pmpkgs = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
@@ -418,7 +410,6 @@ int syncpkg(list_t *targets)
 				if(!found && config->regex) {
 					for(FPtrListIterator *j = f_ptrlist_first(pmc_syncs), *end = f_ptrlist_end(pmc_syncs); j != end; j = f_ptrlistitem_next(j)) {
 						PM_DB *db = list_data(j);
-						PM_LIST *k;
 						pmlist_t *cache = pacman_db_getpkgcache(db);
 						for(pmlist_iterator_t *k = pacman_list_begin(cache), *end = pacman_list_end(cache); k != end; k = pacman_list_next(k)) {
 							PM_PKG *p = pacman_list_getdata(k);
@@ -526,7 +517,6 @@ int syncpkg(list_t *targets)
 			char *pkgname, *pkgver;
 
 			if((long)pacman_sync_getinfo(ps, PM_SYNC_TYPE) == PM_SYNC_TYPE_REPLACE) {
-				PM_LIST *j;
 				data = pacman_sync_getinfo(ps, PM_SYNC_DATA);
 				for(pmlist_iterator_t *j = pacman_list_begin(data), *end = pacman_list_end(data); j != end; j = pacman_list_next(j)) {
 					PM_PKG *p = pacman_list_getdata(j);

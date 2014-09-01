@@ -142,7 +142,7 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 	register struct archive *_archive;
 	struct archive_entry *entry;
 	char expath[PATH_MAX];
-	FPtrList *cache = NULL, *i;
+	FPtrList *cache = NULL;
 	DIR *handle;
 	struct dirent *ent;
 	struct stat buf;

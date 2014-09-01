@@ -90,7 +90,6 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 			Package *spkg = f_ptrlistitem_data(j);
 			FPtrList *replaces = spkg->replaces();
 			for(auto k = replaces->begin(), end = replaces->end(); k != end; k = k->next()) {
-				FPtrList *m;
 				FPtrList *cache_local = _pacman_db_get_pkgcache(db_local);
 				for(auto m = cache_local->begin(), end = cache_local->end(); m != end; m = m->next()) {
 					Package *lpkg = f_ptrlistitem_data(m);
