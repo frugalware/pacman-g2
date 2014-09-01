@@ -110,7 +110,7 @@ static list_t* add_or_free(list_t* l, ps_t* ps)
 {
 	if (ps) {
 		if (list_count(ps->files) > 0) {
-			l = list_add(l, ps);
+			l = f_ptrlist_add(l, ps);
 		} else
 			ps_free(ps);
 	}
@@ -135,17 +135,17 @@ static list_t *ps_cgroup(pid_t pid) {
 			// drop newline
 			line[strlen(line)-1] = 0;
 			if ((ptr = strchr(line, ':')))
-				ret = list_add(ret, strdup(ptr+1));
+				ret = f_stringlist_add(ret, ptr+1);
 		}
 	}
 	return ret;
 }
 
-static list_t* ps_parse(FILE *fp)
+static FPtrList *ps_parse(FILE *fp)
 {
 	char buf[PATH_MAX+1], *ptr;
 	ps_t* ps = NULL;
-	list_t* ret = list_new();
+	FPtrList *ret = f_ptrlist_new();
 
 	while(!feof(fp)) {
 		if(fgets(buf, PATH_MAX, fp) == NULL)
@@ -184,7 +184,7 @@ static list_t* ps_parse(FILE *fp)
 						}
 					}
 					if (!skip)
-						ps->files = list_add(ps->files, strdup(ptr+1));
+						ps->files = f_stringlist_add(ps->files, ptr+1);
 				}
 			}
 		}

@@ -324,7 +324,7 @@ static int parseargs(int argc, char *argv[])
 				config->configfile = strndup(optarg, PATH_MAX);
 				#endif
 			break;
-			case OPT_IGNORE: config->op_s_ignore = list_add(config->op_s_ignore, strdup(optarg)); break;
+			case OPT_IGNORE: config->op_s_ignore = f_stringlist_add(config->op_s_ignore, optarg); break;
 			case OPT_DEBUG: config->debug = atoi(optarg); break;
 			case OPT_NOPROGRESSBAR: config->noprogressbar = 1; break;
 			case OPT_NOSCRIPTLET: config->flags |= PM_TRANS_FLAG_NOSCRIPTLET; break;
@@ -433,7 +433,7 @@ static int parseargs(int argc, char *argv[])
 
 	while(optind < argc) {
 		/* add the target to our target array */
-		pm_targets = list_add(pm_targets, strdup(argv[optind]));
+		pm_targets = f_stringlist_add(pm_targets, argv[optind]);
 		optind++;
 	}
 

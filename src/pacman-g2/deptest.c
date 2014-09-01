@@ -113,7 +113,7 @@ int deptestpkg(list_t *targets)
 						}
 						MSG(CL, "\n");
 					}
-					synctargs = list_add(synctargs, strdup(pacman_dep_getinfo(miss, PM_DEP_NAME)));
+					synctargs = f_stringlist_add(synctargs, pacman_dep_getinfo(miss, PM_DEP_NAME));
 				}
 				pacman_list_free(data);
 			break;

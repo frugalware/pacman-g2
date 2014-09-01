@@ -400,10 +400,10 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 				if(str == NULL) {
 					return(1);
 				} else {
-					finaltargs = list_add(finaltargs, str);
+					finaltargs = f_stringlist_add(finaltargs, str);
 				}
 			} else {
-				finaltargs = list_add(finaltargs, strdup(list_data(i)));
+				finaltargs = f_stringlist_add(finaltargs, list_data(i));
 			}
 		}
 		break;
@@ -423,12 +423,12 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 				int all = yesno(_("    Remove whole content? [Y/n] "));
 				for(pmlist_iterator_t *lp = pacman_list_begin(pkgnames), *end = pacman_list_end(pkgnames); lp != end; lp = pacman_list_next(lp)) {
 					if(all || yesno(_(":: Remove %s from group %s? [Y/n] "), (char *)pacman_list_getdata(lp), list_data(i))) {
-						finaltargs = list_add(finaltargs, strdup(pacman_list_getdata(lp)));
+						finaltargs = f_stringlist_add(finaltargs, pacman_list_getdata(lp));
 					}
 				}
 			} else {
 				/* not a group, so add it to the final targets */
-				finaltargs = list_add(finaltargs, strdup(list_data(i)));
+				finaltargs = f_stringlist_add(finaltargs, list_data(i));
 			}
 		}
 		break;
@@ -564,7 +564,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 			pmlist_t *packages = pacman_trans_getinfo(PM_TRANS_PACKAGES);
 			for(pmlist_iterator_t *lp = pacman_list_begin(packages), *end = pacman_list_end(packages); lp != end; lp = pacman_list_next(lp)) {
 				PM_PKG *pkg = pacman_list_getdata(lp);
-				i = list_add(i, strdup(pacman_pkg_getinfo(pkg, PM_PKG_NAME)));
+				i = f_stringlist_add(i, pacman_pkg_getinfo(pkg, PM_PKG_NAME));
 			}
 			list_display(_("\nTargets:"), i);
 			FREELIST(i);

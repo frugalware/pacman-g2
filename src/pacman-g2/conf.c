@@ -34,7 +34,7 @@
 #include "download.h"
 #include "conf.h"
 
-extern list_t *pmc_syncs;
+extern FPtrList *pmc_syncs;
 
 config_t *config_new()
 {
@@ -63,7 +63,7 @@ int config_free(config_t *config)
 
 void cb_db_register(const char *section, PM_DB *db)
 {
-	pmc_syncs = list_add(pmc_syncs, db);
+	pmc_syncs = f_ptrlist_add(pmc_syncs, db);
 }
 
 /* vim: set ts=2 sw=2 noet: */

@@ -229,7 +229,7 @@ static int sync_list(list_t *syncs, list_t *targets)
 				return(1);
 			}
 
-			ls = list_add(ls, db);
+			ls = f_ptrlist_add(ls, db);
 		}
 	} else {
 		ls = syncs;
@@ -405,13 +405,13 @@ int syncpkg(list_t *targets)
 						list_display("   ", pkgs);
 						if(yesno(_(":: Install whole content? [Y/n] "))) {
 							for(k = pkgs; k; k = list_next(k)) {
-								targets = list_add(targets, strdup(list_data(k)));
+								targets = f_stringlist_add(targets, list_data(k));
 							}
 						} else {
 							for(k = pkgs; k; k = list_next(k)) {
 								char *pkgname = list_data(k);
 								if(yesno(_(":: Install %s from group %s? [Y/n] "), pkgname, targ)) {
-									targets = list_add(targets, strdup(pkgname));
+									targets = f_stringlist_add(targets, pkgname);
 								}
 							}
 						}
@@ -434,7 +434,7 @@ int syncpkg(list_t *targets)
 								goto cleanup;
 							} else if(match) {
 								found++;
-								targets = list_add(targets, strdup(pkgname));
+								targets = f_stringlist_add(targets, pkgname);
 							}
 						}
 					}
@@ -452,7 +452,7 @@ int syncpkg(list_t *targets)
 					}
 					if(pname != NULL) {
 						/* targ is provided by pname */
-						targets = list_add(targets, strdup(pname));
+						targets = f_stringlist_add(targets, pname);
 					} else {
 						ERR(NL, _("could not add target '%s': not found in sync db\n"), targ);
 						retval = 1;
@@ -536,7 +536,7 @@ int syncpkg(list_t *targets)
 					PM_PKG *p = pacman_list_getdata(j);
 					pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
 					if(!list_is_strin(pkgname, list_remove)) {
-						list_remove = list_add(list_remove, strdup(pkgname));
+						list_remove = f_stringlist_add(list_remove, pkgname);
 					}
 				}
 			}
@@ -547,7 +547,7 @@ int syncpkg(list_t *targets)
 			totalusize += (long)pacman_pkg_getinfo(pkg, PM_PKG_USIZE);
 
 			asprintf(&str, "%s-%s", pkgname, pkgver);
-			list_install = list_add(list_install, str);
+			list_install = f_stringlist_add(list_install, str); // Fixme add a f_stringlist_addf
 		}
 		if(list_remove) {
 			MSG(NL, _("\nRemove:  "));

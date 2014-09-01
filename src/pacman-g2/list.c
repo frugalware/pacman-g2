@@ -104,7 +104,7 @@ list_t *PM_LIST_remove_dupes(PM_LIST *list)
 	for(pmlist_iterator_t *i = pacman_list_begin(list), *end = pacman_list_end(list); i != end; i = pacman_list_next(i)) {
 		char *data = pacman_list_getdata(i);
 		if(!list_is_strin(data, newlist)) {
-			newlist = list_add(newlist, strdup(data));
+			newlist = f_stringlist_add(newlist, data);
 		}
 	}
 	return newlist;
