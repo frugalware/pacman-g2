@@ -83,7 +83,7 @@ PM_DB *db_local;
 /* list of (PM_DB *) structs for sync locations */
 list_t *pmc_syncs = NULL;
 /* list of targets specified on command line */
-list_t *pm_targets  = NULL;
+FStringList *pm_targets  = NULL;
 
 unsigned int maxcols = 80;
 
@@ -208,7 +208,7 @@ static void cleanup(int exitcode)
 
 	/* free memory */
 	FREELISTPTR(pmc_syncs);
-	FREELIST(pm_targets);
+	f_stringlist_delete(pm_targets);
 	FREECONF(config);
 
 #ifndef CYGWIN
