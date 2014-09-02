@@ -1,5 +1,5 @@
 /*
- *  db.c
+ *  db.cpp
  *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *  Copyright (c) 2005 by Aurelien Foret <orelien@chez.com>
@@ -99,9 +99,9 @@ bool Database::add_server(const char *url)
 
 FPtrList *Database::filter(const PackageMatcher &packagematcher)
 {
-	FPtrList *cache = _pacman_db_get_pkgcache(this), *ret = NULL;
+	FPtrList &cache = _pacman_db_get_pkgcache(this), *ret = NULL;
 
-	for(auto it = cache->begin(), end = cache->end(); it != end; it = it->next()) {
+	for(auto it = cache.begin(), end = cache.end(); it != end; it = it->next()) {
 		Package *pkg = (Package *)f_ptrlistitem_data(it);
 		
 		if(packagematcher.match(pkg)) {
@@ -130,8 +130,8 @@ FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_fla
 
 		PackageMatcher packagematcher(pattern, packagestrmatcher_flags, strmatcher_flags);
 
-		FPtrList *cache = _pacman_db_get_pkgcache(this);
-		for(auto j = cache->begin(), j_end = cache->end(); j != j_end; j = j->next()) {
+		FPtrList &cache = _pacman_db_get_pkgcache(this);
+		for(auto j = cache.begin(), j_end = cache.end(); j != j_end; j = j->next()) {
 			Package *pkg = (Package *)f_ptrlistitem_data(j);
 
 			if(packagematcher.match(pkg)) {
@@ -154,8 +154,8 @@ Package *Database::find(const PackageMatcher &packagematcher)
 {
 	Package *ret = NULL;
 
-	FPtrList *cache = _pacman_db_get_pkgcache(this);
-	for(auto i = cache->begin(), end = cache->end(); i != end; i = i->next()) {
+	FPtrList &cache = _pacman_db_get_pkgcache(this);
+	for(auto i = cache.begin(), end = cache.end(); i != end; i = i->next()) {
 		Package *pkg = (Package *)f_ptrlistitem_data(i);
 
 		if(packagematcher.match(pkg)) {

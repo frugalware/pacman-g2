@@ -540,8 +540,8 @@ FPtrList *LocalDatabase::getowners(const char *filename)
 		rpath[strlen(rpath)] = '/';
 	}
 
-	FPtrList *cache = _pacman_db_get_pkgcache(this);
-	for(auto lp = cache->begin(), end = cache->end(); lp != end; lp = lp->next()) {
+	FPtrList &cache = _pacman_db_get_pkgcache(this);
+	for(auto lp = cache.begin(), end = cache.end(); lp != end; lp = lp->next()) {
 		Package *info = (Package *)f_ptrlistitem_data(lp);
 
 		FPtrList *files = info->files();

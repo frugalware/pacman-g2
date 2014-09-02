@@ -72,7 +72,7 @@ int _pacman_db_load_pkgcache(Database *db)
 	db->rewind();
 	while((info = db->readpkg(inforeq)) != NULL) {
 		/* add to the collective */
-		db->pkgcache = f_ptrlist_add_sorted(db->pkgcache, info, _pacman_pkg_cmp);
+		f_ptrlist_add_sorted(&db->pkgcache, info, _pacman_pkg_cmp);
 	}
 
 	return(0);
@@ -81,27 +81,24 @@ int _pacman_db_load_pkgcache(Database *db)
 void _pacman_db_free_pkgcache(Database *db)
 {
 	ASSERT(db != NULL, pm_errno = PM_ERR_DB_NULL; return);
-	if(db->pkgcache->empty()) {
+	if(db->pkgcache.empty()) {
 		return;
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("freeing package cache for repository '%s'"),
 	                        db->treename());
 
-	FREELISTPKGS(db->pkgcache);
+	db->pkgcache.clear(/*_pacman_pkg_delete*/);
 
 	_pacman_db_clear_grpcache(db);
 }
 
-FPtrList *_pacman_db_get_pkgcache(Database *db)
+FPtrList &_pacman_db_get_pkgcache(Database *db)
 {
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
-
-	if(db->pkgcache->empty()) {
+	if(db->pkgcache.empty()) {
 		_pacman_db_load_pkgcache(db);
 	}
-
-	return(db->pkgcache);
+	return db->pkgcache;
 }
 
 int _pacman_db_add_pkgincache(Database *db, Package *pkg)
@@ -113,7 +110,7 @@ int _pacman_db_add_pkgincache(Database *db, Package *pkg)
 
 	pkg->acquire(); // FIXME: Should not be necessary, but required during migration to refcounted object
 	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), pkg->name(), db->treename());
-	db->pkgcache = f_ptrlist_add_sorted(db->pkgcache, pkg, _pacman_pkg_cmp);
+	f_ptrlist_add_sorted(&db->pkgcache, pkg, _pacman_pkg_cmp);
 
 	_pacman_db_clear_grpcache(db);
 
@@ -129,7 +126,7 @@ int _pacman_db_remove_pkgfromcache(Database *db, Package *pkg)
 		return(-1);
 	}
 
-	if(!_pacman_list_remove(db->pkgcache, pkg, f_ptrcmp, (void **)&data)) {
+	if(!_pacman_list_remove(&db->pkgcache, pkg, f_ptrcmp, (void **)&data)) {
 		/* package not found */
 		return(-1);
 	}
@@ -166,11 +163,11 @@ int _pacman_db_load_grpcache(Database *db)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	FPtrList *cache = _pacman_db_get_pkgcache(db);
+	FPtrList &cache = _pacman_db_get_pkgcache(db);
 
 	_pacman_log(PM_LOG_DEBUG, _("loading group cache for repository '%s'"), db->treename());
 
-	for(auto it = cache->begin(), end = cache->end(); it != end; it = it->next()) {
+	for(auto it = cache.begin(), end = cache.end(); it != end; it = it->next()) {
 		Package *pkg = f_ptrlistitem_data(it);
 
 		if(!(pkg->flags & INFRQ_DESC)) {

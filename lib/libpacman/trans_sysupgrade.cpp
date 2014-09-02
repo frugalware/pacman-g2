@@ -85,13 +85,13 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	/* check for "recommended" package replacements */
 	_pacman_log(PM_LOG_FLOW1, _("checking for package replacements"));
 	for(auto i = dbs_sync->begin(), end = dbs_sync->end(); i != end; i = i->next()) {
-		FPtrList *cache = _pacman_db_get_pkgcache(f_ptrlistitem_data(i));
-		for(auto j = cache->begin(), end = cache->end(); j != end; j = j->next()) {
+		FPtrList &cache = _pacman_db_get_pkgcache(f_ptrlistitem_data(i));
+		for(auto j = cache.begin(), end = cache.end(); j != end; j = j->next()) {
 			Package *spkg = f_ptrlistitem_data(j);
 			FPtrList *replaces = spkg->replaces();
 			for(auto k = replaces->begin(), end = replaces->end(); k != end; k = k->next()) {
-				FPtrList *cache_local = _pacman_db_get_pkgcache(db_local);
-				for(auto m = cache_local->begin(), end = cache_local->end(); m != end; m = m->next()) {
+				FPtrList &cache_local = _pacman_db_get_pkgcache(db_local);
+				for(auto m = cache_local.begin(), end = cache_local.end(); m != end; m = m->next()) {
 					Package *lpkg = f_ptrlistitem_data(m);
 					if(!strcmp(f_stringlistitem_to_str(k), lpkg->name())) {
 						_pacman_log(PM_LOG_DEBUG, _("checking replacement '%s' for package '%s'"), f_stringlistitem_to_str(k), spkg->name());
@@ -135,8 +135,8 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 
 	/* match installed packages with the sync dbs and compare versions */
 	_pacman_log(PM_LOG_FLOW1, _("checking for package upgrades"));
-	FPtrList *cache_local = _pacman_db_get_pkgcache(db_local);
-	for(auto i = cache_local->begin(), end= cache_local->end(); i != end; i = i->next()) {
+	FPtrList &cache_local = _pacman_db_get_pkgcache(db_local);
+	for(auto i = cache_local.begin(), end= cache_local.end(); i != end; i = i->next()) {
 		int cmp;
 		int replace=0;
 		Package *local = f_ptrlistitem_data(i);

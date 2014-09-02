@@ -305,7 +305,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 				found = 0;
 				/* check database for literal packages */
 				auto cache = _pacman_db_get_pkgcache(db_local);
-				for(auto k = cache->begin(), k_end = cache->end(); k != k_end && !found; k = k->next()) {
+				for(auto k = cache.begin(), k_end = cache.end(); k != k_end && !found; k = k->next()) {
 					Package *p = (Package *)f_ptrlistitem_data(k);
 					if(!strcmp(p->name(), depend.name)) {
 						if(depend.mod == PM_DEP_MOD_ANY) {

@@ -408,7 +408,8 @@ public:
 
 	iterator begin()
 	{
-		return this;
+		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+		return m_data != NULL ? this : end();
 	}
 
 	const_iterator begin() const
@@ -418,7 +419,8 @@ public:
 
 	const_iterator cbegin() const
 	{
-		return const_cast<const_iterator>((const FCListItem * const)this);
+		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+		return m_data != NULL ? const_cast<const_iterator>((const FCListItem * const)this) : NULL;
 	}
 
 	iterator end()
