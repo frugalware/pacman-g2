@@ -196,47 +196,37 @@ int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
 #endif
 }
 
-#ifndef F_NOCOMPAT
 FPtrList *FPtrList::add(const void *data)
 {
+#ifndef F_NOCOMPAT
 	return f_ptrlist_add(this, data);
-}
+#else
+	f_ptrlistitem_insert_after(new FPtrListItem(data), last());
+	return this;
 #endif
+}
 
 // FIXME: Change return value to bool
 FPtrList *f_ptrlist_add(FPtrList *list, void *data)
 {
-#ifndef F_NOCOMPAT
-	FPtrList *ptr, *lp;
-
-	ptr = list;
-	if(ptr == NULL) {
-		ptr = f_ptrlist_new();
-		if(ptr == NULL) {
-			return(NULL);
-		}
+	if (list == NULL) {
+		list = new FPtrList();
 	}
-
-	lp = f_ptrlist_last(ptr);
-	if(lp == ptr && lp->m_data == NULL) {
+#ifndef F_NOCOMPAT
+	FPtrListIterator *lp = f_ptrlist_last(list);
+	if(lp == list && lp->m_data == NULL) {
 		/* nada */
 	} else {
-		lp->m_next = f_ptrlist_new();
-		if(lp->m_next == NULL) {
-			return(NULL);
-		}
-		lp->m_next->m_previous = lp;
+		f_ptrlistitem_insert_after(new FCListItem(), lp);
 		lp = lp->m_next;
 	}
 
 	lp->m_data = data;
-
-	return(ptr);
 #else
 	list->add(data);
+#endif
 
 	return list;
-#endif
 }
 
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
