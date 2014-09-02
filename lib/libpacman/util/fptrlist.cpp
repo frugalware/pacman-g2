@@ -31,43 +31,41 @@
  */
 FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 {
+	if(list == NULL) {
+		list = new FPtrList();
+	}
+
 #ifndef F_NOCOMPAT
-	FPtrListIterator *add, *end = f_ptrlist_end(list), *previous = NULL, *iter = f_ptrlist_first(list);
+	if(list->m_data == NULL) {
+		list->m_data = data;
+	} else if(fn(data, list->m_data) <= 0) {
+		/* Insert before head */
+		FPtrList *list_new = new FCListItem();
+		list_new->m_data = data;
+		list_new->m_next = list;
+		list->m_previous = list_new;
+		list = list_new;
+	} else {
+#endif
+	FPtrListIterator *add, *previous = NULL, *iter = f_ptrlist_first(list);
 
 	add = new FCListItem();
 	add->m_data = data;
 
 	/* Find insertion point. */
-	while(iter != end) {
-		if(fn(f_ptrlistitem_data(add), f_ptrlistitem_data(iter)) <= 0) break;
-		previous = iter;
-		iter = iter->m_next;
+	previous = list;
+	for(FPtrListIterator *end = f_ptrlist_end(list); previous->next() != end; previous = previous->next()) {
+		if(fn(f_ptrlistitem_data(add), f_ptrlistitem_data(previous->next())) <= 0) {
+			break;
+		}
 	}
 
 	/*  Insert node before insertion point. */
-	add->m_previous = previous;
-	add->m_next = iter;
-
-	if(iter != NULL) {
-		iter->m_previous = add;   /*  Not at end.  */
+	f_ptrlistitem_insert_after(add, previous);
+#ifndef F_NOCOMPAT
 	}
-
-	if(previous != NULL) {
-		previous->m_next = add;       /*  In middle.  */
-	} else {
-		list = add;           /*  Start or empty, new list head.  */
-	}
-
-	return(list);
-#else
-	if (list == NULL) {
-		list = new FPtrList();
-		list->add(data);
-	} else {
-		// FIXME: Search insertion point.
-	}
-	return list;
 #endif
+	return list;
 }
 
 /* Remove an item in a list. Use the given comparison function to find the
