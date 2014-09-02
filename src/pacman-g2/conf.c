@@ -55,7 +55,7 @@ int config_free(config_t *config)
 
 	FREE(config->root);
 	FREE(config->configfile);
-	FREELIST(config->op_s_ignore);
+	f_stringlist_delete(config->op_s_ignore);
 	free(config);
 
 	return(0);
