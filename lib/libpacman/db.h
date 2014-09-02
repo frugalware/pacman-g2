@@ -87,7 +87,7 @@ public:
 	char *path;
 	libpacman::Timestamp cache_timestamp;
 	FPtrList pkgcache;
-	FPtrList *grpcache;
+	FPtrList grpcache;
 	FPtrList *servers;
 
 protected:

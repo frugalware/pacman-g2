@@ -32,7 +32,7 @@ int _pacman_db_add_pkgincache(libpacman::Database *db, libpacman::Package *pkg);
 int _pacman_db_remove_pkgfromcache(libpacman::Database *db, libpacman::Package *pkg);
 FPtrList &_pacman_db_get_pkgcache(libpacman::Database *db);
 /* groups */
-FPtrList *_pacman_db_get_grpcache(libpacman::Database *db);
+FPtrList &_pacman_db_get_grpcache(libpacman::Database *db);
 libpacman::Group *_pacman_db_get_grpfromcache(libpacman::Database *db, const char *target);
 
 #endif /* _PACMAN_CACHE_H */

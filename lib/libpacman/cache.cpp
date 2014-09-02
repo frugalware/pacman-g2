@@ -178,11 +178,11 @@ int _pacman_db_load_grpcache(Database *db)
 		for(auto git = groups->begin(), git_end = groups->end(); git != git_end; git = git->next()) {
 			const char *grp_name = f_stringlistitem_to_str(git);
 
-			Group *grp = _pacman_db_get_grpfromlist(db->grpcache, grp_name);
+			Group *grp = _pacman_db_get_grpfromlist(&db->grpcache, grp_name);
 
 			if(grp == NULL) {
 				grp = new Group(grp_name);
-				db->grpcache = f_ptrlist_add_sorted(db->grpcache, grp, _pacman_grp_cmp);
+				f_ptrlist_add_sorted(&db->grpcache, grp, _pacman_grp_cmp);
 			}
 			if(!_pacman_list_is_strin(pkg->name(), grp->packages)) {
 				grp->packages = f_ptrlist_add_sorted(grp->packages, pkg->name(), strcmp);
@@ -202,27 +202,23 @@ int _pacman_db_clear_grpcache(Database *db)
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	f_ptrlist_clear(db->grpcache, &visitor);
-	db->grpcache = NULL;
+	f_ptrlist_clear(&db->grpcache, &visitor);
 	return 0;
 }
 
-FPtrList *_pacman_db_get_grpcache(Database *db)
+FPtrList &_pacman_db_get_grpcache(Database *db)
 {
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
-
-	if(db->grpcache == NULL) {
+	if(db->grpcache.empty()) {
 		_pacman_db_load_grpcache(db);
 	}
-
-	return(db->grpcache);
+	return db->grpcache;
 }
 
 Group *_pacman_db_get_grpfromcache(Database *db, const char *target)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
-	return _pacman_db_get_grpfromlist(_pacman_db_get_grpcache(db), target);
+	return _pacman_db_get_grpfromlist(&_pacman_db_get_grpcache(db), target);
 }
 
 /* vim: set ts=2 sw=2 noet: */
