@@ -26,8 +26,6 @@
 #include "handle.h"
 #include "timestamp.h"
 
-#define FREELISTSERVERS(p) _FREELIST(p, _pacman_server_free)
-
 /* Servers */
 typedef struct __pmserver_t {
 	char *protocol;

@@ -88,7 +88,7 @@ public:
 	libpacman::Timestamp cache_timestamp;
 	FPtrList pkgcache;
 	FPtrList grpcache;
-	FPtrList *servers;
+	FPtrList servers;
 
 protected:
 	Database(libpacman::Handle *handle, const char *treename);

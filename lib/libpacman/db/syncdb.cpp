@@ -170,7 +170,7 @@ int _pacman_syncdb_update(Database *db, int force)
 
 	snprintf(path, PATH_MAX, "%s%s", handle->root, handle->dbpath);
 
-	ret = _pacman_downloadfiles_forreal(db->m_handle, db->servers, path, files, &timestamp, &newmtime, 0);
+	ret = _pacman_downloadfiles_forreal(db->m_handle, &db->servers, path, files, &timestamp, &newmtime, 0);
 	FREELIST(files);
 	if(ret != 0) {
 		if(ret == -1) {

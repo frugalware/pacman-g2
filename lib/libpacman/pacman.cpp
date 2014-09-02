@@ -471,7 +471,7 @@ void *pacman_db_getinfo(pmdb_t *_db, unsigned char parm)
 	switch(parm) {
 		case PM_DB_TREENAME:   data = db->treename(); break;
 		case PM_DB_FIRSTSERVER:
-			server = (pmserver_t*)f_ptrlistitem_data(db->servers->begin());
+			server = (pmserver_t*)f_ptrlistitem_data(db->servers.begin());
 			if(!strcmp(server->protocol, "file")) {
 				snprintf(path, PATH_MAX, "%s://%s", server->protocol, server->path);
 			} else {
@@ -503,7 +503,7 @@ int pacman_db_setserver(pmdb_t *_db, char *url)
 	if(!_pacman_strempty(url)) {
 		return db->add_server(url) ? 0 : -1;
 	} else {
-		FREELIST(db->servers);
+		db->servers.clear(/* _pacman_server_free */);
 		_pacman_log(PM_LOG_FLOW2, _("serverlist flushed for '%s'"), db->treename());
 	}
 

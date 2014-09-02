@@ -80,7 +80,7 @@ Database::Database(Handle *handle, const char *treename)
 
 Database::~Database()
 {
-	FREELISTSERVERS(servers);
+	servers.clear(/* _pacman_server_free */);
 	free(path);
 }
 
@@ -91,7 +91,7 @@ bool Database::add_server(const char *url)
 	ASSERT(!_pacman_strempty(url), RET_ERR(PM_ERR_WRONG_ARGS, false));
 	ASSERT((server = _pacman_server_new(url)) != NULL, return false);
 
-	servers = servers->add(server);
+	servers.add(server);
 	_pacman_log(PM_LOG_FLOW2, _("adding new server to database '%s': protocol '%s', server '%s', path '%s'"),
 			treename(), server->protocol, server->server, server->path);
 	return true;
