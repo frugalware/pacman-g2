@@ -750,8 +750,7 @@ int pacman_output_generate(FPtrList *targets, FPtrList *dblist) {
             pkg = db->readpkg(inforeq);
             while(pkg != NULL) {
                 const char *pname = pkg->name();
-                targets = _pacman_list_remove(targets, (void*) pname, str_cmp, (void **)&match);
-                if(match) {
+                if(_pacman_list_remove(targets, (void*) pname, str_cmp, (void **)&match)) {
                     foundMatch = 1;
 										auto depends = pkg->depends();
                     for(auto k = depends->begin(), k_end = depends->end(); k != k_end; k = k->next()) {

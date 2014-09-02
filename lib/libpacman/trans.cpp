@@ -547,7 +547,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 				/* remove the original targets from the list if requested */
 				if((flags & PM_TRANS_FLAG_DEPENDSONLY)) {
 					/* they are just pointers so we don't have to free them */
-					syncpkgs = _pacman_list_remove(syncpkgs, spkg, pkg_cmp, NULL);
+					_pacman_list_remove(syncpkgs, spkg, pkg_cmp, NULL);
 				}
 			}
 		}
@@ -678,7 +678,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 							pmsyncpkg_t *spkg = NULL;
 
 							_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
-							syncpkgs = _pacman_list_remove(syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
+							_pacman_list_remove(syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
 							delete spkg;
 							continue;
 						}
@@ -716,7 +716,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 								pmsyncpkg_t *spkg = NULL;
 
 								_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), miss->depend.name);
-								syncpkgs = _pacman_list_remove(syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
+								_pacman_list_remove(syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
 								delete spkg;
 							}
 						} else {
@@ -1814,7 +1814,7 @@ int __pmtrans_t::commit(FPtrList **data)
 				}
 			}
 			/* splice out this entry from requiredby */
-			depinfo->m_requiredby = _pacman_list_remove(depinfo->requiredby(), pkg_local->name(), str_cmp, (void **)&data);
+			_pacman_list_remove(depinfo->requiredby(), pkg_local->name(), str_cmp, (void **)&data);
 			FREE(data);
 			_pacman_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name());
 			if(db_local->write(depinfo, INFRQ_DEPENDS)) {

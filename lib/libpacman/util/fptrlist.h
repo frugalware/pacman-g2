@@ -59,7 +59,7 @@ extern "C" {
 typedef int (*_pacman_fn_cmp)(const void *, const void *);
 
 FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
-FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
+bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 FPtrList *_pacman_list_reverse(FPtrList *list);
 
 typedef void (*FPtrListIteratorVisitorFunc)(FPtrListIterator *item, void *visitor_data);
@@ -331,7 +331,7 @@ class FCListItem
 {
 public:
 	friend FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
-	friend FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
+	friend bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 	friend FPtrList *f_ptrlist_add(FPtrList *list, void *data);
 	friend int f_ptrlistitem_insert_after(FPtrListIterator *self, FPtrListIterator *previous);
 
@@ -400,7 +400,7 @@ class FPtrList
 {
 public:
 	friend FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
-	friend FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
+	friend bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 	friend FPtrList *f_ptrlist_add(FPtrList *list, void *data);
 
 	typedef FCListItem *iterator;

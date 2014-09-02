@@ -430,9 +430,7 @@ int pacman_db_unregister(pmdb_t *_db)
 		handle->db_local = NULL;
 		found = 1;
 	} else {
-		pmdb_t *data;
-		handle->dbs_sync = _pacman_list_remove(handle->dbs_sync, db, f_ptrcmp, (void **)&data);
-		if(data) {
+		if(_pacman_list_remove(handle->dbs_sync, db, f_ptrcmp, NULL)) {
 			found = 1;
 		}
 	}

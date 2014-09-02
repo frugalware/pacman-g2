@@ -129,8 +129,7 @@ int _pacman_db_remove_pkgfromcache(Database *db, Package *pkg)
 		return(-1);
 	}
 
-	db->pkgcache = _pacman_list_remove(db->pkgcache, pkg, f_ptrcmp, (void **)&data);
-	if(data == NULL) {
+	if(!_pacman_list_remove(db->pkgcache, pkg, f_ptrcmp, (void **)&data)) {
 		/* package not found */
 		return(-1);
 	}

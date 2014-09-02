@@ -69,13 +69,13 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 
 /* Remove an item in a list. Use the given comparison function to find the
  * item.
- * If the item is found, 'data' is pointing to the removed element.
- * Otherwise, it is set to NULL.
+ * If the item is found, return true and 'data' is pointing to the removed element.
+ * Otherwise, return false and 'data' it is set to NULL.
  * Return the new list (without the removed element).
  */
-FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data)
+bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data)
 {
-	ASSERT(haystack != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	ASSERT(haystack != NULL, RET_ERR(PM_ERR_WRONG_ARGS, false));
 
 	if(data != NULL) {
 		*data = NULL;
@@ -83,7 +83,7 @@ FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp f
 
 #ifndef F_NOCOMPAT
 	if(haystack->empty()) {
-		return haystack;
+		return false;
 	}	
 
 	if(fn(needle, haystack->m_data) == 0) {
@@ -104,7 +104,7 @@ FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp f
 				haystack->m_next->m_previous = haystack;
 			}
 		}
-		return haystack;
+		return true;
 	}
 #endif
 	for(FPtrListIterator *i = f_ptrlist_first(haystack), *end = f_ptrlist_end(haystack); i != end; i = i->next()) {
@@ -120,10 +120,10 @@ FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp f
 				*data = i->m_data;
 			}
 			delete i;
-			break;
+			return true;
 		}
 	}
-	return haystack;
+	return false;
 }
 
 /* Reverse the order of a list
