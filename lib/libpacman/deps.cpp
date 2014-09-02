@@ -631,7 +631,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 			 * something we're not supposed to.
 			 */
 			int usedep = 1;
-			if(_pacman_list_is_strin(ps->name(), handle->ignorepkg)) {
+			if(_pacman_list_is_strin(ps->name(), &handle->ignorepkg)) {
 				Package *dummypkg = new Package(miss->target, NULL);
 				QUESTION(trans, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg, ps, NULL, &usedep);
 				dummypkg->release();

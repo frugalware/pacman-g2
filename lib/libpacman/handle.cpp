@@ -109,7 +109,6 @@ Handle::~Handle()
 	FREELIST(dbs_sync);
 	FREELIST(noupgrade);
 	FREELIST(noextract);
-	FREELIST(ignorepkg);
 }
 
 int Handle::lock()

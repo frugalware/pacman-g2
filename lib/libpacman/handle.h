@@ -76,7 +76,7 @@ public:
 	char *triggersdir;
 	FPtrList *noupgrade; /* List of strings */
 	FPtrList *noextract; /* List of strings */
-	FPtrList *ignorepkg; /* List of strings */
+	FStringList ignorepkg;
 	FStringList holdpkg;
 	unsigned char usesyslog;
 	time_t upgradedelay;

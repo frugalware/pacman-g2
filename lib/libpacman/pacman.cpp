@@ -254,7 +254,7 @@ int pacman_set_option(unsigned char parm, unsigned long data)
 			_pacman_handle_set_option_stringlist("PM_OPT_NOEXTRACT", &handle->noextract, (const char *)data);
 		break;
 		case PM_OPT_IGNOREPKG:
-			_pacman_handle_set_option_stringlist("PM_OPT_IGNOREPKG", &handle->ignorepkg, (const char *)data);
+			_pacman_handle_set_option_stringlist("PM_OPT_IGNOREPKG", handle->ignorepkg, (const char *)data);
 		break;
 		case PM_OPT_HOLDPKG:
 			_pacman_handle_set_option_stringlist("PM_OPT_HOLDPKG", handle->holdpkg, (const char *)data);
@@ -376,7 +376,7 @@ int pacman_get_option(unsigned char parm, long *data)
 		case PM_OPT_LOGFILE:   *data = (long)handle->logfile; break;
 		case PM_OPT_NOUPGRADE: *data = (long)handle->noupgrade; break;
 		case PM_OPT_NOEXTRACT: *data = (long)handle->noextract; break;
-		case PM_OPT_IGNOREPKG: *data = (long)handle->ignorepkg; break;
+		case PM_OPT_IGNOREPKG: *data = (long)&handle->ignorepkg; break;
 		case PM_OPT_HOLDPKG:   *data = (long)&handle->holdpkg; break;
 		case PM_OPT_NEEDLES:   *data = (long)&handle->needles; break;
 		case PM_OPT_USESYSLOG: *data = handle->usesyslog; break;

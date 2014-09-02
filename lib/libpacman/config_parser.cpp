@@ -88,7 +88,7 @@ int _pacman_parse_config(Handle *handle, const char *file, pacman_cb_db_register
 			db = handle->createDatabase(section, callback);
 		}
 	} else {
-		FREELIST(handle->ignorepkg);
+		handle->ignorepkg.clear();
 		handle->holdpkg.clear();
 	}
 
