@@ -39,12 +39,11 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 	if(list->m_data == NULL) {
 		list->m_data = data;
 	} else if(fn(data, list->m_data) <= 0) {
-		/* Insert before head */
-		FPtrList *list_new = new FCListItem();
-		list_new->m_data = data;
-		list_new->m_next = list;
-		list->m_previous = list_new;
-		list = list_new;
+		/* Insert before in head */
+		FPtrList *next = new FCListItem();
+		next->m_data = list->m_data;
+		list->m_data = data;
+		f_ptrlistitem_insert_after(next, list);
 	} else {
 #endif
 	FPtrListIterator *add, *previous = NULL, *iter = f_ptrlist_first(list);
