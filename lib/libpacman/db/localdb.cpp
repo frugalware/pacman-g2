@@ -157,7 +157,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 		FREE(hash_orig);
 		if(!nb && trans->m_type == PM_TRANS_TYPE_UPGRADE) {
 			/* check noupgrade */
-			if(_pacman_list_is_strin(file, handle->noupgrade)) {
+			if(_pacman_list_is_strin(file, &handle->noupgrade)) {
 				nb = 1;
 			}
 		}

@@ -107,7 +107,6 @@ Handle::~Handle()
 	free(proxyhost);
 	free(xfercommand);
 	FREELIST(dbs_sync);
-	FREELIST(noupgrade);
 }
 
 int Handle::lock()

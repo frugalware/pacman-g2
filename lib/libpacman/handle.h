@@ -74,7 +74,7 @@ public:
 	char *logfile;
 	char *hooksdir;
 	char *triggersdir;
-	FPtrList *noupgrade; /* List of strings */
+	FStringList noupgrade;
 	FStringList noextract;
 	FStringList ignorepkg;
 	FStringList holdpkg;

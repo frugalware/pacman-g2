@@ -1087,7 +1087,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 					if(S_ISLNK(buf.st_mode)) {
 						continue;
 					} else if(!S_ISDIR(buf.st_mode)) {
-						if(_pacman_list_is_strin(pathname, handle->noupgrade)) {
+						if(_pacman_list_is_strin(pathname, &handle->noupgrade)) {
 							notouch = 1;
 						} else {
 							if(type == PM_TRANS_TYPE_ADD || oldpkg == NULL) {

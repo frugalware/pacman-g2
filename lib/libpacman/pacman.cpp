@@ -171,18 +171,6 @@ void _pacman_handle_set_option_string(const char *option, char **string, const c
 }
 
 static
-void _pacman_handle_set_option_stringlist(const char *option, FStringList **stringlist, const char *value)
-{
-	if(!_pacman_strempty(value)) {
-		*stringlist = f_stringlist_add(*stringlist, value);
-		_pacman_log(PM_LOG_FLOW2, _("'%s' added to %s"), value, option);
-	} else {
-		FREELIST(*stringlist);
-		_pacman_log(PM_LOG_FLOW2, _("%s flushed"), option);
-	}
-}
-
-static
 void _pacman_handle_set_option_stringlist(const char *option, FStringList &stringlist, const char *value)
 {
 	if(!_pacman_strempty(value)) {
@@ -248,7 +236,7 @@ int pacman_set_option(unsigned char parm, unsigned long data)
 			_pacman_log(PM_LOG_FLOW2, _("PM_OPT_LOGFILE set to '%s'"), path);
 		break;
 		case PM_OPT_NOUPGRADE:
-			_pacman_handle_set_option_stringlist("PM_OPT_NOUPGRADE", &handle->noupgrade, (const char *)data);
+			_pacman_handle_set_option_stringlist("PM_OPT_NOUPGRADE", handle->noupgrade, (const char *)data);
 		break;
 		case PM_OPT_NOEXTRACT:
 			_pacman_handle_set_option_stringlist("PM_OPT_NOEXTRACT", handle->noextract, (const char *)data);
@@ -374,7 +362,7 @@ int pacman_get_option(unsigned char parm, long *data)
 		case PM_OPT_LOCALDB:   *data = (long)handle->db_local; break;
 		case PM_OPT_SYNCDB:    *data = (long)handle->dbs_sync; break;
 		case PM_OPT_LOGFILE:   *data = (long)handle->logfile; break;
-		case PM_OPT_NOUPGRADE: *data = (long)handle->noupgrade; break;
+		case PM_OPT_NOUPGRADE: *data = (long)&handle->noupgrade; break;
 		case PM_OPT_NOEXTRACT: *data = (long)&handle->noextract; break;
 		case PM_OPT_IGNOREPKG: *data = (long)&handle->ignorepkg; break;
 		case PM_OPT_HOLDPKG:   *data = (long)&handle->holdpkg; break;
