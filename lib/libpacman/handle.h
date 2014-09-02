@@ -77,7 +77,7 @@ public:
 	FPtrList *noupgrade; /* List of strings */
 	FPtrList *noextract; /* List of strings */
 	FPtrList *ignorepkg; /* List of strings */
-	FPtrList *holdpkg; /* List of strings */
+	FStringList holdpkg;
 	unsigned char usesyslog;
 	time_t upgradedelay;
 	time_t olddelay;

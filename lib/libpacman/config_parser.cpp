@@ -89,7 +89,7 @@ int _pacman_parse_config(Handle *handle, const char *file, pacman_cb_db_register
 		}
 	} else {
 		FREELIST(handle->ignorepkg);
-		FREELIST(handle->holdpkg);
+		handle->holdpkg.clear();
 	}
 
 	while(fgets(line, PATH_MAX, fp)) {

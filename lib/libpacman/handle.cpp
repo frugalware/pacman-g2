@@ -110,7 +110,6 @@ Handle::~Handle()
 	FREELIST(noupgrade);
 	FREELIST(noextract);
 	FREELIST(ignorepkg);
-	FREELIST(holdpkg);
 }
 
 int Handle::lock()

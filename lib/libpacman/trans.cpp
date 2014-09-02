@@ -465,7 +465,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	}
 
 	/* ignore holdpkgs on upgrade */
-	if((this == m_handle->trans) && _pacman_list_is_strin(pkg_local->name(), m_handle->holdpkg)) {
+	if((this == m_handle->trans) && _pacman_list_is_strin(pkg_local->name(), &m_handle->holdpkg)) {
 		int resp = 0;
 		QUESTION(this, PM_TRANS_CONV_REMOVE_HOLDPKG, pkg_local, NULL, NULL, &resp);
 		if(!resp) {
