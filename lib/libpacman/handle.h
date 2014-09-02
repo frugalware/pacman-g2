@@ -75,7 +75,7 @@ public:
 	char *hooksdir;
 	char *triggersdir;
 	FPtrList *noupgrade; /* List of strings */
-	FPtrList *noextract; /* List of strings */
+	FStringList noextract;
 	FStringList ignorepkg;
 	FStringList holdpkg;
 	unsigned char usesyslog;

@@ -108,7 +108,6 @@ Handle::~Handle()
 	free(xfercommand);
 	FREELIST(dbs_sync);
 	FREELIST(noupgrade);
-	FREELIST(noextract);
 }
 
 int Handle::lock()

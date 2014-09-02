@@ -1076,7 +1076,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 				 * eg, /home/httpd/html/index.html may be removed so index.php
 				 * could be used.
 				 */
-				if(_pacman_list_is_strin(pathname, handle->noextract)) {
+				if(_pacman_list_is_strin(pathname, &handle->noextract)) {
 					pacman_logaction(_("notice: %s is in NoExtract -- skipping extraction"), pathname);
 					archive_read_data_skip (archive);
 					continue;
