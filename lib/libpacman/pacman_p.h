@@ -28,6 +28,9 @@
 #define DEFINE_CAST(c_type, cxx_type)         \
 static inline c_type *c_cast(cxx_type *obj)   \
 { return (c_type *)obj; }                     \
+																							\
+static inline c_type *c_cast(cxx_type &obj)   \
+{ return (c_type *)&obj; }                    \
                                               \
 static inline cxx_type *cxx_cast(c_type *obj) \
 { return (cxx_type *)obj; }
