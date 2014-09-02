@@ -46,13 +46,11 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 		f_ptrlistitem_insert_after(next, list);
 	} else {
 #endif
-	FPtrListIterator *add, *previous = NULL, *iter = f_ptrlist_first(list);
-
-	add = new FCListItem();
+	FPtrListIterator *add = new FCListItem();
 	add->m_data = data;
 
 	/* Find insertion point. */
-	previous = list;
+	FPtrListIterator *previous = list;
 	for(FPtrListIterator *end = f_ptrlist_end(list); previous->next() != end; previous = previous->next()) {
 		if(fn(f_ptrlistitem_data(add), f_ptrlistitem_data(previous->next())) <= 0) {
 			break;
@@ -235,7 +233,20 @@ FPtrList *f_ptrlist_add(FPtrList *list, void *data)
 
 int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 {
+	ASSERT(list != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
 	FPtrListIterator *end = f_ptrlist_end(list), *it = f_ptrlist_first(list), *next;
+
+#ifndef F_NOCOMPAT
+	if(list->empty()) {
+		return 0;
+	}
+
+	if(visitor != NULL) {
+		f_visit(f_ptrlistitem_data(it), visitor);
+	}
+	it = it->next();
+#endif
 
 	while(it != end) {
 		next = it->next();
@@ -245,6 +256,7 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 		free(it);
 		it = next;
 	}
+	list->clear(/* visitor */);
 	return 0;
 }
 
