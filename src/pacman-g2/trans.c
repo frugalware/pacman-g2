@@ -481,7 +481,6 @@ int trans_commit(pmtranstype_t transtype, FStringList *targets)
 	 */
 	if(pacman_trans_prepare(&data) == -1) {
 		long long *pkgsize, *freespace;
-		PM_LIST *lp;
 
 		ERR(NL, _("failed to prepare transaction (%s)\n"), pacman_strerror(pm_errno));
 		switch(pm_errno) {
@@ -537,13 +536,14 @@ int trans_commit(pmtranstype_t transtype, FStringList *targets)
 				}
 				MSG(NL, _("\nerrors occurred, no packages were upgraded.\n"));
 			break;
-			case PM_ERR_DISK_FULL:
-				lp = pacman_list_begin(data);
+			case PM_ERR_DISK_FULL: {
+				pmlist_iterator_t *lp = pacman_list_begin(data);
 				pkgsize = pacman_list_getdata(lp);
 				lp = pacman_list_next(lp);
 				freespace = pacman_list_getdata(lp);
 					MSG(NL, _(":: %.1f MB required, have %.1f MB"),
 						(double)(*pkgsize / 1048576.0), (double)(*freespace / 1048576.0));
+			}
 			break;
 			default:
 			break;
