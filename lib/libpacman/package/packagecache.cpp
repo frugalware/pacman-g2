@@ -58,7 +58,7 @@ int _pacman_packagecache_clean(int level)
 		}
 		closedir(dir);
 
-		for(auto i = cache->begin(), end = cache->end(); i; i = i->next()) {
+		for(auto i = cache->begin(), end = cache->end(); i != end; i = i->next()) {
 			char *str = f_stringlistitem_to_str(i);
 			char name[PKG_NAME_LEN], version[PKG_VERSION_LEN];
 

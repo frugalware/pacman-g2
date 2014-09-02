@@ -133,7 +133,7 @@ FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
 	}
 
 	/* We compute the edges */
-	for(auto i = vertices->begin(), end = vertices->end(); i; i = i->next()) {
+	for(auto i = vertices->begin(), end = vertices->end(); i != end; i = i->next()) {
 		pmgraph_t *vertex_i = f_ptrlistitem_data(i);
 		Package *p_i = vertex_i->data;
 		/* TODO this should be somehow combined with _pacman_checkdeps */
