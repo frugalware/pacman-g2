@@ -79,7 +79,7 @@ static int sync_synctree(int level, list_t *syncs)
 	return(success);
 }
 
-static int sync_search(list_t *syncs, list_t *targets)
+static int sync_search(list_t *syncs, FStringList *targets)
 {
 	PM_LIST *ret;
 	PM_PKG *ipkg;
@@ -117,7 +117,7 @@ static int sync_search(list_t *syncs, list_t *targets)
 	return(0);
 }
 
-static int sync_group(int level, list_t *syncs, list_t *targets)
+static int sync_group(int level, list_t *syncs, FStringList *targets)
 {
 	int ret = 0;
 
@@ -158,7 +158,7 @@ static int sync_group(int level, list_t *syncs, list_t *targets)
 	return(ret);
 }
 
-static int sync_info(list_t *syncs, list_t *targets)
+static int sync_info(list_t *syncs, FStringList *targets)
 {
 	if(targets) {
 		for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = f_ptrlistitem_next(i)) {
@@ -198,7 +198,7 @@ static int sync_info(list_t *syncs, list_t *targets)
 	return(0);
 }
 
-static int sync_list(list_t *syncs, list_t *targets)
+static int sync_list(list_t *syncs, FStringList *targets)
 {
 	list_t *ls = NULL;
 
@@ -246,11 +246,11 @@ static int sync_list(list_t *syncs, list_t *targets)
 	return(0);
 }
 
-int syncpkg(list_t *targets)
+int syncpkg(FStringList *targets)
 {
 	int confirm = 0;
 	int retval = 0;
-	PM_LIST *packages, *data, *lp;
+	PM_LIST *packages, *data;
 
 	if(!trans_has_usable_syncs()) {
 		return(1);
@@ -480,14 +480,15 @@ int syncpkg(list_t *targets)
 				}
 				pacman_list_free(data);
 			break;
-			case PM_ERR_DISK_FULL:
-				lp = pacman_list_begin(data);
+			case PM_ERR_DISK_FULL: {
+				pmlist_iterator_t *lp = pacman_list_begin(data);
 				pkgsize = pacman_list_getdata(lp);
 				lp = pacman_list_next(lp);
 				freespace = pacman_list_getdata(lp);
 					MSG(NL, _(":: %.1f MB required, have %.1f MB"),
 						(double)(*pkgsize / 1048576.0), (double)(*freespace / 1048576.0));
 				pacman_list_free(data);
+			}
 			break;
 			default:
 			break;

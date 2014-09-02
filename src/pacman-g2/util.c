@@ -88,7 +88,7 @@ void indentprint(char *str, int indent)
 
 /* Condense a list of strings into one long (space-delimited) string
  */
-char *buildstring(list_t *strlist)
+char *buildstring(FStringList *strlist)
 {
 	char *str;
 	int size = 1;

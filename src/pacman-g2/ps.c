@@ -126,10 +126,10 @@ static list_t* add_or_free(list_t* l, ps_t* ps)
 	return l;
 }
 
-static list_t *ps_cgroup(pid_t pid) {
+static FStringList *ps_cgroup(pid_t pid) {
 	struct stat buf;
 	char *ptr, path[PATH_MAX+1], line[PATH_MAX+1];
-	list_t *ret = NULL;
+	FStringList *ret = NULL;
 
 	snprintf(path, PATH_MAX, "/proc/%d/cgroup", pid);
 	if(!stat(path, &buf)) {

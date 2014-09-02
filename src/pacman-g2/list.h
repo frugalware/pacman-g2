@@ -32,7 +32,7 @@ typedef FPtrList list_t;
 int list_is_strin(char *needle, list_t *haystack);
 void list_display(const char *title, const FStringList *list);
 
-#define PM_LIST_display list_display
+#define PM_LIST_display(title, list) list_display(title, (const FStringList *)list)
 list_t *PM_LIST_remove_dupes(PM_LIST *list);
 
 #endif /* _PM_LIST_H */

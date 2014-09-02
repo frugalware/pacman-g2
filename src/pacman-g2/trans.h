@@ -25,6 +25,8 @@
 
 #include <pacman.h>
 
+#include "list.h"
+
 bool trans_has_usable_syncs(void);
 
 /* callback to handle messages/notifications from libpacman transactions */
@@ -35,7 +37,7 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 
 void cb_trans_progress(unsigned char event, const char *pkgname, int percent, int howmany, int remain);
 
-int trans_commit(pmtranstype_t transtype, list_t *targets);
+int trans_commit(pmtranstype_t transtype, FStringList *targets);
 
 #endif /* _PM_TRANS_H */
 

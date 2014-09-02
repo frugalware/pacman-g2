@@ -41,10 +41,9 @@ extern config_t *config;
 extern PM_DB *db_local;
 extern list_t *pmc_syncs;
 
-int querypkg(list_t *targets)
+int querypkg(FStringList *targets)
 {
 	PM_PKG *info = NULL;
-	list_t *targ;
 	PM_LIST *ret;
 	char *package = NULL;
 	int done = 0, errors = 0;
@@ -86,7 +85,7 @@ int querypkg(list_t *targets)
 		return(1);
 	}
 
-	for(targ = targets; !done; targ = (targ ? f_ptrlistitem_next(targ) : NULL)) {
+	for(FPtrListIterator *targ = f_ptrlist_first(targets); !done; targ = (targ ? f_ptrlistitem_next(targ) : NULL)) {
 		if(targets == NULL) {
 			done = 1;
 		} else {

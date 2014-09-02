@@ -31,7 +31,7 @@
 
 int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist);
 
-int vercmp(list_t *targets)
+int vercmp(FStringList *targets)
 {
 	// FIXME: should count targets
 

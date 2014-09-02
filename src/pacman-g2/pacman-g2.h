@@ -23,7 +23,7 @@
 
 #include "list.h"
 
-int vercmp(list_t *targets);
+int vercmp(FStringList *targets);
 
 #endif /* _PM_PACMAN_G2_H */
 

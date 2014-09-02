@@ -21,7 +21,7 @@
 #ifndef _PM_SYNC_H
 #define _PM_SYNC_H
 
-int syncpkg(list_t *targets);
+int syncpkg(FStringList *targets);
 
 #endif /* _PM_SYNC_H */
 

@@ -39,7 +39,7 @@ extern list_t *pmc_syncs;
 
 int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist);
 
-int deptestpkg(list_t *targets)
+int deptestpkg(FStringList *targets)
 {
 	PM_LIST *data;
 	char *str;

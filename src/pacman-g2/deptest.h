@@ -21,7 +21,7 @@
 #ifndef _PM_DEPTEST_H
 #define _PM_DEPTEST_H
 
-int deptestpkg(list_t *targets);
+int deptestpkg(FStringList *targets);
 
 #endif /* _PM_DEPTEST_H */
 

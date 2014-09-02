@@ -378,11 +378,10 @@ cleanup:
 	FREE(pkgname_short);
 }
 
-int trans_commit(pmtranstype_t transtype, list_t *targets)
+int trans_commit(pmtranstype_t transtype, FStringList *targets)
 {
 	PM_LIST *data;
-	list_t *i;
-	list_t *finaltargs = NULL;
+	FStringList *finaltargs = NULL;
 	int retval = 0;
 
 	if(targets == NULL) {
@@ -560,7 +559,7 @@ int trans_commit(pmtranstype_t transtype, list_t *targets)
 		 */
 		if(config->flags & PM_TRANS_FLAG_RECURSE || config->flags & PM_TRANS_FLAG_CASCADE) {
 			/* list transaction targets */
-			i = NULL;
+			FStringList *i = NULL;
 			pmlist_t *packages = pacman_trans_getinfo(PM_TRANS_PACKAGES);
 			for(pmlist_iterator_t *lp = pacman_list_begin(packages), *end = pacman_list_end(packages); lp != end; lp = pacman_list_next(lp)) {
 				PM_PKG *pkg = pacman_list_getdata(lp);
