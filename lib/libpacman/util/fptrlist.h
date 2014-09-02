@@ -389,7 +389,7 @@ public:
 
 	void *m_data; // Enabled for now
 
-private:
+protected:
 	FCListItem *m_next;
 	FCListItem *m_previous;
 };
@@ -491,10 +491,18 @@ public:
 
 	bool empty() const
 	{
-		return this == NULL;
+		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, true));
+		return this->m_data == NULL;
 	}
 
 	FPtrList *add(const void *data);
+
+	void clear()
+	{
+		// FIXME: lets leak for now
+		ASSERT(this != NULL, pm_errno = PM_ERR_WRONG_ARGS; return);
+		m_next = m_previous = m_data = NULL;
+	}
 };
 #endif
 

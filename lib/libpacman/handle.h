@@ -32,6 +32,7 @@
 
 #include "kernel/fobject.h"
 #include "util/fptrlist.h"
+#include "util/fstringlist.h"
 
 namespace libpacman {
 
@@ -87,7 +88,7 @@ public:
 	unsigned short nopassiveftp;
 	unsigned short chomp; /* if eye-candy features should be enabled or not */
 	unsigned short maxtries; /* for downloading */
-	FPtrList *needles; /* for searching */
+	FStringList needles; /* for searching */
 	char *language;
 	int *dlremain;
 	int *dlhowmany;

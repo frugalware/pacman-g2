@@ -182,6 +182,18 @@ void _pacman_handle_set_option_stringlist(const char *option, FStringList **stri
 	}
 }
 
+static
+void _pacman_handle_set_option_stringlist(const char *option, FStringList &stringlist, const char *value)
+{
+	if(!_pacman_strempty(value)) {
+		stringlist.add(strdup(value)); // FIXME: temporary strdup
+		_pacman_log(PM_LOG_FLOW2, _("'%s' added to %s"), value, option);
+	} else {
+		stringlist.clear();
+		_pacman_log(PM_LOG_FLOW2, _("%s flushed"), option);
+	}
+}
+
 /** Set a library option.
  * @param parm the name of the parameter
  * @param data the value of the parameter
@@ -248,7 +260,7 @@ int pacman_set_option(unsigned char parm, unsigned long data)
 			_pacman_handle_set_option_stringlist("PM_OPT_HOLDPKG", &handle->holdpkg, (const char *)data);
 		break;
 		case PM_OPT_NEEDLES:
-			_pacman_handle_set_option_stringlist("PM_OPT_NEEDLES", &handle->needles, (const char *)data);
+			_pacman_handle_set_option_stringlist("PM_OPT_NEEDLES", handle->needles, (const char *)data);
 		break;
 		case PM_OPT_USESYSLOG:
 			if(data != 0 && data != 1) {
@@ -366,7 +378,7 @@ int pacman_get_option(unsigned char parm, long *data)
 		case PM_OPT_NOEXTRACT: *data = (long)handle->noextract; break;
 		case PM_OPT_IGNOREPKG: *data = (long)handle->ignorepkg; break;
 		case PM_OPT_HOLDPKG:   *data = (long)handle->holdpkg; break;
-		case PM_OPT_NEEDLES:   *data = (long)handle->needles; break;
+		case PM_OPT_NEEDLES:   *data = (long)&handle->needles; break;
 		case PM_OPT_USESYSLOG: *data = handle->usesyslog; break;
 		case PM_OPT_LOGCB:     *data = (long)pm_logcb; break;
 		case PM_OPT_DLCB:     *data = (long)pm_dlcb; break;
@@ -995,14 +1007,13 @@ pmlist_t *pacman_db_search(pmdb_t *_db)
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
-	ASSERT(handle->needles != NULL, return(NULL));
-	ASSERT(f_ptrlistitem_data(handle->needles->begin()) != NULL, return(NULL));
+	ASSERT(!handle->needles.empty(), return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
-	ret = db->filter(handle->needles,
+	ret = db->filter(&handle->needles,
 			PM_PACKAGE_FLAG_NAME | PM_PACKAGE_FLAG_DESCRIPTION | PM_PACKAGE_FLAG_PROVIDES,
 			FStrMatcher::ALL_IGNORE_CASE);
-	FREELIST(handle->needles);
+	handle->needles.clear();
 	return c_cast(ret);
 }
 /** @} */

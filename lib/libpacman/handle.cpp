@@ -111,7 +111,6 @@ Handle::~Handle()
 	FREELIST(noextract);
 	FREELIST(ignorepkg);
 	FREELIST(holdpkg);
-	FREELIST(needles);
 }
 
 int Handle::lock()
