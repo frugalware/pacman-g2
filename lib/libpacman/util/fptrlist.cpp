@@ -76,48 +76,55 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
  */
 FPtrList *_pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data)
 {
-#ifndef F_NOCOMPAT
-	FPtrListIterator *end = f_ptrlist_end(haystack), *i = f_ptrlist_first(haystack);
+	ASSERT(haystack != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-	if(*data != end) {
+	if(data != NULL) {
 		*data = NULL;
 	}
 
-	while(i) {
-		if(i->m_data == NULL) {
-			continue;
+#ifndef F_NOCOMPAT
+	if(haystack->empty()) {
+		return haystack;
+	}	
+
+	if(fn(needle, haystack->m_data) == 0) {
+		/* The item found is the first in the chain */
+		FCListItem *next = haystack->next();
+
+		if(data != NULL) {
+			*data = haystack->m_data;
 		}
+		if(next == NULL) {
+			/* Mark list empty */
+			haystack->m_data = NULL;
+		} else {
+			/* Move data of next item in list head */
+			haystack->m_data = next->m_data;
+			haystack->m_next = next->next();
+			if(haystack->m_next) {
+				haystack->m_next->m_previous = haystack;
+			}
+		}
+		return haystack;
+	}
+#endif
+	for(FPtrListIterator *i = f_ptrlist_first(haystack), *end = f_ptrlist_end(haystack); i != end; i = i->next()) {
 		if(fn(needle, i->m_data) == 0) {
+			/* we found a matching item */
+			if(i->m_next) {
+				i->m_next->m_previous = i->m_previous;
+			}
+			if(i->m_previous) {
+				i->m_previous->m_next = i->m_next;
+			}
+			if(data) {
+				*data = i->m_data;
+			}
+			delete i;
 			break;
 		}
-		i = i->m_next;
 	}
-
-	if(i) {
-		/* we found a matching item */
-		if(i->m_next) {
-			i->m_next->m_previous = i->m_previous;
-		}
-		if(i->m_previous) {
-			i->m_previous->m_next = i->m_next;
-		}
-		if(i == haystack) {
-			/* The item found is the first in the chain */
-			haystack = haystack->m_next;
-		}
-
-		if(data) {
-			*data = i->m_data;
-		}
-		i->m_data = NULL;
-		free(i);
-	}
-
-	return(haystack);
-#else
-	// FIXME: Implement me
 	return haystack;
-#endif
 }
 
 /* Reverse the order of a list

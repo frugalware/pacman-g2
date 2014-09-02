@@ -116,7 +116,7 @@ int pacman_release(void)
 		pacman_db_unregister(c_cast(handle->db_local));
 	}
 	/* and also sync ones */
-	while(handle->dbs_sync) {
+	while(!handle->dbs_sync->empty()) {
 		/* db_unregister() will also update the handle->dbs_sync list */
 		pacman_db_unregister(f_ptrlistitem_data(handle->dbs_sync->begin()));
 	}
