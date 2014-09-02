@@ -30,20 +30,6 @@
 
 extern int maxcols;
 
-/* Test for existence of a string in a list_t
- */
-int list_is_strin(char *needle, list_t *haystack)
-{
-	for(FPtrListIterator *lp = f_ptrlist_first(haystack), *end = f_ptrlist_end(haystack); lp != end; lp = f_ptrlistitem_next(lp)) {
-		char *str = list_data(lp);
-
-		if(str && !strcmp(str, needle)) {
-			return(1);
-		}
-	}
-	return(0);
-}
-
 /* Display the content of a list_t struct of strings
  */
 void list_display(const char *title, const FStringList *list)
@@ -88,7 +74,7 @@ list_t *PM_LIST_remove_dupes(PM_LIST *list)
 
 	for(pmlist_iterator_t *i = pacman_list_begin(list), *end = pacman_list_end(list); i != end; i = pacman_list_next(i)) {
 		char *data = pacman_list_getdata(i);
-		if(!list_is_strin(data, newlist)) {
+		if(!_pacman_list_is_strin(data, newlist)) {
 			newlist = f_stringlist_add(newlist, data);
 		}
 	}

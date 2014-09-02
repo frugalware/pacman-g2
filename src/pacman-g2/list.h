@@ -29,7 +29,6 @@
 typedef FPtrList list_t;
 
 #define list_data f_ptrlistitem_data
-int list_is_strin(char *needle, list_t *haystack);
 void list_display(const char *title, const FStringList *list);
 
 #define PM_LIST_display(title, list) list_display(title, (const FStringList *)list)
