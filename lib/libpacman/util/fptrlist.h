@@ -47,6 +47,8 @@ typedef class FCListItem FPtrListIterator;
 #endif /* __cplusplus */
 
 #ifdef __cplusplus
+#include <algorithm>
+
 extern "C" {
 #endif /* __cplusplus */
 
@@ -334,6 +336,7 @@ public:
 	friend bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 	friend FPtrList *f_ptrlist_add(FPtrList *list, void *data);
 	friend int f_ptrlistitem_insert_after(FPtrListIterator *self, FPtrListIterator *previous);
+	friend class FPtrList;
 
 	typedef void *value_type;
 	typedef value_type *pointer;
@@ -345,7 +348,7 @@ public:
 	{ }
 
 	FCListItem(FCListItem *previous, FCListItem *next)
-		: m_next(next), m_previous(previous)
+		: m_next(next), m_previous(previous), m_data(NULL)
 	{ }
 
 	virtual ~FCListItem()
@@ -356,11 +359,13 @@ public:
 
 	FCListItem *next() const
 	{
+		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 		return m_next;
 	}
 
 	FCListItem *previous() const
 	{
+		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 		return m_previous;
 	}
 
@@ -405,6 +410,9 @@ public:
 
 	typedef FCListItem *iterator;
 	typedef const iterator const_iterator;
+
+	FPtrList()
+	{ }
 
 	iterator begin()
 	{
@@ -505,6 +513,27 @@ public:
 		ASSERT(this != NULL, pm_errno = PM_ERR_WRONG_ARGS; return);
 		m_next = m_previous = m_data = NULL;
 	}
+
+	void swap(FPtrList &o) {
+		std::swap(m_data, o.m_data);
+		std::swap(m_next, o.m_next);
+		std::swap(m_previous, o.m_previous);
+		if (m_next != NULL) {
+			m_next->m_previous = this;
+		}
+		if (m_previous != NULL) {
+			m_previous->m_next = this;
+		}
+		if (o.m_next != NULL) {
+			o.m_next->m_previous = &o;
+		} 
+		if (o.m_previous != NULL) {
+			o.m_previous->m_next = &o;
+		}
+	}
+private:
+	FPtrList(const FPtrList &o);
+	FPtrList &operator = (const FPtrList &o);
 };
 #endif
 

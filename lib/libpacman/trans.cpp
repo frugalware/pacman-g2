@@ -931,7 +931,7 @@ cleanup:
 		lp = _pacman_sortbydeps(&packages, PM_TRANS_TYPE_ADD);
 		/* free the old alltargs */
 		packages.clear();
-		packages = *lp;
+		packages.swap(*lp);
 		}
 
 		if(m_type == PM_TRANS_TYPE_REMOVE && m_type != PM_TRANS_TYPE_UPGRADE) {
@@ -945,7 +945,7 @@ cleanup:
 		lp = _pacman_sortbydeps(&packages, PM_TRANS_TYPE_REMOVE);
 		/* free the old alltargs */
 		packages.clear();
-		packages = *lp;
+		packages.swap(*lp);
 		}
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
@@ -1842,7 +1842,7 @@ int __pmtrans_t::commit(FPtrList **data)
 
 		/* Update the requiredby field by scanning the whole database
 		 * looking for packages depending on the package to add */
-		auto cache = _pacman_db_get_pkgcache(db_local);
+		auto &cache = _pacman_db_get_pkgcache(db_local);
 		for(auto lp = cache.begin(), lp_end = cache.end(); lp != lp_end; lp = lp->next()) {
 			Package *tmpp = f_ptrlistitem_data(lp);
 			if(tmpp == NULL) {

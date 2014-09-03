@@ -101,6 +101,7 @@ bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, vo
 			if(haystack->m_next) {
 				haystack->m_next->m_previous = haystack;
 			}
+			delete next;
 		}
 		return true;
 	}
@@ -215,16 +216,18 @@ FPtrList *f_ptrlist_add(FPtrList *list, void *data)
 		list = new FPtrList();
 	}
 #ifndef F_NOCOMPAT
-	FPtrListIterator *lp = f_ptrlist_last(list);
-	if(lp == list && lp->m_data == NULL) {
-		/* nada */
+	if(list->m_data == NULL) {
+		list->m_data = data;
 	} else {
-		f_ptrlistitem_insert_after(new FCListItem(), lp);
-		lp = lp->m_next;
-	}
-
+#endif
+	FPtrListIterator *lp = f_ptrlist_last(list);
+	f_ptrlistitem_insert_after(new FCListItem(), lp);
+	lp = lp->m_next;
 	lp->m_data = data;
-#else
+#ifndef F_NOCOMPAT
+	}
+#endif
+#if 0
 	list->add(data);
 #endif
 
@@ -286,7 +289,7 @@ FPtrListIterator *f_ptrlist_first(FPtrList *self)
 
 const FPtrListIterator *f_ptrlist_first_const(const FPtrList *self)
 {
-	return (FPtrListIterator *)self;
+	return (FPtrListIterator *)self->begin();
 }
 
 FPtrListIterator *f_ptrlist_last(FPtrList *self)

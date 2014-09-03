@@ -86,7 +86,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 			}
 			/* CHECK 1: check targets against database */
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs db"), tp->name());
-			auto cache = _pacman_db_get_pkgcache(db_local);
+			auto &cache = _pacman_db_get_pkgcache(db_local);
 			for(auto k = cache.begin(), k_end = cache.end(); k != k_end; k = k->next()) {
 				Package *dp = (Package *)f_ptrlistitem_data(k);
 				if(!strcmp(dp->name(), tp->name())) {
@@ -143,7 +143,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 		}
 		/* CHECK 3: check database against targets */
 		_pacman_log(PM_LOG_DEBUG, _("checkconflicts: db vs targ '%s'"), tp->name());
-		auto cache = _pacman_db_get_pkgcache(db_local);
+		auto &cache = _pacman_db_get_pkgcache(db_local);
 		for(auto k = cache.begin(), k_end = cache.end(); k != k_end; k = k->next()) {
 			FPtrList *conflicts = NULL;
 			int usenewconflicts = 0;
