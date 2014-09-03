@@ -45,7 +45,7 @@ typedef struct __pmgraph_t {
 	int state; /* 0: untouched, -1: entered, other: leaving time */
 	void *data;
 	struct __pmgraph_t *parent; /* where did we come from? */
-	FPtrList *children;
+	FPtrList children;
 	FPtrListIterator *childptr; /* points to a child in children list */
 } pmgraph_t;
 

@@ -55,7 +55,7 @@ static pmgraph_t *_pacman_graph_new(void)
 static void _pacman_graph_free(void *data)
 {
 	pmgraph_t *graph = data;
-	FREELISTPTR(graph->children);
+	graph->children.clear();
 	free(graph);
 }
 
@@ -148,10 +148,10 @@ FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
 				child = _pacman_depcmp(p_j, &depend);
 			}
 			if(child) {
-				vertex_i->children = vertex_i->children->add(vertex_j);
+				vertex_i->children.add(vertex_j);
 			}
 		}
-		vertex_i->childptr = vertex_i->children->begin();
+		vertex_i->childptr = vertex_i->children.begin();
 	}
 
 	vptr = vertices->begin();
