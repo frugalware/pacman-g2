@@ -106,7 +106,7 @@ Handle::~Handle()
 	free(logfile);
 	free(proxyhost);
 	free(xfercommand);
-	FREELIST(dbs_sync);
+	dbs_sync.clear(/* free */);
 }
 
 int Handle::lock()
@@ -156,7 +156,7 @@ Database *Handle::createDatabase(const char *treename, pacman_cb_db_register cal
 	if(strcmp(treename, "local") == 0) {
 		db_local = db;
 	} else {
-		dbs_sync = dbs_sync->add(db);
+		dbs_sync.add(db);
 	}
 	return(db);
 }
@@ -167,7 +167,7 @@ Database *Handle::getDatabase(const char *treename)
 		return db_local;
 	}
 
-	for(auto i = dbs_sync->begin(), end = dbs_sync->end(); i != end; i = i->next()) {
+	for(auto i = dbs_sync.begin(), end = dbs_sync.end(); i != end; i = i->next()) {
 			Database *sdb = (Database *)f_ptrlistitem_data(i);
 			if(strcmp(treename, sdb->treename()) == 0) {
 				return sdb;

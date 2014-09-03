@@ -559,9 +559,8 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 	FPtrList *targ = f_ptrlist_new();
 	FPtrList *deps = NULL;
 	Handle *handle = trans->m_handle;
-	FPtrList *dbs_sync = handle->dbs_sync;
 
-	if(dbs_sync == NULL || syncpkg == NULL) {
+	if(handle->dbs_sync.empty() || syncpkg == NULL) {
 		return(-1);
 	}
 
@@ -593,11 +592,11 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 
 		/* find the package in one of the repositories */
 		/* check literals */
-		for(auto j = dbs_sync->begin(), j_end = dbs_sync->end(); !ps && j != j_end; j = j->next()) {
+		for(auto j = handle->dbs_sync.begin(), j_end = handle->dbs_sync.end(); !ps && j != j_end; j = j->next()) {
 			ps = ((Database *)f_ptrlistitem_data(j))->find(miss->depend.name);
 		}
 		/* check provides */
-		for(auto j = dbs_sync->begin(), j_end = dbs_sync->end(); !ps && j != j_end; j = j->next()) {
+		for(auto j = handle->dbs_sync.begin(), j_end = handle->dbs_sync.end(); !ps && j != j_end; j = j->next()) {
 			FPtrList *provides;
 			provides = ((Database *)f_ptrlistitem_data(j))->whatPackagesProvide(miss->depend.name);
 			if(provides) {

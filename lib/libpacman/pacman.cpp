@@ -116,9 +116,9 @@ int pacman_release(void)
 		pacman_db_unregister(c_cast(handle->db_local));
 	}
 	/* and also sync ones */
-	while(!handle->dbs_sync->empty()) {
+	while(!handle->dbs_sync.empty()) {
 		/* db_unregister() will also update the handle->dbs_sync list */
-		pacman_db_unregister(f_ptrlistitem_data(handle->dbs_sync->begin()));
+		pacman_db_unregister(f_ptrlistitem_data(handle->dbs_sync.begin()));
 	}
 
 	if(handle->unlock() != 0) {
@@ -360,7 +360,7 @@ int pacman_get_option(unsigned char parm, long *data)
 		case PM_OPT_CACHEDIR:  *data = (long)handle->cachedir; break;
 		case PM_OPT_HOOKSDIR:  *data = (long)handle->hooksdir; break;
 		case PM_OPT_LOCALDB:   *data = (long)handle->db_local; break;
-		case PM_OPT_SYNCDB:    *data = (long)handle->dbs_sync; break;
+		case PM_OPT_SYNCDB:    *data = (long)&handle->dbs_sync; break;
 		case PM_OPT_LOGFILE:   *data = (long)handle->logfile; break;
 		case PM_OPT_NOUPGRADE: *data = (long)&handle->noupgrade; break;
 		case PM_OPT_NOEXTRACT: *data = (long)&handle->noextract; break;
@@ -430,7 +430,7 @@ int pacman_db_unregister(pmdb_t *_db)
 		handle->db_local = NULL;
 		found = 1;
 	} else {
-		if(_pacman_list_remove(handle->dbs_sync, db, f_ptrcmp, NULL)) {
+		if(_pacman_list_remove(&handle->dbs_sync, db, f_ptrcmp, NULL)) {
 			found = 1;
 		}
 	}

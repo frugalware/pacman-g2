@@ -71,20 +71,18 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 {
 	Handle *handle;
 	Database *db_local;
-	FPtrList *dbs_sync;
 
 	/* Sanity checks */
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT((handle = trans->m_handle) != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 	ASSERT((db_local = handle->db_local) != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-	ASSERT((dbs_sync = handle->dbs_sync) != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	/* this is a sysupgrade, so that install reasons are not touched */
 	handle->sysupgrade = 1;
 
 	/* check for "recommended" package replacements */
 	_pacman_log(PM_LOG_FLOW1, _("checking for package replacements"));
-	for(auto i = dbs_sync->begin(), end = dbs_sync->end(); i != end; i = i->next()) {
+	for(auto i = handle->dbs_sync.begin(), end = handle->dbs_sync.end(); i != end; i = i->next()) {
 		FPtrList &cache = _pacman_db_get_pkgcache(f_ptrlistitem_data(i));
 		for(auto j = cache.begin(), end = cache.end(); j != end; j = j->next()) {
 			Package *spkg = f_ptrlistitem_data(j);
@@ -143,7 +141,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 		Package *spkg = NULL;
 		pmsyncpkg_t *ps;
 
-		for(auto j = dbs_sync->begin(), end = dbs_sync->end(); !spkg && j != end; j = j->next()) {
+		for(auto j = handle->dbs_sync.begin(), end = handle->dbs_sync.end(); !spkg && j != end; j = j->next()) {
 			spkg = ((Database *)f_ptrlistitem_data(j))->find(local->name());
 		}
 		if(spkg == NULL) {

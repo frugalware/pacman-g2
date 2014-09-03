@@ -241,7 +241,7 @@ static int check_olddelay(Handle *handle)
 		return(0);
 	}
 
-	for(auto i = handle->dbs_sync->begin(), end = handle->dbs_sync->end(); i != end; i = i->next()) {
+	for(auto i = handle->dbs_sync.begin(), end = handle->dbs_sync.end(); i != end; i = i->next()) {
 		Database *db = f_ptrlistitem_data(i);
 		if(db->gettimestamp(&tm) == -1) {
 			continue;
@@ -296,7 +296,6 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 {
 	Package *pkg_new, *pkg_local, *pkg_queued = NULL;
 	Database *db_local;
-	FPtrList *dbs_sync = m_handle->dbs_sync;
 
 	/* Sanity checks */
 	ASSERT((db_local = m_handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -318,7 +317,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	if(targ) {
 		*targ = '\0';
 		targ++;
-		for(auto i = dbs_sync->begin(), end = dbs_sync->end(); i != end && !spkg; i = i->next()) {
+		for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !spkg; i = i->next()) {
 			Database *dbs = f_ptrlistitem_data(i);
 			if(strcmp(dbs->treename(), targline) == 0) {
 				spkg = dbs->find(targ);
@@ -338,14 +337,14 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 		}
 	} else {
 		targ = targline;
-		for(auto i = dbs_sync->begin(), end = dbs_sync->end(); i != end && !spkg; i = i->next()) {
+		for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !spkg; i = i->next()) {
 			Database *dbs = f_ptrlistitem_data(i);
 			spkg = dbs->find(targ);
 		}
 		if(spkg == NULL) {
 			/* Search provides */
 			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
-			for(auto i = dbs_sync->begin(), end = dbs_sync->end(); i != end && !spkg; i = i->next()) {
+			for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !spkg; i = i->next()) {
 				Database *dbs = f_ptrlistitem_data(i);
 				FPtrList *p = dbs->whatPackagesProvide(targ);
 				if(p != NULL) {
@@ -1439,7 +1438,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		retval = 0;
 		FREELIST(*data);
 		int done = 1;
-		for(auto i = m_handle->dbs_sync->begin(), end = m_handle->dbs_sync->end(); i != end; i = i->next()) {
+		for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end; i = i->next()) {
 			struct stat buf;
 			Database *current = f_ptrlistitem_data(i);
 
