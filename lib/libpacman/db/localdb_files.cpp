@@ -241,7 +241,7 @@ int _pacman_localdb_files_fread(Package *info, FILE *fp)
 			}
 		} else if(!strcmp(line, "%BACKUP%")) {
 			while(fgets(line, sline, fp) && !_pacman_strempty(f_strtrim(line))) {
-				info->m_backup = f_stringlist_add(info->m_backup, line);
+				f_stringlist_add(&info->m_backup, line);
 			}
 		}
 	}

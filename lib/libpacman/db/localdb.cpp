@@ -430,6 +430,18 @@ void _pacman_localdb_write_stringlist(const char *entry, const FPtrList *values,
 	}
 }
 
+static
+void _pacman_localdb_write_stringlist(const char *entry, const FStringList &values, FILE *stream)
+{
+	if(!values.empty()) {
+		fprintf(stream, "%%%s%%\n", entry);
+		for(auto lp = values.begin(), end = values.end(); lp != end; lp = lp->next()) {
+			fprintf(stream, "%s\n", f_stringlistitem_to_str(lp));
+		}
+		fputc('\n', stream);
+	}
+}
+
 int LocalDatabase::write(Package *info, unsigned int inforeq)
 {
 	FILE *fp = NULL;

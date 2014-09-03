@@ -1089,7 +1089,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 							notouch = 1;
 						} else {
 							if(type == PM_TRANS_TYPE_ADD || oldpkg == NULL) {
-								nb = _pacman_list_is_strin(pathname, pkg->backup());
+								nb = _pacman_list_is_strin(pathname, &pkg->backup());
 							} else {
 								/* op == PM_TRANS_TYPE_UPGRADE */
 								hash_orig = oldpkg->fileneedbackup(pathname);
@@ -1129,8 +1129,8 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 					/* append the new md5 or sha1 hash to it's respective entry in pkg->backup
 					 * (it will be the new orginal)
 					 */
-					auto backup = pkg->backup();
-					for(auto lp = backup->begin(), lp_end = backup->end(); lp != lp_end; lp = lp->next()) {
+					auto &backup = pkg->backup();
+					for(auto lp = backup.begin(), lp_end = backup.end(); lp != lp_end; lp = lp->next()) {
 						char *fn;
 						char *file = f_stringlistitem_to_str(lp);
 
@@ -1260,8 +1260,8 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 						errors++;
 					}
 					/* calculate an md5 or sha1 hash if this is in pkg->backup */
-					auto backup = pkg->backup();
-					for(auto lp = backup->begin(), lp_end = backup->end(); lp != lp_end; lp = lp->next()) {
+					auto &backup = pkg->backup();
+					for(auto lp = backup.begin(), lp_end = backup.end(); lp != lp_end; lp = lp->next()) {
 						char *fn, *md5, *sha1;
 						char path[PATH_MAX];
 						char *file = f_stringlistitem_to_str(lp);
