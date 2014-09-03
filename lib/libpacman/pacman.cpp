@@ -917,7 +917,7 @@ void *pacman_grp_getinfo(pmgrp_t *grp, unsigned char parm)
 
 	switch(parm) {
 		case PM_GRP_NAME:     data = group->name; break;
-		case PM_GRP_PKGNAMES: data = group->packages; break;
+		case PM_GRP_PKGNAMES: data = &group->packages; break;
 		default:
 			data = NULL;
 		break;

@@ -39,7 +39,7 @@ public:
 	~Group();
 
 	char name[GRP_NAME_LEN];
-	FPtrList *packages; /* List of unowned strings */
+	FPtrList packages; /* List of unowned strings */
 };
 
 }

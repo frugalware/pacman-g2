@@ -38,9 +38,7 @@ Group::Group(const char *name)
 }
 
 Group::~Group()
-{
-	f_ptrlist_delete(packages, NULL);
-}
+{ }
 
 void _pacman_grp_delete(Group *grp)
 {

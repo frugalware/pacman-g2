@@ -184,8 +184,8 @@ int _pacman_db_load_grpcache(Database *db)
 				grp = new Group(grp_name);
 				f_ptrlist_add_sorted(&db->grpcache, grp, _pacman_grp_cmp);
 			}
-			if(!_pacman_list_is_strin(pkg->name(), grp->packages)) {
-				grp->packages = f_ptrlist_add_sorted(grp->packages, pkg->name(), strcmp);
+			if(!_pacman_list_is_strin(pkg->name(), &grp->packages)) {
+				f_ptrlist_add_sorted(&grp->packages, pkg->name(), strcmp);
 			}
 		}
 	}
