@@ -85,7 +85,7 @@ int _pacman_fakedb_addtarget(pmtrans_t *trans, const char *name)
 	if (dummy == NULL)
 		return -1;
 	/* add the package to the transaction */
-	trans->packages = trans->packages->add(dummy);
+	trans->packages.add(dummy);
 
 	return(0);
 }

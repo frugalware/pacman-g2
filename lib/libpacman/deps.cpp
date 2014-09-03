@@ -271,7 +271,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 					/* check requiredby fields */
 					if(!_pacman_pkg_isin(requiredby_name, packages)) {
 						/* check if a package in trans->packages provides this package */
-						for(auto k = trans->packages->begin(), k_end = trans->packages->end(); !found && k != k_end; k = k->next()) {
+						for(auto k = trans->packages.begin(), k_end = trans->packages.end(); !found && k != k_end; k = k->next()) {
 							Package *spkg = f_ptrlistitem_data(k);
 
 							if(spkg && spkg->provides(pkg_local->name())) {

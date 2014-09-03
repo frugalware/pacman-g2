@@ -104,7 +104,7 @@ __pmtrans_t::~__pmtrans_t()
 	/* Sanity checks */
 //	ASSERT(state != STATE_COMMITING, RET_ERR(PM_ERR_TRANS_COMMITING, -1));
 
-	FREELISTPKGS(packages);
+	packages.clear(/* _pacman_pkg_delete */);
 #if 0
 	{
 		FVisitor visitor = {
@@ -126,7 +126,7 @@ static
 int _pacman_trans_compute_triggers(pmtrans_t *trans)
 {
 	/* NOTE: Not the most efficient way, but will do until we add some string hash. */
-	for(auto lp = trans->packages->begin(), end = trans->packages->end(); lp != end; lp = lp->next()) {
+	for(auto lp = trans->packages.begin(), end = trans->packages.end(); lp != end; lp = lp->next()) {
 		Package *pkg = f_ptrlistitem_data(lp);
 
 		trans->triggers = f_stringlist_add_stringlist(trans->triggers, pkg->triggers());
@@ -273,7 +273,7 @@ int __pmtrans_t::add(Package *pkg, pmtranstype_t type, int flags)
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), pkg->name());
-	packages = packages->add(pkg);
+	packages.add(pkg);
 	return 0;
 }
 
@@ -429,9 +429,8 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 
 	/* check if an older version of said package is already in transaction packages.
 	 * if so, replace it in the list */
-	FPtrListIterator *i;
-	auto end = packages->end();
-	for(i = packages->begin(); i != end; i = i->next()) {
+	FPtrListIterator *i, *end;
+	for(i = packages.begin(), end = packages.end(); i != end; i = i->next()) {
 		Package *pkg = f_ptrlistitem_data(i);
 		if(strcmp(pkg->name(), pkg_new->name()) == 0) {
 			pkg_queued = pkg;
@@ -454,7 +453,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	}
 	}
 	if(type == PM_TRANS_TYPE_REMOVE) {
-	if(_pacman_pkg_isin(target, packages)) {
+	if(_pacman_pkg_isin(target, &packages)) {
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
 
@@ -502,7 +501,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 	}
 
 	/* If there's nothing to do, return without complaining */
-	if(packages->empty() &&
+	if(packages.empty() &&
 		syncpkgs->empty()) {
 		return(0);
 	}
@@ -883,7 +882,7 @@ cleanup:
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
 
-		lp = _pacman_checkdeps(this, m_type, packages);
+		lp = _pacman_checkdeps(this, m_type, &packages);
 
 		/* look for unsatisfied dependencies */
 		if(lp != NULL) {
@@ -894,14 +893,14 @@ cleanup:
 						Package *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
 						if(pkg_local) {
 							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), pkg_local->name());
-							packages = packages->add(pkg_local);
+							packages.add(pkg_local);
 						} else {
 							_pacman_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
 								miss->depend.name);
 						}
 					}
 					FREELIST(lp);
-					lp = _pacman_checkdeps(this, m_type, packages);
+					lp = _pacman_checkdeps(this, m_type, &packages);
 				}
 			}
 		}
@@ -917,7 +916,7 @@ cleanup:
 		if(m_type & PM_TRANS_TYPE_ADD) {
 		/* no unsatisfied deps, so look for conflicts */
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		lp = _pacman_checkconflicts(this, packages);
+		lp = _pacman_checkconflicts(this, &packages);
 		if(lp != NULL) {
 			if(data) {
 				*data = lp;
@@ -929,24 +928,24 @@ cleanup:
 
 		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_ADD);
+		lp = _pacman_sortbydeps(&packages, PM_TRANS_TYPE_ADD);
 		/* free the old alltargs */
-		FREELISTPTR(packages);
-		packages = lp;
+		packages.clear();
+		packages = *lp;
 		}
 
 		if(m_type == PM_TRANS_TYPE_REMOVE && m_type != PM_TRANS_TYPE_UPGRADE) {
 		if(flags & PM_TRANS_FLAG_RECURSE) {
 			_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
-			packages = _pacman_removedeps(db_local, packages);
+			_pacman_removedeps(db_local, &packages);
 		}
 
 		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_REMOVE);
+		lp = _pacman_sortbydeps(&packages, PM_TRANS_TYPE_REMOVE);
 		/* free the old alltargs */
-		FREELISTPTR(packages);
-		packages = lp;
+		packages.clear();
+		packages = *lp;
 		}
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
@@ -956,7 +955,7 @@ cleanup:
 	if(m_type & PM_TRANS_TYPE_ADD) {
 	EVENT(this, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
 	_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
-	for (auto lp = packages->begin(), lp_end = packages->end(); lp != lp_end; lp = lp->next()) {
+	for (auto lp = packages.begin(), lp_end = packages.end(); lp != lp_end; lp = lp->next()) {
 		Package *pkg_new = (Package *)f_ptrlistitem_data(lp);
 		auto removes = pkg_new->removes();
 
@@ -1417,7 +1416,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		*data = NULL;
 
 	/* If there's nothing to do, return without complaining */
-	if(packages->empty() &&
+	if(packages.empty() &&
 		syncpkgs->empty()) {
 		return(0);
 	}
@@ -1552,7 +1551,7 @@ int __pmtrans_t::commit(FPtrList **data)
 			FPtrList *list = (FPtrList *)ps->data;
 			for(auto j = list->begin(), end = list->end(); j != end; j = j->next()) {
 				Package *pkg = f_ptrlistitem_data(j);
-				if(!_pacman_pkg_isin(pkg->name(), tr->packages)) {
+				if(!_pacman_pkg_isin(pkg->name(), &tr->packages)) {
 					if(tr->add(pkg->name(), tr->m_type, tr->flags) == -1) {
 						goto error;
 					}
@@ -1596,7 +1595,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		}
 		/* using f_ptrlist_last() is ok because addtarget() adds the new target at the
 		 * end of the tr->packages list */
-		spkg = f_ptrlistitem_data(f_ptrlist_last(tr->packages));
+		spkg = f_ptrlistitem_data(tr->packages.last());
 		if(ps->type == PM_SYNC_TYPE_DEPEND || flags & PM_TRANS_FLAG_ALLDEPS) {
 			spkg->m_reason = PM_PKG_REASON_DEPEND;
 		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !m_handle->sysupgrade) {
@@ -1679,9 +1678,9 @@ int __pmtrans_t::commit(FPtrList **data)
 	int ret = 0;
 	time_t t;
 
-	howmany = f_ptrlist_count(packages);
+	howmany = f_ptrlist_count(&packages);
 
-	for(auto targ = packages->begin(), end = packages->end(); targ != end; targ = targ->next()) {
+	for(auto targ = packages.begin(), end = packages.end(); targ != end; targ = targ->next()) {
 		Package *pkg_new = NULL, *pkg_local = NULL;
 		void *event_arg0 = NULL, *event_arg1 = NULL;
 		pmtranstype_t type = m_type;
@@ -1791,7 +1790,7 @@ int __pmtrans_t::commit(FPtrList **data)
 			 * its requiredby info: it is in the process of being removed (if not
 			 * already done!)
 			 */
-			if(_pacman_pkg_isin(depend.name, packages)) {
+			if(_pacman_pkg_isin(depend.name, &packages)) {
 				continue;
 			}
 			depinfo = db_local->find(depend.name);

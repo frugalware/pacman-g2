@@ -482,7 +482,7 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 {
 	long long pkgsize=0, freespace;
 
-	for(auto i = trans->packages->begin(), end = trans->packages->end(); i != end; i = i->next()) {
+	for(auto i = trans->packages.begin(), end = trans->packages.end(); i != end; i = i->next()) {
 		Package *pkg = f_ptrlistitem_data(i);
 		pkgsize += pkg->size;
 	}

@@ -238,20 +238,19 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 	char path[PATH_MAX+1];
 	struct stat buf;
 	FPtrList *conflicts = NULL;
-	FPtrList *targets = trans->packages;
 	Package *p, *dbpkg;
 	double percent;
 	int howmany, remain;
 	Database *db_local = trans->m_handle->db_local;
 	const char *root = trans->m_handle->root;
 
-	if(db_local == NULL || targets == NULL || root == NULL) {
+	if(db_local == NULL || trans->packages.empty() || root == NULL) {
 		return(NULL);
 	}
-	howmany = f_ptrlist_count(targets);
+	howmany = f_ptrlist_count(&trans->packages);
 
 	/* CHECK 1: check every target against every target */
-	for(auto i = targets->begin(), end = targets->end(); i != end; i = i->next()) {
+	for(auto i = trans->packages.begin(), end = trans->packages.end(); i != end; i = i->next()) {
 		Package *p1 = (Package*)f_ptrlistitem_data(i);
 		remain = f_ptrlistiterator_count(i, end);
 		percent = (double)(howmany - remain + 1) / howmany;
@@ -307,7 +306,7 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 					/* Check if the conflicting file has been moved to another package/target */
 					if(!ok) {
 						/* Look at all the targets */
-						for(auto k = targets->begin(), k_end = targets->end(); k != k_end && !ok; k = k->next()) {
+						for(auto k = trans->packages.begin(), k_end = trans->packages.end(); k != k_end && !ok; k = k->next()) {
 							Package *p2 = (Package *)f_ptrlistitem_data(k);
 							/* As long as they're not the current package */
 							if(strcmp(p2->name(), p->name())) {
