@@ -957,9 +957,9 @@ cleanup:
 	_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
 	for (auto lp = packages.begin(), lp_end = packages.end(); lp != lp_end; lp = lp->next()) {
 		Package *pkg_new = (Package *)f_ptrlistitem_data(lp);
-		auto removes = pkg_new->removes();
+		auto &removes = pkg_new->removes();
 
-		for (auto rmlist = removes->begin(), rmlist_end = removes->end(); rmlist != rmlist_end; rmlist = rmlist->next()) {
+		for (auto rmlist = removes.begin(), rmlist_end = removes.end(); rmlist != rmlist_end; rmlist = rmlist->next()) {
 			char rm_fname[PATH_MAX];
 
 			snprintf(rm_fname, PATH_MAX, "%s%s", m_handle->root, f_stringlistitem_to_str(rmlist));
