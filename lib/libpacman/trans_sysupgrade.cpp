@@ -118,7 +118,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 									lpkg->acquire();
 									ps->data = f_ptrlist_new();
 									ps->data = ((FPtrList *)ps->data)->add(lpkg);
-									trans->syncpkgs = trans->syncpkgs->add(ps);
+									trans->syncpkgs.add(ps);
 								}
 								_pacman_log(PM_LOG_FLOW2, _("%s-%s elected for upgrade (to be replaced by %s-%s)"),
 								          lpkg->name(), lpkg->version(), spkg->name(), spkg->version());
@@ -150,7 +150,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 		}
 
 		/* we don't care about a to-be-replaced package's newer version */
-		for(auto j = trans->syncpkgs->begin(), end = trans->syncpkgs->end(); j != end && !replace; j = j->next()) {
+		for(auto j = trans->syncpkgs.begin(), end = trans->syncpkgs.end(); j != end && !replace; j = j->next()) {
 			ps = f_ptrlistitem_data(j);
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
 				if(_pacman_pkg_isin(spkg->name(), ps->data)) {
@@ -192,7 +192,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 				if(ps == NULL) {
 					goto error;
 				}
-				trans->syncpkgs = trans->syncpkgs->add(ps);
+				trans->syncpkgs.add(ps);
 			} else {
 				/* spkg->name is already in the packages list -- just ignore it */
 			}

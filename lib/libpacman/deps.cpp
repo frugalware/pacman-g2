@@ -278,7 +278,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 								found=1;
 							}
 						}
-						for(auto k = trans->syncpkgs->begin(), k_end = trans->syncpkgs->end(); !found && k != k_end; k = k->next()) {
+						for(auto k = trans->syncpkgs.begin(), k_end = trans->syncpkgs.end(); !found && k != k_end; k = k->next()) {
 							pmsyncpkg_t *ps = f_ptrlistitem_data(k);
 
 							if(ps->pkg_new->provides(pkg_local->name())) {

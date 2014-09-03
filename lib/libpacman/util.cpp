@@ -486,7 +486,7 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 		Package *pkg = f_ptrlistitem_data(i);
 		pkgsize += pkg->size;
 	}
-	for(auto i = trans->syncpkgs->begin(), end = trans->syncpkgs->end(); i != end; i = i->next()) {
+	for(auto i = trans->syncpkgs.begin(), end = trans->syncpkgs.end(); i != end; i = i->next()) {
 		pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 
 		if(ps->type != PM_SYNC_TYPE_REPLACE) {

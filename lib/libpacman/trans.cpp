@@ -131,7 +131,7 @@ int _pacman_trans_compute_triggers(pmtrans_t *trans)
 
 		trans->triggers = f_stringlist_add_stringlist(trans->triggers, pkg->triggers());
 	}
-	for(auto lp = trans->syncpkgs->begin(), end = trans->syncpkgs->end(); lp != end; lp = lp->next()) {
+	for(auto lp = trans->syncpkgs.begin(), end = trans->syncpkgs.end(); lp != end; lp = lp->next()) {
 		Package *pkg = ((pmsyncpkg_t *)f_ptrlistitem_data(lp))->pkg_new;
 
 		/* FIXME: might be incomplete */
@@ -190,7 +190,7 @@ int _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, void
  */
 pmsyncpkg_t *__pmtrans_t::find(const char *pkgname) const
 {
-	for(auto i = syncpkgs->begin(), end = syncpkgs->end(); i != end ; i = i->next()) {
+	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end ; i = i->next()) {
 		pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 
 		if(ps && !strcmp(ps->pkg_name, pkgname)) {
@@ -264,7 +264,7 @@ pmsyncpkg_t *__pmtrans_t::add(pmsyncpkg_t *syncpkg, int flags)
 		return NULL;
 	}
 	_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), syncpkg->pkg_name);
-	syncpkgs = syncpkgs->add(syncpkg);
+	syncpkgs.add(syncpkg);
 	return syncpkg;
 }
 
@@ -502,14 +502,14 @@ int __pmtrans_t::prepare(FPtrList **data)
 
 	/* If there's nothing to do, return without complaining */
 	if(packages.empty() &&
-		syncpkgs->empty()) {
+		syncpkgs.empty()) {
 		return(0);
 	}
 
 	_pacman_trans_compute_triggers(this);
 
 	if(m_type == PM_TRANS_TYPE_SYNC) {
-	for(auto i = syncpkgs->begin(), end = syncpkgs->end(); i != end; i = i->next()) {
+	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = i->next()) {
 		pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 		list = list->add(ps->pkg_new);
 	}
@@ -520,7 +520,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 		/* Resolve targets dependencies */
 		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
-		for(auto i = syncpkgs->begin(), end = syncpkgs->end(); i != end; i = i->next()) {
+		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = i->next()) {
 			Package *spkg = ((pmsyncpkg_t *)f_ptrlistitem_data(i))->pkg_new;
 			if(_pacman_resolvedeps(this, spkg, list, trail, data) == -1) {
 				/* pm_errno is set by resolvedeps */
@@ -538,27 +538,27 @@ int __pmtrans_t::prepare(FPtrList **data)
 					ret = -1;
 					goto cleanup;
 				}
-				syncpkgs = syncpkgs->add(ps);
+				syncpkgs.add(ps);
 				_pacman_log(PM_LOG_FLOW2, _("adding package %s-%s to the transaction targets"),
 						spkg->name(), spkg->version());
 			} else {
 				/* remove the original targets from the list if requested */
 				if((flags & PM_TRANS_FLAG_DEPENDSONLY)) {
 					/* they are just pointers so we don't have to free them */
-					_pacman_list_remove(syncpkgs, spkg, pkg_cmp, NULL);
+					_pacman_list_remove(&syncpkgs, spkg, pkg_cmp, NULL);
 				}
 			}
 		}
 
 		/* re-order w.r.t. dependencies */
 		k = l = NULL;
-		for(auto i = syncpkgs->begin(), end = syncpkgs->end(); i != end; i = i->next()) {
+		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = i->next()) {
 			pmsyncpkg_t *s = (pmsyncpkg_t*)f_ptrlistitem_data(i);
 			k = k->add(s->pkg_new);
 		}
 		m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
 		for(auto i = m->begin(), end = m->end(); i != end; i = i->next()) {
-			for(auto j = syncpkgs->begin(), j_end = syncpkgs->end(); j != j_end; j = j->next()) {
+			for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end; j = j->next()) {
 				pmsyncpkg_t *s = (pmsyncpkg_t*)f_ptrlistitem_data(j);
 				if(s->pkg_new == f_ptrlistitem_data(i)) {
 					l = l->add(s);
@@ -567,8 +567,8 @@ int __pmtrans_t::prepare(FPtrList **data)
 		}
 		FREELISTPTR(k);
 		FREELISTPTR(m);
-		FREELISTPTR(syncpkgs);
-		syncpkgs = l;
+		syncpkgs.clear();
+		syncpkgs.swap(*l);
 
 		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
 
@@ -607,7 +607,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 				/* check if the conflicting package is one that's about to be removed/replaced.
 				 * if so, then just ignore it
 				 */
-				for(auto j = syncpkgs->begin(), j_end = syncpkgs->end(); j != j_end && !found; j = j->next()) {
+				for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end && !found; j = j->next()) {
 					ps = f_ptrlistitem_data(j);
 					if(ps->type == PM_SYNC_TYPE_REPLACE) {
 						if(_pacman_pkg_isin(miss->depend.name, ps->data)) {
@@ -676,7 +676,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 							pmsyncpkg_t *spkg = NULL;
 
 							_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
-							_pacman_list_remove(syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
+							_pacman_list_remove(&syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
 							delete spkg;
 							continue;
 						}
@@ -714,7 +714,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 								pmsyncpkg_t *spkg = NULL;
 
 								_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), miss->depend.name);
-								_pacman_list_remove(syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
+								_pacman_list_remove(&syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
 								delete spkg;
 							}
 						} else {
@@ -774,7 +774,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 		 * package that's in our final (upgrade) list.
 		 */
 		/*EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
-		for(auto i = syncpkgs->begin(), end = syncpkgs->end(); i != end; i = i->next()) {
+		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = i->next()) {
 			pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
 				FPtrList *replaces = (FPtrList *)ps->data;
@@ -811,7 +811,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 									/* Found a match -- now look through final for a package that
 									 * provides the same thing.  If none are found, then it truly
 									 * is an unresolvable conflict. */
-									for(auto n = syncpkgs->begin(), n_end = syncpkgs->end(); n != n_end && !pfound; n = n->next()) {
+									for(auto n = syncpkgs.begin(), n_end = syncpkgs.end(); n != n_end && !pfound; n = n->next()) {
 										pmsyncpkg_t *sp = f_ptrlistitem_data(n);
 										auto provides = sp->pkg_new->provides();
 										for(auto o = provides->begin(), o_end = provides->end(); o != o_end && !pfound; o = o->next()) {
@@ -1417,7 +1417,7 @@ int __pmtrans_t::commit(FPtrList **data)
 
 	/* If there's nothing to do, return without complaining */
 	if(packages.empty() &&
-		syncpkgs->empty()) {
+		syncpkgs.empty()) {
 		return(0);
 	}
 
@@ -1441,7 +1441,7 @@ int __pmtrans_t::commit(FPtrList **data)
 			struct stat buf;
 			Database *current = f_ptrlistitem_data(i);
 
-			for(auto j = syncpkgs->begin(), j_end = syncpkgs->end(); j != j_end; j = j->next()) {
+			for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end; j = j->next()) {
 				pmsyncpkg_t *ps = f_ptrlistitem_data(j);
 				Package *spkg = ps->pkg_new;
 				Database *dbs = spkg->database();
@@ -1507,7 +1507,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		if(!(flags & PM_TRANS_FLAG_NOINTEGRITY)) {
 			EVENT(this, PM_TRANS_EVT_INTEGRITY_START, NULL, NULL);
 
-			for(auto i = syncpkgs->begin(), end = syncpkgs->end(); i != end; i = i->next()) {
+			for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = i->next()) {
 				pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 
 				retval = _pacman_cachedpkg_check_integrity(ps->pkg_new, this, data);
@@ -1545,7 +1545,7 @@ int __pmtrans_t::commit(FPtrList **data)
 	tr->event.connect(&event);
 	tr->conv.connect(&conv);
 	tr->progress.connect(&progress);
-	for(auto i = syncpkgs->begin(), end = syncpkgs->end(); i != end; i = i->next()) {
+	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = i->next()) {
 		pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 		if(ps->type == PM_SYNC_TYPE_REPLACE) {
 			FPtrList *list = (FPtrList *)ps->data;
@@ -1585,7 +1585,7 @@ int __pmtrans_t::commit(FPtrList **data)
 	tr->event.connect(&event);
 	tr->conv.connect(&conv);
 	tr->progress.connect(&progress);
-	for(auto i = syncpkgs->begin(), end = syncpkgs->end(); i != end; i = i->next()) {
+	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = i->next()) {
 		pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 		Package *spkg = ps->pkg_new;
 		char str[PATH_MAX];
@@ -1617,7 +1617,7 @@ int __pmtrans_t::commit(FPtrList **data)
 	/* propagate replaced packages' requiredby fields to their new owners */
 	if(replaces) {
 		_pacman_log(PM_LOG_FLOW1, _("updating database for replaced packages' dependencies"));
-		for(auto i = syncpkgs->begin(), end = syncpkgs->end(); i != end; i = i->next()) {
+		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = i->next()) {
 			pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
 				Package *pkg_new = db_local->find(ps->pkg_name);

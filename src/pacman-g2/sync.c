@@ -498,7 +498,7 @@ int syncpkg(FStringList *targets)
 	}
 
 	packages = pacman_trans_getinfo(PM_TRANS_PACKAGES);
-	if(packages == NULL) {
+	if(pacman_list_count(packages) == 0) {
 		/* nothing to do: just exit without complaining */
 		goto cleanup;
 	}
