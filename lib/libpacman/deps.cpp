@@ -141,8 +141,8 @@ FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
 			pmgraph_t *vertex_j = f_ptrlistitem_data(j);
 			Package *p_j = vertex_j->data;
 			int child = 0;
-			FStringList *depends = p_i->depends();
-			for(auto k = depends->begin(), k_end = depends->end(); k != k_end && !child; k = k->next()) {
+			auto &depends = p_i->depends();
+			for(auto k = depends.begin(), k_end = depends.end(); k != k_end && !child; k = k->next()) {
 				pmdepend_t depend;
 				_pacman_splitdep(f_ptrlistitem_data(k), &depend);
 				child = _pacman_depcmp(p_j, &depend);
@@ -253,8 +253,8 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 						/* this package is also in the upgrade list, so don't worry about it */
 						continue;
 					}
-					auto depends = p->depends();
-					for(auto k = depends->begin(), k_end = depends->end(); k != k_end; k = k->next()) {
+					auto &depends = p->depends();
+					for(auto k = depends.begin(), k_end = depends.end(); k != k_end; k = k->next()) {
 						const char *depend_name = f_stringlistitem_to_str(k);
 
 						/* don't break any existing dependencies (possible provides) */
@@ -296,8 +296,8 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 		}
 		if(op == PM_TRANS_TYPE_ADD || op == PM_TRANS_TYPE_UPGRADE) {
 			/* DEPENDENCIES -- look for unsatisfied dependencies */
-			FStringList *depends = tp->depends();
-			for(auto j = depends->begin(), j_end = depends->end(); j != j_end; j = j->next()) {
+			auto &depends = tp->depends();
+			for(auto j = depends.begin(), j_end = depends.end(); j != j_end; j = j->next()) {
 				const char *depend_name = f_stringlistitem_to_str(j);
 
 				/* split into name/version pairs */
@@ -486,8 +486,8 @@ FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
 	}
 
 	for(auto i = targs->begin(), end = targs->end(); i != end; i = i->next()) {
-		auto depends = ((Package *)f_ptrlistitem_data(i))->depends();
-		for(auto j = depends->begin(), j_end = depends->end(); j != j_end; j = j->next()) {
+		auto &depends = ((Package *)f_ptrlistitem_data(i))->depends();
+		for(auto j = depends.begin(), j_end = depends.end(); j != j_end; j = j->next()) {
 			pmdepend_t depend;
 			Package *dep;
 			int needed = 0;
@@ -751,8 +751,8 @@ int pacman_output_generate(FPtrList *targets, FPtrList *dblist) {
                 const char *pname = pkg->name();
                 if(_pacman_list_remove(targets, (void*) pname, str_cmp, (void **)&match)) {
                     foundMatch = 1;
-										auto depends = pkg->depends();
-                    for(auto k = depends->begin(), k_end = depends->end(); k != k_end; k = k->next()) {
+										auto &depends = pkg->depends();
+                    for(auto k = depends.begin(), k_end = depends.end(); k != k_end; k = k->next()) {
                         char *fullDep = f_stringlistitem_to_str(k);
                         pmdepend_t depend;
                         if(_pacman_splitdep(fullDep, &depend)) {

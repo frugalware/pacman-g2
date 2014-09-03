@@ -60,6 +60,18 @@ int _pacman_db_read_lines(FStringList **list, char *s, size_t size, FILE *fp)
 	return lines;
 }
 
+static
+int _pacman_db_read_lines(FStringList &list, char *s, size_t size, FILE *fp)
+{
+	int lines = 0;
+
+	while(fgets(s, size, fp) && !_pacman_strempty(f_strtrim(s))) {
+		f_stringlist_add(&list, s);
+		lines++;
+	}
+	return lines;
+}
+
 int _pacman_localdb_desc_fread(Package *info, FILE *fp)
 {
 	char line[512];
@@ -194,7 +206,7 @@ int _pacman_localdb_depends_fread(Package *info, FILE *fp)
 		}
 		f_strtrim(line);
 		if(!strcmp(line, "%DEPENDS%")) {
-			_pacman_db_read_lines(&info->m_depends, line, sline, fp);
+			_pacman_db_read_lines(info->m_depends, line, sline, fp);
 		} else if(!strcmp(line, "%REQUIREDBY%")) {
 			_pacman_db_read_lines(&info->m_requiredby, line, sline, fp);
 		} else if(!strcmp(line, "%CONFLICTS%")) {

@@ -21,7 +21,7 @@
 
 LIBPACMAN_PACKAGE_PROPERTY(FStringList &, backup,     BACKUP    )
 LIBPACMAN_PACKAGE_PROPERTY(FStringList *, conflicts,  CONFLICTS )
-LIBPACMAN_PACKAGE_PROPERTY(FStringList *, depends,    DEPENDS   )
+LIBPACMAN_PACKAGE_PROPERTY(FStringList &, depends,    DEPENDS   )
 LIBPACMAN_PACKAGE_PROPERTY(const char *,  description, DESCRIPTION)
 LIBPACMAN_PACKAGE_PROPERTY(FStringList *, files,      FILES     )
 LIBPACMAN_PACKAGE_PROPERTY(unsigned char, force,      FORCE     )

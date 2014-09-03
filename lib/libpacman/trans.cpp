@@ -803,8 +803,8 @@ int __pmtrans_t::prepare(FPtrList **data)
 						}
 						/* Look through the upset package's dependencies and try to match one up
 						 * to a provisio from the package we want to remove */
-						auto depends = conflictp->depends();
-						for(auto k = depends->begin(), k_end = depends->end(); k != k_end && !pfound; k = k->next()) {
+						auto &depends = conflictp->depends();
+						for(auto k = depends.begin(), k_end = depends.end(); k != k_end && !pfound; k = k->next()) {
 							auto provides = leavingp->provides();
 							for(auto m = provides->begin(), m_end = provides->end(); m != m_end && !pfound; m = m->next()) {
 								if(!strcmp(f_stringlistitem_to_str(k), f_stringlistitem_to_str(m))) {
@@ -1637,8 +1637,8 @@ int __pmtrans_t::commit(FPtrList **data)
 								 * here. */
 								continue;
 							}
-							FPtrList *depends = depender->depends();
-							for(auto m = depends->begin(), end = depends->end(); m != end; m = m->next()) {
+							auto &depends = depender->depends();
+							for(auto m = depends.begin(), end = depends.end(); m != end; m = m->next()) {
 								if(!strcmp(f_stringlistitem_to_str(m), old->name())) {
 									FREE(m->m_data);
 									m->m_data = strdup(pkg_new->name());
@@ -1778,8 +1778,8 @@ int __pmtrans_t::commit(FPtrList **data)
 
 		/* update dependency packages' REQUIREDBY fields */
 		_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
-		auto depends = pkg_local->depends();
-		for(auto lp = depends->begin(), lp_end = depends->end(); lp != lp_end; lp = lp->next()) {
+		auto &depends = pkg_local->depends();
+		for(auto lp = depends.begin(), lp_end = depends.end(); lp != lp_end; lp = lp->next()) {
 			Package *depinfo = NULL;
 			pmdepend_t depend;
 			char *data;
@@ -1848,8 +1848,8 @@ int __pmtrans_t::commit(FPtrList **data)
 			if(tmpp == NULL) {
 				continue;
 			}
-			FPtrList *depends = tmpp->depends();
-			for(auto tmppm = depends->begin(), end = depends->end(); tmppm != end; tmppm = tmppm->next()) {
+			auto &depends = tmpp->depends();
+			for(auto tmppm = depends.begin(), end = depends.end(); tmppm != end; tmppm = tmppm->next()) {
 				pmdepend_t depend;
 				if(_pacman_splitdep(f_ptrlistitem_data(tmppm), &depend)) {
 					continue;
@@ -1878,11 +1878,11 @@ int __pmtrans_t::commit(FPtrList **data)
 		}
 
 		/* update dependency packages' REQUIREDBY fields */
-		if(pkg_new->depends()) {
+		auto &depends = pkg_new->depends();
+		if(!depends.empty()) {
 			_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
 		}
-		auto depends = pkg_new->depends();
-		for(auto lp = depends->begin(), lp_end = depends->end(); lp != lp_end; lp = lp->next()) {
+		for(auto lp = depends.begin(), lp_end = depends.end(); lp != lp_end; lp = lp->next()) {
 			Package *depinfo;
 			pmdepend_t depend;
 			if(_pacman_splitdep(f_stringlistitem_to_str(lp), &depend)) {
