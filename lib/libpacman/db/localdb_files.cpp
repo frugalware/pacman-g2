@@ -84,9 +84,9 @@ int _pacman_localdb_desc_fread(Package *info, FILE *fp)
 		}
 		f_strtrim(line);
 		if(!strcmp(line, "%DESC%")) {
-			_pacman_db_read_lines(&info->desc_localized, line, sline, fp);
-			STRNCPY(info->m_description, f_stringlistitem_to_str(info->desc_localized->begin()), sizeof(info->m_description));
-			for (auto i = info->desc_localized->begin(), end = info->desc_localized->end(); i != end; i = i->next()) {
+			_pacman_db_read_lines(info->desc_localized, line, sline, fp);
+			STRNCPY(info->m_description, f_stringlistitem_to_str(info->desc_localized.begin()), sizeof(info->m_description));
+			for (auto i = info->desc_localized.begin(), end = info->desc_localized.end(); i != end; i = i->next()) {
 				const char *desc = f_stringlistitem_to_str(i);
 				const size_t language_len = strlen(handle->language);
 				if (!strncmp(desc, handle->language, language_len) && *(desc+language_len) == ' ') {

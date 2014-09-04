@@ -80,8 +80,8 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 			} else if(!strcmp(key, "PKGVER")) {
 				STRNCPY(info->m_version, ptr, sizeof(info->m_version));
 			} else if(!strcmp(key, "PKGDESC")) {
-				info->desc_localized = f_stringlist_add(info->desc_localized, ptr);
-				if(f_ptrlist_count(info->desc_localized) == 1) {
+				f_stringlist_add(&info->desc_localized, ptr);
+				if(f_ptrlist_count(&info->desc_localized) == 1) {
 					STRNCPY(info->m_description, ptr, sizeof(info->m_description));
 				} else if (!strncmp(ptr, handle->language, strlen(handle->language))) {
 					STRNCPY(info->m_description, ptr+strlen(handle->language)+1, sizeof(info->m_description));

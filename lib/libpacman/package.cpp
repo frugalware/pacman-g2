@@ -68,7 +68,6 @@ Package::Package(const char *name, const char *version)
 Package::~Package()
 {
 	FREELIST(license);
-	FREELIST(desc_localized);
 	free(m_path);
 }
 
@@ -316,7 +315,7 @@ int _pacman_strmatcher_match(const FStrMatcher *strmatcher, Package *pkg, int fl
 			((flags & PM_PACKAGE_FLAG_PACKAGER) && strmatcher->match(pkg->packager)) ||
 //			((flags & PM_PACKAGE_FLAG_HASH) && ) ||
 			((flags & PM_PACKAGE_FLAG_ARCH) && strmatcher->match(pkg->arch)) ||
-			((flags & PM_PACKAGE_FLAG_LOCALISED_DESCRIPTION) && f_stringlist_any_match(pkg->desc_localized, strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_LOCALISED_DESCRIPTION) && f_stringlist_any_match(&pkg->desc_localized, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_LICENSE) && f_stringlist_any_match(pkg->license, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REPLACES) && f_stringlist_any_match(&pkg->replaces(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_GROUPS) && f_stringlist_any_match(&pkg->groups(), strmatcher)) ||
