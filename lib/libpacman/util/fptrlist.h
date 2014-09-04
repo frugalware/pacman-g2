@@ -414,6 +414,18 @@ public:
 	FPtrList()
 	{ }
 
+	FPtrList(FPtrList &&o)
+		: FPtrList()
+	{
+		swap(o);
+	}
+
+	FPtrList &operator = (FPtrList &&o)
+	{
+		swap(o);
+		return *this;
+	}
+
 	iterator begin()
 	{
 		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
