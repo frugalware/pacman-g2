@@ -42,8 +42,7 @@ int _pacman_packagecache_clean(int level)
 		/* incomplete cleanup: we keep latest packages and partial downloads */
 		DIR *dir;
 		struct dirent *ent;
-		FPtrList *cache = NULL;
-		FPtrList *clean = NULL;
+		FStringList cache, clean;
 
 		dir = opendir(dirpath);
 		if(dir == NULL) {
@@ -54,16 +53,16 @@ int _pacman_packagecache_clean(int level)
 			if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
 				continue;
 			}
-			cache = f_stringlist_add(cache, ent->d_name);
+			cache.add(ent->d_name);
 		}
 		closedir(dir);
 
-		for(auto i = cache->begin(), end = cache->end(); i != end; i = i->next()) {
+		for(auto i = cache.begin(), end = cache.end(); i != end; i = i->next()) {
 			char *str = f_stringlistitem_to_str(i);
 			char name[PKG_NAME_LEN], version[PKG_VERSION_LEN];
 
 			if(strstr(str, PM_EXT_PKG) == NULL) {
-				clean = f_stringlist_add(clean, str);
+				clean.add(str);
 				continue;
 			}
 			/* we keep partially downloaded files */
@@ -71,7 +70,7 @@ int _pacman_packagecache_clean(int level)
 				continue;
 			}
 			if(!Package::splitname(str, name, version, 1)) {
-				clean = f_stringlist_add(clean, str);
+				clean.add(str);
 				continue;
 			}
 			for(auto j = i->next(); j != end; j = j->next()) {
@@ -89,21 +88,18 @@ int _pacman_packagecache_clean(int level)
 				}
 				if(!strcmp(name, n)) {
 					char *ptr = (pacman_pkg_vercmp(version, v) < 0) ? str : s;
-					if(!_pacman_list_is_strin(ptr, clean)) {
-						clean = f_stringlist_add(clean, ptr);
+					if(!_pacman_list_is_strin(ptr, &clean)) {
+						clean.add(ptr);
 					}
 				}
 			}
 		}
-		FREELIST(cache);
-
-		for(auto i = clean->begin(), end = clean->end(); i != end; i = i->next()) {
+		for(auto i = clean.begin(), end = clean.end(); i != end; i = i->next()) {
 			char path[PATH_MAX];
 
 			snprintf(path, PATH_MAX, "%s/%s", dirpath, f_stringlistitem_to_str(i));
 			unlink(path);
 		}
-		FREELIST(clean);
 	} else {
 		/* full cleanup */
 

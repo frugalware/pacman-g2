@@ -248,12 +248,12 @@ LocalPackage *_pacman_localdb_pkg_new(LocalDatabase *db, const struct dirent *di
 	return pkg;
 }
 
-FPtrList *LocalDatabase::test() const
+FStringList *LocalDatabase::test() const
 {
 	struct dirent *ent;
 	char path[PATH_MAX];
 	struct stat buf;
-	FPtrList *ret = f_ptrlist_new();
+	FStringList *ret = new FStringList();
 
 	while ((ent = readdir(m_dir)) != NULL) {
 		snprintf(path, PATH_MAX, "%s/%s", this->path, ent->d_name);
@@ -265,19 +265,19 @@ FPtrList *LocalDatabase::test() const
 		if(stat(path, &buf))
 		{
 			snprintf(path, LOG_STR_LEN, _("%s: description file is missing"), ent->d_name);
-			ret = f_stringlist_add(ret, path);
+			ret->add(path);
 		}
 		snprintf(path, PATH_MAX, "%s/%s/depends", this->path, ent->d_name);
 		if(stat(path, &buf))
 		{
 			snprintf(path, LOG_STR_LEN, _("%s: dependency information is missing"), ent->d_name);
-			ret = f_stringlist_add(ret, path);
+			ret->add(path);
 		}
 		snprintf(path, PATH_MAX, "%s/%s/files", this->path, ent->d_name);
 		if(stat(path, &buf))
 		{
 			snprintf(path, LOG_STR_LEN, _("%s: file list is missing"), ent->d_name);
-			ret = f_stringlist_add(ret, path);
+			ret->add(path);
 		}
 	}
 

@@ -299,7 +299,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	if(_pacman_list_is_strin(target, &targets)) {
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
-	f_stringlist_add(&targets, target);
+	targets.add(target);
 
 	if(type == PM_TRANS_TYPE_SYNC) {
 	char targline[PKG_FULLNAME_LEN];
@@ -484,7 +484,6 @@ int __pmtrans_t::prepare(FPtrList **data)
 	FPtrList *deps = NULL;
 	FPtrList *list = NULL; /* list allowing checkdeps usage with data from packages */
 	FPtrList *trail = NULL; /* breadcrum list to avoid running into circles */
-	FPtrList *asked = NULL;
 	FPtrList *k, *l, *m;
 	int ret = 0;
 
@@ -589,6 +588,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 		deps = _pacman_checkconflicts(this, list);
 		if(!deps->empty()) {
 			int errorout = 0;
+			FPtrList asked;
 
 			for(auto i = deps->begin(), end = deps->end(); i != end && !errorout; i = i->next()) {
 				pmdepmissing_t *miss = f_ptrlistitem_data(i);
@@ -682,9 +682,9 @@ int __pmtrans_t::prepare(FPtrList **data)
 				_pacman_log(PM_LOG_DEBUG, _("resolving package '%s' conflict"), miss->target);
 				if(local) {
 					int doremove = 0;
-					if(!_pacman_list_is_strin(miss->depend.name, asked)) {
+					if(!_pacman_list_is_strin(miss->depend.name, &asked)) {
 						QUESTION(this, PM_TRANS_CONV_CONFLICT_PKG, miss->target, miss->depend.name, NULL, &doremove);
-						asked = f_stringlist_add(asked, miss->depend.name);
+						asked.add(miss->depend.name);
 						if(doremove) {
 							pmsyncpkg_t *rsync = find(miss->depend.name);
 							Package *q = new Package(miss->depend.name, NULL);
@@ -747,7 +747,6 @@ int __pmtrans_t::prepare(FPtrList **data)
 				goto cleanup;
 			}
 			FREELIST(deps);
-			FREELIST(asked);
 		}
 		EVENT(this, PM_TRANS_EVT_INTERCONFLICTS_DONE, NULL, NULL);
 	}
@@ -865,7 +864,6 @@ int __pmtrans_t::prepare(FPtrList **data)
 cleanup:
 	FREELISTPTR(list);
 	FREELISTPTR(trail);
-	FREELIST(asked);
 
 	if(ret != 0) {
 		return ret;
@@ -1419,7 +1417,7 @@ int __pmtrans_t::commit(FPtrList **data)
 	_pacman_trans_set_state(this, STATE_COMMITING);
 
 	if(m_type == PM_TRANS_TYPE_SYNC) {
-	FPtrList *files = NULL;
+	FPtrList files;
 	char ldir[PATH_MAX];
 	int retval = 0, tries = 0;
 	int varcache = 1;
@@ -1458,7 +1456,7 @@ int __pmtrans_t::commit(FPtrList **data)
 					} else {
 						if(stat(lcpath, &buf)) {
 							/* file is not in the cache dir, so add it to the list */
-							files = f_stringlist_add(files, filename);
+							files.add(filename);
 						} else {
 							_pacman_log(PM_LOG_DEBUG, _("%s is already in the cache\n"), filename);
 						}
@@ -1466,7 +1464,7 @@ int __pmtrans_t::commit(FPtrList **data)
 				}
 			}
 
-			if(files) {
+			if(!files.empty()) {
 				EVENT(this, PM_TRANS_EVT_RETRIEVE_START, current->treename(), NULL);
 				if(stat(ldir, &buf)) {
 					/* no cache directory.... try creating it */
@@ -1484,12 +1482,12 @@ int __pmtrans_t::commit(FPtrList **data)
 						varcache = 0;
 					}
 				}
-				if(_pacman_downloadfiles(m_handle, &current->servers, ldir, files, tries) == -1) {
+				if(_pacman_downloadfiles(m_handle, &current->servers, ldir, &files, tries) == -1) {
 					_pacman_log(PM_LOG_WARNING, _("failed to retrieve some files from %s\n"), current->treename());
 					retval=1;
 					done = 0;
 				}
-				FREELIST(files);
+				files.clear();
 			}
 		}
 		if (!done)
@@ -1644,7 +1642,7 @@ int __pmtrans_t::commit(FPtrList **data)
 										  pkg_new->name(), pkg_new->version());
 							}
 							/* add the new requiredby */
-							f_stringlist_add(&pkg_new->m_requiredby, f_stringlistitem_to_str(k));
+							pkg_new->m_requiredby.add(f_stringlistitem_to_str(k));
 						}
 					}
 				}
@@ -1664,7 +1662,7 @@ int __pmtrans_t::commit(FPtrList **data)
 
 	if(!varcache && !(flags & PM_TRANS_FLAG_DOWNLOADONLY)) {
 		/* delete packages */
-		for(auto i = files->begin(), end = files->end(); i != end; i = i->next()) {
+		for(auto i = files.begin(), end = files.end(); i != end; i = i->next()) {
 			unlink(f_stringlistitem_to_str(i));
 		}
 	}
@@ -1851,7 +1849,7 @@ int __pmtrans_t::commit(FPtrList **data)
 				}
 				if(f_ptrlistitem_data(tmppm) && (!strcmp(depend.name, pkg_new->name()) || pkg_new->provides(depend.name))) {
 					_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), tmpp->name(), pkg_new->name());
-					f_stringlist_add(&pkg_new->m_requiredby, tmpp->name());
+					pkg_new->m_requiredby.add(tmpp->name());
 				}
 			}
 		}
@@ -1902,7 +1900,7 @@ int __pmtrans_t::commit(FPtrList **data)
 				}
 			}
 			_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), pkg_new->name(), depinfo->name());
-			f_stringlist_add(&depinfo->requiredby(), pkg_new->name());
+			depinfo->requiredby().add(pkg_new->name());
 			if(db_local->write(depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
 				          depinfo->name(), depinfo->version());

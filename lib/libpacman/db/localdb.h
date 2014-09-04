@@ -51,7 +51,7 @@ public:
 	LocalDatabase(libpacman::Handle *handle, const char *treename);
 	virtual ~LocalDatabase();
 
-	virtual FPtrList *test() const;
+	virtual FStringList *test() const;
 
 	virtual int close();
 

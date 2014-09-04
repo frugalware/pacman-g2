@@ -80,18 +80,18 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 			} else if(!strcmp(key, "PKGVER")) {
 				STRNCPY(info->m_version, ptr, sizeof(info->m_version));
 			} else if(!strcmp(key, "PKGDESC")) {
-				f_stringlist_add(&info->desc_localized, ptr);
+				info->desc_localized.add(ptr);
 				if(f_ptrlist_count(&info->desc_localized) == 1) {
 					STRNCPY(info->m_description, ptr, sizeof(info->m_description));
 				} else if (!strncmp(ptr, handle->language, strlen(handle->language))) {
 					STRNCPY(info->m_description, ptr+strlen(handle->language)+1, sizeof(info->m_description));
 				}
 			} else if(!strcmp(key, "GROUP")) {
-				f_stringlist_add(&info->m_groups, ptr);
+				info->m_groups.add(ptr);
 			} else if(!strcmp(key, "URL")) {
 				STRNCPY(info->m_url, ptr, sizeof(info->m_url));
 			} else if(!strcmp(key, "LICENSE")) {
-				f_stringlist_add(&info->license, ptr);
+				info->license.add(ptr);
 			} else if(!strcmp(key, "BUILDDATE")) {
 				STRNCPY(info->builddate, ptr, sizeof(info->builddate));
 			} else if(!strcmp(key, "BUILDTYPE")) {
@@ -111,19 +111,19 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 				STRNCPY(tmp, ptr, sizeof(tmp));
 				info->usize = atol(tmp);
 			} else if(!strcmp(key, "DEPEND")) {
-				f_stringlist_add(&info->m_depends, ptr);
+				info->m_depends.add(ptr);
 			} else if(!strcmp(key, "REMOVE")) {
-				f_stringlist_add(&info->m_removes, ptr);
+				info->m_removes.add(ptr);
 			} else if(!strcmp(key, "CONFLICT")) {
-				f_stringlist_add(&info->m_conflicts, ptr);
+				info->m_conflicts.add(ptr);
 			} else if(!strcmp(key, "REPLACES")) {
-				f_stringlist_add(&info->m_replaces, ptr);
+				info->m_replaces.add(ptr);
 			} else if(!strcmp(key, "PROVIDES")) {
-				f_stringlist_add(&info->m_provides, ptr);
+				info->m_provides.add(ptr);
 			} else if(!strcmp(key, "BACKUP")) {
-				f_stringlist_add(&info->m_backup, ptr);
+				info->m_backup.add(ptr);
 			} else if(!strcmp(key, "TRIGGER")) {
-				f_stringlist_add(&info->m_triggers, ptr);
+				info->m_triggers.add(ptr);
 			} else {
 				_pacman_log(PM_LOG_DEBUG, _("%s: syntax error in description file line %d"),
 					info->name()[0] != '\0' ? info->name() : "error", linenum);
@@ -211,7 +211,7 @@ Package *_pacman_fpmpackage_load(const char *pkgfile)
 					continue;
 				}
 				f_strtrim(str);
-				f_stringlist_add(&info->m_files, str);
+				info->m_files.add(str);
 			}
 			free(str);
 			fclose(filelist);
