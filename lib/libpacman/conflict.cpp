@@ -77,8 +77,8 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 					howmany - remain + 1);
 		}
 
-		auto conflicts = tp->conflicts();
-		for(auto j = conflicts->begin(), j_end = conflicts->end(); j != j_end; j = j->next()) {
+		auto &conflicts = tp->conflicts();
+		for(auto j = conflicts.begin(), j_end = conflicts.end(); j != j_end; j = j->next()) {
 			const char *conflict = f_stringlistitem_to_str(j);
 			if(!strcmp(tp->name(), conflict)) {
 				/* a package cannot conflict with itself -- that's just not nice */
@@ -145,7 +145,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 		_pacman_log(PM_LOG_DEBUG, _("checkconflicts: db vs targ '%s'"), tp->name());
 		auto &cache = _pacman_db_get_pkgcache(db_local);
 		for(auto k = cache.begin(), k_end = cache.end(); k != k_end; k = k->next()) {
-			FPtrList *conflicts = NULL;
+			FStringList *conflicts;
 			int usenewconflicts = 0;
 
 			info = (Package *)f_ptrlistitem_data(k);
@@ -160,13 +160,13 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 				Package *pkg = (Package *)f_ptrlistitem_data(j);
 				if(!strcmp(pkg->name(), info->name())) {
 					/* Use the new, to-be-installed package's conflicts */
-					conflicts = pkg->conflicts();
+					conflicts = &pkg->conflicts();
 					usenewconflicts = 1;
 				}
 			}
 			if(!usenewconflicts) {
 				/* Use the old package's conflicts, it's the only set we have */
-				conflicts = info->conflicts();
+				conflicts = &info->conflicts();
 			}
 			for(auto j = conflicts->begin(), j_end = conflicts->end(); j != j_end; j = j->next()) {
 				if(!strcmp(tp->name(), f_stringlistitem_to_str(j))) {

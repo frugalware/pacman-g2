@@ -159,7 +159,7 @@ public:
 	FStringList m_depends;
 	FStringList m_removes;
 	FStringList m_requiredby;
-	FStringList *m_conflicts;
+	FStringList m_conflicts;
 	FStringList *m_provides;
 	FStringList *m_triggers;
 	char *m_path;
