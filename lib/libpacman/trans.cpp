@@ -805,16 +805,16 @@ int __pmtrans_t::prepare(FPtrList **data)
 						 * to a provisio from the package we want to remove */
 						auto &depends = conflictp->depends();
 						for(auto k = depends.begin(), k_end = depends.end(); k != k_end && !pfound; k = k->next()) {
-							auto provides = leavingp->provides();
-							for(auto m = provides->begin(), m_end = provides->end(); m != m_end && !pfound; m = m->next()) {
+							auto &provides = leavingp->provides();
+							for(auto m = provides.begin(), m_end = provides.end(); m != m_end && !pfound; m = m->next()) {
 								if(!strcmp(f_stringlistitem_to_str(k), f_stringlistitem_to_str(m))) {
 									/* Found a match -- now look through final for a package that
 									 * provides the same thing.  If none are found, then it truly
 									 * is an unresolvable conflict. */
 									for(auto n = syncpkgs.begin(), n_end = syncpkgs.end(); n != n_end && !pfound; n = n->next()) {
 										pmsyncpkg_t *sp = f_ptrlistitem_data(n);
-										auto provides = sp->pkg_new->provides();
-										for(auto o = provides->begin(), o_end = provides->end(); o != o_end && !pfound; o = o->next()) {
+										auto &provides = sp->pkg_new->provides();
+										for(auto o = provides.begin(), o_end = provides.end(); o != o_end && !pfound; o = o->next()) {
 											if(!strcmp(f_stringlistitem_to_str(m), f_stringlistitem_to_str(o))) {
 												/* found matching provisio -- we're good to go */
 												_pacman_log(PM_LOG_FLOW2, _("found '%s' as a provision for '%s' -- conflict aborted"),

@@ -101,8 +101,8 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 					baddeps = _pacman_depmisslist_add(baddeps, miss);
 				} else {
 					/* see if dp provides something in tp's conflict list */
-					auto provides = dp->provides();
-					for(auto m = provides->begin(), m_end = provides->end(); m != m_end; m = m->next()) {
+					auto &provides = dp->provides();
+					for(auto m = provides.begin(), m_end = provides.end(); m != m_end; m = m->next()) {
 						if(!strcmp(f_stringlistitem_to_str(m), conflict)) {
 							/* confict */
 							_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
@@ -129,8 +129,8 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 					baddeps = _pacman_depmisslist_add(baddeps, miss);
 				} else {
 					/* see if otp provides something in tp's conflict list */
-					auto provides = otp->provides();
-					for(auto m = provides->begin(), m_end = provides->end(); m != m_end; m = m->next()) {
+					auto &provides = otp->provides();
+					for(auto m = provides.begin(), m_end = provides.end(); m != m_end; m = m->next()) {
 						if(!strcmp(f_stringlistitem_to_str(m), conflict)) {
 							_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
 							          otp->name(), tp->name());
@@ -177,8 +177,8 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 				} else {
 					/* see if the db package conflicts with something we provide */
 					for(auto m = conflicts->begin(), m_end = conflicts->end(); m != m_end; m = m->next()) {
-						auto provides = tp->provides();
-						for(auto n = provides->begin(), n_end = provides->end(); n != n_end; n = n->next()) {
+						auto &provides = tp->provides();
+						for(auto n = provides.begin(), n_end = provides.end(); n != n_end; n = n->next()) {
 							if(!strcmp(f_stringlistitem_to_str(m), f_stringlistitem_to_str(n))) {
 								_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
 								          info->name(), tp->name());

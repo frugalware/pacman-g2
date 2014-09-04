@@ -816,7 +816,7 @@ void *pacman_pkg_getinfo(pmpkg_t *_pkg, unsigned char parm)
 		case PM_PKG_DEPENDS:     data = &pkg->depends(); break;
 		case PM_PKG_REMOVES:     data = &pkg->removes(); break;
 		case PM_PKG_REQUIREDBY:  data = &pkg->requiredby(); break;
-		case PM_PKG_PROVIDES:    data = pkg->provides(); break;
+		case PM_PKG_PROVIDES:    data = &pkg->provides(); break;
 		case PM_PKG_CONFLICTS:   data = &pkg->conflicts(); break;
 		case PM_PKG_FILES:       data = pkg->files(); break;
 		case PM_PKG_BACKUP:      data = &pkg->backup(); break;

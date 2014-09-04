@@ -121,7 +121,7 @@ public:
 
 	const char *path() const;
 
-	FStringList *provides() const;
+	const FStringList &provides() const;
 	bool provides(const char *pkgname);
 
 private:
@@ -160,7 +160,7 @@ public:
 	FStringList m_removes;
 	FStringList m_requiredby;
 	FStringList m_conflicts;
-	FStringList *m_provides;
+	FStringList m_provides;
 	FStringList *m_triggers;
 	char *m_path;
 };

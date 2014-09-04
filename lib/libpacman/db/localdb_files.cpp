@@ -212,7 +212,7 @@ int _pacman_localdb_depends_fread(Package *info, FILE *fp)
 		} else if(!strcmp(line, "%CONFLICTS%")) {
 			_pacman_db_read_lines(info->m_conflicts, line, sline, fp);
 		} else if(!strcmp(line, "%PROVIDES%")) {
-			_pacman_db_read_lines(&info->m_provides, line, sline, fp);
+			_pacman_db_read_lines(info->m_provides, line, sline, fp);
 		} else if(!strcmp(line, "%REPLACES%")) {
 			/* the REPLACES tag is special -- it only appears in sync repositories,
 			 * not the local one. */
