@@ -37,7 +37,6 @@ extern "C" {
 
 int _pacman_list_is_strin(const char *needle, FStringList *haystack);
 FStringList *_pacman_list_remove_dupes(FStringList *list);
-FStringList *_pacman_list_strdup(FStringList *list);
 
 const char *f_stringlistitem_to_str(const FStringListIterator *self);
 

@@ -64,17 +64,6 @@ FStringList *_pacman_list_remove_dupes(FStringList *list)
 	return newlist;
 }
 
-FStringList *_pacman_list_strdup(FStringList *list)
-{
-	FStringList *newlist = NULL;
-
-	for(auto lp = list->begin(), end = list->end(); lp != end; lp = lp->next()) {
-		newlist = f_stringlist_add(newlist, f_stringlistitem_to_str(lp));
-	}
-
-	return(newlist);
-}
-
 static
 struct FVisitor f_stringlistitem_destroyvisitor = {
 	.fn = (FVisitorFunc)free,
