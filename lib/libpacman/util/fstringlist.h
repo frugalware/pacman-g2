@@ -60,7 +60,8 @@ public:
 	FStringList &operator = (const FStringList &o);
 	FStringList &operator = (FStringList &&o);
 
-	bool add(const char *s);
+	FStringList &add(const char *s);
+	FStringList &add(const FStringList &o);
 };
 
 #endif

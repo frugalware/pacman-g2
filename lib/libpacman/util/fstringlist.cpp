@@ -84,21 +84,23 @@ int f_stringlist_delete(FStringList *self)
 	return f_ptrlist_delete(self, &f_stringlistitem_destroyvisitor);
 }
 
-FStringList *f_stringlist_add(FStringList *list, const char *s)
+FStringList *f_stringlist_add(FStringList *self, const char *s)
 {
-	if(list == NULL) {
-		list = new FStringList();
+	if(self == NULL) {
+		self = new FStringList();
 	}
-	list->add(s);
-	return list;
+	return &self->add(s);
 }
 
-FStringList *f_stringlist_add_stringlist(FStringList *dest, const FStringList *src)
+FStringList *f_stringlist_add_stringlist(FStringList *self, const FStringList *src)
 {
-	for(auto lp = src->begin(), end = src->end(); lp != end; lp = lp->next()) {
-		dest = f_stringlist_add(dest, f_stringlistitem_to_str(lp));
+	if(src == NULL || src->empty()) {
+		return self;
 	}
-	return dest;
+	if(self == NULL) {
+		self = new FStringList();
+	}
+	return &self->add(*src);
 }
 
 int f_stringlist_clear(FStringList *self)
@@ -134,10 +136,18 @@ FStringList &FStringList::operator = (FStringList &&o)
 	return *this;
 }
 
-bool FStringList::add(const char *s)
+FStringList &FStringList::add(const char *s)
 {
 	FPtrList::add(f_strdup(s));
-	return true;
+	return *this;
+}
+
+FStringList &FStringList::add(const FStringList &o)
+{
+	for(auto lp = o.begin(), end = o.end(); lp != end; lp = lp->next()) {
+		add(f_stringlistitem_to_str(lp));
+	}
+	return *this;
 }
 
 /* vim: set ts=2 sw=2 noet: */
