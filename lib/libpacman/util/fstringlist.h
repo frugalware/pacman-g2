@@ -24,25 +24,15 @@
 #include "util/fptrlist.h"
 #include "fstring.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#if 1
-typedef FPtrList FStringList;
-typedef FPtrListIterator FStringListIterator;
-#else
+#ifndef __cplusplus
 typedef struct FStringList FStringList;
-typedef struct FStringListIterator FStringListIterator;
+typedef FPtrListIterator FStringListIterator;
 
-struct FStringList {
-	FList as_FList;
-};
+#else
+typedef class FStringList FStringList;
+typedef FPtrListIterator FStringListIterator;
 
-struct FStringListIterator {
-	FListItem as_FListItem;
-	char to_str[0];
-};
+extern "C" {
 #endif
 
 int _pacman_list_is_strin(const char *needle, FStringList *haystack);
@@ -59,6 +49,19 @@ int f_stringlist_clear(FStringList *self);
 
 #ifdef __cplusplus
 }
+
+class FStringList
+	: public FPtrList
+{
+public:
+	FStringList();
+	FStringList(const FStringList &o);
+	FStringList(FStringList &&o);
+
+	FStringList &operator = (const FStringList &o);
+	FStringList &operator = (FStringList &&o);
+};
+
 #endif
 #endif /* F_STRINGLIST_H */
 

@@ -117,4 +117,32 @@ int f_stringlist_clear(FStringList *self)
 	return f_ptrlist_clear(self, &f_stringlistitem_destroyvisitor);
 }
 
+FStringList::FStringList()
+{ }
+
+FStringList::FStringList(const FStringList &o)
+	: FStringList()
+{
+	operator = (o);
+}
+
+FStringList::FStringList(FStringList &&o)
+	: FPtrList(std::move(o))
+{ }
+
+FStringList &FStringList::operator = (const FStringList &o)
+{
+	for(auto lp = o.begin(), end = o.end(); lp != end; lp = lp->next()) {
+		f_stringlist_add(this, f_stringlistitem_to_str(lp));
+	}
+
+	return *this;
+}
+
+FStringList &FStringList::operator = (FStringList &&o)
+{
+	swap(o);
+	return *this;
+}
+
 /* vim: set ts=2 sw=2 noet: */
