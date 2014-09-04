@@ -33,7 +33,7 @@ LIBPACMAN_PACKAGE_PROPERTY(FStringList &, removes,    REMOVES   )
 LIBPACMAN_PACKAGE_PROPERTY(FStringList *, replaces,   REPLACES  )
 LIBPACMAN_PACKAGE_PROPERTY(FStringList &, requiredby, REQUIREDBY)
 LIBPACMAN_PACKAGE_PROPERTY(unsigned char, stick,      STICKY    )
-LIBPACMAN_PACKAGE_PROPERTY(FStringList *, triggers,   TRIGGERS  )
+LIBPACMAN_PACKAGE_PROPERTY(FStringList &, triggers,   TRIGGERS  )
 LIBPACMAN_PACKAGE_PROPERTY(const char *,  url,        URL       )
 LIBPACMAN_PACKAGE_PROPERTY(const char *,  version,    VERSION   )
 

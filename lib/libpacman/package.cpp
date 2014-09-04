@@ -72,7 +72,6 @@ Package::~Package()
 	FREELIST(m_files);
 	FREELIST(m_groups);
 	FREELIST(m_replaces);
-	FREELIST(m_triggers);
 	free(m_path);
 }
 
@@ -308,6 +307,8 @@ struct FPackageStrMatcher
 
 static
 int _pacman_strmatcher_match(const FStrMatcher *strmatcher, Package *pkg, int flags) {
+	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, 0));
+	
 	/* FIXME: Make const when const accessors are available */
 	if(((flags & PM_PACKAGE_FLAG_NAME) && strmatcher->match(pkg->name())) ||
 			((flags & PM_PACKAGE_FLAG_VERSION) && strmatcher->match(pkg->version())) ||
@@ -329,7 +330,7 @@ int _pacman_strmatcher_match(const FStrMatcher *strmatcher, Package *pkg, int fl
 			((flags & PM_PACKAGE_FLAG_REQUIREDBY) && f_stringlist_any_match(&pkg->requiredby(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_CONFLICTS) && f_stringlist_any_match(&pkg->conflicts(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_PROVIDES) && f_stringlist_any_match(&pkg->provides(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_TRIGGERS) && f_stringlist_any_match(pkg->triggers(), strmatcher))) {
+			((flags & PM_PACKAGE_FLAG_TRIGGERS) && f_stringlist_any_match(&pkg->triggers(), strmatcher))) {
 		return 1;
 	}
 	return 0;

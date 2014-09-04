@@ -129,13 +129,13 @@ int _pacman_trans_compute_triggers(pmtrans_t *trans)
 	for(auto lp = trans->packages.begin(), end = trans->packages.end(); lp != end; lp = lp->next()) {
 		Package *pkg = f_ptrlistitem_data(lp);
 
-		trans->triggers = f_stringlist_add_stringlist(trans->triggers, pkg->triggers());
+		trans->triggers = f_stringlist_add_stringlist(trans->triggers, &pkg->triggers());
 	}
 	for(auto lp = trans->syncpkgs.begin(), end = trans->syncpkgs.end(); lp != end; lp = lp->next()) {
 		Package *pkg = ((pmsyncpkg_t *)f_ptrlistitem_data(lp))->pkg_new;
 
 		/* FIXME: might be incomplete */
-		trans->triggers = f_stringlist_add_stringlist(trans->triggers, pkg->triggers());
+		trans->triggers = f_stringlist_add_stringlist(trans->triggers, &pkg->triggers());
 	}
 	trans->triggers = _pacman_list_remove_dupes(trans->triggers);
 	/* FIXME: Sort the triggers to have a predictable execution order */
