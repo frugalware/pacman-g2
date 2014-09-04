@@ -138,11 +138,11 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 	Handle *handle = trans->m_handle;
 	char line[PATH_MAX+1];
 
-	int filenum = f_ptrlist_count(pkg->files());
+	int filenum = f_ptrlist_count(&pkg->files());
 	_pacman_log(PM_LOG_FLOW1, _("removing files"));
 
 	/* iterate through the list backwards, unlinking files */
-	for(auto lp = pkg->files()->rbegin(), end = pkg->files()->rend(); lp != end; lp = lp->previous()) {
+	for(auto lp = pkg->files().rbegin(), end = pkg->files().rend(); lp != end; lp = lp->previous()) {
 		int nb = 0;
 		double percent = 0;
 		const char *file = f_stringlistitem_to_str(lp);
@@ -556,8 +556,8 @@ FPtrList *LocalDatabase::getowners(const char *filename)
 	for(auto lp = cache.begin(), end = cache.end(); lp != end; lp = lp->next()) {
 		Package *info = (Package *)f_ptrlistitem_data(lp);
 
-		FPtrList *files = info->files();
-		for(auto i = files->begin(), end = files->end(); i != end; i = i->next()) {
+		auto &files = info->files();
+		for(auto i = files.begin(), end = files.end(); i != end; i = i->next()) {
 			char path[PATH_MAX];
 
 			snprintf(path, PATH_MAX, "%s%s", m_handle->root, f_stringlistitem_to_str(i));

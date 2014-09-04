@@ -258,7 +258,7 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 		for(auto j = i; j != end; j = j->next()) {
 			Package *p2 = (Package*)f_ptrlistitem_data(j);
 			if(strcmp(p1->name(), p2->name())) {
-				auto ret = chk_fileconflicts(p1->files(), p2->files());
+				auto ret = chk_fileconflicts(&p1->files(), &p2->files());
 				for(auto k = ret->begin(), k_end = ret->end(); k != k_end; k = k->next()) {
 						pmconflict_t *conflict = _pacman_malloc(sizeof(pmconflict_t));
 						if(conflict == NULL) {
@@ -277,8 +277,8 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 		/* CHECK 2: check every target against the filesystem */
 		p = (Package*)f_ptrlistitem_data(i);
 		dbpkg = NULL;
-		auto files = p->files();
-		for(auto j = files->begin(), j_end = files->end(); j != j_end; j = j->next()) {
+		auto &files = p->files();
+		for(auto j = files.begin(), j_end = files.end(); j != j_end; j = j->next()) {
 			filestr = f_stringlistitem_to_str(j);
 			snprintf(path, PATH_MAX, "%s%s", root, filestr);
 			/* is this target a file or directory? */
@@ -300,7 +300,7 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg->name());
 						dbpkg->read(INFRQ_FILES);
 					}
-					if(dbpkg && _pacman_list_is_strin(filestr, dbpkg->files())) {
+					if(dbpkg && _pacman_list_is_strin(filestr, &dbpkg->files())) {
 						ok = 1;
 					}
 					/* Check if the conflicting file has been moved to another package/target */
@@ -317,7 +317,7 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 									dbpkg2->read(INFRQ_FILES);
 								}
 								/* If it used to exist in there, but doesn't anymore */
-								if(dbpkg2 && !_pacman_list_is_strin(filestr, p2->files()) && _pacman_list_is_strin(filestr, dbpkg2->files())) {
+								if(dbpkg2 && !_pacman_list_is_strin(filestr, &p2->files()) && _pacman_list_is_strin(filestr, &dbpkg2->files())) {
 									ok = 1;
 									/* Add to the "skip list" of files that we shouldn't remove during an upgrade.
 									 *

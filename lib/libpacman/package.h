@@ -154,7 +154,7 @@ public:
 	FStringList *license;
 	FStringList *m_replaces;
 	FStringList *m_groups;
-	FStringList *m_files;
+	FStringList m_files;
 	FStringList m_backup;
 	FStringList m_depends;
 	FStringList m_removes;
