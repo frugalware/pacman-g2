@@ -86,8 +86,8 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 		FPtrList &cache = _pacman_db_get_pkgcache(f_ptrlistitem_data(i));
 		for(auto j = cache.begin(), end = cache.end(); j != end; j = j->next()) {
 			Package *spkg = f_ptrlistitem_data(j);
-			FPtrList *replaces = spkg->replaces();
-			for(auto k = replaces->begin(), end = replaces->end(); k != end; k = k->next()) {
+			auto &replaces = spkg->replaces();
+			for(auto k = replaces.begin(), end = replaces.end(); k != end; k = k->next()) {
 				FPtrList &cache_local = _pacman_db_get_pkgcache(db_local);
 				for(auto m = cache_local.begin(), end = cache_local.end(); m != end; m = m->next()) {
 					Package *lpkg = f_ptrlistitem_data(m);

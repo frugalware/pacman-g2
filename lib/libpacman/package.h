@@ -152,7 +152,7 @@ public:
 	unsigned char m_reason;
 	FStringList *desc_localized;
 	FStringList *license;
-	FStringList *m_replaces;
+	FStringList m_replaces;
 	FStringList m_groups;
 	FStringList m_files;
 	FStringList m_backup;

@@ -808,7 +808,7 @@ void *pacman_pkg_getinfo(pmpkg_t *_pkg, unsigned char parm)
 		case PM_PKG_USIZE:       data = (void *)(long)pkg->usize; break;
 		case PM_PKG_REASON:      data = (void *)(long)pkg->reason(); break;
 		case PM_PKG_LICENSE:     data = pkg->license; break;
-		case PM_PKG_REPLACES:    data = pkg->replaces(); break;
+		case PM_PKG_REPLACES:    data = &pkg->replaces(); break;
 		case PM_PKG_FORCE:       data = (void *)(long)pkg->force(); break;
 		case PM_PKG_STICK:       data = (void *)(long)pkg->stick(); break;
 		case PM_PKG_MD5SUM:      data = pkg->md5sum; break;
