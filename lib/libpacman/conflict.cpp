@@ -199,10 +199,10 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
  *  Hooray for set-intersects!
  *  Pre-condition: both lists are sorted!
  */
-static FPtrList *chk_fileconflicts(FPtrList *filesA, FPtrList *filesB)
+static FStringList chk_fileconflicts(const FStringList &filesA, const FStringList &filesB)
 {
-	FPtrList *ret = NULL;
-	auto pA = filesA->begin(), pB = filesB->begin();
+	FStringList ret;
+	auto pA = filesA.begin(), pB = filesB.begin();
 
 	while(pA && pB) {
 		const char *strA = f_stringlistitem_to_str(pA);
@@ -222,14 +222,13 @@ static FPtrList *chk_fileconflicts(FPtrList *filesA, FPtrList *filesB)
 				pB = pB->next();
 			} else {
 				/* item in both, record it */
-				ret = f_stringlist_add(ret, strA);
+				ret.add(strA);
 				pA = pA->next();
 				pB = pB->next();
 			}
 	  }
 	}
-
-	return(ret);
+	return ret;
 }
 
 FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
@@ -258,8 +257,8 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 		for(auto j = i; j != end; j = j->next()) {
 			Package *p2 = (Package*)f_ptrlistitem_data(j);
 			if(strcmp(p1->name(), p2->name())) {
-				auto ret = chk_fileconflicts(&p1->files(), &p2->files());
-				for(auto k = ret->begin(), k_end = ret->end(); k != k_end; k = k->next()) {
+				auto ret = chk_fileconflicts(p1->files(), p2->files());
+				for(auto k = ret.begin(), k_end = ret.end(); k != k_end; k = k->next()) {
 						pmconflict_t *conflict = _pacman_malloc(sizeof(pmconflict_t));
 						if(conflict == NULL) {
 							continue;
@@ -270,7 +269,6 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 						STRNCPY(conflict->ctarget, p2->name(), PKG_NAME_LEN);
 						conflicts = conflicts->add(conflict);
 				}
-				FREELIST(ret);
 			}
 		}
 
