@@ -235,8 +235,8 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 
 		if(pkg_local != NULL) {
 			found = 0;
-			FStringList *requiredby = pkg_local->requiredby();
-			for(auto j = requiredby->begin(), j_end = requiredby->end(); j != j_end; j = j->next()) {
+			auto &requiredby = pkg_local->requiredby();
+			for(auto j = requiredby.begin(), j_end = requiredby.end(); j != j_end; j = j->next()) {
 				const char *requiredby_name = f_stringlistitem_to_str(j);
 
 				if(op == PM_TRANS_TYPE_UPGRADE) {
@@ -523,8 +523,8 @@ FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
 			}
 
 			/* see if other packages need it */
-			auto requiredby = dep->requiredby();
-			for(auto k = requiredby->begin(), k_end = requiredby->end(); k != k_end && !needed; k = k->next()) {
+			auto &requiredby = dep->requiredby();
+			for(auto k = requiredby.begin(), k_end = requiredby.end(); k != k_end && !needed; k = k->next()) {
 				Package *dummy = db->find(f_stringlistitem_to_str(k));
 				if(!_pacman_pkg_isin(dummy->name(), targs)) {
 					needed = 1;

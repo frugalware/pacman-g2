@@ -700,7 +700,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 								ret = -1;
 								goto cleanup;
 							}
-							q->m_requiredby = _pacman_list_strdup(local->requiredby());
+							q->m_requiredby = local->requiredby();
 							if(ps->type != PM_SYNC_TYPE_REPLACE) {
 								/* switch this sync type to REPLACE */
 								ps->type = PM_SYNC_TYPE_REPLACE;
@@ -1625,9 +1625,9 @@ int __pmtrans_t::commit(FPtrList **data)
 				for(auto j = list->begin(), end = list->end(); j != end; j = j->next()) {
 					Package *old = f_ptrlistitem_data(j);
 					/* merge lists */
-					FPtrList *requiredby = old->requiredby();
-					for(auto k = requiredby->begin(), end = requiredby->end(); k != end; k = k->next()) {
-						if(!_pacman_list_is_strin(f_stringlistitem_to_str(k), pkg_new->requiredby())) {
+					auto &requiredby = old->requiredby();
+					for(auto k = requiredby.begin(), end = requiredby.end(); k != end; k = k->next()) {
+						if(!_pacman_list_is_strin(f_stringlistitem_to_str(k), &pkg_new->requiredby())) {
 							/* replace old's name with new's name in the requiredby's dependency list */
 							Package *depender = db_local->find(f_stringlistitem_to_str(k));
 							if(depender == NULL) {
@@ -1649,7 +1649,7 @@ int __pmtrans_t::commit(FPtrList **data)
 										  pkg_new->name(), pkg_new->version());
 							}
 							/* add the new requiredby */
-							pkg_new->m_requiredby = f_stringlist_add(pkg_new->m_requiredby, f_stringlistitem_to_str(k));
+							f_stringlist_add(&pkg_new->m_requiredby, f_stringlistitem_to_str(k));
 						}
 					}
 				}
@@ -1812,7 +1812,7 @@ int __pmtrans_t::commit(FPtrList **data)
 				}
 			}
 			/* splice out this entry from requiredby */
-			_pacman_list_remove(depinfo->requiredby(), pkg_local->name(), str_cmp, (void **)&data);
+			_pacman_list_remove(&depinfo->requiredby(), pkg_local->name(), str_cmp, (void **)&data);
 			FREE(data);
 			_pacman_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name());
 			if(db_local->write(depinfo, INFRQ_DEPENDS)) {
@@ -1856,7 +1856,7 @@ int __pmtrans_t::commit(FPtrList **data)
 				}
 				if(f_ptrlistitem_data(tmppm) && (!strcmp(depend.name, pkg_new->name()) || pkg_new->provides(depend.name))) {
 					_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), tmpp->name(), pkg_new->name());
-					pkg_new->m_requiredby = f_stringlist_add(pkg_new->m_requiredby, tmpp->name());
+					f_stringlist_add(&pkg_new->m_requiredby, tmpp->name());
 				}
 			}
 		}
@@ -1907,7 +1907,7 @@ int __pmtrans_t::commit(FPtrList **data)
 				}
 			}
 			_pacman_log(PM_LOG_DEBUG, _("adding '%s' in requiredby field for '%s'"), pkg_new->name(), depinfo->name());
-			depinfo->m_requiredby = f_stringlist_add(depinfo->requiredby(), pkg_new->name());
+			f_stringlist_add(&depinfo->requiredby(), pkg_new->name());
 			if(db_local->write(depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
 				          depinfo->name(), depinfo->version());
