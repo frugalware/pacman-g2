@@ -55,7 +55,7 @@ _pacman_packages_transaction_set_state(pmtrans_t *trans, int new_state)
 	}
 
 	_pacman_log(PM_LOG_FLOW2, _("executing %s triggers..."), trigger_function);
-	for(auto lp = trans->triggers->begin(), end = trans->triggers->end(); lp != end; lp = lp->next()) {
+	for(auto lp = trans->triggers.begin(), end = trans->triggers.end(); lp != end; lp = lp->next()) {
 		const char *trigger = f_stringlistitem_to_str(lp);
 		char buf[PATH_MAX];
 
