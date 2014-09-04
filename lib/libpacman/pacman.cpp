@@ -586,7 +586,7 @@ pmlist_t *pacman_db_whatprovides(pmdb_t *_db, char *name)
 	ASSERT(db != NULL, return(NULL));
 	ASSERT(!_pacman_strempty(name), return(NULL));
 
-	return c_cast(db->whatPackagesProvide(name));
+	return c_cast(new FPtrList(db->whatPackagesProvide(name)));
 }
 
 /** Get a group entry from a package database
@@ -989,16 +989,15 @@ pmlist_t *pacman_db_test(pmdb_t *_db)
 pmlist_t *pacman_db_search(pmdb_t *_db)
 {
 	Database *db = cxx_cast(_db);
-	FPtrList *ret;
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(!handle->needles.empty(), return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
-	ret = db->filter(&handle->needles,
+	FPtrList *ret = new FPtrList(db->filter(&handle->needles,
 			PM_PACKAGE_FLAG_NAME | PM_PACKAGE_FLAG_DESCRIPTION | PM_PACKAGE_FLAG_PROVIDES,
-			FStrMatcher::ALL_IGNORE_CASE);
+			FStrMatcher::ALL_IGNORE_CASE));
 	handle->needles.clear();
 	return c_cast(ret);
 }

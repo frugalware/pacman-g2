@@ -97,28 +97,28 @@ bool Database::add_server(const char *url)
 	return true;
 }
 
-FPtrList *Database::filter(const PackageMatcher &packagematcher)
+FPtrList Database::filter(const PackageMatcher &packagematcher)
 {
-	FPtrList &cache = _pacman_db_get_pkgcache(this), *ret = NULL;
+	FPtrList &cache = _pacman_db_get_pkgcache(this), ret;
 
 	for(auto it = cache.begin(), end = cache.end(); it != end; it = it->next()) {
 		Package *pkg = (Package *)f_ptrlistitem_data(it);
 		
 		if(packagematcher.match(pkg)) {
-			ret = ret->add(pkg);
+			ret.add(pkg);
 		}
 	}
 	return ret;
 }
 
-FPtrList *Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags)
+FPtrList Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags)
 {
 	return filter(PackageMatcher(strmatcher, packagestrmatcher_flags));
 }
 
-FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_flags, int strmatcher_flags)
+FPtrList Database::filter(const FStringList *needles, int packagestrmatcher_flags, int strmatcher_flags)
 {
-	FPtrList *ret = NULL;
+	FPtrList ret;
 
 	for(auto i = needles->begin(), end = needles->end(); i != end; i = i->next()) {
 		const char *pattern = f_stringlistitem_to_str(i);
@@ -135,19 +135,19 @@ FPtrList *Database::filter(const FStringList *needles, int packagestrmatcher_fla
 			Package *pkg = (Package *)f_ptrlistitem_data(j);
 
 			if(packagematcher.match(pkg)) {
-				ret = ret->add(pkg);
+				ret.add(pkg);
 			}
 		}
 	}
-	return(ret);
+	return ret;
 }
 
-FPtrList *Database::filter(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags)
+FPtrList Database::filter(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags)
 {
 	if(!f_strempty(pattern)) {
 		return filter(PackageMatcher(pattern, packagestrmatcher_flags, strmatcher_flags));
 	}
-	return NULL;
+	return FPtrList();
 }
 
 Package *Database::find(const PackageMatcher &packagematcher)
@@ -183,7 +183,7 @@ Package *Database::find(const char *pattern, int packagestrmatcher_flags, int st
 	return NULL;
 }
 
-FPtrList *Database::whatPackagesProvide(const char *target)
+FPtrList Database::whatPackagesProvide(const char *target)
 {
 	return filter(target, PM_PACKAGE_FLAG_PROVIDES);
 }

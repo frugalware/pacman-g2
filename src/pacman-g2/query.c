@@ -53,7 +53,7 @@ int querypkg(FStringList *targets)
 			pacman_set_option(PM_OPT_NEEDLES, (long)list_data(i));
 		}
 		ret = pacman_db_search(db_local);
-		if(ret == NULL) {
+		if(pacman_list_count(ret) == 0) {
 			return(1);
 		}
 		for(pmlist_iterator_t *j = pacman_list_begin(ret), *end = pacman_list_end(ret); j != end; j = pacman_list_next(j)) {

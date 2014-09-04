@@ -91,7 +91,7 @@ static int sync_search(list_t *syncs, FStringList *targets)
 			pacman_set_option(PM_OPT_NEEDLES, (long)list_data(j));
 		}
 		ret = pacman_db_search(db);
-		if(ret == NULL) {
+		if(pacman_list_count(ret) == 0) {
 			continue;
 		}
 		for(pmlist_iterator_t *lp = pacman_list_begin(ret), *end = pacman_list_end(ret); lp != end; lp = pacman_list_next(lp)) {
@@ -428,14 +428,16 @@ int syncpkg(FStringList *targets)
 				}
 				if(!found) {
 					/* targ not found in sync db, searching for providers... */
-					PM_LIST *k = NULL;
 					PM_PKG *pkg;
 					char *pname;
-					for(FPtrListIterator *j = f_ptrlist_first(pmc_syncs), *end = f_ptrlist_end(pmc_syncs); j != end && !k; j = f_ptrlistitem_next(j)) {
+					for(FPtrListIterator *j = f_ptrlist_first(pmc_syncs), *end = f_ptrlist_end(pmc_syncs); j != end; j = f_ptrlistitem_next(j)) {
 						PM_DB *db = list_data(j);
-						k = pacman_db_whatprovides(db, targ);
-						pkg = (PM_PKG*)pacman_list_getdata(pacman_list_begin(k));
-						pname = (char*)pacman_pkg_getinfo(pkg, PM_PKG_NAME);
+						PM_LIST *k = pacman_db_whatprovides(db, targ);
+						if(pacman_list_count(k) > 0) {
+							pkg = (PM_PKG*)pacman_list_getdata(pacman_list_begin(k));
+							pname = (char*)pacman_pkg_getinfo(pkg, PM_PKG_NAME);
+							break;
+						}
 					}
 					if(pname != NULL) {
 						/* targ is provided by pname */

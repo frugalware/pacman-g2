@@ -318,13 +318,11 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 				spkg = dbs->find(targ);
 				if(spkg == NULL) {
 					/* Search provides */
-					FPtrList *p;
 					_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
-					p = dbs->whatPackagesProvide(targ);
-					if(p != NULL) {
-						spkg = f_ptrlistitem_data(p->begin());
+					FPtrList p = dbs->whatPackagesProvide(targ);
+					if(!p.empty()) {
+						spkg = f_ptrlistitem_data(p.begin());
 						_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), spkg->name(), targ);
-						FREELISTPTR(p);
 					}
 					break;
 				}
@@ -341,11 +339,10 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
 			for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !spkg; i = i->next()) {
 				Database *dbs = f_ptrlistitem_data(i);
-				FPtrList *p = dbs->whatPackagesProvide(targ);
-				if(p != NULL) {
-					spkg = f_ptrlistitem_data(p->begin());
+				FPtrList p = dbs->whatPackagesProvide(targ);
+				if(!p.empty()) {
+					spkg = f_ptrlistitem_data(p.begin());
 					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), spkg->name(), targ);
-					FREELISTPTR(p);
 				}
 			}
 		}
@@ -1789,14 +1786,13 @@ int __pmtrans_t::commit(FPtrList **data)
 			depinfo = db_local->find(depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
-				FPtrList *provides = db_local->whatPackagesProvide(depend.name);
-				if(provides) {
+				FPtrList provides = db_local->whatPackagesProvide(depend.name);
+				if(!provides.empty()) {
 					/* TODO: should check _all_ packages listed in provides, not just
 					 *			 the first one.
 					 */
 					/* use the first one */
-					depinfo = db_local->find(((Package *)f_ptrlistitem_data(provides->begin()))->name());
-					FREELISTPTR(provides);
+					depinfo = db_local->find(((Package *)f_ptrlistitem_data(provides.begin()))->name());
 				}
 				if(depinfo == NULL) {
 					_pacman_log(PM_LOG_ERROR, _("could not find dependency '%s'"), depend.name);
@@ -1884,14 +1880,13 @@ int __pmtrans_t::commit(FPtrList **data)
 			depinfo = db_local->find(depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
-				FPtrList *provides = db_local->whatPackagesProvide(depend.name);
-				if(provides) {
+				FPtrList provides = db_local->whatPackagesProvide(depend.name);
+				if(!provides.empty()) {
 					/* TODO: should check _all_ packages listed in provides, not just
 					 *       the first one.
 					 */
 					/* use the first one */
-					depinfo = db_local->find(((Package *)f_ptrlistitem_data(provides->begin()))->name());
-					FREELISTPTR(provides);
+					depinfo = db_local->find(((Package *)f_ptrlistitem_data(provides.begin()))->name());
 				}
 				if(depinfo == NULL) {
 					_pacman_log(PM_LOG_ERROR, _("could not find dependency '%s'"), depend.name);

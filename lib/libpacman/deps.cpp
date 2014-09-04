@@ -336,7 +336,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
  				/* check database for provides matches */
  				if(!found) {
  					auto whatPackagesProvide = db_local->whatPackagesProvide(depend.name);
- 					for(auto m = whatPackagesProvide->begin(), m_end = whatPackagesProvide->end(); m != m_end && !found; m = m->next()) {
+ 					for(auto m = whatPackagesProvide.begin(), m_end = whatPackagesProvide.end(); m != m_end && !found; m = m->next()) {
  						/* look for a match that isn't one of the packages we're trying
  						 * to install.  this way, if we match against a to-be-installed
  						 * package, we'll defer to the NEW one, not the one already
@@ -377,7 +377,6 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 							free(ver);
 						}
 					}
-					FREELISTPTR(whatPackagesProvide);
 				}
  				/* check other targets */
  				for(auto k = packages->begin(), k_end = packages->end(); k != k_end && !found; k = k->next()) {
@@ -500,17 +499,16 @@ FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
 			if(dep == NULL) {
 				/* package not found... look for a provisio instead */
 				auto whatPackagesProvide = db->whatPackagesProvide(depend.name);
-				if(whatPackagesProvide == NULL) {
+				if(whatPackagesProvide.empty()) {
 					_pacman_log(PM_LOG_WARNING, _("cannot find package \"%s\" or anything that provides it!"), depend.name);
 					continue;
 				}
-				dep = db->find(((Package *)f_ptrlistitem_data(whatPackagesProvide->begin()))->name());
+				dep = db->find(((Package *)f_ptrlistitem_data(whatPackagesProvide.begin()))->name());
 				if(dep == NULL) {
 					_pacman_log(PM_LOG_ERROR, _("dep is NULL!"));
 					/* wtf */
 					continue;
 				}
-				FREELISTPTR(whatPackagesProvide);
 			}
 			if(_pacman_pkg_isin(dep->name(), targs)) {
 				continue;
@@ -597,12 +595,10 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 		}
 		/* check provides */
 		for(auto j = handle->dbs_sync.begin(), j_end = handle->dbs_sync.end(); !ps && j != j_end; j = j->next()) {
-			FPtrList *provides;
-			provides = ((Database *)f_ptrlistitem_data(j))->whatPackagesProvide(miss->depend.name);
-			if(provides) {
-				ps = f_ptrlistitem_data(provides->begin());
+			FPtrList provides = ((Database *)f_ptrlistitem_data(j))->whatPackagesProvide(miss->depend.name);
+			if(!provides.empty()) {
+				ps = f_ptrlistitem_data(provides.begin());
 			}
-			FREELISTPTR(provides);
 		}
 		if(ps == NULL) {
 			_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"),
