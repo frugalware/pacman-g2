@@ -114,6 +114,8 @@ PM_TRANS: Unused in the public API.
 
 === Behaviour changes
 
+*_getinfo, *_get_option: Does not return return NULL with empty list, the capacity list API (eg. pacman_list_count) should be used instead. This change is due to internal changes, and also remove the ambiguity where NULL does not always denote a failure to access the list.
+
 pacman_db_register: Do not fails anymore trying to register 'local' again, it will output the same warning as other db and will return the local handle.
 
 pacman_db_unregister: Was accepting any database as long as it has a correct treename. Now it only accept valid database pointers. Previous behaviour, if necessary, should be implemented with a pacman_db_unregister_by_name API entry.
