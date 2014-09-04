@@ -91,7 +91,7 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 			} else if(!strcmp(key, "URL")) {
 				STRNCPY(info->m_url, ptr, sizeof(info->m_url));
 			} else if(!strcmp(key, "LICENSE")) {
-				info->license = f_stringlist_add(info->license, ptr);
+				f_stringlist_add(&info->license, ptr);
 			} else if(!strcmp(key, "BUILDDATE")) {
 				STRNCPY(info->builddate, ptr, sizeof(info->builddate));
 			} else if(!strcmp(key, "BUILDTYPE")) {

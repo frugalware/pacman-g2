@@ -116,7 +116,6 @@ __pmtrans_t::~__pmtrans_t()
 	}
 #endif
 	f_stringlist_delete(targets);
-	f_stringlist_delete(skiplist);
 	f_stringlist_delete(triggers);
 
 	state = STATE_IDLE;

@@ -102,7 +102,7 @@ int _pacman_localdb_desc_fread(Package *info, FILE *fp)
 			}
 			f_strtrim(info->m_url);
 		} else if(!strcmp(line, "%LICENSE%")) {
-			_pacman_db_read_lines(&info->license, line, sline, fp);
+			_pacman_db_read_lines(info->license, line, sline, fp);
 		} else if(!strcmp(line, "%ARCH%")) {
 			if(fgets(info->arch, sizeof(info->arch), fp) == NULL) {
 				goto error;

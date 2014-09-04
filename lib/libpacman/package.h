@@ -151,7 +151,7 @@ public:
 	time_t date;
 	unsigned char m_reason;
 	FStringList desc_localized;
-	FStringList *license;
+	FStringList license;
 	FStringList m_replaces;
 	FStringList m_groups;
 	FStringList m_files;

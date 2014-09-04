@@ -335,7 +335,7 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 									 * Our workaround is to scan through all "old" packages and all "new"
 									 * ones, looking for files that jump to different packages.
 									 */
-									trans->skiplist = f_stringlist_add(trans->skiplist, filestr);
+									f_stringlist_add(&trans->skiplist, filestr);
 								}
 							}
 						}

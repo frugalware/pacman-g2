@@ -76,7 +76,7 @@ struct __pmtrans_t
 	FStringList *targets;
 	FPtrList packages;    /* FPtrList of (pmpkg_t *) or (pmsyncpkg_t *) */
 	FPtrList syncpkgs; /* FPtrList of (pmsyncpkg_t *) */
-	FStringList *skiplist;
+	FStringList skiplist;
 	FStringList *triggers;
 
 private:

@@ -178,7 +178,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 			 * see the big comment block in db_find_conflicts() for an
 			 * explanation. */
 			int skipit = 0;
-			for(auto j = trans->skiplist->begin(), end = trans->skiplist->end(); j != end; j = j->next()) {
+			for(auto j = trans->skiplist.begin(), end = trans->skiplist.end(); j != end; j = j->next()) {
 				if(!strcmp(file, f_stringlistitem_to_str(j))) {
 					skipit = 1;
 				}
