@@ -89,7 +89,7 @@ FStringList *f_stringlist_add(FStringList *list, const char *s)
 	if(list == NULL) {
 		list = new FStringList();
 	}
-	list->add(f_strdup(s));
+	list->add(s);
 	return list;
 }
 
@@ -132,6 +132,12 @@ FStringList &FStringList::operator = (FStringList &&o)
 {
 	swap(o);
 	return *this;
+}
+
+bool FStringList::add(const char *s)
+{
+	FPtrList::add(f_strdup(s));
+	return true;
 }
 
 /* vim: set ts=2 sw=2 noet: */
