@@ -797,7 +797,7 @@ void *pacman_pkg_getinfo(pmpkg_t *_pkg, unsigned char parm)
 		case PM_PKG_NAME:        data = pkg->name(); break;
 		case PM_PKG_VERSION:     data = pkg->version(); break;
 		case PM_PKG_DESC:        data = pkg->description(); break;
-		case PM_PKG_GROUPS:      data = pkg->groups(); break;
+		case PM_PKG_GROUPS:      data = &pkg->groups(); break;
 		case PM_PKG_URL:         data = pkg->url(); break;
 		case PM_PKG_ARCH:        data = pkg->arch; break;
 		case PM_PKG_BUILDDATE:   data = pkg->builddate; break;

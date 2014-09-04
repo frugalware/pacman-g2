@@ -95,7 +95,7 @@ int _pacman_localdb_desc_fread(Package *info, FILE *fp)
 			}
 			f_strtrim(info->m_description);
 		} else if(!strcmp(line, "%GROUPS%")) {
-			_pacman_db_read_lines(&info->m_groups, line, sline, fp);
+			_pacman_db_read_lines(info->m_groups, line, sline, fp);
 		} else if(!strcmp(line, "%URL%")) {
 			if(fgets(info->m_url, sizeof(info->m_url), fp) == NULL) {
 				goto error;

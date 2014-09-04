@@ -153,7 +153,7 @@ public:
 	FStringList *desc_localized;
 	FStringList *license;
 	FStringList *m_replaces;
-	FStringList *m_groups;
+	FStringList m_groups;
 	FStringList m_files;
 	FStringList m_backup;
 	FStringList m_depends;

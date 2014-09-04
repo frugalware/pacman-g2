@@ -174,8 +174,8 @@ int _pacman_db_load_grpcache(Database *db)
 			pkg->read(INFRQ_DESC);
 		}
 
-		FStringList *groups = pkg->groups();
-		for(auto git = groups->begin(), git_end = groups->end(); git != git_end; git = git->next()) {
+		auto &groups = pkg->groups();
+		for(auto git = groups.begin(), git_end = groups.end(); git != git_end; git = git->next()) {
 			const char *grp_name = f_stringlistitem_to_str(git);
 
 			Group *grp = _pacman_db_get_grpfromlist(&db->grpcache, grp_name);
