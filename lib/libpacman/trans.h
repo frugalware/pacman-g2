@@ -73,7 +73,7 @@ struct __pmtrans_t
 	pmtranstype_t m_type;
 	unsigned int flags;
 	unsigned char state;
-	FStringList *targets;
+	FStringList targets;
 	FPtrList packages;    /* FPtrList of (pmpkg_t *) or (pmsyncpkg_t *) */
 	FPtrList syncpkgs; /* FPtrList of (pmsyncpkg_t *) */
 	FStringList skiplist;

@@ -115,9 +115,6 @@ __pmtrans_t::~__pmtrans_t()
 		f_ptrlist_delete(syncpkgs, &visitor);
 	}
 #endif
-	f_stringlist_delete(targets);
-
-	state = STATE_IDLE;
 }
 
 static
@@ -299,10 +296,10 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	ASSERT((db_local = m_handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	if(_pacman_list_is_strin(target, targets)) {
+	if(_pacman_list_is_strin(target, &targets)) {
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
-	targets = f_stringlist_add(targets, target);
+	f_stringlist_add(&targets, target);
 
 	if(type == PM_TRANS_TYPE_SYNC) {
 	char targline[PKG_FULLNAME_LEN];
@@ -652,8 +649,8 @@ int __pmtrans_t::prepare(FPtrList **data)
 
 						/* figure out which one was requested in targets.  If they both were,
 						 * then it's still an unresolvable conflict. */
-						target = _pacman_list_is_strin(miss->target, targets);
-						depend = _pacman_list_is_strin(miss->depend.name, targets);
+						target = _pacman_list_is_strin(miss->target, &targets);
+						depend = _pacman_list_is_strin(miss->depend.name, &targets);
 						if(depend && !target) {
 							_pacman_log(PM_LOG_DEBUG, _("'%s' is in the target list -- keeping it"),
 								miss->depend.name);
