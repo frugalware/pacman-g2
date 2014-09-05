@@ -114,7 +114,7 @@ FPtrList &_pacman_depmisslist_add(FPtrList &misslist, pmdepmissing_t *miss)
 FPtrList _pacman_sortbydeps(const FPtrList &targets, int mode)
 {
 	FPtrList newtargs;
-	FPtrList *vertices = NULL;
+	FPtrList vertices;
 	FPtrListIterator *vptr;
 	pmgraph_t *vertex;
 	int found;
@@ -129,15 +129,15 @@ FPtrList _pacman_sortbydeps(const FPtrList &targets, int mode)
 	for(auto i = targets.begin(), end = targets.end(); i != end; i = i->next()) {
 		pmgraph_t *v = _pacman_graph_new();
 		v->data = f_ptrlistitem_data(i);
-		vertices = vertices->add(v);
+		vertices.add(v);
 	}
 
 	/* We compute the edges */
-	for(auto i = vertices->begin(), end = vertices->end(); i != end; i = i->next()) {
+	for(auto i = vertices.begin(), end = vertices.end(); i != end; i = i->next()) {
 		pmgraph_t *vertex_i = f_ptrlistitem_data(i);
 		Package *p_i = vertex_i->data;
 		/* TODO this should be somehow combined with _pacman_checkdeps */
-		for(auto j = vertices->begin(); j != end; j = j->next()) {
+		for(auto j = vertices.begin(); j != end; j = j->next()) {
 			pmgraph_t *vertex_j = f_ptrlistitem_data(j);
 			Package *p_j = vertex_j->data;
 			int child = 0;
@@ -154,8 +154,8 @@ FPtrList _pacman_sortbydeps(const FPtrList &targets, int mode)
 		vertex_i->childptr = vertex_i->children.begin();
 	}
 
-	vptr = vertices->begin();
-	vertex = f_ptrlistitem_data(vertices->begin());
+	vptr = vertices.begin();
+	vertex = f_ptrlistitem_data(vptr);
 	while(vptr) {
 		/* mark that we touched the vertex */
 		vertex->state = -1;
@@ -194,10 +194,7 @@ FPtrList _pacman_sortbydeps(const FPtrList &targets, int mode)
 		/* free the old one */
 		newtargs.swap(*tmptargs);
 	}
-
-	_FREELIST(vertices, _pacman_graph_free);
-
-	return(newtargs);
+	return newtargs;
 }
 
 /* Returns a FPtrList* of missing_t pointers.
