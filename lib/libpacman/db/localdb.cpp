@@ -534,15 +534,15 @@ cleanup:
 	return(retval);
 }
 
-FPtrList *LocalDatabase::getowners(const char *filename)
+FPtrList LocalDatabase::getowners(const char *filename)
 {
 	struct stat buf;
 	int gotcha = 0;
 	char rpath[PATH_MAX];
-	FPtrList *ret = NULL;
+	FPtrList ret;
 
 	if(stat(filename, &buf) == -1 || realpath(filename, rpath) == NULL) {
-		RET_ERR(PM_ERR_PKG_OPEN, NULL);
+		RET_ERR(PM_ERR_PKG_OPEN, ret);
 	}
 
 	if(S_ISDIR(buf.st_mode)) {
@@ -562,21 +562,21 @@ FPtrList *LocalDatabase::getowners(const char *filename)
 
 			snprintf(path, PATH_MAX, "%s%s", m_handle->root, f_stringlistitem_to_str(i));
 			if(!strcmp(path, rpath)) {
-				ret = ret->add(info);
+				ret.add(info);
 				if(rpath[strlen(rpath)-1] != '/') {
 					/* we are searching for a file and multiple packages won't contain
 					 * the same file */
-					return(ret);
+					return ret;
 				}
 				gotcha = 1;
 			}
 		}
 	}
 	if(!gotcha) {
-		RET_ERR(PM_ERR_NO_OWNER, NULL);
+		RET_ERR(PM_ERR_NO_OWNER, ret);
 	}
 
-	return(ret);
+	return ret;
 }
 
 /* vim: set ts=2 sw=2 noet: */
