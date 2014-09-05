@@ -72,9 +72,6 @@ __pmsyncpkg_t::__pmsyncpkg_t(int type, Package *spkg, void *data)
 
 __pmsyncpkg_t::~__pmsyncpkg_t()
 {
-	if(type == PM_SYNC_TYPE_REPLACE) {
-		FREELISTPKGS(data);
-	}
 	fRelease(pkg_new);
 	fRelease(pkg_local);
 }

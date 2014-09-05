@@ -38,6 +38,7 @@ struct __pmsyncpkg_t
 	libpacman::Package *pkg_new;
 	void *data;
 	libpacman::Package *pkg_local;
+	FPtrList m_replaces;
 };
 
 #endif /* _PACMAN_SYNC_H */
