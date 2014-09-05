@@ -1414,7 +1414,7 @@ int __pmtrans_t::commit(FPtrList **data)
 	_pacman_trans_set_state(this, STATE_COMMITING);
 
 	if(m_type == PM_TRANS_TYPE_SYNC) {
-	FPtrList files;
+	FStringList files;
 	char ldir[PATH_MAX];
 	int retval = 0, tries = 0;
 	int varcache = 1;
@@ -1479,7 +1479,7 @@ int __pmtrans_t::commit(FPtrList **data)
 						varcache = 0;
 					}
 				}
-				if(_pacman_downloadfiles(m_handle, &current->servers, ldir, &files, tries) == -1) {
+				if(_pacman_downloadfiles(m_handle, current->servers, ldir, files, tries) == -1) {
 					_pacman_log(PM_LOG_WARNING, _("failed to retrieve some files from %s\n"), current->treename());
 					retval=1;
 					done = 0;

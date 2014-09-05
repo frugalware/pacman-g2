@@ -342,7 +342,7 @@ error:
  *
  * RETURN:  0 for successful download, -1 on error
  */
-int _pacman_downloadfiles(Handle *handle, FPtrList *servers, const char *localpath, FPtrList *files, int skip)
+int _pacman_downloadfiles(Handle *handle, const FPtrList &servers, const char *localpath, const FStringList &files, int skip)
 {
 	if(_pacman_downloadfiles_forreal(handle, servers, localpath, files, NULL, NULL, skip) != 0) {
 		return(-1);
@@ -364,20 +364,20 @@ int _pacman_downloadfiles(Handle *handle, FPtrList *servers, const char *localpa
  *          1 if the mtimes are identical
  *         -1 on error
  */
-int _pacman_downloadfiles_forreal(Handle *handle, FPtrList *servers, const char *localpath,
-	FPtrList *files, const Timestamp *mtime1, Timestamp *mtime2, int skip)
+int _pacman_downloadfiles_forreal(Handle *handle, const FPtrList &servers, const char *localpath,
+	const FStringList &files, const Timestamp *mtime1, Timestamp *mtime2, int skip)
 {
 	int done = 0;
 	FPtrList *complete = NULL;
 	pmserver_t *server;
 	int *remain = handle->dlremain, *howmany = handle->dlhowmany;
 
-	if(files == NULL) {
-		return(0);
+	if(files.empty()) {
+		return 0;
 	}
 
 	if(howmany) {
-		*howmany = f_ptrlist_count(files);
+		*howmany = f_ptrlist_count(&files);
 	}
 	if(remain) {
 		*remain = 1;
@@ -391,17 +391,16 @@ int _pacman_downloadfiles_forreal(Handle *handle, FPtrList *servers, const char 
 		mtime1 = NULL;
 	}
 
-	_pacman_log(PM_LOG_DEBUG, _("server check, %d\n"),servers);
 	int count = 0;
-	for(auto i = servers->begin(), end = servers->end(); i != end && !done; i = i->next(), count++) {
+	for(auto i = servers.begin(), end = servers.end(); i != end && !done; i = i->next(), count++) {
 		pm_errno = 0;
 		if (count < skip)
 			continue; /* the caller requested skip of this server */
-		_pacman_log(PM_LOG_DEBUG, _("server check, done? %d\n"),done);
 		server = (pmserver_t*)f_ptrlistitem_data(i);
 
+		_pacman_log(PM_LOG_DEBUG, _("trying to download with server url: %s://%s%s"), server->protocol, server->server, server->path);
 		/* get each file in the list */
-		for(auto lp = files->begin(), end = files->end(); lp != end; lp = lp->next()) {
+		for(auto lp = files.begin(), end = files.end(); lp != end; lp = lp->next()) {
 			char *fn = f_stringlistitem_to_str(lp);
 
 			if(_pacman_list_is_strin(fn, complete)) {
@@ -578,7 +577,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, FPtrList *servers, const char 
 			}
 		}
 
-		if(f_ptrlist_count(complete) == f_ptrlist_count(files)) {
+		if(f_ptrlist_count(complete) == f_ptrlist_count(&files)) {
 			done = 1;
 		}
 	}
@@ -625,8 +624,8 @@ char *_pacman_fetch_pkgurl(Handle *handle, char *target)
 		_pacman_log(PM_LOG_DEBUG, _("%s is already in the cache\n"), fn);
 	} else {
 		pmserver_t *server;
-		FPtrList *servers = NULL;
-		FPtrList *files = f_ptrlist_new();
+		FPtrList servers;
+		FStringList files;
 
 		if((server = _pacman_malloc(sizeof(pmserver_t))) == NULL) {
 			return(NULL);
@@ -634,16 +633,13 @@ char *_pacman_fetch_pkgurl(Handle *handle, char *target)
 		server->protocol = url;
 		server->server = host;
 		server->path = spath;
-		servers = servers->add(server);
+		servers.add(server);
 
-		files = files->add(fn);
+		files.add(fn);
 		if(_pacman_downloadfiles(handle, servers, lcache, files, 0)) {
 			_pacman_log(PM_LOG_WARNING, _("failed to download %s\n"), target);
 			return(NULL);
 		}
-		FREELISTPTR(files);
-
-		FREELIST(servers);
 	}
 
 	/* return the target with the raw filename, no URL */

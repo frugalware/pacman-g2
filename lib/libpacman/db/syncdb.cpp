@@ -151,7 +151,7 @@ SyncPackage *_pacman_syncdb_pkg_new(SyncDatabase *db, const struct archive_entry
 int _pacman_syncdb_update(Database *db, int force)
 {
 	char path[PATH_MAX], dirpath[PATH_MAX];
-	FPtrList files;
+	FStringList files;
 	Timestamp newmtime;
 	Timestamp timestamp;
 	int ret, updated=0;
@@ -170,7 +170,7 @@ int _pacman_syncdb_update(Database *db, int force)
 
 	snprintf(path, PATH_MAX, "%s%s", handle->root, handle->dbpath);
 
-	ret = _pacman_downloadfiles_forreal(db->m_handle, &db->servers, path, &files, &timestamp, &newmtime, 0);
+	ret = _pacman_downloadfiles_forreal(db->m_handle, db->servers, path, files, &timestamp, &newmtime, 0);
 	if(ret != 0) {
 		if(ret == -1) {
 			_pacman_log(PM_LOG_DEBUG, _("failed to sync db: %s [%d]\n"),  pacman_strerror(ret), ret);
