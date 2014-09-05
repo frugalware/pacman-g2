@@ -72,7 +72,7 @@ public:
 	/* Cache operations */
 	FPtrList filter(const libpacman::PackageMatcher &packagematcher);
 	FPtrList filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
-	FPtrList filter(const FStringList *needles, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);
+	FPtrList filter(const FStringList &needles, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);
 	FPtrList filter(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);
 	libpacman::Package *find(const libpacman::PackageMatcher &packagematcher);
 	libpacman::Package *find(const FStrMatcher *strmatcher, int packagestrmatcher_flags);

@@ -116,11 +116,11 @@ FPtrList Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_f
 	return filter(PackageMatcher(strmatcher, packagestrmatcher_flags));
 }
 
-FPtrList Database::filter(const FStringList *needles, int packagestrmatcher_flags, int strmatcher_flags)
+FPtrList Database::filter(const FStringList &needles, int packagestrmatcher_flags, int strmatcher_flags)
 {
 	FPtrList ret;
 
-	for(auto i = needles->begin(), end = needles->end(); i != end; i = i->next()) {
+	for(auto i = needles.begin(), end = needles.end(); i != end; i = i->next()) {
 		const char *pattern = f_stringlistitem_to_str(i);
 
 		if(f_strempty(pattern)) {

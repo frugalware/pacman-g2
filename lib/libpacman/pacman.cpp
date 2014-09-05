@@ -995,7 +995,7 @@ pmlist_t *pacman_db_search(pmdb_t *_db)
 	ASSERT(!handle->needles.empty(), return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
-	FPtrList *ret = new FPtrList(db->filter(&handle->needles,
+	FPtrList *ret = new FPtrList(db->filter(handle->needles,
 			PM_PACKAGE_FLAG_NAME | PM_PACKAGE_FLAG_DESCRIPTION | PM_PACKAGE_FLAG_PROVIDES,
 			FStrMatcher::ALL_IGNORE_CASE));
 	handle->needles.clear();
