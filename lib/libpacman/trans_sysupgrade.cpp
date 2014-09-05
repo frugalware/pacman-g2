@@ -116,7 +116,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 									/* none found -- enter pkg into the final sync list */
 									ps = new __pmsyncpkg_t(PM_SYNC_TYPE_REPLACE, spkg, NULL);
 									lpkg->acquire();
-									ps->data = f_ptrlist_new();
+									ps->data = new FPtrList();
 									ps->data = ((FPtrList *)ps->data)->add(lpkg);
 									trans->syncpkgs.add(ps);
 								}

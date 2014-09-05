@@ -725,7 +725,7 @@ int inList(FPtrList *lst, char *lItem) {
 
 extern "C" {
 int pacman_output_generate(FPtrList *targets, FPtrList *dblist) {
-    FPtrList *found = f_ptrlist_new();
+    FPtrList found;
     Package *pkg = NULL;
     char *match = NULL;
     int foundMatch = 0;
@@ -747,13 +747,13 @@ int pacman_output_generate(FPtrList *targets, FPtrList *dblist) {
                             continue;
                         }
                         strcpy(fullDep, depend.name);
-                        if(!inList(found, fullDep) && !inList(targets, fullDep)) {
+                        if(!inList(&found, fullDep) && !inList(targets, fullDep)) {
                             targets = targets->add(fullDep);
                         }
                     }
-                    if(!inList(found,pname)) {
+                    if(!inList(&found,pname)) {
                         printf("%s ", pname);
-                        found = found->add(pname);
+                        found.add(pname);
                     }
                     FREE(match);
                 }
@@ -762,7 +762,6 @@ int pacman_output_generate(FPtrList *targets, FPtrList *dblist) {
             db->rewind();
         } while(foundMatch);
     }
-    FREELISTPTR(found);
     FREELISTPTR(targets);
     printf("\n");
     return 0;
