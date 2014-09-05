@@ -54,7 +54,7 @@ public:
 	const char *treename() const;
 
 	/* Prototypes for backends functions */
-	virtual FPtrList *test() const;
+	virtual FStringList test() const;
 
 	virtual int open(int flags = 0);
 	virtual int close();

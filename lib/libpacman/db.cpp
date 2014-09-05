@@ -188,10 +188,10 @@ FPtrList Database::whatPackagesProvide(const char *target)
 	return filter(target, PM_PACKAGE_FLAG_PROVIDES);
 }
 
-FPtrList *Database::test() const
+FStringList Database::test() const
 {
 	/* testing sync dbs is not supported */
-	return f_ptrlist_new();
+	return FStringList();
 }
 
 int Database::open(int flags)

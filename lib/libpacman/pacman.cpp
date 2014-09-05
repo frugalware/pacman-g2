@@ -979,7 +979,7 @@ pmlist_t *pacman_db_test(pmdb_t *_db)
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
-	return c_cast(db->test());
+	return c_cast(new FStringList(db->test()));
 }
 
 /** Searches a database
