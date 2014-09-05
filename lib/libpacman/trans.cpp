@@ -480,7 +480,6 @@ int __pmtrans_t::prepare(FPtrList **data)
 	FPtrList lp;
 	FPtrList deps;
 	FPtrList list; /* list allowing checkdeps usage with data from packages */
-	FPtrList *trail = NULL; /* breadcrum list to avoid running into circles */
 	int ret = 0;
 
 	/* Sanity checks */
@@ -505,14 +504,14 @@ int __pmtrans_t::prepare(FPtrList **data)
 	}
 
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
-		trail = f_ptrlist_new();
+		FPtrList trail; /* breadcrum list to avoid running into circles */
 
 		/* Resolve targets dependencies */
 		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = i->next()) {
 			Package *spkg = ((pmsyncpkg_t *)f_ptrlistitem_data(i))->pkg_new;
-			if(_pacman_resolvedeps(this, spkg, &list, trail, data) == -1) {
+			if(_pacman_resolvedeps(this, spkg, list, trail, data) == -1) {
 				/* pm_errno is set by resolvedeps */
 				ret = -1;
 				goto cleanup;
@@ -570,8 +569,6 @@ int __pmtrans_t::prepare(FPtrList **data)
 			ret = -1;
 			goto cleanup;
 		}
-
-		FREELISTPTR(trail);
 	}
 
 	if(!(flags & PM_TRANS_FLAG_NOCONFLICTS)) {
@@ -855,9 +852,6 @@ int __pmtrans_t::prepare(FPtrList **data)
 	check_olddelay(m_handle);
 
 cleanup:
-	list.clear();
-	FREELISTPTR(trail);
-
 	if(ret != 0) {
 		return ret;
 	}

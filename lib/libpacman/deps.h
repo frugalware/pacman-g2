@@ -55,8 +55,8 @@ FPtrList _pacman_sortbydeps(const FPtrList &targets, int mode);
 FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &packages);
 int _pacman_splitdep(char *depstr, pmdepend_t *depend);
 FPtrList *_pacman_removedeps(libpacman::Database *db, FPtrList *targs);
-int _pacman_resolvedeps(pmtrans_t *trans, libpacman::Package *syncpkg, FPtrList *list,
-                FPtrList *trail, FPtrList **data);
+int _pacman_resolvedeps(pmtrans_t *trans, libpacman::Package *syncpkg, FPtrList &list,
+                FPtrList &trail, FPtrList **data);
 int _pacman_depcmp(libpacman::Package *pkg, pmdepend_t *dep);
 
 #endif /* _PACMAN_DEPS_H */

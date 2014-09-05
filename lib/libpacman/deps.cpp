@@ -550,8 +550,8 @@ FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
  *
  * make sure *list and *trail are already initialized
  */
-int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
-                      FPtrList *trail, FPtrList **data)
+int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList &list,
+                      FPtrList &trail, FPtrList **data)
 {
 	FPtrList targ, deps;
 	Handle *handle = trans->m_handle;
@@ -573,7 +573,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 		Package *ps = NULL;
 
 		/* check if one of the packages in *list already provides this dependency */
-		for(auto j = list->begin(), j_end = list->end(); j != j_end && !found; j = j->next()) {
+		for(auto j = list.begin(), j_end = list.end(); j != j_end && !found; j = j->next()) {
 			Package *sp = (Package *)f_ptrlistitem_data(j);
 			if(sp->provides(miss->depend.name)) {
 				_pacman_log(PM_LOG_DEBUG, _("%s provides dependency %s -- skipping"),
@@ -611,14 +611,14 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 			pm_errno = PM_ERR_UNSATISFIED_DEPS;
 			goto error;
 		}
-		if(_pacman_pkg_isin(ps->name(), list)) {
+		if(_pacman_pkg_isin(ps->name(), &list)) {
 			/* this dep is already in the target list */
 			_pacman_log(PM_LOG_DEBUG, _("dependency %s is already in the target list -- skipping"),
 			          ps->name());
 			continue;
 		}
 
-		if(!_pacman_pkg_isin(ps->name(), trail)) {
+		if(!_pacman_pkg_isin(ps->name(), &trail)) {
 			/* check pmo_ignorepkg and pmo_s_ignore to make sure we haven't pulled in
 			 * something we're not supposed to.
 			 */
@@ -629,13 +629,13 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 				dummypkg->release();
 			}
 			if(usedep) {
-				trail = trail->add(ps);
+				trail.add(ps);
 				if(_pacman_resolvedeps(trans, ps, list, trail, data)) {
 					goto error;
 				}
 				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s (needed by %s)"),
 				          ps->name(), syncpkg->name());
-				list = list->add(ps);
+				list.add(ps);
 			} else {
 				_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\""), miss->target);
 				if(data) {
