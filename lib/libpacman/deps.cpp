@@ -111,22 +111,22 @@ FPtrList *_pacman_depmisslist_add(FPtrList *misslist, pmdepmissing_t *miss)
  * This function returns the new FPtrList* target list.
  *
  */
-FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
+FPtrList _pacman_sortbydeps(const FPtrList &targets, int mode)
 {
-	FPtrList *newtargs = NULL;
+	FPtrList newtargs;
 	FPtrList *vertices = NULL;
 	FPtrListIterator *vptr;
 	pmgraph_t *vertex;
 	int found;
 
-	if(targets == NULL) {
-		return(NULL);
+	if(targets.empty()) {
+		return newtargs;
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("started sorting dependencies"));
 
 	/* We create the vertices */
-	for(auto i = targets->begin(), end = targets->end(); i != end; i = i->next()) {
+	for(auto i = targets.begin(), end = targets.end(); i != end; i = i->next()) {
 		pmgraph_t *v = _pacman_graph_new();
 		v->data = f_ptrlistitem_data(i);
 		vertices = vertices->add(v);
@@ -172,7 +172,7 @@ FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
 			}
 		}
 		if(!found) {
-			newtargs = newtargs->add(vertex->data);
+			newtargs.add(vertex->data);
 			/* mark that we've left this vertex */
 			vertex->state = 1;
 			vertex = vertex->parent;
@@ -190,10 +190,9 @@ FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
 
 	if(mode == PM_TRANS_TYPE_REMOVE) {
 		/* we're removing packages, so reverse the order */
-		FPtrList *tmptargs = _pacman_list_reverse(newtargs);
+		FPtrList *tmptargs = _pacman_list_reverse(&newtargs);
 		/* free the old one */
-		FREELISTPTR(newtargs);
-		newtargs = tmptargs;
+		newtargs.swap(*tmptargs);
 	}
 
 	_FREELIST(vertices, _pacman_graph_free);
@@ -206,20 +205,20 @@ FPtrList *_pacman_sortbydeps(FPtrList *targets, int mode)
  * dependencies can include versions with depmod operators.
  *
  */
-FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packages)
+FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &packages)
 {
 	pmdepend_t depend;
 	int cmp;
 	int found = 0;
-	FPtrList *baddeps = NULL;
+	FPtrList baddeps;
 	pmdepmissing_t *miss = NULL;
 	Database *db_local = trans->m_handle->db_local;
 
 	if(db_local == NULL) {
-		return(NULL);
+		return baddeps;
 	}
 
-	for(auto i = packages->begin(), end = packages->end(); i != end; i = i->next()) {
+	for(auto i = packages.begin(), end = packages.end(); i != end; i = i->next()) {
 		Package *tp = f_ptrlistitem_data(i);
 		Package *pkg_local;
 
@@ -249,7 +248,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 						/* hmmm... package isn't installed.. */
 						continue;
 					}
-					if(_pacman_pkg_isin(p->name(), packages)) {
+					if(_pacman_pkg_isin(p->name(), &packages)) {
 						/* this package is also in the upgrade list, so don't worry about it */
 						continue;
 					}
@@ -264,12 +263,12 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 									pkg_local->name(), p->name());
 							miss = new __pmdepmissing_t(p->name(), PM_DEP_TYPE_DEPEND, depend.mod,
 									depend.name, depend.version);
-							baddeps = _pacman_depmisslist_add(baddeps, miss);
+							_pacman_depmisslist_add(&baddeps, miss);
 						}
 					}
 				} else if(op == PM_TRANS_TYPE_REMOVE) {
 					/* check requiredby fields */
-					if(!_pacman_pkg_isin(requiredby_name, packages)) {
+					if(!_pacman_pkg_isin(requiredby_name, &packages)) {
 						/* check if a package in trans->packages provides this package */
 						for(auto k = trans->packages.begin(), k_end = trans->packages.end(); !found && k != k_end; k = k->next()) {
 							Package *spkg = f_ptrlistitem_data(k);
@@ -288,7 +287,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 						if(!found) {
 							_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s which requires %s"), requiredby_name, pkg_local->name());
 							miss = new __pmdepmissing_t(pkg_local->name(), PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, requiredby_name, NULL);
-							baddeps = _pacman_depmisslist_add(baddeps, miss);
+							_pacman_depmisslist_add(&baddeps, miss);
 						}
 					}
 				}
@@ -343,7 +342,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
  						 * installed. */
  						Package *p = f_ptrlistitem_data(m);
  						int skip = 0;
- 						for(auto n = packages->begin(), n_end = packages->end(); n != n_end && !skip; n = n->next()) {
+ 						for(auto n = packages.begin(), n_end = packages.end(); n != n_end && !skip; n = n->next()) {
  							Package *ptp = f_ptrlistitem_data(n);
  							if(!strcmp(ptp->name(), p->name())) {
  								skip = 1;
@@ -379,7 +378,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 					}
 				}
  				/* check other targets */
- 				for(auto k = packages->begin(), k_end = packages->end(); k != k_end && !found; k = k->next()) {
+ 				for(auto k = packages.begin(), k_end = packages.end(); k != k_end && !found; k = k->next()) {
  					Package *p = (Package *)f_ptrlistitem_data(k);
  					/* see if the package names match OR if p provides depend.name */
  					if(!strcmp(p->name(), depend.name) || p->provides(depend.name)) {
@@ -415,7 +414,7 @@ FPtrList *_pacman_checkdeps(pmtrans_t *trans, unsigned char op, FPtrList *packag
 					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s as a dependency for %s"),
 					          depend.name, tp->name());
 					miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
-					baddeps = _pacman_depmisslist_add(baddeps, miss);
+					_pacman_depmisslist_add(&baddeps, miss);
 				}
 			}
 		}
@@ -554,23 +553,21 @@ FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
 int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
                       FPtrList *trail, FPtrList **data)
 {
-	FPtrList *targ = f_ptrlist_new();
-	FPtrList *deps = NULL;
+	FPtrList targ, deps;
 	Handle *handle = trans->m_handle;
 
 	if(handle->dbs_sync.empty() || syncpkg == NULL) {
 		return(-1);
 	}
 
-	targ = targ->add(syncpkg);
+	targ.add(syncpkg);
 	deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_ADD, targ);
-	FREELISTPTR(targ);
 
-	if(deps == NULL) {
-		return(0);
+	if(deps.empty()) {
+		return 0;
 	}
 
-	for(auto i = deps->begin(), end = deps->end(); i != end; i = i->next()) {
+	for(auto i = deps.begin(), end = deps.end(); i != end; i = i->next()) {
 		int found = 0;
 		pmdepmissing_t *miss = f_ptrlistitem_data(i);
 		Package *ps = NULL;
@@ -657,14 +654,10 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList *list,
 			_pacman_log(PM_LOG_DEBUG, _("dependency cycle detected: %s"), ps->name());
 		}
 	}
-
-	FREELIST(deps);
-
-	return(0);
+	return 0;
 
 error:
-	FREELIST(deps);
-	return(-1);
+	return -1;
 }
 
 int _pacman_depcmp(Package *pkg, pmdepend_t *dep)

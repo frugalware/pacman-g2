@@ -48,22 +48,22 @@ using namespace libpacman;
  *
  * conflicts are always name only
  */
-FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
+FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FPtrList &packages)
 {
 	Package *info = NULL;
-	FPtrList *baddeps = NULL;
+	FPtrList baddeps;
 	pmdepmissing_t *miss = NULL;
 	int howmany, remain;
 	double percent;
 	Database *db_local = trans->m_handle->db_local;
 
 	if(db_local == NULL) {
-		return(NULL);
+		return baddeps;
 	}
 
-	howmany = f_ptrlist_count(packages);
+	howmany = f_ptrlist_count(&packages);
 
-	for(auto i = packages->begin(), end = packages->end(); i != end; i = i->next()) {
+	for(auto i = packages.begin(), end = packages.end(); i != end; i = i->next()) {
 		Package *tp = (Package *)f_ptrlistitem_data(i);
 		if(tp == NULL) {
 			continue;
@@ -98,7 +98,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 					_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
 					          dp->name(), tp->name());
 					miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, dp->name(), NULL);
-					baddeps = _pacman_depmisslist_add(baddeps, miss);
+					_pacman_depmisslist_add(&baddeps, miss);
 				} else {
 					/* see if dp provides something in tp's conflict list */
 					auto &provides = dp->provides();
@@ -108,14 +108,14 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 							_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
 							          dp->name(), tp->name());
 							miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, dp->name(), NULL);
-							baddeps = _pacman_depmisslist_add(baddeps, miss);
+							_pacman_depmisslist_add(&baddeps, miss);
 						}
 					}
 				}
 			}
 			/* CHECK 2: check targets against targets */
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs targs"), tp->name());
-			for(auto k = packages->begin(), k_end = packages->end(); k != k_end; k = k->next()) {
+			for(auto k = packages.begin(), k_end = packages.end(); k != k_end; k = k->next()) {
 				Package *otp = (Package *)f_ptrlistitem_data(k);
 				if(!strcmp(otp->name(), tp->name())) {
 					/* a package cannot conflict with itself -- that's just not nice */
@@ -126,7 +126,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 					_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
 					          otp->name(), tp->name());
 					miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, otp->name(), NULL);
-					baddeps = _pacman_depmisslist_add(baddeps, miss);
+					_pacman_depmisslist_add(&baddeps, miss);
 				} else {
 					/* see if otp provides something in tp's conflict list */
 					auto &provides = otp->provides();
@@ -135,7 +135,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 							_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
 							          otp->name(), tp->name());
 							miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, otp->name(), NULL);
-							baddeps = _pacman_depmisslist_add(baddeps, miss);
+							_pacman_depmisslist_add(&baddeps, miss);
 						}
 					}
 				}
@@ -156,7 +156,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 			/* If this package (*info) is also in our packages FPtrList, use the
 			 * conflicts list from the new package, not the old one (*info)
 			 */
-			for(auto j = packages->begin(), j_end = packages->end(); j != j_end; j = j->next()) {
+			for(auto j = packages.begin(), j_end = packages.end(); j != j_end; j = j->next()) {
 				Package *pkg = (Package *)f_ptrlistitem_data(j);
 				if(!strcmp(pkg->name(), info->name())) {
 					/* Use the new, to-be-installed package's conflicts */
@@ -173,7 +173,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 					_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
 					          info->name(), tp->name());
 					miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name(), NULL);
-					baddeps = _pacman_depmisslist_add(baddeps, miss);
+					_pacman_depmisslist_add(&baddeps, miss);
 				} else {
 					/* see if the db package conflicts with something we provide */
 					for(auto m = conflicts->begin(), m_end = conflicts->end(); m != m_end; m = m->next()) {
@@ -183,7 +183,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 								_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
 								          info->name(), tp->name());
 								miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name(), NULL);
-								baddeps = _pacman_depmisslist_add(baddeps, miss);
+								_pacman_depmisslist_add(&baddeps, miss);
 							}
 						}
 					}
@@ -191,8 +191,7 @@ FPtrList *_pacman_checkconflicts(pmtrans_t *trans, FPtrList *packages)
 			}
 		}
 	}
-
-	return(baddeps);
+	return baddeps;
 }
 
 /* Returns a FPtrList* of file conflicts.
@@ -231,12 +230,12 @@ static FStringList chk_fileconflicts(const FStringList &filesA, const FStringLis
 	return ret;
 }
 
-FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
+FPtrList _pacman_db_find_conflicts(pmtrans_t *trans)
 {
 	char *filestr = NULL;
 	char path[PATH_MAX+1];
 	struct stat buf;
-	FPtrList *conflicts = NULL;
+	FPtrList conflicts;
 	Package *p, *dbpkg;
 	double percent;
 	int howmany, remain;
@@ -244,7 +243,7 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 	const char *root = trans->m_handle->root;
 
 	if(db_local == NULL || trans->packages.empty() || root == NULL) {
-		return(NULL);
+		return conflicts;
 	}
 	howmany = f_ptrlist_count(&trans->packages);
 
@@ -267,7 +266,7 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 						STRNCPY(conflict->target, p1->name(), PKG_NAME_LEN);
 						STRNCPY(conflict->file, f_stringlistitem_to_str(k), CONFLICT_FILE_LEN);
 						STRNCPY(conflict->ctarget, p2->name(), PKG_NAME_LEN);
-						conflicts = conflicts->add(conflict);
+						conflicts.add(conflict);
 				}
 			}
 		}
@@ -348,13 +347,12 @@ FPtrList *_pacman_db_find_conflicts(pmtrans_t *trans)
 					STRNCPY(conflict->target, p->name(), PKG_NAME_LEN);
 					STRNCPY(conflict->file, filestr, CONFLICT_FILE_LEN);
 					conflict->ctarget[0] = 0;
-					conflicts = conflicts->add(conflict);
+					conflicts.add(conflict);
 				}
 			}
 		}
 	}
-
-	return(conflicts);
+	return conflicts;
 }
 
 /* vim: set ts=2 sw=2 noet: */

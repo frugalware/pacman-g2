@@ -477,18 +477,17 @@ error:
 int __pmtrans_t::prepare(FPtrList **data)
 {
 	Database *db_local;
-	FPtrList *lp;
-	FPtrList *deps = NULL;
-	FPtrList *list = NULL; /* list allowing checkdeps usage with data from packages */
+	FPtrList lp;
+	FPtrList deps;
+	FPtrList list; /* list allowing checkdeps usage with data from packages */
 	FPtrList *trail = NULL; /* breadcrum list to avoid running into circles */
-	FPtrList *k, *l, *m;
 	int ret = 0;
 
 	/* Sanity checks */
 	ASSERT((db_local = m_handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	if(data) {
-		*data = NULL;
+		*data = new FPtrList();
 	}
 
 	/* If there's nothing to do, return without complaining */
@@ -502,7 +501,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 	if(m_type == PM_TRANS_TYPE_SYNC) {
 	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = i->next()) {
 		pmsyncpkg_t *ps = f_ptrlistitem_data(i);
-		list = list->add(ps->pkg_new);
+		list.add(ps->pkg_new);
 	}
 
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
@@ -513,14 +512,14 @@ int __pmtrans_t::prepare(FPtrList **data)
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = i->next()) {
 			Package *spkg = ((pmsyncpkg_t *)f_ptrlistitem_data(i))->pkg_new;
-			if(_pacman_resolvedeps(this, spkg, list, trail, data) == -1) {
+			if(_pacman_resolvedeps(this, spkg, &list, trail, data) == -1) {
 				/* pm_errno is set by resolvedeps */
 				ret = -1;
 				goto cleanup;
 			}
 		}
 
-		for(auto i = list->begin(), end = list->end(); i != end; i = i->next()) {
+		for(auto i = list.begin(), end = list.end(); i != end; i = i->next()) {
 			/* add the dependencies found by resolvedeps to the transaction set */
 			Package *spkg = f_ptrlistitem_data(i);
 			if(!find(spkg->name())) {
@@ -542,32 +541,30 @@ int __pmtrans_t::prepare(FPtrList **data)
 		}
 
 		/* re-order w.r.t. dependencies */
-		k = l = NULL;
+		FPtrList k, l;
 		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = i->next()) {
 			pmsyncpkg_t *s = (pmsyncpkg_t*)f_ptrlistitem_data(i);
-			k = k->add(s->pkg_new);
+			k.add(s->pkg_new);
 		}
-		m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
-		for(auto i = m->begin(), end = m->end(); i != end; i = i->next()) {
+		FPtrList m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
+		for(auto i = m.begin(), end = m.end(); i != end; i = i->next()) {
 			for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end; j = j->next()) {
 				pmsyncpkg_t *s = (pmsyncpkg_t*)f_ptrlistitem_data(j);
 				if(s->pkg_new == f_ptrlistitem_data(i)) {
-					l = l->add(s);
+					l.add(s);
 				}
 			}
 		}
-		FREELISTPTR(k);
-		FREELISTPTR(m);
 		syncpkgs.clear();
-		syncpkgs.swap(*l);
+		syncpkgs.swap(l);
 
 		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for unresolvable dependencies"));
 		deps = _pacman_checkdeps(this, PM_TRANS_TYPE_UPGRADE, list);
-		if(!deps->empty()) {
+		if(!deps.empty()) {
 			if(data) {
-				*data = deps;
+				deps.swap(**data);
 			}
 			pm_errno = PM_ERR_UNSATISFIED_DEPS;
 			ret = -1;
@@ -583,11 +580,11 @@ int __pmtrans_t::prepare(FPtrList **data)
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
 		deps = _pacman_checkconflicts(this, list);
-		if(!deps->empty()) {
+		if(!deps.empty()) {
 			int errorout = 0;
 			FPtrList asked;
 
-			for(auto i = deps->begin(), end = deps->end(); i != end && !errorout; i = i->next()) {
+			for(auto i = deps.begin(), end = deps.end(); i != end && !errorout; i = i->next()) {
 				pmdepmissing_t *miss = f_ptrlistitem_data(i);
 				int found = 0;
 				pmsyncpkg_t *ps;
@@ -743,12 +740,11 @@ int __pmtrans_t::prepare(FPtrList **data)
 				ret = -1;
 				goto cleanup;
 			}
-			FREELIST(deps);
+			deps.clear();
 		}
 		EVENT(this, PM_TRANS_EVT_INTERCONFLICTS_DONE, NULL, NULL);
 	}
-
-	FREELISTPTR(list);
+	list.clear();
 
 	/* XXX: this fails for cases where a requested package wants
 	 *      a dependency that conflicts with an older version of
@@ -770,16 +766,16 @@ int __pmtrans_t::prepare(FPtrList **data)
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
 				FPtrList *replaces = (FPtrList *)ps->data;
 				for(auto j = replaces->begin(), j_end = replaces->end(); j != j_end; j = j->next()) {
-					list = list->add(f_ptrlistitem_data(j));
+					list.add(f_ptrlistitem_data(j));
 				}
 			}
 		}
-		if(list) {
+		if(!list.empty()) {
 			_pacman_log(PM_LOG_FLOW1, _("checking dependencies of packages designated for removal"));
 			deps = _pacman_checkdeps(this, PM_TRANS_TYPE_REMOVE, list);
-			if(deps) {
+			if(!deps.empty()) {
 				int errorout = 0;
-				for(auto i = deps->begin(), end = deps->end(); i != end; i = i->next()) {
+				for(auto i = deps.begin(), end = deps.end(); i != end; i = i->next()) {
 					pmdepmissing_t *miss = f_ptrlistitem_data(i);
 					if(!find(miss->depend.name)) {
 						int pfound = 0;
@@ -838,7 +834,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 					ret = -1;
 					goto cleanup;
 				}
-				FREELIST(deps);
+				deps.clear();
 			}
 		}
 		/*EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
@@ -859,7 +855,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 	check_olddelay(m_handle);
 
 cleanup:
-	FREELISTPTR(list);
+	list.clear();
 	FREELISTPTR(trail);
 
 	if(ret != 0) {
@@ -872,13 +868,13 @@ cleanup:
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
 
-		lp = _pacman_checkdeps(this, m_type, &packages);
+		lp = _pacman_checkdeps(this, m_type, packages);
 
 		/* look for unsatisfied dependencies */
-		if(lp != NULL) {
+		if(!lp.empty()) {
 			if((m_type == PM_TRANS_TYPE_REMOVE) && (flags & PM_TRANS_FLAG_CASCADE)) {
-				while(lp) {
-					for(auto i = lp->begin(), end = lp->end(); i != end; i = i->next()) {
+				while(!lp.empty()) {
+					for(auto i = lp.begin(), end = lp.end(); i != end; i = i->next()) {
 						pmdepmissing_t *miss = (pmdepmissing_t *)f_ptrlistitem_data(i);
 						Package *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
 						if(pkg_local) {
@@ -889,16 +885,15 @@ cleanup:
 								miss->depend.name);
 						}
 					}
-					FREELIST(lp);
-					lp = _pacman_checkdeps(this, m_type, &packages);
+					lp = _pacman_checkdeps(this, m_type, packages);
 				}
 			}
 		}
-		if(lp != NULL){
+		if(!lp.empty()){
 			if(data) {
-				*data = lp;
+				lp.swap(**data);
 			} else {
-				FREELIST(lp);
+				lp.clear();
 			}
 			RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
 		}
@@ -906,22 +901,22 @@ cleanup:
 		if(m_type & PM_TRANS_TYPE_ADD) {
 		/* no unsatisfied deps, so look for conflicts */
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		lp = _pacman_checkconflicts(this, &packages);
-		if(lp != NULL) {
+		lp = _pacman_checkconflicts(this, packages);
+		if(!lp.empty()) {
 			if(data) {
-				*data = lp;
+				lp.swap(**data);
 			} else {
-				FREELIST(lp);
+				lp.clear();
 			}
 			RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
 		}
 
 		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _pacman_sortbydeps(&packages, PM_TRANS_TYPE_ADD);
+		lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_ADD);
 		/* free the old alltargs */
 		packages.clear();
-		packages.swap(*lp);
+		packages.swap(lp);
 		}
 
 		if(m_type == PM_TRANS_TYPE_REMOVE && m_type != PM_TRANS_TYPE_UPGRADE) {
@@ -932,10 +927,10 @@ cleanup:
 
 		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _pacman_sortbydeps(&packages, PM_TRANS_TYPE_REMOVE);
+		lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_REMOVE);
 		/* free the old alltargs */
 		packages.clear();
-		packages.swap(*lp);
+		packages.swap(lp);
 		}
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
@@ -965,11 +960,11 @@ cleanup:
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for file conflicts"));
 		lp = _pacman_db_find_conflicts(this);
-		if(lp != NULL) {
+		if(!lp.empty()) {
 			if(data) {
-				*data = lp;
+				lp.swap(**data);
 			} else {
-				FREELIST(lp);
+				lp.clear();
 			}
 			RET_ERR(PM_ERR_FILE_CONFLICTS, -1);
 		}
