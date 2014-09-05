@@ -473,7 +473,7 @@ out:
 /* return a new FPtrList target list containing all packages in the original
  * target list, as well as all their un-needed dependencies.  By un-needed,
  * I mean dependencies that are *only* required for packages in the target
- * list, so they can be safely removed.  This function is recursive.
+ * list, so they can be safely removed.
  */
 FPtrList &_pacman_removedeps(Database *db, FPtrList &targs)
 {
@@ -481,7 +481,9 @@ FPtrList &_pacman_removedeps(Database *db, FPtrList &targs)
 		return targs;
 	}
 
-	for(auto i = targs.begin(), end = targs.end(); i != end; i = i->next()) {
+	bool again = false;
+	for(auto i = targs.begin(), end = targs.end(); i != end; i = again ? targs.begin() : i->next()) {
+		again = false;
 		auto &depends = ((Package *)f_ptrlistitem_data(i))->depends();
 		for(auto j = depends.begin(), j_end = depends.end(); j != j_end; j = j->next()) {
 			pmdepend_t depend;
@@ -535,7 +537,7 @@ FPtrList &_pacman_removedeps(Database *db, FPtrList &targs)
 				pkg->read(INFRQ_ALL);
 				targs.add(pkg);
 				_pacman_log(PM_LOG_FLOW2, _("adding '%s' to the targets"), pkg->name());
-				_pacman_removedeps(db, targs);
+				again = true;
 			}
 		}
 	}
