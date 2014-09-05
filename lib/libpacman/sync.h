@@ -30,13 +30,12 @@
 struct __pmsyncpkg_t
 	: public ::flib::FObject
 {
-	__pmsyncpkg_t(int type, libpacman::Package *spkg, void *data);
+	__pmsyncpkg_t(int type, libpacman::Package *spkg);
 	~__pmsyncpkg_t();
 
 	unsigned char type;
 	const char *pkg_name;
 	libpacman::Package *pkg_new;
-	void *data;
 	libpacman::Package *pkg_local;
 	FPtrList m_replaces;
 };

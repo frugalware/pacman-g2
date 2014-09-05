@@ -377,7 +377,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	if(!find(spkg->name())) {
 		pmsyncpkg_t *ps;
 		
-		ASSERT((ps = new __pmsyncpkg_t(PM_SYNC_TYPE_UPGRADE, spkg, pkg_local)) != NULL, RET_ERR(PM_ERR_MEMORY, -1));
+		ASSERT((ps = new __pmsyncpkg_t(PM_SYNC_TYPE_UPGRADE, spkg)) != NULL, RET_ERR(PM_ERR_MEMORY, -1));
 		add(ps, 0);
 	}
 	} else {
@@ -522,7 +522,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 			/* add the dependencies found by resolvedeps to the transaction set */
 			Package *spkg = f_ptrlistitem_data(i);
 			if(!find(spkg->name())) {
-				pmsyncpkg_t *ps = new __pmsyncpkg_t(PM_SYNC_TYPE_DEPEND, spkg, NULL);
+				pmsyncpkg_t *ps = new __pmsyncpkg_t(PM_SYNC_TYPE_DEPEND, spkg);
 				if(ps == NULL) {
 					ret = -1;
 					goto cleanup;
@@ -595,10 +595,8 @@ int __pmtrans_t::prepare(FPtrList **data)
 				 */
 				for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end && !found; j = j->next()) {
 					ps = f_ptrlistitem_data(j);
-					if(ps->type == PM_SYNC_TYPE_REPLACE) {
-						if(_pacman_pkg_isin(miss->depend.name, ps->data)) {
-							found = 1;
-						}
+					if(_pacman_pkg_isin(miss->depend.name, &ps->m_replaces)) {
+						found = 1;
 					}
 				}
 				if(found) {
@@ -687,14 +685,11 @@ int __pmtrans_t::prepare(FPtrList **data)
 								goto cleanup;
 							}
 							q->m_requiredby = local->requiredby();
-							if(ps->type != PM_SYNC_TYPE_REPLACE) {
-								/* switch this sync type to REPLACE */
-								ps->type = PM_SYNC_TYPE_REPLACE;
-								ps->data = NULL;
-							}
+							/* switch this sync type to REPLACE */
+							ps->type = PM_SYNC_TYPE_REPLACE;
 							/* append to the replaces list */
 							_pacman_log(PM_LOG_FLOW2, _("electing '%s' for removal"), miss->depend.name);
-							ps->data = ((FPtrList*)ps->data)->add(q);
+							ps->m_replaces.add(q);
 							if(rsync) {
 								/* remove it from the target list */
 								pmsyncpkg_t *spkg = NULL;
@@ -760,11 +755,8 @@ int __pmtrans_t::prepare(FPtrList **data)
 		/*EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
 		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = i->next()) {
 			pmsyncpkg_t *ps = f_ptrlistitem_data(i);
-			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				FPtrList *replaces = (FPtrList *)ps->data;
-				for(auto j = replaces->begin(), j_end = replaces->end(); j != j_end; j = j->next()) {
-					list.add(f_ptrlistitem_data(j));
-				}
+			for(auto j = ps->m_replaces.begin(), j_end = ps->m_replaces.end(); j != j_end; j = j->next()) {
+				list.add(f_ptrlistitem_data(j));
 			}
 		}
 		if(!list.empty()) {
@@ -1526,16 +1518,13 @@ int __pmtrans_t::commit(FPtrList **data)
 	tr->progress.connect(&progress);
 	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = i->next()) {
 		pmsyncpkg_t *ps = f_ptrlistitem_data(i);
-		if(ps->type == PM_SYNC_TYPE_REPLACE) {
-			FPtrList *list = (FPtrList *)ps->data;
-			for(auto j = list->begin(), end = list->end(); j != end; j = j->next()) {
-				Package *pkg = f_ptrlistitem_data(j);
-				if(!_pacman_pkg_isin(pkg->name(), &tr->packages)) {
-					if(tr->add(pkg->name(), tr->m_type, tr->flags) == -1) {
-						goto error;
-					}
-					replaces++;
+		for(auto j = ps->m_replaces.begin(), end = ps->m_replaces.end(); j != end; j = j->next()) {
+			Package *pkg = f_ptrlistitem_data(j);
+			if(!_pacman_pkg_isin(pkg->name(), &tr->packages)) {
+				if(tr->add(pkg->name(), tr->m_type, tr->flags) == -1) {
+					goto error;
 				}
+				replaces++;
 			}
 		}
 	}
@@ -1600,8 +1589,7 @@ int __pmtrans_t::commit(FPtrList **data)
 			pmsyncpkg_t *ps = f_ptrlistitem_data(i);
 			if(ps->type == PM_SYNC_TYPE_REPLACE) {
 				Package *pkg_new = db_local->find(ps->pkg_name);
-				FPtrList *list = (FPtrList *)ps->data;
-				for(auto j = list->begin(), end = list->end(); j != end; j = j->next()) {
+				for(auto j = ps->m_replaces.begin(), end = ps->m_replaces.end(); j != end; j = j->next()) {
 					Package *old = f_ptrlistitem_data(j);
 					/* merge lists */
 					auto &requiredby = old->requiredby();

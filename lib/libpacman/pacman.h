@@ -264,7 +264,6 @@ enum {
 enum {
 	PM_SYNC_TYPE = 1,
 	PM_SYNC_PKG,
-	PM_SYNC_DATA,
 	PM_SYNC_REPLACES
 };
 

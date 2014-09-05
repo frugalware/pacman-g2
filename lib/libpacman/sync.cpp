@@ -59,13 +59,12 @@
 
 using namespace libpacman;
 
-__pmsyncpkg_t::__pmsyncpkg_t(int type, Package *spkg, void *data)
+__pmsyncpkg_t::__pmsyncpkg_t(int type, Package *spkg)
 {
 	this->type = type;
 	this->pkg_name = spkg->name();
 	this->pkg_new = spkg;
 	fAcquire(this->pkg_new);
-	this->data = data;
 	this->pkg_local = handle->db_local->find(this->pkg_name);
 	fAcquire(this->pkg_local);
 }
