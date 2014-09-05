@@ -475,15 +475,13 @@ out:
  * I mean dependencies that are *only* required for packages in the target
  * list, so they can be safely removed.  This function is recursive.
  */
-FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
+FPtrList &_pacman_removedeps(Database *db, FPtrList &targs)
 {
-	FPtrList *newtargs = targs;
-
 	if(db == NULL) {
-		return(newtargs);
+		return targs;
 	}
 
-	for(auto i = targs->begin(), end = targs->end(); i != end; i = i->next()) {
+	for(auto i = targs.begin(), end = targs.end(); i != end; i = i->next()) {
 		auto &depends = ((Package *)f_ptrlistitem_data(i))->depends();
 		for(auto j = depends.begin(), j_end = depends.end(); j != j_end; j = j->next()) {
 			pmdepend_t depend;
@@ -509,7 +507,7 @@ FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
 					continue;
 				}
 			}
-			if(_pacman_pkg_isin(dep->name(), targs)) {
+			if(_pacman_pkg_isin(dep->name(), &targs)) {
 				continue;
 			}
 
@@ -523,7 +521,7 @@ FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
 			auto &requiredby = dep->requiredby();
 			for(auto k = requiredby.begin(), k_end = requiredby.end(); k != k_end && !needed; k = k->next()) {
 				Package *dummy = db->find(f_stringlistitem_to_str(k));
-				if(!_pacman_pkg_isin(dummy->name(), targs)) {
+				if(!_pacman_pkg_isin(dummy->name(), &targs)) {
 					needed = 1;
 				}
 			}
@@ -535,14 +533,13 @@ FPtrList *_pacman_removedeps(Database *db, FPtrList *targs)
 				/* add it to the target list */
 				_pacman_log(PM_LOG_DEBUG, _("loading ALL info for '%s'"), pkg->name());
 				pkg->read(INFRQ_ALL);
-				newtargs = newtargs->add(pkg);
+				targs.add(pkg);
 				_pacman_log(PM_LOG_FLOW2, _("adding '%s' to the targets"), pkg->name());
-				newtargs = _pacman_removedeps(db, newtargs);
+				_pacman_removedeps(db, targs);
 			}
 		}
 	}
-
-	return(newtargs);
+	return targs;
 }
 
 /* populates *list with packages that need to be installed to satisfy all
