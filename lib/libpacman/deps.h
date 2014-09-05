@@ -49,7 +49,7 @@ typedef struct __pmgraph_t {
 	FPtrListIterator *childptr; /* points to a child in children list */
 } pmgraph_t;
 
-FPtrList *_pacman_depmisslist_add(FPtrList *misslist, pmdepmissing_t *miss);
+FPtrList &_pacman_depmisslist_add(FPtrList &misslist, pmdepmissing_t *miss);
 
 FPtrList _pacman_sortbydeps(const FPtrList &targets, int mode);
 FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &packages);

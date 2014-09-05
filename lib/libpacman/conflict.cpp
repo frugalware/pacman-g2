@@ -98,7 +98,7 @@ FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FPtrList &packages)
 					_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
 					          dp->name(), tp->name());
 					miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, dp->name(), NULL);
-					_pacman_depmisslist_add(&baddeps, miss);
+					_pacman_depmisslist_add(baddeps, miss);
 				} else {
 					/* see if dp provides something in tp's conflict list */
 					auto &provides = dp->provides();
@@ -108,7 +108,7 @@ FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FPtrList &packages)
 							_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
 							          dp->name(), tp->name());
 							miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, dp->name(), NULL);
-							_pacman_depmisslist_add(&baddeps, miss);
+							_pacman_depmisslist_add(baddeps, miss);
 						}
 					}
 				}
@@ -126,7 +126,7 @@ FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FPtrList &packages)
 					_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
 					          otp->name(), tp->name());
 					miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, otp->name(), NULL);
-					_pacman_depmisslist_add(&baddeps, miss);
+					_pacman_depmisslist_add(baddeps, miss);
 				} else {
 					/* see if otp provides something in tp's conflict list */
 					auto &provides = otp->provides();
@@ -135,7 +135,7 @@ FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FPtrList &packages)
 							_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
 							          otp->name(), tp->name());
 							miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, otp->name(), NULL);
-							_pacman_depmisslist_add(&baddeps, miss);
+							_pacman_depmisslist_add(baddeps, miss);
 						}
 					}
 				}
@@ -173,7 +173,7 @@ FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FPtrList &packages)
 					_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
 					          info->name(), tp->name());
 					miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name(), NULL);
-					_pacman_depmisslist_add(&baddeps, miss);
+					_pacman_depmisslist_add(baddeps, miss);
 				} else {
 					/* see if the db package conflicts with something we provide */
 					for(auto m = conflicts->begin(), m_end = conflicts->end(); m != m_end; m = m->next()) {
@@ -183,7 +183,7 @@ FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FPtrList &packages)
 								_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
 								          info->name(), tp->name());
 								miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name(), NULL);
-								_pacman_depmisslist_add(&baddeps, miss);
+								_pacman_depmisslist_add(baddeps, miss);
 							}
 						}
 					}

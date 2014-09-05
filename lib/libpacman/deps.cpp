@@ -86,10 +86,10 @@ int _pacman_depmiss_isin(pmdepmissing_t *needle, FPtrList *haystack)
 	return(0);
 }
 
-FPtrList *_pacman_depmisslist_add(FPtrList *misslist, pmdepmissing_t *miss)
+FPtrList &_pacman_depmisslist_add(FPtrList &misslist, pmdepmissing_t *miss)
 {
-	if(!_pacman_depmiss_isin(miss, misslist)) {
-		misslist = misslist->add(miss);
+	if(!_pacman_depmiss_isin(miss, &misslist)) {
+		misslist.add(miss);
 	} else {
 		delete miss;
 	}
@@ -263,7 +263,7 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
 									pkg_local->name(), p->name());
 							miss = new __pmdepmissing_t(p->name(), PM_DEP_TYPE_DEPEND, depend.mod,
 									depend.name, depend.version);
-							_pacman_depmisslist_add(&baddeps, miss);
+							_pacman_depmisslist_add(baddeps, miss);
 						}
 					}
 				} else if(op == PM_TRANS_TYPE_REMOVE) {
@@ -287,7 +287,7 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
 						if(!found) {
 							_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s which requires %s"), requiredby_name, pkg_local->name());
 							miss = new __pmdepmissing_t(pkg_local->name(), PM_DEP_TYPE_REQUIRED, PM_DEP_MOD_ANY, requiredby_name, NULL);
-							_pacman_depmisslist_add(&baddeps, miss);
+							_pacman_depmisslist_add(baddeps, miss);
 						}
 					}
 				}
@@ -414,7 +414,7 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
 					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s as a dependency for %s"),
 					          depend.name, tp->name());
 					miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
-					_pacman_depmisslist_add(&baddeps, miss);
+					_pacman_depmisslist_add(baddeps, miss);
 				}
 			}
 		}
