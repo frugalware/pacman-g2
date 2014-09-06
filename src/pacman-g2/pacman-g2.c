@@ -557,7 +557,7 @@ int main(int argc, char *argv[])
 	if(config->configfile == NULL) {
 		config->configfile = strdup(PACCONF);
 	}
-	if(pacman_parse_config(config->configfile, cb_db_register) != 0) {
+	if(pacman_parse_config(config->configfile, NULL) != 0) {
 		ERR(NL, _("failed to parse config (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}

@@ -59,8 +59,4 @@ int config_free(config_t *config)
 	return(0);
 }
 
-void cb_db_register(const char *section, PM_DB *db)
-{
-}
-
 /* vim: set ts=2 sw=2 noet: */
