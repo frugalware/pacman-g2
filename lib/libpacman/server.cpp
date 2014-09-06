@@ -368,7 +368,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, const FPtrList &servers, const
 	const FStringList &files, const Timestamp *mtime1, Timestamp *mtime2, int skip)
 {
 	int done = 0;
-	FPtrList *complete = NULL;
+	FStringList complete;
 	pmserver_t *server;
 	int *remain = handle->dlremain, *howmany = handle->dlhowmany;
 
@@ -401,9 +401,9 @@ int _pacman_downloadfiles_forreal(Handle *handle, const FPtrList &servers, const
 		_pacman_log(PM_LOG_DEBUG, _("trying to download with server url: %s://%s%s"), server->protocol, server->server, server->path);
 		/* get each file in the list */
 		for(auto lp = files.begin(), end = files.end(); lp != end; lp = lp->next()) {
-			char *fn = f_stringlistitem_to_str(lp);
+			const char *fn = f_stringlistitem_to_str(lp);
 
-			if(_pacman_list_is_strin(fn, complete)) {
+			if(_pacman_list_is_strin(fn, &complete)) {
 				continue;
 			}
 
@@ -490,7 +490,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, const FPtrList &servers, const
 					_pacman_log(PM_LOG_DEBUG, _("XferCommand command returned non-zero status code (%d)\n"), ret);
 				} else {
 					/* download was successful */
-					complete = complete->add(fn);
+					complete.add(fn);
 					if(usepart) {
 						char fnpart[PATH_MAX];
 						/* rename "output.part" file to "output" file */
@@ -557,7 +557,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, const FPtrList &servers, const
 						if(!strcmp(server->protocol, "file")) {
 							EVENT(handle->trans, PM_TRANS_EVT_RETRIEVE_LOCAL, pm_dlfnm, server->path);
 						}
-						complete = complete->add(fn);
+						complete.add(fn);
 						/* rename "output.part" file to "output" file */
 						snprintf(completefile, PATH_MAX, "%s/%s", localpath, fn);
 						rename(output, completefile);
@@ -567,7 +567,6 @@ int _pacman_downloadfiles_forreal(Handle *handle, const FPtrList &servers, const
 						/* -1 means here that the file is up to date, not a real error, so
 										 * don't go to error: */
 						remove(output);
-						FREELISTPTR(complete);
 						return(1);
 					}
 				}
@@ -577,14 +576,13 @@ int _pacman_downloadfiles_forreal(Handle *handle, const FPtrList &servers, const
 			}
 		}
 
-		if(f_ptrlist_count(complete) == f_ptrlist_count(&files)) {
+		if(f_ptrlist_count(&complete) == f_ptrlist_count(&files)) {
 			done = 1;
 		}
 	}
 	_pacman_log(PM_LOG_DEBUG, _("end _pacman_downloadfiles_forreal - return %d"),!done);
 
 error:
-	FREELISTPTR(complete);
 	return(pm_errno == 0 ? !done : -1);
 }
 

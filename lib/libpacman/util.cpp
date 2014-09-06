@@ -142,7 +142,7 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 	register struct archive *_archive;
 	struct archive_entry *entry;
 	char expath[PATH_MAX];
-	FPtrList *cache = NULL;
+	FPtrList cache;
 	DIR *handle;
 	struct dirent *ent;
 	struct stat buf;
@@ -165,7 +165,7 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 				return(-1);
 			memset(c, 0, sizeof(cache_t));
 			c->str = strdup(ent->d_name);
-			cache = cache->add(c);
+			cache.add(c);
 		}
 	}
 	closedir(handle);
@@ -180,7 +180,7 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 				return(1);
 			continue;
 		}
-		if (list_startswith((char*)archive_entry_pathname(entry), cache)) {
+		if (list_startswith((char*)archive_entry_pathname(entry), &cache)) {
 			continue;
 		}
 		snprintf(expath, PATH_MAX, "%s/%s", prefix, archive_entry_pathname (entry));
@@ -197,15 +197,14 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 	archive_read_finish (_archive);
 
 	/* finally delete the old ones */
-	for (auto i = cache->begin(), end = cache->end(); i != end; i = i->next()) {
+	for (auto i = cache.begin(), end = cache.end(); i != end; i = i->next()) {
 		cache_t *c = f_ptrlistitem_data(i);
 		if (!c->hit) {
 			snprintf(expath, PATH_MAX, "%s/%s", prefix, c->str);
 			_pacman_rmrf(expath);
 		}
 	}
-	FREELIST(cache);
-	return(0);
+	return 0;
 }
 
 /* does the same thing as 'rm -rf' */

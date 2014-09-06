@@ -745,7 +745,7 @@ int pacman_output_generate(FPtrList *targets, FPtrList *dblist) {
                         }
                         strcpy(fullDep, depend.name);
                         if(!inList(&found, fullDep) && !inList(targets, fullDep)) {
-                            targets = targets->add(fullDep);
+                            targets = f_ptrlist_add(targets, fullDep);
                         }
                     }
                     if(!inList(&found,pname)) {
