@@ -30,6 +30,7 @@
 #include <math.h>
 #include <libintl.h>
 
+#include "pacman-g2.h"
 /* pacman-g2 */
 #include "conf.h"
 #include "download.h"
@@ -43,7 +44,6 @@
 extern config_t *config;
 extern PM_DB *db_local;
 extern unsigned int maxcols;
-extern list_t *pmc_syncs;
 
 bool trans_has_usable_syncs()
 {

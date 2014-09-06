@@ -25,7 +25,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <libintl.h>
-#include <pacman.h>
+
+#include "pacman-g2.h"
 /* pacman-g2 */
 #include "util.h"
 #include "list.h"
@@ -35,7 +36,6 @@
 #include "deptest.h"
 
 extern config_t *config;
-extern list_t *pmc_syncs;
 
 int pacman_output_generate(pmlist_t *targets, pmlist_t *dblist);
 

@@ -27,7 +27,7 @@
 #include <sys/stat.h>
 #include <libintl.h>
 
-#include <pacman.h>
+#include "pacman-g2.h"
 /* pacman-g2 */
 #include "list.h"
 #include "package.h"
@@ -39,7 +39,6 @@
 
 extern config_t *config;
 extern PM_DB *db_local;
-extern list_t *pmc_syncs;
 
 int querypkg(FStringList *targets)
 {

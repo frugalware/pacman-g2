@@ -81,7 +81,7 @@ config_t *config = NULL;
 
 PM_DB *db_local;
 /* list of (PM_DB *) structs for sync locations */
-list_t *pmc_syncs = NULL;
+pmlist_t *pmc_syncs = NULL;
 /* list of targets specified on command line */
 FStringList *pm_targets  = NULL;
 
@@ -207,7 +207,6 @@ static void cleanup(int exitcode)
 	}
 
 	/* free memory */
-	FREELISTPTR(pmc_syncs);
 	f_stringlist_delete(pm_targets);
 	FREECONF(config);
 
@@ -560,6 +559,10 @@ int main(int argc, char *argv[])
 	}
 	if(pacman_parse_config(config->configfile, cb_db_register) != 0) {
 		ERR(NL, _("failed to parse config (%s)\n"), pacman_strerror(pm_errno));
+		cleanup(1);
+	}
+	if(pacman_get_option(PM_OPT_SYNCDB, (long *)&pmc_syncs) == -1) {
+		ERR(NL, _("failed to set option DLCB (%s)\n"), pacman_strerror(pm_errno));
 		cleanup(1);
 	}
 

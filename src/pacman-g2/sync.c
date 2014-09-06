@@ -37,7 +37,7 @@
 #include <limits.h> /* PATH_MAX */
 #endif
 
-#include <pacman.h>
+#include "pacman-g2.h"
 /* pacman-g2 */
 #include "util.h"
 #include "log.h"
@@ -52,8 +52,6 @@
 extern PM_DB *db_local;
 
 extern config_t *config;
-
-extern list_t *pmc_syncs;
 
 static int sync_synctree(int level, list_t *syncs)
 {

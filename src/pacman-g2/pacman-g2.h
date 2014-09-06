@@ -21,9 +21,12 @@
 #ifndef _PM_PACMAN_G2_H
 #define _PM_PACMAN_G2_H
 
+#include <pacman.h>
+
 #include "list.h"
 
 int vercmp(FStringList *targets);
+extern pmlist_t *pmc_syncs;
 
 #endif /* _PM_PACMAN_G2_H */
 
