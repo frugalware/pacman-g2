@@ -129,7 +129,7 @@ int querypkg(FStringList *targets)
 				ERR(NL, _("no package file was specified for --file\n"));
 				return(1);
 			}
-			if(pacman_pkg_load(package, &info) == -1) {
+			if((info = pacman_pkg_load(package)) == NULL) {
 				ERR(NL, _("failed to load package '%s' (%s)\n"), package, pacman_strerror(pm_errno));
 				return(1);
 			}

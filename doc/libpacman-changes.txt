@@ -26,6 +26,8 @@ pacman_logaction: Now returns a void instead of a int to reflect success. Loggin
 
 pacman_parse_config: Make 'file' argument a constant. Remove 'this_section' argument, it is internal and should not have been exposed publicly.
 
+pacman_pkg_load: Return a pmpkg_t *instead of an error value, and the package by pmpkg_t **, return value of NULL is already a good indicator of failure.
+
 pacman_pkg_getowners: Make 'filename' argument a constant.
 
 pacman_reg_match: Make arguments constants.

@@ -23,23 +23,6 @@
 %include "pacman.h"
 
 %inline %{
-/* PM_PKG */
-PM_PKG** PKGp_new()
-{
-        PM_PKG **ptr;
-        ptr = malloc(sizeof(PM_PKG*));
-        return(ptr);
-}
-
-void PKGp_free(PM_PKG **ptr)
-{
-        free(ptr);
-}
-
-PM_PKG* PKGp_to_PKG(PM_PKG **ptr)
-{
-        return(*ptr);
-}
 /* PM_LIST */
 PM_LIST** LISTp_new()
 {

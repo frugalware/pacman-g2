@@ -849,21 +849,14 @@ pmlist_t *pacman_pkg_getowners(const char *filename)
  * @param pkg address of the package pointer
  * @return 0 on success, -1 on error (pm_errno is set accordingly)
  */
-int pacman_pkg_load(char *filename, pmpkg_t **pkg)
+pmpkg_t *pacman_pkg_load(char *filename)
 {
 	_pacman_log(PM_LOG_FUNCTION, "enter pacman_pkg_load");
 
 	/* Sanity checks */
 	ASSERT(!_pacman_strempty(filename), RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	*pkg = c_cast(_pacman_fpmpackage_load(filename));
-	if(*pkg == NULL) {
-		/* pm_errno is set by pkg_load */
-		return(-1);
-	}
-
-	return(0);
+	return c_cast(_pacman_fpmpackage_load(filename));
 }
 
 /** Free a package.

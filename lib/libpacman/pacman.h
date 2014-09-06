@@ -231,7 +231,7 @@ enum {
 
 void *pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm);
 pmlist_t *pacman_pkg_getowners(const char *filename);
-int pacman_pkg_load(char *filename, pmpkg_t **pkg);
+pmpkg_t *pacman_pkg_load(char *filename);
 int pacman_pkg_free(pmpkg_t *pkg);
 char *pacman_fetch_pkgurl(char *url);
 int pacman_parse_config(const char *file, pacman_cb_db_register callback);
