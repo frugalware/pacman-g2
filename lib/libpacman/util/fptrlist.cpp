@@ -259,59 +259,62 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 
 size_t f_ptrlist_count(const FPtrList *self)
 {
+	if(self != NULL) {
 #ifndef F_NOCOMPAT
-	return f_ptrlistiterator_count(self->begin(), self->end());
+		return f_ptrlistiterator_count(self->begin(), self->end());
 #else
-	return self->size();
+		return self->size();
 #endif
+	}
+	return 0;
 }
 
 FPtrListIterator *f_ptrlist_end(FPtrList *self)
 {
-	return (FPtrListIterator *)f_ptrlist_end_const(self);
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	return self->end();
 }
 
 const FPtrListIterator *f_ptrlist_end_const(const FPtrList *self)
 {
-	return NULL;
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	return self->end();
 }
 
 FPtrListIterator *f_ptrlist_first(FPtrList *self)
 {
-	return (FPtrListIterator *)f_ptrlist_first_const(self);
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	return self->begin();
 }
 
 const FPtrListIterator *f_ptrlist_first_const(const FPtrList *self)
 {
-	return (FPtrListIterator *)self->begin();
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	return self->begin();
 }
 
 FPtrListIterator *f_ptrlist_last(FPtrList *self)
 {
-	return (FPtrListIterator *)f_ptrlist_last_const(self);
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+	return self->last();
 }
 
 const FPtrListIterator *f_ptrlist_last_const(const FPtrList *self)
 {
-	const FPtrListIterator *it;
-
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-
-	it = f_ptrlist_first_const(self);
-	while(it->next() != f_ptrlist_end_const(self)) {
-		it = it->next();
-	}
-	return it;
+	return self->last();
 }
 
 FPtrListIterator *f_ptrlist_rend(FPtrList *self)
 {
-	return (FPtrListIterator *)f_ptrlist_rend_const(self);
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, false));
+	return self->rend();
 }
 
 const FPtrListIterator *f_ptrlist_rend_const(const FPtrList *self)
 {
-	return NULL;
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, false));
+	return self->rend();
 }
 
 /* vim: set ts=2 sw=2 noet: */
