@@ -22,8 +22,7 @@
 
 #include "config.h"
 
-#include "util/fptrlist.h"
-
+#include "fptrlist.h"
 #include "fstdlib.h"
 
 /* Add items to a list in sorted order. Use the given comparison function to
