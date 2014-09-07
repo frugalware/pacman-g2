@@ -517,7 +517,7 @@ public:
 		return this->m_data == NULL;
 	}
 
-	FPtrList *add(const void *data);
+	FPtrList &add(const void *data);
 
 	void clear()
 	{
