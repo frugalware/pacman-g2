@@ -216,6 +216,7 @@ namespace flib
 			return tmp;
 		}
 
+#if 0
 		value_type operator * () const
 		{
 			return iterable_traits<Iterable>::value_of(m_iterable);
@@ -225,6 +226,7 @@ namespace flib
 		{
 			return iterable_traits<Iterable>::pointer_of(m_iterable);
 		}
+#endif
 
 	protected:
 		iterable m_iterable;
@@ -339,12 +341,13 @@ public:
 	{ }
 
 	FCListItem(FCListItem *previous, FCListItem *next)
-		: m_next(next), m_previous(previous), m_data(NULL)
+		: m_next(next), m_previous(previous)
 	{ }
 
 	virtual ~FCListItem()
 	{ } // FIXME: Make pure virtual
 
+#if 0
 	virtual void *c_data() const
 	{ return m_data; } // FIXME: Make pure virtual
 
@@ -367,11 +370,10 @@ public:
 	{
 		return &m_data;
 	}
+#endif
 
 //protected: // Disable for now
 	bool insert_after(FCListItem *previous);	
-
-	void *m_data; // Enabled for now
 
 protected:
 	FCListItem *m_next;
@@ -400,7 +402,7 @@ namespace flib {
 			ASSERT(i != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 			return i->m_previous;
 		}
-
+#if 0
 		static reference reference_of(iterable i)
 		{
 			return i->operator * ();
@@ -415,6 +417,7 @@ namespace flib {
 		{
 			return i->operator * ();
 		}
+#endif
 	};
 }
 
@@ -509,9 +512,8 @@ public:
 	size_type size() const
 	{
 		size_type size = 0;
-		for(auto unused: *this) {
-			(void) unused;
-			++size;
+		for(auto it = cbegin(), end = cend(); it != end; ++it, ++size) {
+			/* Nothing to do */
 		}
 		return size;
 	}
@@ -561,16 +563,18 @@ class FListItem
 public:
 	friend struct flib::iterable_traits<FListItem *>;
 
-	FListItem()
+	explicit FListItem(const T &data = T())
+		: m_data(data)
 	{ }
 
-	explicit FListItem(T &data)
-		: m_data(data)
+	FListItem(T &&data)
+		: m_data(std::move(data))
 	{ }
 
 	virtual ~FListItem()
 	{ }
 
+#if 0
 	virtual void *c_data() const override
 	{
 		return &m_data;
@@ -585,8 +589,9 @@ public:
 	{
 		return m_data;
 	}
+#endif
 
-protected:
+//protected:
 	T m_data;
 
 private:

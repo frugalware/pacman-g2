@@ -31,9 +31,13 @@
 
 #ifdef __cplusplus
 class FPtrListItem
-	: public FCListItem
+	: public FListItem<void *>
 {
 public:
+	FPtrListItem(void *data = nullptr)
+		: FListItem<void *>(data)
+	{ }
+
 	FPtrListItem *next() const
 	{
 		return flib::iterable_traits<FCListItem *>::next(this);

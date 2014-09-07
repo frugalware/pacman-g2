@@ -206,7 +206,7 @@ FPtrList &FPtrList::add(const void *data)
 	} else {
 #endif
 	FPtrListIterator *lp = last();
-	f_ptrlistitem_insert_after(new FCListItem(), lp);
+	f_ptrlistitem_insert_after(new FPtrListItem(), lp);
 	lp = lp->m_next;
 	lp->m_data = data;
 #ifndef F_NOCOMPAT
