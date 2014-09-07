@@ -389,16 +389,11 @@ int syncpkg(FStringList *targets)
 						/*   (the dupe function takes a PM_LIST* and returns a list_t*) */
 						pkgs = PM_LIST_remove_dupes(pmpkgs);
 						list_display("   ", pkgs);
-						if(yesno(_(":: Install whole content? [Y/n] "))) {
-							for(FPtrListIterator *k = f_ptrlist_first(pkgs), *end = f_ptrlist_end(pkgs); k != end; k = f_ptrlistitem_next(k)) {
-								targets = f_stringlist_add(targets, list_data(k));
-							}
-						} else {
-							for(FPtrListIterator *k = f_ptrlist_first(pkgs), *end = f_ptrlist_end(pkgs); k != end; k = f_ptrlistitem_next(k)) {
-								char *pkgname = list_data(k);
-								if(yesno(_(":: Install %s from group %s? [Y/n] "), pkgname, targ)) {
-									targets = f_stringlist_add(targets, pkgname);
-								}
+						int all = yesno(_(":: Install whole content? [Y/n] "));
+						for(FPtrListIterator *k = f_ptrlist_first(pkgs), *end = f_ptrlist_end(pkgs); k != end; k = f_ptrlistitem_next(k)) {
+							char *pkgname = list_data(k);
+							if(all || yesno(_(":: Install %s from group %s? [Y/n] "), pkgname, targ)) {
+								targets = f_stringlist_add(targets, pkgname);
 							}
 						}
 						FREELIST(pkgs);
