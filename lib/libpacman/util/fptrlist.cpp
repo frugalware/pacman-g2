@@ -137,7 +137,7 @@ FPtrList *_pacman_list_reverse(FPtrList *list)
 	FPtrList *newlist = f_ptrlist_new();
 
 	for(auto it = list->rbegin(), end = list->rend(); it != end; it = it->previous()) {
-		newlist = newlist->add(f_ptrlistitem_data(it));
+		newlist->add(f_ptrlistitem_data(it));
 	}
 
 	return(newlist);

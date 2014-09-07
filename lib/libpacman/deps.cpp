@@ -596,13 +596,13 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList &list,
 		if(ps == NULL) {
 			_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"),
 			          miss->target, miss->depend.name);
-			if(data) {
+			if(data != NULL) {
 				if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
 					FREELIST(*data);
 					goto error;
 				}
 				*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
-				*data = ((FPtrList *)*data)->add(miss);
+				((FPtrList *)*data)->add(miss);
 			}
 			pm_errno = PM_ERR_UNSATISFIED_DEPS;
 			goto error;
@@ -634,13 +634,13 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList &list,
 				list.add(ps);
 			} else {
 				_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\""), miss->target);
-				if(data) {
+				if(data != NULL) {
 					if((miss = _pacman_malloc(sizeof(pmdepmissing_t))) == NULL) {
 						FREELIST(*data);
 						goto error;
 					}
 					*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
-					*data = ((FPtrList *)*data)->add(miss);
+					((FPtrList *)*data)->add(miss);
 				}
 				pm_errno = PM_ERR_UNSATISFIED_DEPS;
 				goto error;

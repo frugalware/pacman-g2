@@ -500,13 +500,17 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 	}
 	_pacman_log(PM_LOG_DEBUG, _("check_freespace: total pkg size: %lld, disk space: %lld"), pkgsize, freespace);
 	if(pkgsize > freespace) {
-		if(data) {
+		if(data != NULL) {
+			if(*data == NULL) {
+				*data = c_cast(new FPtrList());
+			}
+
 			long long *ptr;
 			if((ptr = _pacman_malloc(sizeof(long long)))==NULL) {
 				return(-1);
 			}
 			*ptr = pkgsize;
-			*data = c_cast(cxx_cast(*data)->add(ptr));
+			cxx_cast(*data)->add(ptr);
 			if((ptr = (long long*)malloc(sizeof(long long)))==NULL) {
 				FPtrList *tmp = cxx_cast(*data);
 				FREELIST(tmp);
@@ -514,7 +518,7 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 				return(-1);
 			}
 			*ptr = freespace;
-			*data = c_cast(cxx_cast(*data)->add(ptr));
+			cxx_cast(*data)->add(ptr);
 		}
 		pm_errno = PM_ERR_DISK_FULL;
 		return(-1);

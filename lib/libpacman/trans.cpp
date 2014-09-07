@@ -709,7 +709,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 									goto cleanup;
 								}
 								*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
-								*data = ((FPtrList *)*data)->add(miss);
+								((FPtrList *)*data)->add(miss);
 							}
 						}
 					}
@@ -723,7 +723,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 							goto cleanup;
 						}
 						*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
-						*data = ((FPtrList *)*data)->add(miss);
+						((FPtrList *)*data)->add(miss);
 					}
 				}
 			}
@@ -813,7 +813,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 									goto cleanup;
 								}
 								*miss = *(pmdepmissing_t *)f_ptrlistitem_data(i);
-								*data = ((FPtrList *)*data)->add(miss);
+								((FPtrList *)*data)->add(miss);
 							}
 						}
 					}
@@ -1288,11 +1288,13 @@ int _pacman_cachedpkg_check_integrity(Package *spkg, __pmtrans_t *trans, FPtrLis
 	sha1sum1 = spkg->sha1sum;
 
 	if((md5sum1 == NULL) && (sha1sum1 == NULL)) {
-		if((ptr = (char *)malloc(512)) == NULL) {
-			RET_ERR(PM_ERR_MEMORY, -1);
+		if(data != NULL) {
+			if((ptr = (char *)malloc(512)) == NULL) {
+				RET_ERR(PM_ERR_MEMORY, -1);
+			}
+			snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
+			((FPtrList *)*data)->add(ptr);
 		}
-		snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
-		*data = ((FPtrList *)*data)->add(ptr);
 		retval = 1;
 		goto out;
 	}
@@ -1300,11 +1302,13 @@ int _pacman_cachedpkg_check_integrity(Package *spkg, __pmtrans_t *trans, FPtrLis
 	md5sum2 = _pacman_MDFile(str);
 	sha1sum2 = _pacman_SHAFile(str);
 	if(md5sum2 == NULL && sha1sum2 == NULL) {
-		if((ptr = (char *)malloc(512)) == NULL) {
-			RET_ERR(PM_ERR_MEMORY, -1);
+		if(data != NULL) {
+			if((ptr = (char *)malloc(512)) == NULL) {
+				RET_ERR(PM_ERR_MEMORY, -1);
+			}
+			snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
+			((FPtrList *)*data)->add(ptr);
 		}
-		snprintf(ptr, 512, _("can't get md5 or sha1 checksum for package %s\n"), pkgname);
-		*data = ((FPtrList *)*data)->add(ptr);
 		retval = 1;
 		goto out;
 	}
@@ -1331,7 +1335,9 @@ int _pacman_cachedpkg_check_integrity(Package *spkg, __pmtrans_t *trans, FPtrLis
 		} else {
 			snprintf(ptr, 512, _("archive %s is corrupted (bad MD5 or SHA1 checksum)\n"), pkgname);
 		}
-		*data = ((FPtrList *)*data)->add(ptr);
+		if(data != NULL) {
+			((FPtrList *)*data)->add(ptr);
+		}
 		retval = 1;
 	}
 
@@ -1383,8 +1389,9 @@ int __pmtrans_t::commit(FPtrList **data)
 
 	ASSERT((db_local = m_handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if(data != NULL)
+	if(data != NULL) {
 		*data = new FPtrList();
+	}
 
 	/* If there's nothing to do, return without complaining */
 	if(packages.empty() &&

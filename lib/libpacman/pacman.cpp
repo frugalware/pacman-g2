@@ -1284,10 +1284,8 @@ int pacman_list_free(pmlist_t *list)
 {
 	ASSERT(list != NULL, return(-1));
 
-	FPtrList *tmp = cxx_cast(list);
-	FREELIST(tmp);
-
-	return(0);
+	delete cxx_cast(list);
+	return 0;
 }
 
 /** Count the entries in a list.
