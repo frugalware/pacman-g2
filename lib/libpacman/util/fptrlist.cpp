@@ -39,13 +39,13 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 		list->m_data = data;
 	} else if(fn(data, list->m_data) <= 0) {
 		/* Insert before in head */
-		FPtrList *next = new FCListItem();
+		FPtrList *next = new FPtrListItem();
 		next->m_data = list->m_data;
 		list->m_data = data;
 		f_ptrlistitem_insert_after(next, list);
 	} else {
 #endif
-	FPtrListIterator *add = new FCListItem();
+	FPtrListIterator *add = new FPtrListItem();
 	add->m_data = data;
 
 	/* Find insertion point. */
@@ -85,7 +85,7 @@ bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, vo
 
 	if(fn(needle, haystack->m_data) == 0) {
 		/* The item found is the first in the chain */
-		FCListItem *next = haystack->next();
+		FPtrListItem *next = haystack->next();
 
 		if(data != NULL) {
 			*data = haystack->m_data;

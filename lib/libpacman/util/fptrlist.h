@@ -30,15 +30,30 @@
 #include "util/flist.h"
 
 #ifdef __cplusplus
+class FPtrListItem
+	: public FCListItem
+{
+public:
+	FPtrListItem *next() const
+	{
+		return flib::iterable_traits<FCListItem *>::next(this);
+	}
+
+	FPtrListItem *previous() const
+	{
+		return flib::iterable_traits<FCListItem *>::previous(this);
+	}
+};
+
 class FPtrList
-	: protected FCListItem
+	: protected FPtrListItem
 {
 public:
 	friend FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
 	friend bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 	friend FPtrList *f_ptrlist_add(FPtrList *list, void *data);
 
-	typedef FCListItem *iterator;
+	typedef FPtrListItem *iterator;
 	typedef const iterator const_iterator;
 
 	FPtrList()
@@ -70,7 +85,7 @@ public:
 	const_iterator cbegin() const
 	{
 		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-		return m_data != NULL ? const_cast<const_iterator>((const FCListItem * const)this) : NULL;
+		return m_data != NULL ? const_cast<const_iterator>((const FPtrListItem * const)this) : NULL;
 	}
 
 	iterator end()

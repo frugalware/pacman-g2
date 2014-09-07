@@ -28,21 +28,11 @@
 #include "util/fptrlist.h"
 
 #ifndef __cplusplus
-typedef struct FCList FCList;
-typedef struct FCListItem FCListItem;
-#ifndef F_NOCOMPAT
 typedef struct FPtrList FPtrList;
-#else /* F_NOCOMPAT */
-typedef struct FCList FPtrList;
-#endif /* F_NOCOMPAT */
-typedef struct FCListItem FPtrListIterator;
+typedef struct FPtrListItem FPtrListIterator;
 #else /* __cplusplus */
-#ifndef F_NOCOMPAT
 typedef class FPtrList FPtrList;
-#else /* F_NOCOMPAT */
-typedef class FCList FPtrList;
-#endif /* F_NOCOMPAT */
-typedef class FCListItem FPtrListIterator;
+typedef class FPtrListItem FPtrListIterator;
 #endif /* __cplusplus */
 
 #ifdef __cplusplus
@@ -331,6 +321,8 @@ namespace flib
 class FCListItem
 {
 public:
+	friend struct flib::iterable_traits<FCListItem *>;
+
 	friend FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
 	friend bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 	friend FPtrList *f_ptrlist_add(FPtrList *list, void *data);
@@ -355,18 +347,6 @@ public:
 
 	virtual void *c_data() const
 	{ return m_data; } // FIXME: Make pure virtual
-
-	FCListItem *next() const
-	{
-		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-		return m_next;
-	}
-
-	FCListItem *previous() const
-	{
-		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-		return m_previous;
-	}
 
 	reference operator * ()
 	{
@@ -398,6 +378,46 @@ protected:
 	FCListItem *m_previous;
 };
 
+namespace flib {
+	template <>
+	struct iterable_traits<FCListItem *>
+	{
+		typedef FCListItem *iterable;
+//		typedef typename FCListItem::difference_type difference_type;
+		typedef typename FCListItem::pointer pointer;
+		typedef typename FCListItem::reference reference;
+		typedef typename FCListItem::size_type size_type;
+		typedef typename FCListItem::value_type value_type;
+
+		static iterable next(const FCListItem * const i)
+		{
+			ASSERT(i != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+			return i->m_next;
+		}
+
+		static iterable previous(const FCListItem * const i)
+		{
+			ASSERT(i != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+			return i->m_previous;
+		}
+
+		static reference reference_of(iterable i)
+		{
+			return i->operator * ();
+		}
+
+		static pointer pointer_of(iterable i)
+		{
+			return i->operator -> ();
+		}
+
+		static value_type value_of(const iterable i)
+		{
+			return i->operator * ();
+		}
+	};
+}
+
 class FCList
 	: private FCListItem
 {
@@ -422,7 +442,7 @@ public:
 	/* Iterators */
 	iterator begin()
 	{
-		return first();
+		return iterator(m_next);
 	}
 
 	const_iterator begin() const
@@ -432,12 +452,12 @@ public:
 
 	const_iterator cbegin() const
 	{
-		return first();
+		return const_iterator(m_next);
 	}
 
 	reverse_iterator rbegin()
 	{
-		return reverse_iterator(FCListItem::previous());
+		return reverse_iterator(m_previous);
 	}
 
 	const_reverse_iterator rbegin() const
@@ -447,7 +467,7 @@ public:
 
 	const_reverse_iterator crbegin() const
 	{
-		return const_reverse_iterator(FCListItem::previous());
+		return const_reverse_iterator(m_previous);
 	}
 
 	iterator end()
@@ -483,7 +503,7 @@ public:
 	/* Capacity */
 	bool empty() const
 	{
-		return next() == this;
+		return m_next == m_previous;
 	}
 
 	size_type size() const
@@ -507,22 +527,22 @@ public:
 	/* Element access */
 	iterator first()
 	{
-		return iterator(FCListItem::next());
+		return begin();
 	}
 
 	const_iterator first() const
 	{
-		return const_iterator(FCListItem::next());
+		return cbegin();
 	}
 
 	iterator last()
 	{
-		return iterator(FCListItem::previous());
+		return iterator(m_previous);
 	}
 
 	const_iterator last() const
 	{
-		return const_iterator(FCListItem::previous());
+		return const_iterator(m_previous);
 	}
 	
 	/* Modifiers */
@@ -538,6 +558,9 @@ template <typename T>
 class FListItem
 	: public FCListItem
 {
+public:
+	friend struct flib::iterable_traits<FListItem *>;
+
 	FListItem()
 	{ }
 
@@ -563,26 +586,6 @@ class FListItem
 		return m_data;
 	}
 
-	FListItem<T> *next()
-	{
-		return FCListItem::next();
-	}
-
-	const FListItem<T> *next() const
-	{
-		return FCListItem::next();
-	}
-
-	FListItem<T> *previous()
-	{
-		return FCListItem::previous();
-	}
-
-	const FListItem<T> *previous() const
-	{
-		return FCListItem::previous();
-	}
-
 protected:
 	T m_data;
 
@@ -591,6 +594,44 @@ private:
 
 	FListItem<T> &operator = (const FListItem<T> &o);
 };
+
+namespace flib {
+	template <typename T>
+	struct iterable_traits<FListItem<T> *>
+	{
+		typedef FListItem<T> *iterable;
+//		typedef typename FListItem<T>::difference_type difference_type;
+		typedef typename FListItem<T>::pointer pointer;
+		typedef typename FListItem<T>::reference reference;
+		typedef typename FListItem<T>::size_type size_type;
+		typedef typename FListItem<T>::value_type value_type;
+
+		static iterable next(const iterable &i)
+		{
+			return iterable_traits<FCListItem *>::next(i);
+		}
+
+		static iterable previous(const iterable &i)
+		{
+			return iterable_traits<FCListItem *>::previous(i);
+		}
+
+		static reference reference_of(iterable i)
+		{
+			return i->operator * ();
+		}
+
+		static pointer pointer_of(iterable i)
+		{
+			return i->operator -> ();
+		}
+
+		static value_type value_of(const iterable i)
+		{
+			return i->operator * ();
+		}
+	};
+}
 
 template <typename T>
 class FList
