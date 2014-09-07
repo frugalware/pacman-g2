@@ -485,7 +485,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 	/* Sanity checks */
 	ASSERT((db_local = m_handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if(data) {
+	if(data != NULL) {
 		*data = new FPtrList();
 	}
 
@@ -876,7 +876,7 @@ cleanup:
 			}
 		}
 		if(!lp.empty()){
-			if(data) {
+			if(data != NULL) {
 				lp.swap(**data);
 			} else {
 				lp.clear();
@@ -889,7 +889,7 @@ cleanup:
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
 		lp = _pacman_checkconflicts(this, packages);
 		if(!lp.empty()) {
-			if(data) {
+			if(data != NULL) {
 				lp.swap(**data);
 			} else {
 				lp.clear();
@@ -1383,8 +1383,8 @@ int __pmtrans_t::commit(FPtrList **data)
 
 	ASSERT((db_local = m_handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if(data!=NULL)
-		*data = NULL;
+	if(data != NULL)
+		*data = new FPtrList();
 
 	/* If there's nothing to do, return without complaining */
 	if(packages.empty() &&
