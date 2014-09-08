@@ -192,7 +192,7 @@ namespace flib
 
 		const_iterator &operator ++ ()
 		{
-			m_iterable = !Reverse ? iterable_traits<Iterable>::next(m_iterable) : iterable_traits<Iterable>::previous(m_iterable);
+			m_iterable = _next();
 			return *this;
 		}
 
@@ -205,7 +205,7 @@ namespace flib
 
 		const_iterator &operator -- ()
 		{
-			m_iterable = !Reverse ? iterable_traits<Iterable>::previous(m_iterable) : iterable_traits<Iterable>::next(m_iterable);
+			m_iterable = _previous();
 			return *this;
 		}
 
@@ -228,7 +228,34 @@ namespace flib
 		}
 #endif
 
+		const_iterator next() const
+		{
+			return const_iterator(_next());
+		}
+
+		const_iterator previous() const
+		{
+			return const_iterator(_previous());
+		}
+
+		/* FIXME: temporary */
+		template <typename T>
+		T *data() const
+		{
+			return (T *)operator *();
+		}
+
 	protected:
+		iterable _next() const
+		{
+			return !Reverse ? iterable_traits<Iterable>::next(m_iterable) : iterable_traits<Iterable>::previous(m_iterable);
+		}
+
+		iterable _previous() const
+		{
+			return !Reverse ? iterable_traits<Iterable>::previous(m_iterable) : iterable_traits<Iterable>::next(m_iterable);
+		}
+
 		iterable m_iterable;
 	};
 
@@ -271,7 +298,7 @@ namespace flib
 
 		iterator &operator ++ ()
 		{
-			m_iterable = iterable_traits<Iterable>::next(m_iterable);
+			m_iterable = _next();
 			return *this;
 		}
 
@@ -284,7 +311,7 @@ namespace flib
 
 		iterator &operator -- ()
 		{
-			m_iterable = iterable_traits<Iterable>::previous(m_iterable);
+			m_iterable = _previous();
 			return *this;
 		}
 
@@ -315,7 +342,34 @@ namespace flib
 			return iterable_traits<Iterable>::pointer_of(m_iterable);
 		}
 
+		iterator next() const
+		{
+			return iterator(_next());
+		}
+
+		iterator previous() const
+		{
+			return iterator(_previous());
+		}
+
+		/* FIXME: temporary */
+		template <typename T>
+		T *data() const
+		{
+			return (T *)operator *();
+		}
+
 	protected:
+		iterable _next() const
+		{
+			return !Reverse ? iterable_traits<Iterable>::next(m_iterable) : iterable_traits<Iterable>::previous(m_iterable);
+		}
+
+		iterable _previous() const
+		{
+			return !Reverse ? iterable_traits<Iterable>::previous(m_iterable) : iterable_traits<Iterable>::next(m_iterable);
+		}
+
 		iterable m_iterable;
 	};
 }
