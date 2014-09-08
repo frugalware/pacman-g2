@@ -67,7 +67,7 @@ FStringList *_pacman_list_remove_dupes(FStringList *list)
 const char *f_stringlistitem_to_str(const FStringListIterator *self)
 {
 #ifndef F_NOCOMPAT
-	return f_ptrlistitem_data(self);
+	return (const char *)f_ptrlistitem_data(self);
 #else
 	return self->to_str;
 #endif
@@ -96,6 +96,24 @@ FStringList *f_stringlist_add_stringlist(FStringList *self, const FStringList *s
 		self = new FStringList();
 	}
 	return &self->add(*src);
+}
+
+FStringList *f_stringlist_addf(FStringList *self, const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	self = f_stringlist_vaddf(self, fmt, ap);
+	va_end(ap);
+	return self;
+}
+
+FStringList *f_stringlist_vaddf(FStringList *self, const char *fmt, va_list ap)
+{
+	if(self == NULL) {
+		self = new FStringList();
+	}
+	return &self->vaddf(fmt, ap);
 }
 
 int f_stringlist_clear(FStringList *self)
@@ -144,6 +162,25 @@ FStringList &FStringList::add(const FStringList &o)
 	for(auto lp = o.begin(), end = o.end(); lp != end; lp = lp->next()) {
 		add(f_stringlistitem_to_str(lp));
 	}
+	return *this;
+}
+
+FStringList &FStringList::addf(const char *fmt, ...)
+{
+	va_list ap;
+
+  va_start(ap, fmt);
+	vaddf(fmt, ap);
+	va_end(ap);
+	return *this;
+}
+
+FStringList &FStringList::vaddf(const char *fmt, va_list ap)
+{
+	char *dest;
+
+	vasprintf(&dest, fmt, ap);
+	FPtrList::add(dest);
 	return *this;
 }
 

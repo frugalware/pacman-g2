@@ -500,7 +500,7 @@ int syncpkg(FStringList *targets)
 
 	/* list targets and get confirmation */
 	if(!((unsigned long)pacman_trans_getinfo(PM_TRANS_FLAGS) & PM_TRANS_FLAG_PRINTURIS)) {
-		list_t *list_install = NULL;
+		FStringList *list_install = NULL;
 		list_t *list_remove = NULL;
 		char *str;
 		unsigned long totalsize = 0;
@@ -528,8 +528,7 @@ int syncpkg(FStringList *targets)
 			totalsize += (long)pacman_pkg_getinfo(pkg, PM_PKG_SIZE);
 			totalusize += (long)pacman_pkg_getinfo(pkg, PM_PKG_USIZE);
 
-			asprintf(&str, "%s-%s", pkgname, pkgver);
-			list_install = f_stringlist_add(list_install, str); // Fixme add a f_stringlist_addf
+			list_install = f_stringlist_addf(list_install, "%s-%s", pkgname, pkgver);
 		}
 		if(list_remove) {
 			MSG(NL, _("\nRemove:  "));

@@ -44,6 +44,8 @@ int f_stringlist_delete(FStringList *self);
 
 FStringList *f_stringlist_add(FStringList *list, const char *s);
 FStringList *f_stringlist_add_stringlist(FStringList *dest, const FStringList *src);
+FStringList *f_stringlist_addf(FStringList *self, const char *s, ...);
+FStringList *f_stringlist_vaddf(FStringList *self, const char *s, va_list ap);
 int f_stringlist_clear(FStringList *self);
 
 #ifdef __cplusplus
@@ -62,6 +64,8 @@ public:
 
 	FStringList &add(const char *s);
 	FStringList &add(const FStringList &o);
+	FStringList &addf(const char *fmt, ...);
+	FStringList &vaddf(const char *fmt, va_list ap);
 };
 
 #endif
