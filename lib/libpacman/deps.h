@@ -41,14 +41,6 @@ struct __pmdepmissing_t {
 	pmdepend_t depend;
 };
 
-typedef struct __pmgraph_t {
-	int state; /* 0: untouched, -1: entered, other: leaving time */
-	void *data;
-	struct __pmgraph_t *parent; /* where did we come from? */
-	FPtrList children;
-	FPtrListIterator *childptr; /* points to a child in children list */
-} pmgraph_t;
-
 FPtrList &_pacman_depmisslist_add(FPtrList &misslist, pmdepmissing_t *miss);
 
 FPtrList _pacman_sortbydeps(const FPtrList &targets, int mode);

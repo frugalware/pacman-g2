@@ -45,6 +45,14 @@
 
 using namespace libpacman;
 
+typedef struct __pmgraph_t {
+	int state; /* 0: untouched, -1: entered, other: leaving time */
+	Package *data;
+	struct __pmgraph_t *parent; /* where did we come from? */
+	FPtrList children;
+	FPtrListIterator *childptr; /* points to a child in children list */
+} pmgraph_t;
+
 static pmgraph_t *_pacman_graph_new(void)
 {
 	pmgraph_t *graph = (pmgraph_t *)_pacman_zalloc(sizeof(pmgraph_t));
