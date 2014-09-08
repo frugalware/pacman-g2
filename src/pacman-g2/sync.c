@@ -198,7 +198,7 @@ static int sync_info(FStringList *targets)
 
 static int sync_list(FStringList *targets)
 {
-	list_t *ls = NULL;
+	FPtrList *ls = NULL;
 
 	if(targets) {
 		for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = f_ptrlistitem_next(i)) {
@@ -214,14 +214,14 @@ static int sync_list(FStringList *targets)
 
 			if(db == NULL) {
 				ERR(NL, _("repository \"%s\" was not found.\n"), (char *)list_data(i));
-				FREELISTPTR(ls);
-				return(1);
+				f_ptrlist_delete(ls, NULL);
+				return 1;
 			}
 
 			ls = f_ptrlist_add(ls, db);
 		}
 	} else {
-		ls = pmc_syncs;
+		ls = (FPtrList *)pmc_syncs;
 	}
 
 	for(FPtrListIterator *i = f_ptrlist_first(ls), *end = f_ptrlist_end(ls); i != end; i = f_ptrlistitem_next(i)) {
@@ -236,12 +236,10 @@ static int sync_list(FStringList *targets)
 					(char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION));
 		}
 	}
-
 	if(targets) {
-		FREELISTPTR(ls);
+		f_ptrlist_delete(ls, NULL);
 	}
-
-	return(0);
+	return 0;
 }
 
 int syncpkg(FStringList *targets)

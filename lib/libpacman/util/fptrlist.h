@@ -35,16 +35,13 @@ typedef struct FPtrListItem FPtrListIterator;
 #else /* __cplusplus */
 typedef class FPtrList FPtrList;
 typedef class FPtrListItem FPtrListIterator;
-#endif /* __cplusplus */
 
-#ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 #define _FREELIST(p, f) do { if(p) { FVisitor visitor = { (FVisitorFunc)f, NULL }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
 
 #define FREELIST(p) _FREELIST(p, free)
-#define FREELISTPTR(p) _FREELIST(p, NULL)
 
 /* Sort comparison callback function declaration */
 typedef int (*_pacman_fn_cmp)(const void *, const void *);
@@ -76,9 +73,7 @@ const FPtrListIterator *f_ptrlist_rend_const(const FPtrList *self);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
 
-#ifdef __cplusplus
 class FPtrListItem
 	: public FListItem<void *>
 {
@@ -224,7 +219,7 @@ private:
 	FPtrList(const FPtrList &o);
 	FPtrList &operator = (const FPtrList &o);
 };
-#endif
+#endif /* __cplusplus */
 #endif /* F_PTRLIST_H */
 
 /* vim: set ts=2 sw=2 noet: */

@@ -723,7 +723,7 @@ int inList(FPtrList *lst, char *lItem) {
 }
 
 extern "C" {
-int pacman_output_generate(FPtrList *targets, FPtrList *dblist) {
+int pacman_output_generate(FStringList *targets, FPtrList *dblist) {
     FStringList found;
     Package *pkg = NULL;
     char *match = NULL;
@@ -761,7 +761,6 @@ int pacman_output_generate(FPtrList *targets, FPtrList *dblist) {
             db->rewind();
         } while(foundMatch);
     }
-    FREELISTPTR(targets);
     printf("\n");
     return 0;
 }

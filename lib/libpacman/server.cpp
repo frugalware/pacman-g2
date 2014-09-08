@@ -57,7 +57,7 @@ pmserver_t *_pacman_server_new(char *url)
 	char *ptr;
 
 	if(server == NULL) {
-		return(NULL);
+		return NULL;
 	}
 
 	/* parse our special url */
@@ -105,8 +105,7 @@ pmserver_t *_pacman_server_new(char *url)
 	} else {
 		RET_ERR(PM_ERR_SERVER_PROTOCOL_UNSUPPORTED, NULL);
 	}
-
-	return(server);
+	return server;
 }
 
 void _pacman_server_free(void *data)
