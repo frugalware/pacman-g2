@@ -54,8 +54,6 @@ class FPtrList
 {
 public:
 	friend FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
-	friend bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
-	friend FPtrList *f_ptrlist_add(FPtrList *list, void *data);
 
 	typedef FPtrListItem *iterator;
 	typedef const iterator const_iterator;
@@ -169,21 +167,9 @@ public:
 	}
 
 	void swap(FPtrList &o) {
-		std::swap(m_next, o.m_next);
-		std::swap(m_previous, o.m_previous);
-		if(m_next != &o) {
-			m_next->m_previous = this;
-			m_previous->m_next = this;
-		} else {
-			m_next = m_previous = this;
-		}
-		if(o.m_next != this) {
-			o.m_next->m_previous = &o;
-			o.m_previous->m_next = &o;
-		} else {
-			o.m_next = o.m_previous = &o;
-		}
+		FCListItem::swap(o);
 	}
+
 private:
 	FPtrList(const FPtrList &o);
 	FPtrList &operator = (const FPtrList &o);

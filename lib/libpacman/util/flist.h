@@ -376,10 +376,7 @@ class FCListItem
 public:
 	friend struct flib::iterable_traits<FCListItem *>;
 
-	friend FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
 	friend bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
-	friend FPtrList *f_ptrlist_add(FPtrList *list, void *data);
-	friend class FPtrList;
 
 	typedef void *value_type;
 	typedef value_type *pointer;
@@ -447,6 +444,24 @@ public:
 	FCListItem *previous() const
 	{
 		return m_previous;
+	}
+
+protected:
+	void swap(FCListItem &o) {
+		std::swap(m_next, o.m_next);
+		std::swap(m_previous, o.m_previous);
+		if(m_next != &o) {
+			m_next->m_previous = this;
+			m_previous->m_next = this;
+		} else {
+			m_next = m_previous = this;
+		}
+		if(o.m_next != this) {
+			o.m_next->m_previous = &o;
+			o.m_previous->m_next = &o;
+		} else {
+			o.m_next = o.m_previous = &o;
+		}
 	}
 
 protected:
