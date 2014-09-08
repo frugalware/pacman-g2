@@ -50,7 +50,7 @@ public:
 };
 
 class FPtrList
-	: protected FPtrListItem
+	: protected FCListItem
 {
 public:
 	friend FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
@@ -61,6 +61,7 @@ public:
 	typedef const iterator const_iterator;
 
 	FPtrList()
+		: FCListItem(this, this)
 	{ }
 
 	FPtrList(FPtrList &&o)
@@ -78,7 +79,7 @@ public:
 	iterator begin()
 	{
 		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-		return m_data != NULL ? this : end();
+		return iterator(next());
 	}
 
 	const_iterator begin() const
@@ -89,45 +90,37 @@ public:
 	const_iterator cbegin() const
 	{
 		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-		return m_data != NULL ? const_cast<const_iterator>((const FPtrListItem * const)this) : NULL;
+		return const_iterator(next());
 	}
 
 	iterator end()
 	{
-		return NULL;
+		return iterator(this);
 	}
 
 	const_iterator end() const
 	{
-		return NULL;
+		return cend();
 	}
 
 	const_iterator cend() const
 	{
-		return NULL;
+		return const_iterator(this);
 	}
 
 	iterator last()
 	{
-		return const_cast<iterator>(clast());
+		return iterator(previous());
 	}
 
 	const_iterator last() const
 	{
-		auto it = cbegin(), end = cend();
-
-		if (it != end)
-		{
-			while (it->next() != end) {
-				it = it->next();
-			}
-		}
-		return it;
+		return clast();
 	}
 
 	const_iterator clast() const
 	{
-		return last();
+		return const_iterator(previous());
 	}
 
 	iterator rbegin()
@@ -147,23 +140,23 @@ public:
 
 	iterator rend()
 	{
-		return NULL;
+		return iterator(this);
 	}
 
 	const_iterator rend() const
 	{
-		return NULL;
+		return crend();
 	}
 
 	const_iterator crend() const
 	{
-		return NULL;
+		return const_iterator(this);
 	}
 
 	bool empty() const
 	{
 		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, true));
-		return this->m_data == NULL;
+		return begin() == end();
 	}
 
 	FPtrList &add(void *data);
@@ -172,25 +165,23 @@ public:
 	{
 		// FIXME: lets leak for now
 		ASSERT(this != NULL, pm_errno = PM_ERR_WRONG_ARGS; return);
-		m_next = m_previous = NULL;
-		m_data = NULL;
+		m_next = m_previous = this;
 	}
 
 	void swap(FPtrList &o) {
-		std::swap(m_data, o.m_data);
 		std::swap(m_next, o.m_next);
 		std::swap(m_previous, o.m_previous);
-		if (m_next != NULL) {
+		if(m_next != &o) {
 			m_next->m_previous = this;
-		}
-		if (m_previous != NULL) {
 			m_previous->m_next = this;
+		} else {
+			m_next = m_previous = this;
 		}
-		if (o.m_next != NULL) {
+		if(o.m_next != this) {
 			o.m_next->m_previous = &o;
-		} 
-		if (o.m_previous != NULL) {
 			o.m_previous->m_next = &o;
+		} else {
+			o.m_next = o.m_previous = &o;
 		}
 	}
 private:

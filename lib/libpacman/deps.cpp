@@ -46,6 +46,10 @@
 using namespace libpacman;
 
 typedef struct __pmgraph_t {
+	__pmgraph_t()
+		: state(0), data(nullptr), parent(nullptr), childptr(nullptr)
+	{ }
+
 	int state; /* 0: untouched, -1: entered, other: leaving time */
 	Package *data;
 	struct __pmgraph_t *parent; /* where did we come from? */
@@ -55,9 +59,7 @@ typedef struct __pmgraph_t {
 
 static pmgraph_t *_pacman_graph_new(void)
 {
-	pmgraph_t *graph = (pmgraph_t *)_pacman_zalloc(sizeof(pmgraph_t));
-
-	return(graph);
+	return new pmgraph_t();
 }
 
 __pmdepmissing_t::__pmdepmissing_t(const char *target, unsigned char type, unsigned char depmod,
@@ -116,7 +118,6 @@ FPtrList _pacman_sortbydeps(const FPtrList &targets, int mode)
 {
 	FPtrList newtargs;
 	FPtrList vertices;
-	FPtrListIterator *vptr;
 	pmgraph_t *vertex;
 	int found;
 
@@ -155,13 +156,13 @@ FPtrList _pacman_sortbydeps(const FPtrList &targets, int mode)
 		vertex_i->childptr = vertex_i->children.begin();
 	}
 
-	vptr = vertices.begin();
+	FPtrListIterator *vptr = vertices.begin(), *end = vertices.end();
 	vertex = f_ptrlistitem_data(vptr);
-	while(vptr) {
+	while(vptr != end) {
 		/* mark that we touched the vertex */
 		vertex->state = -1;
 		found = 0;
-		while(vertex->childptr && !found) {
+		while(vertex->childptr != vertex->children.end() && !found) {
 			pmgraph_t *nextchild = f_ptrlistitem_data(vertex->childptr);
 			vertex->childptr = vertex->childptr->next();
 			if (nextchild->state == 0) {
@@ -179,7 +180,7 @@ FPtrList _pacman_sortbydeps(const FPtrList &targets, int mode)
 			vertex = vertex->parent;
 			if(!vertex) {
 				vptr = vptr->next();
-				while(vptr) {
+				while(vptr != end) {
 					vertex = f_ptrlistitem_data(vptr);
 					if (vertex->state == 0) break;
 					vptr = vptr->next();

@@ -34,31 +34,18 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 		list = new FPtrList();
 	}
 
-#ifndef F_NOCOMPAT
-	if(list->m_data == NULL) {
-		list->m_data = data;
-	} else if(fn(data, list->m_data) <= 0) {
-		/* Insert before in head */
-		FPtrListItem *next = new FPtrListItem(list->m_data);
-		list->m_data = data;
-		next->insert_after(list);
-	} else {
-#endif
 	FPtrListIterator *add = new FPtrListItem(data);
 
 	/* Find insertion point. */
-	FPtrListIterator *previous = list;
-	for(FPtrListIterator *end = f_ptrlist_end(list); previous->next() != end; previous = previous->next()) {
-		if(fn(f_ptrlistitem_data(add), f_ptrlistitem_data(previous->next())) <= 0) {
+	FCListItem *previous = list;
+	for(FCListItem *end = f_ptrlist_end(list); previous->next() != end; previous = previous->next()) {
+		if(fn(data, f_ptrlistitem_data((FPtrListItem *)previous->next())) <= 0) {
 			break;
 		}
 	}
 
 	/*  Insert node before insertion point. */
 	add->insert_after(previous);
-#ifndef F_NOCOMPAT
-	}
-#endif
 	return list;
 }
 
@@ -76,33 +63,6 @@ bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, vo
 		*data = NULL;
 	}
 
-#ifndef F_NOCOMPAT
-	if(haystack->empty()) {
-		return false;
-	}	
-
-	if(fn(needle, haystack->m_data) == 0) {
-		/* The item found is the first in the chain */
-		FPtrListItem *next = haystack->next();
-
-		if(data != NULL) {
-			*data = haystack->m_data;
-		}
-		if(next == NULL) {
-			/* Mark list empty */
-			haystack->m_data = NULL;
-		} else {
-			/* Move data of next item in list head */
-			haystack->m_data = next->m_data;
-			haystack->m_next = next->next();
-			if(haystack->m_next) {
-				haystack->m_next->m_previous = haystack;
-			}
-			delete next;
-		}
-		return true;
-	}
-#endif
 	for(FPtrListIterator *i = f_ptrlist_first(haystack), *end = f_ptrlist_end(haystack); i != end; i = i->next()) {
 		if(fn(needle, i->m_data) == 0) {
 			/* we found a matching item */
@@ -180,15 +140,7 @@ int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
 
 FPtrList &FPtrList::add(void *data)
 {
-#ifndef F_NOCOMPAT
-	if(m_data == NULL) {
-		m_data = (void *)data;
-	} else {
-#endif
 	(new FPtrListItem(data))->insert_after(last());
-#ifndef F_NOCOMPAT
-	}
-#endif
 	return *this;
 }
 
@@ -206,17 +158,6 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 	ASSERT(list != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	FPtrListIterator *end = f_ptrlist_end(list), *it = f_ptrlist_first(list), *next;
-
-#ifndef F_NOCOMPAT
-	if(list->empty()) {
-		return 0;
-	}
-
-	if(visitor != NULL) {
-		f_visit(f_ptrlistitem_data(it), visitor);
-	}
-	it = it->next();
-#endif
 
 	while(it != end) {
 		next = it->next();

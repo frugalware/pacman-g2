@@ -439,6 +439,16 @@ public:
 		return true;
 	}
 
+	FCListItem *next() const
+	{
+		return m_next;
+	}
+
+	FCListItem *previous() const
+	{
+		return m_previous;
+	}
+
 protected:
 	FCListItem *m_next;
 	FCListItem *m_previous;

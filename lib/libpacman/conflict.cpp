@@ -203,7 +203,7 @@ static FStringList chk_fileconflicts(const FStringList &filesA, const FStringLis
 	FStringList ret;
 	auto pA = filesA.begin(), pB = filesB.begin();
 
-	while(pA && pB) {
+	while(pA != filesA.end() && pB != filesB.end()) {
 		const char *strA = f_stringlistitem_to_str(pA);
 		const char *strB = f_stringlistitem_to_str(pB);
 		/* skip directories, we don't care about dir conflicts */

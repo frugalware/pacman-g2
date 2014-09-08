@@ -44,8 +44,7 @@ int querypkg(FStringList *targets)
 {
 	PM_PKG *info = NULL;
 	PM_LIST *ret;
-	char *package = NULL;
-	int done = 0, errors = 0;
+	int errors = 0;
 
 	if(config->op_q_search) {
 		for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = f_ptrlistitem_next(i)) {
@@ -84,15 +83,8 @@ int querypkg(FStringList *targets)
 		return(1);
 	}
 
-	for(FPtrListIterator *targ = f_ptrlist_first(targets); !done; targ = (targ ? f_ptrlistitem_next(targ) : NULL)) {
-		if(targets == NULL) {
-			done = 1;
-		} else {
-			if(f_ptrlistitem_next(targ) == NULL) {
-				done = 1;
-			}
-			package = list_data(targ);
-		}
+	for(FPtrListIterator *targ = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); targ != end; targ = f_ptrlistitem_next(targ)) {
+		char *package = list_data(targ);
 
 		/* looking for groups */
 		if(config->group) {
