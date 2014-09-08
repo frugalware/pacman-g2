@@ -307,13 +307,13 @@ const FPtrListIterator *f_ptrlist_last_const(const FPtrList *self)
 
 FPtrListIterator *f_ptrlist_rend(FPtrList *self)
 {
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, false));
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 	return self->rend();
 }
 
 const FPtrListIterator *f_ptrlist_rend_const(const FPtrList *self)
 {
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, false));
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 	return self->rend();
 }
 

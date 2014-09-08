@@ -854,7 +854,7 @@ pmpkg_t *pacman_pkg_load(char *filename)
 	_pacman_log(PM_LOG_FUNCTION, "enter pacman_pkg_load");
 
 	/* Sanity checks */
-	ASSERT(!_pacman_strempty(filename), RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(!_pacman_strempty(filename), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
 	return c_cast(_pacman_fpmpackage_load(filename));
 }
