@@ -92,7 +92,7 @@ int deptestpkg(FStringList *targets)
 	FREE(str);
 
 	if(pacman_trans_prepare(&data) == -1) {
-		list_t *synctargs = NULL;
+		FStringList *synctargs = NULL;
 		retval = 126;
 		/* return 126 = deps were missing, but successfully resolved
 		 * return 127 = deps were missing, and failed to resolve; OR
@@ -135,18 +135,18 @@ int deptestpkg(FStringList *targets)
 		if(retval == 126 && synctargs != NULL) {
 			if(pacman_trans_release() == -1) {
 				ERR(NL, _("could not release transaction (%s)"), pacman_strerror(pm_errno));
-				FREELIST(synctargs);
+				f_stringlist_delete(synctargs);
 				return(1);
 			}
 			if(!config->op_d_resolve || syncpkg(synctargs) != 0) {
 				/* error (or -D not used) */
 				retval = 127;
 			}
-			FREELIST(synctargs);
+			f_stringlist_delete(synctargs);
 			return(retval);
 		}
 
-		FREELIST(synctargs);
+		f_stringlist_delete(synctargs);
 	}
 
 cleanup:
@@ -156,8 +156,7 @@ cleanup:
 			retval = 1;
 		}
 	}
-
-	return(retval);
+	return retval;
 }
 
 /* vim: set ts=2 sw=2 noet: */
