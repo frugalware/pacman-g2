@@ -29,6 +29,55 @@
 #include "util/fcallback.h"
 #include "util/flist.h"
 
+#ifndef __cplusplus
+typedef struct FPtrList FPtrList;
+typedef struct FPtrListItem FPtrListIterator;
+#else /* __cplusplus */
+typedef class FPtrList FPtrList;
+typedef class FPtrListItem FPtrListIterator;
+#endif /* __cplusplus */
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+#define _FREELIST(p, f) do { if(p) { FVisitor visitor = { (FVisitorFunc)f, NULL }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
+
+#define FREELIST(p) _FREELIST(p, free)
+#define FREELISTPTR(p) _FREELIST(p, NULL)
+
+/* Sort comparison callback function declaration */
+typedef int (*_pacman_fn_cmp)(const void *, const void *);
+
+FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
+bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
+FPtrList *_pacman_list_reverse(FPtrList *list);
+
+typedef void (*FPtrListIteratorVisitorFunc)(FPtrListIterator *item, void *visitor_data);
+
+void *f_ptrlistitem_data(const FPtrListIterator *self);
+FPtrListIterator *f_ptrlistitem_next(FPtrListIterator *self);
+size_t f_ptrlistiterator_count(const FPtrListIterator *self, const FPtrListIterator *to);
+
+FPtrList *f_ptrlist_new(void);
+int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
+
+FPtrList *f_ptrlist_add(FPtrList *list, void *data);
+int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
+size_t f_ptrlist_count(const FPtrList *self);
+FPtrListIterator *f_ptrlist_end(FPtrList *self);
+const FPtrListIterator *f_ptrlist_end_const(const FPtrList *self);
+FPtrListIterator *f_ptrlist_first(FPtrList *self);
+const FPtrListIterator *f_ptrlist_first_const(const FPtrList *self);
+FPtrListIterator *f_ptrlist_last(FPtrList *self);
+const FPtrListIterator *f_ptrlist_last_const(const FPtrList *self);
+FPtrListIterator *f_ptrlist_rend(FPtrList *self);
+const FPtrListIterator *f_ptrlist_rend_const(const FPtrList *self);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
 #ifdef __cplusplus
 class FPtrListItem
 	: public FListItem<void *>
