@@ -184,8 +184,6 @@ private:
 
 }
 
-#define FREELISTPKGS(p) _FREELIST(p, _pacman_pkg_delete)
-
 int _pacman_pkg_delete(libpacman::Package *self);
 
 int _pacman_pkg_cmp(const void *p1, const void *p2);
