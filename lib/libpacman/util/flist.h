@@ -421,141 +421,6 @@ namespace flib {
 	};
 }
 
-class FCList
-	: private FCListItem
-{
-public:
-	/* std::list compatibility */
-	typedef FCListItem *iterable;
-	typedef flib::iterator<iterable> iterator;
-	typedef flib::iterator<iterable, true> reverse_iterator;
-	typedef flib::const_iterator<iterable> const_iterator;
-	typedef flib::const_iterator<iterable, true> const_reverse_iterator;
-	typedef size_t size_type;
-
-	FCList()
-		: FCListItem(this, this)
-	{ }
-
-	virtual ~FCList() override
-	{
-		clear();
-	}
-
-	/* Iterators */
-	iterator begin()
-	{
-		return iterator(m_next);
-	}
-
-	const_iterator begin() const
-	{
-		return cbegin();
-	}
-
-	const_iterator cbegin() const
-	{
-		return const_iterator(m_next);
-	}
-
-	reverse_iterator rbegin()
-	{
-		return reverse_iterator(m_previous);
-	}
-
-	const_reverse_iterator rbegin() const
-	{
-		return crbegin();
-	}
-
-	const_reverse_iterator crbegin() const
-	{
-		return const_reverse_iterator(m_previous);
-	}
-
-	iterator end()
-	{
-		return iterator(this);
-	}
-
-	const_iterator end() const
-	{
-		return cend();
-	}
-
-	const_iterator cend() const
-	{
-		return const_iterator(const_cast<FCList *>(this));
-	}
-
-	reverse_iterator rend()
-	{
-		return reverse_iterator(this);
-	}
-
-	const_reverse_iterator rend() const
-	{
-		return crend();
-	}
-
-	const_reverse_iterator crend() const
-	{
-		return const_reverse_iterator(const_cast<FCList *>(this));
-	}
-
-	/* Capacity */
-	bool empty() const
-	{
-		return m_next == m_previous;
-	}
-
-	size_type size() const
-	{
-		size_type size = 0;
-		for(auto it = cbegin(), end = cend(); it != end; ++it, ++size) {
-			/* Nothing to do */
-		}
-		return size;
-	}
-
-	/* Element access */
-	
-	/* Modifiers */
-	void clear()
-	{ }
-
-public:
-	/* Extensions */
-	/* Element access */
-	iterator first()
-	{
-		return begin();
-	}
-
-	const_iterator first() const
-	{
-		return cbegin();
-	}
-
-	iterator last()
-	{
-		return iterator(m_previous);
-	}
-
-	const_iterator last() const
-	{
-		return const_iterator(m_previous);
-	}
-	
-	/* Modifiers */
-	virtual bool add(const reference val); // Make default implementation to happend
-
-protected:
-	FCList(const FCList &o);
-
-	FCList &operator = (const FCList &o);
-};
-
 template <typename T>
 class FListItem
 	: public FCListItem
@@ -640,87 +505,137 @@ namespace flib {
 
 template <typename T>
 class FList
-	: private FCList
+	: private FCListItem
 {
 public:
+	typedef FListItem<T> *iterable;
 	/* std::list compatibility */
-	typedef FListItem<T> *iterator;
-	typedef const iterator const_iterator;
+	typedef flib::iterator<iterable> iterator;
+	typedef flib::iterator<iterable, true> reverse_iterator;
+	typedef flib::const_iterator<iterable> const_iterator;
+	typedef flib::const_iterator<iterable, true> const_reverse_iterator;
+	typedef size_t size_type;
 
 	FList()
+		: FCListItem(this, this)
 	{ }
 
-	~FList()
+	virtual ~FList() override
 	{
-		clear();
+//		clear();
 	}
 
-	void clear();
-	bool empty() const;
-
+	/* Iterators */
 	iterator begin()
 	{
-		return first();
+		return iterator(m_next);
 	}
 
 	const_iterator begin() const
 	{
-		return first();
+		return cbegin();
 	}
 
 	const_iterator cbegin() const
 	{
-		return first();
+		return const_iterator(m_next);
+	}
+
+	reverse_iterator rbegin()
+	{
+		return reverse_iterator(m_previous);
+	}
+
+	const_reverse_iterator rbegin() const
+	{
+		return crbegin();
+	}
+
+	const_reverse_iterator crbegin() const
+	{
+		return const_reverse_iterator(m_previous);
 	}
 
 	iterator end()
 	{
-		return last();
+		return iterator(this);
 	}
 
 	const_iterator end() const
 	{
-		return last();
+		return cend();
 	}
 
 	const_iterator cend() const
 	{
-		return last();
+		return const_iterator(const_cast<FList<T> *>(this));
 	}
 
-#if 0
-	typedef ListItem *reverse_iterator;
-	typedef const List::iterator const_reverse_iterator;
+	reverse_iterator rend()
+	{
+		return reverse_iterator(this);
+	}
 
-	List::reverse_iterator rbegin();
-	List::const_reverse_iterator rbegin() const;
-	List::const_reverse_iterator crbegin() const;
-	List::reverse_iterator rend();
-	List::const_reverse_iterator rend() const;
-	List::const_reverse_iterator crend() const;
+	const_reverse_iterator rend() const
+	{
+		return crend();
+	}
+
+	const_reverse_iterator crend() const
+	{
+		return const_reverse_iterator(const_cast<FList<T> *>(this));
+	}
+
+	/* Capacity */
+	bool empty() const
+	{
+		return m_next == m_previous;
+	}
+
+	size_type size() const
+	{
+		size_type size = 0;
+		for(auto it = cbegin(), end = cend(); it != end; ++it, ++size) {
+			/* Nothing to do */
+		}
+		return size;
+	}
+
+	/* Element access */
+	
+	/* Modifiers */
+#if 0
+	void clear()
+	{ }
 #endif
 
 public:
 	/* extensions */
 	iterator first()
 	{
-		return FCList::first();
+		return iterator(m_next);
 	}
 
 	const_iterator first() const
 	{
-		return FCList::first();
+		return const_iterator(m_next);
 	}
 
 	iterator last()
 	{
-		return FCList::last();
+		return iterator(m_previous);
 	}
 
 	const_iterator last() const
 	{
-		return FCList::last();
+		return iterator(m_previous);
 	}
+#if 0
+	virtual FList<T> &add(const reference val); // Make default implementation to happend
+	{
+		return *this;
+	}
+#endif
 
 private:
 	FList(const FList &);
