@@ -58,7 +58,7 @@ int _pacman_packagecache_clean(int level)
 		closedir(dir);
 
 		for(auto i = cache.begin(), end = cache.end(); i != end; i = i->next()) {
-			char *str = f_stringlistitem_to_str(i);
+			const char *str = f_stringlistitem_to_str(i);
 			char name[PKG_NAME_LEN], version[PKG_VERSION_LEN];
 
 			if(strstr(str, PM_EXT_PKG) == NULL) {
@@ -74,7 +74,7 @@ int _pacman_packagecache_clean(int level)
 				continue;
 			}
 			for(auto j = i->next(); j != end; j = j->next()) {
-				char *s = f_stringlistitem_to_str(j);
+				const char *s = f_stringlistitem_to_str(j);
 				char n[PKG_NAME_LEN], v[PKG_VERSION_LEN];
 
 				if(strstr(s, PM_EXT_PKG) == NULL) {
@@ -87,7 +87,7 @@ int _pacman_packagecache_clean(int level)
 					continue;
 				}
 				if(!strcmp(name, n)) {
-					char *ptr = (pacman_pkg_vercmp(version, v) < 0) ? str : s;
+					const char *ptr = (pacman_pkg_vercmp(version, v) < 0) ? str : s;
 					if(!_pacman_list_is_strin(ptr, &clean)) {
 						clean.add(ptr);
 					}

@@ -291,19 +291,4 @@ Package *SyncDatabase::scan(const char *target, unsigned int inforeq)
 	return(NULL);
 }
 
-static
-int _pacman_syncdb_file_reader(SyncDatabase *db, Package *info, unsigned int inforeq, unsigned int inforeq_masq, int (*reader)(Package *, FILE *))
-{
-	int ret = 0;
-
-	if(inforeq & inforeq_masq) {
-		FILE *fp = _pacman_archive_read_fropen(db->m_archive);
-
-		ASSERT(fp != NULL, RET_ERR(PM_ERR_MEMORY, -1));
-		ret = reader(info, fp);
-		fclose(fp);
-	}
-	return ret;
-}
-
 /* vim: set ts=2 sw=2 noet: */

@@ -47,16 +47,9 @@ using namespace libpacman;
 
 static pmgraph_t *_pacman_graph_new(void)
 {
-	pmgraph_t *graph = _pacman_zalloc(sizeof(pmgraph_t));
+	pmgraph_t *graph = (pmgraph_t *)_pacman_zalloc(sizeof(pmgraph_t));
 
 	return(graph);
-}
-
-static void _pacman_graph_free(void *data)
-{
-	pmgraph_t *graph = data;
-	graph->children.clear();
-	free(graph);
 }
 
 __pmdepmissing_t::__pmdepmissing_t(const char *target, unsigned char type, unsigned char depmod,

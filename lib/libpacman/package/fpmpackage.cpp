@@ -134,25 +134,6 @@ int _pacman_pkginfo_fread(FILE *descfile, Package *info, int output)
 	return(0);
 }
 
-static
-int _pacman_pkginfo_read(char *descfile, Package *info, int output)
-{
-	FILE* fp = NULL;
-	int ret;
-
-	if((fp = fopen(descfile, "r")) == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("could not open file %s"), descfile);
-		return(-1);
-	}
-
-	ret = _pacman_pkginfo_fread(fp, info, output);
-
-	fclose(fp);
-	unlink(descfile);
-
-	return ret;
-}
-
 Package *_pacman_fpmpackage_load(const char *pkgfile)
 {
 	char *expath;

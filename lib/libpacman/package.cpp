@@ -331,12 +331,6 @@ int _pacman_strmatcher_match(const FStrMatcher *strmatcher, Package *pkg, int fl
 	return 0;
 }
 
-static
-int PackageMatcher_match_cb(const void *ptr, const void *matcher_data)
-{
-	return ((const PackageMatcher *)matcher_data)->match((const Package *)ptr);
-}
-
 PackageMatcher::PackageMatcher(const char *pattern, int flags, int strmatcher_flags)
 	: m_strmatcher(&m_strmatcher_internal), m_flags(flags), m_strmatcher_internal(pattern, strmatcher_flags)
 { }
