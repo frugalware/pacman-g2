@@ -41,11 +41,10 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 		/* Insert before in head */
 		FPtrListItem *next = new FPtrListItem(list->m_data);
 		list->m_data = data;
-		f_ptrlistitem_insert_after(next, list);
+		next->insert_after(list);
 	} else {
 #endif
-	FPtrListIterator *add = new FPtrListItem();
-	add->m_data = data;
+	FPtrListIterator *add = new FPtrListItem(data);
 
 	/* Find insertion point. */
 	FPtrListIterator *previous = list;
@@ -56,7 +55,7 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 	}
 
 	/*  Insert node before insertion point. */
-	f_ptrlistitem_insert_after(add, previous);
+	add->insert_after(previous);
 #ifndef F_NOCOMPAT
 	}
 #endif
@@ -148,24 +147,6 @@ void *f_ptrlistitem_data(const FPtrListIterator *self)
 	return self->m_data;
 }
 
-int f_ptrlistitem_insert_after(FPtrListIterator *self, FPtrListIterator *previous)
-{
-	FPtrListIterator *next;
-
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-	ASSERT(previous != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	next = previous->m_next;
-	previous->m_next = self;
-	self->m_next = next;
-	self->m_previous = previous;
-#ifndef F_NOCOMPAT
-	if (next != NULL)
-#endif
-	next->m_previous = self;
-	return 0;
-}
-
 FPtrListIterator *f_ptrlistitem_next(FPtrListIterator *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
@@ -204,16 +185,9 @@ FPtrList &FPtrList::add(void *data)
 		m_data = (void *)data;
 	} else {
 #endif
-	FPtrListIterator *lp = last();
-	f_ptrlistitem_insert_after(new FPtrListItem(), lp);
-	lp = lp->m_next;
-	lp->m_data = data;
+	(new FPtrListItem(data))->insert_after(last());
 #ifndef F_NOCOMPAT
 	}
-#endif
-
-#if 0
-	f_ptrlistitem_insert_after(new FPtrListItem(data), last());
 #endif
 	return *this;
 }

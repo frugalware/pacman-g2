@@ -56,7 +56,6 @@ FPtrList *_pacman_list_reverse(FPtrList *list);
 typedef void (*FPtrListIteratorVisitorFunc)(FPtrListIterator *item, void *visitor_data);
 
 void *f_ptrlistitem_data(const FPtrListIterator *self);
-int f_ptrlistitem_insert_after(FPtrListIterator *self, FPtrListIterator *previous);
 FPtrListIterator *f_ptrlistitem_next(FPtrListIterator *self);
 size_t f_ptrlistiterator_count(const FPtrListIterator *self, const FPtrListIterator *to);
 
@@ -380,7 +379,6 @@ public:
 	friend FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
 	friend bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 	friend FPtrList *f_ptrlist_add(FPtrList *list, void *data);
-	friend int f_ptrlistitem_insert_after(FPtrListIterator *self, FPtrListIterator *previous);
 	friend class FPtrList;
 
 	typedef void *value_type;
@@ -424,8 +422,22 @@ public:
 	}
 #endif
 
-//protected: // Disable for now
-	bool insert_after(FCListItem *previous);	
+	bool insert_after(FCListItem *previous)
+	{
+		FCListItem *next;
+
+		ASSERT(previous != NULL, RET_ERR(PM_ERR_WRONG_ARGS, false));
+
+		next = previous->m_next;
+		previous->m_next = this;
+		m_next = next;
+		m_previous = previous;
+#ifndef F_NOCOMPAT
+		if (next != NULL)
+#endif
+		next->m_previous = this;
+		return true;
+	}
 
 protected:
 	FCListItem *m_next;
