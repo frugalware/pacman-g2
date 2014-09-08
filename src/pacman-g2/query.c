@@ -194,7 +194,7 @@ int querypkg(FStringList *targets)
 					}
 					if(config->op_q_foreign) {
 						int match = 0;
-						for(FPtrListIterator *i = f_ptrlist_first(pmc_syncs), *end = f_ptrlist_end(pmc_syncs); i != end; i = f_ptrlistitem_next(i)) {
+						for(pmlist_iterator_t *i = pacman_list_begin(pmc_syncs), *end = pacman_list_end(pmc_syncs); i != end; i = pacman_list_next(i)) {
 							PM_DB *db = list_data(i);
 							pmlist_t *cache = pacman_db_getpkgcache(db);
 							for(pmlist_iterator_t *j = pacman_list_begin(cache), *end = pacman_list_end(cache); j != end; j = pacman_list_next(j)) {

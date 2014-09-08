@@ -53,12 +53,12 @@ extern PM_DB *db_local;
 
 extern config_t *config;
 
-static int sync_synctree(int level, list_t *syncs)
+static int sync_synctree(int level)
 {
 	int success = 0, ret;
 
-	for(FPtrListIterator *i = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); i != end; i = f_ptrlistitem_next(i)) {
-		PM_DB *db = list_data(i);
+	for(pmlist_iterator_t *i = pacman_list_begin(pmc_syncs), *end = pacman_list_end(pmc_syncs); i != end; i = pacman_list_next(i)) {
+		PM_DB *db = pacman_list_iterator_getdata(i);
 
 		ret = pacman_db_update((level < 2 ? 0 : 1), db);
 		if(ret == -1) {
@@ -77,13 +77,13 @@ static int sync_synctree(int level, list_t *syncs)
 	return(success);
 }
 
-static int sync_search(list_t *syncs, FStringList *targets)
+static int sync_search(FStringList *targets)
 {
 	PM_LIST *ret;
 	PM_PKG *ipkg;
 
-	for(FPtrListIterator *i = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); i != end; i = f_ptrlistitem_next(i)) {
-		PM_DB *db = list_data(i);
+	for(pmlist_iterator_t *i = pacman_list_begin(pmc_syncs), *end = pacman_list_end(pmc_syncs); i != end; i = pacman_list_next(i)) {
+		PM_DB *db = pacman_list_iterator_getdata(i);
 
 		for(FPtrListIterator *j = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); j != end; j = f_ptrlistitem_next(j)) {
 			pacman_set_option(PM_OPT_NEEDLES, (long)list_data(j));
@@ -115,15 +115,15 @@ static int sync_search(list_t *syncs, FStringList *targets)
 	return(0);
 }
 
-static int sync_group(int level, list_t *syncs, FStringList *targets)
+static int sync_group(int level, FStringList *targets)
 {
 	int ret = 0;
 
 	if(targets) {
 		for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = f_ptrlistitem_next(i)) {
 			int found = 0;
-			for(FPtrListIterator *j = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); j != end; j = f_ptrlistitem_next(j)) {
-				PM_DB *db = list_data(j);
+			for(pmlist_iterator_t *j = pacman_list_begin(pmc_syncs), *end = pacman_list_end(pmc_syncs); j != end; j = pacman_list_next(j)) {
+				PM_DB *db = pacman_list_iterator_getdata(j);
 				PM_GRP *grp = pacman_db_readgrp(db, list_data(i));
 
 				if(grp) {
@@ -138,8 +138,8 @@ static int sync_group(int level, list_t *syncs, FStringList *targets)
 			}
 		}
 	} else {
-		for(FPtrListIterator *j = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); j != end; j = f_ptrlistitem_next(j)) {
-			PM_DB *db = list_data(j);
+		for(pmlist_iterator_t *j = pacman_list_begin(pmc_syncs), *end = pacman_list_end(pmc_syncs); j != end; j = pacman_list_next(j)) {
+			PM_DB *db = pacman_list_iterator_getdata(j);
 
 			pmlist_t *cache = pacman_db_getgrpcache(db);
 			for(pmlist_iterator_t *lp = pacman_list_begin(cache), *end = pacman_list_end(cache); lp != end; lp = pacman_list_next(lp)) {
@@ -156,13 +156,13 @@ static int sync_group(int level, list_t *syncs, FStringList *targets)
 	return(ret);
 }
 
-static int sync_info(list_t *syncs, FStringList *targets)
+static int sync_info(FStringList *targets)
 {
 	if(targets) {
 		for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = f_ptrlistitem_next(i)) {
 			int found = 0;
 
-			for(FPtrListIterator *j = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); j != end && !found; j = f_ptrlistitem_next(j)) {
+			for(FPtrListIterator *j = f_ptrlist_first(pmc_syncs), *end = f_ptrlist_end(pmc_syncs); j != end && !found; j = f_ptrlistitem_next(j)) {
 				PM_DB *db = list_data(j);
 
 				pmlist_t *cache = pacman_db_getpkgcache(db);
@@ -182,8 +182,8 @@ static int sync_info(list_t *syncs, FStringList *targets)
 			}
 		}
 	} else {
-		for(FPtrListIterator *j = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); j != end; j = f_ptrlistitem_next(j)) {
-			PM_DB *db = list_data(j);
+		for(pmlist_iterator_t *j = pacman_list_begin(pmc_syncs), *end = pacman_list_end(pmc_syncs); j != end; j = pacman_list_next(j)) {
+			PM_DB *db = pacman_list_iterator_getdata(j);
 
 			pmlist_t *cache = pacman_db_getpkgcache(db);
 			for(pmlist_iterator_t *lp = pacman_list_begin(cache), *end = pacman_list_end(cache); lp != end; lp = pacman_list_next(lp)) {
@@ -196,7 +196,7 @@ static int sync_info(list_t *syncs, FStringList *targets)
 	return(0);
 }
 
-static int sync_list(list_t *syncs, FStringList *targets)
+static int sync_list(FStringList *targets)
 {
 	list_t *ls = NULL;
 
@@ -204,7 +204,7 @@ static int sync_list(list_t *syncs, FStringList *targets)
 		for(FPtrListIterator *i = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); i != end; i = f_ptrlistitem_next(i)) {
 			PM_DB *db = NULL;
 
-			for(FPtrListIterator *j = f_ptrlist_first(syncs), *end = f_ptrlist_end(syncs); j != end && !db; j = f_ptrlistitem_next(j)) {
+			for(FPtrListIterator *j = f_ptrlist_first(pmc_syncs), *end = f_ptrlist_end(pmc_syncs); j != end && !db; j = f_ptrlistitem_next(j)) {
 				PM_DB *d = list_data(j);
 
 				if(strcmp(list_data(i), (char *)pacman_db_getinfo(d, PM_DB_TREENAME)) == 0) {
@@ -221,7 +221,7 @@ static int sync_list(list_t *syncs, FStringList *targets)
 			ls = f_ptrlist_add(ls, db);
 		}
 	} else {
-		ls = syncs;
+		ls = pmc_syncs;
 	}
 
 	for(FPtrListIterator *i = f_ptrlist_first(ls), *end = f_ptrlist_end(ls); i != end; i = f_ptrlistitem_next(i)) {
@@ -280,25 +280,25 @@ int syncpkg(FStringList *targets)
 		/* grab a fresh package list */
 		MSG(NL, _(":: Synchronizing package databases...\n"));
 		pacman_logaction(_("synchronizing package lists"));
-		if(sync_synctree(config->op_s_sync, pmc_syncs)) {
+		if(sync_synctree(config->op_s_sync)) {
 			return(1);
 		}
 	}
 
 	if(config->op_s_search) {
-		return(sync_search(pmc_syncs, targets));
+		return(sync_search(targets));
 	}
 
 	if(config->group) {
-		return(sync_group(config->group, pmc_syncs, targets));
+		return(sync_group(config->group, targets));
 	}
 
 	if(config->op_s_info) {
-		return(sync_info(pmc_syncs, targets));
+		return(sync_info(targets));
 	}
 
 	if(config->op_q_list) {
-		return(sync_list(pmc_syncs, targets));
+		return(sync_list(targets));
 	}
 
 	/* Step 1: create a new transaction...
