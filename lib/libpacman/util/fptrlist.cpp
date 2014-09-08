@@ -39,8 +39,7 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 		list->m_data = data;
 	} else if(fn(data, list->m_data) <= 0) {
 		/* Insert before in head */
-		FPtrList *next = new FPtrListItem();
-		next->m_data = list->m_data;
+		FPtrListItem *next = new FPtrListItem(list->m_data);
 		list->m_data = data;
 		f_ptrlistitem_insert_after(next, list);
 	} else {
@@ -202,7 +201,7 @@ FPtrList &FPtrList::add(const void *data)
 {
 #ifndef F_NOCOMPAT
 	if(m_data == NULL) {
-		m_data = data;
+		m_data = (void *)data;
 	} else {
 #endif
 	FPtrListIterator *lp = last();

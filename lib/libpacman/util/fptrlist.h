@@ -40,12 +40,12 @@ public:
 
 	FPtrListItem *next() const
 	{
-		return flib::iterable_traits<FCListItem *>::next(this);
+		return (FPtrListItem *)flib::iterable_traits<FCListItem *>::next(this);
 	}
 
 	FPtrListItem *previous() const
 	{
-		return flib::iterable_traits<FCListItem *>::previous(this);
+		return (FPtrListItem *)flib::iterable_traits<FCListItem *>::previous(this);
 	}
 };
 
@@ -172,7 +172,8 @@ public:
 	{
 		// FIXME: lets leak for now
 		ASSERT(this != NULL, pm_errno = PM_ERR_WRONG_ARGS; return);
-		m_next = m_previous = m_data = NULL;
+		m_next = m_previous = NULL;
+		m_data = NULL;
 	}
 
 	void swap(FPtrList &o) {

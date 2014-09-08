@@ -45,7 +45,7 @@ FDispatchLogger *f_dispatchlogger_new(unsigned char mask)
 {
 	FDispatchLogger *dispatchlogger;
 
-	if ((dispatchlogger = f_zalloc(sizeof(*dispatchlogger))) == NULL) {
+	if ((dispatchlogger = (FDispatchLogger *)f_zalloc(sizeof(*dispatchlogger))) == NULL) {
 			return NULL;
 	}
 	f_logger_init(&dispatchlogger->base, mask, f_dispatchlogger_log, f_ptrlist_new());

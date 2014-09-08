@@ -64,12 +64,6 @@ FStringList *_pacman_list_remove_dupes(FStringList *list)
 	return newlist;
 }
 
-static
-struct FVisitor f_stringlistitem_destroyvisitor = {
-	.fn = (FVisitorFunc)free,
-	.data = NULL,
-};
-
 const char *f_stringlistitem_to_str(const FStringListIterator *self)
 {
 #ifndef F_NOCOMPAT
@@ -81,7 +75,8 @@ const char *f_stringlistitem_to_str(const FStringListIterator *self)
 
 int f_stringlist_delete(FStringList *self)
 {
-	return f_ptrlist_delete(self, &f_stringlistitem_destroyvisitor);
+	delete self;
+	return 0;
 }
 
 FStringList *f_stringlist_add(FStringList *self, const char *s)
@@ -105,7 +100,9 @@ FStringList *f_stringlist_add_stringlist(FStringList *self, const FStringList *s
 
 int f_stringlist_clear(FStringList *self)
 {
-	return f_ptrlist_clear(self, &f_stringlistitem_destroyvisitor);
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	self->clear();
+	return 0;
 }
 
 FStringList::FStringList()

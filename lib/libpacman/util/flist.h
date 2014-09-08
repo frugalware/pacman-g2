@@ -216,7 +216,6 @@ namespace flib
 			return tmp;
 		}
 
-#if 0
 		value_type operator * () const
 		{
 			return iterable_traits<Iterable>::value_of(m_iterable);
@@ -226,7 +225,6 @@ namespace flib
 		{
 			return iterable_traits<Iterable>::pointer_of(m_iterable);
 		}
-#endif
 
 		const_iterator next() const
 		{
