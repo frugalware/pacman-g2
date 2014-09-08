@@ -71,7 +71,7 @@ struct __pmtrans_t
 	int (*set_state)(pmtrans_t *trans, int new_state);
 	::libpacman::Handle *m_handle;
 	pmtranstype_t m_type;
-	unsigned int flags;
+	int flags;
 	unsigned char state;
 	FStringList targets;
 	FPtrList packages;    /* FPtrList of (pmpkg_t *) or (pmsyncpkg_t *) */

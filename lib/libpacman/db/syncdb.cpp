@@ -131,7 +131,7 @@ SyncDatabase::~SyncDatabase()
 static
 SyncPackage *_pacman_syncdb_pkg_new(SyncDatabase *db, const struct archive_entry *entry, unsigned int inforeq)
 {
-	Package *pkg;
+	SyncPackage *pkg;
 	const char *dname;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));

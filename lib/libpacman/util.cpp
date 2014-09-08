@@ -352,7 +352,7 @@ int _pacman_chroot_system(const char *cmdline, pmtrans_t *trans)
 	return 0;
 }
 
-int _pacman_runscriptlet(char *root, char *installfn, const char *script, const char *ver, const char *oldver, pmtrans_t *trans)
+int _pacman_runscriptlet(const char *root, const char *installfn, const char *script, const char *ver, const char *oldver, pmtrans_t *trans)
 {
 	char scriptfn[PATH_MAX];
 	char cmdline[PATH_MAX];
