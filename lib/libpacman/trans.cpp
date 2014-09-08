@@ -579,7 +579,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 		deps = _pacman_checkconflicts(this, list);
 		if(!deps.empty()) {
 			int errorout = 0;
-			FPtrList asked;
+			FStringList asked;
 
 			for(auto i = deps.begin(), end = deps.end(); i != end && !errorout; i = i->next()) {
 				pmdepmissing_t *miss = f_ptrlistitem_data(i);
@@ -1649,7 +1649,6 @@ int __pmtrans_t::commit(FPtrList **data)
 	}
 	return(retval);
 	} else {
-	int ret = 0;
 	time_t t;
 
 	howmany = f_ptrlist_count(&packages);
@@ -1802,7 +1801,6 @@ int __pmtrans_t::commit(FPtrList **data)
 			int errors = _pacman_fpmpackage_install(pkg_new, type, this, trans_event_table[type].progress, howmany, remain, pkg_local);
 
 			if(errors) {
-				ret = 1;
 				_pacman_log(PM_LOG_WARNING, _("errors occurred while %s %s"),
 					(type == PM_TRANS_TYPE_UPGRADE ? _("upgrading") : _("installing")), pkg_new->name());
 			} else {

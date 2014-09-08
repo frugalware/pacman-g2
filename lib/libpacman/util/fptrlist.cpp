@@ -197,7 +197,7 @@ int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
 #endif
 }
 
-FPtrList &FPtrList::add(const void *data)
+FPtrList &FPtrList::add(void *data)
 {
 #ifndef F_NOCOMPAT
 	if(m_data == NULL) {

@@ -231,7 +231,7 @@ LocalDatabase::~LocalDatabase()
 static
 LocalPackage *_pacman_localdb_pkg_new(LocalDatabase *db, const struct dirent *dirent, unsigned int inforeq)
 {
-	Package *pkg;
+	LocalPackage *pkg;
 	const char *dname;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
@@ -379,54 +379,10 @@ Package *LocalDatabase::scan(const char *target, unsigned int inforeq)
 }
 
 static
-int _pacman_localdb_file_reader(Database *db, Package *info, unsigned int inforeq, unsigned int inforeq_masq, const char *file, int (*reader)(Package *, FILE *))
-{
-	int ret = 0;
-
-	if(inforeq & inforeq_masq) {
-		FILE *fp = NULL;
-		char path[PATH_MAX];
-
-		snprintf(path, PATH_MAX, "%s/%s-%s/%s", db->path, info->name(), info->version(), file);
-		fp = fopen(path, "r");
-		if(fp == NULL) {
-			_pacman_log(PM_LOG_WARNING, "%s (%s)", path, strerror(errno));
-			return -1;
-		}
-		if(reader(info, fp) == -1)
-			return -1;
-		fclose(fp);
-	}
-	return ret;
-}
-
-/*
-static
-void _pacman_localdb_write_bool(const char *entry, int value, FILE *stream)
-{
-	if(value != 0) {
-		fprintf(stream, "%%%s%%\n\n", entry);
-	}
-}
-*/
-
-static
 void _pacman_localdb_write_string(const char *entry, const char *value, FILE *stream)
 {
 	if(!_pacman_strempty(value)) {
 		fprintf(stream, "%%%s%%\n%s\n\n", entry, value);
-	}
-}
-
-static
-void _pacman_localdb_write_stringlist(const char *entry, const FPtrList *values, FILE *stream)
-{
-	if(values != NULL) {
-		fprintf(stream, "%%%s%%\n", entry);
-		for(auto lp = values->begin(), end = values->end(); lp != end; lp = lp->next()) {
-			fprintf(stream, "%s\n", f_stringlistitem_to_str(lp));
-		}
-		fputc('\n', stream);
 	}
 }
 

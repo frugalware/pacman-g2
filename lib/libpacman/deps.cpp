@@ -722,7 +722,7 @@ int inList(FPtrList *lst, char *lItem) {
 
 extern "C" {
 int pacman_output_generate(FPtrList *targets, FPtrList *dblist) {
-    FPtrList found;
+    FStringList found;
     Package *pkg = NULL;
     char *match = NULL;
     int foundMatch = 0;
