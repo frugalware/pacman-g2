@@ -158,6 +158,7 @@ public:
 	}
 
 	FPtrList &add(void *data);
+	bool remove(void *ptr, _pacman_fn_cmp fn, void **data);
 
 	void clear()
 	{

@@ -55,31 +55,10 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
  * Otherwise, return false and 'data' it is set to NULL.
  * Return the new list (without the removed element).
  */
-bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data)
+bool _pacman_list_remove(FPtrList *self, void *ptr, _pacman_fn_cmp fn, void **data)
 {
-	ASSERT(haystack != NULL, RET_ERR(PM_ERR_WRONG_ARGS, false));
-
-	if(data != NULL) {
-		*data = NULL;
-	}
-
-	for(FPtrListIterator *i = f_ptrlist_first(haystack), *end = f_ptrlist_end(haystack); i != end; i = i->next()) {
-		if(fn(needle, i->m_data) == 0) {
-			/* we found a matching item */
-			if(i->m_next) {
-				i->m_next->m_previous = i->m_previous;
-			}
-			if(i->m_previous) {
-				i->m_previous->m_next = i->m_next;
-			}
-			if(data) {
-				*data = i->m_data;
-			}
-			delete i;
-			return true;
-		}
-	}
-	return false;
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, false));
+	return self->remove(ptr, fn, data);
 }
 
 /* Reverse the order of a list
@@ -142,6 +121,26 @@ FPtrList &FPtrList::add(void *data)
 {
 	(new FPtrListItem(data))->insert_after(last());
 	return *this;
+}
+
+bool FPtrList::remove(void *ptr, _pacman_fn_cmp fn, void **data)
+{
+	if(data != NULL) {
+		*data = NULL;
+	}
+
+	for(auto i = begin(), end = this->end(); i != end; i = i->next()) {
+		if(fn(ptr, i->m_data) == 0) {
+			/* we found a matching item */
+			i->remove();
+			if(data) {
+				*data = i->m_data;
+			}
+			delete i;
+			return true;
+		}
+	}
+	return false;
 }
 
 FPtrList *f_ptrlist_add(FPtrList *list, void *data)

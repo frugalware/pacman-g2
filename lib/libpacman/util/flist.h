@@ -376,8 +376,6 @@ class FCListItem
 public:
 	friend struct flib::iterable_traits<FCListItem *>;
 
-	friend bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
-
 	typedef void *value_type;
 	typedef value_type *pointer;
 	typedef size_t size_type;
@@ -446,8 +444,8 @@ public:
 		return m_previous;
 	}
 
-protected:
-	void swap(FCListItem &o) {
+	void swap(FCListItem &o)
+	{
 		std::swap(m_next, o.m_next);
 		std::swap(m_previous, o.m_previous);
 		if(m_next != &o) {
@@ -462,6 +460,13 @@ protected:
 		} else {
 			o.m_next = o.m_previous = &o;
 		}
+	}
+
+	void remove()
+	{
+		m_next->m_previous = m_previous;
+		m_previous->m_next = m_next;
+		m_next = m_previous = NULL;
 	}
 
 protected:
@@ -611,7 +616,7 @@ public:
 
 	virtual ~FList() override
 	{
-//		clear();
+		clear();
 	}
 
 	/* Iterators */
@@ -693,10 +698,11 @@ public:
 	/* Element access */
 	
 	/* Modifiers */
-#if 0
 	void clear()
-	{ }
-#endif
+	{
+		// FIXME: lets leak for now
+		m_next = m_previous = this;
+	}
 
 public:
 	/* extensions */
@@ -728,7 +734,6 @@ public:
 
 private:
 	FList(const FList &);
-
 	FList &operator = (const FList &);
 
 	virtual void *c_data() const override
