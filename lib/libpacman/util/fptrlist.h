@@ -44,9 +44,6 @@ extern "C" {
 
 #define FREELIST(p) _FREELIST(p, free)
 
-/* Sort comparison callback function declaration */
-typedef int (*_pacman_fn_cmp)(const void *, const void *);
-
 FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
 bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
 FPtrList *_pacman_list_reverse(FPtrList *list);

@@ -27,6 +27,9 @@
 #include "util/fcallback.h"
 #include "util/fptrlist.h"
 
+/* Sort comparison callback function declaration */
+typedef int (*_pacman_fn_cmp)(const void *, const void *);
+
 #ifdef __cplusplus
 
 #include <algorithm>
@@ -347,26 +350,6 @@ public:
 #if 0
 	virtual void *c_data() const
 	{ return m_data; } // FIXME: Make pure virtual
-
-	reference operator * ()
-	{
-		return m_data;
-	}
-
-	const value_type operator * () const
-	{
-		return m_data;
-	}
-
-	pointer operator -> ()
-	{
-		return &m_data;
-	}
-
-	const pointer operator -> () const
-	{
-		return &m_data;
-	}
 #endif
 
 	bool insert_after(FCListItem *previous)
@@ -474,6 +457,11 @@ class FListItem
 public:
 	friend struct flib::iterable_traits<FListItem *>;
 
+	typedef T value_type;
+	typedef value_type *pointer;
+	typedef size_t size_type;
+	typedef value_type &reference;
+
 	explicit FListItem(const T &data = T())
 		: m_data(data)
 	{ }
@@ -501,8 +489,27 @@ public:
 		return m_data;
 	}
 #endif
+	reference operator * ()
+	{
+		return m_data;
+	}
 
-  FListItem *next() const
+	const value_type operator * () const
+	{
+		return m_data;
+	}
+
+	pointer operator -> ()
+	{
+		return &m_data;
+	}
+
+	const pointer operator -> () const
+	{
+		return &m_data;
+	}
+
+	FListItem *next() const
 	{
 		return static_cast<FListItem *>(m_next);
 	}
@@ -561,11 +568,12 @@ namespace flib {
 
 template <typename T>
 class FList
-	: private FCListItem
+	: protected FCListItem
 {
 public:
 	typedef FListItem<T> *iterable;
 	/* std::list compatibility */
+	typedef T value_type;
 	typedef flib::iterator<iterable> iterator;
 	typedef flib::iterator<iterable, true> reverse_iterator;
 	typedef flib::const_iterator<iterable> const_iterator;
@@ -584,7 +592,7 @@ public:
 	/* Iterators */
 	iterator begin()
 	{
-		return iterator(m_next);
+		return iterator(_next());
 	}
 
 	const_iterator begin() const
@@ -594,12 +602,12 @@ public:
 
 	const_iterator cbegin() const
 	{
-		return const_iterator(m_next);
+		return const_iterator(_next());
 	}
 
 	reverse_iterator rbegin()
 	{
-		return reverse_iterator(m_previous);
+		return reverse_iterator(_previous());
 	}
 
 	const_reverse_iterator rbegin() const
@@ -609,12 +617,12 @@ public:
 
 	const_reverse_iterator crbegin() const
 	{
-		return const_reverse_iterator(m_previous);
+		return const_reverse_iterator(_previous());
 	}
 
 	iterator end()
 	{
-		return iterator(this);
+		return iterator(_self());
 	}
 
 	const_iterator end() const
@@ -624,12 +632,12 @@ public:
 
 	const_iterator cend() const
 	{
-		return const_iterator(const_cast<FList<T> *>(this));
+		return const_iterator(_self());
 	}
 
 	reverse_iterator rend()
 	{
-		return reverse_iterator(this);
+		return reverse_iterator(_self());
 	}
 
 	const_reverse_iterator rend() const
@@ -639,7 +647,7 @@ public:
 
 	const_reverse_iterator crend() const
 	{
-		return const_reverse_iterator(const_cast<FList<T> *>(this));
+		return const_reverse_iterator(_self());
 	}
 
 	/* Capacity */
@@ -687,21 +695,59 @@ public:
 	{
 		return iterator(m_previous);
 	}
-#if 0
-	virtual FList<T> &add(const reference val); // Make default implementation to happend
+
+	FList &add(const value_type &val) // Make default implementation to happend
 	{
+		(new FListItem<T>(val))->insert_after(last());
 		return *this;
 	}
-#endif
+
+	bool remove(_pacman_fn_cmp fn, void *ptr, value_type *data = nullptr)
+	{
+		for(auto i = begin(), end = this->end(); i != end; i = i->next()) {
+			if(fn(ptr, *i) == 0) {
+				/* we found a matching item */
+				i->remove();
+				if(data != nullptr) {
+					*data = i->m_data;
+				}
+				delete i;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void swap(FList &o) {
+		FCListItem::swap(o);
+	}
+
+protected:
+	iterable _next() const
+	{
+		return static_cast<iterable>(m_next);
+	}
+
+	iterable _previous() const
+	{
+		return static_cast<iterable>(m_previous);
+	}
+
+	iterable _self() const
+	{
+		return static_cast<iterable>((FCListItem *)this);
+	}
 
 private:
 	FList(const FList &);
 	FList &operator = (const FList &);
 
+#if 0
 	virtual void *c_data() const override
 	{
 		RET_ERR(PM_ERR_WRONG_ARGS, NULL);
 	}
+#endif
 };
 #endif /* __cplusplus */
 
