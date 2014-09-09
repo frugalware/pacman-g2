@@ -60,14 +60,6 @@ int f_ptrcmp(const void *ptr1, const void *ptr2)
 	return f_signp(f_diffptr(ptr1, ptr2));
 }
 
-static inline
-void f_ptrswap(void **ptr1, void **ptr2)
-{
-	void *tmp = *ptr2;
-	*ptr2 = *ptr1;
-	*ptr1 = tmp;
-}
-
 #define F_PATH_NOCHECK  (1<<0)
 #define F_PATH_RELATIVE (1<<1)
 

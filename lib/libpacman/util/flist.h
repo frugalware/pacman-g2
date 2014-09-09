@@ -519,6 +519,16 @@ public:
 		return static_cast<FListItem *>(m_previous);
 	}
 
+	void swap_data(T &o)
+	{
+		std::swap(m_data, o);
+	}
+
+	void swap_data(T *o)
+	{
+		std::swap(m_data, *o);
+	}
+
 //protected:
 	T m_data;
 

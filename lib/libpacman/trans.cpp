@@ -434,7 +434,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 		if(_pacman_versioncmp(pkg_queued->version(), pkg_new->version()) < 0) {
 			_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
 			          pkg_queued->name(), pkg_queued->version(), pkg_new->version());
-			f_ptrswap(&i->m_data, (void **)&pkg_new);
+			i->swap_data((void **)&pkg_new);
 		} else {
 			_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
 			          pkg_queued->name(), pkg_queued->version(), pkg_new->version());
@@ -1102,28 +1102,26 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 					 */
 					auto &backup = pkg->backup();
 					for(auto lp = backup.begin(), lp_end = backup.end(); lp != lp_end; lp = lp->next()) {
-						char *fn;
 						char *file = f_stringlistitem_to_str(lp);
 
 						if(!file) continue;
 						if(!strcmp(file, pathname)) {
+							char *fn;
 							if(!_pacman_strempty(pkg->sha1sum)) {
 								/* 32 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
 								if((fn = (char *)malloc(strlen(file)+34)) == NULL) {
 									RET_ERR(PM_ERR_MEMORY, -1);
 								}
 								sprintf(fn, "%s\t%s", file, md5_pkg);
-								FREE(file);
-								lp->m_data = fn;
 							} else {
 								/* 41 for the hash, 1 for the terminating NULL, and 1 for the tab delimiter */
 								if((fn = (char *)malloc(strlen(file)+43)) == NULL) {
 									RET_ERR(PM_ERR_MEMORY, -1);
 								}
 								sprintf(fn, "%s\t%s", file, sha1_pkg);
-								FREE(file);
-								lp->m_data = fn;
 							}
+							lp->swap_data((void **)&fn);
+							free(fn);
 						}
 					}
 
@@ -1258,8 +1256,8 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 								sprintf(fn, "%s\t%s", file, sha1);
 								FREE(sha1);
 							}
-							FREE(file);
-							lp->m_data = fn;
+							lp->swap_data((void **)fn);
+							free(fn);
 						}
 					}
 				}
@@ -1614,8 +1612,9 @@ int __pmtrans_t::commit(FPtrList **data)
 							auto &depends = depender->depends();
 							for(auto m = depends.begin(), end = depends.end(); m != end; m = m->next()) {
 								if(!strcmp(f_stringlistitem_to_str(m), old->name())) {
-									FREE(m->m_data);
-									m->m_data = strdup(pkg_new->name());
+									void *str = strdup(pkg_new->name());
+									m->swap_data(&str);
+									free(str);
 								}
 							}
 							if(db_local->write(depender, INFRQ_DEPENDS) == -1) {
