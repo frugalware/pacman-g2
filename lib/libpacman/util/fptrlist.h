@@ -79,7 +79,9 @@ public:
 	friend FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
 
 	typedef FPtrListItem *iterator;
-	typedef const iterator const_iterator;
+	typedef iterator const_iterator;
+	typedef iterator reverse_iterator;
+	typedef iterator const_reverse_iterator;
 
 	FPtrList()
 		: FCListItem(this, this)
@@ -144,34 +146,34 @@ public:
 		return const_iterator(previous());
 	}
 
-	iterator rbegin()
+	reverse_iterator rbegin()
 	{
-		return last();
+		return reverse_iterator(previous());
 	}
 
-	const_iterator rbegin() const
+	const_reverse_iterator rbegin() const
 	{
-		return last();
+		return crbegin();
 	}
 
-	const_iterator crbegin() const
+	const_reverse_iterator crbegin() const
 	{
-		return last();
+		return const_reverse_iterator(previous());
 	}
 
-	iterator rend()
+	reverse_iterator rend()
 	{
-		return iterator(this);
+		return reverse_iterator(this);
 	}
 
-	const_iterator rend() const
+	const_reverse_iterator rend() const
 	{
 		return crend();
 	}
 
-	const_iterator crend() const
+	const_reverse_iterator crend() const
 	{
-		return const_iterator(this);
+		return const_reverse_iterator(this);
 	}
 
 	bool empty() const
