@@ -78,7 +78,53 @@ class FPtrList
 public:
 	friend FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
 
-	typedef FPtrListItem *iterator;
+	typedef FPtrListItem *iterable;
+
+	class iterator
+	{
+	public:
+		iterator(iterable it = iterable())
+			: m_iterable(it)
+		{ }
+
+		bool operator == (const iterator &o)
+		{
+			return m_iterable == o.m_iterable;
+		}
+
+		bool operator != (const iterator &o)
+		{ 
+			return !operator == (o);
+		}
+
+		iterable operator -> () const
+		{
+			return m_iterable;
+		}
+
+		void *operator * () const
+		{
+			return m_iterable->m_data;
+		}
+
+		operator iterable ()
+		{
+			return m_iterable;
+		}
+
+		iterator next() const
+		{
+			return m_iterable->next();
+		}
+
+		iterator previous() const
+		{
+			return m_iterable->previous();
+		}
+
+		iterable m_iterable;
+	};
+
 	typedef iterator const_iterator;
 	typedef iterator reverse_iterator;
 	typedef iterator const_reverse_iterator;
@@ -102,7 +148,7 @@ public:
 	iterator begin()
 	{
 		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-		return iterator(next());
+		return iterator(_next());
 	}
 
 	const_iterator begin() const
@@ -113,12 +159,12 @@ public:
 	const_iterator cbegin() const
 	{
 		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-		return const_iterator(next());
+		return const_iterator(_next());
 	}
 
 	iterator end()
 	{
-		return iterator(this);
+		return iterator(_self());
 	}
 
 	const_iterator end() const
@@ -128,12 +174,12 @@ public:
 
 	const_iterator cend() const
 	{
-		return const_iterator(this);
+		return const_iterator(_self());
 	}
 
 	iterator last()
 	{
-		return iterator(previous());
+		return iterator(_previous());
 	}
 
 	const_iterator last() const
@@ -143,12 +189,12 @@ public:
 
 	const_iterator clast() const
 	{
-		return const_iterator(previous());
+		return const_iterator(_previous());
 	}
 
 	reverse_iterator rbegin()
 	{
-		return reverse_iterator(previous());
+		return reverse_iterator(_previous());
 	}
 
 	const_reverse_iterator rbegin() const
@@ -158,12 +204,12 @@ public:
 
 	const_reverse_iterator crbegin() const
 	{
-		return const_reverse_iterator(previous());
+		return const_reverse_iterator(_previous());
 	}
 
 	reverse_iterator rend()
 	{
-		return reverse_iterator(this);
+		return reverse_iterator(_self());
 	}
 
 	const_reverse_iterator rend() const
@@ -173,7 +219,7 @@ public:
 
 	const_reverse_iterator crend() const
 	{
-		return const_reverse_iterator(this);
+		return const_reverse_iterator(_self());
 	}
 
 	bool empty() const
@@ -194,6 +240,22 @@ public:
 
 	void swap(FPtrList &o) {
 		FCListItem::swap(o);
+	}
+
+protected:
+	iterable _next() const
+	{
+		return static_cast<iterable>(m_next);
+	}
+
+	iterable _previous() const
+	{
+		return static_cast<iterable>(m_previous);
+	}
+
+	iterable _self() const
+	{
+		return static_cast<iterable>((FCListItem *)this);
 	}
 
 private:

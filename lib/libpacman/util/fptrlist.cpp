@@ -34,12 +34,12 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 		list = new FPtrList();
 	}
 
-	FPtrListIterator *add = new FPtrListItem(data);
+	FPtrListItem *add = new FPtrListItem(data);
 
 	/* Find insertion point. */
-	FCListItem *previous = list;
-	for(FCListItem *end = f_ptrlist_end(list); previous->next() != end; previous = previous->next()) {
-		if(fn(data, f_ptrlistitem_data((FPtrListItem *)previous->next())) <= 0) {
+	FPtrListItem *previous, *end;
+	for(previous = end = list->_self(); previous->next() != end; previous = previous->next()) {
+		if(fn(data, previous->next()->m_data) <= 0) {
 			break;
 		}
 	}
@@ -73,7 +73,7 @@ FPtrList *_pacman_list_reverse(FPtrList *list)
 	FPtrList *newlist = f_ptrlist_new();
 
 	for(auto it = list->rbegin(), end = list->rend(); it != end; it = it->previous()) {
-		newlist->add(f_ptrlistitem_data(it));
+		newlist->add(*it);
 	}
 
 	return(newlist);
@@ -83,7 +83,7 @@ void *f_ptrlistitem_data(const FPtrListIterator *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-	return self->m_data;
+	return **self;
 }
 
 FPtrListIterator *f_ptrlistitem_next(FPtrListIterator *self)
@@ -119,7 +119,7 @@ int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
 
 FPtrList &FPtrList::add(void *data)
 {
-	(new FPtrListItem(data))->insert_after(last());
+	(new FPtrListItem(data))->insert_after(_previous());
 	return *this;
 }
 
@@ -136,7 +136,7 @@ bool FPtrList::remove(void *ptr, _pacman_fn_cmp fn, void **data)
 			if(data) {
 				*data = i->m_data;
 			}
-			delete i;
+			delete i.m_iterable;
 			return true;
 		}
 	}

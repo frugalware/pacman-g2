@@ -82,7 +82,7 @@ int f_stringlist_any_match(const FStringList *list, const FStrMatcher *matcher)
 {
 #ifndef F_NOCOMPAT
 	for(auto it = list->begin(), end = list->end(); it != end; it = it->next()) {
-		if(matcher->match(f_stringlistitem_to_str(it)) != 0) {
+		if(matcher->match((const char *)*it) != 0) {
 			return 1;
 		}
 	}

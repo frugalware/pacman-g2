@@ -145,7 +145,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 	for(auto lp = pkg->files().rbegin(), end = pkg->files().rend(); lp != end; lp = lp->previous()) {
 		int nb = 0;
 		double percent = 0;
-		const char *file = f_stringlistitem_to_str(lp);
+		const char *file = *lp;
 		char *hash_orig = pkg->fileneedbackup(file);
 
 		if (position != 0) {
@@ -179,7 +179,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 			 * explanation. */
 			int skipit = 0;
 			for(auto j = trans->skiplist.begin(), end = trans->skiplist.end(); j != end; j = j->next()) {
-				if(!strcmp(file, f_stringlistitem_to_str(j))) {
+				if(!strcmp(file, *j)) {
 					skipit = 1;
 				}
 			}
@@ -392,7 +392,7 @@ void _pacman_localdb_write_stringlist(const char *entry, const FStringList &valu
 	if(!values.empty()) {
 		fprintf(stream, "%%%s%%\n", entry);
 		for(auto lp = values.begin(), end = values.end(); lp != end; lp = lp->next()) {
-			fprintf(stream, "%s\n", f_stringlistitem_to_str(lp));
+			fprintf(stream, "%s\n", *lp);
 		}
 		fputc('\n', stream);
 	}
@@ -510,13 +510,13 @@ FPtrList LocalDatabase::getowners(const char *filename)
 
 	FPtrList &cache = _pacman_db_get_pkgcache(this);
 	for(auto lp = cache.begin(), end = cache.end(); lp != end; lp = lp->next()) {
-		Package *info = (Package *)f_ptrlistitem_data(lp);
+		Package *info = (Package *)*lp;
 
 		auto &files = info->files();
 		for(auto i = files.begin(), end = files.end(); i != end; i = i->next()) {
 			char path[PATH_MAX];
 
-			snprintf(path, PATH_MAX, "%s%s", m_handle->root, f_stringlistitem_to_str(i));
+			snprintf(path, PATH_MAX, "%s%s", m_handle->root, *i);
 			if(!strcmp(path, rpath)) {
 				ret.add(info);
 				if(rpath[strlen(rpath)-1] != '/') {

@@ -153,7 +153,7 @@ Package *_pacman_pkg_isin(const char *needle, FPtrList *haystack)
 	}
 
 	for(auto lp = haystack->begin(), end = haystack->end(); lp != end; lp = lp->next()) {
-		Package *info = f_ptrlistitem_data(lp);
+		Package *info = *lp;
 
 		if(info && !strcmp(info->name(), needle)) {
 			return info;
@@ -241,7 +241,7 @@ char *Package::fileneedbackup(const char *file) const
 
 	/* run through the backup list and parse out the md5 or sha1 hash for our file */
 	for(auto lp = m_backup.begin(), end = m_backup.end(); lp != end; lp = lp->next()) {
-		char *str = strdup(f_stringlistitem_to_str(lp));
+		char *str = strdup((const char *)*lp);
 		char *ptr;
 
 		/* tab delimiter */

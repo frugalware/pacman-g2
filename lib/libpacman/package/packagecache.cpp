@@ -58,7 +58,7 @@ int _pacman_packagecache_clean(int level)
 		closedir(dir);
 
 		for(auto i = cache.begin(), end = cache.end(); i != end; i = i->next()) {
-			const char *str = f_stringlistitem_to_str(i);
+			const char *str = *i;
 			char name[PKG_NAME_LEN], version[PKG_VERSION_LEN];
 
 			if(strstr(str, PM_EXT_PKG) == NULL) {
@@ -73,8 +73,8 @@ int _pacman_packagecache_clean(int level)
 				clean.add(str);
 				continue;
 			}
-			for(auto j = i->next(); j != end; j = j->next()) {
-				const char *s = f_stringlistitem_to_str(j);
+			for(FPtrList::iterator j = i->next(); j != end; j = j->next()) {
+				const char *s = *j;
 				char n[PKG_NAME_LEN], v[PKG_VERSION_LEN];
 
 				if(strstr(s, PM_EXT_PKG) == NULL) {
@@ -97,7 +97,7 @@ int _pacman_packagecache_clean(int level)
 		for(auto i = clean.begin(), end = clean.end(); i != end; i = i->next()) {
 			char path[PATH_MAX];
 
-			snprintf(path, PATH_MAX, "%s/%s", dirpath, f_stringlistitem_to_str(i));
+			snprintf(path, PATH_MAX, "%s/%s", dirpath, *i);
 			unlink(path);
 		}
 	} else {
