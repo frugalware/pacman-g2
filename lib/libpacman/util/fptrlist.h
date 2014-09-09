@@ -31,10 +31,11 @@
 
 #ifndef __cplusplus
 typedef struct FPtrList FPtrList;
-typedef struct FPtrListItem FPtrListIterator;
+typedef struct FPtrListIterator FPtrListIterator;
 #else /* __cplusplus */
 typedef class FPtrList FPtrList;
-typedef class FPtrListItem FPtrListIterator;
+typedef class FListItem<void *> FPtrListItem;
+typedef FPtrListItem FPtrListIterator;
 
 extern "C" {
 #endif /* __cplusplus */
@@ -73,25 +74,6 @@ const FPtrListIterator *f_ptrlist_rend_const(const FPtrList *self);
 
 #ifdef __cplusplus
 }
-
-class FPtrListItem
-	: public FListItem<void *>
-{
-public:
-	FPtrListItem(void *data = nullptr)
-		: FListItem<void *>(data)
-	{ }
-
-	FPtrListItem *next() const
-	{
-		return (FPtrListItem *)flib::iterable_traits<FCListItem *>::next(this);
-	}
-
-	FPtrListItem *previous() const
-	{
-		return (FPtrListItem *)flib::iterable_traits<FCListItem *>::previous(this);
-	}
-};
 
 class FPtrList
 	: protected FCListItem

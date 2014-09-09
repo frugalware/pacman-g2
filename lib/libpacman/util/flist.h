@@ -502,6 +502,16 @@ public:
 	}
 #endif
 
+  FListItem *next() const
+	{
+		return static_cast<FListItem *>(m_next);
+	}
+
+	FListItem *previous() const
+	{
+		return static_cast<FListItem *>(m_previous);
+	}
+
 //protected:
 	T m_data;
 
