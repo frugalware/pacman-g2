@@ -57,7 +57,7 @@ int _pacman_packagecache_clean(int level)
 		}
 		closedir(dir);
 
-		for(auto i = cache.begin(), end = cache.end(); i != end; i = i->next()) {
+		for(auto i = cache.begin(), end = cache.end(); i != end; ++i) {
 			const char *str = *i;
 			char name[PKG_NAME_LEN], version[PKG_VERSION_LEN];
 
@@ -73,7 +73,7 @@ int _pacman_packagecache_clean(int level)
 				clean.add(str);
 				continue;
 			}
-			for(FPtrList::iterator j = i->next(); j != end; j = j->next()) {
+			for(FPtrList::iterator j = i.next(); j != end; ++j) {
 				const char *s = *j;
 				char n[PKG_NAME_LEN], v[PKG_VERSION_LEN];
 
@@ -94,7 +94,7 @@ int _pacman_packagecache_clean(int level)
 				}
 			}
 		}
-		for(auto i = clean.begin(), end = clean.end(); i != end; i = i->next()) {
+		for(auto i = clean.begin(), end = clean.end(); i != end; ++i) {
 			char path[PATH_MAX];
 
 			snprintf(path, PATH_MAX, "%s/%s", dirpath, *i);

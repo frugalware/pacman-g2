@@ -34,7 +34,7 @@
  */
 int _pacman_list_is_strin(const char *needle, FStringList *haystack)
 {
-	for(auto lp = haystack->begin(), end = haystack->end(); lp != end; lp = lp->next()) {
+	for(auto lp = haystack->begin(), end = haystack->end(); lp != end; ++lp) {
 		const char *str = *lp;
 
 		if(str && !strcmp(str, needle)) {
@@ -54,7 +54,7 @@ FStringList *_pacman_list_remove_dupes(FStringList *list)
 {
 	FStringList *newlist = NULL;
 
-	for(auto i = list->begin(), end = list->end(); i != end; i = i->next()) {
+	for(auto i = list->begin(), end = list->end(); i != end; ++i) {
 		const char *str = *i;
 
 		if(!_pacman_list_is_strin(str, newlist)) {
@@ -138,7 +138,7 @@ FStringList::FStringList(FStringList &&o)
 
 FStringList &FStringList::operator = (const FStringList &o)
 {
-	for(auto lp = o.begin(), end = o.end(); lp != end; lp = lp->next()) {
+	for(auto lp = o.begin(), end = o.end(); lp != end; ++lp) {
 		f_stringlist_add(this, *lp);
 	}
 
@@ -159,7 +159,7 @@ FStringList &FStringList::add(const char *s)
 
 FStringList &FStringList::add(const FStringList &o)
 {
-	for(auto lp = o.begin(), end = o.end(); lp != end; lp = lp->next()) {
+	for(auto lp = o.begin(), end = o.end(); lp != end; ++lp) {
 		add((const char *)*lp);
 	}
 	return *this;

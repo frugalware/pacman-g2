@@ -167,7 +167,7 @@ Database *Handle::getDatabase(const char *treename)
 		return db_local;
 	}
 
-	for(auto i = dbs_sync.begin(), end = dbs_sync.end(); i != end; i = i->next()) {
+	for(auto i = dbs_sync.begin(), end = dbs_sync.end(); i != end; ++i) {
 			Database *sdb = (Database *)*i;
 			if(strcmp(treename, sdb->treename()) == 0) {
 				return sdb;

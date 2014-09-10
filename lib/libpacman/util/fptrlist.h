@@ -97,11 +97,6 @@ public:
 			return !operator == (o);
 		}
 
-		iterable operator -> () const
-		{
-			return m_iterable;
-		}
-
 		void *operator * () const
 		{
 			return m_iterable->m_data;
@@ -111,6 +106,19 @@ public:
 		{
 			return m_iterable;
 		}
+
+		iterator &operator ++ ()
+		{
+			m_iterable = m_iterable->next();
+			return *this;
+		}
+
+		iterator &operator -- ()
+		{
+			m_iterable = m_iterable->previous();
+			return *this;
+		}
+
 
 		iterator next() const
 		{

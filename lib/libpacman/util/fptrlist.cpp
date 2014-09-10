@@ -72,7 +72,7 @@ FPtrList *_pacman_list_reverse(FPtrList *list)
 	 */
 	FPtrList *newlist = f_ptrlist_new();
 
-	for(auto it = list->rbegin(), end = list->rend(); it != end; it = it->previous()) {
+	for(auto it = list->rbegin(), end = list->rend(); it != end; --it /* FIXME: should be ++it when operators are really working */) {
 		newlist->add(*it);
 	}
 
@@ -129,12 +129,12 @@ bool FPtrList::remove(void *ptr, _pacman_fn_cmp fn, void **data)
 		*data = NULL;
 	}
 
-	for(auto i = begin(), end = this->end(); i != end; i = i->next()) {
-		if(fn(ptr, i->m_data) == 0) {
+	for(auto i = begin(), end = this->end(); i != end; ++i) {
+		if(fn(ptr, *i) == 0) {
 			/* we found a matching item */
-			i->remove();
+			i.m_iterable->remove();
 			if(data) {
-				*data = i->m_data;
+				*data = *i;
 			}
 			delete i.m_iterable;
 			return true;

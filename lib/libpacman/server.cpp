@@ -391,7 +391,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, const FPtrList &servers, const
 	}
 
 	int count = 0;
-	for(auto i = servers.begin(), end = servers.end(); i != end && !done; i = i->next(), count++) {
+	for(auto i = servers.begin(), end = servers.end(); i != end && !done; ++i, count++) {
 		pm_errno = 0;
 		if (count < skip)
 			continue; /* the caller requested skip of this server */
@@ -399,7 +399,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, const FPtrList &servers, const
 
 		_pacman_log(PM_LOG_DEBUG, _("trying to download with server url: %s://%s%s"), server->protocol, server->server, server->path);
 		/* get each file in the list */
-		for(auto lp = files.begin(), end = files.end(); lp != end; lp = lp->next()) {
+		for(auto lp = files.begin(), end = files.end(); lp != end; ++lp) {
 			const char *fn = *lp;
 
 			if(_pacman_list_is_strin(fn, &complete)) {

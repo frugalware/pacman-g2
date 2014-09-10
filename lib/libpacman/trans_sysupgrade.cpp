@@ -82,14 +82,14 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 
 	/* check for "recommended" package replacements */
 	_pacman_log(PM_LOG_FLOW1, _("checking for package replacements"));
-	for(auto i = handle->dbs_sync.begin(), end = handle->dbs_sync.end(); i != end; i = i->next()) {
+	for(auto i = handle->dbs_sync.begin(), end = handle->dbs_sync.end(); i != end; ++i) {
 		FPtrList &cache = _pacman_db_get_pkgcache(*i);
-		for(auto j = cache.begin(), end = cache.end(); j != end; j = j->next()) {
+		for(auto j = cache.begin(), end = cache.end(); j != end; ++j) {
 			Package *spkg = *j;
 			auto &replaces = spkg->replaces();
-			for(auto k = replaces.begin(), end = replaces.end(); k != end; k = k->next()) {
+			for(auto k = replaces.begin(), end = replaces.end(); k != end; ++k) {
 				FPtrList &cache_local = _pacman_db_get_pkgcache(db_local);
-				for(auto m = cache_local.begin(), end = cache_local.end(); m != end; m = m->next()) {
+				for(auto m = cache_local.begin(), end = cache_local.end(); m != end; ++m) {
 					Package *lpkg = *m;
 					if(!strcmp((const char *)*k, lpkg->name())) {
 						_pacman_log(PM_LOG_DEBUG, _("checking replacement '%s' for package '%s'"), (const char *)*k, spkg->name());
@@ -133,14 +133,14 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	/* match installed packages with the sync dbs and compare versions */
 	_pacman_log(PM_LOG_FLOW1, _("checking for package upgrades"));
 	FPtrList &cache_local = _pacman_db_get_pkgcache(db_local);
-	for(auto i = cache_local.begin(), end= cache_local.end(); i != end; i = i->next()) {
+	for(auto i = cache_local.begin(), end= cache_local.end(); i != end; ++i) {
 		int cmp;
 		int replace=0;
 		Package *local = *i;
 		Package *spkg = NULL;
 		pmsyncpkg_t *ps;
 
-		for(auto j = handle->dbs_sync.begin(), end = handle->dbs_sync.end(); !spkg && j != end; j = j->next()) {
+		for(auto j = handle->dbs_sync.begin(), end = handle->dbs_sync.end(); !spkg && j != end; ++j) {
 			spkg = ((Database *)*j)->find(local->name());
 		}
 		if(spkg == NULL) {
@@ -149,7 +149,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 		}
 
 		/* we don't care about a to-be-replaced package's newer version */
-		for(auto j = trans->syncpkgs.begin(), end = trans->syncpkgs.end(); j != end && !replace; j = j->next()) {
+		for(auto j = trans->syncpkgs.begin(), end = trans->syncpkgs.end(); j != end && !replace; ++j) {
 			ps = *j;
 			if(_pacman_pkg_isin(spkg->name(), &ps->m_replaces)) {
 				replace=1;
