@@ -117,7 +117,7 @@ namespace flib
 		typedef typename iterable_traits<Iterable>::pointer pointer;
 		typedef typename iterable_traits<Iterable>::value_type value_type;
 
-		explicit const_iterator(iterable i)
+		explicit const_iterator(iterable i = iterable())
 			: m_iterable(i)
 		{ }
 
@@ -127,6 +127,11 @@ namespace flib
 
 		~const_iterator()
 		{ }
+
+		operator iterable ()
+		{
+			return m_iterable;
+		}
 
 		const_iterator &operator = (const const_iterator &o)
 		{
@@ -221,7 +226,7 @@ namespace flib
 		typedef typename iterable_traits<Iterable>::reference reference;
 		typedef typename iterable_traits<Iterable>::value_type value_type;
 
-		explicit iterator(iterable i)
+		explicit iterator(iterable i = iterable())
 			: m_iterable(i)
 		{ }
 
@@ -231,6 +236,11 @@ namespace flib
 
 		~iterator()
 		{ }
+
+		operator iterable ()
+		{
+			return m_iterable;
+		}
 
 		iterator &operator = (const iterator &o)
 		{
@@ -322,6 +332,7 @@ namespace flib
 			return !Reverse ? iterable_traits<Iterable>::previous(m_iterable) : iterable_traits<Iterable>::next(m_iterable);
 		}
 
+	public: /* FIXME: Make protected/private */
 		iterable m_iterable;
 	};
 }
@@ -551,12 +562,12 @@ namespace flib {
 
 		static iterable next(const iterable &i)
 		{
-			return iterable_traits<FCListItem *>::next(i);
+			return static_cast<iterable>(iterable_traits<FCListItem *>::next(i));
 		}
 
 		static iterable previous(const iterable &i)
 		{
-			return iterable_traits<FCListItem *>::previous(i);
+			return static_cast<iterable>(iterable_traits<FCListItem *>::previous(i));
 		}
 
 		static reference reference_of(iterable i)
@@ -594,6 +605,18 @@ public:
 		: FCListItem(this, this)
 	{ }
 
+	FList(FList &&o)
+		: FList()
+	{
+		swap(o);
+	}
+
+	FList &operator = (FList &&o)
+	{
+		swap(o);
+		return *this;
+	}
+
 	virtual ~FList() override
 	{
 		clear();
@@ -602,7 +625,7 @@ public:
 	/* Iterators */
 	iterator begin()
 	{
-		return iterator(_next());
+		return iterator(c_first());
 	}
 
 	const_iterator begin() const
@@ -612,12 +635,12 @@ public:
 
 	const_iterator cbegin() const
 	{
-		return const_iterator(_next());
+		return const_iterator(c_first());
 	}
 
 	reverse_iterator rbegin()
 	{
-		return reverse_iterator(_previous());
+		return reverse_iterator(c_last());
 	}
 
 	const_reverse_iterator rbegin() const
@@ -627,12 +650,12 @@ public:
 
 	const_reverse_iterator crbegin() const
 	{
-		return const_reverse_iterator(_previous());
+		return const_reverse_iterator(c_last());
 	}
 
 	iterator end()
 	{
-		return iterator(_self());
+		return iterator(c_end());
 	}
 
 	const_iterator end() const
@@ -642,12 +665,12 @@ public:
 
 	const_iterator cend() const
 	{
-		return const_iterator(_self());
+		return const_iterator(c_end());
 	}
 
 	reverse_iterator rend()
 	{
-		return reverse_iterator(_self());
+		return reverse_iterator(c_end());
 	}
 
 	const_reverse_iterator rend() const
@@ -657,13 +680,13 @@ public:
 
 	const_reverse_iterator crend() const
 	{
-		return const_reverse_iterator(_self());
+		return const_reverse_iterator(c_end());
 	}
 
 	/* Capacity */
 	bool empty() const
 	{
-		return m_next == m_previous;
+		return begin() == end();
 	}
 
 	size_type size() const
@@ -688,22 +711,22 @@ public:
 	/* extensions */
 	iterator first()
 	{
-		return iterator(m_next);
+		return iterator(c_first());
 	}
 
 	const_iterator first() const
 	{
-		return const_iterator(m_next);
+		return const_iterator(c_first());
 	}
 
 	iterator last()
 	{
-		return iterator(m_previous);
+		return iterator(c_last());
 	}
 
 	const_iterator last() const
 	{
-		return iterator(m_previous);
+		return const_iterator(c_last());
 	}
 
 	FList &add(const value_type &val) // Make default implementation to happend
@@ -712,10 +735,15 @@ public:
 		return *this;
 	}
 
+	bool remove(void *ptr, _pacman_fn_cmp fn, void **data)
+	{
+		return remove(fn, ptr, data);
+	}
+
 	bool remove(_pacman_fn_cmp fn, void *ptr, value_type *data = nullptr)
 	{
-		for(auto i = begin(), end = this->end(); i != end; i = i->next()) {
-			if(fn(ptr, *i) == 0) {
+		for(auto i = c_first(), end = c_end(); i != end; i = i->next()) {
+			if(fn(ptr, i->m_data) == 0) {
 				/* we found a matching item */
 				i->remove();
 				if(data != nullptr) {
@@ -732,19 +760,22 @@ public:
 		FCListItem::swap(o);
 	}
 
-protected:
-	iterable _next() const
+public:
+	iterable c_first() const
 	{
+		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 		return static_cast<iterable>(m_next);
 	}
 
-	iterable _previous() const
+	iterable c_last() const
 	{
+		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 		return static_cast<iterable>(m_previous);
 	}
 
-	iterable _self() const
+	iterable c_end() const
 	{
+		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 		return static_cast<iterable>((FCListItem *)this);
 	}
 

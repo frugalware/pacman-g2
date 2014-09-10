@@ -38,7 +38,7 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
 
 	/* Find insertion point. */
 	FPtrListItem *previous, *end;
-	for(previous = end = list->_self(); previous->next() != end; previous = previous->next()) {
+	for(previous = end = list->c_end(); previous->next() != end; previous = previous->next()) {
 		if(fn(data, previous->next()->m_data) <= 0) {
 			break;
 		}
@@ -57,6 +57,10 @@ FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
  */
 bool _pacman_list_remove(FPtrList *self, void *ptr, _pacman_fn_cmp fn, void **data)
 {
+	if(data != NULL) {
+		*data = NULL;
+	}
+
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, false));
 	return self->remove(ptr, fn, data);
 }
@@ -72,7 +76,7 @@ FPtrList *_pacman_list_reverse(FPtrList *list)
 	 */
 	FPtrList *newlist = f_ptrlist_new();
 
-	for(auto it = list->rbegin(), end = list->rend(); it != end; --it /* FIXME: should be ++it when operators are really working */) {
+	for(auto it = list->rbegin(), end = list->rend(); it != end; ++it) {
 		newlist->add(*it);
 	}
 
@@ -115,32 +119,6 @@ int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
 	delete self;
 	return 0;
 #endif
-}
-
-FPtrList &FPtrList::add(void *data)
-{
-	(new FPtrListItem(data))->insert_after(_previous());
-	return *this;
-}
-
-bool FPtrList::remove(void *ptr, _pacman_fn_cmp fn, void **data)
-{
-	if(data != NULL) {
-		*data = NULL;
-	}
-
-	for(auto i = begin(), end = this->end(); i != end; ++i) {
-		if(fn(ptr, *i) == 0) {
-			/* we found a matching item */
-			i.m_iterable->remove();
-			if(data) {
-				*data = *i;
-			}
-			delete i.m_iterable;
-			return true;
-		}
-	}
-	return false;
 }
 
 FPtrList *f_ptrlist_add(FPtrList *list, void *data)

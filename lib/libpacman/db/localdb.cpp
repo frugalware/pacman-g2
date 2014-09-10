@@ -142,7 +142,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 	_pacman_log(PM_LOG_FLOW1, _("removing files"));
 
 	/* iterate through the list backwards, unlinking files */
-	for(auto lp = pkg->files().rbegin(), end = pkg->files().rend(); lp != end; --lp /* FIXME: should be ++lp when operators are really working */) {
+	for(auto lp = pkg->files().rbegin(), end = pkg->files().rend(); lp != end; ++lp) {
 		int nb = 0;
 		double percent = 0;
 		const char *file = *lp;

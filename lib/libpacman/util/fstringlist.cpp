@@ -34,6 +34,10 @@
  */
 int _pacman_list_is_strin(const char *needle, FStringList *haystack)
 {
+	if(haystack == NULL) {
+		return 0;
+	}
+
 	for(auto lp = haystack->begin(), end = haystack->end(); lp != end; ++lp) {
 		const char *str = *lp;
 
@@ -53,6 +57,11 @@ int _pacman_list_is_strin(const char *needle, FStringList *haystack)
 FStringList *_pacman_list_remove_dupes(FStringList *list)
 {
 	FStringList *newlist = NULL;
+	
+	if(list == NULL) {
+		return NULL;
+	}
+
 
 	for(auto i = list->begin(), end = list->end(); i != end; ++i) {
 		const char *str = *i;
