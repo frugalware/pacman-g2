@@ -52,6 +52,14 @@ DEFINE_CAST(struct __pmlist_t, FPtrList)
 DEFINE_CAST(struct __pmpkg_t, libpacman::Package)
 //DEFINE_CAST(struct __pmtrans_t, libpacman::Transaction)
 
+template <typename T>
+static inline __pmlist_t *c_cast(FList<T> &obj)
+{ return (__pmlist_t *)&obj; }
+
+template <typename T>
+static inline __pmlist_t *c_cast(FList<T> *obj)
+{ return (__pmlist_t *)obj; }
+
 #undef DEFINE_CAST
 
 #endif /* _PACMAN_P_H */

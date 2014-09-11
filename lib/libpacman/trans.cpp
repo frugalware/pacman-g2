@@ -1120,7 +1120,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 								}
 								sprintf(fn, "%s\t%s", file, sha1_pkg);
 							}
-							lp.m_iterable->swap_data((void **)&fn);
+							lp.m_iterable->swap_data((const char *&)fn);
 							free(fn);
 						}
 					}
@@ -1256,7 +1256,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 								sprintf(fn, "%s\t%s", file, sha1);
 								FREE(sha1);
 							}
-							lp.m_iterable->swap_data((void **)fn);
+							lp.m_iterable->swap_data((const char *&)fn);
 							free(fn);
 						}
 					}
@@ -1612,8 +1612,8 @@ int __pmtrans_t::commit(FPtrList **data)
 							auto &depends = depender->depends();
 							for(auto m = depends.begin(), end = depends.end(); m != end; ++m) {
 								if(!strcmp((const char *)*m, old->name())) {
-									void *str = strdup(pkg_new->name());
-									m.m_iterable->swap_data(&str);
+									const char *str = strdup(pkg_new->name());
+									m.m_iterable->swap_data(str);
 									free(str);
 								}
 							}
@@ -1783,8 +1783,9 @@ int __pmtrans_t::commit(FPtrList **data)
 				}
 			}
 			/* splice out this entry from requiredby */
-			_pacman_list_remove(&depinfo->requiredby(), pkg_local->name(), str_cmp, (void **)&data);
-			FREE(data);
+			if(depinfo->requiredby().remove((void *)pkg_local->name(), str_cmp, (const char **)&data)) {
+				FREE(data);
+			}
 			_pacman_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name());
 			if(db_local->write(depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),

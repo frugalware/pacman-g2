@@ -73,7 +73,7 @@ int _pacman_packagecache_clean(int level)
 				clean.add(str);
 				continue;
 			}
-			for(FPtrList::iterator j = i.next(); j != end; ++j) {
+			for(auto j = i.next(); j != end; ++j) {
 				const char *s = *j;
 				char n[PKG_NAME_LEN], v[PKG_VERSION_LEN];
 

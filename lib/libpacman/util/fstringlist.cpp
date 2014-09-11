@@ -142,7 +142,7 @@ FStringList::FStringList(const FStringList &o)
 }
 
 FStringList::FStringList(FStringList &&o)
-	: FPtrList(std::move(o))
+	: FList(std::move(o))
 { }
 
 FStringList &FStringList::operator = (const FStringList &o)
@@ -162,7 +162,7 @@ FStringList &FStringList::operator = (FStringList &&o)
 
 FStringList &FStringList::add(const char *s)
 {
-	FPtrList::add(f_strdup(s));
+	FList::add(f_strdup(s));
 	return *this;
 }
 
@@ -189,7 +189,7 @@ FStringList &FStringList::vaddf(const char *fmt, va_list ap)
 	char *dest;
 
 	vasprintf(&dest, fmt, ap);
-	FPtrList::add(dest);
+	FList::add(dest);
 	return *this;
 }
 

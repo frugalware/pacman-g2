@@ -52,7 +52,7 @@ int f_stringlist_clear(FStringList *self);
 }
 
 class FStringList
-	: public FPtrList
+	: public FList<const char *>
 {
 public:
 	FStringList();

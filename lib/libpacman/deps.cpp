@@ -422,7 +422,7 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
 	return(baddeps);
 }
 
-int _pacman_splitdep(char *depstr, pmdepend_t *depend)
+int _pacman_splitdep(const char *depstr, pmdepend_t *depend)
 {
 	char *str = NULL;
 	char *ptr = NULL;
@@ -711,10 +711,10 @@ static int str_cmp(const void *s1, const void *s2)
     return(strcmp(s1, s2));
 }
 
-int inList(FPtrList *lst, char *lItem) {
+int inList(FStringList *lst, char *lItem) {
     auto ll = lst->begin(), end = lst->end();
     while(ll != end) {
-        if(!strcmp(lItem, (const char *)*ll)) {
+        if(!strcmp(lItem, *ll)) {
            return 1;
         }
         ++ll;
@@ -736,7 +736,7 @@ int pacman_output_generate(FStringList *targets, FPtrList *dblist) {
             pkg = db->readpkg(inforeq);
             while(pkg != NULL) {
                 const char *pname = pkg->name();
-                if(_pacman_list_remove(targets, (void*) pname, str_cmp, (void **)&match)) {
+                if(targets != NULL && targets->remove((void*) pname, str_cmp, (const char **)&match)) {
                     foundMatch = 1;
 										auto &depends = pkg->depends();
                     for(auto k = depends.begin(), k_end = depends.end(); k != k_end; ++k) {
@@ -747,7 +747,7 @@ int pacman_output_generate(FStringList *targets, FPtrList *dblist) {
                         }
                         strcpy(fullDep, depend.name);
                         if(!inList(&found, fullDep) && !inList(targets, fullDep)) {
-                            targets = f_ptrlist_add(targets, fullDep);
+                            targets = f_stringlist_add(targets, fullDep);
                         }
                     }
                     if(!inList(&found,pname)) {
