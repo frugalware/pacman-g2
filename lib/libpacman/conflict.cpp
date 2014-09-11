@@ -61,7 +61,7 @@ FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FPtrList &packages)
 		return baddeps;
 	}
 
-	howmany = f_ptrlist_count(&packages);
+	howmany = packages.size();
 
 	for(auto i = packages.begin(), end = packages.end(); i != end; ++i) {
 		Package *tp = (Package *)*i;
@@ -245,7 +245,7 @@ FPtrList _pacman_db_find_conflicts(pmtrans_t *trans)
 	if(db_local == NULL || trans->packages.empty() || root == NULL) {
 		return conflicts;
 	}
-	howmany = f_ptrlist_count(&trans->packages);
+	howmany = trans->packages.size();
 
 	/* CHECK 1: check every target against every target */
 	for(auto i = trans->packages.begin(), end = trans->packages.end(); i != end; ++i) {

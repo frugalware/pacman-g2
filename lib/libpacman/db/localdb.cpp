@@ -138,7 +138,7 @@ int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int
 	Handle *handle = trans->m_handle;
 	char line[PATH_MAX+1];
 
-	int filenum = f_ptrlist_count(&pkg->files());
+	int filenum = pkg->files().size();
 	_pacman_log(PM_LOG_FLOW1, _("removing files"));
 
 	/* iterate through the list backwards, unlinking files */

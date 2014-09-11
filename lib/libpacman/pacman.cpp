@@ -1296,7 +1296,7 @@ int pacman_list_count(pmlist_t *list)
 {
 	ASSERT(list != NULL, return(-1));
 
-	return f_ptrlist_count(cxx_cast(list));
+	return cxx_cast(list)->size();
 }
 
 /** Free a list iterator.

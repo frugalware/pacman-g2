@@ -376,7 +376,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, const FPtrList &servers, const
 	}
 
 	if(howmany) {
-		*howmany = f_ptrlist_count(&files);
+		*howmany = files.size();
 	}
 	if(remain) {
 		*remain = 1;
@@ -575,7 +575,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, const FPtrList &servers, const
 			}
 		}
 
-		if(f_ptrlist_count(&complete) == f_ptrlist_count(&files)) {
+		if(complete.size() == files.size()) {
 			done = 1;
 		}
 	}

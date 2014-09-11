@@ -1650,7 +1650,7 @@ int __pmtrans_t::commit(FPtrList **data)
 	} else {
 	time_t t;
 
-	howmany = f_ptrlist_count(&packages);
+	howmany = packages.size();
 
 	for(auto targ = packages.begin(), end = packages.end(); targ != end; ++targ) {
 		Package *pkg_new = NULL, *pkg_local = NULL;

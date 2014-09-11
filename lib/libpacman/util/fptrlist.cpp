@@ -151,11 +151,7 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 size_t f_ptrlist_count(const FPtrList *self)
 {
 	if(self != NULL) {
-#ifndef F_NOCOMPAT
-		return f_ptrlistiterator_count(self->begin(), self->end());
-#else
 		return self->size();
-#endif
 	}
 	return 0;
 }
