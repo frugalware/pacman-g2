@@ -45,7 +45,7 @@ struct __pmdownload_t {
 	off64_t dst_tell;
 };
 
-pmserver_t *_pacman_server_new(char *url);
+pmserver_t *_pacman_server_new(const char *url);
 void _pacman_server_free(void *data);
 int _pacman_downloadfiles(::libpacman::Handle *handle, const FPtrList &servers, const char *localpath, const FStringList &files, int skip);
 int _pacman_downloadfiles_forreal(::libpacman::Handle *handle, const FPtrList &servers, const char *localpath,

@@ -51,9 +51,9 @@ pacman_trans_cb_download pm_dlcb = NULL;
 /* progress bar */
 char *pm_dlfnm=NULL;
 
-pmserver_t *_pacman_server_new(char *url)
+pmserver_t *_pacman_server_new(const char *url)
 {
-	pmserver_t *server = _pacman_zalloc(sizeof(pmserver_t));
+	pmserver_t *server = new pmserver_t();
 	char *ptr;
 
 	if(server == NULL) {
@@ -83,10 +83,7 @@ pmserver_t *_pacman_server_new(char *url)
 			if(slash[strlen(slash)-1] == '/') {
 				server->path = strdup(slash);
 			} else {
-				if((server->path = _pacman_malloc(strlen(slash)+2)) == NULL) {
-					return(NULL);
-				}
-				sprintf(server->path, "%s/", slash);
+				asprintf(&server->path, "%s/", slash);
 			}
 			*slash = '\0';
 		}
@@ -96,11 +93,7 @@ pmserver_t *_pacman_server_new(char *url)
 		if(ptr[strlen(ptr)-1] == '/') {
 			server->path = strdup(ptr);
 		} else {
-			server->path = _pacman_malloc(strlen(ptr)+2);
-			if(server->path == NULL) {
-				return(NULL);
-			}
-			sprintf(server->path, "%s/", ptr);
+			asprintf(&server->path, "%s/", ptr);
 		}
 	} else {
 		RET_ERR(PM_ERR_SERVER_PROTOCOL_UNSUPPORTED, NULL);
