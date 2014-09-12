@@ -319,7 +319,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 				if(spkg == NULL) {
 					/* Search provides */
 					_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
-					FPtrList p = dbs->whatPackagesProvide(targ);
+					auto p = dbs->whatPackagesProvide(targ);
 					if(!p.empty()) {
 						spkg = *p.begin();
 						_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), spkg->name(), targ);
@@ -339,7 +339,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
 			for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !spkg; ++i) {
 				Database *dbs = *i;
-				FPtrList p = dbs->whatPackagesProvide(targ);
+				auto p = dbs->whatPackagesProvide(targ);
 				if(!p.empty()) {
 					spkg = *p.begin();
 					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), spkg->name(), targ);
@@ -1768,7 +1768,7 @@ int __pmtrans_t::commit(FPtrList **data)
 			depinfo = db_local->find(depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
-				FPtrList provides = db_local->whatPackagesProvide(depend.name);
+				auto provides = db_local->whatPackagesProvide(depend.name);
 				if(!provides.empty()) {
 					/* TODO: should check _all_ packages listed in provides, not just
 					 *			 the first one.
@@ -1862,7 +1862,7 @@ int __pmtrans_t::commit(FPtrList **data)
 			depinfo = db_local->find(depend.name);
 			if(depinfo == NULL) {
 				/* look for a provides package */
-				FPtrList provides = db_local->whatPackagesProvide(depend.name);
+				auto provides = db_local->whatPackagesProvide(depend.name);
 				if(!provides.empty()) {
 					/* TODO: should check _all_ packages listed in provides, not just
 					 *       the first one.

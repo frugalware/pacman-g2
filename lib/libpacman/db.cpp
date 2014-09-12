@@ -97,9 +97,9 @@ bool Database::add_server(const char *url)
 	return true;
 }
 
-FPtrList Database::filter(const PackageMatcher &packagematcher)
+FList<Package *> Database::filter(const PackageMatcher &packagematcher)
 {
-	FPtrList ret;
+	FList<Package *> ret;
 
 	auto &cache = _pacman_db_get_pkgcache(this);
 	for(auto it = cache.begin(), end = cache.end(); it != end; ++it) {
@@ -112,14 +112,14 @@ FPtrList Database::filter(const PackageMatcher &packagematcher)
 	return ret;
 }
 
-FPtrList Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags)
+FList<Package *> Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags)
 {
 	return filter(PackageMatcher(strmatcher, packagestrmatcher_flags));
 }
 
-FPtrList Database::filter(const FStringList &needles, int packagestrmatcher_flags, int strmatcher_flags)
+FList<Package *> Database::filter(const FStringList &needles, int packagestrmatcher_flags, int strmatcher_flags)
 {
-	FPtrList ret;
+	FList<Package *> ret;
 
 	for(auto i = needles.begin(), end = needles.end(); i != end; ++i) {
 		const char *pattern = (const char *)*i;
@@ -143,12 +143,12 @@ FPtrList Database::filter(const FStringList &needles, int packagestrmatcher_flag
 	return ret;
 }
 
-FPtrList Database::filter(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags)
+FList<Package *> Database::filter(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags)
 {
 	if(!f_strempty(pattern)) {
 		return filter(PackageMatcher(pattern, packagestrmatcher_flags, strmatcher_flags));
 	}
-	return FPtrList();
+	return FList<Package *>();
 }
 
 Package *Database::find(const PackageMatcher &packagematcher)
@@ -184,7 +184,7 @@ Package *Database::find(const char *pattern, int packagestrmatcher_flags, int st
 	return NULL;
 }
 
-FPtrList Database::whatPackagesProvide(const char *target)
+FList<Package *> Database::whatPackagesProvide(const char *target)
 {
 	return filter(target, PM_PACKAGE_FLAG_PROVIDES);
 }

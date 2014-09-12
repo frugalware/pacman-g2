@@ -590,7 +590,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList &list,
 		}
 		/* check provides */
 		for(auto j = handle->dbs_sync.begin(), j_end = handle->dbs_sync.end(); !ps && j != j_end; ++j) {
-			FPtrList provides = ((Database *)*j)->whatPackagesProvide(miss->depend.name);
+			auto provides = ((Database *)*j)->whatPackagesProvide(miss->depend.name);
 			if(!provides.empty()) {
 				ps = *provides.begin();
 			}
