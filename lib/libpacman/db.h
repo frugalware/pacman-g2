@@ -37,6 +37,7 @@
 
 namespace libpacman {
 
+class Group;
 class Handle;
 class Package;
 
@@ -86,8 +87,8 @@ public:
 	::libpacman::Handle *m_handle;
 	char *path;
 	libpacman::Timestamp cache_timestamp;
-	FPtrList pkgcache;
-	FPtrList grpcache;
+	FList<libpacman::Package *> pkgcache;
+	FList<libpacman::Group *> grpcache;
 	FPtrList servers;
 
 protected:

@@ -72,7 +72,7 @@ int _pacman_db_load_pkgcache(Database *db)
 	db->rewind();
 	while((info = db->readpkg(inforeq)) != NULL) {
 		/* add to the collective */
-		f_ptrlist_add_sorted(&db->pkgcache, info, _pacman_pkg_cmp);
+		db->pkgcache.add_sorted(info, _pacman_pkg_cmp);
 	}
 
 	return(0);
@@ -93,7 +93,7 @@ void _pacman_db_free_pkgcache(Database *db)
 	_pacman_db_clear_grpcache(db);
 }
 
-FPtrList &_pacman_db_get_pkgcache(Database *db)
+FList<Package *> &_pacman_db_get_pkgcache(Database *db)
 {
 	if(db->pkgcache.empty()) {
 		_pacman_db_load_pkgcache(db);
@@ -110,7 +110,7 @@ int _pacman_db_add_pkgincache(Database *db, Package *pkg)
 
 	pkg->acquire(); // FIXME: Should not be necessary, but required during migration to refcounted object
 	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), pkg->name(), db->treename());
-	f_ptrlist_add_sorted(&db->pkgcache, pkg, _pacman_pkg_cmp);
+	db->pkgcache.add_sorted(pkg, _pacman_pkg_cmp);
 
 	_pacman_db_clear_grpcache(db);
 
@@ -126,7 +126,7 @@ int _pacman_db_remove_pkgfromcache(Database *db, Package *pkg)
 		return(-1);
 	}
 
-	if(!_pacman_list_remove(&db->pkgcache, pkg, f_ptrcmp, (void **)&data)) {
+	if(!db->pkgcache.remove(pkg, f_ptrcmp, &data)) {
 		/* package not found */
 		return(-1);
 	}
@@ -140,13 +140,13 @@ int _pacman_db_remove_pkgfromcache(Database *db, Package *pkg)
 }
 
 static
-Group *_pacman_db_get_grpfromlist(FPtrList *list, const char *target)
+Group *_pacman_db_get_grpfromlist(const FList<Group *> &list, const char *target)
 {
 	if(_pacman_strempty(target)) {
 		return(NULL);
 	}
 
-	for(auto i = list->begin(), end = list->end(); i != end; ++i) {
+	for(auto i = list.begin(), end = list.end(); i != end; ++i) {
 		Group *info = *i;
 
 		if(strcmp(info->name, target) == 0) {
@@ -163,7 +163,7 @@ int _pacman_db_load_grpcache(Database *db)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	FPtrList &cache = _pacman_db_get_pkgcache(db);
+	auto &cache = _pacman_db_get_pkgcache(db);
 
 	_pacman_log(PM_LOG_DEBUG, _("loading group cache for repository '%s'"), db->treename());
 
@@ -178,11 +178,11 @@ int _pacman_db_load_grpcache(Database *db)
 		for(auto git = groups.begin(), git_end = groups.end(); git != git_end; ++git) {
 			const char *grp_name = *git;
 
-			Group *grp = _pacman_db_get_grpfromlist(&db->grpcache, grp_name);
+			Group *grp = _pacman_db_get_grpfromlist(db->grpcache, grp_name);
 
 			if(grp == NULL) {
 				grp = new Group(grp_name);
-				f_ptrlist_add_sorted(&db->grpcache, grp, _pacman_grp_cmp);
+				db->grpcache.add_sorted(grp, _pacman_grp_cmp);
 			}
 			if(!_pacman_list_is_strin(pkg->name(), &grp->packages)) {
 				grp->packages.add_sorted(pkg->name(), strcmp);
@@ -202,11 +202,11 @@ int _pacman_db_clear_grpcache(Database *db)
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	f_ptrlist_clear(&db->grpcache, &visitor);
+	db->grpcache.clear(/* &visitor */);
 	return 0;
 }
 
-FPtrList &_pacman_db_get_grpcache(Database *db)
+FList<Group *> &_pacman_db_get_grpcache(Database *db)
 {
 	if(db->grpcache.empty()) {
 		_pacman_db_load_grpcache(db);
@@ -218,7 +218,7 @@ Group *_pacman_db_get_grpfromcache(Database *db, const char *target)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
-	return _pacman_db_get_grpfromlist(&_pacman_db_get_grpcache(db), target);
+	return _pacman_db_get_grpfromlist(_pacman_db_get_grpcache(db), target);
 }
 
 /* vim: set ts=2 sw=2 noet: */

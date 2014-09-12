@@ -99,8 +99,9 @@ bool Database::add_server(const char *url)
 
 FPtrList Database::filter(const PackageMatcher &packagematcher)
 {
-	FPtrList &cache = _pacman_db_get_pkgcache(this), ret;
+	FPtrList ret;
 
+	auto &cache = _pacman_db_get_pkgcache(this);
 	for(auto it = cache.begin(), end = cache.end(); it != end; ++it) {
 		Package *pkg = (Package *)*it;
 		
@@ -130,7 +131,7 @@ FPtrList Database::filter(const FStringList &needles, int packagestrmatcher_flag
 
 		PackageMatcher packagematcher(pattern, packagestrmatcher_flags, strmatcher_flags);
 
-		FPtrList &cache = _pacman_db_get_pkgcache(this);
+		auto &cache = _pacman_db_get_pkgcache(this);
 		for(auto j = cache.begin(), j_end = cache.end(); j != j_end; ++j) {
 			Package *pkg = (Package *)*j;
 
@@ -154,7 +155,7 @@ Package *Database::find(const PackageMatcher &packagematcher)
 {
 	Package *ret = NULL;
 
-	FPtrList &cache = _pacman_db_get_pkgcache(this);
+	auto &cache = _pacman_db_get_pkgcache(this);
 	for(auto i = cache.begin(), end = cache.end(); i != end; ++i) {
 		Package *pkg = (Package *)*i;
 

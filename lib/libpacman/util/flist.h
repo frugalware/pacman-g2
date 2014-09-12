@@ -601,8 +601,6 @@ public:
 	typedef flib::const_iterator<iterable, true> const_reverse_iterator;
 	typedef size_t size_type;
 
-	typedef int (*comparator)(value_type, value_type);
-
 	FList()
 		: FCListItem(this, this)
 	{ }
@@ -737,14 +735,15 @@ public:
 		return *this;
 	}
 
-	FList &add_sorted(const value_type &data, comparator fn)
+	template <typename Comparator>
+	FList &add_sorted(const value_type &data, Comparator cmp)
 	{
 		iterable add = new FListItem<T>(data);
 
 		/* Find insertion point. */
 		iterable previous, end;
 		for(previous = end = c_end(); previous->next() != end; previous = previous->next()) {
-			if(fn(data, previous->next()->m_data) <= 0) {
+			if(cmp(data, previous->next()->m_data) <= 0) {
 				break;
 			}
 		}

@@ -508,7 +508,7 @@ FPtrList LocalDatabase::getowners(const char *filename)
 		rpath[strlen(rpath)] = '/';
 	}
 
-	FPtrList &cache = _pacman_db_get_pkgcache(this);
+	auto &cache = _pacman_db_get_pkgcache(this);
 	for(auto lp = cache.begin(), end = cache.end(); lp != end; ++lp) {
 		Package *info = (Package *)*lp;
 

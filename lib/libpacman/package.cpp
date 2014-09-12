@@ -92,7 +92,7 @@ int _pacman_pkg_delete(Package *self)
 
 /* Helper function for comparing packages
  */
-int _pacman_pkg_cmp(const void *p1, const void *p2)
+int _pacman_pkg_cmp(const Package *p1, const Package *p2)
 {
 	Package *pkg1 = (Package *)p1;
 	Package *pkg2 = (Package *)p2;

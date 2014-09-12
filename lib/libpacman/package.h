@@ -186,7 +186,7 @@ private:
 
 int _pacman_pkg_delete(libpacman::Package *self);
 
-int _pacman_pkg_cmp(const void *p1, const void *p2);
+int _pacman_pkg_cmp(const libpacman::Package *p1, const libpacman::Package *p2);
 libpacman::Package *_pacman_pkg_isin(const char *needle, FPtrList *haystack);
 
 #endif /* _PACMAN_PACKAGE_H */
