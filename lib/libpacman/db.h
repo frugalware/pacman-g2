@@ -82,7 +82,7 @@ public:
 			int strmatcher_flags = FStrMatcher::EQUAL);
 	FList<libpacman::Package *> whatPackagesProvide(const char *target);
 
-	virtual FPtrList getowners(const char *filename); /* Make pure virtual */
+	virtual FList<libpacman::Package *> getowners(const char *filename); /* Make pure virtual */
 
 	::libpacman::Handle *m_handle;
 	char *path;

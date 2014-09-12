@@ -841,7 +841,7 @@ pmlist_t *pacman_pkg_getowners(const char *filename)
 	ASSERT(handle->db_local != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 	ASSERT(!_pacman_strempty(filename), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-	return c_cast(new FPtrList(handle->db_local->getowners(filename)));
+	return c_cast(new FList<Package *>(handle->db_local->getowners(filename)));
 }
 
 /** Create a package from a file.

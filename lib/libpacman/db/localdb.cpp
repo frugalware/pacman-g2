@@ -490,12 +490,12 @@ cleanup:
 	return(retval);
 }
 
-FPtrList LocalDatabase::getowners(const char *filename)
+FList<Package *> LocalDatabase::getowners(const char *filename)
 {
 	struct stat buf;
 	int gotcha = 0;
 	char rpath[PATH_MAX];
-	FPtrList ret;
+	FList<Package *> ret;
 
 	if(stat(filename, &buf) == -1 || realpath(filename, rpath) == NULL) {
 		RET_ERR(PM_ERR_PKG_OPEN, ret);
@@ -510,7 +510,7 @@ FPtrList LocalDatabase::getowners(const char *filename)
 
 	auto &cache = _pacman_db_get_pkgcache(this);
 	for(auto lp = cache.begin(), end = cache.end(); lp != end; ++lp) {
-		Package *info = (Package *)*lp;
+		Package *info = *lp;
 
 		auto &files = info->files();
 		for(auto i = files.begin(), end = files.end(); i != end; ++i) {

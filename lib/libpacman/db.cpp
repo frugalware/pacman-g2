@@ -256,9 +256,9 @@ int Database::write(Package *info, unsigned int inforeq)
 	RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
 }
 
-FPtrList Database::getowners(const char *filename)
+FList<Package *> Database::getowners(const char *filename)
 {
-	return FPtrList();
+	return FList<Package *>();
 }
 
 /* Reads dbpath/treename.lastupdate and populates *ts with the contents.
