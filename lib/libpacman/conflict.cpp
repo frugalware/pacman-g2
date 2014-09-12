@@ -232,7 +232,6 @@ static FStringList chk_fileconflicts(const FStringList &filesA, const FStringLis
 
 FPtrList _pacman_db_find_conflicts(pmtrans_t *trans)
 {
-	char *filestr = NULL;
 	char path[PATH_MAX+1];
 	struct stat buf;
 	FPtrList conflicts;
@@ -258,7 +257,7 @@ FPtrList _pacman_db_find_conflicts(pmtrans_t *trans)
 			if(strcmp(p1->name(), p2->name())) {
 				auto ret = chk_fileconflicts(p1->files(), p2->files());
 				for(auto k = ret.begin(), k_end = ret.end(); k != k_end; ++k) {
-						pmconflict_t *conflict = _pacman_malloc(sizeof(pmconflict_t));
+						pmconflict_t *conflict = new pmconflict_t();
 						if(conflict == NULL) {
 							continue;
 						}
@@ -276,7 +275,7 @@ FPtrList _pacman_db_find_conflicts(pmtrans_t *trans)
 		dbpkg = NULL;
 		auto &files = p->files();
 		for(auto j = files.begin(), j_end = files.end(); j != j_end; ++j) {
-			filestr = (const char *)*j;
+			const char *filestr = *j;
 			snprintf(path, PATH_MAX, "%s%s", root, filestr);
 			/* is this target a file or directory? */
 			if(path[strlen(path)-1] == '/') {
@@ -339,7 +338,7 @@ FPtrList _pacman_db_find_conflicts(pmtrans_t *trans)
 					}
 				}
 				if(!ok) {
-					pmconflict_t *conflict = _pacman_malloc(sizeof(pmconflict_t));
+					pmconflict_t *conflict = new pmconflict_t();
 					if(conflict == NULL) {
 						continue;
 					}

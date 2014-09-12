@@ -69,11 +69,7 @@ FILE *_pacman_db_fopen_lastupdate(const Database *db, const char *mode)
 Database::Database(Handle *handle, const char *treename)
 	: m_handle(handle)
 {
-	path = f_zalloc(strlen(handle->root)+strlen(handle->dbpath)+strlen(treename)+2);
-//	if(path == NULL) {
-//		return(NULL);
-//	}
-	sprintf(path, "%s%s/%s", handle->root, handle->dbpath, treename);
+	asprintf(&path, "%s%s/%s", handle->root, handle->dbpath, treename);
 
 	STRNCPY(m_treename, treename, PATH_MAX);
 }
