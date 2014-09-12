@@ -534,13 +534,14 @@ int __pmtrans_t::prepare(FPtrList **data)
 				/* remove the original targets from the list if requested */
 				if((flags & PM_TRANS_FLAG_DEPENDSONLY)) {
 					/* they are just pointers so we don't have to free them */
-					_pacman_list_remove(&syncpkgs, spkg, pkg_cmp, NULL);
+					syncpkgs.remove(spkg, pkg_cmp, NULL);
 				}
 			}
 		}
 
 		/* re-order w.r.t. dependencies */
-		FPtrList k, l;
+		FPtrList k;
+		FList<pmsyncpkg_t *> l;
 		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
 			pmsyncpkg_t *s = (pmsyncpkg_t*)*i;
 			k.add(s->pkg_new);
@@ -660,7 +661,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 							pmsyncpkg_t *spkg = NULL;
 
 							_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), rmpkg);
-							_pacman_list_remove(&syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
+							syncpkgs.remove(rsync, _pacman_syncpkg_cmp, &spkg);
 							delete spkg;
 							continue;
 						}
@@ -695,7 +696,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 								pmsyncpkg_t *spkg = NULL;
 
 								_pacman_log(PM_LOG_FLOW2, _("removing '%s' from target list"), miss->depend.name);
-								_pacman_list_remove(&syncpkgs, rsync, _pacman_syncpkg_cmp, (void **)&spkg);
+								syncpkgs.remove(rsync, _pacman_syncpkg_cmp, &spkg);
 								delete spkg;
 							}
 						} else {
