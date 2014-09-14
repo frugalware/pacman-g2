@@ -50,11 +50,12 @@ typedef struct __pmgraph_t {
 		: state(0), data(nullptr), parent(nullptr), childptr(nullptr)
 	{ }
 
-	int state; /* 0: untouched, -1: entered, other: leaving time */
 	Package *data;
+	FList<__pmgraph_t *> children;
+
+	int state; /* 0: untouched, -1: entered, other: leaving time */
 	struct __pmgraph_t *parent; /* where did we come from? */
-	FPtrList children;
-	FPtrList::iterator childptr; /* points to a child in children list */
+	decltype(children)::iterator childptr; /* points to a child in children list */
 } pmgraph_t;
 
 static pmgraph_t *_pacman_graph_new(void)
