@@ -37,7 +37,7 @@ struct __pmsyncpkg_t
 	const char *pkg_name;
 	libpacman::Package *pkg_new;
 	libpacman::Package *pkg_local;
-	FPtrList m_replaces;
+	FList<libpacman::Package *> m_replaces;
 };
 
 #endif /* _PACMAN_SYNC_H */

@@ -146,10 +146,10 @@ pkg_error:
 /* Test for existence of a package in a FPtrList*
  * of Package*
  */
-Package *_pacman_pkg_isin(const char *needle, FPtrList *haystack)
+Package *_pacman_pkg_isin(const char *needle, const FPtrList *haystack)
 {
 	if(needle == NULL || haystack == NULL) {
-		return(NULL);
+		return NULL;
 	}
 
 	for(auto lp = haystack->begin(), end = haystack->end(); lp != end; ++lp) {
@@ -159,7 +159,23 @@ Package *_pacman_pkg_isin(const char *needle, FPtrList *haystack)
 			return info;
 		}
 	}
-	return(NULL);
+	return NULL;
+}
+
+const Package *_pacman_pkg_isin(const char *needle, const FList<Package *> &haystack)
+{
+	if(needle == NULL) {
+		return NULL;
+	}
+
+	for(auto lp = haystack.begin(), end = haystack.end(); lp != end; ++lp) {
+		Package *info = *lp;
+
+		if(info && !strcmp(info->name(), needle)) {
+			return info;
+		}
+	}
+	return NULL;
 }
 
 bool Package::splitname(const char *target, char *name, char *version, int witharch)

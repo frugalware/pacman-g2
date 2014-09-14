@@ -596,7 +596,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 				 */
 				for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end && !found; ++j) {
 					ps = *j;
-					if(_pacman_pkg_isin(miss->depend.name, &ps->m_replaces)) {
+					if(_pacman_pkg_isin(miss->depend.name, ps->m_replaces)) {
 						found = 1;
 					}
 				}
