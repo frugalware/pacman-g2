@@ -302,172 +302,170 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	targets.add(target);
 
 	if(type == PM_TRANS_TYPE_SYNC) {
-	char targline[PKG_FULLNAME_LEN];
-	char *targ;
-	Package *spkg = NULL;
-	int cmp;
+		char targline[PKG_FULLNAME_LEN];
+		char *targ;
+		Package *spkg = NULL;
+		int cmp;
 
-	STRNCPY(targline, target, PKG_FULLNAME_LEN);
-	targ = strchr(targline, '/');
-	if(targ) {
-		*targ = '\0';
-		targ++;
-		for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !spkg; ++i) {
-			Database *dbs = *i;
-			if(strcmp(dbs->treename(), targline) == 0) {
+		STRNCPY(targline, target, PKG_FULLNAME_LEN);
+		targ = strchr(targline, '/');
+		if(targ) {
+			*targ = '\0';
+			targ++;
+			for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !spkg; ++i) {
+				Database *dbs = *i;
+				if(strcmp(dbs->treename(), targline) == 0) {
+					spkg = dbs->find(targ);
+					if(spkg == NULL) {
+						/* Search provides */
+						_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
+						auto p = dbs->whatPackagesProvide(targ);
+						if(!p.empty()) {
+							spkg = *p.begin();
+							_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), spkg->name(), targ);
+						}
+						break;
+					}
+				}
+			}
+		} else {
+			targ = targline;
+			for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !spkg; ++i) {
+				Database *dbs = *i;
 				spkg = dbs->find(targ);
-				if(spkg == NULL) {
-					/* Search provides */
-					_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
+			}
+			if(spkg == NULL) {
+				/* Search provides */
+				_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
+				for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !spkg; ++i) {
+					Database *dbs = *i;
 					auto p = dbs->whatPackagesProvide(targ);
 					if(!p.empty()) {
 						spkg = *p.begin();
 						_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), spkg->name(), targ);
 					}
+				}
+			}
+		}
+		if(spkg == NULL) {
+			RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
+		}
+
+		pkg_local = db_local->find(spkg->name());
+		if(pkg_local) {
+			cmp = _pacman_versioncmp(pkg_local->version(), spkg->version());
+			if(cmp > 0) {
+				/* pkg_local version is newer -- get confirmation before adding */
+				int resp = 0;
+				QUESTION(this, PM_TRANS_CONV_LOCAL_NEWER, pkg_local, NULL, NULL, &resp);
+				if(!resp) {
+					_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), pkg_local->name(), pkg_local->version());
+					return(0);
+				}
+			} else if(cmp == 0) {
+				/* versions are identical -- get confirmation before adding */
+				int resp = 0;
+				QUESTION(this, PM_TRANS_CONV_LOCAL_UPTODATE, pkg_local, NULL, NULL, &resp);
+				if(!resp) {
+					_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), pkg_local->name(), pkg_local->version());
+					return(0);
+				}
+			}
+		}
+
+		/* add the package to the transaction */
+		if(!find(spkg->name())) {
+			pmsyncpkg_t *ps;
+		
+			ASSERT((ps = new __pmsyncpkg_t(PM_SYNC_TYPE_UPGRADE, spkg)) != NULL, RET_ERR(PM_ERR_MEMORY, -1));
+			add(ps, 0);
+		}
+	} else {
+		if(type & PM_TRANS_TYPE_ADD) {
+			/* Check if we need to add a fake target to the transaction. */
+			if(strchr(target, '|')) {
+				return(_pacman_fakedb_addtarget(this, target));
+			}
+
+			pkg_new = _pacman_filedb_load(NULL, target);
+			if(pkg_new == NULL || !pkg_new->is_valid(this, target)) {
+				/* pm_errno is already set by _pacman_filedb_load() */
+				goto error;
+			}
+
+			pkg_local = db_local->find(pkg_new->name());
+			if(type != PM_TRANS_TYPE_UPGRADE) {
+				/* only install this package if it is not already installed */
+				if(pkg_local != NULL) {
+					pm_errno = PM_ERR_PKG_INSTALLED;
+					goto error;
+				}
+			} else {
+				if(flags & PM_TRANS_FLAG_FRESHEN) {
+					/* only upgrade/install this package if it is already installed and at a lesser version */
+					if(pkg_local == NULL || _pacman_versioncmp(pkg_local->version(), pkg_new->version()) >= 0) {
+						pm_errno = PM_ERR_PKG_CANT_FRESH;
+						goto error;
+					}
+				}
+			}
+
+			if(flags & PM_TRANS_FLAG_ALLDEPS) {
+				pkg_new->m_reason = PM_PKG_REASON_DEPEND;
+			}
+
+			/* copy over the install reason */
+			if(pkg_local) {
+				pkg_new->m_reason = pkg_local->reason();
+			}
+
+			/* check if an older version of said package is already in transaction packages.
+			 * if so, replace it in the list */
+			FPtrList::iterator i, end;
+			for(i = packages.begin(), end = packages.end(); i != end; ++i) {
+				Package *pkg = *i;
+				if(strcmp(pkg->name(), pkg_new->name()) == 0) {
+					pkg_queued = pkg;
 					break;
 				}
 			}
+
+			if(pkg_queued != NULL) {
+				if(_pacman_versioncmp(pkg_queued->version(), pkg_new->version()) < 0) {
+					_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
+							pkg_queued->name(), pkg_queued->version(), pkg_new->version());
+					i.m_iterable->swap_data((void **)&pkg_new);
+				} else {
+					_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
+							pkg_queued->name(), pkg_queued->version(), pkg_new->version());
+				}
+				fRelease(pkg_new);
+			} else {
+				add(pkg_new, type, 0);
+			}
 		}
-	} else {
-		targ = targline;
-		for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !spkg; ++i) {
-			Database *dbs = *i;
-			spkg = dbs->find(targ);
-		}
-		if(spkg == NULL) {
-			/* Search provides */
-			_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
-			for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !spkg; ++i) {
-				Database *dbs = *i;
-				auto p = dbs->whatPackagesProvide(targ);
-				if(!p.empty()) {
-					spkg = *p.begin();
-					_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), spkg->name(), targ);
+		if(type == PM_TRANS_TYPE_REMOVE) {
+			if(_pacman_pkg_isin(target, &packages)) {
+				RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
+			}
+
+			if((pkg_local = db_local->scan(target, INFRQ_ALL)) == NULL) {
+				_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), target);
+				RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
+			}
+
+			/* ignore holdpkgs on upgrade */
+			if((this == m_handle->trans) && _pacman_list_is_strin(pkg_local->name(), &m_handle->holdpkg)) {
+				int resp = 0;
+				QUESTION(this, PM_TRANS_CONV_REMOVE_HOLDPKG, pkg_local, NULL, NULL, &resp);
+				if(!resp) {
+					RET_ERR(PM_ERR_PKG_HOLD, -1);
 				}
 			}
+			return add(pkg_local, type, 0);
 		}
 	}
-	if(spkg == NULL) {
-		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
-	}
-
-	pkg_local = db_local->find(spkg->name());
-	if(pkg_local) {
-		cmp = _pacman_versioncmp(pkg_local->version(), spkg->version());
-		if(cmp > 0) {
-			/* pkg_local version is newer -- get confirmation before adding */
-			int resp = 0;
-			QUESTION(this, PM_TRANS_CONV_LOCAL_NEWER, pkg_local, NULL, NULL, &resp);
-			if(!resp) {
-				_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), pkg_local->name(), pkg_local->version());
-				return(0);
-			}
-		} else if(cmp == 0) {
-			/* versions are identical -- get confirmation before adding */
-			int resp = 0;
-			QUESTION(this, PM_TRANS_CONV_LOCAL_UPTODATE, pkg_local, NULL, NULL, &resp);
-			if(!resp) {
-				_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), pkg_local->name(), pkg_local->version());
-				return(0);
-			}
-		}
-	}
-
-	/* add the package to the transaction */
-	if(!find(spkg->name())) {
-		pmsyncpkg_t *ps;
-		
-		ASSERT((ps = new __pmsyncpkg_t(PM_SYNC_TYPE_UPGRADE, spkg)) != NULL, RET_ERR(PM_ERR_MEMORY, -1));
-		add(ps, 0);
-	}
-	} else {
-	if(type & PM_TRANS_TYPE_ADD) {
-	/* Check if we need to add a fake target to the transaction. */
-	if(strchr(target, '|')) {
-		return(_pacman_fakedb_addtarget(this, target));
-	}
-
-	pkg_new = _pacman_filedb_load(NULL, target);
-	if(pkg_new == NULL || !pkg_new->is_valid(this, target)) {
-		/* pm_errno is already set by _pacman_filedb_load() */
-		goto error;
-	}
-
-	pkg_local = db_local->find(pkg_new->name());
-	if(type != PM_TRANS_TYPE_UPGRADE) {
-		/* only install this package if it is not already installed */
-		if(pkg_local != NULL) {
-			pm_errno = PM_ERR_PKG_INSTALLED;
-			goto error;
-		}
-	} else {
-		if(flags & PM_TRANS_FLAG_FRESHEN) {
-			/* only upgrade/install this package if it is already installed and at a lesser version */
-			if(pkg_local == NULL || _pacman_versioncmp(pkg_local->version(), pkg_new->version()) >= 0) {
-				pm_errno = PM_ERR_PKG_CANT_FRESH;
-				goto error;
-			}
-		}
-	}
-
-	if(flags & PM_TRANS_FLAG_ALLDEPS) {
-		pkg_new->m_reason = PM_PKG_REASON_DEPEND;
-	}
-
-	/* copy over the install reason */
-	if(pkg_local) {
-		pkg_new->m_reason = pkg_local->reason();
-	}
-
-	/* check if an older version of said package is already in transaction packages.
-	 * if so, replace it in the list */
-	FPtrList::iterator i, end;
-	for(i = packages.begin(), end = packages.end(); i != end; ++i) {
-		Package *pkg = *i;
-		if(strcmp(pkg->name(), pkg_new->name()) == 0) {
-			pkg_queued = pkg;
-			break;
-		}
-	}
-
-	if(pkg_queued != NULL) {
-		if(_pacman_versioncmp(pkg_queued->version(), pkg_new->version()) < 0) {
-			_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
-			          pkg_queued->name(), pkg_queued->version(), pkg_new->version());
-			i.m_iterable->swap_data((void **)&pkg_new);
-		} else {
-			_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
-			          pkg_queued->name(), pkg_queued->version(), pkg_new->version());
-		}
-		fRelease(pkg_new);
-	} else {
-		add(pkg_new, type, 0);
-	}
-	}
-	if(type == PM_TRANS_TYPE_REMOVE) {
-	if(_pacman_pkg_isin(target, &packages)) {
-		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
-	}
-
-	if((pkg_local = db_local->scan(target, INFRQ_ALL)) == NULL) {
-		_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), target);
-		RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
-	}
-
-	/* ignore holdpkgs on upgrade */
-	if((this == m_handle->trans) && _pacman_list_is_strin(pkg_local->name(), &m_handle->holdpkg)) {
-		int resp = 0;
-		QUESTION(this, PM_TRANS_CONV_REMOVE_HOLDPKG, pkg_local, NULL, NULL, &resp);
-		if(!resp) {
-			RET_ERR(PM_ERR_PKG_HOLD, -1);
-		}
-	}
-
-	return add(pkg_local, type, 0);
-	}
-	}
-
-	return(0);
+	return 0;
 
 error:
 	fRelease(pkg_new);
