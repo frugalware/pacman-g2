@@ -488,9 +488,11 @@ int _pacman_check_freespace(pmtrans_t *trans, pmlist_t **data)
 	for(auto i = trans->syncpkgs.begin(), end = trans->syncpkgs.end(); i != end; ++i) {
 		pmsyncpkg_t *ps = *i;
 
-		if(ps->type != PM_SYNC_TYPE_REPLACE) {
-			Package *pkg = ps->pkg_new;
-			pkgsize += pkg->usize;
+		if(ps->pkg_new != NULL) {
+			pkgsize += ps->pkg_new->usize;
+		}
+		if(ps->pkg_local != NULL) {
+			pkgsize -= ps->pkg_local->size;
 		}
 	}
 	freespace = get_freespace();

@@ -510,14 +510,12 @@ int syncpkg(FStringList *targets)
 			PM_PKG *pkg = pacman_sync_getinfo(ps, PM_SYNC_PKG);
 			char *pkgname, *pkgver;
 
-			if((long)pacman_sync_getinfo(ps, PM_SYNC_TYPE) == PM_SYNC_TYPE_REPLACE) {
-				data = pacman_sync_getinfo(ps, PM_SYNC_REPLACES);
-				for(pmlist_iterator_t *j = pacman_list_begin(data), *end = pacman_list_end(data); j != end; j = pacman_list_next(j)) {
-					PM_PKG *p = pacman_list_getdata(j);
-					pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
-					if(!_pacman_list_is_strin(pkgname, list_remove)) {
-						list_remove = f_stringlist_add(list_remove, pkgname);
-					}
+			data = pacman_sync_getinfo(ps, PM_SYNC_REPLACES);
+			for(pmlist_iterator_t *j = pacman_list_begin(data), *end = pacman_list_end(data); j != end; j = pacman_list_next(j)) {
+				PM_PKG *p = pacman_list_getdata(j);
+				pkgname = pacman_pkg_getinfo(p, PM_PKG_NAME);
+				if(!_pacman_list_is_strin(pkgname, list_remove)) {
+					list_remove = f_stringlist_add(list_remove, pkgname);
 				}
 			}
 

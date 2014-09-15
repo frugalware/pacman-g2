@@ -1591,44 +1591,42 @@ int __pmtrans_t::commit(FPtrList **data)
 		_pacman_log(PM_LOG_FLOW1, _("updating database for replaced packages' dependencies"));
 		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
 			pmsyncpkg_t *ps = *i;
-			if(ps->type == PM_SYNC_TYPE_REPLACE) {
-				Package *pkg_new = db_local->find(ps->pkg_name);
-				for(auto j = ps->m_replaces.begin(), end = ps->m_replaces.end(); j != end; ++j) {
-					Package *old = *j;
-					/* merge lists */
-					auto &requiredby = old->requiredby();
-					for(auto k = requiredby.begin(), end = requiredby.end(); k != end; ++k) {
-						if(!_pacman_list_is_strin((const char *)*k, &pkg_new->requiredby())) {
-							/* replace old's name with new's name in the requiredby's dependency list */
-							Package *depender = db_local->find((const char *)*k);
-							if(depender == NULL) {
-								/* If the depending package no longer exists in the local db,
-								 * then it must have ALSO conflicted with ps->pkg.  If
-								 * that's the case, then we don't have anything to propagate
-								 * here. */
-								continue;
-							}
-							auto &depends = depender->depends();
-							for(auto m = depends.begin(), end = depends.end(); m != end; ++m) {
-								if(!strcmp((const char *)*m, old->name())) {
-									const char *str = strdup(pkg_new->name());
-									m.m_iterable->swap_data(str);
-									free(str);
-								}
-							}
-							if(db_local->write(depender, INFRQ_DEPENDS) == -1) {
-								_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
-										  pkg_new->name(), pkg_new->version());
-							}
-							/* add the new requiredby */
-							pkg_new->m_requiredby.add((const char *)*k);
+			Package *pkg_new = db_local->find(ps->pkg_name);
+			for(auto j = ps->m_replaces.begin(), end = ps->m_replaces.end(); j != end; ++j) {
+				Package *old = *j;
+				/* merge lists */
+				auto &requiredby = old->requiredby();
+				for(auto k = requiredby.begin(), end = requiredby.end(); k != end; ++k) {
+					if(!_pacman_list_is_strin((const char *)*k, &pkg_new->requiredby())) {
+						/* replace old's name with new's name in the requiredby's dependency list */
+						Package *depender = db_local->find((const char *)*k);
+						if(depender == NULL) {
+							/* If the depending package no longer exists in the local db,
+							 * then it must have ALSO conflicted with ps->pkg.  If
+							 * that's the case, then we don't have anything to propagate
+							 * here. */
+							continue;
 						}
+						auto &depends = depender->depends();
+						for(auto m = depends.begin(), end = depends.end(); m != end; ++m) {
+							if(!strcmp((const char *)*m, old->name())) {
+								const char *str = strdup(pkg_new->name());
+								m.m_iterable->swap_data(str);
+								free(str);
+							}
+						}
+						if(db_local->write(depender, INFRQ_DEPENDS) == -1) {
+							_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
+									  pkg_new->name(), pkg_new->version());
+						}
+						/* add the new requiredby */
+						pkg_new->m_requiredby.add((const char *)*k);
 					}
 				}
-				if(db_local->write(pkg_new, INFRQ_DEPENDS) == -1) {
-					_pacman_log(PM_LOG_ERROR, _("could not update new database entry %s-%s"),
-							  pkg_new->name(), pkg_new->version());
-				}
+			}
+			if(db_local->write(pkg_new, INFRQ_DEPENDS) == -1) {
+				_pacman_log(PM_LOG_ERROR, _("could not update new database entry %s-%s"),
+						  pkg_new->name(), pkg_new->version());
 			}
 		}
 	}
