@@ -46,6 +46,8 @@ pacman_trans_addtarget: Change method signature to make the API more versatile i
 
 PM_PKG_SCRIPTLET: Remove typo to PM_PKG_SCRIPLET (compatibility symbol is provided).
 
+PM_SYNC_TYPE: Returns a PM_TRANS_TYPE now.
+
 ==== Symbols added:
 
 pmconflict_t: is now public and deprecate PM_CONFLICT.
@@ -115,6 +117,8 @@ PM_NETBUF, PM_OPT_DLETA_H, PM_OPT_DLETA_M, PM_OPT_DLETA_H, PM_OPT_DLOFFSET, PM_O
 PM_PKG_DATA: Was not really unusable since output type was dependent of the package origin that is not available throught public API.
 
 PM_SYNC_DATA: Was not really usable since output type was dependant of the sync type.
+
+PM_SYNC_TYPE_REPLACE, PM_SYNC_TYPE_UPGRADE, PM_SYNC_TYPE_DEPEND: Remove unecessary granularity in the new system.
 
 PM_TRANS: Unused in the public API.
 

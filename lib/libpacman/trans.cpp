@@ -377,7 +377,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 		if(!find(spkg->name())) {
 			pmsyncpkg_t *ps;
 		
-			ASSERT((ps = new __pmsyncpkg_t(PM_SYNC_TYPE_UPGRADE, spkg)) != NULL, RET_ERR(PM_ERR_MEMORY, -1));
+			ASSERT((ps = new __pmsyncpkg_t(PM_TRANS_TYPE_UPGRADE, spkg)) != NULL, RET_ERR(PM_ERR_MEMORY, -1));
 			add(ps, 0);
 		}
 	} else {
@@ -520,7 +520,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 			/* add the dependencies found by resolvedeps to the transaction set */
 			Package *spkg = *i;
 			if(!find(spkg->name())) {
-				pmsyncpkg_t *ps = new __pmsyncpkg_t(PM_SYNC_TYPE_DEPEND, spkg);
+				pmsyncpkg_t *ps = new __pmsyncpkg_t(PM_TRANS_TYPE_UPGRADE, spkg);
 				if(ps == NULL) {
 					ret = -1;
 					goto cleanup;
@@ -686,7 +686,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 							}
 							q->m_requiredby = local->requiredby();
 							/* switch this sync type to REPLACE */
-							ps->type = PM_SYNC_TYPE_REPLACE;
+							ps->type = PM_TRANS_TYPE_UPGRADE;
 							/* append to the replaces list */
 							_pacman_log(PM_LOG_FLOW2, _("electing '%s' for removal"), miss->depend.name);
 							ps->m_replaces.add(q);

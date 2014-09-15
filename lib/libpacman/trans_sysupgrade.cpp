@@ -114,7 +114,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 									ps->m_replaces.add(lpkg);
 								} else {
 									/* none found -- enter pkg into the final sync list */
-									ps = new __pmsyncpkg_t(PM_SYNC_TYPE_REPLACE, spkg);
+									ps = new __pmsyncpkg_t(PM_TRANS_TYPE_SYNC, spkg);
 									lpkg->acquire();
 									ps->m_replaces.add(lpkg);
 									trans->syncpkgs.add(ps);
@@ -185,7 +185,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 					local->name(), local->version(), local->version(), spkg->version());
 			/* check if spkg->name is already in the packages list. */
 			if(!trans->find(spkg->name())) {
-				ps = new __pmsyncpkg_t(PM_SYNC_TYPE_UPGRADE, spkg);
+				ps = new __pmsyncpkg_t(PM_TRANS_TYPE_SYNC, spkg);
 				if(ps == NULL) {
 					goto error;
 				}
