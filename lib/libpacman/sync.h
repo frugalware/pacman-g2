@@ -35,6 +35,7 @@ struct __pmsyncpkg_t
 
 	unsigned char type;
 	const char *pkg_name;
+	int m_flags;
 	libpacman::Package *pkg_new;
 	libpacman::Package *pkg_local;
 	FList<libpacman::Package *> m_replaces;

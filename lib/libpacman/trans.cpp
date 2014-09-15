@@ -525,6 +525,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 					ret = -1;
 					goto cleanup;
 				}
+				ps->m_flags = PM_TRANS_FLAG_ALLDEPS;
 				syncpkgs.add(ps);
 				_pacman_log(PM_LOG_FLOW2, _("adding package %s-%s to the transaction targets"),
 						spkg->name(), spkg->version());
@@ -1568,9 +1569,9 @@ int __pmtrans_t::commit(FPtrList **data)
 		/* using f_ptrlist_last() is ok because addtarget() adds the new target at the
 		 * end of the tr->packages list */
 		spkg = *tr->packages.last();
-		if(ps->type == PM_SYNC_TYPE_DEPEND || flags & PM_TRANS_FLAG_ALLDEPS) {
+		if(ps->m_flags & PM_TRANS_FLAG_ALLDEPS || flags & PM_TRANS_FLAG_ALLDEPS) {
 			spkg->m_reason = PM_PKG_REASON_DEPEND;
-		} else if(ps->type == PM_SYNC_TYPE_UPGRADE && !m_handle->sysupgrade) {
+		} else if(!m_handle->sysupgrade) {
 			spkg->m_reason = PM_PKG_REASON_EXPLICIT;
 		}
 	}

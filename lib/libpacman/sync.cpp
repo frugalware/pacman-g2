@@ -63,6 +63,7 @@ __pmsyncpkg_t::__pmsyncpkg_t(int type, Package *spkg)
 {
 	this->type = type;
 	this->pkg_name = spkg->name();
+	m_flags = 0;
 	this->pkg_new = spkg;
 	fAcquire(this->pkg_new);
 	this->pkg_local = handle->db_local->find(this->pkg_name);
