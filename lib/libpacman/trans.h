@@ -68,6 +68,9 @@ struct __pmtrans_t
 	int add(libpacman::Package *pkg, pmtranstype_t type, int flags);
 	int add(const char *target, pmtranstype_t type, int flags);
 
+	/* Capacity */
+	bool empty() const;
+
 	int (*set_state)(pmtrans_t *trans, int new_state);
 	::libpacman::Handle *m_handle;
 	pmtranstype_t m_type;

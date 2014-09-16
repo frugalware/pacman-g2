@@ -241,7 +241,7 @@ FPtrList _pacman_db_find_conflicts(pmtrans_t *trans)
 	Database *db_local = trans->m_handle->db_local;
 	const char *root = trans->m_handle->root;
 
-	if(db_local == NULL || trans->packages.empty() || root == NULL) {
+	if(db_local == NULL || trans->empty() || root == NULL) {
 		return conflicts;
 	}
 	howmany = trans->packages.size();

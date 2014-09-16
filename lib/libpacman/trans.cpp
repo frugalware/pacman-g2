@@ -482,8 +482,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 	}
 
 	/* If there's nothing to do, return without complaining */
-	if(packages.empty() &&
-		syncpkgs.empty()) {
+	if(empty()) {
 		return(0);
 	}
 
@@ -1386,8 +1385,7 @@ int __pmtrans_t::commit(FPtrList **data)
 	}
 
 	/* If there's nothing to do, return without complaining */
-	if(packages.empty() &&
-		syncpkgs.empty()) {
+	if(empty()) {
 		return(0);
 	}
 
@@ -1905,6 +1903,11 @@ error:
 	/* commiting failed, so this is still just a prepared transaction */
 	_pacman_trans_set_state(this, STATE_PREPARED);
 	return(-1);
+}
+
+bool __pmtrans_t::empty() const
+{
+	return packages.empty() && syncpkgs.empty();
 }
 
 /* vim: set ts=2 sw=2 noet: */
