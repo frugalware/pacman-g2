@@ -304,32 +304,7 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
 				/* check database for literal packages */
 				auto &cache = _pacman_db_get_pkgcache(db_local);
 				for(auto k = cache.begin(), k_end = cache.end(); k != k_end && !found; ++k) {
-					Package *p = (Package *)*k;
-					if(!strcmp(p->name(), depend.name)) {
-						if(depend.mod == PM_DEP_MOD_ANY) {
-							/* accept any version */
-							found = true;
-						} else {
-							char *ver = strdup(p->version());
-							/* check for a release in depend.version.  if it's
-							 * missing remove it from p->version as well.
-							 */
-							if(!index(depend.version,'-')) {
-								char *ptr;
-								for(ptr = ver; *ptr != '-'; ptr++);
-								*ptr = '\0';
-							}
-							cmp = _pacman_versioncmp(ver, depend.version);
-							switch(depend.mod) {
-								case PM_DEP_MOD_EQ: found = (cmp == 0); break;
-								case PM_DEP_MOD_GE: found = (cmp >= 0); break;
-								case PM_DEP_MOD_LE: found = (cmp <= 0); break;
-								case PM_DEP_MOD_LT: found = (cmp < 0); break;
-								case PM_DEP_MOD_GT: found = (cmp > 0); break;
-							}
-							free(ver);
-						}
-					}
+					found = (*k)->match(depend);
 				}
  				/* check database for provides matches */
  				if(!found) {
@@ -350,63 +325,13 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
  						if(skip) {
  							continue;
  						}
-
-						if(depend.mod == PM_DEP_MOD_ANY) {
-							/* accept any version */
-							found = 1;
-						} else {
-							char *ver = strdup(p->version());
-							/* check for a release in depend.version.  if it's
-							 * missing remove it from p->version as well.
-							 */
-							if(!index(depend.version,'-')) {
-								char *ptr;
-								for(ptr = ver; *ptr != '-'; ptr++);
-								*ptr = '\0';
-							}
-							cmp = _pacman_versioncmp(ver, depend.version);
-							switch(depend.mod) {
-								case PM_DEP_MOD_EQ: found = (cmp == 0); break;
-								case PM_DEP_MOD_GE: found = (cmp >= 0); break;
-								case PM_DEP_MOD_LE: found = (cmp <= 0); break;
-								case PM_DEP_MOD_LT: found = (cmp < 0); break;
-								case PM_DEP_MOD_GT: found = (cmp > 0); break;
-							}
-							free(ver);
-						}
+						found = p->match(depend);
 					}
 				}
  				/* check other targets */
  				for(auto k = packages.begin(), k_end = packages.end(); k != k_end && !found; ++k) {
  					Package *p = (Package *)*k;
- 					/* see if the package names match OR if p provides depend.name */
- 					if(!strcmp(p->name(), depend.name) || p->provides(depend.name)) {
-						if(depend.mod == PM_DEP_MOD_ANY ||
-								p->provides(depend.name)) {
-							/* depend accepts any version or p provides depend (provides - by
-							 * definition - is for all versions) */
-							found = true;
-						} else {
-							char *ver = strdup(p->version());
-							/* check for a release in depend.version.  if it's
-							 * missing remove it from p->version as well.
-							 */
-							if(!index(depend.version,'-')) {
-								char *ptr;
-								for(ptr = ver; *ptr != '-'; ptr++);
-								*ptr = '\0';
-							}
-							cmp = _pacman_versioncmp(ver, depend.version);
-							switch(depend.mod) {
-								case PM_DEP_MOD_EQ: found = (cmp == 0); break;
-								case PM_DEP_MOD_GE: found = (cmp >= 0); break;
-								case PM_DEP_MOD_LE: found = (cmp <= 0); break;
-								case PM_DEP_MOD_LT: found = (cmp < 0); break;
-								case PM_DEP_MOD_GT: found = (cmp > 0); break;
-							}
-							free(ver);
-						}
-					}
+					found = p->match(depend);
 				}
 				/* else if still not found... */
 				if(!found) {

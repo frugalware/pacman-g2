@@ -31,9 +31,11 @@
 #include "util.h"
 #include "error.h"
 #include "db.h"
+#include "deps.h"
 #include "handle.h"
 #include "cache.h"
 #include "pacman.h"
+#include "versioncmp.h"
 
 #include "io/archive.h"
 #include "util/log.h"
@@ -306,6 +308,53 @@ const FStringList &Package::provides() const
 bool Package::provides(const char *pkgname)
 {
 	return _pacman_list_is_strin(pkgname, &provides());
+}
+
+const FStringList &Package::replaces() const
+{
+	return m_replaces;
+}
+
+bool Package::replaces(const char *pkgname)
+{
+	return _pacman_list_is_strin(pkgname, &replaces());
+}
+
+bool Package::match(const pmdepend_t &depend)
+{
+	if(provides(depend.name) ||
+			replaces(depend.name)) {
+		return true;
+	}
+	if(strcmp(name(), depend.name) != 0) {
+		return false;
+	}
+
+	if(depend.mod == PM_DEP_MOD_ANY) {
+		/* accept any version */
+		return true;
+	} else {
+		bool is_match = false;
+		char *ver = strdup(version());
+		/* check for a release in depend.version.  if it's
+		 * missing remove it from p->version as well.
+		 */
+		if(!index(depend.version,'-')) {
+			char *ptr;
+			for(ptr = ver; *ptr != '-'; ptr++);
+			*ptr = '\0';
+		}
+		int cmp = _pacman_versioncmp(ver, depend.version);
+		switch(depend.mod) {
+		case PM_DEP_MOD_EQ: is_match = (cmp == 0); break;
+		case PM_DEP_MOD_GE: is_match = (cmp >= 0); break;
+		case PM_DEP_MOD_LE: is_match = (cmp <= 0); break;
+		case PM_DEP_MOD_LT: is_match = (cmp < 0); break;
+		case PM_DEP_MOD_GT: is_match = (cmp > 0); break;
+		}
+		free(ver);
+		return is_match;
+	}
 }
 
 typedef struct FPackageStrMatcher FPackageStrMatcher;

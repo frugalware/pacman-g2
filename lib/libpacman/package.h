@@ -34,6 +34,8 @@
 #include "kernel/fobject.h"
 #include "kernel/fstr.h"
 
+typedef struct __pmdepend_t pmdepend_t;
+
 namespace libpacman {
 
 	class Database;
@@ -123,6 +125,11 @@ public:
 
 	const FStringList &provides() const;
 	bool provides(const char *pkgname);
+
+	const FStringList &replaces() const;
+	bool replaces(const char *pkgname);
+
+	bool match(const pmdepend_t &depend);
 
 private:
 	Package(const libpacman::Package &other);
