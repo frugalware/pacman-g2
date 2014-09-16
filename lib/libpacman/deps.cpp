@@ -209,7 +209,6 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
 {
 	pmdepend_t depend;
 	int cmp;
-	int found = 0;
 	FPtrList baddeps;
 	pmdepmissing_t *miss = NULL;
 	Database *db_local = trans->m_handle->db_local;
@@ -233,7 +232,7 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
 		}
 
 		if(pkg_local != NULL) {
-			found = 0;
+			bool found = false;
 			auto &requiredby = pkg_local->requiredby();
 			for(auto j = requiredby.begin(), j_end = requiredby.end(); j != j_end; ++j) {
 				const char *requiredby_name = (const char *)*j;
@@ -274,14 +273,14 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
 							Package *spkg = *k;
 
 							if(spkg && spkg->provides(pkg_local->name())) {
-								found=1;
+								found = true;
 							}
 						}
 						for(auto k = trans->syncpkgs.begin(), k_end = trans->syncpkgs.end(); !found && k != k_end; ++k) {
 							pmsyncpkg_t *ps = *k;
 
 							if(ps->pkg_new->provides(pkg_local->name())) {
-								found=1;
+								found = true;
 							}
 						}
 						if(!found) {
@@ -301,7 +300,7 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
 
 				/* split into name/version pairs */
 				_pacman_splitdep(depend_name, &depend);
-				found = 0;
+				bool found = false;
 				/* check database for literal packages */
 				auto &cache = _pacman_db_get_pkgcache(db_local);
 				for(auto k = cache.begin(), k_end = cache.end(); k != k_end && !found; ++k) {
@@ -309,7 +308,7 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
 					if(!strcmp(p->name(), depend.name)) {
 						if(depend.mod == PM_DEP_MOD_ANY) {
 							/* accept any version */
-							found = 1;
+							found = true;
 						} else {
 							char *ver = strdup(p->version());
 							/* check for a release in depend.version.  if it's
@@ -386,7 +385,7 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
 								p->provides(depend.name)) {
 							/* depend accepts any version or p provides depend (provides - by
 							 * definition - is for all versions) */
-							found = 1;
+							found = true;
 						} else {
 							char *ver = strdup(p->version());
 							/* check for a release in depend.version.  if it's
