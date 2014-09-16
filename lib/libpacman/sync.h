@@ -30,6 +30,7 @@
 struct __pmsyncpkg_t
 	: public ::flib::FObject
 {
+	__pmsyncpkg_t();
 	__pmsyncpkg_t(int type, libpacman::Package *spkg);
 	~__pmsyncpkg_t();
 

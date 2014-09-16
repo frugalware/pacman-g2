@@ -59,6 +59,9 @@
 
 using namespace libpacman;
 
+__pmsyncpkg_t::__pmsyncpkg_t()
+{ }
+
 __pmsyncpkg_t::__pmsyncpkg_t(int type, Package *spkg)
 {
 	this->type = type;

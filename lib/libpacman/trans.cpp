@@ -289,8 +289,9 @@ Package *_pacman_filedb_load(Database *db, const char *name)
 // FIXME: Make returning a pmsyncpkg_t in the future
 int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 {
-	Package *pkg_new, *pkg_local, *pkg_queued = NULL;
+	Package *pkg_new = NULL, *pkg_local = NULL, *pkg_queued = NULL;
 	Database *db_local;
+	const char *name = NULL;
 
 	/* Sanity checks */
 	ASSERT((db_local = m_handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
@@ -304,7 +305,6 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 	if(type == PM_TRANS_TYPE_SYNC) {
 		char targline[PKG_FULLNAME_LEN];
 		char *targ;
-		Package *spkg = NULL;
 		int cmp;
 
 		STRNCPY(targline, target, PKG_FULLNAME_LEN);
@@ -312,17 +312,17 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 		if(targ) {
 			*targ = '\0';
 			targ++;
-			for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !spkg; ++i) {
+			for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !pkg_new; ++i) {
 				Database *dbs = *i;
 				if(strcmp(dbs->treename(), targline) == 0) {
-					spkg = dbs->find(targ);
-					if(spkg == NULL) {
+					pkg_new = dbs->find(targ);
+					if(pkg_new == NULL) {
 						/* Search provides */
 						_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
 						auto p = dbs->whatPackagesProvide(targ);
 						if(!p.empty()) {
-							spkg = *p.begin();
-							_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), spkg->name(), targ);
+							pkg_new = *p.begin();
+							_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), pkg_new->name(), targ);
 						}
 						break;
 					}
@@ -330,30 +330,30 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 			}
 		} else {
 			targ = targline;
-			for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !spkg; ++i) {
+			for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !pkg_new; ++i) {
 				Database *dbs = *i;
-				spkg = dbs->find(targ);
+				pkg_new = dbs->find(targ);
 			}
-			if(spkg == NULL) {
+			if(pkg_new == NULL) {
 				/* Search provides */
 				_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
-				for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !spkg; ++i) {
+				for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !pkg_new; ++i) {
 					Database *dbs = *i;
 					auto p = dbs->whatPackagesProvide(targ);
 					if(!p.empty()) {
-						spkg = *p.begin();
-						_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), spkg->name(), targ);
+						pkg_new = *p.begin();
+						_pacman_log(PM_LOG_DEBUG, _("found '%s' as a provision for '%s'"), pkg_new->name(), targ);
 					}
 				}
 			}
 		}
-		if(spkg == NULL) {
+		if(pkg_new == NULL) {
 			RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 		}
 
-		pkg_local = db_local->find(spkg->name());
+		pkg_local = db_local->find(pkg_new->name());
 		if(pkg_local) {
-			cmp = _pacman_versioncmp(pkg_local->version(), spkg->version());
+			cmp = _pacman_versioncmp(pkg_local->version(), pkg_new->version());
 			if(cmp > 0) {
 				/* pkg_local version is newer -- get confirmation before adding */
 				int resp = 0;
@@ -371,14 +371,6 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 					return(0);
 				}
 			}
-		}
-
-		/* add the package to the transaction */
-		if(!find(spkg->name())) {
-			pmsyncpkg_t *ps;
-		
-			ASSERT((ps = new __pmsyncpkg_t(PM_TRANS_TYPE_UPGRADE, spkg)) != NULL, RET_ERR(PM_ERR_MEMORY, -1));
-			add(ps, 0);
 		}
 	} else {
 		if(type & PM_TRANS_TYPE_ADD) {
@@ -440,6 +432,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 							pkg_queued->name(), pkg_queued->version(), pkg_new->version());
 				}
 				fRelease(pkg_new);
+				return 0;
 			} else {
 				add(pkg_new, type, 0);
 			}
@@ -464,6 +457,22 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 			}
 			return add(pkg_local, type, 0);
 		}
+	}
+
+	/* add the package to the transaction */
+	name = pkg_new != NULL ? pkg_new->name() : pkg_local->name();
+	if(!find(name)) {
+		pmsyncpkg_t *ps = new __pmsyncpkg_t();
+
+		ps->type = type;
+		ps->pkg_name = name;
+		ps->m_flags = flags;
+		ps->pkg_new = pkg_new;
+		fAcquire(ps->pkg_new);
+		ps->pkg_local = pkg_local;
+		fAcquire(ps->pkg_local);
+
+		add(ps, flags);
 	}
 	return 0;
 
