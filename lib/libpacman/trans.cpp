@@ -100,22 +100,7 @@ __pmtrans_t::__pmtrans_t(Handle *handle, pmtranstype_t type, unsigned int flags)
 }
 
 __pmtrans_t::~__pmtrans_t()
-{
-	/* Sanity checks */
-//	ASSERT(state != STATE_COMMITING, RET_ERR(PM_ERR_TRANS_COMMITING, -1));
-
-	packages.clear(/* _pacman_pkg_delete */);
-#if 0
-	{
-		FVisitor visitor = {
-			.fn = _pacman_syncpkg_delete,
-			.data = NULL,
-		};
-		
-		f_ptrlist_delete(syncpkgs, &visitor);
-	}
-#endif
-}
+{ }
 
 static
 int _pacman_trans_compute_triggers(pmtrans_t *trans)
