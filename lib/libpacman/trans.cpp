@@ -112,10 +112,14 @@ int _pacman_trans_compute_triggers(pmtrans_t *trans)
 		trans->triggers.add(pkg->triggers());
 	}
 	for(auto lp = trans->syncpkgs.begin(), end = trans->syncpkgs.end(); lp != end; ++lp) {
-		Package *pkg = ((pmsyncpkg_t *)*lp)->pkg_new;
+		pmsyncpkg_t *ps = *lp;
 
-		/* FIXME: might be incomplete */
-		trans->triggers.add(pkg->triggers());
+		if(ps->pkg_new != NULL) {
+			trans->triggers.add(ps->pkg_new->triggers());
+		}
+		if(ps->pkg_local != NULL) {
+			trans->triggers.add(ps->pkg_local->triggers());
+		}
 	}
 	_pacman_list_remove_dupes(&trans->triggers);
 	/* FIXME: Sort the triggers to have a predictable execution order */
@@ -245,6 +249,16 @@ pmsyncpkg_t *__pmtrans_t::add(pmsyncpkg_t *syncpkg, int flags)
 	}
 	_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), syncpkg->pkg_name);
 	syncpkgs.add(syncpkg);
+
+	switch(syncpkg->type) {
+	case PM_TRANS_TYPE_ADD:
+	case PM_TRANS_TYPE_UPGRADE:
+		packages.add(syncpkg->pkg_new);
+		break;
+	case PM_TRANS_TYPE_REMOVE:
+		packages.add(syncpkg->pkg_local);
+	}
+
 	return syncpkg;
 }
 
@@ -418,8 +432,6 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 				}
 				fRelease(pkg_new);
 				return 0;
-			} else {
-				add(pkg_new, type, 0);
 			}
 		}
 		if(type == PM_TRANS_TYPE_REMOVE) {
@@ -440,7 +452,6 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 					RET_ERR(PM_ERR_PKG_HOLD, -1);
 				}
 			}
-			return add(pkg_local, type, 0);
 		}
 	}
 

@@ -279,7 +279,7 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
 						for(auto k = trans->syncpkgs.begin(), k_end = trans->syncpkgs.end(); !found && k != k_end; ++k) {
 							pmsyncpkg_t *ps = *k;
 
-							if(ps->pkg_new->provides(pkg_local->name())) {
+							if(ps->pkg_new != NULL && ps->pkg_new->provides(pkg_local->name())) {
 								found = true;
 							}
 						}
