@@ -195,14 +195,9 @@ int _pacman_db_load_grpcache(Database *db)
 
 int _pacman_db_clear_grpcache(Database *db)
 {
-	FVisitor visitor = {
-		.fn = (FVisitorFunc)_pacman_grp_delete,
-		.data = NULL,
-	};
-
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	db->grpcache.clear(/* &visitor */);
+	db->grpcache.clear();
 	return 0;
 }
 

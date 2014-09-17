@@ -262,15 +262,6 @@ pmsyncpkg_t *__pmtrans_t::add(pmsyncpkg_t *syncpkg, int flags)
 	return syncpkg;
 }
 
-int __pmtrans_t::add(Package *pkg, pmtranstype_t type, int flags)
-{
-	ASSERT(pkg != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
-
-	_pacman_log(PM_LOG_FLOW2, _("adding %s in the targets list"), pkg->name());
-	packages.add(pkg);
-	return 0;
-}
-
 static
 Package *_pacman_filedb_load(Database *db, const char *name)
 {

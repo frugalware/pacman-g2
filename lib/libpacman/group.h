@@ -44,7 +44,6 @@ public:
 
 }
 
-void _pacman_grp_delete(libpacman::Group *group);
 int _pacman_grp_cmp(const void *g1, const void *g2);
 
 #endif /* _PACMAN_GROUP_H */

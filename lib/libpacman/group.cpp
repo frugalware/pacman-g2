@@ -40,11 +40,6 @@ Group::Group(const char *name)
 Group::~Group()
 { }
 
-void _pacman_grp_delete(Group *grp)
-{
-	delete (grp);
-}
-
 /* Helper function for sorting groups
  */
 int _pacman_grp_cmp(const void *g1, const void *g2)
