@@ -46,7 +46,7 @@ namespace flib
 	template <class InputIterator>
 	auto count(InputIterator first, InputIterator last)
 	{
-		flib::iterable_traits<InputIterator::iterable>::size_type size;
+		typename flib::iterable_traits<InputIterator::iterable>::size_type size;
 
 		for(size = 0; first != last; ++first, ++size) {
 			/* Nothing to do but iterate */
@@ -107,6 +107,22 @@ namespace flib
 			}
 		}
 		return false;
+	}
+
+	template <class InputOutputIterable, class T>
+	void replace_all(InputOutputIterable &iterable, const T &val, const T &new_val)
+	{
+		replace_all<typename InputOutputIterable::iterator, typename InputOutputIterable::value_type>(iterable.begin(), iterable.end(), val, new_val);
+	}
+
+	template <class InputOutputIterator, class T>
+	void replace_all(InputOutputIterator first, InputOutputIterator last, const T &val, const T &new_val)
+	{
+		for(; first != last; ++first) {
+			if(*first == val) {
+				*first = new_val;
+			}
+		}
 	}
 }
 

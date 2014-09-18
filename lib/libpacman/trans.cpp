@@ -46,6 +46,7 @@
 #include "hash/md5.h"
 #include "hash/sha1.h"
 #include "io/archive.h"
+#include "util/falgorithm.h"
 #include "util/log.h"
 #include "fstdlib.h"
 
@@ -279,7 +280,7 @@ Package *_pacman_filedb_load(Database *db, const char *name)
 // FIXME: Make returning a pmsyncpkg_t in the future
 int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 {
-	Package *pkg_new = NULL, *pkg_local = NULL, *pkg_queued = NULL;
+	Package *pkg_new = NULL, *pkg_local = NULL;
 	Database *db_local;
 	const char *name = NULL;
 
@@ -403,30 +404,24 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 
 			/* check if an older version of said package is already in transaction packages.
 			 * if so, replace it in the list */
-			FPtrList::iterator i, end;
-			for(i = packages.begin(), end = packages.end(); i != end; ++i) {
-				Package *pkg = *i;
-				if(strcmp(pkg->name(), pkg_new->name()) == 0) {
-					pkg_queued = pkg;
-					break;
-				}
-			}
-
-			if(pkg_queued != NULL) {
-				if(_pacman_versioncmp(pkg_queued->version(), pkg_new->version()) < 0) {
+			pmsyncpkg_t *ps = find(pkg_new->name());
+			if(ps != NULL) {
+				if(_pacman_versioncmp(ps->pkg_new->version(), pkg_new->version()) < 0) {
 					_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
-							pkg_queued->name(), pkg_queued->version(), pkg_new->version());
-					i.m_iterable->swap_data((void **)&pkg_new);
+							ps->pkg_new->name(), ps->pkg_new->version(), pkg_new->version());
+					flib::replace_all(packages, ps->pkg_new, pkg_new);
+					std::swap(ps->pkg_new, pkg_new);
 				} else {
 					_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
-							pkg_queued->name(), pkg_queued->version(), pkg_new->version());
+							ps->pkg_new->name(), ps->pkg_new->version(), pkg_new->version());
 				}
 				fRelease(pkg_new);
 				return 0;
 			}
 		}
 		if(type == PM_TRANS_TYPE_REMOVE) {
-			if(_pacman_pkg_isin(target, &packages)) {
+			pmsyncpkg_t *ps = find(target);
+			if(ps != NULL) {
 				RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 			}
 
