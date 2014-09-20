@@ -107,11 +107,6 @@ static
 int _pacman_trans_compute_triggers(pmtrans_t *trans)
 {
 	/* NOTE: Not the most efficient way, but will do until we add some string hash. */
-	for(auto lp = trans->packages.begin(), end = trans->packages.end(); lp != end; ++lp) {
-		Package *pkg = *lp;
-
-		trans->triggers.add(pkg->triggers());
-	}
 	for(auto lp = trans->syncpkgs.begin(), end = trans->syncpkgs.end(); lp != end; ++lp) {
 		pmsyncpkg_t *ps = *lp;
 
@@ -1912,7 +1907,7 @@ error:
 
 bool __pmtrans_t::empty() const
 {
-	return packages.empty() && syncpkgs.empty();
+	return syncpkgs.empty();
 }
 
 /* vim: set ts=2 sw=2 noet: */
