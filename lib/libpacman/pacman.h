@@ -257,6 +257,7 @@ void *pacman_grp_getinfo(pmgrp_t *grp, unsigned char parm);
 /* Info parameters */
 enum {
 	PM_SYNC_TYPE = 1,
+	PM_SYNC_NAME,
 	PM_SYNC_PKG,
 	PM_SYNC_REPLACES
 };
@@ -358,7 +359,6 @@ enum {
 	PM_TRANS_TYPE = 1,
 	PM_TRANS_FLAGS,
 	PM_TRANS_TARGETS,
-	PM_TRANS_PACKAGES,
 	PM_TRANS_SYNCPKGS
 };
 

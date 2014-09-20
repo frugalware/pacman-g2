@@ -560,10 +560,10 @@ int trans_commit(pmtranstype_t transtype, FStringList *targets)
 		if(config->flags & PM_TRANS_FLAG_RECURSE || config->flags & PM_TRANS_FLAG_CASCADE) {
 			/* list transaction targets */
 			FStringList *i = NULL;
-			pmlist_t *packages = pacman_trans_getinfo(PM_TRANS_PACKAGES);
+			pmlist_t *packages = pacman_trans_getinfo(PM_TRANS_SYNCPKGS);
 			for(pmlist_iterator_t *lp = pacman_list_begin(packages), *end = pacman_list_end(packages); lp != end; lp = pacman_list_next(lp)) {
-				PM_PKG *pkg = pacman_list_getdata(lp);
-				i = f_stringlist_add(i, pacman_pkg_getinfo(pkg, PM_PKG_NAME));
+				PM_SYNCPKG *pkg = pacman_list_getdata(lp);
+				i = f_stringlist_add(i, pacman_pkg_getinfo(pkg, PM_SYNC_NAME));
 			}
 			list_display(_("\nTargets:"), i);
 			FREELIST(i);

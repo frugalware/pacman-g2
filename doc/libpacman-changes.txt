@@ -102,6 +102,8 @@ PM_PKG_SCRIPTLET_PATH: Access to package scriptlet path (.install).
 
 PM_PKG_TRIGGERS: Access to package triggers list.
 
+PM_SYNC_NAME: Access to package name related to this sync.
+
 PM_SYNC_REPLACES: Access to package lists of to be replaced by this sync. (To remove ambiguity with PM_SYNC_DATA return value).
 
 PM_TRANS_EVT_FILECONFLICTS_PROGRESS, PM_TRANS_EVT_INTERCONFLICTS_PROGRESS, PM_TRANS_EVT_ADD_PROGRESS, PM_TRANS_EVT_REMOVE_PROGRESS, PM_TRANS_EVT_UPGRADE_PROGRESS: Added in preparation of an unification of event system. Also defines the values for PM_TRANS_PROGRESS_*_START.
@@ -121,6 +123,8 @@ PM_SYNC_DATA: Was not really usable since output type was dependant of the sync 
 PM_SYNC_TYPE_REPLACE, PM_SYNC_TYPE_UPGRADE, PM_SYNC_TYPE_DEPEND: Remove unecessary granularity in the new system.
 
 PM_TRANS: Unused in the public API.
+
+PM_TRANS_PACKAGES: Removed because the returned value had an inconsistant type depending on the transaction type.
 
 === Behaviour changes
 
