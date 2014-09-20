@@ -415,6 +415,11 @@ public:
 		m_next = m_previous = NULL;
 	}
 
+	void reverse()
+	{
+		std::swap(m_next, m_previous);
+	}
+
 protected:
 	FCListItem *m_next;
 	FCListItem *m_previous;
@@ -705,6 +710,14 @@ public:
 	{
 		// FIXME: lets leak for now
 		m_next = m_previous = this;
+	}
+
+	/* Operations */
+	void reverse() {
+		FCListItem *it = this;
+		do {
+			it->reverse();
+		} while ((it = it->next()) != this);
 	}
 
 public:

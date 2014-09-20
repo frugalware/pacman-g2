@@ -65,24 +65,6 @@ bool _pacman_list_remove(FPtrList *self, void *ptr, _pacman_fn_cmp fn, void **da
 	return self->remove(ptr, fn, data);
 }
 
-/* Reverse the order of a list
- *
- * The caller is responsible for freeing the old list
- */
-FPtrList *_pacman_list_reverse(FPtrList *list)
-{
-	/* simple but functional -- we just build a new list, starting
-	 * with the old list's tail
-	 */
-	FPtrList *newlist = f_ptrlist_new();
-
-	for(auto it = list->rbegin(), end = list->rend(); it != end; ++it) {
-		newlist->add(*it);
-	}
-
-	return(newlist);
-}
-
 void *f_ptrlistitem_data(const FPtrListIterator *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));

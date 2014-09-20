@@ -34,6 +34,7 @@
 #include "cache.h"
 #include "deps.h"
 
+#include "util/falgorithm.h"
 #include "util/log.h"
 #include "fstdlib.h"
 
@@ -48,7 +49,7 @@ using namespace libpacman;
  *
  * conflicts are always name only
  */
-FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FPtrList &packages)
+FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FList<Package *> &packages)
 {
 	Package *info = NULL;
 	FPtrList baddeps;
@@ -64,11 +65,11 @@ FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FPtrList &packages)
 	howmany = packages.size();
 
 	for(auto i = packages.begin(), end = packages.end(); i != end; ++i) {
-		Package *tp = (Package *)*i;
+		Package *tp = *i;
 		if(tp == NULL) {
 			continue;
 		}
-		remain = f_ptrlistiterator_count(i, end);
+		remain = flib::count(i, end);
 		percent = (double)(howmany - remain + 1) / howmany;
 
 		if(trans->m_type == PM_TRANS_TYPE_SYNC) {
@@ -249,7 +250,7 @@ FPtrList _pacman_db_find_conflicts(pmtrans_t *trans)
 	/* CHECK 1: check every target against every target */
 	for(auto i = trans->packages.begin(), end = trans->packages.end(); i != end; ++i) {
 		Package *p1 = (Package*)*i;
-		remain = f_ptrlistiterator_count(i, end);
+		remain = flib::count(i, end);
 		percent = (double)(howmany - remain + 1) / howmany;
 		PROGRESS(trans, PM_TRANS_PROGRESS_CONFLICTS_START, "", (percent * 100), howmany, howmany - remain + 1);
 		for(auto j = i; j != end; ++j) {

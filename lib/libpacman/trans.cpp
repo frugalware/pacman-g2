@@ -457,7 +457,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 	Database *db_local;
 	FPtrList lp;
 	FPtrList deps;
-	FPtrList list; /* list allowing checkdeps usage with data from packages */
+	FList<Package *> list; /* list allowing checkdeps usage with data from packages */
 	int ret = 0;
 
 	/* Sanity checks */
@@ -531,13 +531,13 @@ int __pmtrans_t::prepare(FPtrList **data)
 		}
 
 		/* re-order w.r.t. dependencies */
-		FPtrList k;
+		FList<Package *> k;
 		FList<pmsyncpkg_t *> l;
 		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
 			pmsyncpkg_t *s = (pmsyncpkg_t*)*i;
 			k.add(s->pkg_new);
 		}
-		FPtrList m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
+		FList<Package *> m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
 		for(auto i = m.begin(), end = m.end(); i != end; ++i) {
 			for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end; ++j) {
 				pmsyncpkg_t *s = (pmsyncpkg_t*)*j;
@@ -891,7 +891,7 @@ cleanup:
 
 		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_ADD);
+		FList<Package *> lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_ADD);
 		/* free the old alltargs */
 		packages.clear();
 		packages.swap(lp);
@@ -905,7 +905,7 @@ cleanup:
 
 		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_REMOVE);
+		FList<Package *> lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_REMOVE);
 		/* free the old alltargs */
 		packages.clear();
 		packages.swap(lp);
@@ -1647,7 +1647,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		void *event_arg0 = NULL, *event_arg1 = NULL;
 		pmtranstype_t type = m_type;
 
-		remain = f_ptrlistiterator_count(targ, end);
+		remain = flib::count(targ, end);
 
 		if(m_handle->trans->state == STATE_INTERRUPTED) {
 			break;
@@ -1752,7 +1752,7 @@ int __pmtrans_t::commit(FPtrList **data)
 			 * its requiredby info: it is in the process of being removed (if not
 			 * already done!)
 			 */
-			if(_pacman_pkg_isin(depend.name, &packages)) {
+			if(_pacman_pkg_isin(depend.name, packages)) {
 				continue;
 			}
 			depinfo = db_local->find(depend.name);

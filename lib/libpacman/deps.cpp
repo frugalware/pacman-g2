@@ -115,9 +115,9 @@ FPtrList &_pacman_depmisslist_add(FPtrList &misslist, pmdepmissing_t *miss)
  * This function returns the new FPtrList* target list.
  *
  */
-FPtrList _pacman_sortbydeps(const FPtrList &targets, int mode)
+FList<Package *> _pacman_sortbydeps(const FList<Package *> &targets, int mode)
 {
-	FPtrList newtargs;
+	FList<Package *> newtargs;
 	FPtrList vertices;
 	pmgraph_t *vertex;
 	int found;
@@ -193,9 +193,7 @@ FPtrList _pacman_sortbydeps(const FPtrList &targets, int mode)
 
 	if(mode == PM_TRANS_TYPE_REMOVE) {
 		/* we're removing packages, so reverse the order */
-		FPtrList *tmptargs = _pacman_list_reverse(&newtargs);
-		/* free the old one */
-		newtargs.swap(*tmptargs);
+		newtargs.reverse();
 	}
 	return newtargs;
 }
@@ -205,7 +203,7 @@ FPtrList _pacman_sortbydeps(const FPtrList &targets, int mode)
  * dependencies can include versions with depmod operators.
  *
  */
-FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &packages)
+FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FList<Package *> &packages)
 {
 	pmdepend_t depend;
 	int cmp;
@@ -247,7 +245,7 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
 						/* hmmm... package isn't installed.. */
 						continue;
 					}
-					if(_pacman_pkg_isin(p->name(), &packages)) {
+					if(_pacman_pkg_isin(p->name(), packages)) {
 						/* this package is also in the upgrade list, so don't worry about it */
 						continue;
 					}
@@ -267,7 +265,7 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FPtrList &p
 					}
 				} else if(op == PM_TRANS_TYPE_REMOVE) {
 					/* check requiredby fields */
-					if(!_pacman_pkg_isin(requiredby_name, &packages)) {
+					if(!_pacman_pkg_isin(requiredby_name, packages)) {
 						/* check if a package in trans->packages provides this package */
 						for(auto k = trans->packages.begin(), k_end = trans->packages.end(); !found && k != k_end; ++k) {
 							Package *spkg = *k;
@@ -399,14 +397,14 @@ out:
  * I mean dependencies that are *only* required for packages in the target
  * list, so they can be safely removed.
  */
-FPtrList &_pacman_removedeps(Database *db, FPtrList &targs)
+FList<Package *> &_pacman_removedeps(Database *db, FList<Package *> &targs)
 {
 	if(db == NULL) {
 		return targs;
 	}
 
 	bool again = false;
-	for(auto i = targs.begin(), end = targs.end(); i != end; i = again ? targs.begin() : FPtrList::iterator(i.next())) {
+	for(auto i = targs.begin(), end = targs.end(); i != end; i = again ? targs.begin() : i.next()) {
 		again = false;
 		auto &depends = ((Package *)*i)->depends();
 		for(auto j = depends.begin(), j_end = depends.end(); j != j_end; ++j) {
@@ -433,7 +431,7 @@ FPtrList &_pacman_removedeps(Database *db, FPtrList &targs)
 					continue;
 				}
 			}
-			if(_pacman_pkg_isin(dep->name(), &targs)) {
+			if(_pacman_pkg_isin(dep->name(), targs)) {
 				continue;
 			}
 
@@ -447,7 +445,7 @@ FPtrList &_pacman_removedeps(Database *db, FPtrList &targs)
 			auto &requiredby = dep->requiredby();
 			for(auto k = requiredby.begin(), k_end = requiredby.end(); k != k_end && !needed; ++k) {
 				Package *dummy = db->find((const char *)*k);
-				if(!_pacman_pkg_isin(dummy->name(), &targs)) {
+				if(!_pacman_pkg_isin(dummy->name(), targs)) {
 					needed = 1;
 				}
 			}
@@ -473,10 +471,11 @@ FPtrList &_pacman_removedeps(Database *db, FPtrList &targs)
  *
  * make sure *list and *trail are already initialized
  */
-int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList &list,
+int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FList<Package *> &list,
                       FPtrList &trail, FPtrList **data)
 {
-	FPtrList targ, deps;
+	FPtrList deps;
+	FList<Package *> targ;
 	Handle *handle = trans->m_handle;
 
 	if(handle->dbs_sync.empty() || syncpkg == NULL) {
@@ -534,7 +533,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FPtrList &list,
 			pm_errno = PM_ERR_UNSATISFIED_DEPS;
 			goto error;
 		}
-		if(_pacman_pkg_isin(ps->name(), &list)) {
+		if(_pacman_pkg_isin(ps->name(), list)) {
 			/* this dep is already in the target list */
 			_pacman_log(PM_LOG_DEBUG, _("dependency %s is already in the target list -- skipping"),
 			          ps->name());
