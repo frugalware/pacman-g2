@@ -65,7 +65,7 @@ struct __pmtrans_t
 	int commit(FPtrList **data);
 
 	pmsyncpkg_t *add(pmsyncpkg_t *syncpkg, int flags);
-	int add(const char *target, pmtranstype_t type, int flags);
+	int add(const char *target, pmtranstype_t type, int flags, pmsyncpkg_t **syncpkg = NULL);
 
 	/* Capacity */
 	bool empty() const;

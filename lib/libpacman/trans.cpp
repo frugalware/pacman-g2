@@ -278,7 +278,7 @@ Package *_pacman_filedb_load(Database *db, const char *name)
 }
 
 // FIXME: Make returning a pmsyncpkg_t in the future
-int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
+int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpkg_t **syncpkg)
 {
 	Package *pkg_new = NULL, *pkg_local = NULL;
 	Database *db_local;
@@ -454,7 +454,10 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags)
 		ps->pkg_local = pkg_local;
 		fAcquire(ps->pkg_local);
 
-		add(ps, flags);
+		ps = add(ps, flags);
+		if(syncpkg != NULL) {
+			*syncpkg = ps;
+		}
 	}
 	return 0;
 
