@@ -250,16 +250,6 @@ pmsyncpkg_t *__pmtrans_t::add(pmsyncpkg_t *syncpkg, int flags)
 	}
 	_pacman_log(PM_LOG_FLOW2, _("adding target '%s' to the transaction set"), syncpkg->pkg_name);
 	syncpkgs.add(syncpkg);
-
-	switch(syncpkg->type) {
-	case PM_TRANS_TYPE_ADD:
-	case PM_TRANS_TYPE_UPGRADE:
-		packages.add(syncpkg->pkg_new);
-		break;
-	case PM_TRANS_TYPE_REMOVE:
-		packages.add(syncpkg->pkg_local);
-	}
-
 	return syncpkg;
 }
 
@@ -367,7 +357,8 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 		if(type & PM_TRANS_TYPE_ADD) {
 			/* Check if we need to add a fake target to the transaction. */
 			if(strchr(target, '|')) {
-				return(_pacman_fakedb_addtarget(this, target));
+				pkg_new = _pacman_fakedb_pkg_new(target);
+				goto add;
 			}
 
 			pkg_new = _pacman_filedb_load(NULL, target);
@@ -409,7 +400,6 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 				if(_pacman_versioncmp(ps->pkg_new->version(), pkg_new->version()) < 0) {
 					_pacman_log(PM_LOG_WARNING, _("replacing older version %s-%s by %s in target list"),
 							ps->pkg_new->name(), ps->pkg_new->version(), pkg_new->version());
-					flib::replace_all(packages, ps->pkg_new, pkg_new);
 					std::swap(ps->pkg_new, pkg_new);
 				} else {
 					_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
@@ -441,6 +431,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 		}
 	}
 
+add:
 	/* add the package to the transaction */
 	name = pkg_new != NULL ? pkg_new->name() : pkg_local->name();
 	if(!find(name)) {
@@ -479,6 +470,19 @@ int __pmtrans_t::prepare(FPtrList **data)
 
 	if(data != NULL) {
 		*data = new FPtrList();
+	}
+
+	packages.clear();
+	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
+		pmsyncpkg_t *syncpkg = *i;
+		switch(syncpkg->type) {
+		case PM_TRANS_TYPE_ADD:
+		case PM_TRANS_TYPE_UPGRADE:
+			packages.add(syncpkg->pkg_new);
+			break;
+		case PM_TRANS_TYPE_REMOVE:
+			packages.add(syncpkg->pkg_local);
+		}
 	}
 
 	/* If there's nothing to do, return without complaining */
@@ -1517,7 +1521,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		pmsyncpkg_t *ps = *i;
 		for(auto j = ps->m_replaces.begin(), end = ps->m_replaces.end(); j != end; ++j) {
 			Package *pkg = *j;
-			if(!_pacman_pkg_isin(pkg->name(), &tr->packages)) {
+			if(!tr->find(pkg->name())) {
 				if(tr->add(pkg->name(), tr->m_type, tr->flags) == -1) {
 					goto error;
 				}
@@ -1551,20 +1555,21 @@ int __pmtrans_t::commit(FPtrList **data)
 	tr->conv.connect(&conv);
 	tr->progress.connect(&progress);
 	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
-		pmsyncpkg_t *ps = *i;
+		pmsyncpkg_t *ps = *i, *ps_new = NULL;
 		Package *spkg = ps->pkg_new;
 		char str[PATH_MAX];
 		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, m_handle->root, m_handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
-		if(tr->add(str, tr->m_type, tr->flags) == -1) {
+		if(tr->add(str, tr->m_type, tr->flags, &ps_new) == -1) {
 			goto error;
 		}
-		/* using f_ptrlist_last() is ok because addtarget() adds the new target at the
-		 * end of the tr->packages list */
 		spkg = *tr->packages.last();
-		if(ps->m_flags & PM_TRANS_FLAG_ALLDEPS || flags & PM_TRANS_FLAG_ALLDEPS) {
-			spkg->m_reason = PM_PKG_REASON_DEPEND;
-		} else if(!m_handle->sysupgrade) {
-			spkg->m_reason = PM_PKG_REASON_EXPLICIT;
+		if(ps_new != NULL && ps_new->pkg_new != NULL) {
+			spkg = ps_new->pkg_new;
+			if(ps->m_flags & PM_TRANS_FLAG_ALLDEPS || flags & PM_TRANS_FLAG_ALLDEPS) {
+				spkg->m_reason = PM_PKG_REASON_DEPEND;
+			} else if(!m_handle->sysupgrade) {
+				spkg->m_reason = PM_PKG_REASON_EXPLICIT;
+			}
 		}
 	}
 	if(tr->prepare(data) == -1) {

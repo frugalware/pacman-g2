@@ -35,7 +35,7 @@
 
 using namespace libpacman;
 
-static Package *_pacman_fakedb_pkg_new(pmdb_t *fakedb, const char *name)
+Package *_pacman_fakedb_pkg_new(const char *name)
 {
 	char *ptr, *p;
 	char *str = NULL;
@@ -76,18 +76,6 @@ static Package *_pacman_fakedb_pkg_new(pmdb_t *fakedb, const char *name)
 		RET_ERR(PM_ERR_PKG_INVALID_NAME, NULL);
 	}
 	return dummy;
-}
-
-int _pacman_fakedb_addtarget(pmtrans_t *trans, const char *name)
-{
-	Package *dummy = _pacman_fakedb_pkg_new(NULL, name);
-
-	if (dummy == NULL)
-		return -1;
-	/* add the package to the transaction */
-	trans->packages.add(dummy);
-
-	return(0);
 }
 
 /* vim: set ts=2 sw=2 noet: */

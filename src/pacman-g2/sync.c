@@ -325,7 +325,7 @@ int syncpkg(FStringList *targets)
 		 * this can prevent some of the "syntax error" problems users can have
 		 * when sysupgrade'ing with an older version of pacman-g2.
 		 */
-		data = pacman_trans_getinfo(PM_TRANS_PACKAGES);
+		data = pacman_trans_getinfo(PM_TRANS_SYNCPKGS);
 		for(pmlist_iterator_t *lp = pacman_list_begin(data), *end = pacman_list_end(data); lp != end; lp = pacman_list_next(lp)) {
 			PM_SYNCPKG *ps = pacman_list_getdata(lp);
 			PM_PKG *spkg = pacman_sync_getinfo(ps, PM_SYNC_PKG);
@@ -490,7 +490,7 @@ int syncpkg(FStringList *targets)
 		goto cleanup;
 	}
 
-	packages = pacman_trans_getinfo(PM_TRANS_PACKAGES);
+	packages = pacman_trans_getinfo(PM_TRANS_SYNCPKGS);
 	if(pacman_list_count(packages) == 0) {
 		/* nothing to do: just exit without complaining */
 		goto cleanup;

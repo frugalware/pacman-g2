@@ -34,7 +34,7 @@ struct __pmsyncpkg_t
 	__pmsyncpkg_t(int type, libpacman::Package *spkg);
 	~__pmsyncpkg_t();
 
-	unsigned char type;
+	pmtranstype_t type;
 	const char *pkg_name;
 	int m_flags;
 	libpacman::Package *pkg_new;

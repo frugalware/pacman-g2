@@ -23,7 +23,7 @@
 
 #include "trans.h"
 
-int _pacman_fakedb_addtarget(pmtrans_t *trans, const char *name);
+libpacman::Package *_pacman_fakedb_pkg_new(const char *name);
 
 #endif /* _PACMAN_FAKEDB_H */
 
