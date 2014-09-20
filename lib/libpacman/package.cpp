@@ -145,25 +145,8 @@ pkg_error:
 	return false;
 }
 
-/* Test for existence of a package in a FPtrList*
- * of Package*
+/* Test for existence of a package in a FList<Package *>.
  */
-Package *_pacman_pkg_isin(const char *needle, const FPtrList *haystack)
-{
-	if(needle == NULL || haystack == NULL) {
-		return NULL;
-	}
-
-	for(auto lp = haystack->begin(), end = haystack->end(); lp != end; ++lp) {
-		Package *info = *lp;
-
-		if(info && !strcmp(info->name(), needle)) {
-			return info;
-		}
-	}
-	return NULL;
-}
-
 const Package *_pacman_pkg_isin(const char *needle, const FList<Package *> &haystack)
 {
 	if(needle == NULL) {

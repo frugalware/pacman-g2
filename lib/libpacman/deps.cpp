@@ -472,7 +472,7 @@ FList<Package *> &_pacman_removedeps(Database *db, FList<Package *> &targs)
  * make sure *list and *trail are already initialized
  */
 int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FList<Package *> &list,
-                      FPtrList &trail, FPtrList **data)
+                      FList<Package *> &trail, FPtrList **data)
 {
 	FPtrList deps;
 	FList<Package *> targ;
@@ -496,7 +496,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FList<Package *> &li
 
 		/* check if one of the packages in *list already provides this dependency */
 		for(auto j = list.begin(), j_end = list.end(); j != j_end && !found; ++j) {
-			Package *sp = (Package *)*j;
+			Package *sp = *j;
 			if(sp->provides(miss->depend.name)) {
 				_pacman_log(PM_LOG_DEBUG, _("%s provides dependency %s -- skipping"),
 				          sp->name(), miss->depend.name);
@@ -540,7 +540,7 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FList<Package *> &li
 			continue;
 		}
 
-		if(!_pacman_pkg_isin(ps->name(), &trail)) {
+		if(!_pacman_pkg_isin(ps->name(), trail)) {
 			/* check pmo_ignorepkg and pmo_s_ignore to make sure we haven't pulled in
 			 * something we're not supposed to.
 			 */

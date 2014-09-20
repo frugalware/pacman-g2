@@ -48,7 +48,7 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FList<libpa
 int _pacman_splitdep(const char *depstr, pmdepend_t *depend);
 FList<libpacman::Package *> &_pacman_removedeps(libpacman::Database *db, FList<libpacman::Package *> &targs);
 int _pacman_resolvedeps(pmtrans_t *trans, libpacman::Package *syncpkg, FList<libpacman::Package *> &list,
-                FPtrList &trail, FPtrList **data);
+                FList<libpacman::Package *> &trail, FPtrList **data);
 int _pacman_depcmp(libpacman::Package *pkg, pmdepend_t *dep);
 
 #endif /* _PACMAN_DEPS_H */
