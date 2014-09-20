@@ -1557,7 +1557,6 @@ int __pmtrans_t::commit(FPtrList **data)
 		if(tr->add(str, tr->m_type, tr->flags, &ps_new) == -1) {
 			goto error;
 		}
-		spkg = *tr->packages.last();
 		if(ps_new != NULL && ps_new->pkg_new != NULL) {
 			spkg = ps_new->pkg_new;
 			if(ps->m_flags & PM_TRANS_FLAG_ALLDEPS || flags & PM_TRANS_FLAG_ALLDEPS) {
