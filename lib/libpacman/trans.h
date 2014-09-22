@@ -71,6 +71,9 @@ struct __pmtrans_t
 	FPtrList find_conflicts();
 	int resolvedeps(libpacman::Package *syncpkg, FList<libpacman::Package *> &list, FList<libpacman::Package *> &trail, FPtrList **data);
 
+	/* Compatibility */
+	FList<libpacman::Package *> packages() const;
+
 	/* Capacity */
 	bool empty() const;
 

@@ -828,18 +828,7 @@ cleanup:
 	}
 	} else {
 
-	m_packages.clear();
-	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
-		pmsyncpkg_t *syncpkg = *i;
-		switch(syncpkg->type) {
-		case PM_TRANS_TYPE_ADD:
-		case PM_TRANS_TYPE_UPGRADE:
-			m_packages.add(syncpkg->pkg_new);
-			break;
-		case PM_TRANS_TYPE_REMOVE:
-			m_packages.add(syncpkg->pkg_local);
-		}
-	}
+	m_packages = packages();
 
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
 		/* Check dependencies
@@ -1898,6 +1887,24 @@ error:
 bool __pmtrans_t::empty() const
 {
 	return syncpkgs.empty();
+}
+
+FList<Package *> pmtrans_t::packages() const
+{
+	FList<Package *> ret;
+
+	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
+		pmsyncpkg_t *syncpkg = *i;
+		switch(syncpkg->type) {
+		case PM_TRANS_TYPE_ADD:
+		case PM_TRANS_TYPE_UPGRADE:
+			ret.add(syncpkg->pkg_new);
+			break;
+		case PM_TRANS_TYPE_REMOVE:
+			ret.add(syncpkg->pkg_local);
+		}
+	}
+	return ret;
 }
 
 /* vim: set ts=2 sw=2 noet: */
