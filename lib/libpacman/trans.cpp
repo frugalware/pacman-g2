@@ -836,7 +836,7 @@ cleanup:
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
 
-		lp = checkdeps(m_type, m_packages);
+		lp = checkdeps(m_type);
 
 		/* look for unsatisfied dependencies */
 		if(!lp.empty()) {
@@ -847,13 +847,13 @@ cleanup:
 						Package *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
 						if(pkg_local) {
 							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), pkg_local->name());
-							m_packages.add(pkg_local);
+							add(miss->depend.name, m_type, PM_TRANS_TYPE_REMOVE);
 						} else {
 							_pacman_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
 								miss->depend.name);
 						}
 					}
-					lp = checkdeps(m_type, m_packages);
+					lp = checkdeps(m_type);
 				}
 			}
 		}
@@ -865,6 +865,7 @@ cleanup:
 			}
 			RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
 		}
+		m_packages = packages();
 
 		if(m_type & PM_TRANS_TYPE_ADD) {
 			/* no unsatisfied deps, so look for conflicts */

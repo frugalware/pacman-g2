@@ -203,6 +203,11 @@ FList<Package *> _pacman_sortbydeps(const FList<Package *> &targets, int mode)
  * dependencies can include versions with depmod operators.
  *
  */
+FPtrList pmtrans_t::checkdeps(unsigned char op)
+{
+	return checkdeps(op, packages());
+}
+
 FPtrList pmtrans_t::checkdeps(unsigned char op, const FList<Package *> &packages)
 {
 	pmdepend_t depend;

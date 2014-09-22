@@ -67,6 +67,7 @@ struct __pmtrans_t
 	pmsyncpkg_t *add(pmsyncpkg_t *syncpkg, int flags);
 	int add(const char *target, pmtranstype_t type, int flags, pmsyncpkg_t **syncpkg = NULL);
 
+	FPtrList checkdeps(unsigned char op);
 	FPtrList checkdeps(unsigned char op, const FList<libpacman::Package *> &packages);
 	FPtrList find_conflicts();
 	int resolvedeps(libpacman::Package *syncpkg, FList<libpacman::Package *> &list, FList<libpacman::Package *> &trail, FPtrList **data);
