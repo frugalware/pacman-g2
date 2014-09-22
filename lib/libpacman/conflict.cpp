@@ -245,10 +245,10 @@ FPtrList pmtrans_t::find_conflicts()
 	if(db_local == NULL || empty() || root == NULL) {
 		return conflicts;
 	}
-	howmany = packages.size();
+	howmany = m_packages.size();
 
 	/* CHECK 1: check every target against every target */
-	for(auto i = packages.begin(), end = packages.end(); i != end; ++i) {
+	for(auto i = m_packages.begin(), end = m_packages.end(); i != end; ++i) {
 		Package *p1 = (Package*)*i;
 		remain = flib::count(i, end);
 		percent = (double)(howmany - remain + 1) / howmany;
@@ -303,7 +303,7 @@ FPtrList pmtrans_t::find_conflicts()
 					/* Check if the conflicting file has been moved to another package/target */
 					if(!ok) {
 						/* Look at all the targets */
-						for(auto k = packages.begin(), k_end = packages.end(); k != k_end && !ok; ++k) {
+						for(auto k = m_packages.begin(), k_end = m_packages.end(); k != k_end && !ok; ++k) {
 							Package *p2 = *k;
 							/* As long as they're not the current package */
 							if(strcmp(p2->name(), p->name())) {

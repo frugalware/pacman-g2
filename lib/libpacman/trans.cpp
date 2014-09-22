@@ -828,16 +828,16 @@ cleanup:
 	}
 	} else {
 
-	packages.clear();
+	m_packages.clear();
 	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
 		pmsyncpkg_t *syncpkg = *i;
 		switch(syncpkg->type) {
 		case PM_TRANS_TYPE_ADD:
 		case PM_TRANS_TYPE_UPGRADE:
-			packages.add(syncpkg->pkg_new);
+			m_packages.add(syncpkg->pkg_new);
 			break;
 		case PM_TRANS_TYPE_REMOVE:
-			packages.add(syncpkg->pkg_local);
+			m_packages.add(syncpkg->pkg_local);
 		}
 	}
 
@@ -847,7 +847,7 @@ cleanup:
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
 
-		lp = checkdeps(m_type, packages);
+		lp = checkdeps(m_type, m_packages);
 
 		/* look for unsatisfied dependencies */
 		if(!lp.empty()) {
@@ -858,13 +858,13 @@ cleanup:
 						Package *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
 						if(pkg_local) {
 							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), pkg_local->name());
-							packages.add(pkg_local);
+							m_packages.add(pkg_local);
 						} else {
 							_pacman_log(PM_LOG_ERROR, _("could not find %s in database -- skipping"),
 								miss->depend.name);
 						}
 					}
-					lp = checkdeps(m_type, packages);
+					lp = checkdeps(m_type, m_packages);
 				}
 			}
 		}
@@ -880,7 +880,7 @@ cleanup:
 		if(m_type & PM_TRANS_TYPE_ADD) {
 			/* no unsatisfied deps, so look for conflicts */
 			_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-			lp = _pacman_checkconflicts(this, packages);
+			lp = _pacman_checkconflicts(this, m_packages);
 			if(!lp.empty()) {
 				if(data != NULL) {
 					lp.swap(**data);
@@ -894,12 +894,12 @@ cleanup:
 		if(m_type == PM_TRANS_TYPE_REMOVE && m_type != PM_TRANS_TYPE_UPGRADE) {
 			if(flags & PM_TRANS_FLAG_RECURSE) {
 				_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
-				_pacman_removedeps(db_local, packages);
+				_pacman_removedeps(db_local, m_packages);
 			}
 		}
 		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		packages = _pacman_sortbydeps(packages, m_type & PM_TRANS_TYPE_ADD ? PM_TRANS_TYPE_ADD : PM_TRANS_TYPE_REMOVE);
+		m_packages = _pacman_sortbydeps(m_packages, m_type & PM_TRANS_TYPE_ADD ? PM_TRANS_TYPE_ADD : PM_TRANS_TYPE_REMOVE);
 
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
@@ -909,7 +909,7 @@ cleanup:
 	if(m_type & PM_TRANS_TYPE_ADD) {
 		EVENT(this, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
-		for (auto lp = packages.begin(), lp_end = packages.end(); lp != lp_end; ++lp) {
+		for (auto lp = m_packages.begin(), lp_end = m_packages.end(); lp != lp_end; ++lp) {
 			Package *pkg_new = *lp;
 			auto &removes = pkg_new->removes();
 
@@ -1630,9 +1630,9 @@ int __pmtrans_t::commit(FPtrList **data)
 	} else {
 	time_t t;
 
-	howmany = packages.size();
+	howmany = m_packages.size();
 
-	for(auto targ = packages.begin(), end = packages.end(); targ != end; ++targ) {
+	for(auto targ = m_packages.begin(), end = m_packages.end(); targ != end; ++targ) {
 		Package *pkg_new = NULL, *pkg_local = NULL;
 		void *event_arg0 = NULL, *event_arg1 = NULL;
 		pmtranstype_t type = m_type;
@@ -1742,7 +1742,7 @@ int __pmtrans_t::commit(FPtrList **data)
 			 * its requiredby info: it is in the process of being removed (if not
 			 * already done!)
 			 */
-			if(_pacman_pkg_isin(depend.name, packages)) {
+			if(_pacman_pkg_isin(depend.name, m_packages)) {
 				continue;
 			}
 			depinfo = db_local->find(depend.name);

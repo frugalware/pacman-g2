@@ -80,7 +80,7 @@ struct __pmtrans_t
 	int flags;
 	unsigned char state;
 	FStringList targets;
-	FList<libpacman::Package *> packages;
+	FList<libpacman::Package *> m_packages;
 	FList<pmsyncpkg_t *> syncpkgs;
 	FStringList skiplist;
 	FStringList triggers;
