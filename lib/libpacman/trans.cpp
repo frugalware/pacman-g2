@@ -865,12 +865,11 @@ cleanup:
 			}
 			RET_ERR(PM_ERR_UNSATISFIED_DEPS, -1);
 		}
-		m_packages = packages();
 
 		if(m_type & PM_TRANS_TYPE_ADD) {
 			/* no unsatisfied deps, so look for conflicts */
 			_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-			lp = checkconflicts(m_packages);
+			lp = checkconflicts();
 			if(!lp.empty()) {
 				if(data != NULL) {
 					lp.swap(**data);
@@ -880,6 +879,7 @@ cleanup:
 				RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
 			}
 		}
+		m_packages = packages();
 
 		if(m_type == PM_TRANS_TYPE_REMOVE && m_type != PM_TRANS_TYPE_UPGRADE) {
 			if(flags & PM_TRANS_FLAG_RECURSE) {

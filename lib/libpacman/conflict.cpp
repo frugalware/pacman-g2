@@ -49,6 +49,11 @@ using namespace libpacman;
  *
  * conflicts are always name only
  */
+FPtrList pmtrans_t::checkconflicts()
+{
+	return checkconflicts(packages());
+}
+
 FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
 {
 	Package *info = NULL;
