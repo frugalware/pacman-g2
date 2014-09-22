@@ -518,13 +518,8 @@ int __pmtrans_t::prepare(FPtrList **data)
 		}
 
 		/* re-order w.r.t. dependencies */
-		FList<Package *> k;
 		FList<pmsyncpkg_t *> l;
-		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
-			pmsyncpkg_t *s = *i;
-			k.add(s->pkg_new);
-		}
-		FList<Package *> m = _pacman_sortbydeps(k, PM_TRANS_TYPE_ADD);
+		FList<Package *> m = _pacman_sortbydeps(packages(), PM_TRANS_TYPE_ADD);
 		for(auto i = m.begin(), end = m.end(); i != end; ++i) {
 			for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end; ++j) {
 				pmsyncpkg_t *s = *j;
@@ -1899,6 +1894,7 @@ FList<Package *> pmtrans_t::packages() const
 		switch(syncpkg->type) {
 		case PM_TRANS_TYPE_ADD:
 		case PM_TRANS_TYPE_UPGRADE:
+		case PM_TRANS_TYPE_SYNC:
 			ret.add(syncpkg->pkg_new);
 			break;
 		case PM_TRANS_TYPE_REMOVE:
