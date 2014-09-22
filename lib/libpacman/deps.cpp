@@ -395,17 +395,15 @@ out:
  * I mean dependencies that are *only* required for packages in the target
  * list, so they can be safely removed.
  */
-void pmtrans_t::removedeps(Database *db)
+void pmtrans_t::removedeps()
 {
-	if(db == NULL) {
-		return;
-	}
 	FList<Package *> &targs = m_packages;
+	Database *db = m_handle->db_local;
 
 	bool again = false;
 	for(auto i = targs.begin(), end = targs.end(); i != end; i = again ? targs.begin() : i.next()) {
 		again = false;
-		auto &depends = ((Package *)*i)->depends();
+		auto &depends = (*i)->depends();
 		for(auto j = depends.begin(), j_end = depends.end(); j != j_end; ++j) {
 			pmdepend_t depend;
 			Package *dep;

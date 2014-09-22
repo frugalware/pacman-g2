@@ -73,7 +73,7 @@ struct __pmtrans_t
 	FPtrList checkdeps(unsigned char op);
 	FPtrList checkdeps(unsigned char op, const FList<libpacman::Package *> &packages);
 	FPtrList find_conflicts();
-	void removedeps(libpacman::Database *db);
+	void removedeps();
 	int resolvedeps(libpacman::Package *syncpkg, FList<libpacman::Package *> &list, FList<libpacman::Package *> &trail, FPtrList **data);
 
 	/* Compatibility */
