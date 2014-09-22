@@ -33,8 +33,6 @@ struct __pmconflict_t {
 	char ctarget[PKG_NAME_LEN];
 };
 
-FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FList<libpacman::Package *> &packages);
-
 #endif /* _PACMAN_CONFLICT_H */
 
 /* vim: set ts=2 sw=2 noet: */

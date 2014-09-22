@@ -49,14 +49,14 @@ using namespace libpacman;
  *
  * conflicts are always name only
  */
-FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FList<Package *> &packages)
+FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
 {
 	Package *info = NULL;
 	FPtrList baddeps;
 	pmdepmissing_t *miss = NULL;
 	int howmany, remain;
 	double percent;
-	Database *db_local = trans->m_handle->db_local;
+	Database *db_local = m_handle->db_local;
 
 	if(db_local == NULL) {
 		return baddeps;
@@ -72,8 +72,8 @@ FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FList<Package *> &packag
 		remain = flib::count(i, end);
 		percent = (double)(howmany - remain + 1) / howmany;
 
-		if(trans->m_type == PM_TRANS_TYPE_SYNC) {
-			PROGRESS(trans, PM_TRANS_PROGRESS_INTERCONFLICTS_START, "",
+		if(m_type == PM_TRANS_TYPE_SYNC) {
+			PROGRESS(this, PM_TRANS_PROGRESS_INTERCONFLICTS_START, "",
 					(percent * 100), howmany,
 					howmany - remain + 1);
 		}
