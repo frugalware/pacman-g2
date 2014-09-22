@@ -85,7 +85,7 @@ FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
 
 		auto &conflicts = tp->conflicts();
 		for(auto j = conflicts.begin(), j_end = conflicts.end(); j != j_end; ++j) {
-			const char *conflict = (const char *)*j;
+			const char *conflict = *j;
 			if(!strcmp(tp->name(), conflict)) {
 				/* a package cannot conflict with itself -- that's just not nice */
 				continue;
@@ -94,7 +94,7 @@ FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs db"), tp->name());
 			auto &cache = _pacman_db_get_pkgcache(db_local);
 			for(auto k = cache.begin(), k_end = cache.end(); k != k_end; ++k) {
-				Package *dp = (Package *)*k;
+				Package *dp = *k;
 				if(!strcmp(dp->name(), tp->name())) {
 					/* a package cannot conflict with itself -- that's just not nice */
 					continue;
@@ -109,7 +109,7 @@ FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
 					/* see if dp provides something in tp's conflict list */
 					auto &provides = dp->provides();
 					for(auto m = provides.begin(), m_end = provides.end(); m != m_end; ++m) {
-						if(!strcmp((const char *)*m, conflict)) {
+						if(!strcmp(*m, conflict)) {
 							/* confict */
 							_pacman_log(PM_LOG_DEBUG, _("targs vs db: found %s as a conflict for %s"),
 							          dp->name(), tp->name());
@@ -122,7 +122,7 @@ FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
 			/* CHECK 2: check targets against targets */
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs targs"), tp->name());
 			for(auto k = packages.begin(), k_end = packages.end(); k != k_end; ++k) {
-				Package *otp = (Package *)*k;
+				Package *otp = *k;
 				if(!strcmp(otp->name(), tp->name())) {
 					/* a package cannot conflict with itself -- that's just not nice */
 					continue;
@@ -137,7 +137,7 @@ FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
 					/* see if otp provides something in tp's conflict list */
 					auto &provides = otp->provides();
 					for(auto m = provides.begin(), m_end = provides.end(); m != m_end; ++m) {
-						if(!strcmp((const char *)*m, conflict)) {
+						if(!strcmp(*m, conflict)) {
 							_pacman_log(PM_LOG_DEBUG, _("targs vs targs: found %s as a conflict for %s"),
 							          otp->name(), tp->name());
 							miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, otp->name(), NULL);
@@ -154,7 +154,7 @@ FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
 			FStringList *conflicts;
 			int usenewconflicts = 0;
 
-			info = (Package *)*k;
+			info = *k;
 			if(!strcmp(info->name(), tp->name())) {
 				/* a package cannot conflict with itself -- that's just not nice */
 				continue;
@@ -163,7 +163,7 @@ FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
 			 * conflicts list from the new package, not the old one (*info)
 			 */
 			for(auto j = packages.begin(), j_end = packages.end(); j != j_end; ++j) {
-				Package *pkg = (Package *)*j;
+				Package *pkg = *j;
 				if(!strcmp(pkg->name(), info->name())) {
 					/* Use the new, to-be-installed package's conflicts */
 					conflicts = &pkg->conflicts();
@@ -175,7 +175,7 @@ FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
 				conflicts = &info->conflicts();
 			}
 			for(auto j = conflicts->begin(), j_end = conflicts->end(); j != j_end; ++j) {
-				if(!strcmp(tp->name(), (const char *)*j)) {
+				if(!strcmp(tp->name(), *j)) {
 					_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
 					          info->name(), tp->name());
 					miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name(), NULL);
@@ -185,7 +185,7 @@ FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
 					for(auto m = conflicts->begin(), m_end = conflicts->end(); m != m_end; ++m) {
 						auto &provides = tp->provides();
 						for(auto n = provides.begin(), n_end = provides.end(); n != n_end; ++n) {
-							if(!strcmp((const char *)*m, (const char *)*n)) {
+							if(!strcmp(*m, *n)) {
 								_pacman_log(PM_LOG_DEBUG, _("db vs targs: found %s as a conflict for %s"),
 								          info->name(), tp->name());
 								miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_CONFLICT, PM_DEP_MOD_ANY, info->name(), NULL);
@@ -210,8 +210,8 @@ static FStringList chk_fileconflicts(const FStringList &filesA, const FStringLis
 	auto pA = filesA.begin(), pB = filesB.begin();
 
 	while(pA != filesA.end() && pB != filesB.end()) {
-		const char *strA = (const char *)*pA;
-		const char *strB = (const char *)*pB;
+		const char *strA = *pA;
+		const char *strB = *pB;
 		/* skip directories, we don't care about dir conflicts */
 		if(strA[strlen(strA)-1] == '/') {
 			++pA;
@@ -254,12 +254,12 @@ FPtrList pmtrans_t::find_conflicts()
 
 	/* CHECK 1: check every target against every target */
 	for(auto i = m_packages.begin(), end = m_packages.end(); i != end; ++i) {
-		Package *p1 = (Package*)*i;
+		Package *p1 = *i;
 		remain = flib::count(i, end);
 		percent = (double)(howmany - remain + 1) / howmany;
 		PROGRESS(this, PM_TRANS_PROGRESS_CONFLICTS_START, "", (percent * 100), howmany, howmany - remain + 1);
 		for(auto j = i; j != end; ++j) {
-			Package *p2 = (Package*)*j;
+			Package *p2 = *j;
 			if(strcmp(p1->name(), p2->name())) {
 				auto ret = chk_fileconflicts(p1->files(), p2->files());
 				for(auto k = ret.begin(), k_end = ret.end(); k != k_end; ++k) {
@@ -269,7 +269,7 @@ FPtrList pmtrans_t::find_conflicts()
 						}
 						conflict->type = PM_CONFLICT_TYPE_TARGET;
 						STRNCPY(conflict->target, p1->name(), PKG_NAME_LEN);
-						STRNCPY(conflict->file, (const char *)*k, CONFLICT_FILE_LEN);
+						STRNCPY(conflict->file, *k, CONFLICT_FILE_LEN);
 						STRNCPY(conflict->ctarget, p2->name(), PKG_NAME_LEN);
 						conflicts.add(conflict);
 				}
@@ -277,7 +277,7 @@ FPtrList pmtrans_t::find_conflicts()
 		}
 
 		/* CHECK 2: check every target against the filesystem */
-		p = (Package*)*i;
+		p = *i;
 		dbpkg = NULL;
 		auto &files = p->files();
 		for(auto j = files.begin(), j_end = files.end(); j != j_end; ++j) {
