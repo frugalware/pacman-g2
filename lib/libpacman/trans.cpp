@@ -928,7 +928,7 @@ cleanup:
 			EVENT(this, PM_TRANS_EVT_FILECONFLICTS_START, NULL, NULL);
 
 			_pacman_log(PM_LOG_FLOW1, _("looking for file conflicts"));
-			lp = _pacman_db_find_conflicts(this);
+			lp = find_conflicts();
 			if(!lp.empty()) {
 				if(data) {
 					lp.swap(**data);

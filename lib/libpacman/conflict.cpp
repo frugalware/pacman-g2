@@ -231,7 +231,7 @@ static FStringList chk_fileconflicts(const FStringList &filesA, const FStringLis
 	return ret;
 }
 
-FPtrList _pacman_db_find_conflicts(pmtrans_t *trans)
+FPtrList pmtrans_t::find_conflicts()
 {
 	char path[PATH_MAX+1];
 	struct stat buf;
@@ -239,20 +239,20 @@ FPtrList _pacman_db_find_conflicts(pmtrans_t *trans)
 	Package *p, *dbpkg;
 	double percent;
 	int howmany, remain;
-	Database *db_local = trans->m_handle->db_local;
-	const char *root = trans->m_handle->root;
+	Database *db_local = m_handle->db_local;
+	const char *root = m_handle->root;
 
-	if(db_local == NULL || trans->empty() || root == NULL) {
+	if(db_local == NULL || empty() || root == NULL) {
 		return conflicts;
 	}
-	howmany = trans->packages.size();
+	howmany = packages.size();
 
 	/* CHECK 1: check every target against every target */
-	for(auto i = trans->packages.begin(), end = trans->packages.end(); i != end; ++i) {
+	for(auto i = packages.begin(), end = packages.end(); i != end; ++i) {
 		Package *p1 = (Package*)*i;
 		remain = flib::count(i, end);
 		percent = (double)(howmany - remain + 1) / howmany;
-		PROGRESS(trans, PM_TRANS_PROGRESS_CONFLICTS_START, "", (percent * 100), howmany, howmany - remain + 1);
+		PROGRESS(this, PM_TRANS_PROGRESS_CONFLICTS_START, "", (percent * 100), howmany, howmany - remain + 1);
 		for(auto j = i; j != end; ++j) {
 			Package *p2 = (Package*)*j;
 			if(strcmp(p1->name(), p2->name())) {
@@ -303,8 +303,8 @@ FPtrList _pacman_db_find_conflicts(pmtrans_t *trans)
 					/* Check if the conflicting file has been moved to another package/target */
 					if(!ok) {
 						/* Look at all the targets */
-						for(auto k = trans->packages.begin(), k_end = trans->packages.end(); k != k_end && !ok; ++k) {
-							Package *p2 = (Package *)*k;
+						for(auto k = packages.begin(), k_end = packages.end(); k != k_end && !ok; ++k) {
+							Package *p2 = *k;
 							/* As long as they're not the current package */
 							if(strcmp(p2->name(), p->name())) {
 								Package *dbpkg2 = NULL;
@@ -332,7 +332,7 @@ FPtrList _pacman_db_find_conflicts(pmtrans_t *trans)
 									 * Our workaround is to scan through all "old" packages and all "new"
 									 * ones, looking for files that jump to different packages.
 									 */
-									trans->skiplist.add(filestr);
+									skiplist.add(filestr);
 								}
 							}
 						}

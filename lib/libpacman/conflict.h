@@ -34,7 +34,6 @@ struct __pmconflict_t {
 };
 
 FPtrList _pacman_checkconflicts(pmtrans_t *trans, const FList<libpacman::Package *> &packages);
-FPtrList _pacman_db_find_conflicts(pmtrans_t *trans);
 
 #endif /* _PACMAN_CONFLICT_H */
 
