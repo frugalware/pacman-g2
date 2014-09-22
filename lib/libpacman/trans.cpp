@@ -877,38 +877,38 @@ cleanup:
 		}
 
 		if(m_type & PM_TRANS_TYPE_ADD) {
-		/* no unsatisfied deps, so look for conflicts */
-		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		lp = _pacman_checkconflicts(this, packages);
-		if(!lp.empty()) {
-			if(data != NULL) {
-				lp.swap(**data);
-			} else {
-				lp.clear();
+			/* no unsatisfied deps, so look for conflicts */
+			_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
+			lp = _pacman_checkconflicts(this, packages);
+			if(!lp.empty()) {
+				if(data != NULL) {
+					lp.swap(**data);
+				} else {
+					lp.clear();
+				}
+				RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
 			}
-			RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
-		}
 
-		/* re-order w.r.t. dependencies */
-		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		FList<Package *> lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_ADD);
-		/* free the old alltargs */
-		packages.clear();
-		packages.swap(lp);
+			/* re-order w.r.t. dependencies */
+			_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
+			FList<Package *> lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_ADD);
+			/* free the old alltargs */
+			packages.clear();
+			packages.swap(lp);
 		}
 
 		if(m_type == PM_TRANS_TYPE_REMOVE && m_type != PM_TRANS_TYPE_UPGRADE) {
-		if(flags & PM_TRANS_FLAG_RECURSE) {
-			_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
-			_pacman_removedeps(db_local, packages);
-		}
+			if(flags & PM_TRANS_FLAG_RECURSE) {
+				_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
+				_pacman_removedeps(db_local, packages);
+			}
 
-		/* re-order w.r.t. dependencies */
-		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		FList<Package *> lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_REMOVE);
-		/* free the old alltargs */
-		packages.clear();
-		packages.swap(lp);
+			/* re-order w.r.t. dependencies */
+			_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
+			FList<Package *> lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_REMOVE);
+			/* free the old alltargs */
+			packages.clear();
+			packages.swap(lp);
 		}
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
@@ -916,44 +916,44 @@ cleanup:
 	/* Cleaning up
 	 */
 	if(m_type & PM_TRANS_TYPE_ADD) {
-	EVENT(this, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
-	_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
-	for (auto lp = packages.begin(), lp_end = packages.end(); lp != lp_end; ++lp) {
-		Package *pkg_new = *lp;
-		auto &removes = pkg_new->removes();
+		EVENT(this, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
+		_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
+		for (auto lp = packages.begin(), lp_end = packages.end(); lp != lp_end; ++lp) {
+			Package *pkg_new = *lp;
+			auto &removes = pkg_new->removes();
 
-		for (auto rmlist = removes.begin(), rmlist_end = removes.end(); rmlist != rmlist_end; ++rmlist) {
-			char rm_fname[PATH_MAX];
+			for (auto rmlist = removes.begin(), rmlist_end = removes.end(); rmlist != rmlist_end; ++rmlist) {
+				char rm_fname[PATH_MAX];
 
-			snprintf(rm_fname, PATH_MAX, "%s%s", m_handle->root, *rmlist);
-			remove(rm_fname);
-		}
-	}
-	EVENT(this, PM_TRANS_EVT_CLEANUP_DONE, NULL, NULL);
-
-	/* Check for file conflicts
-	 */
-	if(!(flags & PM_TRANS_FLAG_FORCE)) {
-		EVENT(this, PM_TRANS_EVT_FILECONFLICTS_START, NULL, NULL);
-
-		_pacman_log(PM_LOG_FLOW1, _("looking for file conflicts"));
-		lp = _pacman_db_find_conflicts(this);
-		if(!lp.empty()) {
-			if(data) {
-				lp.swap(**data);
-			} else {
-				lp.clear();
+				snprintf(rm_fname, PATH_MAX, "%s%s", m_handle->root, *rmlist);
+				remove(rm_fname);
 			}
-			RET_ERR(PM_ERR_FILE_CONFLICTS, -1);
 		}
-		EVENT(this, PM_TRANS_EVT_FILECONFLICTS_DONE, NULL, NULL);
-	}
+		EVENT(this, PM_TRANS_EVT_CLEANUP_DONE, NULL, NULL);
+
+		/* Check for file conflicts
+		 */
+		if(!(flags & PM_TRANS_FLAG_FORCE)) {
+			EVENT(this, PM_TRANS_EVT_FILECONFLICTS_START, NULL, NULL);
+
+			_pacman_log(PM_LOG_FLOW1, _("looking for file conflicts"));
+			lp = _pacman_db_find_conflicts(this);
+			if(!lp.empty()) {
+				if(data) {
+					lp.swap(**data);
+				} else {
+					lp.clear();
+				}
+				RET_ERR(PM_ERR_FILE_CONFLICTS, -1);
+			}
+			EVENT(this, PM_TRANS_EVT_FILECONFLICTS_DONE, NULL, NULL);
+		}
 
 #ifndef __sun__
-	if(_pacman_check_freespace(this, (pmlist_t **)data) == -1) {
+		if(_pacman_check_freespace(this, (pmlist_t **)data) == -1) {
 			/* pm_errno is set by check_freespace */
 			return(-1);
-	}
+		}
 #endif
 	}
 	}
