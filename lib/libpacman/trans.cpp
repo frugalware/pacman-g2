@@ -467,19 +467,6 @@ int __pmtrans_t::prepare(FPtrList **data)
 		*data = new FPtrList();
 	}
 
-	packages.clear();
-	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
-		pmsyncpkg_t *syncpkg = *i;
-		switch(syncpkg->type) {
-		case PM_TRANS_TYPE_ADD:
-		case PM_TRANS_TYPE_UPGRADE:
-			packages.add(syncpkg->pkg_new);
-			break;
-		case PM_TRANS_TYPE_REMOVE:
-			packages.add(syncpkg->pkg_local);
-		}
-	}
-
 	/* If there's nothing to do, return without complaining */
 	if(empty()) {
 		return(0);
@@ -501,7 +488,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
 			Package *spkg = (*i)->pkg_new;
-			if(_pacman_resolvedeps(this, spkg, list, trail, data) == -1) {
+			if(resolvedeps(spkg, list, trail, data) == -1) {
 				/* pm_errno is set by resolvedeps */
 				ret = -1;
 				goto cleanup;
@@ -552,7 +539,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for unresolvable dependencies"));
-		deps = _pacman_checkdeps(this, PM_TRANS_TYPE_UPGRADE, list);
+		deps = checkdeps(PM_TRANS_TYPE_UPGRADE, list);
 		if(!deps.empty()) {
 			if(data) {
 				deps.swap(**data);
@@ -753,7 +740,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 		}
 		if(!list.empty()) {
 			_pacman_log(PM_LOG_FLOW1, _("checking dependencies of packages designated for removal"));
-			deps = _pacman_checkdeps(this, PM_TRANS_TYPE_REMOVE, list);
+			deps = checkdeps(PM_TRANS_TYPE_REMOVE, list);
 			if(!deps.empty()) {
 				int errorout = 0;
 				for(auto i = deps.begin(), end = deps.end(); i != end; ++i) {
@@ -840,13 +827,27 @@ cleanup:
 		return ret;
 	}
 	} else {
-	/* Check dependencies
-	 */
+
+	packages.clear();
+	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
+		pmsyncpkg_t *syncpkg = *i;
+		switch(syncpkg->type) {
+		case PM_TRANS_TYPE_ADD:
+		case PM_TRANS_TYPE_UPGRADE:
+			packages.add(syncpkg->pkg_new);
+			break;
+		case PM_TRANS_TYPE_REMOVE:
+			packages.add(syncpkg->pkg_local);
+		}
+	}
+
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
+		/* Check dependencies
+		 */
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("looking for unsatisfied dependencies"));
 
-		lp = _pacman_checkdeps(this, m_type, packages);
+		lp = checkdeps(m_type, packages);
 
 		/* look for unsatisfied dependencies */
 		if(!lp.empty()) {
@@ -863,7 +864,7 @@ cleanup:
 								miss->depend.name);
 						}
 					}
-					lp = _pacman_checkdeps(this, m_type, packages);
+					lp = checkdeps(m_type, packages);
 				}
 			}
 		}

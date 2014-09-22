@@ -203,13 +203,13 @@ FList<Package *> _pacman_sortbydeps(const FList<Package *> &targets, int mode)
  * dependencies can include versions with depmod operators.
  *
  */
-FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FList<Package *> &packages)
+FPtrList pmtrans_t::checkdeps(unsigned char op, const FList<Package *> &packages)
 {
 	pmdepend_t depend;
 	int cmp;
 	FPtrList baddeps;
 	pmdepmissing_t *miss = NULL;
-	Database *db_local = trans->m_handle->db_local;
+	Database *db_local = m_handle->db_local;
 
 	if(db_local == NULL) {
 		return baddeps;
@@ -267,14 +267,14 @@ FPtrList _pacman_checkdeps(pmtrans_t *trans, unsigned char op, const FList<Packa
 					/* check requiredby fields */
 					if(!_pacman_pkg_isin(requiredby_name, packages)) {
 						/* check if a package in trans->packages provides this package */
-						for(auto k = trans->packages.begin(), k_end = trans->packages.end(); !found && k != k_end; ++k) {
+						for(auto k = packages.begin(), k_end = packages.end(); !found && k != k_end; ++k) {
 							Package *spkg = *k;
 
 							if(spkg && spkg->provides(pkg_local->name())) {
 								found = true;
 							}
 						}
-						for(auto k = trans->syncpkgs.begin(), k_end = trans->syncpkgs.end(); !found && k != k_end; ++k) {
+						for(auto k = syncpkgs.begin(), k_end = syncpkgs.end(); !found && k != k_end; ++k) {
 							pmsyncpkg_t *ps = *k;
 
 							if(ps->pkg_new != NULL && ps->pkg_new->provides(pkg_local->name())) {
@@ -471,19 +471,18 @@ FList<Package *> &_pacman_removedeps(Database *db, FList<Package *> &targs)
  *
  * make sure *list and *trail are already initialized
  */
-int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FList<Package *> &list,
+int pmtrans_t::resolvedeps(Package *syncpkg, FList<Package *> &list,
                       FList<Package *> &trail, FPtrList **data)
 {
 	FPtrList deps;
 	FList<Package *> targ;
-	Handle *handle = trans->m_handle;
 
 	if(handle->dbs_sync.empty() || syncpkg == NULL) {
 		return(-1);
 	}
 
 	targ.add(syncpkg);
-	deps = _pacman_checkdeps(trans, PM_TRANS_TYPE_ADD, targ);
+	deps = checkdeps(PM_TRANS_TYPE_ADD, targ);
 
 	if(deps.empty()) {
 		return 0;
@@ -547,12 +546,12 @@ int _pacman_resolvedeps(pmtrans_t *trans, Package *syncpkg, FList<Package *> &li
 			int usedep = 1;
 			if(_pacman_list_is_strin(ps->name(), &handle->ignorepkg)) {
 				Package *dummypkg = new Package(miss->target, NULL);
-				QUESTION(trans, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg, ps, NULL, &usedep);
+				QUESTION(this, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg, ps, NULL, &usedep);
 				dummypkg->release();
 			}
 			if(usedep) {
 				trail.add(ps);
-				if(_pacman_resolvedeps(trans, ps, list, trail, data)) {
+				if(resolvedeps(ps, list, trail, data)) {
 					goto error;
 				}
 				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s (needed by %s)"),
