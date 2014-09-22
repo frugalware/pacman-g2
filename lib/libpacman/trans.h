@@ -33,6 +33,7 @@ typedef struct __pmtrans_t pmtrans_t;
 
 namespace libpacman {
 
+class Database;
 class Handle;
 class Package;
 
@@ -72,6 +73,7 @@ struct __pmtrans_t
 	FPtrList checkdeps(unsigned char op);
 	FPtrList checkdeps(unsigned char op, const FList<libpacman::Package *> &packages);
 	FPtrList find_conflicts();
+	void removedeps(libpacman::Database *db);
 	int resolvedeps(libpacman::Package *syncpkg, FList<libpacman::Package *> &list, FList<libpacman::Package *> &trail, FPtrList **data);
 
 	/* Compatibility */

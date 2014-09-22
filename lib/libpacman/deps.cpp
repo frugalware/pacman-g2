@@ -395,11 +395,12 @@ out:
  * I mean dependencies that are *only* required for packages in the target
  * list, so they can be safely removed.
  */
-FList<Package *> &_pacman_removedeps(Database *db, FList<Package *> &targs)
+void pmtrans_t::removedeps(Database *db)
 {
 	if(db == NULL) {
-		return targs;
+		return;
 	}
+	FList<Package *> &targs = m_packages;
 
 	bool again = false;
 	for(auto i = targs.begin(), end = targs.end(); i != end; i = again ? targs.begin() : i.next()) {
@@ -461,7 +462,6 @@ FList<Package *> &_pacman_removedeps(Database *db, FList<Package *> &targs)
 			}
 		}
 	}
-	return targs;
 }
 
 /* populates *list with packages that need to be installed to satisfy all

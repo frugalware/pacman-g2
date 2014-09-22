@@ -45,7 +45,6 @@ FPtrList &_pacman_depmisslist_add(FPtrList &misslist, pmdepmissing_t *miss);
 
 FList<libpacman::Package *> _pacman_sortbydeps(const FList<libpacman::Package *> &targets, int mode);
 int _pacman_splitdep(const char *depstr, pmdepend_t *depend);
-FList<libpacman::Package *> &_pacman_removedeps(libpacman::Database *db, FList<libpacman::Package *> &targs);
 int _pacman_depcmp(libpacman::Package *pkg, pmdepend_t *dep);
 
 #endif /* _PACMAN_DEPS_H */

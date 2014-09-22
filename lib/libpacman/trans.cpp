@@ -884,7 +884,7 @@ cleanup:
 		if(m_type == PM_TRANS_TYPE_REMOVE && m_type != PM_TRANS_TYPE_UPGRADE) {
 			if(flags & PM_TRANS_FLAG_RECURSE) {
 				_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
-				_pacman_removedeps(db_local, m_packages);
+				removedeps(db_local);
 			}
 		}
 		/* re-order w.r.t. dependencies */
