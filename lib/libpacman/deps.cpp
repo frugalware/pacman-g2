@@ -267,13 +267,6 @@ FPtrList pmtrans_t::checkdeps(unsigned char op, const FList<Package *> &packages
 					/* check requiredby fields */
 					if(!_pacman_pkg_isin(requiredby_name, packages)) {
 						/* check if a package in trans->packages provides this package */
-						for(auto k = packages.begin(), k_end = packages.end(); !found && k != k_end; ++k) {
-							Package *spkg = *k;
-
-							if(spkg && spkg->provides(pkg_local->name())) {
-								found = true;
-							}
-						}
 						for(auto k = syncpkgs.begin(), k_end = syncpkgs.end(); !found && k != k_end; ++k) {
 							pmsyncpkg_t *ps = *k;
 
