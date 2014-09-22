@@ -888,13 +888,6 @@ cleanup:
 				}
 				RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
 			}
-
-			/* re-order w.r.t. dependencies */
-			_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-			FList<Package *> lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_ADD);
-			/* free the old alltargs */
-			packages.clear();
-			packages.swap(lp);
 		}
 
 		if(m_type == PM_TRANS_TYPE_REMOVE && m_type != PM_TRANS_TYPE_UPGRADE) {
@@ -902,14 +895,11 @@ cleanup:
 				_pacman_log(PM_LOG_FLOW1, _("finding removable dependencies"));
 				_pacman_removedeps(db_local, packages);
 			}
-
-			/* re-order w.r.t. dependencies */
-			_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-			FList<Package *> lp = _pacman_sortbydeps(packages, PM_TRANS_TYPE_REMOVE);
-			/* free the old alltargs */
-			packages.clear();
-			packages.swap(lp);
 		}
+		/* re-order w.r.t. dependencies */
+		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
+		packages = _pacman_sortbydeps(packages, m_type & PM_TRANS_TYPE_ADD ? PM_TRANS_TYPE_ADD : PM_TRANS_TYPE_REMOVE);
+
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
 
