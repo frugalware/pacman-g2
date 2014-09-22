@@ -43,7 +43,6 @@ struct __pmdepmissing_t {
 
 FPtrList &_pacman_depmisslist_add(FPtrList &misslist, pmdepmissing_t *miss);
 
-FList<libpacman::Package *> _pacman_sortbydeps(const FList<libpacman::Package *> &targets, int mode);
 int _pacman_splitdep(const char *depstr, pmdepend_t *depend);
 int _pacman_depcmp(libpacman::Package *pkg, pmdepend_t *dep);
 

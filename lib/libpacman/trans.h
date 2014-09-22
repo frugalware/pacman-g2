@@ -75,6 +75,8 @@ struct __pmtrans_t
 	FPtrList find_conflicts();
 	void removedeps();
 	int resolvedeps(libpacman::Package *syncpkg, FList<libpacman::Package *> &list, FList<libpacman::Package *> &trail, FPtrList **data);
+	FList<libpacman::Package *> sortbydeps();
+	FList<libpacman::Package *> sortbydeps(const FList<libpacman::Package *> &targets, int mode);
 
 	/* Compatibility */
 	FList<libpacman::Package *> packages() const;

@@ -115,7 +115,12 @@ FPtrList &_pacman_depmisslist_add(FPtrList &misslist, pmdepmissing_t *miss)
  * This function returns the new FPtrList* target list.
  *
  */
-FList<Package *> _pacman_sortbydeps(const FList<Package *> &targets, int mode)
+FList<Package *> pmtrans_t::sortbydeps()
+{
+	return sortbydeps(packages(), PM_TRANS_TYPE_ADD);
+}
+
+FList<Package *> pmtrans_t::sortbydeps(const FList<Package *> &targets, int mode)
 {
 	FList<Package *> newtargs;
 	FPtrList vertices;

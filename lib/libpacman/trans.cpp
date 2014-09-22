@@ -519,7 +519,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 
 		/* re-order w.r.t. dependencies */
 		FList<pmsyncpkg_t *> l;
-		FList<Package *> m = _pacman_sortbydeps(packages(), PM_TRANS_TYPE_ADD);
+		FList<Package *> m = sortbydeps();
 		for(auto i = m.begin(), end = m.end(); i != end; ++i) {
 			for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end; ++j) {
 				pmsyncpkg_t *s = *j;
@@ -884,7 +884,7 @@ cleanup:
 		}
 		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		m_packages = _pacman_sortbydeps(m_packages, m_type & PM_TRANS_TYPE_ADD ? PM_TRANS_TYPE_ADD : PM_TRANS_TYPE_REMOVE);
+		m_packages = sortbydeps(m_packages, m_type & PM_TRANS_TYPE_ADD ? PM_TRANS_TYPE_ADD : PM_TRANS_TYPE_REMOVE);
 
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
