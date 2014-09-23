@@ -116,16 +116,6 @@ int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
 {
 	ASSERT(list != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	FPtrListIterator *end = f_ptrlist_end(list), *it = f_ptrlist_first(list), *next;
-
-	while(it != end) {
-		next = it->next();
-		if(visitor != NULL) {
-			f_visit(f_ptrlistitem_data(it), visitor);
-		}
-		free(it);
-		it = next;
-	}
 	list->clear(/* visitor */);
 	return 0;
 }

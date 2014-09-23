@@ -708,8 +708,27 @@ public:
 	/* Modifiers */
 	void clear()
 	{
-		// FIXME: lets leak for now
-		m_next = m_previous = this;
+		erase(begin(), end());
+	}
+
+	iterator erase(iterator position)
+	{
+		ASSERT(position != c_end(), RET_ERR(PM_ERR_WRONG_ARGS, position));
+
+		FListItem<T> *erased = (iterable)position;
+		FListItem<T> *next = erased->next();
+		erased->remove();
+		delete erased;
+		return iterator(next);
+	}
+
+	iterator erase(iterator first, iterator last)
+	{
+		auto it = first;
+		while(it != last) {
+			it = erase(it);
+		}
+		return it;
 	}
 
 	/* Operations */
