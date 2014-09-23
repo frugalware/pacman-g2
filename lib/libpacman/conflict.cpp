@@ -303,8 +303,8 @@ FPtrList pmtrans_t::find_conflicts()
 					/* Check if the conflicting file has been moved to another package/target */
 					if(!ok) {
 						/* Look at all the targets */
-						for(auto k = m_packages.begin(), k_end = m_packages.end(); k != k_end && !ok; ++k) {
-							Package *p2 = *k;
+						for(auto k = syncpkgs.begin(), k_end = syncpkgs.end(); k != k_end && !ok; ++k) {
+							Package *p2 = (*k)->pkg_new;
 							/* As long as they're not the current package */
 							if(strcmp(p2->name(), p->name())) {
 								Package *dbpkg2 = NULL;

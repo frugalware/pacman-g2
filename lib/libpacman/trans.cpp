@@ -874,9 +874,8 @@ cleanup:
 	if(m_type & PM_TRANS_TYPE_ADD) {
 		EVENT(this, PM_TRANS_EVT_CLEANUP_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("cleaning up"));
-		for (auto lp = m_packages.begin(), lp_end = m_packages.end(); lp != lp_end; ++lp) {
-			Package *pkg_new = *lp;
-			auto &removes = pkg_new->removes();
+		for (auto lp = syncpkgs.begin(), lp_end = syncpkgs.end(); lp != lp_end; ++lp) {
+			auto &removes = (*lp)->pkg_new->removes();
 
 			for (auto rmlist = removes.begin(), rmlist_end = removes.end(); rmlist != rmlist_end; ++rmlist) {
 				char rm_fname[PATH_MAX];
