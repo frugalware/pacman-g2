@@ -535,7 +535,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 		EVENT(this, PM_TRANS_EVT_INTERCONFLICTS_START, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for conflicts"));
-		deps = checkconflicts(list);
+		deps = checkconflicts();
 		if(!deps.empty()) {
 			int errorout = 0;
 			FStringList asked;

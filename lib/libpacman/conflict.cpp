@@ -51,11 +51,6 @@ using namespace libpacman;
  */
 FPtrList pmtrans_t::checkconflicts()
 {
-	return checkconflicts(packages());
-}
-
-FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
-{
 	Package *info = NULL;
 	FPtrList baddeps;
 	pmdepmissing_t *miss = NULL;
@@ -67,10 +62,10 @@ FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
 		return baddeps;
 	}
 
-	howmany = packages.size();
+	howmany = syncpkgs.size();
 
-	for(auto i = packages.begin(), end = packages.end(); i != end; ++i) {
-		Package *tp = *i;
+	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
+		Package *tp = (*i)->pkg_new;
 		if(tp == NULL) {
 			continue;
 		}
@@ -121,8 +116,8 @@ FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
 			}
 			/* CHECK 2: check targets against targets */
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs targs"), tp->name());
-			for(auto k = packages.begin(), k_end = packages.end(); k != k_end; ++k) {
-				Package *otp = *k;
+			for(auto k = syncpkgs.begin(), k_end = syncpkgs.end(); k != k_end; ++k) {
+				Package *otp = (*k)->pkg_new;
 				if(!strcmp(otp->name(), tp->name())) {
 					/* a package cannot conflict with itself -- that's just not nice */
 					continue;
@@ -162,8 +157,8 @@ FPtrList pmtrans_t::checkconflicts(const FList<Package *> &packages)
 			/* If this package (*info) is also in our packages FPtrList, use the
 			 * conflicts list from the new package, not the old one (*info)
 			 */
-			for(auto j = packages.begin(), j_end = packages.end(); j != j_end; ++j) {
-				Package *pkg = *j;
+			for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end; ++j) {
+				Package *pkg = (*j)->pkg_new;
 				if(!strcmp(pkg->name(), info->name())) {
 					/* Use the new, to-be-installed package's conflicts */
 					conflicts = &pkg->conflicts();

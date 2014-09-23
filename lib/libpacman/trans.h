@@ -69,7 +69,6 @@ struct __pmtrans_t
 	int add(const char *target, pmtranstype_t type, int flags, pmsyncpkg_t **syncpkg = NULL);
 
 	FPtrList checkconflicts();
-	FPtrList checkconflicts(const FList<libpacman::Package *> &packages);
 	FPtrList checkdeps(unsigned char op);
 	FPtrList find_conflicts();
 	void removedeps();
