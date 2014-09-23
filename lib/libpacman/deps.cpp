@@ -210,11 +210,6 @@ FList<Package *> pmtrans_t::sortbydeps(const FList<Package *> &targets, int mode
  */
 FPtrList pmtrans_t::checkdeps(unsigned char op)
 {
-	return checkdeps(op, packages());
-}
-
-FPtrList pmtrans_t::checkdeps(unsigned char op, const FList<Package *> &packages)
-{
 	pmdepend_t depend;
 	int cmp;
 	FPtrList baddeps;
@@ -225,19 +220,9 @@ FPtrList pmtrans_t::checkdeps(unsigned char op, const FList<Package *> &packages
 		return baddeps;
 	}
 
-	for(auto i = packages.begin(), end = packages.end(); i != end; ++i) {
-		Package *tp = *i;
-		Package *pkg_local;
-
-		if(tp == NULL) {
-			continue;
-		}
-
-		if(op == PM_TRANS_TYPE_UPGRADE) {
-			pkg_local = db_local->find(tp->name());
-		} else if (PM_TRANS_TYPE_REMOVE) {
-			pkg_local = tp;
-		}
+	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
+		pmsyncpkg_t *syncpkg = *i;
+		Package *pkg_new = syncpkg->pkg_new, *pkg_local = syncpkg->pkg_local;
 
 		if(pkg_local != NULL) {
 			bool found = false;
@@ -255,7 +240,7 @@ FPtrList pmtrans_t::checkdeps(unsigned char op, const FList<Package *> &packages
 						/* hmmm... package isn't installed.. */
 						continue;
 					}
-					if(_pacman_pkg_isin(p->name(), packages)) {
+					if(find(p->name())) {
 						/* this package is also in the upgrade list, so don't worry about it */
 						continue;
 					}
@@ -265,7 +250,7 @@ FPtrList pmtrans_t::checkdeps(unsigned char op, const FList<Package *> &packages
 
 						/* don't break any existing dependencies (possible provides) */
 						_pacman_splitdep(depend_name, &depend);
-						if(_pacman_depcmp(pkg_local, &depend) && !_pacman_depcmp(tp, &depend)) {
+						if(_pacman_depcmp(pkg_local, &depend) && !_pacman_depcmp(pkg_new, &depend)) {
 							_pacman_log(PM_LOG_DEBUG, _("checkdeps: updated '%s' won't satisfy a dependency of '%s'"),
 									pkg_local->name(), p->name());
 							miss = new __pmdepmissing_t(p->name(), PM_DEP_TYPE_DEPEND, depend.mod,
@@ -275,7 +260,7 @@ FPtrList pmtrans_t::checkdeps(unsigned char op, const FList<Package *> &packages
 					}
 				} else if(op == PM_TRANS_TYPE_REMOVE) {
 					/* check requiredby fields */
-					if(!_pacman_pkg_isin(requiredby_name, packages)) {
+					if(!find(requiredby_name)) {
 						/* check if a package in trans->packages provides this package */
 						for(auto k = syncpkgs.begin(), k_end = syncpkgs.end(); !found && k != k_end; ++k) {
 							pmsyncpkg_t *ps = *k;
@@ -295,7 +280,7 @@ FPtrList pmtrans_t::checkdeps(unsigned char op, const FList<Package *> &packages
 		}
 		if(op == PM_TRANS_TYPE_ADD || op == PM_TRANS_TYPE_UPGRADE) {
 			/* DEPENDENCIES -- look for unsatisfied dependencies */
-			auto &depends = tp->depends();
+			auto &depends = pkg_new->depends();
 			for(auto j = depends.begin(), j_end = depends.end(); j != j_end; ++j) {
 				const char *depend_name = (const char *)*j;
 
@@ -316,29 +301,22 @@ FPtrList pmtrans_t::checkdeps(unsigned char op, const FList<Package *> &packages
  						 * package, we'll defer to the NEW one, not the one already
  						 * installed. */
  						Package *p = *m;
- 						int skip = 0;
- 						for(auto n = packages.begin(), n_end = packages.end(); n != n_end && !skip; ++n) {
- 							Package *ptp = *n;
- 							if(!strcmp(ptp->name(), p->name())) {
- 								skip = 1;
- 							}
- 						}
- 						if(skip) {
- 							continue;
- 						}
-						found = p->match(depend);
+						pmsyncpkg_t *syncpkg = find(p->name());
+						if(syncpkg != NULL) {
+							found = p->match(depend);
+						}
 					}
 				}
  				/* check other targets */
- 				for(auto k = packages.begin(), k_end = packages.end(); k != k_end && !found; ++k) {
- 					Package *p = (Package *)*k;
+ 				for(auto k = syncpkgs.begin(), k_end = syncpkgs.end(); k != k_end && !found; ++k) {
+ 					Package *p = (*k)->pkg_new;
 					found = p->match(depend);
 				}
 				/* else if still not found... */
 				if(!found) {
 					_pacman_log(PM_LOG_DEBUG, _("checkdeps: found %s as a dependency for %s"),
-					          depend.name, tp->name());
-					miss = new __pmdepmissing_t(tp->name(), PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
+					          depend.name, syncpkg->pkg_name);
+					miss = new __pmdepmissing_t(syncpkg->pkg_name, PM_DEP_TYPE_DEPEND, depend.mod, depend.name, depend.version);
 					_pacman_depmisslist_add(baddeps, miss);
 				}
 			}
@@ -475,8 +453,7 @@ int pmtrans_t::resolvedeps(Package *syncpkg, FList<Package *> &list,
 		return(-1);
 	}
 
-	targ.add(syncpkg);
-	deps = checkdeps(PM_TRANS_TYPE_ADD, targ);
+	deps = checkdeps(PM_TRANS_TYPE_ADD);
 
 	if(deps.empty()) {
 		return 0;

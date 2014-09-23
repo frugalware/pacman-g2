@@ -524,7 +524,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for unresolvable dependencies"));
-		deps = checkdeps(PM_TRANS_TYPE_UPGRADE, list);
+		deps = checkdeps(PM_TRANS_TYPE_UPGRADE);
 		if(!deps.empty()) {
 			if(data) {
 				deps.swap(**data);
@@ -725,7 +725,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 		}
 		if(!list.empty()) {
 			_pacman_log(PM_LOG_FLOW1, _("checking dependencies of packages designated for removal"));
-			deps = checkdeps(PM_TRANS_TYPE_REMOVE, list);
+			deps = checkdeps(PM_TRANS_TYPE_REMOVE);
 			if(!deps.empty()) {
 				int errorout = 0;
 				for(auto i = deps.begin(), end = deps.end(); i != end; ++i) {
