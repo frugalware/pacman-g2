@@ -502,15 +502,12 @@ int pmtrans_t::resolvedeps(FList<Package *> &list,
 			pm_errno = PM_ERR_UNSATISFIED_DEPS;
 			goto error;
 		}
-		if(_pacman_pkg_isin(ps->name(), list)) {
+		if(find(ps->name())) {
 			/* this dep is already in the target list */
+			/* FIXME: PM_TRANS_FLAG_DEPENDSONLY are ignored and should require a flag flipping */
 			_pacman_log(PM_LOG_DEBUG, _("dependency %s is already in the target list -- skipping"),
 			          ps->name());
-			continue;
-		}
-
-		/* FIXME: PM_TRANS_FLAG_DEPENDSONLY are ignored and should require a flag flipping */
-		if(!_pacman_pkg_isin(ps->name(), trail)) {
+		} else {
 			/* check pmo_ignorepkg and pmo_s_ignore to make sure we haven't pulled in
 			 * something we're not supposed to.
 			 */
@@ -547,9 +544,6 @@ int pmtrans_t::resolvedeps(FList<Package *> &list,
 				pm_errno = PM_ERR_UNSATISFIED_DEPS;
 				goto error;
 			}
-		} else {
-			/* cycle detected -- skip it */
-			_pacman_log(PM_LOG_DEBUG, _("dependency cycle detected: %s"), ps->name());
 		}
 	}
 	} while (again);
