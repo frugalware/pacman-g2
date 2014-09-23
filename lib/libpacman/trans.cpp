@@ -488,7 +488,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
 			Package *spkg = (*i)->pkg_new;
-			if(resolvedeps(spkg, list, trail, data) == -1) {
+			if(resolvedeps(list, trail, data) == -1) {
 				/* pm_errno is set by resolvedeps */
 				ret = -1;
 				goto cleanup;

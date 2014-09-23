@@ -443,13 +443,13 @@ void pmtrans_t::removedeps()
  *
  * make sure *list and *trail are already initialized
  */
-int pmtrans_t::resolvedeps(Package *syncpkg, FList<Package *> &list,
+int pmtrans_t::resolvedeps(FList<Package *> &list,
                       FList<Package *> &trail, FPtrList **data)
 {
 	FPtrList deps;
 	FList<Package *> targ;
 
-	if(handle->dbs_sync.empty() || syncpkg == NULL) {
+	if(handle->dbs_sync.empty()) {
 		return(-1);
 	}
 
@@ -523,11 +523,10 @@ int pmtrans_t::resolvedeps(Package *syncpkg, FList<Package *> &list,
 			}
 			if(usedep) {
 				trail.add(ps);
-				if(resolvedeps(ps, list, trail, data)) {
+				if(resolvedeps(list, trail, data) != 0) {
 					goto error;
 				}
-				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s (needed by %s)"),
-				          ps->name(), syncpkg->name());
+				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s"), ps->name());
 				list.add(ps);
 				
 				pmsyncpkg_t *psync = new __pmsyncpkg_t(PM_TRANS_TYPE_UPGRADE, ps);
