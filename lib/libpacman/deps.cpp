@@ -533,6 +533,7 @@ int pmtrans_t::resolvedeps(Package *syncpkg, FList<Package *> &list,
 			continue;
 		}
 
+		/* FIXME: PM_TRANS_FLAG_DEPENDSONLY are ignored and should require a flag flipping */
 		if(!_pacman_pkg_isin(ps->name(), trail)) {
 			/* check pmo_ignorepkg and pmo_s_ignore to make sure we haven't pulled in
 			 * something we're not supposed to.
@@ -551,6 +552,15 @@ int pmtrans_t::resolvedeps(Package *syncpkg, FList<Package *> &list,
 				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s (needed by %s)"),
 				          ps->name(), syncpkg->name());
 				list.add(ps);
+				
+				pmsyncpkg_t *psync = new __pmsyncpkg_t(PM_TRANS_TYPE_UPGRADE, ps);
+				if(psync == NULL) {
+					goto error;
+				}
+				psync->m_flags = PM_TRANS_FLAG_ALLDEPS;
+				syncpkgs.add(psync);
+				_pacman_log(PM_LOG_FLOW2, _("adding package %s-%s to the transaction targets"),
+						ps->name(), ps->version());
 			} else {
 				_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\""), miss->target);
 				if(data != NULL) {

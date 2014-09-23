@@ -495,22 +495,6 @@ int __pmtrans_t::prepare(FPtrList **data)
 			}
 		}
 
-		/* FIXME: PM_TRANS_FLAG_DEPENDSONLY are ignored and should require a flag flipping */
-		for(auto i = list.begin(), end = list.end(); i != end; ++i) {
-			/* add the dependencies found by resolvedeps to the transaction set */
-			Package *spkg = *i;
-			if(!find(spkg->name())) {
-				pmsyncpkg_t *ps = new __pmsyncpkg_t(PM_TRANS_TYPE_UPGRADE, spkg);
-				if(ps == NULL) {
-					ret = -1;
-					goto cleanup;
-				}
-				ps->m_flags = PM_TRANS_FLAG_ALLDEPS;
-				syncpkgs.add(ps);
-				_pacman_log(PM_LOG_FLOW2, _("adding package %s-%s to the transaction targets"),
-						spkg->name(), spkg->version());
-			}
-		}
 		{
 			/* remove the targets that where only requiring their depends */
 			auto it = syncpkgs.begin(), end = syncpkgs.end();
