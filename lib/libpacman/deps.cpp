@@ -115,15 +115,14 @@ FPtrList &_pacman_depmisslist_add(FPtrList &misslist, pmdepmissing_t *miss)
  * This function returns the new FPtrList* target list.
  *
  */
-FList<Package *> pmtrans_t::sortbydeps(int mode)
+void pmtrans_t::sortbydeps(int mode)
 {
-	FList<Package *> newtargs;
 	FList<pmgraph_t *> vertices;
 	pmgraph_t *vertex;
 	int found;
 
 	if(syncpkgs.empty()) {
-		return newtargs;
+		return;
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("started sorting dependencies"));
@@ -175,7 +174,6 @@ FList<Package *> pmtrans_t::sortbydeps(int mode)
 		}
 		if(!found) {
 			syncpkgs.add(vertex->data);
-			newtargs.add(vertex->data->pkg_new != NULL ? vertex->data->pkg_new : vertex->data->pkg_local);
 			/* mark that we've left this vertex */
 			vertex->state = 1;
 			vertex = vertex->parent;
@@ -194,9 +192,7 @@ FList<Package *> pmtrans_t::sortbydeps(int mode)
 	if(mode == PM_TRANS_TYPE_REMOVE) {
 		/* we're removing packages, so reverse the order */
 		syncpkgs.reverse();
-		newtargs.reverse();
 	}
-	return newtargs;
 }
 
 /* Returns a FPtrList* of missing_t pointers.

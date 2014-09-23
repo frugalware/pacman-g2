@@ -73,10 +73,7 @@ struct __pmtrans_t
 	FPtrList find_conflicts();
 	void removedeps();
 	int resolvedeps(FPtrList **data);
-	FList<libpacman::Package *> sortbydeps(int mode = PM_TRANS_TYPE_ADD);
-
-	/* Compatibility */
-	FList<libpacman::Package *> packages() const;
+	void sortbydeps(int mode = PM_TRANS_TYPE_ADD);
 
 	/* Capacity */
 	bool empty() const;
@@ -87,7 +84,6 @@ struct __pmtrans_t
 	int flags;
 	unsigned char state;
 	FStringList targets;
-	FList<libpacman::Package *> m_packages;
 	FList<pmsyncpkg_t *> syncpkgs;
 	FStringList skiplist;
 	FStringList triggers;

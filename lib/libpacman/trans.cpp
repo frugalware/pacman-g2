@@ -501,18 +501,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 		}
 
 		/* re-order w.r.t. dependencies */
-		FList<pmsyncpkg_t *> l;
-		FList<Package *> m = sortbydeps();
-		for(auto i = m.begin(), end = m.end(); i != end; ++i) {
-			for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end; ++j) {
-				pmsyncpkg_t *s = *j;
-				if(s->pkg_new == *i) {
-					l.add(s);
-				}
-			}
-		}
-		syncpkgs.clear();
-		syncpkgs.swap(l);
+		sortbydeps();
 
 		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
 
@@ -803,8 +792,6 @@ cleanup:
 	}
 	} else {
 
-	m_packages = packages();
-
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
 		/* Check dependencies
 		 */
@@ -863,7 +850,7 @@ cleanup:
 		}
 		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		m_packages = sortbydeps(m_type & PM_TRANS_TYPE_ADD ? PM_TRANS_TYPE_ADD : PM_TRANS_TYPE_REMOVE);
+		sortbydeps(m_type & PM_TRANS_TYPE_ADD ? PM_TRANS_TYPE_ADD : PM_TRANS_TYPE_REMOVE);
 
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
@@ -1852,25 +1839,6 @@ error:
 bool __pmtrans_t::empty() const
 {
 	return syncpkgs.empty();
-}
-
-FList<Package *> pmtrans_t::packages() const
-{
-	FList<Package *> ret;
-
-	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
-		pmsyncpkg_t *syncpkg = *i;
-		switch(syncpkg->type) {
-		case PM_TRANS_TYPE_ADD:
-		case PM_TRANS_TYPE_UPGRADE:
-		case PM_TRANS_TYPE_SYNC:
-			ret.add(syncpkg->pkg_new);
-			break;
-		case PM_TRANS_TYPE_REMOVE:
-			ret.add(syncpkg->pkg_local);
-		}
-	}
-	return ret;
 }
 
 /* vim: set ts=2 sw=2 noet: */
