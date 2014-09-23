@@ -709,14 +709,11 @@ int __pmtrans_t::prepare(FPtrList **data)
 		 * package that's in our final (upgrade) list.
 		 */
 		/*EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
-		FList<Package *> list;
-		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
-			pmsyncpkg_t *ps = *i;
-			for(auto j = ps->m_replaces.begin(), j_end = ps->m_replaces.end(); j != j_end; ++j) {
-				list.add(*j);
-			}
+		bool has_replaces = false;
+		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end && !has_replaces; ++i) {
+			has_replaces = !(*i)->m_replaces.empty();
 		}
-		if(!list.empty()) {
+		if(has_replaces) {
 			_pacman_log(PM_LOG_FLOW1, _("checking dependencies of packages designated for removal"));
 			deps = checkdeps(PM_TRANS_TYPE_REMOVE);
 			if(!deps.empty()) {
