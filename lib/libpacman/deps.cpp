@@ -453,11 +453,10 @@ int pmtrans_t::resolvedeps(FList<Package *> &list,
 		return(-1);
 	}
 
-	deps = checkdeps(PM_TRANS_TYPE_ADD);
-
-	if(deps.empty()) {
-		return 0;
-	}
+	bool again;
+	do {
+		again = false;
+		deps = checkdeps(PM_TRANS_TYPE_ADD);
 
 	for(auto i = deps.begin(), end = deps.end(); i != end; ++i) {
 		int found = 0;
@@ -523,9 +522,6 @@ int pmtrans_t::resolvedeps(FList<Package *> &list,
 			}
 			if(usedep) {
 				trail.add(ps);
-				if(resolvedeps(list, trail, data) != 0) {
-					goto error;
-				}
 				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s"), ps->name());
 				list.add(ps);
 				
@@ -537,6 +533,7 @@ int pmtrans_t::resolvedeps(FList<Package *> &list,
 				syncpkgs.add(psync);
 				_pacman_log(PM_LOG_FLOW2, _("adding package %s-%s to the transaction targets"),
 						ps->name(), ps->version());
+				again = true;
 			} else {
 				_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\""), miss->target);
 				if(data != NULL) {
@@ -555,6 +552,7 @@ int pmtrans_t::resolvedeps(FList<Package *> &list,
 			_pacman_log(PM_LOG_DEBUG, _("dependency cycle detected: %s"), ps->name());
 		}
 	}
+	} while (again);
 	return 0;
 
 error:

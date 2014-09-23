@@ -486,13 +486,10 @@ int __pmtrans_t::prepare(FPtrList **data)
 		/* Resolve targets dependencies */
 		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
-		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
-			Package *spkg = (*i)->pkg_new;
-			if(resolvedeps(list, trail, data) == -1) {
-				/* pm_errno is set by resolvedeps */
-				ret = -1;
-				goto cleanup;
-			}
+		if(resolvedeps(list, trail, data) == -1) {
+			/* pm_errno is set by resolvedeps */
+			ret = -1;
+			goto cleanup;
 		}
 
 		{
