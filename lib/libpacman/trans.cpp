@@ -495,6 +495,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 			}
 		}
 
+		/* FIXME: PM_TRANS_FLAG_DEPENDSONLY are ignored and should require a flag flipping */
 		for(auto i = list.begin(), end = list.end(); i != end; ++i) {
 			/* add the dependencies found by resolvedeps to the transaction set */
 			Package *spkg = *i;
@@ -508,11 +509,16 @@ int __pmtrans_t::prepare(FPtrList **data)
 				syncpkgs.add(ps);
 				_pacman_log(PM_LOG_FLOW2, _("adding package %s-%s to the transaction targets"),
 						spkg->name(), spkg->version());
-			} else {
-				/* remove the original targets from the list if requested */
-				if((flags & PM_TRANS_FLAG_DEPENDSONLY)) {
-					/* they are just pointers so we don't have to free them */
-					syncpkgs.remove(spkg, pkg_cmp, NULL);
+			}
+		}
+		{
+			/* remove the targets that where only requiring their depends */
+			auto it = syncpkgs.begin(), end = syncpkgs.end();
+			while(it != end) {
+				if((*it)->m_flags & PM_TRANS_FLAG_DEPENDSONLY) {
+					it = syncpkgs.erase(it);
+				} else {
+					++it;
 				}
 			}
 		}
