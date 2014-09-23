@@ -435,7 +435,6 @@ void pmtrans_t::removedeps()
 			}
 		}
 	}
-	m_packages = packages();
 }
 
 /* populates *list with packages that need to be installed to satisfy all

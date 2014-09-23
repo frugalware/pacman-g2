@@ -854,7 +854,6 @@ cleanup:
 				RET_ERR(PM_ERR_CONFLICTING_DEPS, -1);
 			}
 		}
-		m_packages = packages();
 
 		if(m_type == PM_TRANS_TYPE_REMOVE && m_type != PM_TRANS_TYPE_UPGRADE) {
 			if(flags & PM_TRANS_FLAG_RECURSE) {
@@ -864,7 +863,7 @@ cleanup:
 		}
 		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		m_packages = sortbydeps(m_packages, m_type & PM_TRANS_TYPE_ADD ? PM_TRANS_TYPE_ADD : PM_TRANS_TYPE_REMOVE);
+		m_packages = sortbydeps(packages(), m_type & PM_TRANS_TYPE_ADD ? PM_TRANS_TYPE_ADD : PM_TRANS_TYPE_REMOVE);
 
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
