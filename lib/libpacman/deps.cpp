@@ -443,8 +443,7 @@ void pmtrans_t::removedeps()
  *
  * make sure *list and *trail are already initialized
  */
-int pmtrans_t::resolvedeps(FList<Package *> &list,
-                      FList<Package *> &trail, FPtrList **data)
+int pmtrans_t::resolvedeps(FList<Package *> &list, FPtrList **data)
 {
 	FPtrList deps;
 	FList<Package *> targ;
@@ -518,7 +517,6 @@ int pmtrans_t::resolvedeps(FList<Package *> &list,
 				dummypkg->release();
 			}
 			if(usedep) {
-				trail.add(ps);
 				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s"), ps->name());
 				list.add(ps);
 				

@@ -481,12 +481,10 @@ int __pmtrans_t::prepare(FPtrList **data)
 	}
 
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
-		FList<Package *> trail; /* breadcrum list to avoid running into circles */
-
 		/* Resolve targets dependencies */
 		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
-		if(resolvedeps(list, trail, data) == -1) {
+		if(resolvedeps(list, data) == -1) {
 			/* pm_errno is set by resolvedeps */
 			ret = -1;
 			goto cleanup;
