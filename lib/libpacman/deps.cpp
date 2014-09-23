@@ -50,7 +50,7 @@ typedef struct __pmgraph_t {
 		: state(0), data(nullptr), parent(nullptr), childptr(nullptr)
 	{ }
 
-	Package *data;
+	pmsyncpkg_t *data;
 	FList<__pmgraph_t *> children;
 
 	int state; /* 0: untouched, -1: entered, other: leaving time */
@@ -118,33 +118,30 @@ FPtrList &_pacman_depmisslist_add(FPtrList &misslist, pmdepmissing_t *miss)
 FList<Package *> pmtrans_t::sortbydeps(int mode)
 {
 	FList<Package *> newtargs;
-	FPtrList vertices;
+	FList<pmgraph_t *> vertices;
 	pmgraph_t *vertex;
 	int found;
 
-	const FList<Package *> &targets = packages();
-
-	if(targets.empty()) {
+	if(syncpkgs.empty()) {
 		return newtargs;
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("started sorting dependencies"));
 
 	/* We create the vertices */
-	for(auto i = targets.begin(), end = targets.end(); i != end; ++i) {
+	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
 		pmgraph_t *v = _pacman_graph_new();
 		v->data = *i;
 		vertices.add(v);
 	}
+	syncpkgs.clear();
 
 	/* We compute the edges */
 	for(auto i = vertices.begin(), end = vertices.end(); i != end; ++i) {
-		pmgraph_t *vertex_i = (pmgraph_t *)*i;
-		Package *p_i = vertex_i->data;
+		Package *p_i = (*i)->data->pkg_new != NULL ? (*i)->data->pkg_new : (*i)->data->pkg_local;
 		/* TODO this should be somehow combined with _pacman_checkdeps */
 		for(auto j = vertices.begin(); j != end; ++j) {
-			pmgraph_t *vertex_j = *j;
-			Package *p_j = vertex_j->data;
+			Package *p_j = (*j)->data->pkg_new != NULL ? (*j)->data->pkg_new : (*j)->data->pkg_local;
 			int child = 0;
 			auto &depends = p_i->depends();
 			for(auto k = depends.begin(), k_end = depends.end(); k != k_end && !child; ++k) {
@@ -153,13 +150,13 @@ FList<Package *> pmtrans_t::sortbydeps(int mode)
 				child = _pacman_depcmp(p_j, &depend);
 			}
 			if(child) {
-				vertex_i->children.add(vertex_j);
+				(*i)->children.add((*j));
 			}
 		}
-		vertex_i->childptr = vertex_i->children.begin();
+		(*i)->childptr = (*i)->children.begin();
 	}
 
-	FPtrList::iterator vptr = vertices.begin(), end = vertices.end();
+	auto vptr = vertices.begin(), end = vertices.end();
 	vertex = *vptr;
 	while(vptr != end) {
 		/* mark that we touched the vertex */
@@ -177,7 +174,8 @@ FList<Package *> pmtrans_t::sortbydeps(int mode)
 			}
 		}
 		if(!found) {
-			newtargs.add(vertex->data);
+			syncpkgs.add(vertex->data);
+			newtargs.add(vertex->data->pkg_new != NULL ? vertex->data->pkg_new : vertex->data->pkg_local);
 			/* mark that we've left this vertex */
 			vertex->state = 1;
 			vertex = vertex->parent;
@@ -195,6 +193,7 @@ FList<Package *> pmtrans_t::sortbydeps(int mode)
 
 	if(mode == PM_TRANS_TYPE_REMOVE) {
 		/* we're removing packages, so reverse the order */
+		syncpkgs.reverse();
 		newtargs.reverse();
 	}
 	return newtargs;
