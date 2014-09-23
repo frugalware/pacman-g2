@@ -250,16 +250,16 @@ FPtrList pmtrans_t::find_conflicts()
 	if(db_local == NULL || empty() || root == NULL) {
 		return conflicts;
 	}
-	howmany = m_packages.size();
+	howmany = syncpkgs.size();
 
 	/* CHECK 1: check every target against every target */
-	for(auto i = m_packages.begin(), end = m_packages.end(); i != end; ++i) {
-		Package *p1 = *i;
+	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
+		Package *p1 = (*i)->pkg_new;
 		remain = flib::count(i, end);
 		percent = (double)(howmany - remain + 1) / howmany;
 		PROGRESS(this, PM_TRANS_PROGRESS_CONFLICTS_START, "", (percent * 100), howmany, howmany - remain + 1);
 		for(auto j = i; j != end; ++j) {
-			Package *p2 = *j;
+			Package *p2 = (*j)->pkg_new;
 			if(strcmp(p1->name(), p2->name())) {
 				auto ret = chk_fileconflicts(p1->files(), p2->files());
 				for(auto k = ret.begin(), k_end = ret.end(); k != k_end; ++k) {
@@ -277,7 +277,7 @@ FPtrList pmtrans_t::find_conflicts()
 		}
 
 		/* CHECK 2: check every target against the filesystem */
-		p = *i;
+		p = (*i)->pkg_new;
 		dbpkg = NULL;
 		auto &files = p->files();
 		for(auto j = files.begin(), j_end = files.end(); j != j_end; ++j) {

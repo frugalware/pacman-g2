@@ -1727,7 +1727,7 @@ int __pmtrans_t::commit(FPtrList **data)
 			 * its requiredby info: it is in the process of being removed (if not
 			 * already done!)
 			 */
-			if(_pacman_pkg_isin(depend.name, m_packages)) {
+			if(find(depend.name)) {
 				continue;
 			}
 			depinfo = db_local->find(depend.name);

@@ -402,13 +402,12 @@ out:
  */
 void pmtrans_t::removedeps()
 {
-	FList<Package *> &targs = m_packages;
 	Database *db = m_handle->db_local;
 
 	bool again = false;
-	for(auto i = targs.begin(), end = targs.end(); i != end; i = again ? targs.begin() : i.next()) {
+	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; i = again ? syncpkgs.begin() : i.next()) {
 		again = false;
-		auto &depends = (*i)->depends();
+		auto &depends = (*i)->pkg_local->depends();
 		for(auto j = depends.begin(), j_end = depends.end(); j != j_end; ++j) {
 			pmdepend_t depend;
 			Package *dep;
@@ -433,7 +432,7 @@ void pmtrans_t::removedeps()
 					continue;
 				}
 			}
-			if(_pacman_pkg_isin(dep->name(), targs)) {
+			if(find(dep->name())) {
 				continue;
 			}
 
@@ -447,24 +446,18 @@ void pmtrans_t::removedeps()
 			auto &requiredby = dep->requiredby();
 			for(auto k = requiredby.begin(), k_end = requiredby.end(); k != k_end && !needed; ++k) {
 				Package *dummy = db->find((const char *)*k);
-				if(!_pacman_pkg_isin(dummy->name(), targs)) {
+				if(!find(dummy->name())) {
 					needed = 1;
 				}
 			}
 			if(!needed) {
-				Package *pkg = new Package(dep->name(), dep->version());
-				if(pkg == NULL) {
-					continue;
-				}
 				/* add it to the target list */
-				_pacman_log(PM_LOG_DEBUG, _("loading ALL info for '%s'"), pkg->name());
-				pkg->read(INFRQ_ALL);
-				targs.add(pkg);
-				_pacman_log(PM_LOG_FLOW2, _("adding '%s' to the targets"), pkg->name());
+				add(dep->name(), PM_TRANS_TYPE_REMOVE, 0);
 				again = true;
 			}
 		}
 	}
+	m_packages = packages();
 }
 
 /* populates *list with packages that need to be installed to satisfy all
