@@ -863,7 +863,7 @@ cleanup:
 		}
 		/* re-order w.r.t. dependencies */
 		_pacman_log(PM_LOG_FLOW1, _("sorting by dependencies"));
-		m_packages = sortbydeps(packages(), m_type & PM_TRANS_TYPE_ADD ? PM_TRANS_TYPE_ADD : PM_TRANS_TYPE_REMOVE);
+		m_packages = sortbydeps(m_type & PM_TRANS_TYPE_ADD ? PM_TRANS_TYPE_ADD : PM_TRANS_TYPE_REMOVE);
 
 		EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);
 	}
