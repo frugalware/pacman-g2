@@ -47,7 +47,7 @@ using namespace libpacman;
 
 typedef struct __pmgraph_t {
 	__pmgraph_t()
-		: state(0), data(nullptr), parent(nullptr), childptr(nullptr)
+		: data(nullptr), state(0), parent(nullptr)
 	{ }
 
 	pmsyncpkg_t *data;
@@ -57,11 +57,6 @@ typedef struct __pmgraph_t {
 	struct __pmgraph_t *parent; /* where did we come from? */
 	decltype(children)::iterator childptr; /* points to a child in children list */
 } pmgraph_t;
-
-static pmgraph_t *_pacman_graph_new(void)
-{
-	return new pmgraph_t();
-}
 
 __pmdepmissing_t::__pmdepmissing_t(const char *target, unsigned char type, unsigned char depmod,
 		const char *depname, const char *depversion)
@@ -129,7 +124,7 @@ void pmtrans_t::sortbydeps(int mode)
 
 	/* We create the vertices */
 	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
-		pmgraph_t *v = _pacman_graph_new();
+		pmgraph_t *v = new pmgraph_t();
 		v->data = *i;
 		vertices.add(v);
 	}
@@ -203,7 +198,6 @@ void pmtrans_t::sortbydeps(int mode)
 FPtrList pmtrans_t::checkdeps(unsigned char op)
 {
 	pmdepend_t depend;
-	int cmp;
 	FPtrList baddeps;
 	pmdepmissing_t *miss = NULL;
 	Database *db_local = m_handle->db_local;
@@ -383,7 +377,7 @@ void pmtrans_t::removedeps()
 			Package *dep;
 			int needed = 0;
 
-			if(_pacman_splitdep((const char *)*j, &depend)) {
+			if(_pacman_splitdep(*j, &depend)) {
 				continue;
 			}
 
@@ -594,7 +588,7 @@ static int str_cmp(const void *s1, const void *s2)
     return(strcmp(s1, s2));
 }
 
-int inList(FStringList *lst, char *lItem) {
+int inList(FStringList *lst, const char *lItem) {
     auto ll = lst->begin(), end = lst->end();
     while(ll != end) {
         if(!strcmp(lItem, *ll)) {
@@ -623,7 +617,7 @@ int pacman_output_generate(FStringList *targets, FPtrList *dblist) {
                     foundMatch = 1;
 										auto &depends = pkg->depends();
                     for(auto k = depends.begin(), k_end = depends.end(); k != k_end; ++k) {
-                        char *fullDep = *k;
+                        char *fullDep = (char *)*k;
                         pmdepend_t depend;
                         if(_pacman_splitdep(fullDep, &depend)) {
                             continue;
