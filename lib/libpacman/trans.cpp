@@ -457,7 +457,6 @@ int __pmtrans_t::prepare(FPtrList **data)
 	Database *db_local;
 	FPtrList lp;
 	FPtrList deps;
-	FList<Package *> list; /* list allowing checkdeps usage with data from packages */
 	int ret = 0;
 
 	/* Sanity checks */
@@ -477,14 +476,13 @@ int __pmtrans_t::prepare(FPtrList **data)
 	if(m_type == PM_TRANS_TYPE_SYNC) {
 	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
 		pmsyncpkg_t *ps = *i;
-		list.add(ps->pkg_new);
 	}
 
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
 		/* Resolve targets dependencies */
 		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
 		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
-		if(resolvedeps(list, data) == -1) {
+		if(resolvedeps(data) == -1) {
 			/* pm_errno is set by resolvedeps */
 			ret = -1;
 			goto cleanup;
@@ -695,7 +693,6 @@ int __pmtrans_t::prepare(FPtrList **data)
 		}
 		EVENT(this, PM_TRANS_EVT_INTERCONFLICTS_DONE, NULL, NULL);
 	}
-	list.clear();
 
 	/* XXX: this fails for cases where a requested package wants
 	 *      a dependency that conflicts with an older version of
@@ -712,6 +709,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 		 * package that's in our final (upgrade) list.
 		 */
 		/*EVENT(this, PM_TRANS_EVT_CHECKDEPS_DONE, NULL, NULL);*/
+		FList<Package *> list;
 		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
 			pmsyncpkg_t *ps = *i;
 			for(auto j = ps->m_replaces.begin(), j_end = ps->m_replaces.end(); j != j_end; ++j) {

@@ -72,7 +72,7 @@ struct __pmtrans_t
 	FPtrList checkdeps(unsigned char op);
 	FPtrList find_conflicts();
 	void removedeps();
-	int resolvedeps(FList<libpacman::Package *> &list, FPtrList **data);
+	int resolvedeps(FPtrList **data);
 	FList<libpacman::Package *> sortbydeps();
 	FList<libpacman::Package *> sortbydeps(const FList<libpacman::Package *> &targets, int mode);
 

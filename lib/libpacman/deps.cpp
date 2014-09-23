@@ -443,7 +443,7 @@ void pmtrans_t::removedeps()
  *
  * make sure *list and *trail are already initialized
  */
-int pmtrans_t::resolvedeps(FList<Package *> &list, FPtrList **data)
+int pmtrans_t::resolvedeps(FPtrList **data)
 {
 	FPtrList deps;
 	FList<Package *> targ;
@@ -463,8 +463,8 @@ int pmtrans_t::resolvedeps(FList<Package *> &list, FPtrList **data)
 		Package *ps = NULL;
 
 		/* check if one of the packages in *list already provides this dependency */
-		for(auto j = list.begin(), j_end = list.end(); j != j_end && !found; ++j) {
-			Package *sp = *j;
+		for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end && !found; ++j) {
+			Package *sp = (*j)->pkg_new;
 			if(sp->provides(miss->depend.name)) {
 				_pacman_log(PM_LOG_DEBUG, _("%s provides dependency %s -- skipping"),
 				          sp->name(), miss->depend.name);
@@ -518,8 +518,7 @@ int pmtrans_t::resolvedeps(FList<Package *> &list, FPtrList **data)
 			}
 			if(usedep) {
 				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s"), ps->name());
-				list.add(ps);
-				
+
 				pmsyncpkg_t *psync = new __pmsyncpkg_t(PM_TRANS_TYPE_UPGRADE, ps);
 				if(psync == NULL) {
 					goto error;
