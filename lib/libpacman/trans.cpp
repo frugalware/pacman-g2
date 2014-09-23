@@ -1593,10 +1593,10 @@ int __pmtrans_t::commit(FPtrList **data)
 	} else {
 	time_t t;
 
-	howmany = m_packages.size();
+	howmany = syncpkgs.size();
 
-	for(auto targ = m_packages.begin(), end = m_packages.end(); targ != end; ++targ) {
-		Package *pkg_new = NULL, *pkg_local = NULL;
+	for(auto targ = syncpkgs.begin(), end = syncpkgs.end(); targ != end; ++targ) {
+		Package *pkg_new = (*targ)->pkg_new, *pkg_local = (*targ)->pkg_local;
 		void *event_arg0 = NULL, *event_arg1 = NULL;
 		pmtranstype_t type = m_type;
 
@@ -1606,20 +1606,11 @@ int __pmtrans_t::commit(FPtrList **data)
 			break;
 		}
 
-		if(type & PM_TRANS_TYPE_ADD) {
-			pkg_new = *targ;
-		} else {
-			pkg_local = *targ;
-		}
-
 		/* see if this is an upgrade.  if so, remove the old package first */
 		if(pkg_local == NULL) {
-			pkg_local = db_local->find(pkg_new->name());
-			if(pkg_local == NULL) {
-				/* no previous package version is installed, so this is actually
-				 * just an install.  */
-				type &= ~PM_TRANS_TYPE_REMOVE;
-			}
+			/* no previous package version is installed, so this is actually
+			 * just an install.  */
+			type &= ~PM_TRANS_TYPE_REMOVE;
 		}
 		if(pkg_local) {
 			pkg_local->acquire();
