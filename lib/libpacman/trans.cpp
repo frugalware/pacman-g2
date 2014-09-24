@@ -1704,9 +1704,7 @@ int __pmtrans_t::commit(FPtrList **data)
 				}
 			}
 			/* splice out this entry from requiredby */
-			if(depinfo->requiredby().remove((void *)pkg_local->name(), str_cmp, (const char **)&data)) {
-				FREE(data);
-			}
+			depinfo->requiredby().remove(pkg_local->name());
 			_pacman_log(PM_LOG_DEBUG, _("updating 'requiredby' field for package '%s'"), depinfo->name());
 			if(db_local->write(depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),

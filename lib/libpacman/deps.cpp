@@ -583,11 +583,6 @@ int _pacman_depcmp(Package *pkg, pmdepend_t *dep)
 
 /* Helper function for comparing strings
  */
-static int str_cmp(const void *s1, const void *s2)
-{
-    return(strcmp(s1, s2));
-}
-
 int inList(FStringList *lst, const char *lItem) {
     auto ll = lst->begin(), end = lst->end();
     while(ll != end) {
@@ -603,7 +598,6 @@ extern "C" {
 int pacman_output_generate(FStringList *targets, FPtrList *dblist) {
     FStringList found;
     Package *pkg = NULL;
-    char *match = NULL;
     int foundMatch = 0;
     unsigned int inforeq =  INFRQ_DEPENDS;
     for(auto j = dblist->begin(), end = dblist->end(); j != end; ++j) {
@@ -613,7 +607,7 @@ int pacman_output_generate(FStringList *targets, FPtrList *dblist) {
             pkg = db->readpkg(inforeq);
             while(pkg != NULL) {
                 const char *pname = pkg->name();
-                if(targets != NULL && targets->remove((void*) pname, str_cmp, (const char **)&match)) {
+                if(targets != NULL && targets->remove(pname)) {
                     foundMatch = 1;
 										auto &depends = pkg->depends();
                     for(auto k = depends.begin(), k_end = depends.end(); k != k_end; ++k) {
@@ -631,7 +625,6 @@ int pacman_output_generate(FStringList *targets, FPtrList *dblist) {
                         printf("%s ", pname);
                         found.add(pname);
                     }
-                    FREE(match);
                 }
                 pkg = db->readpkg(inforeq);
             }

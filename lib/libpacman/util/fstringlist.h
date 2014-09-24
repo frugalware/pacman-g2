@@ -62,10 +62,31 @@ public:
 	FStringList &operator = (const FStringList &o);
 	FStringList &operator = (FStringList &&o);
 
+	FStringList &add_nocopy(char *s);
 	FStringList &add(const char *s);
 	FStringList &add(const FStringList &o);
 	FStringList &addf(const char *fmt, ...);
 	FStringList &vaddf(const char *fmt, va_list ap);
+
+	size_type remove(const char *s);
+
+	template <class UnaryPredicate>
+	size_type remove_if(UnaryPredicate pred)
+	{
+		size_type remove_count = 0;
+		auto it = begin(), end = this->end();
+		while(it != end) {
+			char *s = (char *)*it;
+			if(pred(s)) {
+				free(s);
+				it = erase(it);
+				++remove_count;
+			} else {
+				++it;
+			}
+		}
+		return remove_count;
+	}
 };
 
 #endif

@@ -160,10 +160,15 @@ FStringList &FStringList::operator = (FStringList &&o)
 	return *this;
 }
 
+FStringList &FStringList::add_nocopy(char *s)
+{
+	FList::add(s);
+	return *this;
+}
+
 FStringList &FStringList::add(const char *s)
 {
-	FList::add(f_strdup(s));
-	return *this;
+	return add_nocopy(f_strdup(s));
 }
 
 FStringList &FStringList::add(const FStringList &o)
@@ -189,8 +194,14 @@ FStringList &FStringList::vaddf(const char *fmt, va_list ap)
 	char *dest;
 
 	vasprintf(&dest, fmt, ap);
-	FList::add(dest);
-	return *this;
+	return add_nocopy(dest);
+}
+
+FStringList::size_type FStringList::remove(const char *s)
+{
+	return remove_if(
+			[&] (const char *v) -> bool
+			{ return strcmp(v, s) == 0; });
 }
 
 /* vim: set ts=2 sw=2 noet: */

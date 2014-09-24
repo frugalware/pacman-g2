@@ -63,7 +63,21 @@ namespace flib
 	template <class InputIterator, class T>
 	InputIterator find(InputIterator first, InputIterator last, const T &val)
 	{
-		for(; first != last && !(*first == val); ++first) {
+		return find(first, last,
+				[&] (const typename InputIterator::reference &o) -> bool
+				{ return o == val; });
+	}
+
+	template <class InputIterable, class UnaryPredicate>
+	auto find_if(InputIterable iterable, UnaryPredicate pred)
+	{
+		return find(iterable.begin(), iterable.end(), pred);
+	}
+
+	template <class InputIterator, class UnaryPredicate>
+	InputIterator find_if(InputIterator first, InputIterator last, UnaryPredicate pred)
+	{
+		for(; first != last && !pred(*first); ++first) {
 			/* Nothing to do but iterate */
 		}
 		return first;
