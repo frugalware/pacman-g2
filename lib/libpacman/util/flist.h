@@ -32,7 +32,7 @@ typedef int (*_pacman_fn_cmp)(const void *, const void *);
 
 #ifdef __cplusplus
 
-#include <algorithm>
+#include "util/falgorithm.h"
 
 namespace flib
 {
@@ -115,6 +115,7 @@ namespace flib
 //		typedef typename iterable_traits<Iterable>::difference_type difference_type;
 		typedef typename iterable_traits<Iterable>::iterable iterable;
 		typedef typename iterable_traits<Iterable>::pointer pointer;
+		typedef typename iterable_traits<Iterable>::size_type size_type;
 		typedef typename iterable_traits<Iterable>::value_type value_type;
 
 		explicit const_iterator(iterable i = iterable())
@@ -224,6 +225,7 @@ namespace flib
 		typedef typename iterable_traits<Iterable>::iterable iterable;
 		typedef typename iterable_traits<Iterable>::pointer pointer;
 		typedef typename iterable_traits<Iterable>::reference reference;
+		typedef typename iterable_traits<Iterable>::size_type size_type;
 		typedef typename iterable_traits<Iterable>::value_type value_type;
 
 		explicit iterator(iterable i = iterable())
@@ -706,12 +708,14 @@ public:
 	/* Element access */
 	
 	/* Modifiers */
-	void clear()
+	template <class Function = ::flib::detail::null_visitor>
+	void clear(Function fn = Function())
 	{
-		erase(begin(), end());
+		erase(begin(), end(), fn);
 	}
 
-	iterator erase(iterator position)
+	template <class Function = ::flib::detail::null_visitor>
+	iterator erase(iterator position, Function fn = Function())
 	{
 		ASSERT(position != c_end(), RET_ERR(PM_ERR_WRONG_ARGS, position));
 
@@ -722,7 +726,8 @@ public:
 		return iterator(next);
 	}
 
-	iterator erase(iterator first, iterator last)
+	template <class Function = ::flib::detail::null_visitor>
+	iterator erase(iterator first, iterator last, Function fn = Function())
 	{
 		auto it = first;
 		while(it != last) {

@@ -25,10 +25,27 @@
 
 namespace flib
 {
-	template <class InputIterable, class T>
-	bool contains(const InputIterable &iterable, const T &val)
-	{
-		return contains(iterable.begin(), iterable.end(), val);
+	namespace detail {
+		struct null_visitor
+		{
+			template <class... Args>
+			void operator () (Args... args)
+			{ }
+		};
+
+		struct false_function
+		{
+			template <class... Args>
+			bool operator () (Args... args)
+			{ return false; }
+		};
+
+		struct true_function
+		{
+			template <class... Args>
+			bool operator () (Args... args)
+			{ return true; }
+		};
 	}
 
 	template <class InputIterator, class T>
@@ -37,41 +54,23 @@ namespace flib
 		return find(first, last, val) != last;
 	}
 
-	template <class InputIterable, class T>
-	auto count(const InputIterable &iterable)
-	{
-		return count(iterable.begin(), iterable.end());
-	}
-
 	template <class InputIterator>
-	auto count(InputIterator first, InputIterator last)
+	typename InputIterator::size_type count(InputIterator first, InputIterator last)
 	{
-		typename flib::iterable_traits<InputIterator::iterable>::size_type size;
+		typename InputIterator::size_type size = 0;
 
-		for(size = 0; first != last; ++first, ++size) {
+		for(; first != last; ++first, ++size) {
 			/* Nothing to do but iterate */
 		}
 		return size;
-	}
-
-	template <class InputIterable, class T>
-	auto find(InputIterable iterable, const T &val)
-	{
-		return find(iterable.begin(), iterable.end(), val);
 	}
 
 	template <class InputIterator, class T>
 	InputIterator find(InputIterator first, InputIterator last, const T &val)
 	{
 		return find(first, last,
-				[&] (const typename InputIterator::reference &o) -> bool
+				[&] (const typename InputIterator::reference o) -> bool
 				{ return o == val; });
-	}
-
-	template <class InputIterable, class UnaryPredicate>
-	auto find_if(InputIterable iterable, UnaryPredicate pred)
-	{
-		return find(iterable.begin(), iterable.end(), pred);
 	}
 
 	template <class InputIterator, class UnaryPredicate>
@@ -89,54 +88,89 @@ namespace flib
 		return val1 == val2;
 	}
 
-	template <class InputIterable, class T>
-	bool match_all(const InputIterable &iterable, const T &val)
+	template <class InputIterator, class T>
+	bool all_match(InputIterator first, InputIterator last, const T &val)
 	{
-		return match_all(iterable.begin(), iterable.end(), val);
+		return all_match_if(
+				[&] (const typename InputIterator::reference o) -> bool
+				{ return match(o, val); });
 	}
 
-	template <class InputIterator, class T>
-	bool match_all(InputIterator first, InputIterator last, const T &val)
+	template <class InputIterator, class UnaryPredicate>
+	bool all_match_if(InputIterator first, InputIterator last, UnaryPredicate pred)
 	{
 		for(; first != last; ++first) {
-			if(!match(*first, val)) {
+			if(!pred(*first)) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	template <class InputIterable, class T>
-	bool match_any(const InputIterable &iterable, const T &val)
+	template <class InputIterator, class T>
+	bool any_match(InputIterator first, InputIterator last, const T &val)
 	{
-		return match_any(iterable.begin(), iterable.end(), val);
+		return any_match_if(
+				[&] (const typename InputIterator::reference o) -> bool
+				{ return match(o, val); });
 	}
 
-	template <class InputIterator, class T>
-	bool match_any(InputIterator first, InputIterator last, const T &val)
+	template <class InputIterator, class UnaryPredicate>
+	bool any_match_if(InputIterator first, InputIterator last, UnaryPredicate pred)
 	{
 		for(; first != last; ++first) {
-			if(match(*first, val)) {
+			if(pred(*first)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	template <class InputOutputIterable, class T>
-	void replace_all(InputOutputIterable &iterable, const T &val, const T &new_val)
+	template <class InputOutputIterator, class T, class Function = detail::null_visitor>
+	typename InputOutputIterator::size_type
+			remove(InputOutputIterator first, InputOutputIterator last, const T &val, Function fn = Function())
 	{
-		replace_all<typename InputOutputIterable::iterator, typename InputOutputIterable::value_type>(iterable.begin(), iterable.end(), val, new_val);
+		return remove_if(first, last,
+				[&] (const typename InputOutputIterator::reference o) -> typename InputOutputIterator::size_type
+				{ return match(o, val); }, fn);
 	}
 
-	template <class InputOutputIterator, class T>
-	void replace_all(InputOutputIterator first, InputOutputIterator last, const T &val, const T &new_val)
+	template <class InputOutputIterator, class UnaryPredicate, class Function = detail::null_visitor>
+	typename InputOutputIterator::size_type
+			remove_if(InputOutputIterator first, InputOutputIterator last, UnaryPredicate pred, Function fn = Function())
 	{
-		for(; first != last; ++first) {
-			if(*first == val) {
-				*first = new_val;
-			}
+		typename InputOutputIterator::size_type size = 0;
+
+		while((first = std::find_if(first, last, pred)) != last) {
+			fn(*first);
+			first = first.remove();
+			++size;
 		}
+		return size;		
+	}
+
+	template <class InputOutputIterator, class T, class Function>
+	typename InputOutputIterator::size_type
+			replace(InputOutputIterator first, InputOutputIterator last, const T &val, const T &new_val, Function fn = detail::null_visitor())
+	{
+		return replace_if(first, last,
+				[&] (const typename InputOutputIterator::reference o) -> typename InputOutputIterator::size_type
+				{ return match(o, val); }, fn);
+	}
+
+	template <class InputOutputIterator, class UnaryPredicate, class T, class Function>
+	typename InputOutputIterator::size_type
+			replace_if(InputOutputIterator first, InputOutputIterator last, UnaryPredicate pred, const T &new_val, Function fn = detail::null_visitor())
+	{
+		typename InputOutputIterator::size_type size = 0;
+
+		while((first = std::find_if(first, last, pred)) != last) {
+			fn(*first);
+			*first = new_val;
+			++first;
+			++size;
+		}
+		return size;
 	}
 }
 

@@ -57,7 +57,6 @@ FPtrList *f_ptrlist_new(void);
 int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
 
 FPtrList *f_ptrlist_add(FPtrList *list, void *data);
-int f_ptrlist_clear(FPtrList *list, FVisitor *visitor);
 size_t f_ptrlist_count(const FPtrList *self);
 FPtrListIterator *f_ptrlist_end(FPtrList *self);
 const FPtrListIterator *f_ptrlist_end_const(const FPtrList *self);

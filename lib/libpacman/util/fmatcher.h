@@ -61,8 +61,6 @@ namespace flib
 	}
 }
 
-// FIXME: Add FMatcherList with match_all match_any
-
 #endif /* F_MATCHER_H */
 
 /* vim: set ts=2 sw=2 noet: */

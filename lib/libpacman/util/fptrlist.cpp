@@ -94,13 +94,11 @@ FPtrList *f_ptrlist_new(void)
 
 int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
 {
-#ifndef F_NOCOMPAT
-	return f_ptrlist_clear(self, visitor);
-#else
-	self->clear(visitor);
+	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	self->clear(/* visitor */);
 	delete self;
 	return 0;
-#endif
 }
 
 FPtrList *f_ptrlist_add(FPtrList *list, void *data)
@@ -110,14 +108,6 @@ FPtrList *f_ptrlist_add(FPtrList *list, void *data)
 	}
 	list->add(data);
 	return list;
-}
-
-int f_ptrlist_clear(FPtrList *list, FVisitor *visitor)
-{
-	ASSERT(list != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
-
-	list->clear(/* visitor */);
-	return 0;
 }
 
 size_t f_ptrlist_count(const FPtrList *self)
