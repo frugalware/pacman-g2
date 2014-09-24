@@ -26,7 +26,6 @@
 
 #include "stdbool.h"
 
-#include "util/fcallback.h"
 #include "util/flist.h"
 
 #ifndef __cplusplus
@@ -40,9 +39,7 @@ typedef FPtrListItem FPtrListIterator;
 extern "C" {
 #endif /* __cplusplus */
 
-#define _FREELIST(p, f) do { if(p) { FVisitor visitor = { (FVisitorFunc)f, NULL }; f_ptrlist_delete(p, &visitor); p = NULL; } } while(0)
-
-#define FREELIST(p) _FREELIST(p, free)
+#define FREELIST(p) do { if(p) { f_ptrlist_delete(p); p = NULL; } } while(0)
 
 FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
 bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
@@ -54,7 +51,7 @@ FPtrListIterator *f_ptrlistitem_next(FPtrListIterator *self);
 size_t f_ptrlistiterator_count(const FPtrListIterator *self, const FPtrListIterator *to);
 
 FPtrList *f_ptrlist_new(void);
-int f_ptrlist_delete(FPtrList *list, FVisitor *visitor);
+int f_ptrlist_delete(FPtrList *list);
 
 FPtrList *f_ptrlist_add(FPtrList *list, void *data);
 size_t f_ptrlist_count(const FPtrList *self);

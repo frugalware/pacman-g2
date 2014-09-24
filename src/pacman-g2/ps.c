@@ -236,7 +236,7 @@ int pspkg(int countonly)
 		}
 		count++;
 	}
-	f_ptrlist_delete(ret, NULL);
+	f_ptrlist_delete(ret);
 
 	end_lsof(fpout, pid);
 

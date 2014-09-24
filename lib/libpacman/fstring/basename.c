@@ -27,6 +27,8 @@
 
 #include <limits.h>
 
+#include "util.h"
+
 char *f_basename(const char *path)
 {
 	static char buffer[PATH_MAX];

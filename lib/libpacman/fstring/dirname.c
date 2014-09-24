@@ -24,6 +24,7 @@
 #include <libgen.h> // Must be before string.h
 
 #include "fstring.h"
+#include "util.h"
 
 #include <limits.h>
 

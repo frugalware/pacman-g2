@@ -214,7 +214,7 @@ static int sync_list(FStringList *targets)
 
 			if(db == NULL) {
 				ERR(NL, _("repository \"%s\" was not found.\n"), (char *)list_data(i));
-				f_ptrlist_delete(ls, NULL);
+				f_ptrlist_delete(ls);
 				return 1;
 			}
 
@@ -237,7 +237,7 @@ static int sync_list(FStringList *targets)
 		}
 	}
 	if(targets) {
-		f_ptrlist_delete(ls, NULL);
+		f_ptrlist_delete(ls);
 	}
 	return 0;
 }

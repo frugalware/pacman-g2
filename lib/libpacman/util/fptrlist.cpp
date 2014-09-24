@@ -92,11 +92,11 @@ FPtrList *f_ptrlist_new(void)
 	return new FPtrList();
 }
 
-int f_ptrlist_delete(FPtrList *self, FVisitor *visitor)
+int f_ptrlist_delete(FPtrList *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	self->clear(/* visitor */);
+	self->clear();
 	delete self;
 	return 0;
 }

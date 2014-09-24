@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include "fstring.h"
+#include "util.h"
 
 #include <ctype.h>
 

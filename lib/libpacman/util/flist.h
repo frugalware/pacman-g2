@@ -24,8 +24,8 @@
 
 #include "pacman.h"
 
-#include "util/fcallback.h"
 #include "util/fptrlist.h"
+#include "util.h"
 
 /* Sort comparison callback function declaration */
 typedef int (*_pacman_fn_cmp)(const void *, const void *);

@@ -23,8 +23,6 @@
 
 #include <string.h>
 
-#include "util/fcallback.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
