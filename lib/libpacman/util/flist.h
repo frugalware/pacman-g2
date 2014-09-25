@@ -736,6 +736,28 @@ public:
 		return it;
 	}
 
+	template <class Function = ::flib::detail::null_visitor>
+	size_type remove(const value_type &val, Function fn = Function())
+	{
+		return remove_if(
+				[&] (const value_type &o) -> bool
+				{ return o == val; }, fn );
+	}
+
+	template <class UnaryPredicate, class Function = ::flib::detail::null_visitor>
+	size_type remove_if(UnaryPredicate pred, Function fn = Function())
+	{
+		size_type size = 0;
+		iterator it = begin(), end = this->end();
+
+		while((it = flib::find_if(it, end, pred)) != end) {
+			fn(*it);
+			it = erase(it);
+			++size;
+		}
+		return size;
+	}
+
 	/* Operations */
 	void reverse() {
 		FCListItem *it = this;

@@ -126,29 +126,6 @@ namespace flib
 		return false;
 	}
 
-	template <class InputOutputIterator, class T, class Function = detail::null_visitor>
-	typename InputOutputIterator::size_type
-			remove(InputOutputIterator first, InputOutputIterator last, const T &val, Function fn = Function())
-	{
-		return remove_if(first, last,
-				[&] (const typename InputOutputIterator::reference o) -> typename InputOutputIterator::size_type
-				{ return match(o, val); }, fn);
-	}
-
-	template <class InputOutputIterator, class UnaryPredicate, class Function = detail::null_visitor>
-	typename InputOutputIterator::size_type
-			remove_if(InputOutputIterator first, InputOutputIterator last, UnaryPredicate pred, Function fn = Function())
-	{
-		typename InputOutputIterator::size_type size = 0;
-
-		while((first = std::find_if(first, last, pred)) != last) {
-			fn(*first);
-			first = first.remove();
-			++size;
-		}
-		return size;		
-	}
-
 	template <class InputOutputIterator, class T, class Function>
 	typename InputOutputIterator::size_type
 			replace(InputOutputIterator first, InputOutputIterator last, const T &val, const T &new_val, Function fn = detail::null_visitor())

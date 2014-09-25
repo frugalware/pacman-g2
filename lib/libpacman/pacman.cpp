@@ -118,7 +118,7 @@ int pacman_release(void)
 	/* and also sync ones */
 	while(!handle->dbs_sync.empty()) {
 		/* db_unregister() will also update the handle->dbs_sync list */
-		pacman_db_unregister(*handle->dbs_sync.begin());
+		pacman_db_unregister(c_cast(*handle->dbs_sync.begin()));
 	}
 
 	if(handle->unlock() != 0) {
@@ -430,7 +430,7 @@ int pacman_db_unregister(pmdb_t *_db)
 		handle->db_local = NULL;
 		found = 1;
 	} else {
-		if(_pacman_list_remove(&handle->dbs_sync, db, f_ptrcmp, NULL)) {
+		if(handle->dbs_sync.remove(db)) {
 			found = 1;
 		}
 	}
