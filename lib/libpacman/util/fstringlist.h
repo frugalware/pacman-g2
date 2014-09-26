@@ -55,6 +55,9 @@ class FStringList
 	: public FList<const char *>
 {
 public:
+	typedef typename FList<const char *>::iterator iterator;
+	typedef typename FList<const char *>::const_iterator const_iterator;
+
 	FStringList();
 	FStringList(const FStringList &o);
 	FStringList(FStringList &&o);
@@ -67,6 +70,11 @@ public:
 	FStringList &add(const FStringList &o);
 	FStringList &addf(const char *fmt, ...);
 	FStringList &vaddf(const char *fmt, va_list ap);
+
+	/* Element access */
+	bool contains(const char *s) const;
+	iterator find(const char *s);
+	const_iterator find(const char *s) const;
 
 	size_type remove(const char *s);
 

@@ -38,14 +38,7 @@ int _pacman_list_is_strin(const char *needle, FStringList *haystack)
 		return 0;
 	}
 
-	for(auto lp = haystack->begin(), end = haystack->end(); lp != end; ++lp) {
-		const char *str = *lp;
-
-		if(str && !strcmp(str, needle)) {
-			return(1);
-		}
-	}
-	return(0);
+	return haystack->contains(needle) ? 1 : 0;
 }
 
 /* Filter out any duplicate strings in a list.
@@ -195,6 +188,25 @@ FStringList &FStringList::vaddf(const char *fmt, va_list ap)
 
 	vasprintf(&dest, fmt, ap);
 	return add_nocopy(dest);
+}
+
+bool FStringList::contains(const char *s) const
+{
+	return find(s) != end();
+}
+
+FStringList::iterator FStringList::find(const char *s)
+{
+	return find_if(
+			[&] (const char *o) -> bool
+			{ return f_streq(o, s); });
+}
+
+FStringList::const_iterator FStringList::find(const char *s) const
+{
+	return find_if(
+			[&] (const char *o) -> bool
+			{ return f_streq(o, s); });
 }
 
 FStringList::size_type FStringList::remove(const char *s)

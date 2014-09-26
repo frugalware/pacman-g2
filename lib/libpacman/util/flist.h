@@ -706,7 +706,33 @@ public:
 	}
 
 	/* Element access */
-	
+	bool contains(const value_type &val) const
+	{
+		return find(val) != end();
+	}
+
+	iterator find(const value_type &val)
+	{
+		return flib::find(begin(), end(), val);
+	}
+
+	const_iterator find(const value_type &val) const
+	{ 
+		return flib::find(begin(), end(), val);
+	}
+
+	template <class UnaryPredicate>
+	iterator find_if(UnaryPredicate pred)
+	{
+		return flib::find_if(begin(), end(), pred);
+	}
+
+	template <class UnaryPredicate>
+	const_iterator find_if(UnaryPredicate pred) const
+	{
+		return flib::find_if(begin(), end(), pred);
+	}
+
 	/* Modifiers */
 	template <class Function = ::flib::detail::null_visitor>
 	void clear(Function fn = Function())
@@ -750,7 +776,7 @@ public:
 		size_type size = 0;
 		iterator it = begin(), end = this->end();
 
-		while((it = flib::find_if(it, end, pred)) != end) {
+		while((it = find_if(pred)) != end) {
 			fn(*it);
 			it = erase(it);
 			++size;
