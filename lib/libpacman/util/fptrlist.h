@@ -41,9 +41,6 @@ extern "C" {
 
 #define FREELIST(p) do { if(p) { f_ptrlist_delete(p); p = NULL; } } while(0)
 
-FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn);
-bool _pacman_list_remove(FPtrList *haystack, void *needle, _pacman_fn_cmp fn, void **data);
-
 typedef void (*FPtrListIteratorVisitorFunc)(FPtrListIterator *item, void *visitor_data);
 
 void *f_ptrlistitem_data(const FPtrListIterator *self);

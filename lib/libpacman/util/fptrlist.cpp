@@ -25,46 +25,6 @@
 #include "fptrlist.h"
 #include "fstdlib.h"
 
-/* Add items to a list in sorted order. Use the given comparison function to
- * determine order.
- */
-FPtrList *f_ptrlist_add_sorted(FPtrList *list, void *data, _pacman_fn_cmp fn)
-{
-	if(list == NULL) {
-		list = new FPtrList();
-	}
-
-	FPtrListItem *add = new FPtrListItem(data);
-
-	/* Find insertion point. */
-	FPtrListItem *previous, *end;
-	for(previous = end = list->c_end(); previous->next() != end; previous = previous->next()) {
-		if(fn(data, previous->next()->m_data) <= 0) {
-			break;
-		}
-	}
-
-	/*  Insert node before insertion point. */
-	add->insert_after(previous);
-	return list;
-}
-
-/* Remove an item in a list. Use the given comparison function to find the
- * item.
- * If the item is found, return true and 'data' is pointing to the removed element.
- * Otherwise, return false and 'data' it is set to NULL.
- * Return the new list (without the removed element).
- */
-bool _pacman_list_remove(FPtrList *self, void *ptr, _pacman_fn_cmp fn, void **data)
-{
-	if(data != NULL) {
-		*data = NULL;
-	}
-
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, false));
-	return self->remove(ptr, fn, data);
-}
-
 void *f_ptrlistitem_data(const FPtrListIterator *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
