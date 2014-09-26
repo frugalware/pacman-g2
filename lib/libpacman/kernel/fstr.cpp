@@ -22,6 +22,7 @@
 #include "kernel/fstr.h"
 
 #include "fstring.h"
+#include "util/fstringlist.h"
 
 FStrMatcher::FStrMatcher()
 	: m_flags(0), m_str(NULL)
@@ -70,7 +71,7 @@ bool FStrMatcher::match(const char *str) const
 		f_str_toupper(_str, str);
 		str = _str;
 	}
-	if(((m_flags & EQUAL) && strcmp(str, m_str) == 0) ||
+	if(((m_flags & EQUAL) && f_streq(str, m_str)) ||
 			((m_flags & SUBSTRING) && strstr(str, m_str) != NULL) ||
 			((m_flags & REGEXP) && regexec(&m_regex, str, 0, 0, 0) == 0)) {
 		return 1;

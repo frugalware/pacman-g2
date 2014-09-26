@@ -24,9 +24,10 @@
 #include "fstring.h"
 
 #include "util/fmatcher.h"
-#include "util/fstringlist.h"
 
 #include <regex.h>
+
+class FStringList;
 
 class FStrMatcher
 	: public FMatcher<const char *>

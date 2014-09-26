@@ -21,6 +21,7 @@
 #ifndef F_STRING_H
 #define F_STRING_H
 
+#include <stdbool.h>
 #include <string.h>
 
 #ifdef __cplusplus
@@ -40,6 +41,12 @@ static inline
 int f_strempty(const char *s)
 {
 	return s != NULL ? s[0] == '\0' : !0;
+}
+
+static inline
+bool f_streq(const char *s1, const char *s2)
+{
+	return s1 == s2 || strcmp(s1, s2) == 0;
 }
 
 static inline
