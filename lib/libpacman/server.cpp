@@ -395,7 +395,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, const FPtrList &servers, const
 		for(auto lp = files.begin(), end = files.end(); lp != end; ++lp) {
 			const char *fn = *lp;
 
-			if(_pacman_list_is_strin(fn, &complete)) {
+			if(complete.contains(fn)) {
 				continue;
 			}
 

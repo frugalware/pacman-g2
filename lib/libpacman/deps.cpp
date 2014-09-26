@@ -496,7 +496,7 @@ int pmtrans_t::resolvedeps(FPtrList **data)
 			 * something we're not supposed to.
 			 */
 			int usedep = 1;
-			if(_pacman_list_is_strin(ps->name(), &handle->ignorepkg)) {
+			if(handle->ignorepkg.contains(ps->name())) {
 				Package *dummypkg = new Package(miss->target, NULL);
 				QUESTION(this, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg, ps, NULL, &usedep);
 				dummypkg->release();

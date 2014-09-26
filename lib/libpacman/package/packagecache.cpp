@@ -88,7 +88,7 @@ int _pacman_packagecache_clean(int level)
 				}
 				if(!strcmp(name, n)) {
 					const char *ptr = (pacman_pkg_vercmp(version, v) < 0) ? str : s;
-					if(!_pacman_list_is_strin(ptr, &clean)) {
+					if(!clean.contains(ptr)) {
 						clean.add(ptr);
 					}
 				}

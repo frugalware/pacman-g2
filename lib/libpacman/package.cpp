@@ -290,7 +290,7 @@ const FStringList &Package::provides() const
 
 bool Package::provides(const char *pkgname)
 {
-	return _pacman_list_is_strin(pkgname, &provides());
+	return provides().contains(pkgname);
 }
 
 const FStringList &Package::replaces() const
@@ -300,7 +300,7 @@ const FStringList &Package::replaces() const
 
 bool Package::replaces(const char *pkgname)
 {
-	return _pacman_list_is_strin(pkgname, &replaces());
+	return replaces().contains(pkgname);
 }
 
 bool Package::match(const pmdepend_t &depend)

@@ -273,7 +273,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 	ASSERT((db_local = m_handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	ASSERT(!_pacman_strempty(target), RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
-	if(_pacman_list_is_strin(target, &targets)) {
+	if(targets.contains(target)) {
 		RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 	}
 	targets.add(target);
@@ -416,7 +416,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 			}
 
 			/* ignore holdpkgs on upgrade */
-			if((this == m_handle->trans) && _pacman_list_is_strin(pkg_local->name(), &m_handle->holdpkg)) {
+			if((this == m_handle->trans) && m_handle->holdpkg.contains(pkg_local->name())) {
 				int resp = 0;
 				QUESTION(this, PM_TRANS_CONV_REMOVE_HOLDPKG, pkg_local, NULL, NULL, &resp);
 				if(!resp) {
@@ -584,8 +584,8 @@ int __pmtrans_t::prepare(FPtrList **data)
 
 						/* figure out which one was requested in targets.  If they both were,
 						 * then it's still an unresolvable conflict. */
-						target = _pacman_list_is_strin(miss->target, &targets);
-						depend = _pacman_list_is_strin(miss->depend.name, &targets);
+						target = targets.contains(miss->target);
+						depend = targets.contains(miss->depend.name);
 						if(depend && !target) {
 							_pacman_log(PM_LOG_DEBUG, _("'%s' is in the target list -- keeping it"),
 								miss->depend.name);
@@ -617,7 +617,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 				_pacman_log(PM_LOG_DEBUG, _("resolving package '%s' conflict"), miss->target);
 				if(local) {
 					int doremove = 0;
-					if(!_pacman_list_is_strin(miss->depend.name, &asked)) {
+					if(!asked.contains(miss->depend.name)) {
 						QUESTION(this, PM_TRANS_CONV_CONFLICT_PKG, miss->target, miss->depend.name, NULL, &doremove);
 						asked.add(miss->depend.name);
 						if(doremove) {
@@ -978,7 +978,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 				 * eg, /home/httpd/html/index.html may be removed so index.php
 				 * could be used.
 				 */
-				if(_pacman_list_is_strin(pathname, &handle->noextract)) {
+				if(handle->noextract.contains(pathname)) {
 					pacman_logaction(_("notice: %s is in NoExtract -- skipping extraction"), pathname);
 					archive_read_data_skip (archive);
 					continue;
@@ -989,11 +989,11 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 					if(S_ISLNK(buf.st_mode)) {
 						continue;
 					} else if(!S_ISDIR(buf.st_mode)) {
-						if(_pacman_list_is_strin(pathname, &handle->noupgrade)) {
+						if(handle->noupgrade.contains(pathname)) {
 							notouch = 1;
 						} else {
 							if(type == PM_TRANS_TYPE_ADD || oldpkg == NULL) {
-								nb = _pacman_list_is_strin(pathname, &pkg->backup());
+								nb = pkg->backup().contains(pathname);
 							} else {
 								/* op == PM_TRANS_TYPE_UPGRADE */
 								hash_orig = oldpkg->fileneedbackup(pathname);
@@ -1278,13 +1278,6 @@ out:
 	return retval;
 }
 
-/* Helper function for comparing strings
- */
-static int str_cmp(const void *s1, const void *s2)
-{
-	return(strcmp((const char *)s1, (const char *)s2));
-}
-
 static const
 struct trans_event_table_item {
 	struct {
@@ -1530,7 +1523,7 @@ int __pmtrans_t::commit(FPtrList **data)
 				/* merge lists */
 				auto &requiredby = old->requiredby();
 				for(auto k = requiredby.begin(), end = requiredby.end(); k != end; ++k) {
-					if(!_pacman_list_is_strin(*k, &pkg_new->requiredby())) {
+					if(!pkg_new->requiredby().contains(*k)) {
 						/* replace old's name with new's name in the requiredby's dependency list */
 						Package *depender = db_local->find(*k);
 						if(depender == NULL) {

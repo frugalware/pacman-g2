@@ -184,7 +184,7 @@ int _pacman_db_load_grpcache(Database *db)
 				grp = new Group(grp_name);
 				db->grpcache.add_sorted(grp, _pacman_grp_cmp);
 			}
-			if(!_pacman_list_is_strin(pkg->name(), &grp->packages)) {
+			if(!grp->packages.contains(pkg->name())) {
 				grp->packages.add_sorted(pkg->name(), strcmp);
 			}
 		}

@@ -297,7 +297,7 @@ FPtrList pmtrans_t::find_conflicts()
 						_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg->name());
 						dbpkg->read(INFRQ_FILES);
 					}
-					if(dbpkg && _pacman_list_is_strin(filestr, &dbpkg->files())) {
+					if(dbpkg && dbpkg->files().contains(filestr)) {
 						ok = 1;
 					}
 					/* Check if the conflicting file has been moved to another package/target */
@@ -314,7 +314,7 @@ FPtrList pmtrans_t::find_conflicts()
 									dbpkg2->read(INFRQ_FILES);
 								}
 								/* If it used to exist in there, but doesn't anymore */
-								if(dbpkg2 && !_pacman_list_is_strin(filestr, &p2->files()) && _pacman_list_is_strin(filestr, &dbpkg2->files())) {
+								if(dbpkg2 && !p2->files().contains(filestr) && dbpkg2->files().contains(filestr)) {
 									ok = 1;
 									/* Add to the "skip list" of files that we shouldn't remove during an upgrade.
 									 *
