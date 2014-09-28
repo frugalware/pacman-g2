@@ -26,18 +26,19 @@
 #include <limits.h>
 #include <time.h>
 
+#include "group.h"
 #include "handle.h"
 #include "package.h"
 #include "timestamp.h"
 
 #include "kernel/fobject.h"
 #include "util/fptrlist.h"
+#include "util/fset.h"
 #include "util/fstringlist.h"
 #include "fstring.h"
 
 namespace libpacman {
 
-class Group;
 class Handle;
 class Package;
 
@@ -87,8 +88,8 @@ public:
 	::libpacman::Handle *m_handle;
 	char *path;
 	libpacman::Timestamp cache_timestamp;
-	FList<libpacman::Package *> pkgcache;
-	FList<libpacman::Group *> grpcache;
+	flib::set<libpacman::Package *, libpacman::less<const libpacman::Package *>> pkgcache;
+	flib::set<libpacman::Group *, libpacman::less<const libpacman::Group *>> grpcache;
 	FPtrList servers;
 
 protected:

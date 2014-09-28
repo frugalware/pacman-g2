@@ -40,6 +40,11 @@ Group::Group(const char *name)
 Group::~Group()
 { }
 
+bool less<const libpacman::Group *>::operator () (const Group *grp1, const Group *grp2)
+{
+	  return _pacman_grp_cmp(grp1, grp2) < 0;
+}
+
 /* Helper function for sorting groups
  */
 int _pacman_grp_cmp(const void *g1, const void *g2)

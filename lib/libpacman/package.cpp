@@ -340,6 +340,11 @@ bool Package::match(const pmdepend_t &depend)
 	}
 }
 
+bool less<const libpacman::Package *>::operator () (const Package *pkg1, const Package *pkg2)
+{
+	return _pacman_pkg_cmp(pkg1, pkg2) < 0;
+}
+
 typedef struct FPackageStrMatcher FPackageStrMatcher;
 
 struct FPackageStrMatcher

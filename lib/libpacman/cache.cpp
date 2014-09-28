@@ -72,7 +72,7 @@ int _pacman_db_load_pkgcache(Database *db)
 	db->rewind();
 	while((info = db->readpkg(inforeq)) != NULL) {
 		/* add to the collective */
-		db->pkgcache.add_sorted(info, _pacman_pkg_cmp);
+		db->pkgcache.add(info);
 	}
 
 	return(0);
@@ -110,7 +110,7 @@ int _pacman_db_add_pkgincache(Database *db, Package *pkg)
 
 	pkg->acquire(); // FIXME: Should not be necessary, but required during migration to refcounted object
 	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), pkg->name(), db->treename());
-	db->pkgcache.add_sorted(pkg, _pacman_pkg_cmp);
+	db->pkgcache.add(pkg);
 
 	_pacman_db_clear_grpcache(db);
 
@@ -182,10 +182,10 @@ int _pacman_db_load_grpcache(Database *db)
 
 			if(grp == NULL) {
 				grp = new Group(grp_name);
-				db->grpcache.add_sorted(grp, _pacman_grp_cmp);
+				db->grpcache.add(grp);
 			}
 			if(!grp->packages.contains(pkg->name())) {
-				grp->packages.add_sorted(pkg->name(), strcmp);
+				grp->packages.add(pkg->name());
 			}
 		}
 	}

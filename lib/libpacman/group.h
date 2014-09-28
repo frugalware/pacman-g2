@@ -42,6 +42,15 @@ public:
 	FStringList packages; /* List of unowned strings */
 };
 
+	template <class T>
+	struct less;
+
+	template <>
+	struct less<const libpacman::Group *>
+	{
+		bool operator () (const Group *pkg1, const Group *pkg2);
+	};
+
 }
 
 int _pacman_grp_cmp(const void *g1, const void *g2);

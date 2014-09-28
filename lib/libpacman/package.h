@@ -172,6 +172,15 @@ public:
 	char *m_path;
 };
 
+	template <class T>
+	struct less;
+
+	template <>
+	struct less<const libpacman::Package *>
+	{
+		bool operator () (const Package *pkg1, const Package *pkg2);
+	};
+
 class PackageMatcher
 	: FMatcher<const libpacman::Package *>
 {
@@ -189,7 +198,7 @@ private:
 	FStrMatcher m_strmatcher_internal;
 };
 
-}
+} // namespace libpacman
 
 int _pacman_pkg_delete(libpacman::Package *self);
 

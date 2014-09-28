@@ -826,28 +826,9 @@ public:
 		return const_iterator(c_last());
 	}
 
-	FList &add(const value_type &val) // Make default implementation to happend
+	void add(const value_type &val) // Make default implementation to happend
 	{
 		(new FListItem<T>(val))->insert_after(last());
-		return *this;
-	}
-
-	template <typename Comparator>
-	FList &add_sorted(const value_type &data, Comparator cmp)
-	{
-		iterable add = new FListItem<T>(data);
-
-		/* Find insertion point. */
-		iterable previous, end;
-		for(previous = end = c_end(); previous->next() != end; previous = previous->next()) {
-			if(cmp(data, previous->next()->m_data) <= 0) {
-				break;
-			}
-		}
-
-		/*  Insert node before insertion point. */
-		add->insert_after(previous);
-		return *this;
 	}
 
 	bool remove(void *ptr, _pacman_fn_cmp fn, value_type *data)
