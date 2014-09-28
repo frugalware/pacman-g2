@@ -733,6 +733,18 @@ public:
 		return flib::find_if(begin(), end(), pred);
 	}
 
+	template <class UnaryPredicate>
+	iterator find_if_not(UnaryPredicate pred)
+	{
+		return flib::find_if_not(begin(), end(), pred);
+	}
+
+	template <class UnaryPredicate>
+	const_iterator find_if_not(UnaryPredicate pred) const
+	{
+		return flib::find_if_not(begin(), end(), pred);
+	}
+
 	/* Modifiers */
 	template <class Function = ::flib::detail::null_visitor>
 	void clear(Function fn = Function())

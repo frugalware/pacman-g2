@@ -82,6 +82,15 @@ namespace flib
 		return first;
 	}
 
+	template <class InputIterator, class UnaryPredicate>
+	InputIterator find_if_not(InputIterator first, InputIterator last, UnaryPredicate pred)
+	{
+		for(; first != last && pred(*first); ++first) {
+			/* Nothing to do but iterate */
+		}
+		return first;
+	}
+
 	template <class T, class U>
 	bool match(const T &val1, const U &val2)
 	{
