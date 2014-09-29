@@ -58,25 +58,90 @@ public:
 	typedef typename FList<const char *>::iterator iterator;
 	typedef typename FList<const char *>::const_iterator const_iterator;
 
-	FStringList();
-	FStringList(const FStringList &o);
-	FStringList(FStringList &&o);
+	FStringList()
+	{ }
 
-	FStringList &operator = (const FStringList &o);
-	FStringList &operator = (FStringList &&o);
+	FStringList(const FStringList &o)
+		: FStringList()
+	{
+		operator = (o);
+	}
 
-	FStringList &add_nocopy(char *s);
-	FStringList &add(const char *s);
-	FStringList &add(const FStringList &o);
-	FStringList &addf(const char *fmt, ...);
-	FStringList &vaddf(const char *fmt, va_list ap);
+	FStringList(FStringList &&o)
+		: FList(std::move(o))
+	{ }
+
+	FStringList &operator = (const FStringList &o)
+	{
+		for(auto lp = o.begin(), end = o.end(); lp != end; ++lp) {
+			f_stringlist_add(this, *lp);
+		}
+		return *this;
+	}
+
+	FStringList &operator = (FStringList &&o)
+	{
+		swap(o);
+		return *this;
+	}
+
+	FStringList &add_nocopy(char *s)
+	{
+		FList::add(s);
+		return *this;
+	}
+
+	FStringList &add(const char *s)
+	{
+		return add_nocopy(f_strdup(s));
+	}
+
+	FStringList &add(const FStringList &o)
+	{
+		for(auto lp = o.begin(), end = o.end(); lp != end; ++lp) {
+			add((const char *)*lp);
+		}
+		return *this;
+	}
+
+	FStringList &addf(const char *fmt, ...)
+	{
+		va_list ap;
+
+		va_start(ap, fmt);
+		vaddf(fmt, ap);
+		va_end(ap);
+		return *this;
+	}
+
+	FStringList &vaddf(const char *fmt, va_list ap)
+	{
+		char *dest;
+
+		vasprintf(&dest, fmt, ap);
+		return add_nocopy(dest);
+	}
 
 	/* Element access */
-	bool contains(const char *s) const;
-	iterator find(const char *s);
-	const_iterator find(const char *s) const;
+	bool contains(const char *s) const
+	{
+		return find(s) != end();
+	}
 
-	size_type remove(const char *s);
+	iterator find(const char *s)
+	{
+		return find_if([&] (const char *o) -> bool { return f_streq(o, s); });
+	}
+
+	const_iterator find(const char *s) const
+	{
+		return find_if([&] (const char *o) -> bool { return f_streq(o, s); });
+	}
+
+	size_type remove(const char *s)
+	{
+		return remove_if([&] (const char *o) -> bool { return f_streq(o, s); });
+	}
 
 	template <class UnaryPredicate>
 	size_type remove_if(UnaryPredicate pred)
