@@ -41,8 +41,7 @@ namespace flib
 		{
 			typename super_type::iterator end = this->end();
 			/* Find insertion point. */
-			typename super_type::iterator next = FList<T>::find_if_not(
-					[&] (const T &o) -> bool { return m_less(o, data); });
+			typename super_type::iterator next = find_insertion_point(data);
 
 			// ensure we don't have an egality
 			if(next == end || m_less(data, *next)) {
@@ -53,7 +52,25 @@ namespace flib
 			return end;
 		}
 
+		typename super_type::iterator find(const typename super_type::value_type &data)
+		{
+			typename super_type::iterator end = this->end();
+			typename super_type::iterator it = find_insertion_point(data);
+
+			// ensure we have an egality
+			if(it == end || !m_less(data, *it)) {
+				return end;
+			}
+			return it;
+		}
+
 	private:
+		/* Return the first iterator where value does not satisfy Compare */
+		typename super_type::iterator find_insertion_point(const typename super_type::value_type &data)
+		{
+			return FList<T>::find_if_not([&] (const T &o) -> bool { return m_less(o, data); });
+		}
+
 		Compare m_less;
 	};
 } // namespace flib
