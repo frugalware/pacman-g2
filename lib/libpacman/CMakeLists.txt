@@ -21,16 +21,15 @@ set(FLIB_SOURCES
 	io/ffilelock.c
 	io/ftp.c
 	util/falgorithms.h
-	util/fcallback.h
 	util/fdispatchlogger.cpp
 	util/fdispatchlogger.h
 	util/flist.h
 	util/ffilelogger.c
 	util/ffilelogger.h
 	util/ffunctional.h
-	util/flog.c
+	util/flog.cpp
 	util/flog.h
-	util/flogger.c
+	util/flogger.cpp
 	util/flogger.h
 	util/fptrlist.cpp
 	util/fptrlist.h
