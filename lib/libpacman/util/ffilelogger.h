@@ -23,10 +23,10 @@
 
 #include <stdio.h>
 
-#include "util/flogger.h"
+#include "util/fabstractlogger.h"
 
 class FFileLogger
-	: public FLogger
+	: public FAbstractLogger
 {
 public:
 	FFileLogger(unsigned char mask, FILE *file);

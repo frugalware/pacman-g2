@@ -21,10 +21,10 @@
 #ifndef F_SYSLOGGER_H
 #define F_SYSLOGGER_H
 
-#include "util/flogger.h"
+#include "util/fabstractlogger.h"
 
 class FSysLogger
-	: public FLogger
+	: public FAbstractLogger
 {
 public:
 	FSysLogger(unsigned char mask);

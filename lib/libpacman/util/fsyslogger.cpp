@@ -37,7 +37,7 @@ void f_syslogger_log(unsigned char flag, const char *message, void *data)
 }
 
 FSysLogger::FSysLogger(unsigned char mask)
-	: FLogger(mask, f_syslogger_log, NULL)
+	: FAbstractLogger(mask, f_syslogger_log, NULL)
 { }
 
 FSysLogger::~FSysLogger()

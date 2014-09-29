@@ -27,9 +27,9 @@
 /* pacman-g2 */
 #include "util/flog.h"
 
-#include "util/flogger.h"
+#include "util/fabstractlogger.h"
 
-FLogger *_f_sys_logger = NULL;
+FAbstractLogger *_f_sys_logger = NULL;
 
 void f_log(unsigned char flag, const char *format, ...)
 {

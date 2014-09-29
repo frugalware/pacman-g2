@@ -1,5 +1,5 @@
 /*
- *  flogger.c
+ *  fabstractlogger.c
  *
  *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
  *
@@ -26,19 +26,19 @@
 #include <time.h>
 
 /* pacman-g2 */
-#include "util/flogger.h"
+#include "util/fabstractlogger.h"
 
 #include "fstdlib.h"
 #include "fstring.h"
 
-FLogger::FLogger(unsigned char mask, FLogFunc fn, void *data)
+FAbstractLogger::FAbstractLogger(unsigned char mask, FLogFunc fn, void *data)
 	: m_mask(mask), m_fn(fn), m_data(data)
 { }
 
-FLogger::~FLogger()
+FAbstractLogger::~FAbstractLogger()
 { }
 
-void FLogger::log(unsigned char flag, const char *format, ...)
+void FAbstractLogger::log(unsigned char flag, const char *format, ...)
 {
 	va_list ap;
 
@@ -47,7 +47,7 @@ void FLogger::log(unsigned char flag, const char *format, ...)
 	va_end(ap);
 }
 
-void FLogger::logs(unsigned char flag, const char *s)
+void FAbstractLogger::logs(unsigned char flag, const char *s)
 {
 	if(m_fn == NULL ||
 			(flag & m_mask) == 0) {
@@ -57,7 +57,7 @@ void FLogger::logs(unsigned char flag, const char *s)
 	m_fn(flag, s, m_data);
 }
 
-void FLogger::vlog(unsigned char flag, const char *format, va_list ap)
+void FAbstractLogger::vlog(unsigned char flag, const char *format, va_list ap)
 {
 	char str[LOG_STR_LEN];
 

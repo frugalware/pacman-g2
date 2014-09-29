@@ -32,12 +32,12 @@ void f_dispatchlogger_log(unsigned char flag, const char *message, void *data)
 	FPtrList *list = (FPtrList *)data;
 
 	for (auto it = f_ptrlist_first(list), end = f_ptrlist_end(list); it != end; it = it->next()) {
-		((FLogger *)f_ptrlistitem_data(it))->logs(flag, message);
+		((FAbstractLogger *)f_ptrlistitem_data(it))->logs(flag, message);
 	}
 }
 
 FDispatchLogger::FDispatchLogger(unsigned char mask)
-	: FLogger(mask, f_dispatchlogger_log, f_ptrlist_new())
+	: FAbstractLogger(mask, f_dispatchlogger_log, f_ptrlist_new())
 { }
 
 FDispatchLogger::~FDispatchLogger()

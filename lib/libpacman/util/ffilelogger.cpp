@@ -45,7 +45,7 @@ void f_filelogger_log(unsigned char flag, const char *message, void *data)
 }
 
 FFileLogger::FFileLogger(unsigned char mask, FILE *file)
-	: FLogger(mask, f_filelogger_log, file)
+	: FAbstractLogger(mask, f_filelogger_log, file)
 { }
 
 FFileLogger::~FFileLogger()

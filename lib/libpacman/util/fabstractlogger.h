@@ -1,5 +1,5 @@
 /*
- *  flogger.h
+ *  fabstractlogger.h
  *
  *  Copyright (c) 2013 by Michel Hermier <hermier@frugalware.org>
  *
@@ -18,23 +18,22 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
-#ifndef F_LOGGER_H
-#define F_LOGGER_H
+#ifndef F_ABSTRACTLOGGER_H
+#define F_ABSTRACTLOGGER_H
 
 #include "pacman.h"
 
 #define LOG_STR_LEN 256
 
-typedef struct FLogger FLogger;
 typedef void (*FLogFunc)(unsigned char flag, const char *message, void *data);
 
-class FLogger {
+class FAbstractLogger {
 public:
-	FLogger(unsigned char mask, FLogFunc fn, void *data);
-	virtual ~FLogger();
+	FAbstractLogger(unsigned char mask, FLogFunc fn, void *data);
+	virtual ~FAbstractLogger();
 
 	void log(unsigned char flag, const char *format, ...);
-	void logs(unsigned char flag, const char *s);
+	virtual void logs(unsigned char flag, const char *s);
 	void vlog(unsigned char flag, const char *format, va_list ap);
 
 protected:
@@ -43,6 +42,6 @@ protected:
 	void *m_data;
 };
 
-#endif /* F_LOGGER_H */
+#endif /* F_ABSTRACTLOGGER_H */
 
 /* vim: set ts=2 sw=2 noet: */
