@@ -433,7 +433,7 @@ int pmtrans_t::resolvedeps(FPtrList **data)
 	FPtrList deps;
 	FList<Package *> targ;
 
-	if(handle->dbs_sync.empty()) {
+	if(m_handle->dbs_sync.empty()) {
 		return(-1);
 	}
 
@@ -462,11 +462,11 @@ int pmtrans_t::resolvedeps(FPtrList **data)
 
 		/* find the package in one of the repositories */
 		/* check literals */
-		for(auto j = handle->dbs_sync.begin(), j_end = handle->dbs_sync.end(); !ps && j != j_end; ++j) {
+		for(auto j = m_handle->dbs_sync.begin(), j_end = m_handle->dbs_sync.end(); !ps && j != j_end; ++j) {
 			ps = ((Database *)*j)->find(miss->depend.name);
 		}
 		/* check provides */
-		for(auto j = handle->dbs_sync.begin(), j_end = handle->dbs_sync.end(); !ps && j != j_end; ++j) {
+		for(auto j = m_handle->dbs_sync.begin(), j_end = m_handle->dbs_sync.end(); !ps && j != j_end; ++j) {
 			auto provides = ((Database *)*j)->whatPackagesProvide(miss->depend.name);
 			if(!provides.empty()) {
 				ps = *provides.begin();
@@ -496,7 +496,7 @@ int pmtrans_t::resolvedeps(FPtrList **data)
 			 * something we're not supposed to.
 			 */
 			int usedep = 1;
-			if(handle->ignorepkg.contains(ps->name())) {
+			if(m_handle->ignorepkg.contains(ps->name())) {
 				Package *dummypkg = new Package(miss->target, NULL);
 				QUESTION(this, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg, ps, NULL, &usedep);
 				dummypkg->release();
