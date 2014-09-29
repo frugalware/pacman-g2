@@ -23,6 +23,10 @@
 
 #include <time.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PM_TIME_INVALID ((time_t) -1)
 
 static inline
@@ -47,6 +51,10 @@ char *f_strptime_lc(const char *s, const char *format, struct tm *tm);
 #define F_RFC1123_FORMAT "%a, %d %b %Y %H:%M:%S %z"
 #define f_strftime_rfc1123_lc(s, max, tm) f_strftime_lc((s), (max), F_RFC1123_FORMAT, (tm))
 #define f_strptime_rfc1123_lc(s, tm) f_strptime_lc((s), F_RFC1123_FORMAT, (tm))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PACMAN_TIME_H */
 

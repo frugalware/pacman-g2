@@ -27,6 +27,8 @@
 /* pacman-g2 */
 #include "util/flog.h"
 
+#include "util/flogger.h"
+
 FLogger *_f_sys_logger = NULL;
 
 void f_log(unsigned char flag, const char *format, ...)

@@ -24,7 +24,7 @@ set(FLIB_SOURCES
 	util/fdispatchlogger.cpp
 	util/fdispatchlogger.h
 	util/flist.h
-	util/ffilelogger.c
+	util/ffilelogger.cpp
 	util/ffilelogger.h
 	util/ffunctional.h
 	util/flog.cpp
@@ -34,7 +34,7 @@ set(FLIB_SOURCES
 	util/fptrlist.cpp
 	util/fptrlist.h
 	util/fstringlist.cpp
-	util/fsyslogger.c
+	util/fsyslogger.cpp
 	util/fsyslogger.h
 	util/log.c
 	util/time.c

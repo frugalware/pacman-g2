@@ -21,8 +21,6 @@
 #ifndef F_LOG_H
 #define F_LOG_H
 
-#include "flogger.h"
-
 void f_log(unsigned char flag, const char *format, ...);
 void f_logs(unsigned char flag, const char *message);
 void f_vlog(unsigned char flag, const char *format, va_list ap);
