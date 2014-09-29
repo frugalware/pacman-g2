@@ -50,7 +50,7 @@ void f_logs(unsigned char flag, const char *message)
 		return;
 	}
 
-	f_logger_logs(_f_sys_logger, flag, message);
+	_f_sys_logger->logs(flag, message);
 }
 
 void f_vlog(unsigned char flag, const char *format, va_list ap)
@@ -59,7 +59,7 @@ void f_vlog(unsigned char flag, const char *format, va_list ap)
 		return;
 	}
 
-	f_logger_vlog(_f_sys_logger, flag, format, ap);
+	_f_sys_logger->vlog(flag, format, ap);
 }
 
 /* vim: set ts=2 sw=2 noet: */

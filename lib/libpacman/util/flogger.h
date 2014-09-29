@@ -28,21 +28,20 @@
 typedef struct FLogger FLogger;
 typedef void (*FLogFunc)(unsigned char flag, const char *message, void *data);
 
-struct FLogger {
-	unsigned char mask;
-	FLogFunc fn;
-	void *data;
+class FLogger {
+public:
+	FLogger(unsigned char mask, FLogFunc fn, void *data);
+	virtual ~FLogger();
+
+	void log(unsigned char flag, const char *format, ...);
+	void logs(unsigned char flag, const char *s);
+	void vlog(unsigned char flag, const char *format, va_list ap);
+
+protected:
+	unsigned char m_mask;
+	FLogFunc m_fn;
+	void *m_data;
 };
-
-FLogger *f_logger_new(unsigned char mask, FLogFunc fn, void *data);
-void f_logger_delete(FLogger *logger);
-
-int f_logger_init(FLogger *logger, unsigned char mask, FLogFunc fn, void *data);
-int f_logger_fini(FLogger *logger);
-
-void f_logger_log(FLogger *logger, unsigned char flag, const char *format, ...);
-void f_logger_logs(FLogger *logger, unsigned char flag, const char *s);
-void f_logger_vlog(FLogger *logger, unsigned char flag, const char *format, va_list ap);
 
 #endif /* F_LOGGER_H */
 

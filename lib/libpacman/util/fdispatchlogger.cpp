@@ -26,36 +26,21 @@
 
 #include "util/fptrlist.h"
 
-struct FDispatchLogger
-{
-	FLogger base;
-};
-
 static
 void f_dispatchlogger_log(unsigned char flag, const char *message, void *data)
 {
 	FPtrList *list = (FPtrList *)data;
 
 	for (auto it = f_ptrlist_first(list), end = f_ptrlist_end(list); it != end; it = it->next()) {
-		f_logger_logs((FLogger *)f_ptrlistitem_data(it), flag, message);
+		((FLogger *)f_ptrlistitem_data(it))->logs(flag, message);
 	}
 }
 
-FDispatchLogger *f_dispatchlogger_new(unsigned char mask)
-{
-	FDispatchLogger *dispatchlogger;
+FDispatchLogger::FDispatchLogger(unsigned char mask)
+	: FLogger(mask, f_dispatchlogger_log, f_ptrlist_new())
+{ }
 
-	if((dispatchlogger = new FDispatchLogger()) == NULL) {
-			return NULL;
-	}
-	f_logger_init(&dispatchlogger->base, mask, f_dispatchlogger_log, f_ptrlist_new());
-	return dispatchlogger;
-}
-
-void f_dispatchlogger_delete(FDispatchLogger *dispatchlogger)
-{
-	f_logger_fini(&dispatchlogger->base);
-	free(dispatchlogger);
-}
+FDispatchLogger::~FDispatchLogger()
+{ }
 
 /* vim: set ts=2 sw=2 noet: */

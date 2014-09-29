@@ -30,32 +30,17 @@
 
 #include "fstdlib.h"
 
-struct FSysLogger
-{
-	FLogger base;
-};
-
 static
 void f_syslogger_log(unsigned char flag, const char *message, void *data)
 {
 	syslog(LOG_WARNING, "%s", message);
 }
 
-FSysLogger *f_syslogger_new(unsigned char mask)
-{
-	FSysLogger *syslogger;
+FSysLogger::FSysLogger(unsigned char mask)
+	: FLogger(mask, f_syslogger_log, NULL)
+{ }
 
-	if ((syslogger = f_zalloc(sizeof(*syslogger))) == NULL) {
-			return NULL;
-	}
-	f_logger_init(&syslogger->base, mask, f_syslogger_log, NULL);
-	return syslogger;
-}
-
-void f_syslogger_delete(FSysLogger *syslogger)
-{
-	f_logger_fini(&syslogger->base);
-	free(syslogger);
-}
+FSysLogger::~FSysLogger()
+{ }
 
 /* vim: set ts=2 sw=2 noet: */

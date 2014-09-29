@@ -31,72 +31,43 @@
 #include "fstdlib.h"
 #include "fstring.h"
 
-FLogger *f_logger_new(unsigned char mask, FLogFunc fn, void *data)
-{
-	FLogger *logger;
+FLogger::FLogger(unsigned char mask, FLogFunc fn, void *data)
+	: m_mask(mask), m_fn(fn), m_data(data)
+{ }
 
-	if ((logger = f_zalloc(sizeof(*logger))) == NULL) {
-			return NULL;
-	}
-	f_logger_init(logger, mask, fn, data);
-	return logger;
-}
+FLogger::~FLogger()
+{ }
 
-void f_logger_delete(FLogger *logger)
-{
-	f_logger_fini(logger);
-	free(logger);
-}
-
-int f_logger_init(FLogger *logger, unsigned char mask, FLogFunc fn, void *data)
-{
-	if(logger == NULL) {
-		return -1;
-	}
-
-	logger->mask = mask;
-	logger->fn = fn;
-	logger->data = data;
-	return 0;
-}
-
-int f_logger_fini(FLogger *logger)
-{
-	return 0;
-}
-
-void f_logger_log(FLogger *logger, unsigned char flag, const char *format, ...)
+void FLogger::log(unsigned char flag, const char *format, ...)
 {
 	va_list ap;
 
 	va_start(ap, format);
-	f_logger_vlog(logger, flag, format, ap);
+	vlog(flag, format, ap);
 	va_end(ap);
 }
 
-void f_logger_logs(FLogger *logger, unsigned char flag, const char *s)
+void FLogger::logs(unsigned char flag, const char *s)
 {
-	if(logger == NULL ||
-			logger->fn == NULL ||
-			(flag & logger->mask) == 0) {
+	if(m_fn == NULL ||
+			(flag & m_mask) == 0) {
 		return;
 	}
 
-	logger->fn(flag, s, logger->data);
+	m_fn(flag, s, m_data);
 }
 
-void f_logger_vlog(FLogger *logger, unsigned char flag, const char *format, va_list ap)
+void FLogger::vlog(unsigned char flag, const char *format, va_list ap)
 {
 	char str[LOG_STR_LEN];
 
-	if(logger == NULL ||
-			logger->fn == NULL ||
-			(flag & logger->mask) == 0) {
+	if(m_fn == NULL ||
+			(flag & m_mask) == 0) {
 		return;
 	}
 
 	vsnprintf(str, LOG_STR_LEN, format, ap);
-	f_logger_logs(logger, flag, f_strtrim(str));
+	logs(flag, f_strtrim(str));
 }
 
 /* vim: set ts=2 sw=2 noet: */

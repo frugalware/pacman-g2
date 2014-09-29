@@ -23,10 +23,13 @@
 
 #include "util/flogger.h"
 
-typedef struct FSysLogger FSysLogger;
-
-FSysLogger *f_syslogger_new(unsigned char mask);
-void f_syslogger_delete(FSysLogger *syslogger);
+class FSysLogger
+	: public FLogger
+{
+public:
+	FSysLogger(unsigned char mask);
+	~FSysLogger();
+};
 
 #endif /* F_SYSLOGGER_H */
 

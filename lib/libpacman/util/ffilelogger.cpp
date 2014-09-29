@@ -23,18 +23,12 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include <syslog.h>
 
 /* pacman-g2 */
 #include "util/ffilelogger.h"
 #include "util/time.h"
 
 #include "fstdlib.h"
-
-struct FFileLogger
-{
-	FLogger base;
-};
 
 static
 void f_filelogger_log(unsigned char flag, const char *message, void *data)
@@ -50,23 +44,11 @@ void f_filelogger_log(unsigned char flag, const char *message, void *data)
 	fflush(file);
 }
 
-FFileLogger *f_filelogger_new(unsigned char mask, FILE *file)
-{
-	FFileLogger *filelogger;
+FFileLogger::FFileLogger(unsigned char mask, FILE *file)
+	: FLogger(mask, f_filelogger_log, file)
+{ }
 
-	ASSERT(file != NULL, return NULL);
-
-	if ((filelogger = f_zalloc(sizeof(*filelogger))) == NULL) {
-			return NULL;
-	}
-	f_logger_init(&filelogger->base, mask, f_filelogger_log, file);
-	return filelogger;
-}
-
-void f_filelogger_delete(FFileLogger *filelogger)
-{
-	f_logger_fini(&filelogger->base);
-	free(filelogger);
-}
+FFileLogger::~FFileLogger()
+{ }
 
 /* vim: set ts=2 sw=2 noet: */

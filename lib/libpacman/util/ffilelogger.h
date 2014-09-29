@@ -25,10 +25,13 @@
 
 #include "util/flogger.h"
 
-typedef struct FFileLogger FFileLogger;
-
-FFileLogger *f_filelogger_new(unsigned char mask, FILE *file);
-void f_filelogger_delete(FFileLogger *filelogger);
+class FFileLogger
+	: public FLogger
+{
+public:
+	FFileLogger(unsigned char mask, FILE *file);
+	~FFileLogger();
+};
 
 #endif /* F_FILELOGGER_H */
 
