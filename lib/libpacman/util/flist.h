@@ -36,6 +36,10 @@ typedef int (*_pacman_fn_cmp)(const void *, const void *);
 
 namespace flib
 {
+	/* Used as a marker to make containers unsorted */
+	struct uncompared
+	{ };
+
 	template <typename Iterable>
 	struct iterable_traits
 	{
@@ -594,12 +598,13 @@ namespace flib {
 	};
 }
 
-template <typename T>
+template <typename T, class Compare = flib::uncompared>
 class FList
 	: protected FCListItem
 {
 public:
 	typedef FListItem<T> *iterable;
+
 	/* std::list compatibility */
 	typedef T value_type;
 	typedef flib::iterator<iterable> iterator;
@@ -607,6 +612,9 @@ public:
 	typedef flib::const_iterator<iterable> const_iterator;
 	typedef flib::const_iterator<iterable, true> const_reverse_iterator;
 	typedef size_t size_type;
+
+	typedef Compare key_compare;
+	typedef Compare value_compare;
 
 	FList()
 		: FCListItem(this, this)
@@ -796,6 +804,17 @@ public:
 		return size;
 	}
 
+	/* Observers */
+	key_compare key_comp() const
+	{
+		return m_compare;
+	}
+
+	value_compare value_comp() const
+	{
+		return m_compare;
+	}
+
 	/* Operations */
 	void reverse() {
 		FCListItem *it = this;
@@ -875,6 +894,20 @@ public:
 		return static_cast<iterable>((FCListItem *)this);
 	}
 
+protected:
+	template <class Data = value_type>
+	iterator find_insertion_point(typename std::enable_if<std::is_same<flib::uncompared, Compare>::value, const Data &>::type data)
+	{
+		return end();
+	}
+
+	template <class Data = value_type>
+	iterator find_insertion_point(typename std::enable_if<!std::is_same<flib::uncompared, Compare>::value, const Data &>::type data)
+	{
+		/* Return the first iterator where value does not satisfy Compare */
+		return FList<T>::find_if_not([&] (const T &o) -> bool { return m_compare(o, data); });
+	}
+
 private:
 	FList(const FList &);
 	FList &operator = (const FList &);
@@ -885,6 +918,8 @@ private:
 		RET_ERR(PM_ERR_WRONG_ARGS, NULL);
 	}
 #endif
+
+	Compare m_compare;
 };
 #endif /* __cplusplus */
 
