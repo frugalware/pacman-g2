@@ -33,6 +33,7 @@
 
 #include "kernel/fobject.h"
 #include "kernel/fstr.h"
+#include "util/fset.h"
 
 typedef struct __pmdepend_t pmdepend_t;
 
@@ -180,6 +181,8 @@ public:
 	{
 		bool operator () (const Package *pkg1, const Package *pkg2);
 	};
+
+	typedef flib::set<libpacman::Package *, libpacman::less<const libpacman::Package *>> package_set;
 
 class PackageMatcher
 	: FMatcher<const libpacman::Package *>

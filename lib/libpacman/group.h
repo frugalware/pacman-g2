@@ -24,6 +24,7 @@
 #include "pacman.h"
 
 #include "kernel/fobject.h"
+#include "util/fset.h"
 #include "util/fstringlist.h"
 
 #define GRP_NAME_LEN 256
@@ -51,6 +52,7 @@ public:
 		bool operator () (const Group *pkg1, const Group *pkg2);
 	};
 
+	typedef flib::set<libpacman::Group *, libpacman::less<const libpacman::Group *>> group_set;
 }
 
 int _pacman_grp_cmp(const void *g1, const void *g2);

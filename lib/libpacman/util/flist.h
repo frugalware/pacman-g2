@@ -24,7 +24,6 @@
 
 #include "pacman.h"
 
-#include "util/fptrlist.h"
 #include "util.h"
 
 /* Sort comparison callback function declaration */

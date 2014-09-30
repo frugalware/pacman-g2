@@ -33,7 +33,6 @@
 
 #include "kernel/fobject.h"
 #include "util/fptrlist.h"
-#include "util/fset.h"
 #include "util/fstringlist.h"
 #include "fstring.h"
 
@@ -88,8 +87,8 @@ public:
 	::libpacman::Handle *m_handle;
 	char *path;
 	libpacman::Timestamp cache_timestamp;
-	flib::set<libpacman::Package *, libpacman::less<const libpacman::Package *>> pkgcache;
-	flib::set<libpacman::Group *, libpacman::less<const libpacman::Group *>> grpcache;
+	libpacman::package_set pkgcache;
+	libpacman::group_set grpcache;
 	FPtrList servers;
 
 protected:
