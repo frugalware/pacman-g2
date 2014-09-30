@@ -31,8 +31,8 @@
 #include "fstdlib.h"
 #include "fstring.h"
 
-FAbstractLogger::FAbstractLogger(unsigned char mask, FLogFunc fn, void *data)
-	: m_mask(mask), m_fn(fn), m_data(data)
+FAbstractLogger::FAbstractLogger(unsigned char mask)
+	: m_mask(mask)
 { }
 
 FAbstractLogger::~FAbstractLogger()
@@ -49,20 +49,18 @@ void FAbstractLogger::log(unsigned char flag, const char *format, ...)
 
 void FAbstractLogger::logs(unsigned char flag, const char *s)
 {
-	if(m_fn == NULL ||
-			(flag & m_mask) == 0) {
+	if((flag & m_mask) == 0) {
 		return;
 	}
 
-	m_fn(flag, s, m_data);
+	logs_impl(s);
 }
 
 void FAbstractLogger::vlog(unsigned char flag, const char *format, va_list ap)
 {
 	char str[LOG_STR_LEN];
 
-	if(m_fn == NULL ||
-			(flag & m_mask) == 0) {
+	if((flag & m_mask) == 0) {
 		return;
 	}
 

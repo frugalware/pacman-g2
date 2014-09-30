@@ -30,25 +30,23 @@
 
 #include "fstdlib.h"
 
-static
-void f_filelogger_log(unsigned char flag, const char *message, void *data)
-{
-	FILE *file = data;
-	struct tm *tm;
-
-	tm = f_localtime(NULL);
-	fprintf(file, "[%02d/%02d/%02d %02d:%02d] %s\n",
-		tm->tm_mon+1, tm->tm_mday, tm->tm_year-100,
-		tm->tm_hour, tm->tm_min,
-		message);
-	fflush(file);
-}
-
 FFileLogger::FFileLogger(unsigned char mask, FILE *file)
-	: FAbstractLogger(mask, f_filelogger_log, file)
+	: FAbstractLogger(mask), m_file(file)
 { }
 
 FFileLogger::~FFileLogger()
 { }
+
+void FFileLogger::logs_impl(const char *message)
+{
+	struct tm *tm;
+
+	tm = f_localtime(NULL);
+	fprintf(m_file, "[%02d/%02d/%02d %02d:%02d] %s\n",
+			tm->tm_mon+1, tm->tm_mday, tm->tm_year-100,
+			tm->tm_hour, tm->tm_min,
+			message);
+	fflush(m_file);
+}
 
 /* vim: set ts=2 sw=2 noet: */

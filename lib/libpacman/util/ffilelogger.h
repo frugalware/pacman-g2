@@ -31,6 +31,10 @@ class FFileLogger
 public:
 	FFileLogger(unsigned char mask, FILE *file);
 	~FFileLogger();
+
+protected:
+	virtual void logs_impl(const char *message) override;
+	FILE *m_file;
 };
 
 #endif /* F_FILELOGGER_H */

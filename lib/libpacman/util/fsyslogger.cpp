@@ -30,17 +30,16 @@
 
 #include "fstdlib.h"
 
-static
-void f_syslogger_log(unsigned char flag, const char *message, void *data)
-{
-	syslog(LOG_WARNING, "%s", message);
-}
-
 FSysLogger::FSysLogger(unsigned char mask)
-	: FAbstractLogger(mask, f_syslogger_log, NULL)
+	: FAbstractLogger(mask)
 { }
 
 FSysLogger::~FSysLogger()
 { }
+
+void FSysLogger::logs_impl(const char *message)
+{
+	syslog(LOG_WARNING, "%s", message);
+}
 
 /* vim: set ts=2 sw=2 noet: */

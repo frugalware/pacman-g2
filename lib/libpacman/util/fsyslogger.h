@@ -29,6 +29,9 @@ class FSysLogger
 public:
 	FSysLogger(unsigned char mask);
 	~FSysLogger();
+
+protected:
+	void logs_impl(const char *message) override;
 };
 
 #endif /* F_SYSLOGGER_H */

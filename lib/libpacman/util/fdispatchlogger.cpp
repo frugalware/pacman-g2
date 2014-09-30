@@ -26,21 +26,16 @@
 
 #include "util/fptrlist.h"
 
-static
-void f_dispatchlogger_log(unsigned char flag, const char *message, void *data)
-{
-	FPtrList *list = (FPtrList *)data;
-
-	for (auto it = f_ptrlist_first(list), end = f_ptrlist_end(list); it != end; it = it->next()) {
-		((FAbstractLogger *)f_ptrlistitem_data(it))->logs(flag, message);
-	}
-}
-
 FDispatchLogger::FDispatchLogger(unsigned char mask)
-	: FAbstractLogger(mask, f_dispatchlogger_log, f_ptrlist_new())
+	: FAbstractLogger(mask)
 { }
 
 FDispatchLogger::~FDispatchLogger()
 { }
+
+void FDispatchLogger::logs_impl(const char *message)
+{
+	logs_signal(message);
+}
 
 /* vim: set ts=2 sw=2 noet: */

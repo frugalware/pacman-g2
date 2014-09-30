@@ -21,8 +21,7 @@
 #ifndef F_DISPATCHLOGGER_H
 #define F_DISPATCHLOGGER_H
 
-#include <stdio.h>
-
+#include "kernel/fsignal.h"
 #include "util/fabstractlogger.h"
 
 class FDispatchLogger
@@ -31,6 +30,11 @@ class FDispatchLogger
 public:
 	FDispatchLogger(unsigned char mask);
 	~FDispatchLogger();
+
+	flib::FSignal<void(const char *message)> logs_signal;
+
+protected:
+	virtual void logs_impl(const char *message) override;
 };
 
 #endif /* F_DISPATCHLOGGER_H */

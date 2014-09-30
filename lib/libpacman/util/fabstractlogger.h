@@ -25,21 +25,19 @@
 
 #define LOG_STR_LEN 256
 
-typedef void (*FLogFunc)(unsigned char flag, const char *message, void *data);
-
 class FAbstractLogger {
 public:
-	FAbstractLogger(unsigned char mask, FLogFunc fn, void *data);
+	FAbstractLogger(unsigned char mask);
 	virtual ~FAbstractLogger();
 
 	void log(unsigned char flag, const char *format, ...);
-	virtual void logs(unsigned char flag, const char *s);
+	void logs(unsigned char flag, const char *s);
 	void vlog(unsigned char flag, const char *format, va_list ap);
 
 protected:
+	virtual void logs_impl(const char *s) = 0;
+
 	unsigned char m_mask;
-	FLogFunc m_fn;
-	void *m_data;
 };
 
 #endif /* F_ABSTRACTLOGGER_H */
