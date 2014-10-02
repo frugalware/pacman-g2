@@ -93,7 +93,7 @@ void _pacman_db_free_pkgcache(Database *db)
 	_pacman_db_clear_grpcache(db);
 }
 
-FList<Package *> &_pacman_db_get_pkgcache(Database *db)
+libpacman::package_set &_pacman_db_get_pkgcache(Database *db)
 {
 	if(db->pkgcache.empty()) {
 		_pacman_db_load_pkgcache(db);
@@ -201,7 +201,7 @@ int _pacman_db_clear_grpcache(Database *db)
 	return 0;
 }
 
-FList<Group *> &_pacman_db_get_grpcache(Database *db)
+libpacman::group_set &_pacman_db_get_grpcache(Database *db)
 {
 	if(db->grpcache.empty()) {
 		_pacman_db_load_grpcache(db);

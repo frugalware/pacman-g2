@@ -30,9 +30,9 @@ int _pacman_db_load_pkgcache(libpacman::Database *db);
 void _pacman_db_free_pkgcache(libpacman::Database *db);
 int _pacman_db_add_pkgincache(libpacman::Database *db, libpacman::Package *pkg);
 int _pacman_db_remove_pkgfromcache(libpacman::Database *db, libpacman::Package *pkg);
-FList<libpacman::Package *> &_pacman_db_get_pkgcache(libpacman::Database *db);
+libpacman::package_set &_pacman_db_get_pkgcache(libpacman::Database *db);
 /* groups */
-FList<libpacman::Group *> &_pacman_db_get_grpcache(libpacman::Database *db);
+libpacman::group_set &_pacman_db_get_grpcache(libpacman::Database *db);
 libpacman::Group *_pacman_db_get_grpfromcache(libpacman::Database *db, const char *target);
 
 #endif /* _PACMAN_CACHE_H */
