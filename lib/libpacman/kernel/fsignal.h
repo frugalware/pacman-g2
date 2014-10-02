@@ -21,7 +21,6 @@
 #ifndef FSIGNAL_H
 #define FSIGNAL_H
 
-#include "util/falgorithms.h"
 #include "util/ffunctional.h"
 
 #include <vector> // For std::vector
@@ -30,6 +29,12 @@
 
 namespace flib
 {
+
+template <typename T>
+T default_constructor()
+{
+	return T();
+}
 
 template <typename>
 class FSignal;
@@ -47,7 +52,7 @@ public:
 	template <typename Accumulator = void>
 	typename std::enable_if<!std::is_void<Accumulator>::value, Accumulator>::type operator()(Args... args) const
 	{
-		Accumulator accumulator = flib::fdefault_constructor<Accumulator>();
+		Accumulator accumulator = flib::default_constructor<Accumulator>();
 
 		for(const_reference connection : m_connections) {
 			accumulator += connection(args...);
