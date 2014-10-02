@@ -26,6 +26,8 @@
 
 #include "util.h"
 
+#include <stddef.h>
+
 /* Sort comparison callback function declaration */
 typedef int (*_pacman_fn_cmp)(const void *, const void *);
 
@@ -43,7 +45,7 @@ namespace flib
 	struct iterable_traits
 	{
 		typedef Iterable iterable;
-//		typedef typename iterable::difference_type difference_type;
+		typedef typename iterable::difference_type difference_type;
 		typedef typename iterable::pointer pointer;
 		typedef typename iterable::reference reference;
 		typedef typename iterable::size_type size_type;
@@ -79,11 +81,47 @@ namespace flib
 	struct iterable_traits<Iterable *>
 	{
 		typedef Iterable *iterable;
-//		typedef typename Iterable::difference_type difference_type;
-		typedef typename Iterable::pointer pointer;
-		typedef typename Iterable::reference reference;
-		typedef typename Iterable::size_type size_type;
-		typedef typename Iterable::value_type value_type;
+		typedef ptrdiff_t difference_type;
+		typedef Iterable *pointer;
+		typedef Iterable &reference;
+		typedef size_t size_type;
+		typedef Iterable value_type;
+
+		static iterable next(const iterable &i)
+		{
+			return i->next();
+		}
+
+		static iterable previous(const iterable &i)
+		{ 
+			return i->previous();
+		}
+
+		static reference reference_of(iterable i)
+		{
+			return i->operator * ();
+		}
+
+		static pointer pointer_of(iterable i)
+		{
+			return i->operator -> ();
+		}
+
+		static value_type value_of(const iterable i)
+		{
+			return i->operator * ();
+		}
+	};
+
+	template <typename Iterable>
+	struct iterable_traits<const Iterable *>
+	{
+		typedef Iterable *iterable;
+		typedef ptrdiff_t difference_type;
+		typedef const Iterable *pointer;
+		typedef const Iterable &reference;
+		typedef size_t size_type;
+		typedef Iterable value_type;
 
 		static iterable next(const iterable &i)
 		{
