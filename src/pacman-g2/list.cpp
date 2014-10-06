@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <libintl.h>
+
 /* pacman-g2 */
 #include "util.h"
 #include "list.h"
@@ -34,15 +35,15 @@ extern int maxcols;
  */
 void list_display(const char *title, const FStringList *list)
 {
-	const FStringListIterator *lp, *end;
+	FStringList::const_iterator lp, end;
 	int cols, len;
 
 	len = strlen(title);
 	printf("%s ", title);
 
 	if(list) {
-		for(lp = f_ptrlist_first_const(list), end = f_ptrlist_end_const(list), cols = len; lp != end; lp = f_ptrlistitem_next(lp)) {
-			int s = strlen((char *)list_data(lp))+1;
+		for(lp = list->begin(), end = list->end(), cols = len; lp != end; ++lp) {
+			int s = strlen(*lp)+1;
 			if(s+cols >= maxcols) {
 				int i;
 				cols = len;
@@ -51,7 +52,7 @@ void list_display(const char *title, const FStringList *list)
 					printf(" ");
 				}
 			}
-			printf("%s ", (char *)list_data(lp));
+			printf("%s ", *lp);
 			cols += s;
 		}
 		printf("\n");
@@ -68,9 +69,9 @@ void list_display(const char *title, const FStringList *list)
  * This function takes a PM_LIST* and returns a list_t*
  *
  */
-list_t *PM_LIST_remove_dupes(PM_LIST *list)
+FStringList *PM_LIST_remove_dupes(PM_LIST *list)
 {
-	list_t *newlist = NULL;
+	FStringList *newlist = NULL;
 
 	for(pmlist_iterator_t *i = pacman_list_begin(list), *end = pacman_list_end(list); i != end; i = pacman_list_next(i)) {
 		char *data = pacman_list_getdata(i);

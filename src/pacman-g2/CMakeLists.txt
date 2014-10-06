@@ -2,7 +2,7 @@ set(PACMAN_SOURCES
 	conf.c
 	deptest.c
 	download.c
-	list.c
+	list.cpp
 	log.c
 	package.c
 	pacman-g2.c

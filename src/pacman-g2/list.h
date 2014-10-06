@@ -26,13 +26,21 @@
 #include <util/fptrlist.h>
 #include <util/fstringlist.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef FPtrList list_t;
 
 #define list_data f_ptrlistitem_data
 void list_display(const char *title, const FStringList *list);
 
 #define PM_LIST_display(title, list) list_display(title, (const FStringList *)list)
-list_t *PM_LIST_remove_dupes(PM_LIST *list);
+FStringList *PM_LIST_remove_dupes(PM_LIST *list);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PM_LIST_H */
 
