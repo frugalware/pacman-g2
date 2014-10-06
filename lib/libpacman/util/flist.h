@@ -41,6 +41,29 @@ namespace flib
 	struct uncompared
 	{ };
 
+	template <class T>
+	struct mapped_traits
+	{
+		typedef T mapped_type;
+		typedef T key_type;
+		typedef T value_type;
+
+		static const key_type &key_of(const mapped_type &o)
+		{
+			return o;
+		}
+
+		static value_type &value_of(mapped_type &o)
+		{
+			return o;
+		}
+
+		static const value_type &value_of(const mapped_type &o)
+		{
+			return o;
+		}
+	};
+
 	template <typename Iterable>
 	struct iterable_traits
 	{
@@ -635,7 +658,7 @@ namespace flib {
 	};
 }
 
-template <typename T, class Compare = flib::uncompared>
+template <typename T, class Compare = flib::uncompared, class MappedTrais = flib::mapped_traits<T>>
 class FList
 	: protected FCListItem
 {
@@ -935,7 +958,7 @@ protected:
 	template <class Data = value_type>
 	iterator find_insertion_point(typename std::enable_if<std::is_same<flib::uncompared, Compare>::value, const Data &>::type data)
 	{
-		return end();
+		return last();
 	}
 
 	template <class Data = value_type>
