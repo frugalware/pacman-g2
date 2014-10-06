@@ -83,12 +83,12 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	/* check for "recommended" package replacements */
 	_pacman_log(PM_LOG_FLOW1, _("checking for package replacements"));
 	for(auto i = handle->dbs_sync.begin(), end = handle->dbs_sync.end(); i != end; ++i) {
-		auto &cache = _pacman_db_get_pkgcache(*i);
+		auto &cache = (*i)->get_packages();
 		for(auto j = cache.begin(), end = cache.end(); j != end; ++j) {
 			Package *spkg = *j;
 			auto &replaces = spkg->replaces();
 			for(auto k = replaces.begin(), end = replaces.end(); k != end; ++k) {
-				auto &cache_local = _pacman_db_get_pkgcache(db_local);
+				auto &cache_local = db_local->get_packages();
 				for(auto m = cache_local.begin(), end = cache_local.end(); m != end; ++m) {
 					Package *lpkg = *m;
 					if(!strcmp((const char *)*k, lpkg->name())) {
@@ -132,7 +132,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 
 	/* match installed packages with the sync dbs and compare versions */
 	_pacman_log(PM_LOG_FLOW1, _("checking for package upgrades"));
-	auto &cache_local = _pacman_db_get_pkgcache(db_local);
+	auto &cache_local = db_local->get_packages();
 	for(auto i = cache_local.begin(), end= cache_local.end(); i != end; ++i) {
 		int cmp;
 		int replace=0;

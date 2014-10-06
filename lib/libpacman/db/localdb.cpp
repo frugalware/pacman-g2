@@ -508,7 +508,7 @@ FList<Package *> LocalDatabase::getowners(const char *filename)
 		rpath[strlen(rpath)] = '/';
 	}
 
-	auto &cache = _pacman_db_get_pkgcache(this);
+	auto &cache = get_packages();
 	for(auto lp = cache.begin(), end = cache.end(); lp != end; ++lp) {
 		Package *info = *lp;
 

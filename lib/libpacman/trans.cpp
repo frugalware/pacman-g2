@@ -1725,7 +1725,7 @@ int __pmtrans_t::commit(FPtrList **data)
 
 		/* Update the requiredby field by scanning the whole database
 		 * looking for packages depending on the package to add */
-		auto &cache = _pacman_db_get_pkgcache(db_local);
+		auto &cache = db_local->get_packages();
 		for(auto lp = cache.begin(), lp_end = cache.end(); lp != lp_end; ++lp) {
 			Package *tmpp = *lp;
 			if(tmpp == NULL) {

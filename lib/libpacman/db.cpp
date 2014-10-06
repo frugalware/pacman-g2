@@ -97,7 +97,7 @@ FList<Package *> Database::filter(const PackageMatcher &packagematcher)
 {
 	FList<Package *> ret;
 
-	auto &cache = _pacman_db_get_pkgcache(this);
+	auto &cache = get_packages();
 	for(auto it = cache.begin(), end = cache.end(); it != end; ++it) {
 		Package *pkg = (Package *)*it;
 		
@@ -127,7 +127,7 @@ FList<Package *> Database::filter(const FStringList &needles, int packagestrmatc
 
 		PackageMatcher packagematcher(pattern, packagestrmatcher_flags, strmatcher_flags);
 
-		auto &cache = _pacman_db_get_pkgcache(this);
+		auto &cache = get_packages();
 		for(auto j = cache.begin(), j_end = cache.end(); j != j_end; ++j) {
 			Package *pkg = (Package *)*j;
 
@@ -151,7 +151,7 @@ Package *Database::find(const PackageMatcher &packagematcher)
 {
 	Package *ret = NULL;
 
-	auto &cache = _pacman_db_get_pkgcache(this);
+	auto &cache = get_packages();
 	for(auto i = cache.begin(), end = cache.end(); i != end; ++i) {
 		Package *pkg = (Package *)*i;
 

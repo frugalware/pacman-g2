@@ -274,7 +274,7 @@ FPtrList pmtrans_t::checkdeps(unsigned char op)
 				_pacman_splitdep(depend_name, &depend);
 				bool found = false;
 				/* check database for literal packages */
-				auto &cache = _pacman_db_get_pkgcache(db_local);
+				auto &cache = db_local->get_packages();
 				for(auto k = cache.begin(), k_end = cache.end(); k != k_end && !found; ++k) {
 					found = (*k)->match(depend);
 				}

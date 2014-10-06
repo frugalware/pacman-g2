@@ -93,12 +93,12 @@ void _pacman_db_free_pkgcache(Database *db)
 	_pacman_db_clear_grpcache(db);
 }
 
-libpacman::package_set &_pacman_db_get_pkgcache(Database *db)
+libpacman::package_set &Database::get_packages()
 {
-	if(db->pkgcache.empty()) {
-		_pacman_db_load_pkgcache(db);
+	if(pkgcache.empty()) {
+		_pacman_db_load_pkgcache(this);
 	}
-	return db->pkgcache;
+	return pkgcache;
 }
 
 int _pacman_db_add_pkgincache(Database *db, Package *pkg)
@@ -163,7 +163,7 @@ int _pacman_db_load_grpcache(Database *db)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	auto &cache = _pacman_db_get_pkgcache(db);
+	auto &cache = db->get_packages();
 
 	_pacman_log(PM_LOG_DEBUG, _("loading group cache for repository '%s'"), db->treename());
 
@@ -201,19 +201,19 @@ int _pacman_db_clear_grpcache(Database *db)
 	return 0;
 }
 
-libpacman::group_set &_pacman_db_get_grpcache(Database *db)
+libpacman::group_set &Database::get_groups()
 {
-	if(db->grpcache.empty()) {
-		_pacman_db_load_grpcache(db);
+	if(grpcache.empty()) {
+		_pacman_db_load_grpcache(this);
 	}
-	return db->grpcache;
+	return grpcache;
 }
 
 Group *_pacman_db_get_grpfromcache(Database *db, const char *target)
 {
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
 
-	return _pacman_db_get_grpfromlist(_pacman_db_get_grpcache(db), target);
+	return _pacman_db_get_grpfromlist(db->get_groups(), target);
 }
 
 /* vim: set ts=2 sw=2 noet: */

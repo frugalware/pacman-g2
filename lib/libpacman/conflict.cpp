@@ -87,7 +87,7 @@ FPtrList pmtrans_t::checkconflicts()
 			}
 			/* CHECK 1: check targets against database */
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs db"), tp->name());
-			auto &cache = _pacman_db_get_pkgcache(db_local);
+			auto &cache = db_local->get_packages();
 			for(auto k = cache.begin(), k_end = cache.end(); k != k_end; ++k) {
 				Package *dp = *k;
 				if(!strcmp(dp->name(), tp->name())) {
@@ -144,7 +144,7 @@ FPtrList pmtrans_t::checkconflicts()
 		}
 		/* CHECK 3: check database against targets */
 		_pacman_log(PM_LOG_DEBUG, _("checkconflicts: db vs targ '%s'"), tp->name());
-		auto &cache = _pacman_db_get_pkgcache(db_local);
+		auto &cache = db_local->get_packages();
 		for(auto k = cache.begin(), k_end = cache.end(); k != k_end; ++k) {
 			FStringList *conflicts;
 			int usenewconflicts = 0;

@@ -569,7 +569,7 @@ pmlist_t *pacman_db_getpkgcache(pmdb_t *_db)
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
-	return c_cast(_pacman_db_get_pkgcache(db));
+	return c_cast(db->get_packages());
 }
 
 /** Get the list of packages that a package provides
@@ -619,7 +619,7 @@ pmlist_t *pacman_db_getgrpcache(pmdb_t *_db)
 	ASSERT(handle != NULL, return(NULL));
 	ASSERT(db != NULL, return(NULL));
 
-	return c_cast(_pacman_db_get_grpcache(db));
+	return c_cast(db->get_groups());
 }
 
 /** @} */
