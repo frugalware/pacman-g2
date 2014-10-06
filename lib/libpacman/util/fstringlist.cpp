@@ -66,15 +66,6 @@ FStringList *_pacman_list_remove_dupes(FStringList *list)
 	return newlist;
 }
 
-const char *f_stringlistitem_to_str(const FStringListIterator *self)
-{
-#ifndef F_NOCOMPAT
-	return (const char *)f_ptrlistitem_data(self);
-#else
-	return self->to_str;
-#endif
-}
-
 int f_stringlist_delete(FStringList *self)
 {
 	delete self;
