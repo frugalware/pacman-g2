@@ -49,10 +49,10 @@ set(LIBPACMAN_SOURCES
 	db/syncdb.cpp
 	package/fpmpackage.cpp
 	package/packagecache.cpp
-	cache.cpp
 	config_parser.cpp
 	conflict.cpp
 	db.cpp
+	database_cache.cpp
 	deps.cpp
 	error.cpp
 	group.cpp
