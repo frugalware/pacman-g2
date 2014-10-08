@@ -19,5 +19,5 @@ root
 *~
 *.txt.user*
 LINGUAS
-
-
+.sconsign.dblite
+config.log
