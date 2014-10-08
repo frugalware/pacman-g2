@@ -55,6 +55,7 @@ int _pacman_db_load_grpcache(Database *db);
 /* Returns a new package cache from db.
  * It frees the cache if it already exists.
  */
+static
 int _pacman_db_load_pkgcache(Database *db)
 {
 	Package *info;

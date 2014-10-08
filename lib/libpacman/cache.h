@@ -26,7 +26,6 @@
 #include "db.h"
 
 /* packages */
-int _pacman_db_load_pkgcache(libpacman::Database *db);
 void _pacman_db_free_pkgcache(libpacman::Database *db);
 int _pacman_db_add_pkgincache(libpacman::Database *db, libpacman::Package *pkg);
 int _pacman_db_remove_pkgfromcache(libpacman::Database *db, libpacman::Package *pkg);
