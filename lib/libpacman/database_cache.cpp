@@ -207,11 +207,9 @@ libpacman::group_set &Database::get_groups()
 	return grpcache;
 }
 
-Group *_pacman_db_get_grpfromcache(Database *db, const char *target)
+Group *Database::find_group(const char *target)
 {
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
-
-	return _pacman_db_get_grpfromlist(db->get_groups(), target);
+	return _pacman_db_get_grpfromlist(get_groups(), target);
 }
 
 /* vim: set ts=2 sw=2 noet: */

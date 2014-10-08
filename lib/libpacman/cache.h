@@ -25,9 +25,6 @@
 #include "group.h"
 #include "db.h"
 
-/* groups */
-libpacman::Group *_pacman_db_get_grpfromcache(libpacman::Database *db, const char *target);
-
 #endif /* _PACMAN_CACHE_H */
 
 /* vim: set ts=2 sw=2 noet: */

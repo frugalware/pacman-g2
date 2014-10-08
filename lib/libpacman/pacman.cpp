@@ -598,7 +598,7 @@ pmgrp_t *pacman_db_readgrp(pmdb_t *_db, char *name)
 	ASSERT(db != NULL, return(NULL));
 	ASSERT(!_pacman_strempty(name), return(NULL));
 
-	return c_cast(_pacman_db_get_grpfromcache(db, name));
+	return c_cast(db->find_group(name));
 }
 
 /** Get the group cache of a package database

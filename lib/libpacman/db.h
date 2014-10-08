@@ -84,6 +84,7 @@ public:
 	libpacman::Package *find(const char *target,
 			int packagestrmatcher_flags = PM_PACKAGE_FLAG_NAME,
 			int strmatcher_flags = FStrMatcher::EQUAL);
+	libpacman::Group *find_group(const char *target);
 	libpacman::package_set &get_packages();
 	libpacman::group_set &get_groups();
 	FList<libpacman::Package *> whatPackagesProvide(const char *target);
