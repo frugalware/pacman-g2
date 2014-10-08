@@ -36,6 +36,8 @@ if not cfg.CheckPKG('libcurl'):
 
 env = cfg.Finish()
 
+env.ParseConfig('pkg-config --cflags --libs libarchive libcurl')
+
 try:
 	debug = int(ARGUMENTS.get('debug', 0))
 except ValueError:
