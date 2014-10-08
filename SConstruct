@@ -11,8 +11,8 @@ def CheckPKGConfig(ctx, version):
 def CheckPKG(ctx, name):
 	ctx.Message('Checking for %s... ' % name)
 	rv = ctx.TryAction('pkg-config --exists \'%s\'' % name)[0]
-	ctx.Result(ret)
-	return ret
+	ctx.Result(rv)
+	return rv
 
 cfg = Configure(
 	env,
@@ -25,3 +25,13 @@ cfg = Configure(
 if not cfg.CheckPKGConfig('0.15.0'):
 	print('pkg-config >= 0.15.0 not found.')
 	Exit(1)
+
+if not cfg.CheckPKG('libarchive'):
+	print('libarchive not found.')
+	Exit(1)
+
+if not cfg.CheckPKG('libcurl'):
+	print('libcurl not found.')
+	Exit(1)
+	
+env = cfg.Finish()
