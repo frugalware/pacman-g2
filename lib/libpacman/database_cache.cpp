@@ -116,19 +116,17 @@ int Database::add_pkgincache(Package *pkg)
 
 int Database::remove_pkgfromcache(Package *pkg)
 {
-	Package *data;
-
 	if(pkg == NULL) {
 		return(-1);
 	}
 
-	if(!pkgcache.remove(pkg, f_ptrcmp, &data)) {
+	if(!pkgcache.remove(pkg)) {
 		/* package not found */
 		return(-1);
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("removing entry '%s' from '%s' cache"), pkg->name(), treename());
-	data->release(); // FIXME: Should not be necessary, but required during migration to refcounted object
+	pkg->release(); // FIXME: Should not be necessary, but required during migration to refcounted object
 
 	_pacman_db_clear_grpcache(this);
 
