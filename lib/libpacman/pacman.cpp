@@ -439,11 +439,6 @@ int pacman_db_unregister(pmdb_t *_db)
 		RET_ERR(PM_ERR_DB_NOT_FOUND, -1);
 	}
 
-	_pacman_log(PM_LOG_FLOW1, _("unregistering database '%s'"), db->treename());
-
-	/* Cleanup */
-	_pacman_db_free_pkgcache(db);
-
 	_pacman_log(PM_LOG_DEBUG, _("closing database '%s'"), db->treename());
 	db->close();
 

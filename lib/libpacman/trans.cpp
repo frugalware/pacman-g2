@@ -69,7 +69,7 @@ int check_oldcache(Database *db)
 	}
 	if(timestamp - db->cache_timestamp != 0) {
 		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is too old"), db->treename());
-		_pacman_db_free_pkgcache(db);
+		db->free_pkgcache();
 	} else {
 		_pacman_log(PM_LOG_DEBUG, _("cache for '%s' repo is up to date"), db->treename());
 	}

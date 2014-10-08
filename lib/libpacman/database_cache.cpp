@@ -62,7 +62,7 @@ int _pacman_db_load_pkgcache(Database *db)
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	_pacman_db_free_pkgcache(db);
+	db->free_pkgcache();
 
 	unsigned int inforeq = 0;
 	if (db != db->m_handle->db_local)
@@ -79,19 +79,18 @@ int _pacman_db_load_pkgcache(Database *db)
 	return(0);
 }
 
-void _pacman_db_free_pkgcache(Database *db)
+void Database::free_pkgcache()
 {
-	ASSERT(db != NULL, pm_errno = PM_ERR_DB_NULL; return);
-	if(db->pkgcache.empty()) {
+	if(pkgcache.empty()) {
 		return;
 	}
 
 	_pacman_log(PM_LOG_DEBUG, _("freeing package cache for repository '%s'"),
-	                        db->treename());
+	                        treename());
 
-	db->pkgcache.clear(/*_pacman_pkg_delete*/);
+	pkgcache.clear(/*_pacman_pkg_delete*/);
 
-	_pacman_db_clear_grpcache(db);
+	_pacman_db_clear_grpcache(this);
 }
 
 libpacman::package_set &Database::get_packages()

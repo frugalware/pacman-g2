@@ -71,6 +71,8 @@ public:
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
 
 	/* Cache operations */
+	void free_pkgcache();
+
 	FList<libpacman::Package *> filter(const libpacman::PackageMatcher &packagematcher);
 	FList<libpacman::Package *> filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
 	FList<libpacman::Package *> filter(const FStringList &needles, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);

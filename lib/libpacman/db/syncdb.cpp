@@ -189,7 +189,7 @@ int _pacman_syncdb_update(Database *db, int force)
 		_pacman_rmrf(dirpath);
 
 		/* Cache needs to be rebuild */
-		_pacman_db_free_pkgcache(db);
+		db->free_pkgcache();
 
 		if(updated) {
 			db->settimestamp(&newmtime);
