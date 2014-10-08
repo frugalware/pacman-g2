@@ -116,24 +116,23 @@ int Database::add_pkgincache(Package *pkg)
 	return(0);
 }
 
-int _pacman_db_remove_pkgfromcache(Database *db, Package *pkg)
+int Database::remove_pkgfromcache(Package *pkg)
 {
 	Package *data;
 
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	if(pkg == NULL) {
 		return(-1);
 	}
 
-	if(!db->pkgcache.remove(pkg, f_ptrcmp, &data)) {
+	if(!pkgcache.remove(pkg, f_ptrcmp, &data)) {
 		/* package not found */
 		return(-1);
 	}
 
-	_pacman_log(PM_LOG_DEBUG, _("removing entry '%s' from '%s' cache"), pkg->name(), db->treename());
+	_pacman_log(PM_LOG_DEBUG, _("removing entry '%s' from '%s' cache"), pkg->name(), treename());
 	data->release(); // FIXME: Should not be necessary, but required during migration to refcounted object
 
-	_pacman_db_clear_grpcache(db);
+	_pacman_db_clear_grpcache(this);
 
 	return(0);
 }

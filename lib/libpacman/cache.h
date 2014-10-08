@@ -25,8 +25,6 @@
 #include "group.h"
 #include "db.h"
 
-/* packages */
-int _pacman_db_remove_pkgfromcache(libpacman::Database *db, libpacman::Package *pkg);
 /* groups */
 libpacman::Group *_pacman_db_get_grpfromcache(libpacman::Database *db, const char *target);
 

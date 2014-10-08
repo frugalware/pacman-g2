@@ -72,6 +72,7 @@ public:
 
 	/* Cache operations */
 	int add_pkgincache(libpacman::Package *pkg);
+	int remove_pkgfromcache(libpacman::Package *pkg);
 	void free_pkgcache();
 
 	FList<libpacman::Package *> filter(const libpacman::PackageMatcher &packagematcher);

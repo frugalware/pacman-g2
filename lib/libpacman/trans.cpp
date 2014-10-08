@@ -1658,7 +1658,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		if(pkg_local->remove() == -1) {
 			_pacman_log(PM_LOG_ERROR, _("could not remove database entry %s-%s"), pkg_local->name(), pkg_local->version());
 		}
-		if(_pacman_db_remove_pkgfromcache(db_local, pkg_local) == -1) {
+		if(db_local->remove_pkgfromcache(pkg_local) == -1) {
 			_pacman_log(PM_LOG_ERROR, _("could not remove entry '%s' from cache"), pkg_local->name());
 		}
 
