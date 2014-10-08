@@ -14,18 +14,6 @@ def CheckPKG(ctx, name):
 
 env = Environment()
 
-try:
-	static = int(ARGUMENTS.get('static', 0))
-except ValueError:
-	print('static is invalid.')
-	Exit(1)
-
-try:
-	shared = int(ARGUMENTS.get('shared', 1))
-except ValueError:
-	print('shared is invalid.')
-	Exit(1)
-
 cfg = Configure(
 	env,
 	{
@@ -47,3 +35,24 @@ if not cfg.CheckPKG('libcurl'):
 	Exit(1)
 
 env = cfg.Finish()
+
+try:
+	debug = int(ARGUMENTS.get('debug', 0))
+except ValueError:
+	print('debug is invalid.')
+	Exit(1)
+
+try:
+	static = int(ARGUMENTS.get('static', 0))
+except ValueError:
+	print('static is invalid.')
+	Exit(1)
+
+try:
+	shared = int(ARGUMENTS.get('shared', 1))
+except ValueError:
+	print('shared is invalid.')
+	Exit(1)
+
+if debug:
+	env.Append(CCFLAGS = '-g')
