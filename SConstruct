@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-env = Environment()
-
 def CheckPKGConfig(ctx, version):
 	ctx.Message('Checking for pkg-config... ')
 	rv = ctx.TryAction('pkg-config --atleast-pkgconfig-version=\'%s\'' % version)[0]
@@ -13,6 +11,20 @@ def CheckPKG(ctx, name):
 	rv = ctx.TryAction('pkg-config --exists \'%s\'' % name)[0]
 	ctx.Result(rv)
 	return rv
+
+env = Environment()
+
+try:
+	static = int(ARGUMENTS.get('static', 0))
+except ValueError:
+	print('static is invalid.')
+	Exit(1)
+
+try:
+	shared = int(ARGUMENTS.get('shared', 1))
+except ValueError:
+	print('shared is invalid.')
+	Exit(1)
 
 cfg = Configure(
 	env,
@@ -33,5 +45,5 @@ if not cfg.CheckPKG('libarchive'):
 if not cfg.CheckPKG('libcurl'):
 	print('libcurl not found.')
 	Exit(1)
-	
+
 env = cfg.Finish()
