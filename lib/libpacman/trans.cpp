@@ -39,7 +39,6 @@
 #include "handle.h"
 #include "server.h"
 #include "sync.h"
-#include "cache.h"
 #include "pacman.h"
 #include "versioncmp.h"
 

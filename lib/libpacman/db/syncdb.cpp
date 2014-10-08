@@ -40,7 +40,6 @@
 #include "util/time.h"
 #include "fstring.h"
 #include "util.h"
-#include "cache.h"
 #include "db.h"
 #include "package.h"
 #include "pacman.h"

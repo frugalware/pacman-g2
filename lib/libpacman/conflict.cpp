@@ -31,7 +31,6 @@
 #include "db/localdb_files.h"
 #include "util.h"
 #include "error.h"
-#include "cache.h"
 #include "deps.h"
 
 #include "util/falgorithm.h"

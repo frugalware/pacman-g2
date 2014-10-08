@@ -32,7 +32,6 @@
 #include "error.h"
 #include "server.h"
 #include "handle.h"
-#include "cache.h"
 #include "pacman_p.h"
 
 #include "db/localdb.h"

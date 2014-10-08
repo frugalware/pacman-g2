@@ -27,7 +27,6 @@
 
 #include "db/localdb_files.h"
 #include "util.h"
-#include "cache.h"
 #include "db.h"
 #include "package.h"
 #include "pacman.h"

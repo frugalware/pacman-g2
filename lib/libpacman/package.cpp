@@ -33,7 +33,6 @@
 #include "db.h"
 #include "deps.h"
 #include "handle.h"
-#include "cache.h"
 #include "pacman.h"
 #include "versioncmp.h"
 

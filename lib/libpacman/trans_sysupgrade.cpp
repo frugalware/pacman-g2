@@ -39,7 +39,6 @@
 #include "error.h"
 #include "package.h"
 #include "db.h"
-#include "cache.h"
 #include "deps.h"
 #include "conflict.h"
 #include "trans.h"

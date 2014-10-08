@@ -36,7 +36,6 @@
 #include "group.h"
 #include "util.h"
 #include "db.h"
-#include "cache.h"
 #include "conflict.h"
 #include "handle.h"
 #include "server.h"

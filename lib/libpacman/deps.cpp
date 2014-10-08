@@ -39,7 +39,6 @@
 #include "package.h"
 #include "pacman_p.h"
 #include "db.h"
-#include "cache.h"
 #include "versioncmp.h"
 #include "handle.h"
 

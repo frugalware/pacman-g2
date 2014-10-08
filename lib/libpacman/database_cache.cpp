@@ -1,5 +1,5 @@
 /*
- *  cache.c
+ *  database_cache.cpp
  *
  *  Copyright (c) 2002-2006 by Judd Vinet <jvinet@zeroflux.org>
  *  Copyright (c) 2007 by Miklos Vajna <vmiklos@frugalware.org>
@@ -31,8 +31,6 @@
 #include <unistd.h>
 
 /* pacman-g2 */
-#include "cache.h"
-
 #include "db/localdb_files.h"
 #include "util/log.h"
 #include "fstring.h"
