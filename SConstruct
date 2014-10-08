@@ -37,6 +37,8 @@ if not cfg.CheckPKG('libcurl'):
 env = cfg.Finish()
 
 env.ParseConfig('pkg-config --cflags --libs libarchive libcurl')
+env.Append(CFLAGS = '-std=c99')
+env.Append(CXXFLAGS = '-std=c++11')
 
 try:
 	debug = int(ARGUMENTS.get('debug', 0))
