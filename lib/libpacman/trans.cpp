@@ -1756,7 +1756,7 @@ int __pmtrans_t::commit(FPtrList **data)
 			          pkg_new->name(), pkg_new->version());
 			RET_ERR(PM_ERR_DB_WRITE, -1);
 		}
-		if(_pacman_db_add_pkgincache(db_local, pkg_new) == -1) {
+		if(db_local->add_pkgincache(pkg_new) == -1) {
 			_pacman_log(PM_LOG_ERROR, _("could not add entry '%s' in cache"), pkg_new->name());
 		}
 

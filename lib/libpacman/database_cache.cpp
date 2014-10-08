@@ -101,18 +101,17 @@ libpacman::package_set &Database::get_packages()
 	return pkgcache;
 }
 
-int _pacman_db_add_pkgincache(Database *db, Package *pkg)
+int Database::add_pkgincache(Package *pkg)
 {
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 	if(pkg == NULL) {
 		return(-1);
 	}
 
 	pkg->acquire(); // FIXME: Should not be necessary, but required during migration to refcounted object
-	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), pkg->name(), db->treename());
-	db->pkgcache.add(pkg);
+	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), pkg->name(), treename());
+	pkgcache.add(pkg);
 
-	_pacman_db_clear_grpcache(db);
+	_pacman_db_clear_grpcache(this);
 
 	return(0);
 }
