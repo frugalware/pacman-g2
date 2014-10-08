@@ -25,7 +25,6 @@
 #include <stdlib.h>
 
 #include "util/log.h"
-#include "fmath.h"
 #include "util.h"
 
 static inline
@@ -46,18 +45,6 @@ void *f_zalloc(size_t size)
 	if(ptr != NULL)
 		memset(ptr, 0, size);
 	return ptr;
-}
-
-static inline
-intptr_t f_diffptr(const void *ptr1, const void *ptr2)
-{
-	return (intptr_t)ptr1 - (intptr_t)ptr2;
-}
-
-static inline
-int f_ptrcmp(const void *ptr1, const void *ptr2)
-{
-	return f_signp(f_diffptr(ptr1, ptr2));
 }
 
 #define F_PATH_NOCHECK  (1<<0)
