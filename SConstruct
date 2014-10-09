@@ -116,6 +116,9 @@ if not cfg.env['HOST_ARCH'] in [ 'i686', 'x86_64' ]:
 	print('Unsupported CPU architecture (%s).' % cfg.env['HOST_ARCH'])
 	Exit(1)
 
+# Define various project macros
+cfg.Define('PM_DEFAULT_BYTES_PER_BLOCK', 10240)
+
 # Check that certain headers exist
 cfg.CheckHeader('dlfcn.h')
 cfg.CheckHeader('inttypes.h')
@@ -141,10 +144,10 @@ env = cfg.Finish()
 env.Append(CFLAGS = ['-std=c99'])
 
 # Set C++ compiler only flags
-env.Append(CXXFLAGS = ['-std=c++11'])
+env.Append(CXXFLAGS = ['-std=c++11', '-fpermissive'])
 
 # Set CPP include directories
-env.Append(CPPPATH = ['lib/libpacman'])
+env.Append(CPPPATH = ['/usr/include/curl', 'lib/libpacman', '.'])
 
 # Set CPP macros
 env.Append(CPPDEFINES = ['_GNU_SOURCE', '_LARGEFILE64_SOURCE'])
