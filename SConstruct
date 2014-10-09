@@ -116,6 +116,19 @@ if not cfg.env['HOST_ARCH'] in [ 'i686', 'x86_64' ]:
 	print('Unsupported CPU architecture (%s).' % cfg.env['HOST_ARCH'])
 	Exit(1)
 
+# Check that certain headers exist
+cfg.CheckHeader('dlfcn.h')
+cfg.CheckHeader('inttypes.h')
+cfg.CheckHeader('memory.h')
+cfg.CheckHeader('stdint.h')
+cfg.CheckHeader('stdlib.h')
+cfg.CheckHeader('strings.h')
+cfg.CheckHeader('string.h')
+cfg.CheckHeader('sys/stat.h')
+cfg.CheckHeader('sys/types.h')
+cfg.CheckHeader('unistd.h')
+
+# Check that certain functions exist
 cfg.CheckFunc('gettext')
 cfg.CheckFunc('dcgettext')
 cfg.CheckFunc('iconv')
