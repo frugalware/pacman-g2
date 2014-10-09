@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 
+# Custom test for finding pkg-config
 def CheckPKGConfig(ctx, version):
 	ctx.Message('Checking for pkg-config... ')
 	rv = ctx.TryAction('pkg-config --atleast-pkgconfig-version=\'%s\'' % version)[0]
 	ctx.Result(rv)
 	return rv
 
+# Custom test for finding a pkg-config package
 def CheckPKG(ctx, name):
 	ctx.Message('Checking for %s... ' % name)
 	rv = ctx.TryAction('pkg-config --exists \'%s\'' % name)[0]
 	ctx.Result(rv)
 	return rv
 
+# Custom test for finding the computer platform
 def CheckPlatform(ctx):
 	from platform import system, machine
 	ctx.Message('Checking platform... ')
@@ -26,6 +29,7 @@ def CheckPlatform(ctx):
 	ctx.Result(rv)
 	return rv
 
+# Enable shared builds
 AddOption(
 	'--enable-shared',
 	dest='shared',
@@ -34,6 +38,7 @@ AddOption(
 	default=1
 )
 
+# Disable shared builds
 AddOption(
 	'--disable-shared',
 	dest='shared',
@@ -42,6 +47,7 @@ AddOption(
 	default=1
 )
 
+# Enable static builds
 AddOption(
 	'--enable-static',
 	dest='static',
@@ -50,6 +56,7 @@ AddOption(
 	default=0
 )
 
+# Disable static builds
 AddOption(
 	'--disable-static',
 	dest='static',
@@ -58,6 +65,7 @@ AddOption(
 	default=0
 )
 
+# Enable debugging
 AddOption(
 	'--enable-debug',
 	dest='debug',
@@ -66,6 +74,7 @@ AddOption(
 	default=1
 )
 
+# Disable debugging
 AddOption(
 	'--disable-debug',
 	dest='debug',
@@ -74,8 +83,10 @@ AddOption(
 	default=1
 )
 
+# Get the build environment
 env = Environment()
 
+# Start the system testing phase
 cfg = Configure(
 	env,
 	custom_tests = {
@@ -86,26 +97,32 @@ cfg = Configure(
 	config_h = 'config.h'
 )
 
+# Check for pkg-config
 if not cfg.CheckPKGConfig('0.15.0'):
 	print('pkg-config >= 0.15.0 not found.')
 	Exit(1)
 
+# Check for libarchive
 if not cfg.CheckPKG('libarchive'):
 	print('libarchive not found.')
 	Exit(1)
 
+# Check for libcurl
 if not cfg.CheckPKG('libcurl'):
 	print('libcurl not found.')
 	Exit(1)
 
+# Check for supported platform
 if not cfg.CheckPlatform():
-	print('Cannot determine the computer platform.')
+	print('Unsupported computer platform.')
 	Exit(1)
 
+# Check for supported CPU architecture
 if not cfg.env['HOST_ARCH'] in [ 'i686', 'x86_64' ]:
 	print('Unsupported CPU architecture (%s).' % cfg.env['HOST_ARCH'])
 	Exit(1)
 
+# Finish the system testing phase
 env = cfg.Finish()
 
 # Set C compiler only flags
