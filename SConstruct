@@ -138,25 +138,28 @@ cfg.CheckFunc('strverscmp')
 env = cfg.Finish()
 
 # Set C compiler only flags
-env.Append(CFLAGS = '-std=c99')
+env.Append(CFLAGS = ['-std=c99'])
 
 # Set C++ compiler only flags
-env.Append(CXXFLAGS = '-std=c++11')
+env.Append(CXXFLAGS = ['-std=c++11'])
+
+# Set CPP include directories
+env.Append(CPPPATH = ['lib/libpacman'])
+
+# Set CPP macros
+env.Append(CPPDEFINES = ['_GNU_SOURCE', '_LARGEFILE64_SOURCE'])
 
 # Set debugging or no debugging flags
 if GetOption('debug'):
-	env.Append(CCFLAGS = '-g')
+	env.Append(CCFLAGS = ['-g'])
 else:
-	env.Append(CCFLAGS = '-DNDEBUG')
+	env.Append(CPPDEFINES = ['NDEBUG'])
 
 # Set flags for libarchive
 env.ParseConfig('pkg-config --cflags --libs libarchive')
 
 # Set flags for libcurl
 env.ParseConfig('pkg-config --cflags --libs libcurl')
-
-# Set local include directories
-env.Append(CPPPATH = 'lib/libpacman')
 
 # flib source files
 flib_sources = [
