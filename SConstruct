@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 def CheckPKGConfig(ctx, version):
 	ctx.Message('Checking for pkg-config... ')
@@ -37,6 +37,38 @@ AddOption(
 AddOption(
 	'--disable-shared',
 	dest='shared',
+	nargs='?',
+	const=0,
+	default=1
+)
+
+AddOption(
+	'--enable-static',
+	dest='static',
+	nargs='?',
+	const=1,
+	default=0
+)
+
+AddOption(
+	'--disable-static',
+	dest='static',
+	nargs='?',
+	const=0,
+	default=0
+)
+
+AddOption(
+	'--enable-debug',
+	dest='debug',
+	nargs='?',
+	const=1,
+	default=1
+)
+
+AddOption(
+	'--disable-debug',
+	dest='debug',
 	nargs='?',
 	const=0,
 	default=1
