@@ -26,6 +26,22 @@ def CheckPlatform(ctx):
 	ctx.Result(rv)
 	return rv
 
+AddOption(
+	'--enable-shared',
+	dest='shared',
+	nargs='?',
+	const=1,
+	default=1
+)
+
+AddOption(
+	'--disable-shared',
+	dest='shared',
+	nargs='?',
+	const=0,
+	default=1
+)
+
 env = Environment()
 
 cfg = Configure(
@@ -63,24 +79,6 @@ env = cfg.Finish()
 env.ParseConfig('pkg-config --cflags --libs libarchive libcurl')
 env.Append(CFLAGS = '-std=c99')
 env.Append(CXXFLAGS = '-std=c++11')
-
-try:
-	debug = int(ARGUMENTS.get('debug', 0))
-except ValueError:
-	print('debug is invalid.')
-	Exit(1)
-
-try:
-	static = int(ARGUMENTS.get('static', 0))
-except ValueError:
-	print('static is invalid.')
-	Exit(1)
-
-try:
-	shared = int(ARGUMENTS.get('shared', 1))
-except ValueError:
-	print('shared is invalid.')
-	Exit(1)
 
 if debug:
 	env.Append(CCFLAGS = '-g')
