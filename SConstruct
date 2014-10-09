@@ -185,4 +185,4 @@ env['TOPLEVEL'] = True
 
 env.Export('env')
 
-SConscript('lib/libpacman/SConstruct')
+SConscript('lib/SConstruct')
