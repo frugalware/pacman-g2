@@ -181,78 +181,8 @@ env.ParseConfig('pkg-config --cflags --libs libarchive')
 # Set flags for libcurl
 env.ParseConfig('pkg-config --cflags --libs libcurl')
 
-# flib source files
-flib_sources = [
-	'lib/libpacman/kernel/fobject.cpp',
-#	'lib/libpacman/kernel/fobject.h',
-#	'lib/libpacman/kernel/fsignal.h',
-	'lib/libpacman/kernel/fstr.cpp',
-#	'lib/libpacman/kernel/fstr.h',
-	'lib/libpacman/fstdlib/canonicalize.c',
-	'lib/libpacman/fstring/basename.c',
-	'lib/libpacman/fstring/case.c',
-	'lib/libpacman/fstring/dirname.c',
-	'lib/libpacman/hash/md5.c',
-	'lib/libpacman/hash/md5driver.c',
-	'lib/libpacman/hash/sha1.c',
-	'lib/libpacman/io/archive.c',
-	'lib/libpacman/io/ffilelock.c',
-	'lib/libpacman/io/ftp.c',
-	'lib/libpacman/util/fabstractlogger.cpp',
-#	'lib/libpacman/util/fabstractlogger.h',
-#	'lib/libpacman/util/falgorithm.h',
-	'lib/libpacman/util/fdispatchlogger.cpp',
-#	'lib/libpacman/util/fdispatchlogger.h',
-#	'lib/libpacman/util/flist.h',
-	'lib/libpacman/util/ffilelogger.cpp',
-#	'lib/libpacman/util/ffilelogger.h',
-#	'lib/libpacman/util/ffunctional.h',
-	'lib/libpacman/util/flog.cpp',
-#	'lib/libpacman/util/flog.h',
-	'lib/libpacman/util/fptrlist.cpp',
-#	'lib/libpacman/util/fptrlist.h',
-	'lib/libpacman/util/fstringlist.cpp',
-	'lib/libpacman/util/fsyslogger.cpp',
-#	'lib/libpacman/util/fsyslogger.h',
-	'lib/libpacman/util/log.c',
-	'lib/libpacman/util/time.c',
-	'lib/libpacman/fstring.c',
-]
+env['TOPLEVEL'] = True
 
-# libpacman source files
-libpacman_sources = [
-	'lib/libpacman/db/fakedb.cpp',
-	'lib/libpacman/db/localdb.cpp',
-	'lib/libpacman/db/localdb_files.cpp',
-	'lib/libpacman/db/syncdb.cpp',
-	'lib/libpacman/package/fpmpackage.cpp',
-	'lib/libpacman/package/packagecache.cpp',
-	'lib/libpacman/config_parser.cpp',
-	'lib/libpacman/conflict.cpp',
-	'lib/libpacman/db.cpp',
-	'lib/libpacman/database_cache.cpp',
-	'lib/libpacman/deps.cpp',
-	'lib/libpacman/error.cpp',
-	'lib/libpacman/group.cpp',
-	'lib/libpacman/handle.cpp',
-	'lib/libpacman/package.cpp',
-	'lib/libpacman/packages_transaction.cpp',
-	'lib/libpacman/pacman.cpp',
-	'lib/libpacman/server.cpp',
-	'lib/libpacman/sync.cpp',
-#	'lib/libpacman/timestamp.h',
-	'lib/libpacman/trans.cpp',
-	'lib/libpacman/trans_sysupgrade.cpp',
-	'lib/libpacman/util.cpp',
-	'lib/libpacman/versioncmp.cpp',
-]
+env.Export('env')
 
-# Add flib sources to libpacman sources for now because they are linked
-# into the same library
-libpacman_sources.extend(flib_sources)
-
-if GetOption('static'):
-	env.StaticLibrary('lib/libpacman/libpacman', libpacman_sources)
-
-if GetOption('shared'):
-	env.SharedLibrary('lib/libpacman/libpacman', libpacman_sources)
+SConscript('lib/libpacman/SConstruct')
