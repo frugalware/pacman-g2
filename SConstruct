@@ -53,6 +53,10 @@ if not cfg.CheckPlatform():
 	print('Cannot determine the computer platform.')
 	Exit(1)
 
+if not cfg.env['HOST_ARCH'] in [ 'i686', 'x86_64' ]:
+	print('Unsupported CPU architecture (%s).' % cfg.env['HOST_ARCH'])
+	Exit(1)
+
 env = cfg.Finish()
 
 env.ParseConfig('pkg-config --cflags --libs libarchive libcurl')
