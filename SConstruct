@@ -116,6 +116,8 @@ if not cfg.env['HOST_ARCH'] in [ 'i686', 'x86_64' ]:
 	print('Unsupported CPU architecture (%s).' % cfg.env['HOST_ARCH'])
 	Exit(1)
 
+cfg.CheckFunc('strverscmp')
+
 # Finish the system testing phase
 env = cfg.Finish()
 
