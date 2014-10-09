@@ -233,3 +233,9 @@ libpacman_sources = [
 # Add flib sources to libpacman sources for now because they are linked
 # into the same library
 libpacman_sources.extend(flib_sources)
+
+if GetOption('static'):
+	env.StaticLibrary('lib/libpacman/libpacman', libpacman_sources)
+
+if GetOption('shared'):
+	env.SharedLibrary('lib/libpacman/libpacman', libpacman_sources)
