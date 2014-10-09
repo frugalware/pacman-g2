@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+# Global settings
+package     = 'pacman-g2'
+version     = '3.90.0'
+description = 'package manager'
+config_file = '/etc/pacman-g2.conf'
+http_url    = 'http://frugalware.org'
+bugs_email  = 'frugalware-devel@frugalware.org'
+
 # Custom test for finding pkg-config
 def CheckPKGConfig(ctx, version):
 	ctx.Message('Checking for pkg-config... ')
@@ -33,7 +41,7 @@ def CheckPlatform(ctx):
 AddOption(
 	'--enable-shared',
 	dest='shared',
-	action="store_true",
+	action='store_true',
 	default=True
 )
 
@@ -41,7 +49,7 @@ AddOption(
 AddOption(
 	'--disable-shared',
 	dest='shared',
-	action="store_false",
+	action='store_false',
 	default=True
 )
 
@@ -49,7 +57,7 @@ AddOption(
 AddOption(
 	'--enable-static',
 	dest='static',
-	action="store_true",
+	action='store_true',
 	default=False
 )
 
@@ -57,7 +65,7 @@ AddOption(
 AddOption(
 	'--disable-static',
 	dest='static',
-	action="store_false",
+	action='store_false',
 	default=False
 )
 
@@ -65,7 +73,7 @@ AddOption(
 AddOption(
 	'--enable-debug',
 	dest='debug',
-	action="store_true",
+	action='store_true',
 	default=True
 )
 
@@ -73,7 +81,7 @@ AddOption(
 AddOption(
 	'--disable-debug',
 	dest='debug',
-	action="store_false",
+	action='store_false',
 	default=True
 )
 
@@ -117,6 +125,15 @@ if not cfg.env['HOST_ARCH'] in [ 'i686', 'x86_64' ]:
 	Exit(1)
 
 # Define various project macros
+cfg.Define('PACKAGE', '"%s"' % package)
+cfg.Define('VERSION', '"%s"' % version)
+cfg.Define('PACKAGE_VERSION', '"%s"' % version)
+cfg.Define('PACKAGE_BUGREPORT', '"%s"' % bugs_email)
+cfg.Define('PACKAGE_NAME', '"%s %s"' % (package, description))
+cfg.Define('PACKAGE_STRING', '"%s %s %s"' % (package, description, version))
+cfg.Define('PACKAGE_TARNAME', '"%s"' % package)
+cfg.Define('PACKAGE_URL', '"%s"' % http_url)
+cfg.Define('PACCONF', '"%s"' % config_file)
 cfg.Define('PM_DEFAULT_BYTES_PER_BLOCK', 10240)
 
 # Check that certain headers exist
