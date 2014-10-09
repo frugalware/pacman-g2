@@ -1,0 +1,75 @@
+# Begin of template block
+env = Environment()
+
+env.Import('*')
+
+if not 'TOPLEVEL' in env:
+	env.Export('env')
+	SConscript('../SConstruct')
+
+env.Import('env')
+# End of template block
+
+flib_sources = [
+	'kernel/fobject.cpp',
+	'kernel/fobject.h',
+	'kernel/fsignal.h',
+	'kernel/fstr.cpp',
+	'kernel/fstr.h',
+	'fstdlib/canonicalize.c',
+	'fstring/basename.c',
+	'fstring/case.c',
+	'fstring/dirname.c',
+	'hash/md5.c',
+	'hash/md5driver.c',
+	'hash/sha1.c',
+	'io/archive.c',
+	'io/ffilelock.c',
+	'io/ftp.c',
+	'util/fabstractlogger.cpp',
+	'util/fabstractlogger.h',
+	'util/falgorithm.h',
+	'util/fdispatchlogger.cpp',
+	'util/fdispatchlogger.h',
+	'util/flist.h',
+	'util/ffilelogger.cpp',
+	'util/ffilelogger.h',
+	'util/ffunctional.h',
+	'util/flog.cpp',
+	'util/flog.h',
+	'util/fptrlist.cpp',
+	'util/fptrlist.h',
+	'util/fstringlist.cpp',
+	'util/fsyslogger.cpp',
+	'util/fsyslogger.h',
+	'util/log.c',
+	'util/time.c',
+	'fstring.c',
+]
+
+libpacman_sources = [
+	'db/fakedb.cpp',
+	'db/localdb.cpp',
+	'db/localdb_files.cpp',
+	'db/syncdb.cpp',
+	'package/fpmpackage.cpp',
+	'package/packagecache.cpp',
+	'config_parser.cpp',
+	'conflict.cpp',
+	'db.cpp',
+	'database_cache.cpp',
+	'deps.cpp',
+	'error.cpp',
+	'group.cpp',
+	'handle.cpp',
+	'package.cpp',
+	'packages_transaction.cpp',
+	'pacman.cpp',
+	'server.cpp',
+	'sync.cpp',
+	'timestamp.h',
+	'trans.cpp',
+	'trans_sysupgrade.cpp',
+	'util.cpp',
+	'versioncmp.cpp',
+]
