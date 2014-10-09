@@ -30,11 +30,12 @@ env = Environment()
 
 cfg = Configure(
 	env,
-	{
+	custom_tests = {
 		'CheckPKGConfig' : CheckPKGConfig,
 		'CheckPKG'       : CheckPKG,
 		'CheckPlatform'  : CheckPlatform,
-	}
+	},
+	config_h = 'config.h'
 )
 
 if not cfg.CheckPKGConfig('0.15.0'):
