@@ -155,6 +155,9 @@ env.ParseConfig('pkg-config --cflags --libs libarchive')
 # Set flags for libcurl
 env.ParseConfig('pkg-config --cflags --libs libcurl')
 
+# Set local include directories
+env.Append(CPPPATH = 'lib/libpacman')
+
 # flib source files
 flib_sources = [
 	'lib/libpacman/kernel/fobject.cpp',
@@ -220,3 +223,7 @@ libpacman_sources = [
 	'lib/libpacman/util.cpp',
 	'lib/libpacman/versioncmp.cpp',
 ]
+
+# Add flib sources to libpacman sources for now because they are linked
+# into the same library
+libpacman_sources.extend(flib_sources)
