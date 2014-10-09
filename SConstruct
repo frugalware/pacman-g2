@@ -12,6 +12,20 @@ def CheckPKG(ctx, name):
 	ctx.Result(rv)
 	return rv
 
+def CheckPlatform(ctx):
+	from platform import system, machine
+	ctx.Message('Checking platform... ')
+	rv = 1
+	if system() == 'Linux':
+		ctx.env['HOST_ARCH']   = machine()
+		ctx.env['HOST_OS']     = system()
+		ctx.env['TARGET_ARCH'] = machine()
+		ctx.env['TARGET_OS']   = system()
+	else:
+		rv = 0
+	ctx.Result(rv)
+	return rv
+
 env = Environment()
 
 cfg = Configure(
@@ -19,6 +33,7 @@ cfg = Configure(
 	{
 		'CheckPKGConfig' : CheckPKGConfig,
 		'CheckPKG'       : CheckPKG,
+		'CheckPlatform'  : CheckPlatform,
 	}
 )
 
@@ -32,6 +47,10 @@ if not cfg.CheckPKG('libarchive'):
 
 if not cfg.CheckPKG('libcurl'):
 	print('libcurl not found.')
+	Exit(1)
+
+if not cfg.CheckPlatform():
+	print('Cannot determine the computer platform.')
 	Exit(1)
 
 env = cfg.Finish()
