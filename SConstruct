@@ -33,54 +33,48 @@ def CheckPlatform(ctx):
 AddOption(
 	'--enable-shared',
 	dest='shared',
-	nargs='?',
-	const=1,
-	default=1
+	action="store_true",
+	default=True
 )
 
 # Disable shared builds
 AddOption(
 	'--disable-shared',
 	dest='shared',
-	nargs='?',
-	const=0,
-	default=1
+	action="store_false",
+	default=True
 )
 
 # Enable static builds
 AddOption(
 	'--enable-static',
 	dest='static',
-	nargs='?',
-	const=1,
-	default=0
+	action="store_true",
+	default=False
 )
 
 # Disable static builds
 AddOption(
 	'--disable-static',
 	dest='static',
-	nargs='?',
-	const=0,
-	default=0
+	action="store_false",
+	default=False
 )
 
 # Enable debugging
 AddOption(
 	'--enable-debug',
 	dest='debug',
-	nargs='?',
-	const=1,
-	default=1
+	action="store_true",
+	default=True
 )
 
 # Disable debugging
 AddOption(
 	'--disable-debug',
 	dest='debug',
-	nargs='?',
-	const=0,
-	default=1
+	action="store_false",
+	default=True
 )
 
 # Get the build environment
