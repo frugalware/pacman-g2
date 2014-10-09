@@ -108,9 +108,20 @@ if not cfg.env['HOST_ARCH'] in [ 'i686', 'x86_64' ]:
 
 env = cfg.Finish()
 
-env.ParseConfig('pkg-config --cflags --libs libarchive libcurl')
+# Set C compiler only flags
 env.Append(CFLAGS = '-std=c99')
+
+# Set C++ compiler only flags
 env.Append(CXXFLAGS = '-std=c++11')
 
-if debug:
+# Set debugging or no debugging flags
+if GetOption('debug'):
 	env.Append(CCFLAGS = '-g')
+else:
+	env.Append(CCFLAGS = '-DNDEBUG')
+
+# Set flags for libarchive
+env.ParseConfig('pkg-config --cflags --libs libarchive')
+
+# Set flags for libcurl
+env.ParseConfig('pkg-config --cflags --libs libcurl')
