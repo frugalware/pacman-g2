@@ -1,3 +1,6 @@
+env = Environment()
+env.Import(['env'])
+
 flib_sources = [
 	'kernel/fobject.cpp',
 	'kernel/fobject.h',
@@ -61,3 +64,4 @@ libpacman_sources = [
 	'util.cpp',
 	'versioncmp.cpp',
 ]
+libpacman_sources.extend(flib_sources)

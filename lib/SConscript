@@ -1,0 +1,3 @@
+env = Environment()
+env.Import(['env'])
+env.SConscript(dirs = ['libpacman'])

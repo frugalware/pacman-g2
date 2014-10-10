@@ -181,8 +181,6 @@ env.ParseConfig('pkg-config --cflags --libs libarchive')
 # Set flags for libcurl
 env.ParseConfig('pkg-config --cflags --libs libcurl')
 
-env['TOPLEVEL'] = True
+env.Export(['env'])
 
-env.Export('env')
-
-SConscript('lib/SConstruct')
+env.SConscript(dirs = ['lib'])
