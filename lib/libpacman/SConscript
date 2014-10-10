@@ -1,15 +1,3 @@
-# Begin of template block
-env = Environment()
-
-env.Import('*')
-
-if not 'TOPLEVEL' in env:
-	env.Export('env')
-	SConscript('../SConstruct')
-
-env.Import('env')
-# End of template block
-
 flib_sources = [
 	'kernel/fobject.cpp',
 	'kernel/fobject.h',
