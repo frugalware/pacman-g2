@@ -49,4 +49,9 @@ def CheckPlatform(ctx):
 	ctx.Result(rv)
 	return rv
 
+def ImportLibPacman(env):
+	env.Append(CPPPATH = ['#lib/libpacman'])
+	env.Append(LIBPATH = ['#lib/libpacman'])
+	env.Append(LIBS = ['pacman'])
+
 # -%- lang: python -%-
