@@ -8,6 +8,8 @@ vercmp_sources = [
 ]
 vercmp = [ ]
 
+ImportLibPacman(env)
+
 if env['static']:
 	vercmp.append(env.Program('vercmp.static', vercmp_sources))
 

@@ -20,6 +20,8 @@ pacman_sources = [
 ]
 pacman = [ ]
 
+ImportLibPacman(env)
+
 if env['static']:
 	pacman.append(env.Program('pacman-g2.static', pacman_sources))
 

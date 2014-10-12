@@ -8,6 +8,8 @@ versort_sources = [
 ]
 versort = [ ]
 
+ImportLibPacman(env)
+
 if env['static']:
 	versort.append(env.Program('versort.static', versort_sources))
 

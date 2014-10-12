@@ -55,7 +55,7 @@ libpacman_sources = [
 ]
 libpacman_sources.extend(flib_sources)
 
-env.Append(CPPPATH = ['/usr/include/curl'])
+env.Append(CPPPATH = ['#lib/libpacman', '/usr/include/curl'])
 
 env.ParseConfig('pkg-config --libs --cflags libarchive libcurl')
 
