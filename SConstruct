@@ -1,4 +1,4 @@
-from scons_util import AddBooleanOption
+from scons_util import AddBooleanOption, CheckPKGConfig, CheckPKG, CheckPlatform
 
 # Global project variables
 package     = 'pacman-g2'
@@ -37,6 +37,19 @@ if env['debug']:
 	env.Append(CCFLAGS = ['-g'])
 else:
 	env.Append(CPPDEFINES = ['NDEBUG'])
+
+cfg = Configure(
+	env,
+	custom_tests =
+	{
+		'CheckPKGConfig' : CheckPKGConfig,
+		'CheckPKG'       : CheckPKG,
+		'CheckPlatform'  : CheckPlatform,
+	},
+	config_h = config_hdr
+)
+
+env = cfg.Finish()
 
 vars.Save(build_cfg, env)
 
