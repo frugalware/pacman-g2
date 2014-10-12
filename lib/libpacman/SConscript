@@ -4,10 +4,7 @@ env.Export(['env'])
 
 flib_sources = [
 	'kernel/fobject.cpp',
-	'kernel/fobject.h',
-	'kernel/fsignal.h',
 	'kernel/fstr.cpp',
-	'kernel/fstr.h',
 	'fstdlib/canonicalize.c',
 	'fstring/basename.c',
 	'fstring/case.c',
@@ -19,21 +16,12 @@ flib_sources = [
 	'io/ffilelock.c',
 	'io/ftp.c',
 	'util/fabstractlogger.cpp',
-	'util/fabstractlogger.h',
-	'util/falgorithm.h',
 	'util/fdispatchlogger.cpp',
-	'util/fdispatchlogger.h',
-	'util/flist.h',
 	'util/ffilelogger.cpp',
-	'util/ffilelogger.h',
-	'util/ffunctional.h',
 	'util/flog.cpp',
-	'util/flog.h',
 	'util/fptrlist.cpp',
-	'util/fptrlist.h',
 	'util/fstringlist.cpp',
 	'util/fsyslogger.cpp',
-	'util/fsyslogger.h',
 	'util/log.c',
 	'util/time.c',
 	'fstring.c',
@@ -59,13 +47,16 @@ libpacman_sources = [
 	'pacman.cpp',
 	'server.cpp',
 	'sync.cpp',
-	'timestamp.h',
 	'trans.cpp',
 	'trans_sysupgrade.cpp',
 	'util.cpp',
 	'versioncmp.cpp',
 ]
 libpacman_sources.extend(flib_sources)
+
+env.Append(CPPPATH = ['/usr/include/curl'])
+
+env.ParseConfig('pkg-config --libs --cflags libarchive libcurl')
 
 if env['static']:
 	env.StaticLibrary('libpacman', libpacman_sources)
