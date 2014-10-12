@@ -9,6 +9,7 @@ package_url = 'www.frugalware.org'
 bugs_email  = 'frugalware-devel@frugalware.org'
 config_hdr  = 'config.h'
 build_cfg   = 'build.conf'
+archs       = [ 'i686', 'x86_64' ]
 
 env = Environment()
 
@@ -59,6 +60,14 @@ if not cfg.CheckPKG('libarchive'):
 
 if not cfg.CheckPKG('libcurl'):
 	print('libcurl not found.')
+	Exit(1)
+
+if not cfg.CheckPlatform():
+	print('Unsupported computer platform.')
+	Exit(1)
+
+if not cfg.env['HOST_ARCH'] in archs:
+	print('Unsupported CPU architecture (%s).' % cfg.env['HOST_ARCH'])
 	Exit(1)
 
 env = cfg.Finish()
