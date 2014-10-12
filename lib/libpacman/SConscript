@@ -1,5 +1,6 @@
 env = Environment()
 env.Import(['env'])
+env.Export(['env'])
 
 flib_sources = [
 	'kernel/fobject.cpp',
@@ -65,3 +66,9 @@ libpacman_sources = [
 	'versioncmp.cpp',
 ]
 libpacman_sources.extend(flib_sources)
+
+if env['static']:
+	env.StaticLibrary('libpacman', libpacman_sources)
+
+if env['shared']:
+	env.SharedLibrary('libpacman', libpacman_sources)

@@ -31,7 +31,7 @@ AddBooleanOption(env, 'shared', 'shared object compilation')
 env.Append(CFLAGS = ['-std=c99'])
 env.Append(CXXFLAGS = ['-std=c++11', '-fpermissive'])
 env.Append(CPPDEFINES = ['_GNU_SOURCE'])
-env.Append(CPPPATH = ['#.'])
+env.Append(CPPPATH = ['#.', '#lib/libpacman'])
 
 # Set flags according to the debugging settings.
 if env['debug']:
