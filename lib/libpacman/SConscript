@@ -1,6 +1,5 @@
-env = Environment()
-env.Import(['env'])
-env.Export(['env'])
+Import(['env'])
+env = env.Clone()
 
 flib_sources = [
 	'kernel/fobject.cpp',
