@@ -58,9 +58,13 @@ if not cfg.CheckPKG('libarchive'):
 	print('libarchive not found.')
 	Exit(1)
 
+cfg.Define('HAVE_ARCHIVE', 1)
+
 if not cfg.CheckPKG('libcurl'):
 	print('libcurl not found.')
 	Exit(1)
+
+cfg.Define('HAVE_CURL', 1)
 
 if not cfg.CheckPlatform():
 	print('Unsupported computer platform.')
