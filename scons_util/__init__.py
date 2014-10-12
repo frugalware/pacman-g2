@@ -35,4 +35,19 @@ def CheckPKG(ctx, name):
 	ctx.Result(rv)
 	return rv
 
+# Custom test for finding the computer platform
+def CheckPlatform(ctx):
+	from platform import system, machine
+	ctx.Message('Checking platform... ')
+	rv = 1
+	if system() == 'Linux':
+		ctx.env['HOST_ARCH']   = machine()
+		ctx.env['HOST_OS']     = system()
+		ctx.env['TARGET_ARCH'] = machine()
+		ctx.env['TARGET_OS']   = system()
+	else:
+		rv = 0
+	ctx.Result(rv)
+	return rv
+
 # -%- lang: python -%-
