@@ -74,6 +74,14 @@ if not cfg.env['HOST_ARCH'] in archs:
 	print('Unsupported CPU architecture (%s).' % cfg.env['HOST_ARCH'])
 	Exit(1)
 
+if not cfg.CheckCC():
+	print('No functional C compiler found.')
+	Exit(1)
+
+if not cfg.CheckCXX():
+	print('No functional C++ compiler found.')
+	Exit(1)
+
 cfg.CheckHeader('dlfcn.h')
 cfg.CheckHeader('inttypes.h')
 cfg.CheckHeader('memory.h')
