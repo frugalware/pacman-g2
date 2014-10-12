@@ -74,6 +74,22 @@ if not cfg.env['HOST_ARCH'] in archs:
 	print('Unsupported CPU architecture (%s).' % cfg.env['HOST_ARCH'])
 	Exit(1)
 
+cfg.CheckHeader('dlfcn.h')
+cfg.CheckHeader('inttypes.h')
+cfg.CheckHeader('memory.h')
+cfg.CheckHeader('stdint.h')
+cfg.CheckHeader('stdlib.h')
+cfg.CheckHeader('strings.h')
+cfg.CheckHeader('string.h')
+cfg.CheckHeader('sys/stat.h')
+cfg.CheckHeader('sys/types.h')
+cfg.CheckHeader('unistd.h')
+
+cfg.CheckFunc('gettext')
+cfg.CheckFunc('dcgettext')
+cfg.CheckFunc('iconv')
+cfg.CheckFunc('strverscmp')
+
 env = cfg.Finish()
 
 vars.Save(build_cfg, env)
