@@ -1,7 +1,6 @@
-from SCons.Script import AddOption
-
 # Adds an autoconf style enable/disable boolean option
 def AddBooleanOption(env, name, msg):
+	from SCons.Script import AddOption
 	# Add the enable version.
 	AddOption(
 		'--enable-%s' % name,
