@@ -1,4 +1,4 @@
-from scons_util import AddBooleanOption, CheckPKGConfig, CheckPKG, CheckPlatform
+from scons_util import *
 
 # Global project variables
 package     = 'pacman-g2'
@@ -48,6 +48,18 @@ cfg = Configure(
 	},
 	config_h = config_hdr
 )
+
+if not cfg.CheckPKGConfig('0.15.0'):
+	print('pkg-config >= 0.15.0 not found.')
+	Exit(1)
+
+if not cfg.CheckPKG('libarchive'):
+	print('libarchive not found.')
+	Exit(1)
+
+if not cfg.CheckPKG('libcurl'):
+	print('libcurl not found.')
+	Exit(1)
 
 env = cfg.Finish()
 
