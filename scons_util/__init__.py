@@ -21,4 +21,18 @@ def AddBooleanOption(env, name, msg):
 		default=None,
 	)
 
+# Custom test for finding pkg-config
+def CheckPKGConfig(ctx, version):
+	ctx.Message('Checking for pkg-config... ')
+	rv = ctx.TryAction('pkg-config --atleast-pkgconfig-version=\'%s\'' % version)[0]
+	ctx.Result(rv)
+	return rv
+
+# Custom test for finding a pkg-config package
+def CheckPKG(ctx, name):
+	ctx.Message('Checking for %s... ' % name)
+	rv = ctx.TryAction('pkg-config --exists \'%s\'' % name)[0]
+	ctx.Result(rv)
+	return rv
+
 # -%- lang: python -%-
