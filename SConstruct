@@ -116,6 +116,6 @@ vars.Save(build_cfg, env)
 
 env.Export(['env'])
 
-env.SConscript(dirs = ['lib'])
+env.SConscript(dirs = ['lib', 'src'])
 
 # -%- lang: python -%-

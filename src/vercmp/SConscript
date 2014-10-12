@@ -1,0 +1,16 @@
+Import(['env'])
+env = env.Clone()
+
+vercmp_sources = [
+	'vercmp.c',
+]
+vercmp = [ ]
+
+if env['static']:
+	vercmp.append(env.Program('vercmp.static', vercmp_sources))
+
+if env['shared']:
+	vercmp.append(env.Program('vercmp', vercmp_sources))
+
+for i in vercmp:
+	env.Depends(i, '#lib')
