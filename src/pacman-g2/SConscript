@@ -1,0 +1,28 @@
+Import(['env'])
+env = env.Clone()
+
+pacman_sources = [
+	'conf.c',
+	'deptest.c',
+	'download.c',
+	'list.cpp',
+	'log.c',
+	'package.c',
+	'pacman-g2.c',
+	'ps.c',
+	'query.c',
+	'sync.c',
+	'trans.c',
+	'util.c',
+	'vercmp.c',
+]
+pacman = [ ]
+
+if env['static']:
+	pacman.append(env.Program('pacman-g2.static', pacman_sources))
+
+if env['shared']:
+	pacman.append(env.Program('pacman-g2', pacman_sources))
+
+for i in pacman:
+	env.Depends(i, '#lib')

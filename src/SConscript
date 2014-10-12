@@ -1,4 +1,4 @@
 Import(['env'])
 env = env.Clone()
 
-env.SConscript(dirs = ['vercmp', 'versort'])
+env.SConscript(dirs = ['vercmp', 'versort', 'pacman-g2'])
