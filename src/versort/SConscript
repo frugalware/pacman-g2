@@ -1,0 +1,16 @@
+Import(['env'])
+env = env.Clone()
+
+versort_sources = [
+	'versort.c',
+]
+versort = [ ]
+
+if env['static']:
+	versort.append(env.Program('versort.static', versort_sources))
+
+if env['shared']:
+	versort.append(env.Program('versort', versort_sources))
+
+for i in versort:
+	env.Depends(i, '#lib')
