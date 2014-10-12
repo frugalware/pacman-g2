@@ -89,7 +89,7 @@ cfg.Define('PACKAGE_BUGREPORT', '"%s"' % bugs_email)
 cfg.Define('PACKAGE_NAME', '"%s %s"' % (package, description))
 cfg.Define('PACKAGE_STRING', '"%s %s %s"' % (package, description, version))
 cfg.Define('PACKAGE_TARNAME', '"%s"' % package)
-cfg.Define('PACKAGE_URL', '"%s"' % http_url)
+cfg.Define('PACKAGE_URL', '"%s"' % package_url)
 cfg.Define('PACCONF', '"%s"' % config_file)
 cfg.Define('PM_DEFAULT_BYTES_PER_BLOCK', 10240)
 
