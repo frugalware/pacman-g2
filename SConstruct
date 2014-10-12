@@ -82,6 +82,17 @@ if not cfg.CheckCXX():
 	print('No functional C++ compiler found.')
 	Exit(1)
 
+cfg.Define('PACKAGE', '"%s"' % package)
+cfg.Define('VERSION', '"%s"' % version)
+cfg.Define('PACKAGE_VERSION', '"%s"' % version)
+cfg.Define('PACKAGE_BUGREPORT', '"%s"' % bugs_email)
+cfg.Define('PACKAGE_NAME', '"%s %s"' % (package, description))
+cfg.Define('PACKAGE_STRING', '"%s %s %s"' % (package, description, version))
+cfg.Define('PACKAGE_TARNAME', '"%s"' % package)
+cfg.Define('PACKAGE_URL', '"%s"' % http_url)
+cfg.Define('PACCONF', '"%s"' % config_file)
+cfg.Define('PM_DEFAULT_BYTES_PER_BLOCK', 10240)
+
 cfg.CheckHeader('dlfcn.h')
 cfg.CheckHeader('inttypes.h')
 cfg.CheckHeader('memory.h')
