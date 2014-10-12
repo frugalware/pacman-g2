@@ -1,8 +1,18 @@
 from scons_util import AddBooleanOption
 
+# Global project variables
+package     = 'pacman-g2'
+version     = '3.90.0'
+description = 'package manager'
+config_file = '/etc/pacman-g2.conf'
+package_url = 'www.frugalware.org'
+bugs_email  = 'frugalware-devel@frugalware.org'
+config_hdr  = 'config.h'
+build_cfg   = 'build.conf'
+
 env = Environment()
 
-vars = Variables('build.conf')
+vars = Variables(build_cfg)
 
 vars.AddVariables(
 	('debug', 'compile with debugging', False),
@@ -28,7 +38,7 @@ if env['debug']:
 else:
 	env.Append(CPPDEFINES = ['NDEBUG'])
 
-vars.Save('build.conf', env)
+vars.Save(build_cfg, env)
 
 env.Export(['env'])
 
