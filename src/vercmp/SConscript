@@ -1,3 +1,5 @@
+from scons_util import *
+
 Import(['env'])
 env = env.Clone()
 
