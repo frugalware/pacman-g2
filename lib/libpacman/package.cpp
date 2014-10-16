@@ -85,12 +85,6 @@ bool Package::set_filename(const char *filename, int witharch)
 	return false;
 }
 
-int _pacman_pkg_delete(Package *self)
-{
-	self->release();
-	return 0;
-}
-
 /* Helper function for comparing packages
  */
 int _pacman_pkg_cmp(const Package *p1, const Package *p2)

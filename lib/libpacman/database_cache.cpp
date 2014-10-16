@@ -86,7 +86,7 @@ void Database::free_pkgcache()
 	_pacman_log(PM_LOG_DEBUG, _("freeing package cache for repository '%s'"),
 	                        treename());
 
-	pkgcache.clear(/*_pacman_pkg_delete*/);
+	pkgcache.clear(flib::fRelease);
 
 	_pacman_db_clear_grpcache(this);
 }

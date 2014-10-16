@@ -232,8 +232,6 @@ private:
 	};
 } // namespace libpacman
 
-int _pacman_pkg_delete(libpacman::Package *self);
-
 int _pacman_pkg_cmp(const libpacman::Package *p1, const libpacman::Package *p2);
 const libpacman::Package *_pacman_pkg_isin(const char *needle, const FList<libpacman::Package *> &haystack);
 
