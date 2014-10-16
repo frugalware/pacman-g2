@@ -39,14 +39,17 @@ namespace flib
 
 		using FList<T>::FList;
 
-		iterator add(const value_type &data)
+		typedef Compare key_compare;
+		typedef Compare value_compare;
+
+		virtual iterator add(const value_type &data) override
 		{
 			iterator end = this->end();
 			/* Find insertion point. */
 			iterator next = find_insertion_point(data);
 
 			// ensure we don't have an egality
-			if(next == end || m_less(data, *next)) {
+			if(next == end || m_compare(data, *next)) {
 				iterable add = new FListItem<T>(data);
 				add->insert_after(next.previous());
 				return iterator(add);
@@ -60,20 +63,31 @@ namespace flib
 			iterator it = find_insertion_point(data);
 
 			// ensure we have an egality
-			if(it == end || !m_less(data, *it)) {
+			if(it == end || !m_compare(data, *it)) {
 				return end;
 			}
 			return it;
+		}
+
+		/* Observers */
+		key_compare key_comp() const
+		{
+			return m_compare;
+		}
+
+		value_compare value_comp() const
+		{
+			return m_compare;
 		}
 
 	private:
 		/* Return the first iterator where value does not satisfy Compare */
 		iterator find_insertion_point(const value_type &data)
 		{
-			return FList<T>::find_if_not([&] (const T &o) -> bool { return m_less(o, data); });
+			return FList<T>::find_if_not([&] (const T &o) -> bool { return m_compare(o, data); });
 		}
 
-		Compare m_less;
+		Compare m_compare;
 	};
 } // namespace flib
 

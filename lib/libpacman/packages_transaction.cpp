@@ -25,6 +25,8 @@
 
 #include "packages_transaction.h"
 
+#include "handle.h"
+
 #include "util.h"
 
 #include "fstring.h"

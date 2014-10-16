@@ -34,12 +34,14 @@
 #include "kernel/fobject.h"
 #include "kernel/fstr.h"
 #include "util/fset.h"
+#include "util/fstringlist.h"
 
 typedef struct __pmdepend_t pmdepend_t;
 
 namespace libpacman {
 
 	class Database;
+	class package_node;
 
 }
 
@@ -140,6 +142,7 @@ public:
 	libpacman::Database *m_database;
 
 	unsigned int flags;
+	package_node *m_node;
 	char m_name[PKG_NAME_LEN];
 	char m_version[PKG_VERSION_LEN];
 	char m_description[PKG_DESC_LEN];
@@ -201,6 +204,32 @@ private:
 	FStrMatcher m_strmatcher_internal;
 };
 
+	class package_node
+	{
+	public:
+		package_node(const char *name);
+		package_node(package_node &&o);
+		~package_node();
+		bool operator < (const package_node &o) const;
+
+		const char *name() const;
+
+	private:
+		char *m_name/*[PKG_NAME_LEN]*/;
+		flib::set<libpacman::Package *> m_packages;
+	};
+
+	struct package_node_less
+	{
+		bool operator () (const package_node *p1, const package_node *p2);
+	};
+
+	class package_graph
+		: flib::set<libpacman::package_node *, package_node_less>
+	{
+	public:
+		using set::set;
+	};
 } // namespace libpacman
 
 int _pacman_pkg_delete(libpacman::Package *self);

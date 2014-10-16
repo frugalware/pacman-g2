@@ -404,4 +404,34 @@ bool PackageMatcher::match(const Package *package, int mask = ~0) const
 	return _pacman_strmatcher_match(m_strmatcher, package, m_flags & mask);
 }
 
+package_node::package_node(const char *name)
+	: m_name(strdup(name))
+{ }
+
+package_node::package_node(package_node &&o)
+	  : m_name(o.m_name), m_packages(std::move(o.m_packages))
+{
+	o.m_name = NULL;
+}
+
+package_node::~package_node()
+{
+	free(m_name);
+}
+
+bool package_node::operator < (const package_node &o) const
+{
+	return strcmp(m_name, o.m_name) < 0;
+}
+
+const char *package_node::name() const
+{
+	return m_name;
+}
+
+bool package_node_less::operator () (const package_node *p1, const package_node *p2)
+{
+	return strcmp(p1->name(), p2->name()) < 0;
+}
+
 /* vim: set ts=2 sw=2 noet: */

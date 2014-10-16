@@ -41,29 +41,6 @@ namespace flib
 	struct uncompared
 	{ };
 
-	template <class T>
-	struct mapped_traits
-	{
-		typedef T mapped_type;
-		typedef T key_type;
-		typedef T value_type;
-
-		static const key_type &key_of(const mapped_type &o)
-		{
-			return o;
-		}
-
-		static value_type &value_of(mapped_type &o)
-		{
-			return o;
-		}
-
-		static const value_type &value_of(const mapped_type &o)
-		{
-			return o;
-		}
-	};
-
 	template <typename Iterable>
 	struct iterable_traits
 	{
@@ -658,7 +635,7 @@ namespace flib {
 	};
 }
 
-template <typename T, class Compare = flib::uncompared, class MappedTrais = flib::mapped_traits<T>>
+template <typename T>
 class FList
 	: protected FCListItem
 {
@@ -672,9 +649,6 @@ public:
 	typedef flib::const_iterator<iterable> const_iterator;
 	typedef flib::const_iterator<iterable, true> const_reverse_iterator;
 	typedef size_t size_type;
-
-	typedef Compare key_compare;
-	typedef Compare value_compare;
 
 	FList()
 		: FCListItem(this, this)
@@ -865,15 +839,6 @@ public:
 	}
 
 	/* Observers */
-	key_compare key_comp() const
-	{
-		return m_compare;
-	}
-
-	value_compare value_comp() const
-	{
-		return m_compare;
-	}
 
 	/* Operations */
 	void reverse() {
@@ -905,9 +870,12 @@ public:
 		return const_iterator(c_last());
 	}
 
-	void add(const value_type &val) // Make default implementation to happend
+	virtual iterator add(const value_type &val)
 	{
-		(new FListItem<T>(val))->insert_after(last());
+		// Default implementation is append
+		iterable newItem = new FListItem<T>(val);
+		newItem->insert_after(last());
+		return iterator(newItem);
 	}
 
 	bool remove(void *ptr, _pacman_fn_cmp fn, value_type *data)
@@ -954,20 +922,6 @@ public:
 		return static_cast<iterable>((FCListItem *)this);
 	}
 
-protected:
-	template <class Data = value_type>
-	iterator find_insertion_point(typename std::enable_if<std::is_same<flib::uncompared, Compare>::value, const Data &>::type data)
-	{
-		return last();
-	}
-
-	template <class Data = value_type>
-	iterator find_insertion_point(typename std::enable_if<!std::is_same<flib::uncompared, Compare>::value, const Data &>::type data)
-	{
-		/* Return the first iterator where value does not satisfy Compare */
-		return FList<T>::find_if_not([&] (const T &o) -> bool { return m_compare(o, data); });
-	}
-
 private:
 	FList(const FList &);
 	FList &operator = (const FList &);
@@ -978,8 +932,6 @@ private:
 		RET_ERR(PM_ERR_WRONG_ARGS, NULL);
 	}
 #endif
-
-	Compare m_compare;
 };
 #endif /* __cplusplus */
 

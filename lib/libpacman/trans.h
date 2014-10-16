@@ -26,8 +26,6 @@
 
 typedef struct __pmtrans_t pmtrans_t;
 
-#include "handle.h"
-
 #include "kernel/fobject.h"
 #include "util/fstringlist.h"
 

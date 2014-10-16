@@ -28,6 +28,7 @@
 #include "pacman.h"
 
 #include "io/ffilelock.h"
+#include "package.h"
 #include "trans.h"
 
 #include "kernel/fobject.h"
@@ -93,6 +94,8 @@ public:
 	int *dlremain;
 	int *dlhowmany;
 	int sysupgrade;
+
+	libpacman::package_graph m_package_graph;
 };
 
 }
