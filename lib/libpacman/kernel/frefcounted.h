@@ -1,5 +1,5 @@
 /*
- *  fobject.c
+ *  frefcounted.h
  *
  *  Copyright (c) 2014 by Michel Hermier <hermier@frugalware.org>
  *
@@ -18,41 +18,53 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
  *  USA.
  */
+#ifndef FREFCOUNTED_H
+#define FREFCOUNTED_H
 
-#include "config.h"
+#include "kernel/fsignal.h"
 
-#include "kernel/fobject.h"
-
-#include "util.h"
-
-#include <fstdlib.h>
-
-using namespace flib;
-
-void FObject::operator delete(void *ptr)
+namespace flib
 {
-	free(ptr);
+
+	class refcounted
+	{
+	public:
+		flib::FSignal<void(flib::refcounted *)> aboutToDestroy;
+
+	public:
+		refcounted();
+	protected:
+		virtual ~refcounted();
+
+	public:
+		void acquire() const;
+		void release() const;
+
+	private:
+		void operator delete[](void *ptr);
+		void *operator new[](std::size_t size);
+
+		refcounted(const flib::refcounted &other);
+		flib::refcounted &operator =(const flib::refcounted &other);
+
+		mutable unsigned m_reference_counter;
+	};
+
+	static inline void acquire(flib::refcounted *refcounted)
+	{
+		if(refcounted != nullptr) {
+			refcounted->acquire();
+		}
+	}
+
+	static inline void release(flib::refcounted *refcounted)
+	{
+		if(refcounted != nullptr) {
+			refcounted->release();
+		}
+	}
 }
 
-void *FObject::operator new(std::size_t size)
-{
-	return f_zalloc(size);
-}
-
-FObject::FObject()
-{ }
-
-FObject::~FObject()
-{ }
-
-int FObject::get(unsigned val, unsigned long *data) const
-{
-	return -1;
-}
-
-int FObject::set(unsigned val, unsigned long data)
-{
-	return -1;
-}
+#endif /* FREFCOUNTED_H */
 
 /* vim: set ts=2 sw=2 noet: */

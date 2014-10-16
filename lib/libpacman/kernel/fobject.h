@@ -1,5 +1,5 @@
 /*
- *  object.h
+ *  fobject.h
  *
  *  Copyright (c) 2014 by Michel Hermier <hermier@frugalware.org>
  *
@@ -21,7 +21,7 @@
 #ifndef FOBJECT_H
 #define FOBJECT_H
 
-#include "kernel/fsignal.h"
+#include "kernel/frefcounted.h"
 
 #include <cstddef>
 
@@ -29,13 +29,11 @@ namespace flib
 {
 
 class FObject
+	: public flib::refcounted
 {
 public:
 	void operator delete(void *ptr);
 	void *operator new(std::size_t size);
-
-public:
-	flib::FSignal<void(FObject *)> aboutToDestroy;
 
 public:
 	FObject();
@@ -43,20 +41,8 @@ protected:
 	virtual ~FObject();
 
 public:
-	void acquire() const;
-	void release() const;
-
 	virtual int get(unsigned val, unsigned long *data) const;
 	virtual int set(unsigned val, unsigned long data);
-
-private:
-	void operator delete[](void *ptr);
-	void *operator new[](std::size_t size);
-
-	FObject(const flib::FObject &other);
-	flib::FObject &operator =(const flib::FObject &other);
-
-	mutable unsigned m_reference_counter;
 };
 
 static inline void fAcquire(flib::FObject *object)

@@ -7,6 +7,8 @@ CONFIGURE_FILE("pacman.pc.in" "pacman.pc" @ONLY)
 set(FLIB_SOURCES
 	kernel/fobject.cpp
 	kernel/fobject.h
+	kernel/frefcounted.cpp
+	kernel/frefcounted.h
 	kernel/fsignal.h
 	kernel/fstr.cpp
 	kernel/fstr.h

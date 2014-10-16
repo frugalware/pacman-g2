@@ -1,5 +1,5 @@
 /*
- *  fobject.c
+ *  frefcounted.c
  *
  *  Copyright (c) 2014 by Michel Hermier <hermier@frugalware.org>
  *
@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#include "kernel/fobject.h"
+#include "kernel/frefcounted.h"
 
 #include "util.h"
 
@@ -29,30 +29,25 @@
 
 using namespace flib;
 
-void FObject::operator delete(void *ptr)
-{
-	free(ptr);
-}
-
-void *FObject::operator new(std::size_t size)
-{
-	return f_zalloc(size);
-}
-
-FObject::FObject()
+refcounted::refcounted()
+	: m_reference_counter(1)
 { }
 
-FObject::~FObject()
-{ }
-
-int FObject::get(unsigned val, unsigned long *data) const
+refcounted::~refcounted()
 {
-	return -1;
 }
 
-int FObject::set(unsigned val, unsigned long data)
+void refcounted::acquire() const
 {
-	return -1;
+	++m_reference_counter;
+}
+
+void refcounted::release() const
+{
+	if(--m_reference_counter == 0) {
+		aboutToDestroy(const_cast<refcounted *>(this));
+		delete this;
+	}
 }
 
 /* vim: set ts=2 sw=2 noet: */
