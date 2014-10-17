@@ -38,7 +38,20 @@ namespace flib
 
 	public:
 		void acquire() const;
+		static inline void acquire(flib::refcounted *refcounted)
+		{
+			if(refcounted != nullptr) {
+				refcounted->acquire();
+			}
+		}
+
 		void release() const;
+		static inline void release(flib::refcounted *refcounted)
+		{
+			if(refcounted != nullptr) {
+				refcounted->release();
+			}
+		}
 
 	private:
 		void operator delete[](void *ptr);
@@ -49,20 +62,6 @@ namespace flib
 
 		mutable unsigned m_reference_counter;
 	};
-
-	static inline void acquire(flib::refcounted *refcounted)
-	{
-		if(refcounted != nullptr) {
-			refcounted->acquire();
-		}
-	}
-
-	static inline void release(flib::refcounted *refcounted)
-	{
-		if(refcounted != nullptr) {
-			refcounted->release();
-		}
-	}
 }
 
 #endif /* FREFCOUNTED_H */
