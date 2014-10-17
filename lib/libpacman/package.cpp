@@ -48,13 +48,19 @@
 
 using namespace libpacman;
 
-Package::Package(Database *database)
-	: m_database(database), m_reason(PM_PKG_REASON_EXPLICIT)
+Package::Package(Database *database = 0)
+	: m_database(database)
+	, m_reason(PM_PKG_REASON_EXPLICIT)
+{ }
+
+Package::Package(package_node *package_node)
+	: Package()
 {
+	m_package_node = package_node;
 }
 
 Package::Package(const char *name, const char *version)
-	: m_reason(PM_PKG_REASON_EXPLICIT)
+	: Package()
 {
 	if(!_pacman_strempty(name)) {
 		flags |= PM_PACKAGE_FLAG_NAME;
@@ -399,19 +405,12 @@ bool PackageMatcher::match(const Package *package, int mask = ~0) const
 }
 
 package_node::package_node(const char *name)
-	: m_name(strdup(name))
-{ }
-
-package_node::package_node(package_node &&o)
-	  : m_name(o.m_name), m_packages(std::move(o.m_packages))
 {
-	o.m_name = NULL;
+	STRNCPY(m_name, name, PKG_NAME_LEN);
 }
 
 package_node::~package_node()
-{
-	free(m_name);
-}
+{ }
 
 bool package_node::operator < (const package_node &o) const
 {

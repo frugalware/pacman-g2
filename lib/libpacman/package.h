@@ -105,6 +105,7 @@ public:                                                                        \
 
 public:
 	Package(libpacman::Database *database = 0);
+	Package(libpacman::package_node *package_node);
 	Package(const char *name, const char *version);
 protected:
 	virtual ~Package();
@@ -142,7 +143,7 @@ public:
 	libpacman::Database *m_database;
 
 	unsigned int flags;
-	package_node *m_node;
+	package_node *m_package_node;
 	char m_name[PKG_NAME_LEN];
 	char m_version[PKG_VERSION_LEN];
 	char m_description[PKG_DESC_LEN];
@@ -208,14 +209,13 @@ private:
 	{
 	public:
 		package_node(const char *name);
-		package_node(package_node &&o);
 		~package_node();
 		bool operator < (const package_node &o) const;
 
 		const char *name() const;
 
 	private:
-		char *m_name/*[PKG_NAME_LEN]*/;
+		char m_name[PKG_NAME_LEN];
 		flib::set<libpacman::Package *> m_packages;
 	};
 
