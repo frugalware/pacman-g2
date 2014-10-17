@@ -80,17 +80,6 @@ FStringList *f_stringlist_add(FStringList *self, const char *s)
 	return &self->add(s);
 }
 
-FStringList *f_stringlist_add_stringlist(FStringList *self, const FStringList *src)
-{
-	if(src == NULL || src->empty()) {
-		return self;
-	}
-	if(self == NULL) {
-		self = new FStringList();
-	}
-	return &self->add(*src);
-}
-
 FStringList *f_stringlist_addf(FStringList *self, const char *fmt, ...)
 {
 	va_list ap;
