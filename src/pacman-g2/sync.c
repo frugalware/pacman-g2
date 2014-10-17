@@ -98,7 +98,7 @@ static int sync_search(FStringList *targets)
 
 			printf("%s/%s %s-%s ",
 					(char *)pacman_db_getinfo(db, PM_DB_TREENAME),
-					(char *)pacman_list_getdata(pacman_pkg_getinfo(pkg,PM_PKG_GROUPS)),
+					(char *)pacman_list_getdata(pacman_list_begin(pacman_pkg_getinfo(pkg,PM_PKG_GROUPS))),
 					(char *)pacman_pkg_getinfo(pkg, PM_PKG_NAME),
 					(char *)pacman_pkg_getinfo(pkg, PM_PKG_VERSION));
 
