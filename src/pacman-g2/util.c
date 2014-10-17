@@ -93,7 +93,7 @@ char *buildstring(FStringList *strlist)
 	char *str;
 	int size = 1;
 
-	for(FPtrListIterator *lp = f_ptrlist_first(strlist), *end = f_ptrlist_first(strlist); lp != end; lp = f_ptrlistitem_next(lp)) {
+	for(FPtrListIterator *lp = f_ptrlist_first(strlist), *end = f_ptrlist_end(strlist); lp != end; lp = f_ptrlistitem_next(lp)) {
 		size += strlen(list_data(lp)) + 1;
 	}
 	str = (char *)malloc(size);
@@ -101,7 +101,7 @@ char *buildstring(FStringList *strlist)
 		ERR(NL, _("failed to allocated %d bytes\n"), size);
 	}
 	str[0] = '\0';
-	for(FPtrListIterator *lp = f_ptrlist_first(strlist), *end = f_ptrlist_first(strlist); lp != end; lp = f_ptrlistitem_next(lp)) {
+	for(FPtrListIterator *lp = f_ptrlist_first(strlist), *end = f_ptrlist_end(strlist); lp != end; lp = f_ptrlistitem_next(lp)) {
 		strcat(str, list_data(lp));
 		strcat(str, " ");
 	}
