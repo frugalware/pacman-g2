@@ -39,7 +39,7 @@ struct FFileLock {
 	char pathname[PATH_MAX];
 };
 
-FFileLock *f_filelock_aquire(const char *pathname, int flags)
+FFileLock *f_filelock_acquire(const char *pathname, int flags)
 {
 	FFileLock *filelock;
 

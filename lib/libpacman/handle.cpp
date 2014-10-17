@@ -114,7 +114,7 @@ int Handle::lock()
 	char lckpath[PATH_MAX];
 
 	snprintf(lckpath, PATH_MAX, "%s/%s", root, PM_LOCK);
-	return (filelock = f_filelock_aquire(lckpath, F_FILELOCK_CREATE_HOLD_DIR | F_FILELOCK_EXCLUSIVE | F_FILELOCK_UNLINK_ON_CLOSE)) != NULL ? 0: -1;
+	return (filelock = f_filelock_acquire(lckpath, F_FILELOCK_CREATE_HOLD_DIR | F_FILELOCK_EXCLUSIVE | F_FILELOCK_UNLINK_ON_CLOSE)) != NULL ? 0: -1;
 }
 
 int Handle::unlock()
