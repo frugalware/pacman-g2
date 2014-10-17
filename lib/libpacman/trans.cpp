@@ -479,8 +479,6 @@ int __pmtrans_t::prepare(FPtrList **data)
 
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
 		/* Resolve targets dependencies */
-		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
-		_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
 		if(resolvedeps(data) == -1) {
 			/* pm_errno is set by resolvedeps */
 			ret = -1;
@@ -501,8 +499,6 @@ int __pmtrans_t::prepare(FPtrList **data)
 
 		/* re-order w.r.t. dependencies */
 		sortbydeps();
-
-		EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
 
 		_pacman_log(PM_LOG_FLOW1, _("looking for unresolvable dependencies"));
 		deps = checkdeps(PM_TRANS_TYPE_UPGRADE);

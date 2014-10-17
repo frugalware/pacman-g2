@@ -436,6 +436,13 @@ int pmtrans_t::resolvedeps(FPtrList **data)
 		return(-1);
 	}
 
+	if(flags & PM_TRANS_FLAG_NODEPS) {
+		return 0;
+	}
+
+	EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_START, NULL, NULL);
+	_pacman_log(PM_LOG_FLOW1, _("resolving targets dependencies"));
+
 	bool again;
 	do {
 		again = false;
@@ -528,6 +535,8 @@ int pmtrans_t::resolvedeps(FPtrList **data)
 		}
 	}
 	} while (again);
+
+	EVENT(this, PM_TRANS_EVT_RESOLVEDEPS_DONE, NULL, NULL);
 	return 0;
 
 error:
