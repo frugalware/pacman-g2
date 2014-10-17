@@ -206,6 +206,7 @@ private:
 };
 
 	class package_node
+		: public flib::refcounted
 	{
 	public:
 		package_node(const char *name);
@@ -225,7 +226,7 @@ private:
 	};
 
 	class package_graph
-		: flib::set<libpacman::package_node *, package_node_less>
+		: flib::set<flib::refcounted_ptr<libpacman::package_node>, package_node_less>
 	{
 	public:
 		using set::set;
