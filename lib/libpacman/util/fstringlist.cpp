@@ -84,18 +84,14 @@ FStringList *f_stringlist_addf(FStringList *self, const char *fmt, ...)
 {
 	va_list ap;
 
-	va_start(ap, fmt);
-	self = f_stringlist_vaddf(self, fmt, ap);
-	va_end(ap);
-	return self;
-}
-
-FStringList *f_stringlist_vaddf(FStringList *self, const char *fmt, va_list ap)
-{
 	if(self == NULL) {
 		self = new FStringList();
 	}
-	return &self->vaddf(fmt, ap);
+
+	va_start(ap, fmt);
+	self->vaddf(fmt, ap);
+	va_end(ap);
+	return self;
 }
 
 int f_stringlist_clear(FStringList *self)
