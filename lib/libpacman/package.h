@@ -186,7 +186,12 @@ public:
 		bool operator () (const Package *pkg1, const Package *pkg2);
 	};
 
-	typedef flib::set<libpacman::Package *, libpacman::less<const libpacman::Package *>> package_set;
+	#if 0
+		typedef flib::refcounted_ptr<libpacman::Package> package_ptr;
+	#else
+		typedef libpacman::Package *package_ptr;
+	#endif
+	typedef flib::set<libpacman::package_ptr, libpacman::less<const libpacman::Package *>> package_set;
 
 class PackageMatcher
 	: FMatcher<const libpacman::Package *>

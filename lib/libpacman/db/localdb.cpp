@@ -228,13 +228,13 @@ LocalDatabase::~LocalDatabase()
 }
 
 static
-LocalPackage *_pacman_localdb_pkg_new(LocalDatabase *db, const struct dirent *dirent, unsigned int inforeq)
+package_ptr _pacman_localdb_pkg_new(LocalDatabase *db, const struct dirent *dirent, unsigned int inforeq)
 {
 	LocalPackage *pkg;
 	const char *dname;
 
-	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, NULL));
-	ASSERT(dirent != NULL, return NULL);
+	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, nullptr));
+	ASSERT(dirent != NULL, return nullptr);
 
 	dname = dirent->d_name;
 	if((pkg = new LocalPackage(db)) == NULL ||
@@ -244,7 +244,7 @@ LocalPackage *_pacman_localdb_pkg_new(LocalDatabase *db, const struct dirent *di
 		pkg->release();
 		pkg = NULL;
 	}
-	return pkg;
+	return package_ptr(pkg);
 }
 
 FStringList LocalDatabase::test() const
@@ -319,7 +319,7 @@ int LocalDatabase::rewind()
 	return 0;
 }
 
-Package *LocalDatabase::readpkg(unsigned int inforeq)
+package_ptr LocalDatabase::readpkg(unsigned int inforeq)
 {
 	struct dirent *ent = NULL;
 	struct stat sbuf;
@@ -338,7 +338,7 @@ Package *LocalDatabase::readpkg(unsigned int inforeq)
 	return NULL;
 }
 
-Package *LocalDatabase::scan(const char *target, unsigned int inforeq)
+package_ptr LocalDatabase::scan(const char *target, unsigned int inforeq)
 {
 	struct dirent *ent = NULL;
 	struct stat sbuf;

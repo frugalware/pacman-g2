@@ -65,14 +65,14 @@ public:
 
 	/* Package iterator */
 	virtual int rewind();
-	virtual libpacman::Package *readpkg(unsigned int inforeq);
-	virtual libpacman::Package *scan(const char *target, unsigned int inforeq) = 0;
+	virtual libpacman::package_ptr readpkg(unsigned int inforeq);
+	virtual libpacman::package_ptr scan(const char *target, unsigned int inforeq) = 0;
 
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
 
 	/* Cache operations */
-	int add_pkgincache(libpacman::Package *pkg);
-	int remove_pkgfromcache(libpacman::Package *pkg);
+	int add_pkgincache(libpacman::package_ptr pkg);
+	int remove_pkgfromcache(libpacman::package_ptr pkg);
 	void free_pkgcache();
 
 	FList<libpacman::Package *> filter(const libpacman::PackageMatcher &packagematcher);

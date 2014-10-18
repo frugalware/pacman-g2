@@ -55,8 +55,8 @@ public:
 	virtual int close();
 
 	virtual int rewind();
-	virtual libpacman::Package *readpkg(unsigned int inforeq);
-	virtual libpacman::Package *scan(const char *target, unsigned int inforeq);
+	virtual libpacman::package_ptr readpkg(unsigned int inforeq);
+	virtual libpacman::package_ptr scan(const char *target, unsigned int inforeq);
 
 protected:
 	virtual int open(int flags, libpacman::Timestamp *timestamp);

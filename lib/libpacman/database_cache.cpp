@@ -56,7 +56,7 @@ int _pacman_db_load_grpcache(Database *db);
 static
 int _pacman_db_load_pkgcache(Database *db)
 {
-	Package *info;
+	package_ptr info;
 
 	ASSERT(db != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
@@ -99,7 +99,7 @@ libpacman::package_set &Database::get_packages()
 	return pkgcache;
 }
 
-int Database::add_pkgincache(Package *pkg)
+int Database::add_pkgincache(package_ptr pkg)
 {
 	if(pkg == NULL) {
 		return(-1);
@@ -114,7 +114,7 @@ int Database::add_pkgincache(Package *pkg)
 	return(0);
 }
 
-int Database::remove_pkgfromcache(Package *pkg)
+int Database::remove_pkgfromcache(package_ptr pkg)
 {
 	if(pkg == NULL) {
 		return(-1);
@@ -162,7 +162,7 @@ int _pacman_db_load_grpcache(Database *db)
 	_pacman_log(PM_LOG_DEBUG, _("loading group cache for repository '%s'"), db->treename());
 
 	for(auto it = cache.begin(), end = cache.end(); it != end; ++it) {
-		Package *pkg = *it;
+		package_ptr pkg = *it;
 
 		if(!(pkg->flags & INFRQ_DESC)) {
 			pkg->read(INFRQ_DESC);

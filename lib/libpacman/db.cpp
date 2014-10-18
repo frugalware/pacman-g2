@@ -235,7 +235,7 @@ int Database::rewind()
 	return -1;
 }
 
-Package *Database::readpkg(unsigned int inforeq)
+package_ptr Database::readpkg(unsigned int inforeq)
 {
 	return NULL;
 }

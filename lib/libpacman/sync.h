@@ -37,9 +37,9 @@ struct __pmsyncpkg_t
 	pmtranstype_t type;
 	const char *pkg_name;
 	int m_flags;
-	libpacman::Package *pkg_new;
-	libpacman::Package *pkg_local;
-	FList<libpacman::Package *> m_replaces;
+	libpacman::package_ptr pkg_new;
+	libpacman::package_ptr pkg_local;
+	FList<libpacman::package_ptr> m_replaces;
 };
 
 #endif /* _PACMAN_SYNC_H */

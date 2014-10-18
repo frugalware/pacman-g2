@@ -1571,7 +1571,7 @@ int __pmtrans_t::commit(FPtrList **data)
 	howmany = syncpkgs.size();
 
 	for(auto targ = syncpkgs.begin(), end = syncpkgs.end(); targ != end; ++targ) {
-		Package *pkg_new = (*targ)->pkg_new, *pkg_local = (*targ)->pkg_local;
+		package_ptr pkg_new = (*targ)->pkg_new, pkg_local = (*targ)->pkg_local;
 		void *event_arg0 = NULL, *event_arg1 = NULL;
 		pmtranstype_t type = m_type;
 

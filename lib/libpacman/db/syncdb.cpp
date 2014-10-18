@@ -128,7 +128,7 @@ SyncDatabase::~SyncDatabase()
 }
 
 static
-SyncPackage *_pacman_syncdb_pkg_new(SyncDatabase *db, const struct archive_entry *entry, unsigned int inforeq)
+package_ptr _pacman_syncdb_pkg_new(SyncDatabase *db, const struct archive_entry *entry, unsigned int inforeq)
 {
 	SyncPackage *pkg;
 	const char *dname;
@@ -144,7 +144,7 @@ SyncPackage *_pacman_syncdb_pkg_new(SyncDatabase *db, const struct archive_entry
 		pkg->release();
 		pkg = NULL;
 	}
-	return pkg;
+	return package_ptr(pkg);
 }
 
 int _pacman_syncdb_update(Database *db, int force)
@@ -233,7 +233,7 @@ int SyncDatabase::rewind()
 	return open(0, NULL);
 }
 
-Package *SyncDatabase::readpkg(unsigned int inforeq)
+package_ptr SyncDatabase::readpkg(unsigned int inforeq)
 {
 	struct archive_entry *entry = NULL;
 
@@ -257,7 +257,7 @@ Package *SyncDatabase::readpkg(unsigned int inforeq)
 	return NULL;
 }
 
-Package *SyncDatabase::scan(const char *target, unsigned int inforeq)
+package_ptr SyncDatabase::scan(const char *target, unsigned int inforeq)
 {
 	char name[PKG_FULLNAME_LEN];
 	char *ptr = NULL;
