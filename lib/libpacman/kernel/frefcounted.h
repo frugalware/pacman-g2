@@ -71,6 +71,10 @@ namespace flib
 		typedef T element_type;
 
 		constexpr refcounted_ptr()
+			: refcounted_ptr(nullptr)
+		{ }
+
+		constexpr refcounted_ptr(std::nullptr_t)
 			: m_refcounted_ptr(nullptr)
 		{ }
 
@@ -83,11 +87,23 @@ namespace flib
 			}
 		}
 
+		template <class Y>
+		refcounted_ptr(const refcounted_ptr<Y> &o)
+			: refcounted_ptr(o.m_refcounted_ptr)
+		{ }
+
 		~refcounted_ptr()
 		{
 			if(m_refcounted_ptr != nullptr) {
 				m_refcounted_ptr->release();
 			}
+		}
+
+		template <class Y>
+		refcounted_ptr<Y> &operator = (const refcounted_ptr<Y> &o)
+		{
+			reset(o.m_refcounted_ptr);
+			return *this;
 		}
 
 		/* Manipulators */
@@ -102,7 +118,7 @@ namespace flib
 			swap(*this, refcounted_ptr<T>(ptr));
 		}
 
-		void swap(refcounted_ptr &o)
+		void swap(refcounted_ptr<T> &o)
 		{
 			std::swap(m_refcounted_ptr, o.m_refcounted_ptr);
 		}
@@ -137,6 +153,18 @@ namespace flib
 	private:
 		T *m_refcounted_ptr;
 	};
+}
+
+template <class T, class U>
+bool operator == (const flib::refcounted_ptr<T> &lhs, const flib::refcounted_ptr<U> &rhs)
+{
+	return lhs.get() == rhs.get();
+}
+
+template <class T, class U>
+bool operator != (const flib::refcounted_ptr<T> &lhs, const flib::refcounted_ptr<U> &rhs)
+{ 
+	return lhs.get() != rhs.get();
 }
 
 #endif /* FREFCOUNTED_H */
