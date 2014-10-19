@@ -80,14 +80,18 @@ size_t f_ptrlist_count(const FPtrList *self)
 
 FPtrListIterator *f_ptrlist_end(FPtrList *self)
 {
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-	return self->end();
+	if(self != NULL) {
+		return self->end();
+	}
+	return NULL;
 }
 
 FPtrListIterator *f_ptrlist_first(FPtrList *self)
 {
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-	return self->begin();
+	if(self != NULL) {
+		return self->begin();
+	}
+	return NULL;
 }
 
 /* vim: set ts=2 sw=2 noet: */
