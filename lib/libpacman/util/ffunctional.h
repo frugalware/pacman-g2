@@ -27,8 +27,6 @@
 
 #include "util/ftype_traits.h"
 
-#include "util.h" // For ASSERT
-
 namespace flib
 {
 
@@ -307,10 +305,9 @@ class FFunction<R(Args...)>
 	template <typename Pointer, typename MethodSignature, typename Target, typename VirtualSignature>
 	void _connect(Pointer pointer, MethodSignature method)
 	{
-		ASSERT(pointer != nullptr, return;);
-		ASSERT(method != nullptr, return;);
-
-		d = shared_ptr(new flib::detail::FMethodImpl<R(Args...), MethodSignature, Target, Pointer, VirtualSignature>(pointer, method));
+		if(pointer != nullptr && method != nullptr) {
+			d = shared_ptr(new flib::detail::FMethodImpl<R(Args...), MethodSignature, Target, Pointer, VirtualSignature>(pointer, method));
+		}
 	}
 
 public:
@@ -328,17 +325,17 @@ public:
 	template <typename FunctionR, typename... FunctionArgs>
 	FFunction(FunctionR (*function)(FunctionArgs...))
 	{
-		ASSERT(function != nullptr, return;);
-
-		d = shared_ptr(new flib::detail::FFunctionImpl<R(Args...), FunctionR (*)(FunctionArgs...), FunctionR(FunctionArgs...)>(function));
+		if(function != nullptr) {
+			d = shared_ptr(new flib::detail::FFunctionImpl<R(Args...), FunctionR (*)(FunctionArgs...), FunctionR(FunctionArgs...)>(function));
+		}
 	}
 
 	template <typename CallbackR, typename CallbackData, typename... CallbackArgs, typename CallbackDataHolder>
 	FFunction(CallbackR (*callback)(CallbackData, CallbackArgs...), CallbackDataHolder data)
 	{
-		ASSERT(callback != nullptr, return;);
-
-		d = shared_ptr(new flib::detail::FCallbackImpl<R(Args...), CallbackR (*)(CallbackData, CallbackArgs...), CallbackR(CallbackData, CallbackArgs...), CallbackDataHolder>(callback, data));
+		if(callback != nullptr) {
+			d = shared_ptr(new flib::detail::FCallbackImpl<R(Args...), CallbackR (*)(CallbackData, CallbackArgs...), CallbackR(CallbackData, CallbackArgs...), CallbackDataHolder>(callback, data));
+		}
 	}
 
 	template <typename Pointer, typename MethodSignature>

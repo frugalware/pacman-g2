@@ -70,10 +70,11 @@ public:
 
 	bool connect(const flib::FFunction<R(Args...)>& function)
 	{
-		ASSERT(function, return false);
-
-		m_connections.push_back(function);
-		return true;
+		if(function) {
+			m_connections.push_back(function);
+			return true;
+		}
+		return false;
 	}
 
 	template <typename OtherR, typename... OtherArgs>
