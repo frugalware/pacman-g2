@@ -420,7 +420,7 @@ int syncpkg(FStringList *targets)
 				if(!found) {
 					/* targ not found in sync db, searching for providers... */
 					PM_PKG *pkg;
-					char *pname;
+					char *pname = NULL;
 					for(FPtrListIterator *j = f_ptrlist_first(pmc_syncs), *end = f_ptrlist_end(pmc_syncs); j != end; j = f_ptrlistitem_next(j)) {
 						PM_DB *db = list_data(j);
 						PM_LIST *k = pacman_db_whatprovides(db, targ);
