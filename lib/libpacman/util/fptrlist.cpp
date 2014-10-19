@@ -84,46 +84,10 @@ FPtrListIterator *f_ptrlist_end(FPtrList *self)
 	return self->end();
 }
 
-const FPtrListIterator *f_ptrlist_end_const(const FPtrList *self)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-	return self->end();
-}
-
 FPtrListIterator *f_ptrlist_first(FPtrList *self)
 {
 	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 	return self->begin();
-}
-
-const FPtrListIterator *f_ptrlist_first_const(const FPtrList *self)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-	return self->begin();
-}
-
-FPtrListIterator *f_ptrlist_last(FPtrList *self)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-	return self->last();
-}
-
-const FPtrListIterator *f_ptrlist_last_const(const FPtrList *self)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-	return self->last();
-}
-
-FPtrListIterator *f_ptrlist_rend(FPtrList *self)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-	return self->rend();
-}
-
-const FPtrListIterator *f_ptrlist_rend_const(const FPtrList *self)
-{
-	ASSERT(self != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-	return self->rend();
 }
 
 /* vim: set ts=2 sw=2 noet: */

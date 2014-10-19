@@ -53,13 +53,7 @@ int f_ptrlist_delete(FPtrList *list);
 FPtrList *f_ptrlist_add(FPtrList *list, void *data);
 size_t f_ptrlist_count(const FPtrList *self);
 FPtrListIterator *f_ptrlist_end(FPtrList *self);
-const FPtrListIterator *f_ptrlist_end_const(const FPtrList *self);
 FPtrListIterator *f_ptrlist_first(FPtrList *self);
-const FPtrListIterator *f_ptrlist_first_const(const FPtrList *self);
-FPtrListIterator *f_ptrlist_last(FPtrList *self);
-const FPtrListIterator *f_ptrlist_last_const(const FPtrList *self);
-FPtrListIterator *f_ptrlist_rend(FPtrList *self);
-const FPtrListIterator *f_ptrlist_rend_const(const FPtrList *self);
 
 #ifdef __cplusplus
 }
