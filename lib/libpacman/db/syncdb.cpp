@@ -141,7 +141,6 @@ package_ptr _pacman_syncdb_pkg_new(SyncDatabase *db, const struct archive_entry 
 			!pkg->set_filename(dname, 0) ||
 			pkg->read(inforeq) == -1) {
 		_pacman_log(PM_LOG_ERROR, _("invalid name for dabatase entry '%s'"), dname);
-		pkg->release();
 		pkg = NULL;
 	}
 	return package_ptr(pkg);

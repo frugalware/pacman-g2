@@ -30,12 +30,11 @@
 using namespace flib;
 
 refcounted::refcounted()
-	: m_reference_counter(1)
+	: m_reference_counter(0)
 { }
 
 refcounted::~refcounted()
-{
-}
+{ }
 
 void refcounted::acquire() const
 {

@@ -399,7 +399,6 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 					_pacman_log(PM_LOG_WARNING, _("newer version %s-%s is in the target list -- skipping"),
 							ps->pkg_new->name(), ps->pkg_new->version(), pkg_new->version());
 				}
-				fRelease(pkg_new);
 				return 0;
 			}
 		}
@@ -432,12 +431,10 @@ add:
 		pmsyncpkg_t *ps = new __pmsyncpkg_t();
 
 		ps->type = type;
-		ps->pkg_name = name;
+		ps->pkg_name = strdup(name);
 		ps->m_flags = flags;
 		ps->pkg_new = pkg_new;
-		fAcquire(ps->pkg_new);
 		ps->pkg_local = pkg_local;
-		fAcquire(ps->pkg_local);
 
 		ps = add(ps, flags);
 		if(syncpkg != NULL) {
@@ -447,7 +444,6 @@ add:
 	return 0;
 
 error:
-	fRelease(pkg_new);
 	return(-1);
 }
 
@@ -1588,7 +1584,6 @@ int __pmtrans_t::commit(FPtrList **data)
 			type &= ~PM_TRANS_TYPE_REMOVE;
 		}
 		if(pkg_local) {
-			pkg_local->acquire();
 			/* we'll need to save some record for backup checks later */
 			if(!(pkg_local->flags & INFRQ_FILES)) {
 				_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), pkg_local->name());
@@ -1803,7 +1798,6 @@ int __pmtrans_t::commit(FPtrList **data)
 
 		}
 		EVENT(this, trans_event_table[type].post.event, event_arg0, event_arg1);
-		fRelease(pkg_local);
 	}
 
 	/* run ldconfig if it exists */

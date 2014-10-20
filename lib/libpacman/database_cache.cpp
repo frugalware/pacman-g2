@@ -86,7 +86,7 @@ void Database::free_pkgcache()
 	_pacman_log(PM_LOG_DEBUG, _("freeing package cache for repository '%s'"),
 	                        treename());
 
-	pkgcache.clear(flib::fRelease);
+	pkgcache.clear();
 
 	_pacman_db_clear_grpcache(this);
 }
@@ -105,7 +105,6 @@ int Database::add_pkgincache(package_ptr pkg)
 		return(-1);
 	}
 
-	pkg->acquire(); // FIXME: Should not be necessary, but required during migration to refcounted object
 	_pacman_log(PM_LOG_DEBUG, _("adding entry '%s' in '%s' cache"), pkg->name(), treename());
 	pkgcache.add(pkg);
 
@@ -124,13 +123,9 @@ int Database::remove_pkgfromcache(package_ptr pkg)
 		/* package not found */
 		return(-1);
 	}
-
 	_pacman_log(PM_LOG_DEBUG, _("removing entry '%s' from '%s' cache"), pkg->name(), treename());
-	pkg->release(); // FIXME: Should not be necessary, but required during migration to refcounted object
-
 	_pacman_db_clear_grpcache(this);
-
-	return(0);
+	return 0;
 }
 
 static

@@ -45,20 +45,6 @@ public:
 	virtual int set(unsigned val, unsigned long data);
 };
 
-static inline void fAcquire(flib::FObject *object)
-{
-	if(object != nullptr) {
-		object->acquire();
-	}
-}
-
-static inline void fRelease(flib::FObject *object)
-{
-	if(object != nullptr) {
-		object->release();
-	}
-}
-
 }
 
 #endif /* FOBJECT_H */

@@ -109,12 +109,10 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 								ps = trans->find(spkg->name());
 								if(ps) {
 									/* found it -- just append to the replaces list */
-									lpkg->acquire();
 									ps->m_replaces.add(lpkg);
 								} else {
 									/* none found -- enter pkg into the final sync list */
 									ps = new __pmsyncpkg_t(PM_TRANS_TYPE_SYNC, spkg);
-									lpkg->acquire();
 									ps->m_replaces.add(lpkg);
 									trans->syncpkgs.add(ps);
 								}

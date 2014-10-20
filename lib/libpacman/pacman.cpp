@@ -866,9 +866,7 @@ int pacman_pkg_free(pmpkg_t *_pkg)
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	/* Only free packages loaded in user space */
-	pkg->release();
-
-	return(0);
+	return 0;
 }
 
 /** Compare versions.
