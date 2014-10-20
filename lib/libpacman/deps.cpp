@@ -131,10 +131,10 @@ void pmtrans_t::sortbydeps(int mode)
 
 	/* We compute the edges */
 	for(auto i = vertices.begin(), end = vertices.end(); i != end; ++i) {
-		Package *p_i = (*i)->data->pkg_new != NULL ? (*i)->data->pkg_new : (*i)->data->pkg_local;
+		package_ptr p_i = (*i)->data->pkg_new != NULL ? (*i)->data->pkg_new : (*i)->data->pkg_local;
 		/* TODO this should be somehow combined with _pacman_checkdeps */
 		for(auto j = vertices.begin(); j != end; ++j) {
-			Package *p_j = (*j)->data->pkg_new != NULL ? (*j)->data->pkg_new : (*j)->data->pkg_local;
+			package_ptr p_j = (*j)->data->pkg_new != NULL ? (*j)->data->pkg_new : (*j)->data->pkg_local;
 			int child = 0;
 			auto &depends = p_i->depends();
 			for(auto k = depends.begin(), k_end = depends.end(); k != k_end && !child; ++k) {
@@ -207,7 +207,7 @@ FPtrList pmtrans_t::checkdeps(unsigned char op)
 
 	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
 		pmsyncpkg_t *syncpkg = *i;
-		Package *pkg_new = syncpkg->pkg_new, *pkg_local = syncpkg->pkg_local;
+		package_ptr pkg_new = syncpkg->pkg_new, pkg_local = syncpkg->pkg_local;
 
 		if(pkg_local != NULL) {
 			bool found = false;
@@ -219,7 +219,7 @@ FPtrList pmtrans_t::checkdeps(unsigned char op)
 					/* PM_TRANS_TYPE_UPGRADE handles the backwards dependencies, ie, the packages
 					 * listed in the requiredby field.
 					 */
-					Package *p;
+					package_ptr p;
 				
 					if((p = db_local->find(requiredby_name)) == NULL) {
 						/* hmmm... package isn't installed.. */
@@ -285,7 +285,7 @@ FPtrList pmtrans_t::checkdeps(unsigned char op)
  						 * to install.  this way, if we match against a to-be-installed
  						 * package, we'll defer to the NEW one, not the one already
  						 * installed. */
- 						Package *p = *m;
+ 						package_ptr p = *m;
 						pmsyncpkg_t *syncpkg = find(p->name());
 						if(syncpkg != NULL) {
 							found = p->match(depend);
@@ -294,8 +294,7 @@ FPtrList pmtrans_t::checkdeps(unsigned char op)
 				}
  				/* check other targets */
  				for(auto k = syncpkgs.begin(), k_end = syncpkgs.end(); k != k_end && !found; ++k) {
- 					Package *p = (*k)->pkg_new;
-					found = p->match(depend);
+ 					found = (*k)->pkg_new->match(depend);
 				}
 				/* else if still not found... */
 				if(!found) {
@@ -373,7 +372,7 @@ void pmtrans_t::removedeps()
 		auto &depends = (*i)->pkg_local->depends();
 		for(auto j = depends.begin(), j_end = depends.end(); j != j_end; ++j) {
 			pmdepend_t depend;
-			Package *dep;
+			package_ptr dep;
 			int needed = 0;
 
 			if(_pacman_splitdep(*j, &depend)) {
@@ -388,7 +387,7 @@ void pmtrans_t::removedeps()
 					_pacman_log(PM_LOG_WARNING, _("cannot find package \"%s\" or anything that provides it!"), depend.name);
 					continue;
 				}
-				dep = db->find(((Package *)*whatPackagesProvide.begin())->name());
+				dep = db->find((*whatPackagesProvide.begin())->name());
 				if(dep == NULL) {
 					_pacman_log(PM_LOG_ERROR, _("dep is NULL!"));
 					/* wtf */
@@ -408,7 +407,7 @@ void pmtrans_t::removedeps()
 			/* see if other packages need it */
 			auto &requiredby = dep->requiredby();
 			for(auto k = requiredby.begin(), k_end = requiredby.end(); k != k_end && !needed; ++k) {
-				Package *dummy = db->find((const char *)*k);
+				package_ptr dummy(db->find((const char *)*k));
 				if(!find(dummy->name())) {
 					needed = 1;
 				}
@@ -451,11 +450,11 @@ int pmtrans_t::resolvedeps(FPtrList **data)
 	for(auto i = deps.begin(), end = deps.end(); i != end; ++i) {
 		int found = 0;
 		pmdepmissing_t *miss = (pmdepmissing_t *)*i;
-		Package *ps = NULL;
+		package_ptr ps = NULL;
 
 		/* check if one of the packages in *list already provides this dependency */
 		for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end && !found; ++j) {
-			Package *sp = (*j)->pkg_new;
+			package_ptr sp = (*j)->pkg_new;
 			if(sp->provides(miss->depend.name)) {
 				_pacman_log(PM_LOG_DEBUG, _("%s provides dependency %s -- skipping"),
 				          sp->name(), miss->depend.name);
@@ -503,7 +502,7 @@ int pmtrans_t::resolvedeps(FPtrList **data)
 			 */
 			int usedep = 1;
 			if(m_handle->ignorepkg.contains(ps->name())) {
-				Package *dummypkg = new Package(miss->target, NULL);
+				package_ptr dummypkg(new package(miss->target, NULL));
 				QUESTION(this, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg, ps, NULL, &usedep);
 			}
 			if(usedep) {
@@ -542,7 +541,7 @@ error:
 	return -1;
 }
 
-int _pacman_depcmp(Package *pkg, pmdepend_t *dep)
+int _pacman_depcmp(package_ptr pkg, pmdepend_t *dep)
 {
 	int equal = 0, cmp;
 	const char *mod = "~=";
@@ -604,14 +603,13 @@ int inList(FStringList *lst, const char *lItem) {
 extern "C" {
 int pacman_output_generate(FStringList *targets, FPtrList *dblist) {
     FStringList found;
-    Package *pkg = NULL;
     int foundMatch = 0;
     unsigned int inforeq =  INFRQ_DEPENDS;
     for(auto j = dblist->begin(), end = dblist->end(); j != end; ++j) {
         Database *db = *j;
         do {
             foundMatch = 0;
-            pkg = db->readpkg(inforeq);
+            package_ptr pkg = db->readpkg(inforeq);
             while(pkg != NULL) {
                 const char *pname = pkg->name();
                 if(targets != NULL && targets->remove(pname)) {

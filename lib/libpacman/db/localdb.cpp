@@ -47,7 +47,7 @@
 using namespace libpacman;
 
 LocalPackage::LocalPackage(LocalDatabase *database)
-	: Package(database)
+	: package(database)
 {
 }
 
@@ -57,11 +57,11 @@ LocalPackage::~LocalPackage()
 
 LocalDatabase *LocalPackage::database() const
 {
-	return static_cast<LocalDatabase *>(Package::database());
+	return static_cast<LocalDatabase *>(package::database());
 }
 
 static
-int _pacman_localpkg_file_reader(Database *db, Package *pkg, unsigned int flags, unsigned int flags_masq, const char *file, int (*reader)(Package *, FILE *))
+int _pacman_localpkg_file_reader(Database *db, package_ptr pkg, unsigned int flags, unsigned int flags_masq, const char *file, int (*reader)(package *, FILE *))
 {
 	int ret = 0;
 
@@ -130,7 +130,7 @@ int LocalPackage::remove()
 	return(0);
 }
 
-int _pacman_localpackage_remove(Package *pkg, pmtrans_t *trans, int howmany, int remain)
+int _pacman_localpackage_remove(package_ptr pkg, pmtrans_t *trans, int howmany, int remain)
 {
 	struct stat buf;
 	int position = 0;
@@ -396,7 +396,7 @@ void _pacman_localdb_write_stringlist(const char *entry, const FStringList &valu
 	}
 }
 
-int LocalDatabase::write(Package *info, unsigned int inforeq)
+int LocalDatabase::write(package_ptr info, unsigned int inforeq)
 {
 	FILE *fp = NULL;
 	char path[PATH_MAX];
@@ -508,7 +508,7 @@ package_list LocalDatabase::getowners(const char *filename)
 
 	auto &cache = get_packages();
 	for(auto lp = cache.begin(), end = cache.end(); lp != end; ++lp) {
-		Package *info = *lp;
+		package_ptr info = *lp;
 
 		auto &files = info->files();
 		for(auto i = files.begin(), end = files.end(); i != end; ++i) {

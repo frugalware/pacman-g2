@@ -32,7 +32,7 @@ namespace libpacman
 class LocalDatabase;
 
 class LocalPackage
-	  : public libpacman::Package
+	: public libpacman::package
 {
 public:
 	LocalPackage(LocalDatabase *database = 0);
@@ -49,22 +49,22 @@ class LocalDatabase
 {
 public:
 	LocalDatabase(libpacman::Handle *handle, const char *treename);
-	virtual ~LocalDatabase();
+	virtual ~LocalDatabase() override;
 
-	virtual FStringList test() const;
+	virtual FStringList test() const override;
 
-	virtual int close();
+	virtual int close() override;
 
 	virtual int rewind();
-	virtual libpacman::package_ptr readpkg(unsigned int inforeq);
-	virtual libpacman::package_ptr scan(const char *target, unsigned int inforeq);
+	virtual libpacman::package_ptr readpkg(unsigned int inforeq) override;
+	virtual libpacman::package_ptr scan(const char *target, unsigned int inforeq) override;
 
-	virtual int write(libpacman::Package *info, unsigned int inforeq);
+	virtual int write(libpacman::package_ptr info, unsigned int inforeq) override;
 
-	virtual libpacman::package_list getowners(const char *filename);
+	virtual libpacman::package_list getowners(const char *filename) override;
 
 protected:
-	virtual int open(int flags, libpacman::Timestamp *timestamp);
+	virtual int open(int flags, libpacman::Timestamp *timestamp) override;
 
 private:
 	DIR *m_dir;
@@ -72,7 +72,7 @@ private:
 
 }
 
-int _pacman_localpackage_remove(libpacman::Package *pkg, pmtrans_t *trans, int howmany, int remain);
+int _pacman_localpackage_remove(libpacman::package_ptr pkg, pmtrans_t *trans, int howmany, int remain);
 
 #endif /* _PACMAN_LOCALDB_H */
 

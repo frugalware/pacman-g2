@@ -40,6 +40,7 @@
 #include "server.h"
 #include "sync.h"
 #include "pacman.h"
+#include "pacman_p.h"
 #include "versioncmp.h"
 
 #include "hash/md5.h"
@@ -131,7 +132,7 @@ int _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, void
 
 	switch(event) {
 	case PM_TRANS_EVT_ADD_DONE: {
-			Package *pkg_new = (Package *)data1;
+			package *pkg_new = (package *)data1;
 
 			snprintf(str, LOG_STR_LEN, "installed %s (%s)",
 					pkg_new->name(), pkg_new->version());
@@ -139,7 +140,7 @@ int _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, void
 		}
 		break;
 	case PM_TRANS_EVT_REMOVE_DONE: {
-			Package *pkg_old = (Package *)data1;
+			package *pkg_old = (package *)data1;
 
 			snprintf(str, LOG_STR_LEN, "removed %s (%s)",
 					pkg_old->name(), pkg_old->version());
@@ -147,8 +148,8 @@ int _pacman_trans_event(pmtrans_t *trans, unsigned char event, void *data1, void
 		}
 		break;
 	case PM_TRANS_EVT_UPGRADE_DONE: {
-			Package *pkg_new = (Package *)data1;
-			Package *pkg_old = (Package *)data2;
+			package *pkg_new = (package *)data1;
+			package *pkg_old = (package *)data2;
 
 			snprintf(str, LOG_STR_LEN, "upgraded %s (%s -> %s)",
 					pkg_new->name(), pkg_old->version(), pkg_new->version());
@@ -209,7 +210,7 @@ int _pacman_syncpkg_cmp(const void *s1, const void *s2)
 
 static int pkg_cmp(const void *p1, const void *p2)
 {
-	return(strcmp(((Package *)p1)->name(), ((pmsyncpkg_t *)p2)->pkg_name));
+	return(strcmp(((package *)p1)->name(), ((pmsyncpkg_t *)p2)->pkg_name));
 }
 
 static int check_olddelay(Handle *handle)
@@ -248,7 +249,7 @@ pmsyncpkg_t *__pmtrans_t::add(pmsyncpkg_t *syncpkg, int flags)
 }
 
 static
-Package *_pacman_filedb_load(Database *db, const char *name)
+package_ptr _pacman_filedb_load(Database *db, const char *name)
 {
 	struct stat buf;
 
@@ -264,7 +265,7 @@ Package *_pacman_filedb_load(Database *db, const char *name)
 // FIXME: Make returning a pmsyncpkg_t in the future
 int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpkg_t **syncpkg)
 {
-	Package *pkg_new = NULL, *pkg_local = NULL;
+	package_ptr pkg_new = NULL, pkg_local = NULL;
 	Database *db_local;
 	const char *name = NULL;
 
@@ -522,7 +523,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 				pmdepmissing_t *miss = *i;
 				int found = 0;
 				pmsyncpkg_t *ps;
-				Package *local;
+				package_ptr local;
 
 				_pacman_log(PM_LOG_FLOW2, _("package '%s' is conflicting with '%s'"),
 						  miss->target, miss->depend.name);
@@ -613,7 +614,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 						asked.add(miss->depend.name);
 						if(doremove) {
 							pmsyncpkg_t *rsync = find(miss->depend.name);
-							Package *q = new Package(miss->depend.name, NULL);
+							package_ptr q(new package(miss->depend.name, NULL));
 							if(q == NULL) {
 								if(data) {
 									FREELIST(*data);
@@ -704,8 +705,8 @@ int __pmtrans_t::prepare(FPtrList **data)
 						int pfound = 0;
 						/* If miss->depend.name depends on something that miss->target and a
 						 * package in final both provide, then it's okay...  */
-						Package *leavingp  = db_local->find(miss->target);
-						Package *conflictp = db_local->find(miss->depend.name);
+						package_ptr leavingp  = db_local->find(miss->target);
+						package_ptr conflictp = db_local->find(miss->depend.name);
 						if(!leavingp || !conflictp) {
 							_pacman_log(PM_LOG_ERROR, _("something has gone horribly wrong"));
 							ret = -1;
@@ -797,7 +798,7 @@ cleanup:
 				while(!lp.empty()) {
 					for(auto i = lp.begin(), end = lp.end(); i != end; ++i) {
 						pmdepmissing_t *miss = (pmdepmissing_t *)*i;
-						Package *pkg_local = db_local->scan(miss->depend.name, INFRQ_ALL);
+						package_ptr pkg_local(db_local->scan(miss->depend.name, INFRQ_ALL));
 						if(pkg_local) {
 							_pacman_log(PM_LOG_FLOW2, _("pulling %s in the targets list"), pkg_local->name());
 							add(miss->depend.name, m_type, PM_TRANS_TYPE_REMOVE);
@@ -896,7 +897,7 @@ cleanup:
 }
 
 static
-int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *trans, unsigned char cb_state, int howmany, int remain, Package *oldpkg)
+int _pacman_fpmpackage_install(package_ptr pkg, pmtranstype_t type, pmtrans_t *trans, unsigned char cb_state, int howmany, int remain, package_ptr oldpkg)
 {
 	int archive_ret, errors = 0, i;
 	double percent = 0;
@@ -1197,7 +1198,7 @@ int _pacman_fpmpackage_install(Package *pkg, pmtranstype_t type, pmtrans_t *tran
 }
 
 static
-int _pacman_cachedpkg_check_integrity(Package *spkg, __pmtrans_t *trans, FPtrList **data)
+int _pacman_cachedpkg_check_integrity(package_ptr spkg, __pmtrans_t *trans, FPtrList **data)
 {
 	char str[PATH_MAX], pkgname[PATH_MAX];
 	char *md5sum1, *md5sum2, *sha1sum1, *sha1sum2;
@@ -1335,7 +1336,7 @@ int __pmtrans_t::commit(FPtrList **data)
 
 			for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end; ++j) {
 				pmsyncpkg_t *ps = *j;
-				Package *spkg = ps->pkg_new;
+				package_ptr spkg = ps->pkg_new;
 				Database *dbs = spkg->database();
 
 				if(current == dbs) {
@@ -1440,7 +1441,7 @@ int __pmtrans_t::commit(FPtrList **data)
 	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
 		pmsyncpkg_t *ps = *i;
 		for(auto j = ps->m_replaces.begin(), end = ps->m_replaces.end(); j != end; ++j) {
-			Package *pkg = *j;
+			package_ptr pkg = *j;
 			if(!tr->find(pkg->name())) {
 				if(tr->add(pkg->name(), tr->m_type, tr->flags) == -1) {
 					goto error;
@@ -1476,7 +1477,7 @@ int __pmtrans_t::commit(FPtrList **data)
 	tr->progress.connect(&progress);
 	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
 		pmsyncpkg_t *ps = *i, *ps_new = NULL;
-		Package *spkg = ps->pkg_new;
+		package_ptr spkg(ps->pkg_new);
 		char str[PATH_MAX];
 		snprintf(str, PATH_MAX, "%s%s/%s-%s-%s" PM_EXT_PKG, m_handle->root, m_handle->cachedir, spkg->name(), spkg->version(), spkg->arch);
 		if(tr->add(str, tr->m_type, tr->flags, &ps_new) == -1) {
@@ -1508,15 +1509,15 @@ int __pmtrans_t::commit(FPtrList **data)
 		_pacman_log(PM_LOG_FLOW1, _("updating database for replaced packages' dependencies"));
 		for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
 			pmsyncpkg_t *ps = *i;
-			Package *pkg_new = db_local->find(ps->pkg_name);
+			package_ptr pkg_new(db_local->find(ps->pkg_name));
 			for(auto j = ps->m_replaces.begin(), end = ps->m_replaces.end(); j != end; ++j) {
-				Package *old = *j;
+				package_ptr old = *j;
 				/* merge lists */
 				auto &requiredby = old->requiredby();
 				for(auto k = requiredby.begin(), end = requiredby.end(); k != end; ++k) {
 					if(!pkg_new->requiredby().contains(*k)) {
 						/* replace old's name with new's name in the requiredby's dependency list */
-						Package *depender = db_local->find(*k);
+						package_ptr depender(db_local->find(*k));
 						if(depender == NULL) {
 							/* If the depending package no longer exists in the local db,
 							 * then it must have ALSO conflicted with ps->pkg.  If
@@ -1656,7 +1657,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
 		auto &depends = pkg_local->depends();
 		for(auto lp = depends.begin(), lp_end = depends.end(); lp != lp_end; ++lp) {
-			Package *depinfo = NULL;
+			package_ptr depinfo = NULL;
 			pmdepend_t depend;
 			char *data;
 			if(_pacman_splitdep(*lp, &depend)) {
@@ -1717,7 +1718,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		 * looking for packages depending on the package to add */
 		auto &cache = db_local->get_packages();
 		for(auto lp = cache.begin(), lp_end = cache.end(); lp != lp_end; ++lp) {
-			Package *tmpp = *lp;
+			package_ptr tmpp(*lp);
 			if(tmpp == NULL) {
 				continue;
 			}
@@ -1756,12 +1757,11 @@ int __pmtrans_t::commit(FPtrList **data)
 			_pacman_log(PM_LOG_FLOW2, _("updating dependency packages 'requiredby' fields"));
 		}
 		for(auto lp = depends.begin(), lp_end = depends.end(); lp != lp_end; ++lp) {
-			Package *depinfo;
 			pmdepend_t depend;
 			if(_pacman_splitdep(*lp, &depend)) {
 				continue;
 			}
-			depinfo = db_local->find(depend.name);
+			package_ptr depinfo(db_local->find(depend.name));
 			if(depinfo == NULL) {
 				/* look for a provides package */
 				auto provides = db_local->whatPackagesProvide(depend.name);

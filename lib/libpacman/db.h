@@ -39,7 +39,6 @@
 namespace libpacman {
 
 class Handle;
-class Package;
 
 }
 
@@ -68,7 +67,7 @@ public:
 	virtual libpacman::package_ptr readpkg(unsigned int inforeq);
 	virtual libpacman::package_ptr scan(const char *target, unsigned int inforeq) = 0;
 
-	virtual int write(libpacman::Package *info, unsigned int inforeq);
+	virtual int write(libpacman::package_ptr info, unsigned int inforeq);
 
 	/* Cache operations */
 	int add_pkgincache(libpacman::package_ptr pkg);
@@ -79,9 +78,9 @@ public:
 	libpacman::package_list filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
 	libpacman::package_list filter(const FStringList &needles, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);
 	libpacman::package_list filter(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);
-	libpacman::Package *find(const libpacman::PackageMatcher &packagematcher);
-	libpacman::Package *find(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
-	libpacman::Package *find(const char *target,
+	libpacman::package_ptr find(const libpacman::PackageMatcher &packagematcher);
+	libpacman::package_ptr find(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
+	libpacman::package_ptr find(const char *target,
 			int packagestrmatcher_flags = PM_PACKAGE_FLAG_NAME,
 			int strmatcher_flags = FStrMatcher::EQUAL);
 	libpacman::Group *find_group(const char *target);

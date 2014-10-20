@@ -55,7 +55,7 @@
 
 using namespace libpacman;
 
-static int istoonew(Package *pkg)
+static int istoonew(package_ptr pkg)
 {
 	time_t t;
 	Handle *handle = pkg->database()->m_handle;
@@ -84,12 +84,12 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	for(auto i = handle->dbs_sync.begin(), end = handle->dbs_sync.end(); i != end; ++i) {
 		auto &cache = (*i)->get_packages();
 		for(auto j = cache.begin(), end = cache.end(); j != end; ++j) {
-			Package *spkg = *j;
+			package_ptr spkg(*j);
 			auto &replaces = spkg->replaces();
 			for(auto k = replaces.begin(), end = replaces.end(); k != end; ++k) {
 				auto &cache_local = db_local->get_packages();
 				for(auto m = cache_local.begin(), end = cache_local.end(); m != end; ++m) {
-					Package *lpkg = *m;
+					package_ptr lpkg(*m);
 					if(!strcmp((const char *)*k, lpkg->name())) {
 						_pacman_log(PM_LOG_DEBUG, _("checking replacement '%s' for package '%s'"), (const char *)*k, spkg->name());
 						if(handle->ignorepkg.contains(lpkg->name())) {
@@ -133,8 +133,8 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	for(auto i = cache_local.begin(), end= cache_local.end(); i != end; ++i) {
 		int cmp;
 		int replace=0;
-		Package *local = *i;
-		Package *spkg = NULL;
+		package_ptr local(*i);
+		package_ptr spkg = NULL;
 		pmsyncpkg_t *ps;
 
 		for(auto j = handle->dbs_sync.begin(), end = handle->dbs_sync.end(); !spkg && j != end; ++j) {

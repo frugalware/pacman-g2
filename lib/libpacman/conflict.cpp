@@ -50,7 +50,7 @@ using namespace libpacman;
  */
 FPtrList pmtrans_t::checkconflicts()
 {
-	Package *info = NULL;
+	package_ptr info = NULL;
 	FPtrList baddeps;
 	pmdepmissing_t *miss = NULL;
 	int howmany, remain;
@@ -64,7 +64,7 @@ FPtrList pmtrans_t::checkconflicts()
 	howmany = syncpkgs.size();
 
 	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
-		Package *tp = (*i)->pkg_new;
+		package_ptr tp = (*i)->pkg_new;
 		if(tp == NULL) {
 			continue;
 		}
@@ -88,7 +88,7 @@ FPtrList pmtrans_t::checkconflicts()
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs db"), tp->name());
 			auto &cache = db_local->get_packages();
 			for(auto k = cache.begin(), k_end = cache.end(); k != k_end; ++k) {
-				Package *dp = *k;
+				package_ptr dp = *k;
 				if(!strcmp(dp->name(), tp->name())) {
 					/* a package cannot conflict with itself -- that's just not nice */
 					continue;
@@ -116,7 +116,7 @@ FPtrList pmtrans_t::checkconflicts()
 			/* CHECK 2: check targets against targets */
 			_pacman_log(PM_LOG_DEBUG, _("checkconflicts: targ '%s' vs targs"), tp->name());
 			for(auto k = syncpkgs.begin(), k_end = syncpkgs.end(); k != k_end; ++k) {
-				Package *otp = (*k)->pkg_new;
+				package_ptr otp = (*k)->pkg_new;
 				if(!strcmp(otp->name(), tp->name())) {
 					/* a package cannot conflict with itself -- that's just not nice */
 					continue;
@@ -157,7 +157,7 @@ FPtrList pmtrans_t::checkconflicts()
 			 * conflicts list from the new package, not the old one (*info)
 			 */
 			for(auto j = syncpkgs.begin(), j_end = syncpkgs.end(); j != j_end; ++j) {
-				Package *pkg = (*j)->pkg_new;
+				package_ptr pkg = (*j)->pkg_new;
 				if(!strcmp(pkg->name(), info->name())) {
 					/* Use the new, to-be-installed package's conflicts */
 					conflicts = &pkg->conflicts();
@@ -235,7 +235,7 @@ FPtrList pmtrans_t::find_conflicts()
 	char path[PATH_MAX+1];
 	struct stat buf;
 	FPtrList conflicts;
-	Package *p, *dbpkg;
+	package_ptr p, dbpkg;
 	double percent;
 	int howmany, remain;
 	Database *db_local = m_handle->db_local;
@@ -248,12 +248,12 @@ FPtrList pmtrans_t::find_conflicts()
 
 	/* CHECK 1: check every target against every target */
 	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
-		Package *p1 = (*i)->pkg_new;
+		package_ptr p1 = (*i)->pkg_new;
 		remain = flib::count(i, end);
 		percent = (double)(howmany - remain + 1) / howmany;
 		PROGRESS(this, PM_TRANS_PROGRESS_CONFLICTS_START, "", (percent * 100), howmany, howmany - remain + 1);
 		for(auto j = i; j != end; ++j) {
-			Package *p2 = (*j)->pkg_new;
+			package_ptr p2 = (*j)->pkg_new;
 			if(strcmp(p1->name(), p2->name())) {
 				auto ret = chk_fileconflicts(p1->files(), p2->files());
 				for(auto k = ret.begin(), k_end = ret.end(); k != k_end; ++k) {
@@ -303,11 +303,10 @@ FPtrList pmtrans_t::find_conflicts()
 					if(!ok) {
 						/* Look at all the targets */
 						for(auto k = syncpkgs.begin(), k_end = syncpkgs.end(); k != k_end && !ok; ++k) {
-							Package *p2 = (*k)->pkg_new;
+							package_ptr p2 = (*k)->pkg_new;
 							/* As long as they're not the current package */
 							if(strcmp(p2->name(), p->name())) {
-								Package *dbpkg2 = NULL;
-								dbpkg2 = db_local->find(p2->name());
+								package_ptr dbpkg2(db_local->find(p2->name()));
 								if(dbpkg2 && !(dbpkg2->flags & INFRQ_FILES)) {
 									_pacman_log(PM_LOG_DEBUG, _("loading FILES info for '%s'"), dbpkg2->name());
 									dbpkg2->read(INFRQ_FILES);

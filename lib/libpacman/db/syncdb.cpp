@@ -60,7 +60,7 @@ int suffixcmp(const char *str, const char *suffix)
 }
 
 SyncPackage::SyncPackage(SyncDatabase *database)
-	: Package(database)
+	: package(database)
 {
 }
 
@@ -70,11 +70,11 @@ SyncPackage::~SyncPackage()
 
 SyncDatabase *SyncPackage::database() const
 {
-	return static_cast<SyncDatabase *>(Package::database());
+	return static_cast<SyncDatabase *>(package::database());
 }
 
 static
-int _pacman_syncpkg_file_reader(SyncDatabase *db, Package *pkg, unsigned int flags, unsigned int flags_masq, int (*reader)(Package *, FILE *))
+int _pacman_syncpkg_file_reader(SyncDatabase *db, package_ptr pkg, unsigned int flags, unsigned int flags_masq, int (*reader)(package_ptr, FILE *))
 {
 	int ret = 0;
 

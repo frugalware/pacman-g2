@@ -35,13 +35,12 @@
 
 using namespace libpacman;
 
-Package *_pacman_fakedb_pkg_new(const char *name)
+package_ptr _pacman_fakedb_pkg_new(const char *name)
 {
 	char *ptr, *p;
 	char *str = NULL;
-	Package *dummy = NULL;
 
-	dummy = new Package(NULL, NULL);
+	package_ptr dummy(new package(NULL, NULL));
 	if(dummy == NULL) {
 		RET_ERR(PM_ERR_MEMORY, NULL);
 	}

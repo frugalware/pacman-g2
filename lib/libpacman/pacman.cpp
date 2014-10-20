@@ -781,7 +781,7 @@ int pacman_download_xfered(const pmdownload_t *download, off64_t *offset)
 void *pacman_pkg_getinfo(pmpkg_t *_pkg, unsigned char parm)
 {
 	void *data = NULL;
-	Package *pkg = cxx_cast(_pkg);
+	package *pkg = cxx_cast(_pkg);
 
 	/* Sanity checks */
 	ASSERT(handle != NULL, return(NULL));
@@ -859,7 +859,7 @@ pmpkg_t *pacman_pkg_load(char *filename)
  */
 int pacman_pkg_free(pmpkg_t *_pkg)
 {
-	Package *pkg = cxx_cast(_pkg);
+	package *pkg = cxx_cast(_pkg);
 
 	_pacman_log(PM_LOG_FUNCTION, "enter pacman_pkg_free");
 

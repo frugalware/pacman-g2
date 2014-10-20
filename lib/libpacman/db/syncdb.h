@@ -34,7 +34,7 @@ namespace libpacman
 class SyncDatabase;
 
 class SyncPackage
-	  : public libpacman::Package
+	  : public libpacman::package
 {
 public:
 	SyncPackage(SyncDatabase *database = 0);

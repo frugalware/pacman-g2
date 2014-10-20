@@ -60,7 +60,7 @@ int _pacman_db_read_lines(FStringList &list, char *s, size_t size, FILE *fp)
 	return lines;
 }
 
-int _pacman_localdb_desc_fread(Package *info, FILE *fp)
+int _pacman_localdb_desc_fread(package_ptr info, FILE *fp)
 {
 	char line[512];
 	int sline = sizeof(line)-1;
@@ -183,7 +183,7 @@ error:
 	return -1;
 }
 
-int _pacman_localdb_depends_fread(Package *info, FILE *fp)
+int _pacman_localdb_depends_fread(package_ptr info, FILE *fp)
 {
 	char line[512];
 	int sline = sizeof(line)-1;
@@ -219,7 +219,7 @@ int _pacman_localdb_depends_fread(Package *info, FILE *fp)
 	return 0;
 }
 
-int _pacman_localdb_files_fread(Package *info, FILE *fp)
+int _pacman_localdb_files_fread(package_ptr info, FILE *fp)
 {
 	char line[512];
 	int sline = sizeof(line)-1;

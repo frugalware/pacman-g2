@@ -40,7 +40,7 @@ namespace libpacman {
 class Database;
 class Group;
 class Handle;
-class Package;
+class package;
 
 }
 
@@ -49,7 +49,7 @@ DEFINE_CAST(struct __pmgrp_t, libpacman::Group)
 DEFINE_CAST(struct __pmhandle_t, libpacman::Handle)
 DEFINE_CAST(struct __pmlist_t, FPtrList)
 //DEFINE_CAST(struct __pmlist_iterator_t, FPtrListItem)
-DEFINE_CAST(struct __pmpkg_t, libpacman::Package)
+DEFINE_CAST(struct __pmpkg_t, libpacman::package)
 //DEFINE_CAST(struct __pmtrans_t, libpacman::Transaction)
 
 template <typename T>

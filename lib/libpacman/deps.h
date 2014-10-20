@@ -44,7 +44,7 @@ struct __pmdepmissing_t {
 FPtrList &_pacman_depmisslist_add(FPtrList &misslist, pmdepmissing_t *miss);
 
 int _pacman_splitdep(const char *depstr, pmdepend_t *depend);
-int _pacman_depcmp(libpacman::Package *pkg, pmdepend_t *dep);
+int _pacman_depcmp(libpacman::package_ptr pkg, pmdepend_t *dep);
 
 #endif /* _PACMAN_DEPS_H */
 

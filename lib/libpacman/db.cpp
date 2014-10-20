@@ -98,7 +98,7 @@ package_list Database::filter(const PackageMatcher &packagematcher)
 
 	auto &cache = get_packages();
 	for(auto it = cache.begin(), end = cache.end(); it != end; ++it) {
-		Package *pkg = (Package *)*it;
+		package_ptr pkg = *it;
 		
 		if(packagematcher.match(pkg)) {
 			ret.add(pkg);
@@ -128,7 +128,7 @@ package_list Database::filter(const FStringList &needles, int packagestrmatcher_
 
 		auto &cache = get_packages();
 		for(auto j = cache.begin(), j_end = cache.end(); j != j_end; ++j) {
-			Package *pkg = (Package *)*j;
+			package_ptr pkg = *j;
 
 			if(packagematcher.match(pkg)) {
 				ret.add(pkg);
@@ -146,13 +146,13 @@ package_list Database::filter(const char *pattern, int packagestrmatcher_flags, 
 	return package_list();
 }
 
-Package *Database::find(const PackageMatcher &packagematcher)
+package_ptr Database::find(const PackageMatcher &packagematcher)
 {
-	Package *ret = NULL;
+	package_ptr ret = NULL;
 
 	auto &cache = get_packages();
 	for(auto i = cache.begin(), end = cache.end(); i != end; ++i) {
-		Package *pkg = (Package *)*i;
+		package_ptr pkg = *i;
 
 		if(packagematcher.match(pkg)) {
 			if(packagematcher.match(pkg, ~PM_PACKAGE_FLAG_PROVIDES)) {
@@ -166,12 +166,12 @@ Package *Database::find(const PackageMatcher &packagematcher)
 	return ret;
 }
 
-Package *Database::find(const FStrMatcher *strmatcher, int packagestrmatcher_flags)
+package_ptr Database::find(const FStrMatcher *strmatcher, int packagestrmatcher_flags)
 {
 	return find(PackageMatcher(strmatcher, packagestrmatcher_flags));
 }
 
-Package *Database::find(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags)
+package_ptr Database::find(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags)
 {
 	if(!_pacman_strempty(pattern)) {
 		return find(PackageMatcher(pattern, packagestrmatcher_flags, strmatcher_flags));
@@ -245,7 +245,7 @@ const char *Database::treename() const
 	return m_treename;
 }
 
-int Database::write(Package *info, unsigned int inforeq)
+int Database::write(package_ptr info, unsigned int inforeq)
 {
 	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
 	RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported

@@ -21,9 +21,9 @@
 #ifndef _PACMAN_FAKEDB_H
 #define _PACMAN_FAKEDB_H
 
-#include "trans.h"
+#include "package.h"
 
-libpacman::Package *_pacman_fakedb_pkg_new(const char *name);
+libpacman::package_ptr _pacman_fakedb_pkg_new(const char *name);
 
 #endif /* _PACMAN_FAKEDB_H */
 

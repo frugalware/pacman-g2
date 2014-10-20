@@ -48,19 +48,19 @@
 
 using namespace libpacman;
 
-Package::Package(Database *database = 0)
+package::package(Database *database = 0)
 	: m_database(database)
 	, m_reason(PM_PKG_REASON_EXPLICIT)
 { }
 
-Package::Package(package_node *package_node)
-	: Package()
+package::package(package_node *package_node)
+	: package()
 {
 	m_package_node = package_node;
 }
 
-Package::Package(const char *name, const char *version)
-	: Package()
+package::package(const char *name, const char *version)
+	: package()
 {
 	if(!_pacman_strempty(name)) {
 		flags |= PM_PACKAGE_FLAG_NAME;
@@ -72,17 +72,17 @@ Package::Package(const char *name, const char *version)
 	}
 }
 
-Package::~Package()
+package::~package()
 {
 	free(m_path);
 }
 
-Database *Package::database() const
+Database *package::database() const
 {
 	return m_database;
 }
 
-bool Package::set_filename(const char *filename, int witharch)
+bool package::set_filename(const char *filename, int witharch)
 {
 	if(splitname(filename, m_name, m_version, witharch)) {
 		flags |= PM_PACKAGE_FLAG_NAME | PM_PACKAGE_FLAG_VERSION;
@@ -93,15 +93,15 @@ bool Package::set_filename(const char *filename, int witharch)
 
 /* Helper function for comparing packages
  */
-int _pacman_pkg_cmp(const Package *p1, const Package *p2)
+int _pacman_pkg_cmp(const package_ptr p1, const package_ptr p2)
 {
-	Package *pkg1 = (Package *)p1;
-	Package *pkg2 = (Package *)p2;
+	package *pkg1 = (package *)p1;
+	package *pkg2 = (package *)p2;
 
 	return pkg1 == pkg2 ? 0: strcmp(pkg1->name(), pkg2->name());
 }
 
-bool Package::is_valid(const pmtrans_t *trans, const char *pkgfile) const
+bool package::is_valid(const pmtrans_t *trans, const char *pkgfile) const
 {
 	struct utsname name;
 
@@ -146,14 +146,14 @@ pkg_error:
 
 /* Test for existence of a package in a package_list.
  */
-const Package *_pacman_pkg_isin(const char *needle, const package_list &haystack)
+const package_ptr _pacman_pkg_isin(const char *needle, const package_list &haystack)
 {
 	if(needle == NULL) {
 		return NULL;
 	}
 
 	for(auto lp = haystack.begin(), end = haystack.end(); lp != end; ++lp) {
-		Package *info = *lp;
+		package *info = *lp;
 
 		if(info && !strcmp(info->name(), needle)) {
 			return info;
@@ -162,7 +162,7 @@ const Package *_pacman_pkg_isin(const char *needle, const package_list &haystack
 	return NULL;
 }
 
-bool Package::splitname(const char *target, char *name, char *version, int witharch)
+bool package::splitname(const char *target, char *name, char *version, int witharch)
 {
 	char *tmp;
 	char *p, *q;
@@ -203,12 +203,12 @@ bool Package::splitname(const char *target, char *name, char *version, int witha
 	return true;
 }
 
-int Package::read(unsigned int flags)
+int package::read(unsigned int flags)
 {
 	return -1;
 }
 
-int Package::write(unsigned int flags)
+int package::write(unsigned int flags)
 {
 	int ret;
 
@@ -221,21 +221,21 @@ int Package::write(unsigned int flags)
 	return ret;
 }
 
-int Package::remove()
+int package::remove()
 {
 	return -1;
 }
 
-int Package::filename(char *str, size_t size) const
+int package::filename(char *str, size_t size) const
 {
 	return snprintf(str, size, "%s-%s-%s%s",
 			m_name, m_version, arch, PM_EXT_PKG);
 }
 
-/* Look for a filename in a Package.backup list.  If we find it,
+/* Look for a filename in a package::backup list.  If we find it,
  * then we return the md5 or sha1 hash (parsed from the same line)
  */
-char *Package::fileneedbackup(const char *file) const
+char *package::fileneedbackup(const char *file) const
 {
 	ASSERT(!_pacman_strempty(file), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
@@ -265,7 +265,7 @@ char *Package::fileneedbackup(const char *file) const
 }
 
 #define LIBPACMAN_PACKAGE_PROPERTY(type, name, flag)                           \
-type Package::name()                                                           \
+type package::name()                                                           \
 {                                                                              \
 	if((flags & PM_PACKAGE_FLAG_##flag) == 0) {                                  \
 		read(PM_PACKAGE_FLAG_##flag);                                              \
@@ -277,32 +277,32 @@ type Package::name()                                                           \
 
 #undef LIBPACMAN_PACKAGE_PROPERTY
 
-const char *Package::path() const
+const char *package::path() const
 {
 	return m_path;
 }
 
-const FStringList &Package::provides() const
+const FStringList &package::provides() const
 {
 	return m_provides;
 }
 
-bool Package::provides(const char *pkgname)
+bool package::provides(const char *pkgname)
 {
 	return provides().contains(pkgname);
 }
 
-const FStringList &Package::replaces() const
+const FStringList &package::replaces() const
 {
 	return m_replaces;
 }
 
-bool Package::replaces(const char *pkgname)
+bool package::replaces(const char *pkgname)
 {
 	return replaces().contains(pkgname);
 }
 
-bool Package::match(const pmdepend_t &depend)
+bool package::match(const pmdepend_t &depend)
 {
 	if(provides(depend.name) ||
 			replaces(depend.name)) {
@@ -339,7 +339,7 @@ bool Package::match(const pmdepend_t &depend)
 	}
 }
 
-bool less<const libpacman::Package *>::operator () (const Package *pkg1, const Package *pkg2)
+bool less<const libpacman::package_ptr>::operator () (const package_ptr pkg1, const package_ptr pkg2)
 {
 	return _pacman_pkg_cmp(pkg1, pkg2) < 0;
 }

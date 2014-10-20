@@ -92,7 +92,7 @@ enum {
 namespace libpacman {
 
 /* IMPROVEMENT: Add a dirty_flags to know what flags needs to be written */
-class Package
+class package
 	: public ::flib::FObject
 {
 #define LIBPACMAN_PACKAGE_PROPERTY(type, name, flag)                           \
@@ -104,11 +104,11 @@ public:                                                                        \
 #undef LIBPACMAN_PACKAGE_PROPERTY
 
 public:
-	Package(libpacman::Database *database = 0);
-	Package(libpacman::package_node *package_node);
-	Package(const char *name, const char *version);
+	package(libpacman::Database *database = 0);
+	package(libpacman::package_node *package_node);
+	package(const char *name, const char *version);
 protected:
-	virtual ~Package();
+	virtual ~package();
 
 public:
 	libpacman::Database *database() const;
@@ -136,8 +136,8 @@ public:
 	bool match(const pmdepend_t &depend);
 
 private:
-	Package(const libpacman::Package &other);
-	libpacman::Package &operator =(const libpacman::Package &other);
+	package(const package &other);
+	package &operator =(const package &other);
 
 public:
 	libpacman::Database *m_database;
@@ -177,22 +177,23 @@ public:
 	char *m_path;
 };
 
+	#if 0
+	typedef flib::refcounted_ptr<package> package_ptr;
+	#else
+	typedef package *package_ptr;
+	#endif
+
 	template <class T>
 	struct less;
 
 	template <>
-	struct less<const libpacman::Package *>
+	struct less<const package_ptr>
 	{
-		bool operator () (const Package *pkg1, const Package *pkg2);
+		bool operator () (const package_ptr pkg1, const package_ptr pkg2);
 	};
 
-	#if 0
-		typedef flib::refcounted_ptr<libpacman::Package> package_ptr;
-	#else
-		typedef libpacman::Package *package_ptr;
-	#endif
 	typedef FList<package_ptr> package_list;
-	typedef flib::set<libpacman::package_ptr, libpacman::less<const libpacman::Package *>> package_set;
+	typedef flib::set<libpacman::package_ptr, libpacman::less<const package_ptr>> package_set;
 
 class PackageMatcher
 {
@@ -221,7 +222,7 @@ private:
 
 	private:
 		char m_name[PKG_NAME_LEN];
-		flib::set<libpacman::Package *> m_packages;
+		flib::set<libpacman::package_ptr> m_packages;
 	};
 
 	struct package_node_less
@@ -237,8 +238,8 @@ private:
 	};
 } // namespace libpacman
 
-int _pacman_pkg_cmp(const libpacman::Package *p1, const libpacman::Package *p2);
-const libpacman::Package *_pacman_pkg_isin(const char *needle, const libpacman::package_list &haystack);
+int _pacman_pkg_cmp(const libpacman::package pkg1, const libpacman::package_ptr pkg2);
+const libpacman::package_ptr _pacman_pkg_isin(const char *needle, const libpacman::package_list &haystack);
 
 #endif /* _PACMAN_PACKAGE_H */
 

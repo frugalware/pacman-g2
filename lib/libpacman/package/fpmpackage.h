@@ -25,11 +25,9 @@
 #ifndef _PACMAN_FPMPACKAGE_H
 #define _PACMAN_FPMPACKAGE_H
 
-#include "pacman_p.h"
+#include "package.h"
 
-#include <stdio.h>
-
-libpacman::Package *_pacman_fpmpackage_load(const char *pkgfile);
+libpacman::package_ptr _pacman_fpmpackage_load(const char *pkgfile);
 
 #endif /* _PACMAN_FPMPACKAGE_H */
 

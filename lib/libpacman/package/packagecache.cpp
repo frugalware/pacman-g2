@@ -69,7 +69,7 @@ int _pacman_packagecache_clean(int level)
 			if(strstr(str, PM_EXT_PKG ".part")) {
 				continue;
 			}
-			if(!Package::splitname(str, name, version, 1)) {
+			if(!package::splitname(str, name, version, 1)) {
 				clean.add(str);
 				continue;
 			}
@@ -83,7 +83,7 @@ int _pacman_packagecache_clean(int level)
 				if(strstr(s, PM_EXT_PKG ".part")) {
 					continue;
 				}
-				if(!Package::splitname(s, n, v, 1)) {
+				if(!package::splitname(s, n, v, 1)) {
 					continue;
 				}
 				if(!strcmp(name, n)) {

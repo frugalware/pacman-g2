@@ -33,7 +33,6 @@ namespace libpacman {
 
 class Database;
 class Handle;
-class Package;
 
 }
 

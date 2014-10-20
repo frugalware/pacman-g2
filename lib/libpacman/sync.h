@@ -31,7 +31,7 @@ struct __pmsyncpkg_t
 	: public ::flib::FObject
 {
 	__pmsyncpkg_t();
-	__pmsyncpkg_t(int type, libpacman::Package *spkg);
+	__pmsyncpkg_t(int type, libpacman::package_ptr spkg);
 	~__pmsyncpkg_t();
 
 	pmtranstype_t type;
@@ -39,7 +39,7 @@ struct __pmsyncpkg_t
 	int m_flags;
 	libpacman::package_ptr pkg_new;
 	libpacman::package_ptr pkg_local;
-	FList<libpacman::package_ptr> m_replaces;
+	libpacman::package_list m_replaces;
 };
 
 #endif /* _PACMAN_SYNC_H */
