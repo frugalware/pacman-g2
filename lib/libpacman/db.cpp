@@ -92,9 +92,9 @@ bool Database::add_server(const char *url)
 	return true;
 }
 
-FList<Package *> Database::filter(const PackageMatcher &packagematcher)
+package_list Database::filter(const PackageMatcher &packagematcher)
 {
-	FList<Package *> ret;
+	package_list ret;
 
 	auto &cache = get_packages();
 	for(auto it = cache.begin(), end = cache.end(); it != end; ++it) {
@@ -107,14 +107,14 @@ FList<Package *> Database::filter(const PackageMatcher &packagematcher)
 	return ret;
 }
 
-FList<Package *> Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags)
+package_list Database::filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags)
 {
 	return filter(PackageMatcher(strmatcher, packagestrmatcher_flags));
 }
 
-FList<Package *> Database::filter(const FStringList &needles, int packagestrmatcher_flags, int strmatcher_flags)
+package_list Database::filter(const FStringList &needles, int packagestrmatcher_flags, int strmatcher_flags)
 {
-	FList<Package *> ret;
+	package_list ret;
 
 	for(auto i = needles.begin(), end = needles.end(); i != end; ++i) {
 		const char *pattern = (const char *)*i;
@@ -138,12 +138,12 @@ FList<Package *> Database::filter(const FStringList &needles, int packagestrmatc
 	return ret;
 }
 
-FList<Package *> Database::filter(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags)
+package_list Database::filter(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags)
 {
 	if(!f_strempty(pattern)) {
 		return filter(PackageMatcher(pattern, packagestrmatcher_flags, strmatcher_flags));
 	}
-	return FList<Package *>();
+	return package_list();
 }
 
 Package *Database::find(const PackageMatcher &packagematcher)
@@ -179,7 +179,7 @@ Package *Database::find(const char *pattern, int packagestrmatcher_flags, int st
 	return NULL;
 }
 
-FList<Package *> Database::whatPackagesProvide(const char *target)
+package_list Database::whatPackagesProvide(const char *target)
 {
 	return filter(target, PM_PACKAGE_FLAG_PROVIDES);
 }
@@ -251,9 +251,9 @@ int Database::write(Package *info, unsigned int inforeq)
 	RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
 }
 
-FList<Package *> Database::getowners(const char *filename)
+package_list Database::getowners(const char *filename)
 {
-	return FList<Package *>();
+	return package_list();
 }
 
 /* Reads dbpath/treename.lastupdate and populates *ts with the contents.

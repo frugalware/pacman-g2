@@ -61,7 +61,7 @@ public:
 
 	virtual int write(libpacman::Package *info, unsigned int inforeq);
 
-	virtual FList<libpacman::Package *> getowners(const char *filename);
+	virtual libpacman::package_list getowners(const char *filename);
 
 protected:
 	virtual int open(int flags, libpacman::Timestamp *timestamp);

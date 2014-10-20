@@ -430,7 +430,7 @@ void pmtrans_t::removedeps()
 int pmtrans_t::resolvedeps(FPtrList **data)
 {
 	FPtrList deps;
-	FList<Package *> targ;
+	package_list targ;
 
 	if(m_handle->dbs_sync.empty()) {
 		return(-1);

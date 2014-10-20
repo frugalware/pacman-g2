@@ -488,12 +488,12 @@ cleanup:
 	return(retval);
 }
 
-FList<Package *> LocalDatabase::getowners(const char *filename)
+package_list LocalDatabase::getowners(const char *filename)
 {
 	struct stat buf;
 	int gotcha = 0;
 	char rpath[PATH_MAX];
-	FList<Package *> ret;
+	package_list ret;
 
 	if(stat(filename, &buf) == -1 || realpath(filename, rpath) == NULL) {
 		RET_ERR(PM_ERR_PKG_OPEN, ret);

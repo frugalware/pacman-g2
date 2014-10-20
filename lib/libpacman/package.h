@@ -191,18 +191,17 @@ public:
 	#else
 		typedef libpacman::Package *package_ptr;
 	#endif
+	typedef FList<package_ptr> package_list;
 	typedef flib::set<libpacman::package_ptr, libpacman::less<const libpacman::Package *>> package_set;
 
 class PackageMatcher
-	: FMatcher<const libpacman::Package *>
 {
 public:
 	PackageMatcher(const char *str, int flags = PM_PACKAGE_FLAG_NAME, int strmatcher_flags = FStrMatcher::EQUAL);
 	PackageMatcher(const FStrMatcher *strmatcher, int flags);
 	~PackageMatcher();
 
-	virtual bool match(const libpacman::Package *package) const override;
-	bool match(const libpacman::Package *package, int mask) const;
+	bool match(const libpacman::package_ptr package, int mask = ~0) const;
 
 private:
 	const FStrMatcher *m_strmatcher;
@@ -239,7 +238,7 @@ private:
 } // namespace libpacman
 
 int _pacman_pkg_cmp(const libpacman::Package *p1, const libpacman::Package *p2);
-const libpacman::Package *_pacman_pkg_isin(const char *needle, const FList<libpacman::Package *> &haystack);
+const libpacman::Package *_pacman_pkg_isin(const char *needle, const libpacman::package_list &haystack);
 
 #endif /* _PACMAN_PACKAGE_H */
 

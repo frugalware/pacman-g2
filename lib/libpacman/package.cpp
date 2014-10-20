@@ -144,9 +144,9 @@ pkg_error:
 	return false;
 }
 
-/* Test for existence of a package in a FList<Package *>.
+/* Test for existence of a package in a package_list.
  */
-const Package *_pacman_pkg_isin(const char *needle, const FList<Package *> &haystack)
+const Package *_pacman_pkg_isin(const char *needle, const package_list &haystack)
 {
 	if(needle == NULL) {
 		return NULL;
@@ -353,7 +353,7 @@ struct FPackageStrMatcher
 };
 
 static
-int _pacman_strmatcher_match(const FStrMatcher *strmatcher, Package *pkg, int flags) {
+int _pacman_strmatcher_match(const FStrMatcher *strmatcher, package_ptr pkg, int flags) {
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, 0));
 	
 	/* FIXME: Make const when const accessors are available */
@@ -394,12 +394,7 @@ PackageMatcher::PackageMatcher(const FStrMatcher *strmatcher, int flags)
 PackageMatcher::~PackageMatcher()
 { }
 
-bool PackageMatcher::match(const libpacman::Package *package) const
-{
-	return match(package, ~0);
-}
-
-bool PackageMatcher::match(const Package *package, int mask = ~0) const
+bool PackageMatcher::match(const package_ptr package, int mask = ~0) const
 {
 	return _pacman_strmatcher_match(m_strmatcher, package, m_flags & mask);
 }

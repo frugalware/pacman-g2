@@ -75,10 +75,10 @@ public:
 	int remove_pkgfromcache(libpacman::package_ptr pkg);
 	void free_pkgcache();
 
-	FList<libpacman::Package *> filter(const libpacman::PackageMatcher &packagematcher);
-	FList<libpacman::Package *> filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
-	FList<libpacman::Package *> filter(const FStringList &needles, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);
-	FList<libpacman::Package *> filter(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);
+	libpacman::package_list filter(const libpacman::PackageMatcher &packagematcher);
+	libpacman::package_list filter(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
+	libpacman::package_list filter(const FStringList &needles, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);
+	libpacman::package_list filter(const char *pattern, int packagestrmatcher_flags, int strmatcher_flags = FStrMatcher::EQUAL);
 	libpacman::Package *find(const libpacman::PackageMatcher &packagematcher);
 	libpacman::Package *find(const FStrMatcher *strmatcher, int packagestrmatcher_flags);
 	libpacman::Package *find(const char *target,
@@ -87,9 +87,9 @@ public:
 	libpacman::Group *find_group(const char *target);
 	libpacman::package_set &get_packages();
 	libpacman::group_set &get_groups();
-	FList<libpacman::Package *> whatPackagesProvide(const char *target);
+	libpacman::package_list whatPackagesProvide(const char *target);
 
-	virtual FList<libpacman::Package *> getowners(const char *filename); /* Make pure virtual */
+	virtual libpacman::package_list getowners(const char *filename); /* Make pure virtual */
 
 	::libpacman::Handle *m_handle;
 	char *path;
