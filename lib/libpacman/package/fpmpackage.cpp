@@ -182,7 +182,7 @@ package_ptr _pacman_fpmpackage_load(const char *pkgfile)
 			char *str;
 
 			if((str = (char *)malloc(PATH_MAX)) == NULL) {
-				RET_ERR(PM_ERR_MEMORY, (package_ptr)-1);
+				RET_ERR(PM_ERR_MEMORY, nullptr);
 			}
 			filelist = _pacman_archive_read_fropen(archive);
 			while(!feof(filelist)) {
@@ -227,9 +227,7 @@ error:
 	if(!ret) {
 		archive_read_finish (archive);
 	}
-	pm_errno = PM_ERR_PKG_CORRUPTED;
-
-	return(NULL);
+	RET_ERR(PM_ERR_PKG_CORRUPTED, nullptr);
 }
 
 /* vim: set ts=2 sw=2 noet: */
