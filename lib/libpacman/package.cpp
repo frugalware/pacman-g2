@@ -93,6 +93,7 @@ bool package::set_filename(const char *filename, int witharch)
 
 /* Helper function for comparing packages
  */
+static
 int _pacman_pkg_cmp(const package_ptr p1, const package_ptr p2)
 {
 	package *pkg1 = (package *)p1;

@@ -178,16 +178,13 @@ public:
 };
 
 	typedef flib::refcounted_ptr<package> package_ptr;
-
 	template <class T>
 	struct less;
-
 	template <>
 	struct less<const package_ptr>
 	{
 		bool operator () (const package_ptr pkg1, const package_ptr pkg2);
 	};
-
 	typedef FList<package_ptr> package_list;
 	typedef flib::set<libpacman::package_ptr, libpacman::less<const package_ptr>> package_set;
 
@@ -221,12 +218,12 @@ private:
 		libpacman::package_set m_packages;
 	};
 
+	typedef flib::refcounted_ptr<libpacman::package_node> package_node_ptr;
 	struct package_node_less
 	{
 		bool operator () (const package_node *p1, const package_node *p2);
 	};
-
-	typedef flib::set<flib::refcounted_ptr<libpacman::package_node>, package_node_less> package_node_set;
+	typedef flib::set<libpacman::package_node_ptr, package_node_less> package_node_set;
 
 	class package_graph
 		: package_node_set
@@ -236,7 +233,6 @@ private:
 	};
 } // namespace libpacman
 
-int _pacman_pkg_cmp(const libpacman::package pkg1, const libpacman::package_ptr pkg2);
 const libpacman::package_ptr _pacman_pkg_isin(const char *needle, const libpacman::package_list &haystack);
 
 #endif /* _PACMAN_PACKAGE_H */
