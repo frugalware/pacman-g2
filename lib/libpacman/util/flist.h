@@ -830,7 +830,7 @@ public:
 		size_type size = 0;
 		iterator it = begin(), end = this->end();
 
-		while((it = find_if(pred)) != end) {
+		while((it = flib::find_if(it, end, pred)) != end) {
 			fn(*it);
 			it = erase(it);
 			++size;
