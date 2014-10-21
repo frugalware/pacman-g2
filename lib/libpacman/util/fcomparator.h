@@ -25,7 +25,6 @@
 
 template <typename T>
 class FComparator
-	: public FMatcher<T>
 {
 public:
 	FComparator()

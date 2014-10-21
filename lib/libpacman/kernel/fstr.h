@@ -23,14 +23,11 @@
 
 #include "fstring.h"
 
-#include "util/fmatcher.h"
-
 #include <regex.h>
 
 class FStringList;
 
-class FStrMatcher
-	: public FMatcher<const char *>
+class FStrMatcher final
 {
 public:
 	enum {
@@ -48,7 +45,7 @@ public:
 
 	~FStrMatcher();
 
-	virtual bool match(const char *str) const override;
+	bool match(const char *str) const;
 
 protected:
 	int m_flags;
