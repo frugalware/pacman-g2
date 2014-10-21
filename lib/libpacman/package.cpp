@@ -423,4 +423,14 @@ bool package_node_less::operator () (const package_node *p1, const package_node 
 	return strcmp(p1->name(), p2->name()) < 0;
 }
 
+bool operator < (const libpacman::package_ptr &pkg1, const libpacman::package_ptr &pkg2)
+{
+	return strcmp(pkg1->name(), pkg2->name()) < 0;
+}
+
+bool operator < (const libpacman::package_node_ptr &pn1, const libpacman::package_node_ptr &pn2)
+{
+	return strcmp(pn1->name(), pn2->name()) < 0;
+}
+
 /* vim: set ts=2 sw=2 noet: */

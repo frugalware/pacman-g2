@@ -233,6 +233,9 @@ private:
 	};
 } // namespace libpacman
 
+bool operator < (const libpacman::package_ptr &pkg1, const libpacman::package_ptr &pkg2);
+bool operator < (const libpacman::package_node_ptr &pn1, const libpacman::package_node_ptr &pn2);
+
 const libpacman::package_ptr _pacman_pkg_isin(const char *needle, const libpacman::package_list &haystack);
 
 #endif /* _PACMAN_PACKAGE_H */
