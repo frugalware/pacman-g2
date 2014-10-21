@@ -48,7 +48,7 @@
 
 using namespace libpacman;
 
-package::package(Database *database = 0)
+package::package(Database *database)
 	: m_database(database)
 	, m_reason(PM_PKG_REASON_EXPLICIT)
 { }
@@ -153,13 +153,13 @@ const package_ptr _pacman_pkg_isin(const char *needle, const package_list &hayst
 	}
 
 	for(auto lp = haystack.begin(), end = haystack.end(); lp != end; ++lp) {
-		package *info = *lp;
+		package_ptr info = *lp;
 
 		if(info && !strcmp(info->name(), needle)) {
 			return info;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 bool package::splitname(const char *target, char *name, char *version, int witharch)
@@ -214,7 +214,7 @@ int package::write(unsigned int flags)
 
 	ASSERT(m_database != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
 
-	if((ret = m_database->write(this, flags)) != 0) {
+	if((ret = m_database->write(package_ptr(this), flags)) != 0) {
 		_pacman_log(PM_LOG_ERROR, _("could not update requiredby for database entry %s-%s"),
 			name(), version());
 	}
@@ -353,8 +353,8 @@ struct FPackageStrMatcher
 };
 
 static
-int _pacman_strmatcher_match(const FStrMatcher *strmatcher, package_ptr pkg, int flags) {
-	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, 0));
+int _pacman_strmatcher_match(const FStrMatcher *strmatcher, const package_ptr &pkg, int flags) {
+	ASSERT(pkg != nullptr, RET_ERR(PM_ERR_WRONG_ARGS, 0));
 	
 	/* FIXME: Make const when const accessors are available */
 	if(((flags & PM_PACKAGE_FLAG_NAME) && strmatcher->match(pkg->name())) ||
@@ -394,7 +394,7 @@ PackageMatcher::PackageMatcher(const FStrMatcher *strmatcher, int flags)
 PackageMatcher::~PackageMatcher()
 { }
 
-bool PackageMatcher::match(const package_ptr package, int mask = ~0) const
+bool PackageMatcher::match(const package_ptr package, int mask) const
 {
 	return _pacman_strmatcher_match(m_strmatcher, package, m_flags & mask);
 }

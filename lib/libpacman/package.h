@@ -222,7 +222,7 @@ private:
 
 	private:
 		char m_name[PKG_NAME_LEN];
-		flib::set<libpacman::package_ptr> m_packages;
+		libpacman::package_set m_packages;
 	};
 
 	struct package_node_less
@@ -230,11 +230,13 @@ private:
 		bool operator () (const package_node *p1, const package_node *p2);
 	};
 
+	typedef flib::set<flib::refcounted_ptr<libpacman::package_node>, package_node_less> package_node_set;
+
 	class package_graph
-		: flib::set<flib::refcounted_ptr<libpacman::package_node>, package_node_less>
+		: package_node_set
 	{
 	public:
-		using set::set;
+		using package_node_set::package_node_set;
 	};
 } // namespace libpacman
 

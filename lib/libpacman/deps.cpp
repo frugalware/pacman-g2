@@ -131,10 +131,10 @@ void pmtrans_t::sortbydeps(int mode)
 
 	/* We compute the edges */
 	for(auto i = vertices.begin(), end = vertices.end(); i != end; ++i) {
-		package_ptr p_i = (*i)->data->pkg_new != NULL ? (*i)->data->pkg_new : (*i)->data->pkg_local;
+		package_ptr p_i = (*i)->data->pkg_new != nullptr ? (*i)->data->pkg_new : (*i)->data->pkg_local;
 		/* TODO this should be somehow combined with _pacman_checkdeps */
 		for(auto j = vertices.begin(); j != end; ++j) {
-			package_ptr p_j = (*j)->data->pkg_new != NULL ? (*j)->data->pkg_new : (*j)->data->pkg_local;
+			package_ptr p_j = (*j)->data->pkg_new != nullptr ? (*j)->data->pkg_new : (*j)->data->pkg_local;
 			int child = 0;
 			auto &depends = p_i->depends();
 			for(auto k = depends.begin(), k_end = depends.end(); k != k_end && !child; ++k) {
@@ -209,7 +209,7 @@ FPtrList pmtrans_t::checkdeps(unsigned char op)
 		pmsyncpkg_t *syncpkg = *i;
 		package_ptr pkg_new = syncpkg->pkg_new, pkg_local = syncpkg->pkg_local;
 
-		if(pkg_local != NULL) {
+		if(pkg_local != nullptr) {
 			bool found = false;
 			auto &requiredby = pkg_local->requiredby();
 			for(auto j = requiredby.begin(), j_end = requiredby.end(); j != j_end; ++j) {
@@ -221,7 +221,7 @@ FPtrList pmtrans_t::checkdeps(unsigned char op)
 					 */
 					package_ptr p;
 				
-					if((p = db_local->find(requiredby_name)) == NULL) {
+					if((p = db_local->find(requiredby_name)) == nullptr) {
 						/* hmmm... package isn't installed.. */
 						continue;
 					}
@@ -250,7 +250,7 @@ FPtrList pmtrans_t::checkdeps(unsigned char op)
 						for(auto k = syncpkgs.begin(), k_end = syncpkgs.end(); !found && k != k_end; ++k) {
 							pmsyncpkg_t *ps = *k;
 
-							if(ps->pkg_new != NULL && ps->pkg_new->provides(pkg_local->name())) {
+							if(ps->pkg_new != nullptr && ps->pkg_new->provides(pkg_local->name())) {
 								found = true;
 							}
 						}
@@ -380,7 +380,7 @@ void pmtrans_t::removedeps()
 			}
 
 			dep = db->find(depend.name);
-			if(dep == NULL) {
+			if(dep == nullptr) {
 				/* package not found... look for a provisio instead */
 				auto whatPackagesProvide = db->whatPackagesProvide(depend.name);
 				if(whatPackagesProvide.empty()) {
@@ -388,7 +388,7 @@ void pmtrans_t::removedeps()
 					continue;
 				}
 				dep = db->find((*whatPackagesProvide.begin())->name());
-				if(dep == NULL) {
+				if(dep == nullptr) {
 					_pacman_log(PM_LOG_ERROR, _("dep is NULL!"));
 					/* wtf */
 					continue;
@@ -477,7 +477,7 @@ int pmtrans_t::resolvedeps(FPtrList **data)
 				ps = *provides.begin();
 			}
 		}
-		if(ps == NULL) {
+		if(ps == nullptr) {
 			_pacman_log(PM_LOG_ERROR, _("cannot resolve dependencies for \"%s\" (\"%s\" is not in the package set)"),
 			          miss->target, miss->depend.name);
 			if(data != NULL) {
@@ -610,7 +610,7 @@ int pacman_output_generate(FStringList *targets, FPtrList *dblist) {
         do {
             foundMatch = 0;
             package_ptr pkg = db->readpkg(inforeq);
-            while(pkg != NULL) {
+            while(pkg != nullptr) {
                 const char *pname = pkg->name();
                 if(targets != NULL && targets->remove(pname)) {
                     foundMatch = 1;

@@ -65,7 +65,7 @@ FPtrList pmtrans_t::checkconflicts()
 
 	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
 		package_ptr tp = (*i)->pkg_new;
-		if(tp == NULL) {
+		if(tp == nullptr) {
 			continue;
 		}
 		remain = flib::count(i, end);
@@ -289,7 +289,7 @@ FPtrList pmtrans_t::find_conflicts()
 					/* if it's a directory, then we have no conflict */
 					ok = 1;
 				} else {
-					if(dbpkg == NULL) {
+					if(dbpkg == nullptr) {
 						dbpkg = db_local->find(p->name());
 					}
 					if(dbpkg && !(dbpkg->flags & INFRQ_FILES)) {

@@ -69,7 +69,7 @@ int _pacman_db_load_pkgcache(Database *db)
 	                        inforeq, db->treename());
 
 	db->rewind();
-	while((info = db->readpkg(inforeq)) != NULL) {
+	while((info = db->readpkg(inforeq)) != nullptr) {
 		/* add to the collective */
 		db->pkgcache.add(info);
 	}
@@ -101,7 +101,7 @@ libpacman::package_set &Database::get_packages()
 
 int Database::add_pkgincache(package_ptr pkg)
 {
-	if(pkg == NULL) {
+	if(pkg == nullptr) {
 		return(-1);
 	}
 
@@ -115,7 +115,7 @@ int Database::add_pkgincache(package_ptr pkg)
 
 int Database::remove_pkgfromcache(package_ptr pkg)
 {
-	if(pkg == NULL) {
+	if(pkg == nullptr) {
 		return(-1);
 	}
 

@@ -61,7 +61,7 @@ LocalDatabase *LocalPackage::database() const
 }
 
 static
-int _pacman_localpkg_file_reader(Database *db, package_ptr pkg, unsigned int flags, unsigned int flags_masq, const char *file, int (*reader)(package *, FILE *))
+int _pacman_localpkg_file_reader(Database *db, package *pkg, unsigned int flags, unsigned int flags_masq, const char *file, int (*reader)(package *, FILE *))
 {
 	int ret = 0;
 
@@ -403,7 +403,7 @@ int LocalDatabase::write(package_ptr info, unsigned int inforeq)
 	mode_t oldmask;
 	int retval = 0;
 
-	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
+	ASSERT(info != nullptr, RET_ERR(PM_ERR_PKG_INVALID, -1));
 
 	snprintf(path, PATH_MAX, "%s/%s-%s", this->path, info->name(), info->version());
 	oldmask = umask(0000);

@@ -41,7 +41,7 @@ package_ptr _pacman_fakedb_pkg_new(const char *name)
 	char *str = NULL;
 
 	package_ptr dummy(new package(NULL, NULL));
-	if(dummy == NULL) {
+	if(dummy == nullptr) {
 		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
 

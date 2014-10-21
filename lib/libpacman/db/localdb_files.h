@@ -84,9 +84,9 @@
 #define INFRQ_SCRIPLET PM_LOCALPACKAGE_FLAGS_SCRIPLET
 #define INFRQ_ALL PM_LOCALPACKAGE_FLAGS_ALL 
 
-int _pacman_localdb_desc_fread(libpacman::package_ptr info, FILE *fp);
-int _pacman_localdb_depends_fread(libpacman::package_ptr info, FILE *fp);
-int _pacman_localdb_files_fread(libpacman::package_ptr info, FILE *fp);
+int _pacman_localdb_desc_fread(libpacman::package *info, FILE *fp);
+int _pacman_localdb_depends_fread(libpacman::package *info, FILE *fp);
+int _pacman_localdb_files_fread(libpacman::package *info, FILE *fp);
 
 #endif /* _PACMAN_LOCALDB_FILES_H */
 

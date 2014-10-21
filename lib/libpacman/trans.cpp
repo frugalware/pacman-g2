@@ -110,10 +110,10 @@ int _pacman_trans_compute_triggers(pmtrans_t *trans)
 	for(auto lp = trans->syncpkgs.begin(), end = trans->syncpkgs.end(); lp != end; ++lp) {
 		pmsyncpkg_t *ps = *lp;
 
-		if(ps->pkg_new != NULL) {
+		if(ps->pkg_new != nullptr) {
 			trans->triggers.add(ps->pkg_new->triggers());
 		}
-		if(ps->pkg_local != NULL) {
+		if(ps->pkg_local != nullptr) {
 			trans->triggers.add(ps->pkg_local->triggers());
 		}
 	}
@@ -292,7 +292,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 				Database *dbs = *i;
 				if(strcmp(dbs->treename(), targline) == 0) {
 					pkg_new = dbs->find(targ);
-					if(pkg_new == NULL) {
+					if(pkg_new == nullptr) {
 						/* Search provides */
 						_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
 						auto p = dbs->whatPackagesProvide(targ);
@@ -310,7 +310,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 				Database *dbs = *i;
 				pkg_new = dbs->find(targ);
 			}
-			if(pkg_new == NULL) {
+			if(pkg_new == nullptr) {
 				/* Search provides */
 				_pacman_log(PM_LOG_FLOW2, _("target '%s' not found -- looking for provisions"), targ);
 				for(auto i = m_handle->dbs_sync.begin(), end = m_handle->dbs_sync.end(); i != end && !pkg_new; ++i) {
@@ -323,7 +323,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 				}
 			}
 		}
-		if(pkg_new == NULL) {
+		if(pkg_new == nullptr) {
 			RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 		}
 
@@ -357,7 +357,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 			}
 
 			pkg_new = _pacman_filedb_load(NULL, target);
-			if(pkg_new == NULL || !pkg_new->is_valid(this, target)) {
+			if(pkg_new == nullptr || !pkg_new->is_valid(this, target)) {
 				/* pm_errno is already set by _pacman_filedb_load() */
 				goto error;
 			}
@@ -365,14 +365,14 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 			pkg_local = db_local->find(pkg_new->name());
 			if(type != PM_TRANS_TYPE_UPGRADE) {
 				/* only install this package if it is not already installed */
-				if(pkg_local != NULL) {
+				if(pkg_local != nullptr) {
 					pm_errno = PM_ERR_PKG_INSTALLED;
 					goto error;
 				}
 			} else {
 				if(flags & PM_TRANS_FLAG_FRESHEN) {
 					/* only upgrade/install this package if it is already installed and at a lesser version */
-					if(pkg_local == NULL || _pacman_versioncmp(pkg_local->version(), pkg_new->version()) >= 0) {
+					if(pkg_local == nullptr || _pacman_versioncmp(pkg_local->version(), pkg_new->version()) >= 0) {
 						pm_errno = PM_ERR_PKG_CANT_FRESH;
 						goto error;
 					}
@@ -409,7 +409,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 				RET_ERR(PM_ERR_TRANS_DUP_TARGET, -1);
 			}
 
-			if((pkg_local = db_local->scan(target, INFRQ_ALL)) == NULL) {
+			if((pkg_local = db_local->scan(target, INFRQ_ALL)) == nullptr) {
 				_pacman_log(PM_LOG_ERROR, _("could not find %s in database"), target);
 				RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
 			}
@@ -427,7 +427,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 
 add:
 	/* add the package to the transaction */
-	name = pkg_new != NULL ? pkg_new->name() : pkg_local->name();
+	name = pkg_new != nullptr ? pkg_new->name() : pkg_local->name();
 	if(!find(name)) {
 		pmsyncpkg_t *ps = new __pmsyncpkg_t();
 
@@ -456,7 +456,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 	int ret = 0;
 
 	/* Sanity checks */
-	ASSERT((db_local = m_handle->db_local) != NULL, RET_ERR(PM_ERR_DB_NULL, -1));
+	ASSERT((db_local = m_handle->db_local) != nullptr, RET_ERR(PM_ERR_DB_NULL, -1));
 
 	if(data != NULL) {
 		*data = new FPtrList();
@@ -615,7 +615,7 @@ int __pmtrans_t::prepare(FPtrList **data)
 						if(doremove) {
 							pmsyncpkg_t *rsync = find(miss->depend.name);
 							package_ptr q(new package(miss->depend.name, NULL));
-							if(q == NULL) {
+							if(q == nullptr) {
 								if(data) {
 									FREELIST(*data);
 								}
@@ -984,7 +984,7 @@ int _pacman_fpmpackage_install(package_ptr pkg, pmtranstype_t type, pmtrans_t *t
 						if(handle->noupgrade.contains(pathname)) {
 							notouch = 1;
 						} else {
-							if(type == PM_TRANS_TYPE_ADD || oldpkg == NULL) {
+							if(type == PM_TRANS_TYPE_ADD || oldpkg == nullptr) {
 								nb = pkg->backup().contains(pathname);
 							} else {
 								/* op == PM_TRANS_TYPE_UPGRADE */
@@ -1483,7 +1483,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		if(tr->add(str, tr->m_type, tr->flags, &ps_new) == -1) {
 			goto error;
 		}
-		if(ps_new != NULL && ps_new->pkg_new != NULL) {
+		if(ps_new != NULL && ps_new->pkg_new != nullptr) {
 			spkg = ps_new->pkg_new;
 			if(ps->m_flags & PM_TRANS_FLAG_ALLDEPS || flags & PM_TRANS_FLAG_ALLDEPS) {
 				spkg->m_reason = PM_PKG_REASON_DEPEND;
@@ -1518,7 +1518,7 @@ int __pmtrans_t::commit(FPtrList **data)
 					if(!pkg_new->requiredby().contains(*k)) {
 						/* replace old's name with new's name in the requiredby's dependency list */
 						package_ptr depender(db_local->find(*k));
-						if(depender == NULL) {
+						if(depender == nullptr) {
 							/* If the depending package no longer exists in the local db,
 							 * then it must have ALSO conflicted with ps->pkg.  If
 							 * that's the case, then we don't have anything to propagate
@@ -1579,7 +1579,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		}
 
 		/* see if this is an upgrade.  if so, remove the old package first */
-		if(pkg_local == NULL) {
+		if(pkg_local == nullptr) {
 			/* no previous package version is installed, so this is actually
 			 * just an install.  */
 			type &= ~PM_TRANS_TYPE_REMOVE;
@@ -1592,7 +1592,7 @@ int __pmtrans_t::commit(FPtrList **data)
 			}
 		}
 
-		if(pkg_new != NULL) {
+		if(pkg_new != nullptr) {
 			event_arg0 = pkg_new;
 			event_arg1 = pkg_local;
 		} else {
@@ -1671,7 +1671,7 @@ int __pmtrans_t::commit(FPtrList **data)
 				continue;
 			}
 			depinfo = db_local->find(depend.name);
-			if(depinfo == NULL) {
+			if(depinfo == nullptr) {
 				/* look for a provides package */
 				auto provides = db_local->whatPackagesProvide(depend.name);
 				if(!provides.empty()) {
@@ -1681,7 +1681,7 @@ int __pmtrans_t::commit(FPtrList **data)
 					/* use the first one */
 					depinfo = db_local->find((*provides.begin())->name());
 				}
-				if(depinfo == NULL) {
+				if(depinfo == nullptr) {
 					_pacman_log(PM_LOG_ERROR, _("could not find dependency '%s'"), depend.name);
 					/* wtf */
 					continue;
@@ -1719,7 +1719,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		auto &cache = db_local->get_packages();
 		for(auto lp = cache.begin(), lp_end = cache.end(); lp != lp_end; ++lp) {
 			package_ptr tmpp(*lp);
-			if(tmpp == NULL) {
+			if(tmpp == nullptr) {
 				continue;
 			}
 			auto &depends = tmpp->depends();
@@ -1762,7 +1762,7 @@ int __pmtrans_t::commit(FPtrList **data)
 				continue;
 			}
 			package_ptr depinfo(db_local->find(depend.name));
-			if(depinfo == NULL) {
+			if(depinfo == nullptr) {
 				/* look for a provides package */
 				auto provides = db_local->whatPackagesProvide(depend.name);
 				if(!provides.empty()) {
@@ -1772,7 +1772,7 @@ int __pmtrans_t::commit(FPtrList **data)
 					/* use the first one */
 					depinfo = db_local->find((*provides.begin())->name());
 				}
-				if(depinfo == NULL) {
+				if(depinfo == nullptr) {
 					_pacman_log(PM_LOG_ERROR, _("could not find dependency '%s'"), depend.name);
 					/* wtf */
 					continue;

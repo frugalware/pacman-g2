@@ -157,7 +157,7 @@ package_ptr Database::find(const PackageMatcher &packagematcher)
 		if(packagematcher.match(pkg)) {
 			if(packagematcher.match(pkg, ~PM_PACKAGE_FLAG_PROVIDES)) {
 				return pkg;
-			} else if (ret == NULL) {
+			} else if (ret == nullptr) {
 				/* Store provide match */
 				ret = pkg;
 			}
@@ -247,7 +247,7 @@ const char *Database::treename() const
 
 int Database::write(package_ptr info, unsigned int inforeq)
 {
-	ASSERT(info != NULL, RET_ERR(PM_ERR_PKG_INVALID, -1));
+	ASSERT(info != nullptr, RET_ERR(PM_ERR_PKG_INVALID, -1));
 	RET_ERR(PM_ERR_WRONG_ARGS, -1); // Not supported
 }
 

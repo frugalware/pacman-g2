@@ -74,7 +74,7 @@ SyncDatabase *SyncPackage::database() const
 }
 
 static
-int _pacman_syncpkg_file_reader(SyncDatabase *db, package_ptr pkg, unsigned int flags, unsigned int flags_masq, int (*reader)(package_ptr, FILE *))
+int _pacman_syncpkg_file_reader(SyncDatabase *db, package *pkg, unsigned int flags, unsigned int flags_masq, int (*reader)(package *, FILE *))
 {
 	int ret = 0;
 

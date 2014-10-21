@@ -140,7 +140,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 		for(auto j = handle->dbs_sync.begin(), end = handle->dbs_sync.end(); !spkg && j != end; ++j) {
 			spkg = ((Database *)*j)->find(local->name());
 		}
-		if(spkg == NULL) {
+		if(spkg == nullptr) {
 			_pacman_log(PM_LOG_DEBUG, _("'%s' not found in sync db -- skipping"), local->name());
 			continue;
 		}

@@ -147,7 +147,7 @@ package_ptr _pacman_fpmpackage_load(const char *pkgfile)
 		RET_ERR(PM_ERR_PKG_OPEN, NULL);
 	}
 	package_ptr info(new package(NULL, NULL));
-	if(info == NULL) {
+	if(info == nullptr) {
 		archive_read_finish (archive);
 		RET_ERR(PM_ERR_MEMORY, NULL);
 	}
