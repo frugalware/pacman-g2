@@ -932,7 +932,7 @@ void *pacman_sync_getinfo(pmsyncpkg_t *ps, unsigned char parm)
 	switch(parm) {
 		case PM_SYNC_TYPE: data = (void *)(long)ps->type; break;
 		case PM_SYNC_NAME: data = ps->pkg_name; break;
-		case PM_SYNC_PKG:  data = ps->pkg_new; break;
+		case PM_SYNC_PKG:  data = ps->pkg_new.get(); break;
 		case PM_SYNC_REPLACES: data = &ps->m_replaces; break;
 		default:
 			data = NULL;

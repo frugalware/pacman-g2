@@ -173,7 +173,6 @@ Database *Handle::getDatabase(const char *treename)
 				return sdb;
 		}
 	}
-
 	return NULL;
 }
 

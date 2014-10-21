@@ -24,6 +24,7 @@
 #include "pacman.h"
 
 #include "util/fptrlist.h" 
+#include "package.h"
 
 #define DEFINE_CAST(c_type, cxx_type)         \
 static inline c_type *c_cast(cxx_type *obj)   \
@@ -59,6 +60,9 @@ static inline __pmlist_t *c_cast(FList<T> &obj)
 template <typename T>
 static inline __pmlist_t *c_cast(FList<T> *obj)
 { return (__pmlist_t *)obj; }
+
+static inline struct __pmpkg_t *c_cast(const libpacman::package_ptr &obj)
+{ return (__pmpkg_t *)obj.get(); }
 
 #undef DEFINE_CAST
 

@@ -503,7 +503,7 @@ int pmtrans_t::resolvedeps(FPtrList **data)
 			int usedep = 1;
 			if(m_handle->ignorepkg.contains(ps->name())) {
 				package_ptr dummypkg(new package(miss->target, NULL));
-				QUESTION(this, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg, ps, NULL, &usedep);
+				QUESTION(this, PM_TRANS_CONV_INSTALL_IGNOREPKG, dummypkg.get(), ps.get(), NULL, &usedep);
 			}
 			if(usedep) {
 				_pacman_log(PM_LOG_DEBUG, _("pulling dependency %s"), ps->name());

@@ -333,7 +333,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 			if(cmp > 0) {
 				/* pkg_local version is newer -- get confirmation before adding */
 				int resp = 0;
-				QUESTION(this, PM_TRANS_CONV_LOCAL_NEWER, pkg_local, NULL, NULL, &resp);
+				QUESTION(this, PM_TRANS_CONV_LOCAL_NEWER, pkg_local.get(), NULL, NULL, &resp);
 				if(!resp) {
 					_pacman_log(PM_LOG_WARNING, _("%s-%s: local version is newer -- skipping"), pkg_local->name(), pkg_local->version());
 					return(0);
@@ -341,7 +341,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 			} else if(cmp == 0) {
 				/* versions are identical -- get confirmation before adding */
 				int resp = 0;
-				QUESTION(this, PM_TRANS_CONV_LOCAL_UPTODATE, pkg_local, NULL, NULL, &resp);
+				QUESTION(this, PM_TRANS_CONV_LOCAL_UPTODATE, pkg_local.get(), NULL, NULL, &resp);
 				if(!resp) {
 					_pacman_log(PM_LOG_WARNING, _("%s-%s is up to date -- skipping"), pkg_local->name(), pkg_local->version());
 					return(0);
@@ -417,7 +417,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 			/* ignore holdpkgs on upgrade */
 			if((this == m_handle->trans) && m_handle->holdpkg.contains(pkg_local->name())) {
 				int resp = 0;
-				QUESTION(this, PM_TRANS_CONV_REMOVE_HOLDPKG, pkg_local, NULL, NULL, &resp);
+				QUESTION(this, PM_TRANS_CONV_REMOVE_HOLDPKG, pkg_local.get(), NULL, NULL, &resp);
 				if(!resp) {
 					RET_ERR(PM_ERR_PKG_HOLD, -1);
 				}
@@ -1593,10 +1593,10 @@ int __pmtrans_t::commit(FPtrList **data)
 		}
 
 		if(pkg_new != nullptr) {
-			event_arg0 = pkg_new;
-			event_arg1 = pkg_local;
+			event_arg0 = pkg_new.get();
+			event_arg1 = pkg_local.get();
 		} else {
-			event_arg0 = pkg_local;
+			event_arg0 = pkg_local.get();
 		}
 
 		EVENT(this, trans_event_table[type].pre.event, event_arg0, event_arg1);

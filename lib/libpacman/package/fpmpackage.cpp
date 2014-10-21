@@ -221,7 +221,7 @@ package_ptr _pacman_fpmpackage_load(const char *pkgfile)
 	/* internal */
 	info->m_path = strdup(pkgfile);
 
-	return(info);
+	return info;
 
 error:
 	if(!ret) {

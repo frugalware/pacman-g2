@@ -418,7 +418,7 @@ const char *package_node::name() const
 	return m_name;
 }
 
-bool package_node_less::operator () (const package_node *p1, const package_node *p2)
+bool package_node_less::operator () (const package_node_ptr p1, const package_node_ptr p2)
 {
 	return strcmp(p1->name(), p2->name()) < 0;
 }

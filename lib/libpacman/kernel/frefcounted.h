@@ -164,7 +164,7 @@ namespace flib
 			return get();
 		}
 
-		operator T * () const
+		explicit operator T * () const
 		{
 			return get();
 		}

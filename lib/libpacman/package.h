@@ -221,7 +221,7 @@ private:
 	typedef flib::refcounted_ptr<libpacman::package_node> package_node_ptr;
 	struct package_node_less
 	{
-		bool operator () (const package_node *p1, const package_node *p2);
+		bool operator () (const package_node_ptr p1, const package_node_ptr p2);
 	};
 	typedef flib::set<libpacman::package_node_ptr, package_node_less> package_node_set;
 
