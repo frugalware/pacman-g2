@@ -181,12 +181,12 @@ public:
 	template <class T>
 	struct less;
 	template <>
-	struct less<const package_ptr>
+	struct less<package_ptr>
 	{
-		bool operator () (const package_ptr pkg1, const package_ptr pkg2);
+		bool operator () (const package_ptr &pkg1, const package_ptr &pkg2);
 	};
 	typedef FList<package_ptr> package_list;
-	typedef flib::set<libpacman::package_ptr, libpacman::less<const package_ptr>> package_set;
+	typedef flib::set<libpacman::package_ptr, libpacman::less<package_ptr>> package_set;
 
 class PackageMatcher
 {
