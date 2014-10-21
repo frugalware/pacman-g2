@@ -90,15 +90,37 @@ namespace flib
 			: refcounted_ptr(o.m_refcounted_ptr)
 		{ }
 
+		refcounted_ptr(const refcounted_ptr &o)
+			: refcounted_ptr(o.m_refcounted_ptr)
+		{ }
+
+		refcounted_ptr(refcounted_ptr &&o)
+			: refcounted_ptr()
+		{
+			swap(o);
+		}
+
 		~refcounted_ptr()
 		{
 			reset();
 		}
 
 		template <class Y>
-		refcounted_ptr<T> &operator = (const refcounted_ptr<Y> &o)
+		refcounted_ptr &operator = (const refcounted_ptr<Y> &o)
 		{
 			reset(o.m_refcounted_ptr);
+			return *this;
+		}
+
+		refcounted_ptr &operator = (const refcounted_ptr &o)
+		{
+			reset(o.m_refcounted_ptr);
+			return *this;
+		}
+
+		refcounted_ptr &operator = (refcounted_ptr &&o)
+		{
+			swap(o);
 			return *this;
 		}
 

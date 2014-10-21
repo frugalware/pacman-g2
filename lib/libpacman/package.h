@@ -177,11 +177,7 @@ public:
 	char *m_path;
 };
 
-	#if 0
 	typedef flib::refcounted_ptr<package> package_ptr;
-	#else
-	typedef package *package_ptr;
-	#endif
 
 	template <class T>
 	struct less;
