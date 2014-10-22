@@ -28,9 +28,6 @@
 
 #include <stddef.h>
 
-/* Sort comparison callback function declaration */
-typedef int (*_pacman_fn_cmp)(const void *, const void *);
-
 #ifdef __cplusplus
 
 #include "util/falgorithm.h"
@@ -876,27 +873,6 @@ public:
 		iterable newItem = new FListItem<T>(val);
 		newItem->insert_after(last());
 		return iterator(newItem);
-	}
-
-	bool remove(void *ptr, _pacman_fn_cmp fn, value_type *data)
-	{
-		return remove(fn, ptr, data);
-	}
-
-	bool remove(_pacman_fn_cmp fn, void *ptr, value_type *data = nullptr)
-	{
-		for(auto i = c_first(), end = c_end(); i != end; i = i->next()) {
-			if(fn(ptr, i->m_data) == 0) {
-				/* we found a matching item */
-				i->remove();
-				if(data != nullptr) {
-					*data = i->m_data;
-				}
-				delete i;
-				return true;
-			}
-		}
-		return false;
 	}
 
 	void swap(FList &o) {
