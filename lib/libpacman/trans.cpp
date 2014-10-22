@@ -208,12 +208,8 @@ int _pacman_syncpkg_cmp(const void *s1, const void *s2)
 	return(strcmp(((pmsyncpkg_t *)s1)->pkg_name, ((pmsyncpkg_t *)s2)->pkg_name));
 }
 
-static int pkg_cmp(const void *p1, const void *p2)
-{
-	return(strcmp(((package *)p1)->name(), ((pmsyncpkg_t *)p2)->pkg_name));
-}
-
-static int check_olddelay(Handle *handle)
+static
+int check_olddelay(Handle *handle)
 {
 	Timestamp tm;
 
@@ -470,10 +466,6 @@ int __pmtrans_t::prepare(FPtrList **data)
 	_pacman_trans_compute_triggers(this);
 
 	if(m_type == PM_TRANS_TYPE_SYNC) {
-	for(auto i = syncpkgs.begin(), end = syncpkgs.end(); i != end; ++i) {
-		pmsyncpkg_t *ps = *i;
-	}
-
 	if(!(flags & PM_TRANS_FLAG_NODEPS)) {
 		/* Resolve targets dependencies */
 		if(resolvedeps(data) == -1) {
@@ -1659,7 +1651,6 @@ int __pmtrans_t::commit(FPtrList **data)
 		for(auto lp = depends.begin(), lp_end = depends.end(); lp != lp_end; ++lp) {
 			package_ptr depinfo = NULL;
 			pmdepend_t depend;
-			char *data;
 			if(_pacman_splitdep(*lp, &depend)) {
 				continue;
 			}
