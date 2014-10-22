@@ -95,12 +95,10 @@ namespace libpacman {
 class package
 	: public ::flib::FObject
 {
+public:
 #define LIBPACMAN_PACKAGE_PROPERTY(type, name, flag)                           \
-public:                                                                        \
 	type name();
-
 #include "package_properties.h"
-
 #undef LIBPACMAN_PACKAGE_PROPERTY
 
 public:
