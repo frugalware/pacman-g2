@@ -329,11 +329,6 @@ bool package::match(const pmdepend_t &depend)
 	}
 }
 
-bool less<package_ptr>::operator () (const package_ptr &pkg1, const package_ptr &pkg2)
-{
-	return pkg1 < pkg2;
-}
-
 typedef struct FPackageStrMatcher FPackageStrMatcher;
 
 struct FPackageStrMatcher
@@ -407,17 +402,12 @@ const char *package_node::name() const
 	return m_name;
 }
 
-bool package_node_less::operator () (const package_node_ptr p1, const package_node_ptr p2)
-{
-	return strcmp(p1->name(), p2->name()) < 0;
-}
-
-bool operator < (const libpacman::package_ptr &pkg1, const libpacman::package_ptr &pkg2)
+bool libpacman::operator < (const libpacman::package_ptr &pkg1, const libpacman::package_ptr &pkg2)
 {
 	return strcmp(pkg1->name(), pkg2->name()) < 0;
 }
 
-bool operator < (const libpacman::package_node_ptr &pn1, const libpacman::package_node_ptr &pn2)
+bool libpacman::operator < (const libpacman::package_node_ptr &pn1, const libpacman::package_node_ptr &pn2)
 {
 	return strcmp(pn1->name(), pn2->name()) < 0;
 }

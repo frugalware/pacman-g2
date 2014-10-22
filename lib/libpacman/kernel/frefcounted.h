@@ -160,7 +160,7 @@ namespace flib
 
 		T *operator -> () const
 		{
-			assert(*this);
+			assert(m_refcounted_ptr != nullptr);
 			return get();
 		}
 
@@ -177,43 +177,46 @@ namespace flib
 	private:
 		T *m_refcounted_ptr;
 	};
-}
 
-template <class T, class U>
-bool operator == (const flib::refcounted_ptr<T> &lhs, const flib::refcounted_ptr<U> &rhs)
+	template <class T, class U>
+	bool operator == (const refcounted_ptr<T> &lhs, const refcounted_ptr<U> &rhs)
+	{
+		return lhs.get() == rhs.get();
+	}
+
+	template <class T>
+	bool operator == (const refcounted_ptr<T> &lhs, std::nullptr_t rhs)
+	{
+		return lhs.get() == rhs;
+	}
+
+	template <class T, class U>
+	bool operator != (const refcounted_ptr<T> &lhs, const refcounted_ptr<U> &rhs)
+	{ 
+		return lhs.get() != rhs.get();
+	}
+
+	template <class T>
+	bool operator != (const refcounted_ptr<T> &lhs, std::nullptr_t rhs)
+	{
+		return lhs.get() != rhs;
+	}
+} // namespace flib
+
+namespace std
 {
-	return lhs.get() == rhs.get();
-}
+	template <class T>
+	bool operator == (nullptr_t lhs, const flib::refcounted_ptr<T> &rhs)
+	{
+		return lhs == rhs.get();
+	}
 
-template <class T>
-bool operator == (const flib::refcounted_ptr<T> &lhs, std::nullptr_t rhs)
-{
-	return lhs.get() == rhs;
-}
-
-template <class T>
-bool operator == (std::nullptr_t lhs, const flib::refcounted_ptr<T> &rhs)
-{
-	return lhs == rhs.get();
-}
-
-template <class T, class U>
-bool operator != (const flib::refcounted_ptr<T> &lhs, const flib::refcounted_ptr<U> &rhs)
-{ 
-	return lhs.get() != rhs.get();
-}
-
-template <class T>
-bool operator != (const flib::refcounted_ptr<T> &lhs, std::nullptr_t rhs)
-{
-	return lhs.get() != rhs;
-}
-
-template <class T>
-bool operator != (std::nullptr_t lhs, const flib::refcounted_ptr<T> &rhs)
-{
-	return lhs != rhs.get();
-}
+	template <class T>
+	bool operator != (nullptr_t lhs, const flib::refcounted_ptr<T> &rhs)
+	{
+		return lhs != rhs.get();
+	}
+} // namespace std
 
 #endif /* FREFCOUNTED_H */
 
