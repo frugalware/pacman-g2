@@ -879,6 +879,30 @@ public:
 		FCListItem::swap(o);
 	}
 
+	template <class U>
+	bool all_match(const U &val) const
+	{
+		return flib::all_match(begin(), end(), val);
+	}
+
+	template <class UnaryPredicate>
+	bool all_match_if(UnaryPredicate pred) const
+	{
+		return flib::all_match_if(begin(), end(), pred);
+	}
+
+	template <class U>
+	bool any_match(const U &val) const
+	{
+		return flib::any_match(begin(), end(), val());
+	}
+
+	template <class UnaryPredicate>
+	bool any_match_if(UnaryPredicate pred)
+	{
+		return flib::any_match_if(begin(), end(), pred);
+	}
+
 public:
 	iterable c_first() const
 	{
