@@ -68,8 +68,8 @@ namespace flib
 	template <class InputIterator, class T>
 	InputIterator find(InputIterator first, InputIterator last, const T &val)
 	{
-		return find(first, last,
-				[&] (const typename InputIterator::reference o) -> bool
+		return find_if(first, last,
+				[&] (const typename InputIterator::value_type &o) -> bool
 				{ return o == val; });
 	}
 
