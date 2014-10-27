@@ -23,7 +23,84 @@
 
 #include "fstring.h"
 
+#include "util/flist.h"
+
+#include <cstddef>
 #include <regex.h>
+
+namespace flib {
+	class str
+	{
+	public:
+		typedef size_t size_type;
+
+		static str create(char *s);
+		static str create(const char *s);
+		static str format(const char *fmt, ...);
+		static str vformat(const char *fmt, va_list ap);
+
+		constexpr str()
+			: str(nullptr)
+		{ }
+
+		constexpr str(std::nullptr_t n)
+			: m_str(n)
+		{ }
+
+		str(const char *s);
+		str(const str &o);
+		str(str &&o);
+		~str();
+
+		str &operator = (const str &o);
+		str &operator = (str &&o);
+
+		explicit operator const char * ()
+		{
+			return m_str;
+		}
+
+		/* Element access */
+		const char *c_str() const
+		{
+			return data();
+		}
+
+		const char *data() const;
+
+		/* Capacity */
+		bool empty() const
+		{
+			return m_str == nullptr || m_str[0] == '\0';
+		}
+
+		size_type length() const
+		{
+			return size();
+		}
+
+		size_type size() const;
+
+		/* Operations */
+		int compare(const str &str) const;
+		void reset(const char *s = nullptr);
+		void swap(str &o);
+
+	private:
+		char *m_str;
+	};
+
+	bool operator == (const str &lhs, const str &rhs);
+	bool operator == (const str &lhs, std::nullptr_t rhs);
+	bool operator != (const str &lhs, const str &rhs);
+	bool operator != (const str &lhs, std::nullptr_t rhs);
+	bool operator < (const str &lhs, const str &rhs);
+} // namespace flib
+
+namespace std {
+	bool operator == (nullptr_t lhs, const flib::str &rhs);
+	bool operator != (nullptr_t lhs, const flib::str &rhs);
+} // namespace std
 
 class FStringList;
 

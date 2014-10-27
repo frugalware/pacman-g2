@@ -46,6 +46,7 @@
 #include <limits.h>
 #include <stdio.h>
 
+using namespace flib;
 using namespace libpacman;
 
 package::package(Database *database)
@@ -329,6 +330,11 @@ bool package::match(const pmdepend_t &depend)
 	}
 }
 
+bool libpacman::operator < (const libpacman::package_ptr &pkg1, const libpacman::package_ptr &pkg2)
+{
+	return strcmp(pkg1->name(), pkg2->name()) < 0;
+}
+
 typedef struct FPackageStrMatcher FPackageStrMatcher;
 
 struct FPackageStrMatcher
@@ -384,32 +390,26 @@ bool PackageMatcher::match(const package_ptr package, int mask) const
 	return _pacman_strmatcher_match(m_strmatcher, package, m_flags & mask);
 }
 
-package_node::package_node(const char *name)
-{
-	STRNCPY(m_name, name, PKG_NAME_LEN);
-}
+package_node::package_node(const str &name)
+	: m_name(name) // PKG_NAME_LEN
+{ }
 
 package_node::~package_node()
 { }
 
 bool package_node::operator < (const package_node &o) const
 {
-	return strcmp(m_name, o.m_name) < 0;
+	return m_name < o.m_name;
 }
 
-const char *package_node::name() const
+const str &package_node::name() const
 {
 	return m_name;
 }
 
-bool libpacman::operator < (const libpacman::package_ptr &pkg1, const libpacman::package_ptr &pkg2)
-{
-	return strcmp(pkg1->name(), pkg2->name()) < 0;
-}
-
 bool libpacman::operator < (const libpacman::package_node_ptr &pn1, const libpacman::package_node_ptr &pn2)
 {
-	return strcmp(pn1->name(), pn2->name()) < 0;
+	return pn1->name() < pn2->name();
 }
 
 /* vim: set ts=2 sw=2 noet: */

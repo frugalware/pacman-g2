@@ -24,6 +24,140 @@
 #include "fstring.h"
 #include "util/fstringlist.h"
 
+using namespace flib;
+
+str::str(const char *s)
+	: str()
+{
+	reset(s);
+}
+
+str::str(const str &o)
+	: str(o.m_str)
+{ }
+
+str::str(str &&o)
+	: str()
+{
+	swap(o);
+}
+
+str::~str()
+{
+	reset();
+}
+
+str &str::operator = (const str &o)
+{
+	reset(o.m_str);
+	return *this;
+}
+
+str &str::operator = (str &&o)
+{
+	swap(o);
+	return *this;
+}
+
+str str::create(char *s)
+{
+	str ret;
+	ret.m_str = s;
+	return ret;
+}
+
+str str::create(const char *s)
+{
+	return str(s);
+}
+
+str str::format(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	str ret = vformat(fmt, ap);
+	va_end(ap);
+	return ret;
+}
+
+str str::vformat(const char *fmt, va_list ap)
+{
+	char *dest;
+
+	vasprintf(&dest, fmt, ap);
+	return create(dest);
+}
+
+const char *str::data() const
+{
+	if (empty()) {
+		return "";
+	}
+	return m_str;
+}
+
+str::size_type str::size() const
+{
+	if(!empty()) {
+		return strlen(m_str);
+	}
+	return 0;
+}
+
+int str::compare(const str &s) const
+{
+	return strcmp(c_str(), s.c_str());
+}
+
+void str::reset(const char *s)
+{
+	if(m_str != nullptr) {
+		free(m_str);
+	}
+	m_str = strdup(s);
+}
+
+void str::swap(str &o)
+{
+	std::swap(m_str, o.m_str);
+}
+
+bool flib::operator == (const str &lhs, const str &rhs)
+{
+	return lhs.compare(rhs) == 0;
+}
+
+bool flib::operator == (const str &lhs, std::nullptr_t rhs)
+{
+	return lhs.compare(str(rhs)) == 0;
+}
+
+bool flib::operator != (const str &lhs, const str &rhs)
+{
+	return !(lhs == rhs);
+}
+
+bool flib::operator != (const str &lhs, std::nullptr_t rhs)
+{
+	return !(lhs == rhs);
+}
+
+bool flib::operator < (const str &lhs, const str &rhs)
+{
+	return lhs.compare(rhs) < 0;
+}
+
+bool std::operator == (nullptr_t lhs, const flib::str &rhs)
+{
+	return rhs == lhs;
+}
+
+bool std::operator != (nullptr_t lhs, const flib::str &rhs)
+{
+	return rhs != lhs;
+}
+
 FStrMatcher::FStrMatcher()
 	: m_flags(0), m_str(NULL)
 { }

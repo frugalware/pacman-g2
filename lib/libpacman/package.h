@@ -200,14 +200,14 @@ private:
 		: public flib::refcounted
 	{
 	public:
-		package_node(const char *name);
+		package_node(const flib::str &name);
 		~package_node();
 		bool operator < (const package_node &o) const;
 
-		const char *name() const;
+		const flib::str &name() const;
 
 	private:
-		char m_name[PKG_NAME_LEN];
+		flib::str m_name;
 		libpacman::package_set m_packages;
 	};
 
