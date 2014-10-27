@@ -133,9 +133,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 	for(auto i = cache_local.begin(), end= cache_local.end(); i != end; ++i) {
 		int cmp;
 		int replace=0;
-		package_ptr local(*i);
-		package_ptr spkg = NULL;
-		pmsyncpkg_t *ps;
+		package_ptr local(*i), spkg;
 
 		for(auto j = handle->dbs_sync.begin(), end = handle->dbs_sync.end(); !spkg && j != end; ++j) {
 			spkg = ((Database *)*j)->find(local->name());
@@ -147,8 +145,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 
 		/* we don't care about a to-be-replaced package's newer version */
 		for(auto j = trans->syncpkgs.begin(), end = trans->syncpkgs.end(); j != end && !replace; ++j) {
-			ps = *j;
-			if(_pacman_pkg_isin(spkg->name(), ps->m_replaces)) {
+			if(_pacman_pkg_isin(spkg->name(), (*j)->m_replaces)) {
 				replace=1;
 			}
 		}
@@ -182,9 +179,9 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 					local->name(), local->version(), local->version(), spkg->version());
 			/* check if spkg->name is already in the packages list. */
 			if(!trans->find(spkg->name())) {
-				ps = new __pmsyncpkg_t(PM_TRANS_TYPE_SYNC, spkg);
+				pmsyncpkg_t *ps = new __pmsyncpkg_t(PM_TRANS_TYPE_SYNC, spkg);
 				if(ps == NULL) {
-					goto error;
+					return -1;
 				}
 				trans->syncpkgs.add(ps);
 			} else {
@@ -192,11 +189,7 @@ int _pacman_trans_sysupgrade(pmtrans_t *trans)
 			}
 		}
 	}
-
-	return(0);
-
-error:
-	return(-1);
+	return 0;
 }
 
 /* vim: set ts=2 sw=2 noet: */
