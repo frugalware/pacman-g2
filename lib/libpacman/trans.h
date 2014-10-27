@@ -28,6 +28,7 @@ typedef struct __pmtrans_t pmtrans_t;
 
 #include "kernel/fobject.h"
 #include "util/fstringlist.h"
+#include "util/fstrset.h"
 
 namespace libpacman {
 
@@ -82,7 +83,7 @@ struct __pmtrans_t
 	unsigned char state;
 	FStringList targets;
 	FList<pmsyncpkg_t *> syncpkgs;
-	FStringList skiplist;
+	flib::str_set skiplist;
 	FStringList triggers;
 
 private:

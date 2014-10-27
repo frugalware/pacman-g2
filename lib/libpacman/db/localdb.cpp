@@ -48,12 +48,10 @@ using namespace libpacman;
 
 LocalPackage::LocalPackage(LocalDatabase *database)
 	: package(database)
-{
-}
+{ }
 
 LocalPackage::~LocalPackage()
-{
-}
+{ }
 
 LocalDatabase *LocalPackage::database() const
 {
@@ -176,13 +174,7 @@ int _pacman_localpackage_remove(package_ptr pkg, pmtrans_t *trans, int howmany, 
 			/* check the "skip list" before removing the file.
 			 * see the big comment block in db_find_conflicts() for an
 			 * explanation. */
-			int skipit = 0;
-			for(auto j = trans->skiplist.begin(), end = trans->skiplist.end(); j != end; ++j) {
-				if(!strcmp(file, *j)) {
-					skipit = 1;
-				}
-			}
-			if(skipit) {
+			if(trans->skiplist.contains(file)) {
 				_pacman_log(PM_LOG_FLOW2, _("skipping removal of %s as it has moved to another package"),
 						file);
 			} else {

@@ -115,7 +115,7 @@ void str::reset(const char *s)
 	if(m_str != nullptr) {
 		free(m_str);
 	}
-	m_str = strdup(s);
+	m_str = f_strdup(s);
 }
 
 void str::swap(str &o)
