@@ -29,6 +29,7 @@
 
 #include "io/ffilelock.h"
 #include "package.h"
+#include "package_graph.h"
 #include "trans.h"
 
 #include "kernel/fobject.h"

@@ -60,6 +60,7 @@ set(LIBPACMAN_SOURCES
 	group.cpp
 	handle.cpp
 	package.cpp
+	package_graph.cpp
 	packages_transaction.cpp
 	pacman.cpp
 	server.cpp

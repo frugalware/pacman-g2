@@ -390,26 +390,4 @@ bool PackageMatcher::match(const package_ptr package, int mask) const
 	return _pacman_strmatcher_match(m_strmatcher, package, m_flags & mask);
 }
 
-package_node::package_node(const str &name)
-	: m_name(name) // PKG_NAME_LEN
-{ }
-
-package_node::~package_node()
-{ }
-
-bool package_node::operator < (const package_node &o) const
-{
-	return m_name < o.m_name;
-}
-
-const str &package_node::name() const
-{
-	return m_name;
-}
-
-bool libpacman::operator < (const libpacman::package_node_ptr &pn1, const libpacman::package_node_ptr &pn2)
-{
-	return pn1->name() < pn2->name();
-}
-
 /* vim: set ts=2 sw=2 noet: */

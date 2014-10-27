@@ -195,33 +195,6 @@ private:
 	int m_flags;
 	FStrMatcher m_strmatcher_internal;
 };
-
-	class package_node
-		: public flib::refcounted
-	{
-	public:
-		package_node(const flib::str &name);
-		~package_node();
-		bool operator < (const package_node &o) const;
-
-		const flib::str &name() const;
-
-	private:
-		flib::str m_name;
-		libpacman::package_set m_packages;
-	};
-
-	typedef flib::refcounted_ptr<libpacman::package_node> package_node_ptr;
-	bool operator < (const package_node_ptr &pn1, const package_node_ptr &pn2);
-
-	typedef flib::set<libpacman::package_node_ptr> package_node_set;
-
-	class package_graph
-		: package_node_set
-	{
-	public:
-		using package_node_set::package_node_set;
-	};
 } // namespace libpacman
 
 const libpacman::package_ptr _pacman_pkg_isin(const char *needle, const libpacman::package_list &haystack);
