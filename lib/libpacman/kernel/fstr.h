@@ -122,7 +122,18 @@ public:
 
 	~FStrMatcher();
 
-	bool match(const char *str) const;
+	bool operator () (const char *s) const
+	{
+		return match(s);
+	}
+
+	bool operator () (const flib::str &s) const
+	{
+		return match(s);
+	}
+
+	bool match(const char *s) const;
+	bool match(const flib::str &s) const;
 
 protected:
 	int m_flags;

@@ -361,7 +361,7 @@ int _pacman_strmatcher_match(const FStrMatcher *strmatcher, const package_ptr &p
 			((flags & PM_PACKAGE_FLAG_LICENSE) && f_stringlist_any_match(&pkg->license, strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REPLACES) && f_stringlist_any_match(&pkg->replaces(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_GROUPS) && f_stringlist_any_match(&pkg->groups(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_FILES) && f_stringlist_any_match(&pkg->files(), strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_FILES) && pkg->files().any_match_if(*strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_BACKUP) && f_stringlist_any_match(&pkg->backup(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_DEPENDS) && f_stringlist_any_match(&pkg->depends(), strmatcher)) ||
 			((flags & PM_PACKAGE_FLAG_REMOVES) && f_stringlist_any_match(&pkg->removes(), strmatcher)) ||

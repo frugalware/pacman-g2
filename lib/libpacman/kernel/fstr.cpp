@@ -213,6 +213,11 @@ bool FStrMatcher::match(const char *str) const
 	return 0;
 }
 
+bool FStrMatcher::match(const str &s) const
+{
+	return match(s.c_str());
+}
+
 int f_stringlist_any_match(const FStringList *list, const FStrMatcher *matcher)
 {
 #ifndef F_NOCOMPAT

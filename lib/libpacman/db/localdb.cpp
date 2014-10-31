@@ -142,7 +142,7 @@ int _pacman_localpackage_remove(package_ptr pkg, pmtrans_t *trans, int howmany, 
 	for(auto lp = pkg->files().rbegin(), end = pkg->files().rend(); lp != end; ++lp) {
 		int nb = 0;
 		double percent = 0;
-		const char *file = *lp;
+		const char *file = lp->c_str();
 		char *hash_orig = pkg->fileneedbackup(file);
 
 		if (position != 0) {
@@ -377,6 +377,18 @@ void _pacman_localdb_write(const char *entry, const char *value, FILE *stream)
 }
 
 static
+void _pacman_localdb_write(const char *entry, const flib::str_set &values, FILE *stream)
+{
+	if(!values.empty()) {
+		fprintf(stream, "%%%s%%\n", entry);
+		for(auto lp = values.begin(), end = values.end(); lp != end; ++lp) {
+			fprintf(stream, "%s\n", lp->c_str());
+		}
+		fputc('\n', stream);
+	}
+}
+
+static
 void _pacman_localdb_write(const char *entry, const FStringList &values, FILE *stream)
 {
 	if(!values.empty()) {
@@ -506,7 +518,7 @@ package_list LocalDatabase::getowners(const char *filename)
 		for(auto i = files.begin(), end = files.end(); i != end; ++i) {
 			char path[PATH_MAX];
 
-			snprintf(path, PATH_MAX, "%s%s", m_handle->root, *i);
+			snprintf(path, PATH_MAX, "%s%s", m_handle->root, i->c_str());
 			if(!strcmp(path, rpath)) {
 				ret.add(info);
 				if(rpath[strlen(rpath)-1] != '/') {

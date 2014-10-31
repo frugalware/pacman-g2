@@ -42,6 +42,7 @@
 #include <string.h>
 #include <unistd.h>
 
+using namespace flib;
 using namespace libpacman;
 
 /* Returns a FPtrList* of pmdepmissing_t pointers.
@@ -198,14 +199,14 @@ FPtrList pmtrans_t::checkconflicts()
  *  Hooray for set-intersects!
  *  Pre-condition: both lists are sorted!
  */
-static FStringList chk_fileconflicts(const FStringList &filesA, const FStringList &filesB)
+static FStringList chk_fileconflicts(const str_set &filesA, const str_set &filesB)
 {
 	FStringList ret;
 	auto pA = filesA.begin(), pB = filesB.begin();
 
 	while(pA != filesA.end() && pB != filesB.end()) {
-		const char *strA = *pA;
-		const char *strB = *pB;
+		const char *strA = pA->c_str();
+		const char *strB = pB->c_str();
 		/* skip directories, we don't care about dir conflicts */
 		if(strA[strlen(strA)-1] == '/') {
 			++pA;
@@ -275,7 +276,7 @@ FPtrList pmtrans_t::find_conflicts()
 		dbpkg = NULL;
 		auto &files = p->files();
 		for(auto j = files.begin(), j_end = files.end(); j != j_end; ++j) {
-			const char *filestr = *j;
+			const char *filestr = j->c_str();
 			snprintf(path, PATH_MAX, "%s%s", root, filestr);
 			/* is this target a file or directory? */
 			if(path[strlen(path)-1] == '/') {

@@ -35,6 +35,7 @@
 #include "kernel/fstr.h"
 #include "util/fset.h"
 #include "util/fstringlist.h"
+#include "util/fstrset.h"
 
 typedef struct __pmdepend_t pmdepend_t;
 
@@ -164,7 +165,7 @@ public:
 	FStringList license;
 	FStringList m_replaces;
 	FStringList m_groups;
-	FStringList m_files;
+	flib::str_set m_files;
 	FStringList m_backup;
 	FStringList m_depends;
 	FStringList m_removes;
