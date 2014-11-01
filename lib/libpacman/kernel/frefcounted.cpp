@@ -44,7 +44,7 @@ void refcounted::acquire() const
 void refcounted::release() const
 {
 	if(--m_reference_counter == 0) {
-		aboutToDestroy(const_cast<refcounted *>(this));
+		about_to_destroy(const_cast<refcounted *>(this));
 		delete this;
 	}
 }

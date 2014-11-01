@@ -30,7 +30,7 @@ namespace flib
 	class refcounted
 	{
 	public:
-		flib::FSignal<void(flib::refcounted *)> aboutToDestroy;
+		flib::FSignal<void(flib::refcounted *)> about_to_destroy;
 
 	public:
 		refcounted();
