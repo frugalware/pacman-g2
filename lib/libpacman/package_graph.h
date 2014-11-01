@@ -40,16 +40,23 @@ namespace libpacman {
 		libpacman::package_set m_packages;
 	};
 
-	typedef flib::refcounted_ptr<libpacman::package_node> package_node_ptr;
+	typedef flib::refcounted_shared_ptr<libpacman::package_node> package_node_ptr;
 	bool operator < (const package_node_ptr &pn1, const package_node_ptr &pn2);
 
 	typedef flib::set<libpacman::package_node_ptr> package_node_set;
 
 	class package_graph
-		: package_node_set
 	{
 	public:
-		using package_node_set::package_node_set;
+		package_graph();
+
+		libpacman::package_node_ptr create(const flib::str &pkgname);
+
+	private:
+		package_graph(const package_graph &o);
+		package_graph &operator = (const package_graph &o);
+
+		package_node_set m_nodes;
 	};
 } // namespace libpacman
 

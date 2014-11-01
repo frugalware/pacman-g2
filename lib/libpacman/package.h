@@ -176,7 +176,7 @@ public:
 	char *m_path;
 };
 
-	typedef flib::refcounted_ptr<package> package_ptr;
+	typedef flib::refcounted_shared_ptr<package> package_ptr;
 	bool operator < (const package_ptr &pkg1, const package_ptr &pkg2);
 
 	typedef FList<package_ptr> package_list;

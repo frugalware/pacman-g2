@@ -68,4 +68,14 @@ bool libpacman::operator < (const libpacman::package_node_ptr &pn1, const libpac
 	return pn1->name() < pn2->name();
 }
 
+package_graph::package_graph()
+{ }
+
+package_node_ptr package_graph::create(const str &pkgname)
+{
+	package_node_ptr node;
+
+	return node;
+}
+
 /* vim: set ts=2 sw=2 noet: */
