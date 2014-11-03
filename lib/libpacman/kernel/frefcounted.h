@@ -253,8 +253,10 @@ namespace flib {
 		template <class Y>
 		void reset(Y *ptr)
 		{
-			if(super_type::get() != nullptr) {
-				super_type::get()->release();
+			typename super_type::element_type *old_ptr = super_type::get();
+
+			if(old_ptr != nullptr) {
+				old_ptr->release();
 			}
 			if(ptr != nullptr) {
 				ptr->acquire();
@@ -265,6 +267,114 @@ namespace flib {
 		void swap(refcounted_shared_ptr<T> &o)
 		{
 			super_type::swap(o);
+		}
+	};
+
+	template <class T>
+	class refcounted_weak_ptr
+		: public refcounted_ptr<T>
+	{
+	public:
+		typedef refcounted_ptr<T> super_type;
+
+		constexpr refcounted_weak_ptr()
+			: refcounted_weak_ptr(nullptr)
+		{ }
+
+		constexpr refcounted_weak_ptr(std::nullptr_t)
+		{ }
+
+		template <class Y>
+		explicit refcounted_weak_ptr(Y *refcounted_ptr)
+			: refcounted_weak_ptr()
+		{
+			reset(refcounted_ptr.get());
+		}
+
+		template <class Y>
+		refcounted_weak_ptr(const refcounted_ptr<Y> &o)
+			: refcounted_weak_ptr(o.get())
+		{ }
+
+		refcounted_weak_ptr(const refcounted_ptr<T> &o)
+			: refcounted_weak_ptr(o.get())
+		{ }
+
+		template <class Y>
+		refcounted_weak_ptr(const refcounted_weak_ptr<Y> &o)
+			: refcounted_weak_ptr(o.get())
+		{ }
+
+		refcounted_weak_ptr(const refcounted_weak_ptr &o)
+			: refcounted_weak_ptr(o.get())
+		{ }
+
+		refcounted_weak_ptr(refcounted_weak_ptr &&o)
+			: refcounted_weak_ptr()
+		{
+			swap(o);
+		}
+
+		~refcounted_weak_ptr()
+		{
+			reset();
+		}
+
+		template <class Y>
+		refcounted_weak_ptr &operator = (const refcounted_ptr<Y> &o)
+		{
+			reset(o.get());
+			return *this;
+		}
+
+		refcounted_weak_ptr &operator = (const refcounted_ptr<T> &o)
+		{
+			reset(o.get());
+			return *this;
+		}
+
+		template <class Y>
+		refcounted_weak_ptr &operator = (const refcounted_weak_ptr<Y> &o)
+		{
+			return operator = (static_cast<const refcounted_ptr<Y> &>(o));
+		}
+
+		refcounted_weak_ptr &operator = (const refcounted_weak_ptr &o)
+		{
+			return operator = (static_cast<const refcounted_ptr<T> &>(o));
+		}
+
+		refcounted_weak_ptr &operator = (refcounted_weak_ptr &&o)
+		{
+			swap(o);
+			return *this;
+		}
+
+		/* Manipulators */
+		void reset()
+		{
+			reset<T>(nullptr);
+		}
+
+		template <class Y>
+		void reset(Y *ptr)
+		{
+			typename super_type::element_type *old_ptr = super_type::get();
+
+			if(old_ptr != nullptr) {
+				old_ptr->about_to_destroy.disconnect(this);
+			}
+			if(ptr != nullptr) {
+				ptr->about_to_destroy.connect(this, static_cast<void (refcounted_weak_ptr::*)()>(&reset));
+			}
+			super_type::reset(ptr);
+		}
+
+		void swap(refcounted_weak_ptr<T> &o)
+		{
+			typename super_type::element_type *ptr = super_type::get();
+			reset(o.get());
+			o.reset(ptr);
 		}
 	};
 } // namespace flib
