@@ -120,6 +120,47 @@ namespace flib
 		T *m_refcounted_ptr;
 	};
 
+	template <class T, class U>
+	bool operator == (const refcounted_ptr<T> &lhs, const refcounted_ptr<U> &rhs)
+	{
+		return lhs.get() == rhs.get();
+	}
+
+	template <class T>
+	bool operator == (const refcounted_ptr<T> &lhs, std::nullptr_t rhs)
+	{
+		return lhs.get() == rhs;
+	}
+
+	template <class T, class U>
+	bool operator != (const refcounted_ptr<T> &lhs, const refcounted_ptr<U> &rhs)
+	{ 
+		return lhs.get() != rhs.get();
+	}
+
+	template <class T>
+	bool operator != (const refcounted_ptr<T> &lhs, std::nullptr_t rhs)
+	{
+		return lhs.get() != rhs;
+	}
+} // namespace flib
+
+namespace std
+{
+	template <class T>
+	bool operator == (nullptr_t lhs, const flib::refcounted_ptr<T> &rhs)
+	{
+		return lhs == rhs.get();
+	}
+
+	template <class T>
+	bool operator != (nullptr_t lhs, const flib::refcounted_ptr<T> &rhs)
+	{
+		return lhs != rhs.get();
+	}
+} // namespace std
+
+namespace flib {
 	template <class T>
 	class refcounted_shared_ptr
 		: public refcounted_ptr<T>
@@ -204,46 +245,7 @@ namespace flib
 			super_type::swap(o);
 		}
 	};
-
-	template <class T, class U>
-	bool operator == (const refcounted_ptr<T> &lhs, const refcounted_ptr<U> &rhs)
-	{
-		return lhs.get() == rhs.get();
-	}
-
-	template <class T>
-	bool operator == (const refcounted_ptr<T> &lhs, std::nullptr_t rhs)
-	{
-		return lhs.get() == rhs;
-	}
-
-	template <class T, class U>
-	bool operator != (const refcounted_ptr<T> &lhs, const refcounted_ptr<U> &rhs)
-	{ 
-		return lhs.get() != rhs.get();
-	}
-
-	template <class T>
-	bool operator != (const refcounted_ptr<T> &lhs, std::nullptr_t rhs)
-	{
-		return lhs.get() != rhs;
-	}
 } // namespace flib
-
-namespace std
-{
-	template <class T>
-	bool operator == (nullptr_t lhs, const flib::refcounted_ptr<T> &rhs)
-	{
-		return lhs == rhs.get();
-	}
-
-	template <class T>
-	bool operator != (nullptr_t lhs, const flib::refcounted_ptr<T> &rhs)
-	{
-		return lhs != rhs.get();
-	}
-} // namespace std
 
 #endif /* FREFCOUNTED_H */
 
