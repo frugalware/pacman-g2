@@ -67,6 +67,9 @@ namespace flib
 	template <class T>
 	class refcounted_ptr
 	{
+	public:
+		typedef T element_type;
+
 	protected:
 		refcounted_ptr()
 			: m_refcounted_ptr(nullptr)
@@ -166,7 +169,6 @@ namespace flib {
 		: public refcounted_ptr<T>
 	{
 	public:
-		typedef T element_type;
 		typedef refcounted_ptr<T> super_type;
 
 		constexpr refcounted_shared_ptr()
@@ -184,12 +186,21 @@ namespace flib {
 		}
 
 		template <class Y>
-		refcounted_shared_ptr(const refcounted_shared_ptr<Y> &o)
+		refcounted_shared_ptr(const refcounted_ptr<Y> &o)
 			: refcounted_shared_ptr(o.get())
 		{ }
 
-		refcounted_shared_ptr(const refcounted_shared_ptr &o)
+		refcounted_shared_ptr(const refcounted_ptr<T> &o)
 			: refcounted_shared_ptr(o.get())
+		{ }
+
+		template <class Y>
+		refcounted_shared_ptr(const refcounted_shared_ptr<Y> &o)
+			: refcounted_shared_ptr(static_cast<const refcounted_ptr<Y> &>(o))
+		{ }
+
+		refcounted_shared_ptr(const refcounted_shared_ptr &o)
+			: refcounted_shared_ptr(static_cast<const refcounted_ptr<T> &>(o))
 		{ }
 
 		refcounted_shared_ptr(refcounted_shared_ptr &&o)
@@ -204,16 +215,27 @@ namespace flib {
 		}
 
 		template <class Y>
-		refcounted_shared_ptr &operator = (const refcounted_shared_ptr<Y> &o)
+		refcounted_shared_ptr &operator = (const refcounted_ptr<Y> &o)
 		{
 			reset(o.get());
 			return *this;
 		}
 
-		refcounted_shared_ptr &operator = (const refcounted_shared_ptr &o)
+		refcounted_shared_ptr &operator = (const refcounted_ptr<T> &o)
 		{
 			reset(o.get());
 			return *this;
+		}
+
+		template <class Y>
+		refcounted_shared_ptr &operator = (const refcounted_shared_ptr<Y> &o)
+		{
+			return operator = (static_cast<const refcounted_ptr<Y> &>(o));
+		}
+
+		refcounted_shared_ptr &operator = (const refcounted_shared_ptr<T> &o)
+		{
+			return operator = (static_cast<const refcounted_ptr<T> &>(o));
 		}
 
 		refcounted_shared_ptr &operator = (refcounted_shared_ptr &&o)
