@@ -65,88 +65,21 @@ namespace flib
 	};
 
 	template <class T>
-	class refcounted_shared_ptr
+	class refcounted_ptr
 	{
-	public:
-		typedef T element_type;
-
-		constexpr refcounted_shared_ptr()
-			: refcounted_shared_ptr(nullptr)
-		{ }
-
-		constexpr refcounted_shared_ptr(std::nullptr_t)
+	protected:
+		refcounted_ptr()
 			: m_refcounted_ptr(nullptr)
 		{ }
 
-		template <class Y>
-		explicit refcounted_shared_ptr(Y *ptr)
-			: refcounted_shared_ptr()
-		{
-			reset(ptr);
-		}
-
-		template <class Y>
-		refcounted_shared_ptr(const refcounted_shared_ptr<Y> &o)
-			: refcounted_shared_ptr(o.m_refcounted_ptr)
-		{ }
-
-		refcounted_shared_ptr(const refcounted_shared_ptr &o)
-			: refcounted_shared_ptr(o.m_refcounted_ptr)
-		{ }
-
-		refcounted_shared_ptr(refcounted_shared_ptr &&o)
-			: refcounted_shared_ptr()
-		{
-			swap(o);
-		}
-
-		~refcounted_shared_ptr()
-		{
-			reset();
-		}
-
-		template <class Y>
-		refcounted_shared_ptr &operator = (const refcounted_shared_ptr<Y> &o)
-		{
-			reset(o.m_refcounted_ptr);
-			return *this;
-		}
-
-		refcounted_shared_ptr &operator = (const refcounted_shared_ptr &o)
-		{
-			reset(o.m_refcounted_ptr);
-			return *this;
-		}
-
-		refcounted_shared_ptr &operator = (refcounted_shared_ptr &&o)
-		{
-			swap(o);
-			return *this;
-		}
-
 		/* Manipulators */
-		void reset()
-		{
-			reset<T>(nullptr);
-		}
-
 		template <class Y>
-		void reset(Y *ptr)
+		void reset(Y *refcounted_ptr)
 		{
-			if(m_refcounted_ptr != nullptr) {
-				m_refcounted_ptr->release();
-			}
-			if(ptr != nullptr) {
-				ptr->acquire();
-			}
-			m_refcounted_ptr = ptr;
+			m_refcounted_ptr = refcounted_ptr;
 		}
 
-		void swap(refcounted_shared_ptr<T> &o)
-		{
-			std::swap(m_refcounted_ptr, o.m_refcounted_ptr);
-		}
-
+	public:
 		/* Accessors */
 		T *get() const
 		{
@@ -174,30 +107,124 @@ namespace flib
 			return m_refcounted_ptr != nullptr;
 		}
 
+	protected:
+		void swap(refcounted_ptr<T> &o)
+		{
+			std::swap(m_refcounted_ptr, o.m_refcounted_ptr);
+		}
+
 	private:
+		refcounted_ptr(const refcounted_ptr &o);
+		refcounted_ptr &operator = (const refcounted_ptr &o);
+
 		T *m_refcounted_ptr;
 	};
 
+	template <class T>
+	class refcounted_shared_ptr
+		: public refcounted_ptr<T>
+	{
+	public:
+		typedef T element_type;
+		typedef refcounted_ptr<T> super_type;
+
+		constexpr refcounted_shared_ptr()
+			: refcounted_shared_ptr(nullptr)
+		{ }
+
+		constexpr refcounted_shared_ptr(std::nullptr_t)
+		{ }
+
+		template <class Y>
+		explicit refcounted_shared_ptr(Y *refcounted_ptr)
+			: refcounted_shared_ptr()
+		{
+			reset(refcounted_ptr);
+		}
+
+		template <class Y>
+		refcounted_shared_ptr(const refcounted_shared_ptr<Y> &o)
+			: refcounted_shared_ptr(o.get())
+		{ }
+
+		refcounted_shared_ptr(const refcounted_shared_ptr &o)
+			: refcounted_shared_ptr(o.get())
+		{ }
+
+		refcounted_shared_ptr(refcounted_shared_ptr &&o)
+			: refcounted_shared_ptr()
+		{
+			swap(o);
+		}
+
+		~refcounted_shared_ptr()
+		{
+			reset();
+		}
+
+		template <class Y>
+		refcounted_shared_ptr &operator = (const refcounted_shared_ptr<Y> &o)
+		{
+			reset(o.get());
+			return *this;
+		}
+
+		refcounted_shared_ptr &operator = (const refcounted_shared_ptr &o)
+		{
+			reset(o.get());
+			return *this;
+		}
+
+		refcounted_shared_ptr &operator = (refcounted_shared_ptr &&o)
+		{
+			swap(o);
+			return *this;
+		}
+
+		/* Manipulators */
+		void reset()
+		{
+			reset<T>(nullptr);
+		}
+
+		template <class Y>
+		void reset(Y *ptr)
+		{
+			if(super_type::get() != nullptr) {
+				super_type::get()->release();
+			}
+			if(ptr != nullptr) {
+				ptr->acquire();
+			}
+			super_type::reset(ptr);
+		}
+
+		void swap(refcounted_shared_ptr<T> &o)
+		{
+			super_type::swap(o);
+		}
+	};
+
 	template <class T, class U>
-	bool operator == (const refcounted_shared_ptr<T> &lhs, const refcounted_shared_ptr<U> &rhs)
+	bool operator == (const refcounted_ptr<T> &lhs, const refcounted_ptr<U> &rhs)
 	{
 		return lhs.get() == rhs.get();
 	}
 
 	template <class T>
-	bool operator == (const refcounted_shared_ptr<T> &lhs, std::nullptr_t rhs)
+	bool operator == (const refcounted_ptr<T> &lhs, std::nullptr_t rhs)
 	{
 		return lhs.get() == rhs;
 	}
 
 	template <class T, class U>
-	bool operator != (const refcounted_shared_ptr<T> &lhs, const refcounted_shared_ptr<U> &rhs)
+	bool operator != (const refcounted_ptr<T> &lhs, const refcounted_ptr<U> &rhs)
 	{ 
 		return lhs.get() != rhs.get();
 	}
 
 	template <class T>
-	bool operator != (const refcounted_shared_ptr<T> &lhs, std::nullptr_t rhs)
+	bool operator != (const refcounted_ptr<T> &lhs, std::nullptr_t rhs)
 	{
 		return lhs.get() != rhs;
 	}
@@ -206,13 +233,13 @@ namespace flib
 namespace std
 {
 	template <class T>
-	bool operator == (nullptr_t lhs, const flib::refcounted_shared_ptr<T> &rhs)
+	bool operator == (nullptr_t lhs, const flib::refcounted_ptr<T> &rhs)
 	{
 		return lhs == rhs.get();
 	}
 
 	template <class T>
-	bool operator != (nullptr_t lhs, const flib::refcounted_shared_ptr<T> &rhs)
+	bool operator != (nullptr_t lhs, const flib::refcounted_ptr<T> &rhs)
 	{
 		return lhs != rhs.get();
 	}
