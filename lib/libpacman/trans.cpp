@@ -1023,7 +1023,7 @@ int _pacman_fpmpackage_install(package_ptr pkg, pmtranstype_t type, pmtrans_t *t
 								}
 								sprintf(fn, "%s\t%s", file, sha1_pkg);
 							}
-							lp.m_iterable->swap_data((const char *&)fn);
+							lp.m_iterator->swap_data((const char *&)fn);
 							free(fn);
 						}
 					}
@@ -1159,7 +1159,7 @@ int _pacman_fpmpackage_install(package_ptr pkg, pmtranstype_t type, pmtrans_t *t
 								sprintf(fn, "%s\t%s", file, sha1);
 								FREE(sha1);
 							}
-							lp.m_iterable->swap_data((const char *&)fn);
+							lp.m_iterator->swap_data((const char *&)fn);
 							free(fn);
 						}
 					}
@@ -1507,7 +1507,7 @@ int __pmtrans_t::commit(FPtrList **data)
 						for(auto m = depends.begin(), end = depends.end(); m != end; ++m) {
 							if(!strcmp(*m, old->name())) {
 								const char *str = strdup(pkg_new->name());
-								m.m_iterable->swap_data(str);
+								m.m_iterator->swap_data(str);
 								free(str);
 							}
 						}

@@ -70,10 +70,71 @@ namespace flib
 		}
 	};
 
-	template <typename Iterable, bool Reverse = false>
-	struct const_iterator_wrapper
+	template <typename Iterator, bool Reverse = false>
+	class iterator_wrapper_base
 	{
 	public:
+		typedef Iterator wrapped_iterator_type;
+		typedef iterator_traits<Iterator> wrapped_iterator_traits;
+		typedef typename wrapped_iterator_traits::pointer pointer;
+		typedef typename wrapped_iterator_traits::size_type size_type;
+		typedef typename wrapped_iterator_traits::value_type value_type;
+
+		explicit iterator_wrapper_base(wrapped_iterator_type i = wrapped_iterator_type())
+			: m_iterator(i)
+		{ }
+
+		iterator_wrapper_base(const iterator_wrapper_base &o)
+			: m_iterator(o.m_iterator)
+		{ }
+
+		iterator_wrapper_base &operator = (const iterator_wrapper_base &o)
+		{
+			m_iterator = o.m_iterator;
+			return *this;
+		}
+
+		/* explicit */ operator wrapped_iterator_type ()
+		{
+			return m_iterator;
+		}
+
+		bool operator == (const iterator_wrapper_base &o) const
+		{
+			return m_iterator == o.m_iterator;
+		}
+
+		bool operator != (const iterator_wrapper_base &o) const
+		{
+			return m_iterator != o.m_iterator;
+		}
+
+		wrapped_iterator_type iterator() const
+		{
+			return m_iterator;
+		}
+
+		wrapped_iterator_type iterator_next() const
+		{
+			return !Reverse ? wrapped_iterator_traits::next(m_iterator) : wrapped_iterator_traits::previous(m_iterator);
+		}
+
+		wrapped_iterator_type iterator_previous() const
+		{
+			return !Reverse ? wrapped_iterator_traits::previous(m_iterator) : wrapped_iterator_traits::next(m_iterator);
+		}
+
+	/* protected: */
+		wrapped_iterator_type m_iterator;
+	};
+
+	template <typename Iterable, bool Reverse = false>
+	struct const_iterator_wrapper
+		: public iterator_wrapper_base<Iterable, Reverse>
+	{
+	public:
+		typedef iterator_wrapper_base<Iterable, Reverse> super_type;	
+
 //		typedef typename iterator_traits<Iterable>::difference_type difference_type;
 		typedef typename iterator_traits<Iterable>::iterable iterable;
 		typedef typename iterator_traits<Iterable>::pointer pointer;
@@ -81,40 +142,25 @@ namespace flib
 		typedef typename iterator_traits<Iterable>::value_type value_type;
 
 		explicit const_iterator_wrapper(iterable i = iterable())
-			: m_iterable(i)
+			: super_type(i)
 		{ }
 
 		const_iterator_wrapper(const const_iterator_wrapper &o)
-			: m_iterable(o.m_iterable)
+			: super_type(o)
 		{ }
 
 		~const_iterator_wrapper()
 		{ }
 
-		operator iterable ()
-		{
-			return m_iterable;
-		}
-
 		const_iterator_wrapper &operator = (const const_iterator_wrapper &o)
 		{
-			m_iterable = o.m_iterable;
+			super_type::operator = (o);
 			return *this;
-		}
-
-		bool operator == (const const_iterator_wrapper &o) const
-		{
-			return m_iterable == o.m_iterable;
-		}
-
-		bool operator != (const const_iterator_wrapper &o) const
-		{
-			return !operator == (o);
 		}
 
 		const_iterator_wrapper &operator ++ ()
 		{
-			m_iterable = _next();
+			super_type::m_iterator = super_type::iterator_next();
 			return *this;
 		}
 
@@ -127,7 +173,7 @@ namespace flib
 
 		const_iterator_wrapper &operator -- ()
 		{
-			m_iterable = _previous();
+			super_type::m_iterator = super_type::iterator_previous();
 			return *this;
 		}
 
@@ -140,22 +186,22 @@ namespace flib
 
 		value_type operator * () const
 		{
-			return iterator_traits<Iterable>::value_of(m_iterable);
+			return iterator_traits<Iterable>::value_of(super_type::m_iterator);
 		}
 
 		const pointer operator -> () const
 		{
-			return iterator_traits<Iterable>::pointer_of(m_iterable);
+			return iterator_traits<Iterable>::pointer_of(super_type::m_iterator);
 		}
 
 		const_iterator_wrapper next() const
 		{
-			return const_iterator_wrapper(_next());
+			return const_iterator_wrapper(super_type::iterator_next());
 		}
 
 		const_iterator_wrapper previous() const
 		{
-			return const_iterator_wrapper(_previous());
+			return const_iterator_wrapper(super_type::iterator_previous());
 		}
 
 		/* FIXME: temporary */
@@ -164,25 +210,15 @@ namespace flib
 		{
 			return (T *)operator *();
 		}
-
-	protected:
-		iterable _next() const
-		{
-			return !Reverse ? iterator_traits<Iterable>::next(m_iterable) : iterator_traits<Iterable>::previous(m_iterable);
-		}
-
-		iterable _previous() const
-		{
-			return !Reverse ? iterator_traits<Iterable>::previous(m_iterable) : iterator_traits<Iterable>::next(m_iterable);
-		}
-
-		iterable m_iterable;
 	};
 
 	template <typename Iterable, bool Reverse = false>
 	struct iterator_wrapper
+		: public iterator_wrapper_base<Iterable, Reverse>
 	{
 	public:
+		typedef iterator_wrapper_base<Iterable, Reverse> super_type;
+
 //		typedef typename iterator_traits<Iterable>::difference_type difference_type;
 		typedef typename iterator_traits<Iterable>::iterable iterable;
 		typedef typename iterator_traits<Iterable>::pointer pointer;
@@ -191,40 +227,25 @@ namespace flib
 		typedef typename iterator_traits<Iterable>::value_type value_type;
 
 		explicit iterator_wrapper(iterable i = iterable())
-			: m_iterable(i)
+			: super_type(i)
 		{ }
 
 		iterator_wrapper(const iterator_wrapper &o)
-			: m_iterable(o.m_iterable)
+			: super_type(o)
 		{ }
 
 		~iterator_wrapper()
 		{ }
 
-		operator iterable ()
-		{
-			return m_iterable;
-		}
-
 		iterator_wrapper &operator = (const iterator_wrapper &o)
 		{
-			m_iterable = o.m_iterable;
+			super_type::operator = (o);
 			return *this;
-		}
-
-		bool operator == (const iterator_wrapper &o) const
-		{
-			return m_iterable == o.m_iterable;
-		}
-
-		bool operator != (const iterator_wrapper &o) const
-		{
-			return !operator == (o);
 		}
 
 		iterator_wrapper &operator ++ ()
 		{
-			m_iterable = _next();
+			super_type::m_iterator = super_type::iterator_next();
 			return *this;
 		}
 
@@ -237,7 +258,7 @@ namespace flib
 
 		iterator_wrapper &operator -- ()
 		{
-			m_iterable = _previous();
+			super_type::m_iterator = super_type::iterator_previous();
 			return *this;
 		}
 
@@ -250,32 +271,32 @@ namespace flib
 
 		reference operator * ()
 		{
-			return iterator_traits<Iterable>::reference_of(m_iterable);
+			return iterator_traits<Iterable>::reference_of(super_type::m_iterator);
 		}
 
 		value_type operator * () const
 		{
-			return iterator_traits<Iterable>::value_of(m_iterable);
+			return iterator_traits<Iterable>::value_of(super_type::m_iterator);
 		}
 
 		pointer operator -> ()
 		{
-			return iterator_traits<Iterable>::pointer_of(m_iterable);
+			return iterator_traits<Iterable>::pointer_of(super_type::m_iterator);
 		}
 
 		const pointer operator -> () const
 		{
-			return iterator_traits<Iterable>::pointer_of(m_iterable);
+			return iterator_traits<Iterable>::pointer_of(super_type::m_iterator);
 		}
 
 		iterator_wrapper next() const
 		{
-			return iterator_wrapper(_next());
+			return iterator_wrapper(super_type::iterator_next());
 		}
 
 		iterator_wrapper previous() const
 		{
-			return iterator_wrapper(_previous());
+			return iterator_wrapper(super_type::iterator_previous());
 		}
 
 		/* FIXME: temporary */
@@ -284,20 +305,6 @@ namespace flib
 		{
 			return (T *)operator *();
 		}
-
-	protected:
-		iterable _next() const
-		{
-			return !Reverse ? iterator_traits<Iterable>::next(m_iterable) : iterator_traits<Iterable>::previous(m_iterable);
-		}
-
-		iterable _previous() const
-		{
-			return !Reverse ? iterator_traits<Iterable>::previous(m_iterable) : iterator_traits<Iterable>::next(m_iterable);
-		}
-
-	public: /* FIXME: Make protected/private */
-		iterable m_iterable;
 	};
 
 	class FCListItem
