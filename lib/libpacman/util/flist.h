@@ -299,97 +299,95 @@ namespace flib
 	public: /* FIXME: Make protected/private */
 		iterable m_iterable;
 	};
-}
 
-class FCListItem
-{
-public:
-	friend struct flib::iterable_traits<FCListItem *>;
+	class FCListItem
+	{
+	public:
+		friend struct flib::iterable_traits<FCListItem *>;
 
-	typedef void *value_type;
-	typedef value_type *pointer;
-	typedef size_t size_type;
-	typedef value_type &reference;
+		typedef void *value_type;
+		typedef value_type *pointer;
+		typedef size_t size_type;
+		typedef value_type &reference;
 
-	FCListItem()
-		: FCListItem(NULL, NULL)
-	{ }
+		FCListItem()
+			: FCListItem(NULL, NULL)
+		{ }
 
-	FCListItem(FCListItem *previous, FCListItem *next)
-		: m_next(next), m_previous(previous)
-	{ }
+		FCListItem(FCListItem *previous, FCListItem *next)
+			: m_next(next), m_previous(previous)
+		{ }
 
-	virtual ~FCListItem()
-	{ } // FIXME: Make pure virtual
+		virtual ~FCListItem()
+		{ } // FIXME: Make pure virtual
 
 #if 0
-	virtual void *c_data() const
-	{ return m_data; } // FIXME: Make pure virtual
+		virtual void *c_data() const
+		{ return m_data; } // FIXME: Make pure virtual
 #endif
 
-	bool insert_after(FCListItem *previous)
-	{
-		FCListItem *next;
+		bool insert_after(FCListItem *previous)
+		{
+			FCListItem *next;
 
-		ASSERT(previous != NULL, RET_ERR(PM_ERR_WRONG_ARGS, false));
+			ASSERT(previous != NULL, RET_ERR(PM_ERR_WRONG_ARGS, false));
 
-		next = previous->m_next;
-		previous->m_next = this;
-		m_next = next;
-		m_previous = previous;
+			next = previous->m_next;
+			previous->m_next = this;
+			m_next = next;
+			m_previous = previous;
 #ifndef F_NOCOMPAT
-		if (next != NULL)
+			if (next != NULL)
 #endif
-		next->m_previous = this;
-		return true;
-	}
-
-	FCListItem *next() const
-	{
-		return m_next;
-	}
-
-	FCListItem *previous() const
-	{
-		return m_previous;
-	}
-
-	void swap(FCListItem &o)
-	{
-		std::swap(m_next, o.m_next);
-		std::swap(m_previous, o.m_previous);
-		if(m_next != &o) {
-			m_next->m_previous = this;
-			m_previous->m_next = this;
-		} else {
-			m_next = m_previous = this;
+				next->m_previous = this;
+			return true;
 		}
-		if(o.m_next != this) {
-			o.m_next->m_previous = &o;
-			o.m_previous->m_next = &o;
-		} else {
-			o.m_next = o.m_previous = &o;
+
+		FCListItem *next() const
+		{
+			return m_next;
 		}
-	}
 
-	void remove()
-	{
-		m_next->m_previous = m_previous;
-		m_previous->m_next = m_next;
-		m_next = m_previous = NULL;
-	}
+		FCListItem *previous() const
+		{
+			return m_previous;
+		}
 
-	void reverse()
-	{
-		std::swap(m_next, m_previous);
-	}
+		void swap(FCListItem &o)
+		{
+			std::swap(m_next, o.m_next);
+			std::swap(m_previous, o.m_previous);
+			if(m_next != &o) {
+				m_next->m_previous = this;
+				m_previous->m_next = this;
+			} else {
+				m_next = m_previous = this;
+			}
+			if(o.m_next != this) {
+				o.m_next->m_previous = &o;
+				o.m_previous->m_next = &o;
+			} else {
+				o.m_next = o.m_previous = &o;
+			}
+		}
 
-protected:
-	FCListItem *m_next;
-	FCListItem *m_previous;
-};
+		void remove()
+		{
+			m_next->m_previous = m_previous;
+			m_previous->m_next = m_next;
+			m_next = m_previous = NULL;
+		}
 
-namespace flib {
+		void reverse()
+		{
+			std::swap(m_next, m_previous);
+		}
+
+	protected:
+		FCListItem *m_next;
+		FCListItem *m_previous;
+	};
+
 	template <>
 	struct iterable_traits<FCListItem *>
 	{
@@ -432,7 +430,7 @@ namespace flib {
 
 template <typename T>
 class FListItem
-	: public FCListItem
+	: public flib::FCListItem
 {
 public:
 	friend struct flib::iterable_traits<FListItem *>;
@@ -558,7 +556,7 @@ namespace flib {
 
 template <typename T>
 class FList
-	: protected FCListItem
+	: protected flib::FCListItem
 {
 public:
 	typedef FListItem<T> *iterable;
