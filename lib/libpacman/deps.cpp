@@ -42,6 +42,7 @@
 #include "versioncmp.h"
 #include "handle.h"
 
+using namespace flib;
 using namespace libpacman;
 
 typedef struct __pmgraph_t {
@@ -50,7 +51,7 @@ typedef struct __pmgraph_t {
 	{ }
 
 	pmsyncpkg_t *data;
-	FList<__pmgraph_t *> children;
+	list<__pmgraph_t *> children;
 
 	int state; /* 0: untouched, -1: entered, other: leaving time */
 	struct __pmgraph_t *parent; /* where did we come from? */
@@ -111,7 +112,7 @@ FPtrList &_pacman_depmisslist_add(FPtrList &misslist, pmdepmissing_t *miss)
  */
 void pmtrans_t::sortbydeps(int mode)
 {
-	FList<pmgraph_t *> vertices;
+	list<pmgraph_t *> vertices;
 	pmgraph_t *vertex;
 	int found;
 

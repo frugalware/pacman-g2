@@ -82,7 +82,7 @@ struct __pmtrans_t
 	int flags;
 	unsigned char state;
 	FStringList targets;
-	FList<pmsyncpkg_t *> syncpkgs;
+	flib::list<pmsyncpkg_t *> syncpkgs;
 	flib::str_set skiplist;
 	FStringList triggers;
 

@@ -65,7 +65,7 @@ public:
 	pmaccess_t access;
 	uid_t uid;
 	libpacman::Database *db_local;
-	FList<libpacman::Database *> dbs_sync;
+	flib::list<libpacman::Database *> dbs_sync;
 	FILE *logfd;
 	FFileLock *filelock;
 	pmtrans_t *trans;

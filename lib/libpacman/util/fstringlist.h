@@ -48,11 +48,12 @@ int f_stringlist_clear(FStringList *self);
 }
 
 class FStringList
-	: public FList<const char *>
+	: public flib::list<const char *>
 {
 public:
-	typedef typename FList<const char *>::iterator iterator;
-	typedef typename FList<const char *>::const_iterator const_iterator;
+	typedef flib::list<const char *> super_type;
+	using typename super_type::iterator;
+	using typename super_type::const_iterator;
 
 	FStringList()
 	{ }
@@ -64,7 +65,7 @@ public:
 	}
 
 	FStringList(FStringList &&o)
-		: FList(std::move(o))
+		: super_type(std::move(o))
 	{ }
 
 	FStringList &operator = (const FStringList &o)
@@ -83,7 +84,7 @@ public:
 
 	FStringList &add_nocopy(char *s)
 	{
-		FList::add(s);
+		super_type::add(s);
 		return *this;
 	}
 

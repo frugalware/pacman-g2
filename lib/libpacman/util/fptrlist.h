@@ -32,7 +32,7 @@
 typedef struct FPtrList FPtrList;
 typedef struct FPtrListIterator FPtrListIterator;
 #else /* __cplusplus */
-typedef class FList<void *> FPtrList;
+typedef class flib::list<void *> FPtrList;
 typedef class flib::FListItem<void *> FPtrListItem;
 typedef FPtrListItem FPtrListIterator;
 

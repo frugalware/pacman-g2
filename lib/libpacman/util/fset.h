@@ -30,14 +30,16 @@ namespace flib
 {
 	template <class T, class Compare = std::less<T>>
 	class set
-		: public FList<T>
+		: public flib::list<T>
 	{
 	public:
-		using typename FList<T>::iterable;
-		using typename FList<T>::iterator;
-		using typename FList<T>::value_type;
+		typedef flib::list<T> super_type;
 
-		using FList<T>::FList;
+		using typename super_type::iterable;
+		using typename super_type::iterator;
+		using typename super_type::value_type;
+
+		using super_type::list;
 
 		typedef Compare key_compare;
 		typedef Compare value_compare;
@@ -84,7 +86,7 @@ namespace flib
 		/* Return the first iterator where value does not satisfy Compare */
 		iterator find_insertion_point(const value_type &data)
 		{
-			return FList<T>::find_if_not([&] (const T &o) -> bool { return m_compare(o, data); });
+			return super_type::find_if_not([&] (const T &o) -> bool { return m_compare(o, data); });
 		}
 
 		Compare m_compare;

@@ -54,11 +54,11 @@ DEFINE_CAST(struct __pmpkg_t, libpacman::package)
 //DEFINE_CAST(struct __pmtrans_t, libpacman::Transaction)
 
 template <typename T>
-static inline __pmlist_t *c_cast(FList<T> &obj)
+static inline __pmlist_t *c_cast(flib::list<T> &obj)
 { return (__pmlist_t *)&obj; }
 
 template <typename T>
-static inline __pmlist_t *c_cast(FList<T> *obj)
+static inline __pmlist_t *c_cast(flib::list<T> *obj)
 { return (__pmlist_t *)obj; }
 
 static inline struct __pmpkg_t *c_cast(const libpacman::package_ptr &obj)

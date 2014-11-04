@@ -179,7 +179,7 @@ public:
 	typedef flib::refcounted_shared_ptr<package> package_ptr;
 	bool operator < (const package_ptr &pkg1, const package_ptr &pkg2);
 
-	typedef FList<package_ptr> package_list;
+	typedef flib::list<package_ptr> package_list;
 	typedef flib::set<libpacman::package_ptr> package_set;
 
 class PackageMatcher

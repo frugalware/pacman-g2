@@ -550,309 +550,309 @@ namespace flib
 			return i->operator * ();
 		}
 	};
-}
 
-template <typename T>
-class FList
-	: protected flib::FCListItem
-{
-public:
-	typedef flib::FListItem<T> *iterable;
-
-	/* std::list compatibility */
-	typedef T value_type;
-	typedef flib::iterator<iterable> iterator;
-	typedef flib::iterator<iterable, true> reverse_iterator;
-	typedef flib::const_iterator<iterable> const_iterator;
-	typedef flib::const_iterator<iterable, true> const_reverse_iterator;
-	typedef size_t size_type;
-
-	FList()
-		: FCListItem(this, this)
-	{ }
-
-	FList(FList &&o)
-		: FList()
+	template <typename T>
+	class list
+		: protected FCListItem
 	{
-		swap(o);
-	}
+	public:
+		typedef flib::FListItem<T> *iterable;
 
-	FList &operator = (FList &&o)
-	{
-		swap(o);
-		return *this;
-	}
+		/* std::list compatibility */
+		typedef T value_type;
+		typedef flib::iterator<iterable> iterator;
+		typedef flib::iterator<iterable, true> reverse_iterator;
+		typedef flib::const_iterator<iterable> const_iterator;
+		typedef flib::const_iterator<iterable, true> const_reverse_iterator;
+		typedef size_t size_type;
 
-	virtual ~FList() override
-	{
-		clear();
-	}
+		list()
+			: FCListItem(this, this)
+		{ }
 
-	/* Iterators */
-	iterator begin()
-	{
-		return iterator(c_first());
-	}
-
-	const_iterator begin() const
-	{
-		return cbegin();
-	}
-
-	const_iterator cbegin() const
-	{
-		return const_iterator(c_first());
-	}
-
-	reverse_iterator rbegin()
-	{
-		return reverse_iterator(c_last());
-	}
-
-	const_reverse_iterator rbegin() const
-	{
-		return crbegin();
-	}
-
-	const_reverse_iterator crbegin() const
-	{
-		return const_reverse_iterator(c_last());
-	}
-
-	iterator end()
-	{
-		return iterator(c_end());
-	}
-
-	const_iterator end() const
-	{
-		return cend();
-	}
-
-	const_iterator cend() const
-	{
-		return const_iterator(c_end());
-	}
-
-	reverse_iterator rend()
-	{
-		return reverse_iterator(c_end());
-	}
-
-	const_reverse_iterator rend() const
-	{
-		return crend();
-	}
-
-	const_reverse_iterator crend() const
-	{
-		return const_reverse_iterator(c_end());
-	}
-
-	/* Capacity */
-	bool empty() const
-	{
-		return begin() == end();
-	}
-
-	size_type size() const
-	{
-		size_type size = 0;
-		for(auto it = cbegin(), end = cend(); it != end; ++it, ++size) {
-			/* Nothing to do */
+		list(list &&o)
+			: list()
+		{
+			swap(o);
 		}
-		return size;
-	}
 
-	/* Element access */
-	bool contains(const value_type &val) const
-	{
-		return find(val) != end();
-	}
-
-	iterator find(const value_type &val)
-	{
-		return flib::find(begin(), end(), val);
-	}
-
-	const_iterator find(const value_type &val) const
-	{ 
-		return flib::find(begin(), end(), val);
-	}
-
-	template <class UnaryPredicate>
-	iterator find_if(UnaryPredicate pred)
-	{
-		return flib::find_if(begin(), end(), pred);
-	}
-
-	template <class UnaryPredicate>
-	const_iterator find_if(UnaryPredicate pred) const
-	{
-		return flib::find_if(begin(), end(), pred);
-	}
-
-	template <class UnaryPredicate>
-	iterator find_if_not(UnaryPredicate pred)
-	{
-		return flib::find_if_not(begin(), end(), pred);
-	}
-
-	template <class UnaryPredicate>
-	const_iterator find_if_not(UnaryPredicate pred) const
-	{
-		return flib::find_if_not(begin(), end(), pred);
-	}
-
-	/* Modifiers */
-	template <class Function = ::flib::detail::null_visitor>
-	void clear(Function fn = Function())
-	{
-		erase(begin(), end(), fn);
-	}
-
-	template <class Function = ::flib::detail::null_visitor>
-	iterator erase(iterator position, Function fn = Function())
-	{
-		ASSERT(position != c_end(), RET_ERR(PM_ERR_WRONG_ARGS, position));
-
-		iterable erased = (iterable)position;
-		iterable next = erased->next();
-		erased->remove();
-		delete erased;
-		return iterator(next);
-	}
-
-	template <class Function = ::flib::detail::null_visitor>
-	iterator erase(iterator first, iterator last, Function fn = Function())
-	{
-		auto it = first;
-		while(it != last) {
-			it = erase(it);
+		list &operator = (list &&o)
+		{
+			swap(o);
+			return *this;
 		}
-		return it;
-	}
 
-	template <class Function = ::flib::detail::null_visitor>
-	size_type remove(const value_type &val, Function fn = Function())
-	{
-		return remove_if(
-				[&] (const value_type &o) -> bool
-				{ return o == val; }, fn );
-	}
-
-	template <class UnaryPredicate, class Function = ::flib::detail::null_visitor>
-	size_type remove_if(UnaryPredicate pred, Function fn = Function())
-	{
-		size_type size = 0;
-		iterator it = begin(), end = this->end();
-
-		while((it = flib::find_if(it, end, pred)) != end) {
-			fn(*it);
-			it = erase(it);
-			++size;
+		virtual ~list() override
+		{
+			clear();
 		}
-		return size;
-	}
 
-	/* Observers */
+		/* Iterators */
+		iterator begin()
+		{
+			return iterator(c_first());
+		}
 
-	/* Operations */
-	void reverse() {
-		FCListItem *it = this;
-		do {
-			it->reverse();
-		} while ((it = it->next()) != this);
-	}
+		const_iterator begin() const
+		{
+			return cbegin();
+		}
 
-public:
-	/* extensions */
-	iterator first()
-	{
-		return iterator(c_first());
-	}
+		const_iterator cbegin() const
+		{
+			return const_iterator(c_first());
+		}
 
-	const_iterator first() const
-	{
-		return const_iterator(c_first());
-	}
+		reverse_iterator rbegin()
+		{
+			return reverse_iterator(c_last());
+		}
 
-	iterator last()
-	{
-		return iterator(c_last());
-	}
+		const_reverse_iterator rbegin() const
+		{
+			return crbegin();
+		}
 
-	const_iterator last() const
-	{
-		return const_iterator(c_last());
-	}
+		const_reverse_iterator crbegin() const
+		{
+			return const_reverse_iterator(c_last());
+		}
 
-	virtual iterator add(const value_type &val)
-	{
-		// Default implementation is append
-		iterable newItem = new flib::FListItem<T>(val);
-		newItem->insert_after(last());
-		return iterator(newItem);
-	}
+		iterator end()
+		{
+			return iterator(c_end());
+		}
 
-	void swap(FList &o) {
-		FCListItem::swap(o);
-	}
+		const_iterator end() const
+		{
+			return cend();
+		}
 
-	template <class U>
-	bool all_match(const U &val) const
-	{
-		return flib::all_match(begin(), end(), val);
-	}
+		const_iterator cend() const
+		{
+			return const_iterator(c_end());
+		}
 
-	template <class UnaryPredicate>
-	bool all_match_if(UnaryPredicate pred) const
-	{
-		return flib::all_match_if(begin(), end(), pred);
-	}
+		reverse_iterator rend()
+		{
+			return reverse_iterator(c_end());
+		}
 
-	template <class U>
-	bool any_match(const U &val) const
-	{
-		return flib::any_match(begin(), end(), val());
-	}
+		const_reverse_iterator rend() const
+		{
+			return crend();
+		}
 
-	template <class UnaryPredicate>
-	bool any_match_if(UnaryPredicate pred)
-	{
-		return flib::any_match_if(begin(), end(), pred);
-	}
+		const_reverse_iterator crend() const
+		{
+			return const_reverse_iterator(c_end());
+		}
 
-public:
-	iterable c_first() const
-	{
-		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-		return static_cast<iterable>(m_next);
-	}
+		/* Capacity */
+		bool empty() const
+		{
+			return begin() == end();
+		}
 
-	iterable c_last() const
-	{
-		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-		return static_cast<iterable>(m_previous);
-	}
+		size_type size() const
+		{
+			size_type size = 0;
+			for(auto it = cbegin(), end = cend(); it != end; ++it, ++size) {
+				/* Nothing to do */
+			}
+			return size;
+		}
 
-	iterable c_end() const
-	{
-		ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-		return static_cast<iterable>((FCListItem *)this);
-	}
+		/* Element access */
+		bool contains(const value_type &val) const
+		{
+			return find(val) != end();
+		}
 
-private:
-	FList(const FList &);
-	FList &operator = (const FList &);
+		iterator find(const value_type &val)
+		{
+			return flib::find(begin(), end(), val);
+		}
+
+		const_iterator find(const value_type &val) const
+		{ 
+			return flib::find(begin(), end(), val);
+		}
+
+		template <class UnaryPredicate>
+		iterator find_if(UnaryPredicate pred)
+		{
+			return flib::find_if(begin(), end(), pred);
+		}
+
+		template <class UnaryPredicate>
+		const_iterator find_if(UnaryPredicate pred) const
+		{
+			return flib::find_if(begin(), end(), pred);
+		}
+
+		template <class UnaryPredicate>
+		iterator find_if_not(UnaryPredicate pred)
+		{
+			return flib::find_if_not(begin(), end(), pred);
+		}
+
+		template <class UnaryPredicate>
+		const_iterator find_if_not(UnaryPredicate pred) const
+		{
+			return flib::find_if_not(begin(), end(), pred);
+		}
+
+		/* Modifiers */
+		template <class Function = ::flib::detail::null_visitor>
+		void clear(Function fn = Function())
+		{
+			erase(begin(), end(), fn);
+		}
+
+		template <class Function = ::flib::detail::null_visitor>
+		iterator erase(iterator position, Function fn = Function())
+		{
+			ASSERT(position != c_end(), RET_ERR(PM_ERR_WRONG_ARGS, position));
+
+			iterable erased = (iterable)position;
+			iterable next = erased->next();
+			erased->remove();
+			delete erased;
+			return iterator(next);
+		}
+
+		template <class Function = ::flib::detail::null_visitor>
+		iterator erase(iterator first, iterator last, Function fn = Function())
+		{
+			auto it = first;
+			while(it != last) {
+				it = erase(it);
+			}
+			return it;
+		}
+
+		template <class Function = ::flib::detail::null_visitor>
+		size_type remove(const value_type &val, Function fn = Function())
+		{
+			return remove_if(
+					[&] (const value_type &o) -> bool
+					{ return o == val; }, fn );
+		}
+
+		template <class UnaryPredicate, class Function = ::flib::detail::null_visitor>
+		size_type remove_if(UnaryPredicate pred, Function fn = Function())
+		{
+			size_type size = 0;
+			iterator it = begin(), end = this->end();
+
+			while((it = flib::find_if(it, end, pred)) != end) {
+				fn(*it);
+				it = erase(it);
+				++size;
+			}
+			return size;
+		}
+
+		/* Observers */
+
+		/* Operations */
+		void reverse() {
+			FCListItem *it = this;
+			do {
+				it->reverse();
+			} while ((it = it->next()) != this);
+		}
+
+	public:
+		/* extensions */
+		iterator first()
+		{
+			return iterator(c_first());
+		}
+
+		const_iterator first() const
+		{
+			return const_iterator(c_first());
+		}
+
+		iterator last()
+		{
+			return iterator(c_last());
+		}
+
+		const_iterator last() const
+		{
+			return const_iterator(c_last());
+		}
+
+		virtual iterator add(const value_type &val)
+		{
+			// Default implementation is append
+			iterable newItem = new flib::FListItem<T>(val);
+			newItem->insert_after(last());
+			return iterator(newItem);
+		}
+
+		void swap(list &o) {
+			FCListItem::swap(o);
+		}
+
+		template <class U>
+		bool all_match(const U &val) const
+		{
+			return flib::all_match(begin(), end(), val);
+		}
+
+		template <class UnaryPredicate>
+		bool all_match_if(UnaryPredicate pred) const
+		{
+			return flib::all_match_if(begin(), end(), pred);
+		}
+
+		template <class U>
+		bool any_match(const U &val) const
+		{
+			return flib::any_match(begin(), end(), val());
+		}
+
+		template <class UnaryPredicate>
+		bool any_match_if(UnaryPredicate pred)
+		{
+			return flib::any_match_if(begin(), end(), pred);
+		}
+
+	public:
+		iterable c_first() const
+		{
+			ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+			return static_cast<iterable>(m_next);
+		}
+
+		iterable c_last() const
+		{
+			ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+			return static_cast<iterable>(m_previous);
+		}
+
+		iterable c_end() const
+		{
+			ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
+			return static_cast<iterable>((FCListItem *)this);
+		}
+
+	private:
+		list(const list &);
+		list &operator = (const list &);
 
 #if 0
-	virtual void *c_data() const override
-	{
-		RET_ERR(PM_ERR_WRONG_ARGS, NULL);
-	}
+		virtual void *c_data() const override
+		{
+			RET_ERR(PM_ERR_WRONG_ARGS, NULL);
+		}
 #endif
-};
+	};
+} // namespace flib
 #endif /* __cplusplus */
 
 #endif /* F_LIST_H */
