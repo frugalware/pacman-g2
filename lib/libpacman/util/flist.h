@@ -34,37 +34,37 @@
 
 namespace flib
 {
-	template <typename Iterable>
-	struct iterable_traits
+	template <typename Iterator>
+	struct iterator_traits
 	{
-		typedef Iterable iterable;
-		typedef typename iterable::difference_type difference_type;
-		typedef typename iterable::pointer pointer;
-		typedef typename iterable::reference reference;
-		typedef typename iterable::size_type size_type;
-		typedef typename iterable::value_type value_type;
+		typedef Iterator iterator;
+		typedef typename iterator::difference_type difference_type;
+		typedef typename iterator::pointer pointer;
+		typedef typename iterator::reference reference;
+		typedef typename iterator::size_type size_type;
+		typedef typename iterator::value_type value_type;
 
-		static iterable next(const iterable &i)
+		static iterator next(const iterator &i)
 		{
 			return i.next();
 		}
 
-		static iterable previous(const iterable &i)
+		static iterator previous(const iterator &i)
 		{ 
 			return i.previous();
 		}
 
-		static reference reference_of(iterable i)
+		static reference reference_of(iterator i)
 		{
 			return *i;
 		}
 
-		static pointer pointer_of(iterable i)
+		static pointer pointer_of(iterator i)
 		{
 			return i.operator -> ();
 		}
 
-		static value_type value_of(const iterable i)
+		static value_type value_of(const iterator i)
 		{
 			return *i;
 		}
@@ -74,11 +74,11 @@ namespace flib
 	struct const_iterator
 	{
 	public:
-//		typedef typename iterable_traits<Iterable>::difference_type difference_type;
-		typedef typename iterable_traits<Iterable>::iterable iterable;
-		typedef typename iterable_traits<Iterable>::pointer pointer;
-		typedef typename iterable_traits<Iterable>::size_type size_type;
-		typedef typename iterable_traits<Iterable>::value_type value_type;
+//		typedef typename iterator_traits<Iterable>::difference_type difference_type;
+		typedef typename iterator_traits<Iterable>::iterable iterable;
+		typedef typename iterator_traits<Iterable>::pointer pointer;
+		typedef typename iterator_traits<Iterable>::size_type size_type;
+		typedef typename iterator_traits<Iterable>::value_type value_type;
 
 		explicit const_iterator(iterable i = iterable())
 			: m_iterable(i)
@@ -140,12 +140,12 @@ namespace flib
 
 		value_type operator * () const
 		{
-			return iterable_traits<Iterable>::value_of(m_iterable);
+			return iterator_traits<Iterable>::value_of(m_iterable);
 		}
 
 		const pointer operator -> () const
 		{
-			return iterable_traits<Iterable>::pointer_of(m_iterable);
+			return iterator_traits<Iterable>::pointer_of(m_iterable);
 		}
 
 		const_iterator next() const
@@ -168,12 +168,12 @@ namespace flib
 	protected:
 		iterable _next() const
 		{
-			return !Reverse ? iterable_traits<Iterable>::next(m_iterable) : iterable_traits<Iterable>::previous(m_iterable);
+			return !Reverse ? iterator_traits<Iterable>::next(m_iterable) : iterator_traits<Iterable>::previous(m_iterable);
 		}
 
 		iterable _previous() const
 		{
-			return !Reverse ? iterable_traits<Iterable>::previous(m_iterable) : iterable_traits<Iterable>::next(m_iterable);
+			return !Reverse ? iterator_traits<Iterable>::previous(m_iterable) : iterator_traits<Iterable>::next(m_iterable);
 		}
 
 		iterable m_iterable;
@@ -183,12 +183,12 @@ namespace flib
 	struct iterator
 	{
 	public:
-//		typedef typename iterable_traits<Iterable>::difference_type difference_type;
-		typedef typename iterable_traits<Iterable>::iterable iterable;
-		typedef typename iterable_traits<Iterable>::pointer pointer;
-		typedef typename iterable_traits<Iterable>::reference reference;
-		typedef typename iterable_traits<Iterable>::size_type size_type;
-		typedef typename iterable_traits<Iterable>::value_type value_type;
+//		typedef typename iterator_traits<Iterable>::difference_type difference_type;
+		typedef typename iterator_traits<Iterable>::iterable iterable;
+		typedef typename iterator_traits<Iterable>::pointer pointer;
+		typedef typename iterator_traits<Iterable>::reference reference;
+		typedef typename iterator_traits<Iterable>::size_type size_type;
+		typedef typename iterator_traits<Iterable>::value_type value_type;
 
 		explicit iterator(iterable i = iterable())
 			: m_iterable(i)
@@ -250,22 +250,22 @@ namespace flib
 
 		reference operator * ()
 		{
-			return iterable_traits<Iterable>::reference_of(m_iterable);
+			return iterator_traits<Iterable>::reference_of(m_iterable);
 		}
 
 		value_type operator * () const
 		{
-			return iterable_traits<Iterable>::value_of(m_iterable);
+			return iterator_traits<Iterable>::value_of(m_iterable);
 		}
 
 		pointer operator -> ()
 		{
-			return iterable_traits<Iterable>::pointer_of(m_iterable);
+			return iterator_traits<Iterable>::pointer_of(m_iterable);
 		}
 
 		const pointer operator -> () const
 		{
-			return iterable_traits<Iterable>::pointer_of(m_iterable);
+			return iterator_traits<Iterable>::pointer_of(m_iterable);
 		}
 
 		iterator next() const
@@ -288,12 +288,12 @@ namespace flib
 	protected:
 		iterable _next() const
 		{
-			return !Reverse ? iterable_traits<Iterable>::next(m_iterable) : iterable_traits<Iterable>::previous(m_iterable);
+			return !Reverse ? iterator_traits<Iterable>::next(m_iterable) : iterator_traits<Iterable>::previous(m_iterable);
 		}
 
 		iterable _previous() const
 		{
-			return !Reverse ? iterable_traits<Iterable>::previous(m_iterable) : iterable_traits<Iterable>::next(m_iterable);
+			return !Reverse ? iterator_traits<Iterable>::previous(m_iterable) : iterator_traits<Iterable>::next(m_iterable);
 		}
 
 	public: /* FIXME: Make protected/private */
@@ -303,7 +303,7 @@ namespace flib
 	class FCListItem
 	{
 	public:
-		friend struct flib::iterable_traits<FCListItem *>;
+		friend struct flib::iterator_traits<FCListItem *>;
 
 		typedef void *value_type;
 		typedef value_type *pointer;
@@ -389,7 +389,7 @@ namespace flib
 	};
 
 	template <>
-	struct iterable_traits<FCListItem *>
+	struct iterator_traits<FCListItem *>
 	{
 		typedef FCListItem *iterable;
 //		typedef typename FCListItem::difference_type difference_type;
@@ -432,7 +432,7 @@ namespace flib
 		: public flib::FCListItem
 	{
 	public:
-		friend struct flib::iterable_traits<FListItem *>;
+		friend struct flib::iterator_traits<FListItem *>;
 
 		typedef T value_type;
 		typedef value_type *pointer;
@@ -516,7 +516,7 @@ namespace flib
 	};
 
 	template <typename T>
-	struct iterable_traits<FListItem<T> *>
+	struct iterator_traits<FListItem<T> *>
 	{
 		typedef FListItem<T> *iterable;
 //		typedef typename FListItem<T>::difference_type difference_type;
@@ -527,12 +527,12 @@ namespace flib
 
 		static iterable next(const iterable &i)
 		{
-			return static_cast<iterable>(iterable_traits<FCListItem *>::next(i));
+			return static_cast<iterable>(iterator_traits<FCListItem *>::next(i));
 		}
 
 		static iterable previous(const iterable &i)
 		{
-			return static_cast<iterable>(iterable_traits<FCListItem *>::previous(i));
+			return static_cast<iterable>(iterator_traits<FCListItem *>::previous(i));
 		}
 
 		static reference reference_of(iterable i)
