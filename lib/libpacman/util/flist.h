@@ -71,7 +71,7 @@ namespace flib
 	};
 
 	template <typename Iterable, bool Reverse = false>
-	struct const_iterator
+	struct const_iterator_wrapper
 	{
 	public:
 //		typedef typename iterator_traits<Iterable>::difference_type difference_type;
@@ -80,15 +80,15 @@ namespace flib
 		typedef typename iterator_traits<Iterable>::size_type size_type;
 		typedef typename iterator_traits<Iterable>::value_type value_type;
 
-		explicit const_iterator(iterable i = iterable())
+		explicit const_iterator_wrapper(iterable i = iterable())
 			: m_iterable(i)
 		{ }
 
-		const_iterator(const const_iterator &o)
+		const_iterator_wrapper(const const_iterator_wrapper &o)
 			: m_iterable(o.m_iterable)
 		{ }
 
-		~const_iterator()
+		~const_iterator_wrapper()
 		{ }
 
 		operator iterable ()
@@ -96,44 +96,44 @@ namespace flib
 			return m_iterable;
 		}
 
-		const_iterator &operator = (const const_iterator &o)
+		const_iterator_wrapper &operator = (const const_iterator_wrapper &o)
 		{
 			m_iterable = o.m_iterable;
 			return *this;
 		}
 
-		bool operator == (const const_iterator &o) const
+		bool operator == (const const_iterator_wrapper &o) const
 		{
 			return m_iterable == o.m_iterable;
 		}
 
-		bool operator != (const const_iterator &o) const
+		bool operator != (const const_iterator_wrapper &o) const
 		{
 			return !operator == (o);
 		}
 
-		const_iterator &operator ++ ()
+		const_iterator_wrapper &operator ++ ()
 		{
 			m_iterable = _next();
 			return *this;
 		}
 
-		const_iterator operator ++ (int)
+		const_iterator_wrapper operator ++ (int)
 		{
-			const_iterator tmp(*this);
+			const_iterator_wrapper tmp(*this);
 			operator ++ ();
 			return tmp;
 		}
 
-		const_iterator &operator -- ()
+		const_iterator_wrapper &operator -- ()
 		{
 			m_iterable = _previous();
 			return *this;
 		}
 
-		const_iterator operator -- (int)
+		const_iterator_wrapper operator -- (int)
 		{
-			const_iterator tmp(*this);
+			const_iterator_wrapper tmp(*this);
 			operator -- ();
 			return tmp;
 		}
@@ -148,14 +148,14 @@ namespace flib
 			return iterator_traits<Iterable>::pointer_of(m_iterable);
 		}
 
-		const_iterator next() const
+		const_iterator_wrapper next() const
 		{
-			return const_iterator(_next());
+			return const_iterator_wrapper(_next());
 		}
 
-		const_iterator previous() const
+		const_iterator_wrapper previous() const
 		{
-			return const_iterator(_previous());
+			return const_iterator_wrapper(_previous());
 		}
 
 		/* FIXME: temporary */
@@ -180,7 +180,7 @@ namespace flib
 	};
 
 	template <typename Iterable, bool Reverse = false>
-	struct iterator
+	struct iterator_wrapper
 	{
 	public:
 //		typedef typename iterator_traits<Iterable>::difference_type difference_type;
@@ -190,15 +190,15 @@ namespace flib
 		typedef typename iterator_traits<Iterable>::size_type size_type;
 		typedef typename iterator_traits<Iterable>::value_type value_type;
 
-		explicit iterator(iterable i = iterable())
+		explicit iterator_wrapper(iterable i = iterable())
 			: m_iterable(i)
 		{ }
 
-		iterator(const iterator &o)
+		iterator_wrapper(const iterator_wrapper &o)
 			: m_iterable(o.m_iterable)
 		{ }
 
-		~iterator()
+		~iterator_wrapper()
 		{ }
 
 		operator iterable ()
@@ -206,44 +206,44 @@ namespace flib
 			return m_iterable;
 		}
 
-		iterator &operator = (const iterator &o)
+		iterator_wrapper &operator = (const iterator_wrapper &o)
 		{
 			m_iterable = o.m_iterable;
 			return *this;
 		}
 
-		bool operator == (const iterator &o) const
+		bool operator == (const iterator_wrapper &o) const
 		{
 			return m_iterable == o.m_iterable;
 		}
 
-		bool operator != (const iterator &o) const
+		bool operator != (const iterator_wrapper &o) const
 		{
 			return !operator == (o);
 		}
 
-		iterator &operator ++ ()
+		iterator_wrapper &operator ++ ()
 		{
 			m_iterable = _next();
 			return *this;
 		}
 
-		iterator operator ++ (int)
+		iterator_wrapper operator ++ (int)
 		{
-			iterator tmp(*this);
+			iterator_wrapper tmp(*this);
 			operator ++ ();
 			return tmp;
 		}
 
-		iterator &operator -- ()
+		iterator_wrapper &operator -- ()
 		{
 			m_iterable = _previous();
 			return *this;
 		}
 
-		iterator operator -- (int)
+		iterator_wrapper operator -- (int)
 		{
-			iterator tmp(*this);
+			iterator_wrapper tmp(*this);
 			operator -- ();
 			return tmp;
 		}
@@ -268,14 +268,14 @@ namespace flib
 			return iterator_traits<Iterable>::pointer_of(m_iterable);
 		}
 
-		iterator next() const
+		iterator_wrapper next() const
 		{
-			return iterator(_next());
+			return iterator_wrapper(_next());
 		}
 
-		iterator previous() const
+		iterator_wrapper previous() const
 		{
-			return iterator(_previous());
+			return iterator_wrapper(_previous());
 		}
 
 		/* FIXME: temporary */
@@ -560,10 +560,10 @@ namespace flib
 
 		/* std::list compatibility */
 		typedef T value_type;
-		typedef flib::iterator<iterable> iterator;
-		typedef flib::iterator<iterable, true> reverse_iterator;
-		typedef flib::const_iterator<iterable> const_iterator;
-		typedef flib::const_iterator<iterable, true> const_reverse_iterator;
+		typedef flib::iterator_wrapper<iterable> iterator;
+		typedef flib::iterator_wrapper<iterable, true> reverse_iterator;
+		typedef flib::const_iterator_wrapper<iterable> const_iterator;
+		typedef flib::const_iterator_wrapper<iterable, true> const_reverse_iterator;
 		typedef size_t size_type;
 
 		list()
