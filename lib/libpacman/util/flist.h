@@ -34,10 +34,6 @@
 
 namespace flib
 {
-	/* Used as a marker to make containers unsorted */
-	struct uncompared
-	{ };
-
 	template <typename Iterable>
 	struct iterable_traits
 	{
