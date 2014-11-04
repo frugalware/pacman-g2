@@ -426,97 +426,95 @@ namespace flib
 		}
 #endif
 	};
-}
 
-template <typename T>
-class FListItem
-	: public flib::FCListItem
-{
-public:
-	friend struct flib::iterable_traits<FListItem *>;
+	template <typename T>
+	class FListItem
+		: public flib::FCListItem
+	{
+	public:
+		friend struct flib::iterable_traits<FListItem *>;
 
-	typedef T value_type;
-	typedef value_type *pointer;
-	typedef size_t size_type;
-	typedef value_type &reference;
+		typedef T value_type;
+		typedef value_type *pointer;
+		typedef size_t size_type;
+		typedef value_type &reference;
 
-	explicit FListItem(const T &data = T())
-		: m_data(data)
-	{ }
+		explicit FListItem(const T &data = T())
+			: m_data(data)
+		{ }
 
-	FListItem(T &&data)
-		: m_data(std::move(data))
-	{ }
+		FListItem(T &&data)
+			: m_data(std::move(data))
+		{ }
 
-	virtual ~FListItem()
-	{ }
+		virtual ~FListItem()
+		{ }
 
 #if 0
-	virtual void *c_data() const override
-	{
-		return &m_data;
-	}
+		virtual void *c_data() const override
+		{
+			return &m_data;
+		}
 
-	T &data()
-	{
-		return m_data;
-	}
+		T &data()
+		{
+			return m_data;
+		}
 
-	const T &data() const
-	{
-		return m_data;
-	}
+		const T &data() const
+		{
+			return m_data;
+		}
 #endif
-	reference operator * ()
-	{
-		return m_data;
-	}
+		reference operator * ()
+		{
+			return m_data;
+		}
 
-	const value_type operator * () const
-	{
-		return m_data;
-	}
+		const value_type operator * () const
+		{
+			return m_data;
+		}
 
-	pointer operator -> ()
-	{
-		return &m_data;
-	}
+		pointer operator -> ()
+		{
+			return &m_data;
+		}
 
-	const pointer operator -> () const
-	{
-		return &m_data;
-	}
+		const pointer operator -> () const
+		{
+			return &m_data;
+		}
 
-	FListItem *next() const
-	{
-		return static_cast<FListItem *>(m_next);
-	}
+		FListItem *next() const
+		{
+			return static_cast<FListItem *>(m_next);
+		}
 
-	FListItem *previous() const
-	{
-		return static_cast<FListItem *>(m_previous);
-	}
+		FListItem *previous() const
+		{
+			return static_cast<FListItem *>(m_previous);
+		}
 
-	void swap_data(T &o)
-	{
-		std::swap(m_data, o);
-	}
+		void swap_data(T &o)
+		{
+			std::swap(m_data, o);
+		}
 
-	void swap_data(T *o)
-	{
-		std::swap(m_data, *o);
-	}
+		void swap_data(T *o)
+		{
+			std::swap(m_data, *o);
+		}
 
-//protected:
-	T m_data;
+//	protected:
+		T m_data;
 
-private:
-	FListItem(const FListItem<T> &o);
+	private:
+		FListItem(const FListItem<T> &o);
 
-	FListItem<T> &operator = (const FListItem<T> &o);
-};
+		FListItem<T> &operator = (const FListItem<T> &o);
+	};
 
-namespace flib {
 	template <typename T>
 	struct iterable_traits<FListItem<T> *>
 	{
@@ -559,7 +557,7 @@ class FList
 	: protected flib::FCListItem
 {
 public:
-	typedef FListItem<T> *iterable;
+	typedef flib::FListItem<T> *iterable;
 
 	/* std::list compatibility */
 	typedef T value_type;
@@ -718,8 +716,8 @@ public:
 	{
 		ASSERT(position != c_end(), RET_ERR(PM_ERR_WRONG_ARGS, position));
 
-		FListItem<T> *erased = (iterable)position;
-		FListItem<T> *next = erased->next();
+		iterable erased = (iterable)position;
+		iterable next = erased->next();
 		erased->remove();
 		delete erased;
 		return iterator(next);
@@ -792,7 +790,7 @@ public:
 	virtual iterator add(const value_type &val)
 	{
 		// Default implementation is append
-		iterable newItem = new FListItem<T>(val);
+		iterable newItem = new flib::FListItem<T>(val);
 		newItem->insert_after(last());
 		return iterator(newItem);
 	}
