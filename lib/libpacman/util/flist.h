@@ -75,7 +75,10 @@ namespace flib
 	public:
 		typedef Iterator wrapped_iterator_type;
 		typedef iterator_traits<Iterator> wrapped_iterator_traits;
+
+//		typedef typename wrapped_iterator_traits::difference_type difference_type;
 		typedef typename wrapped_iterator_traits::pointer pointer;
+		typedef typename wrapped_iterator_traits::reference reference;
 		typedef typename wrapped_iterator_traits::size_type size_type;
 		typedef typename wrapped_iterator_traits::value_type value_type;
 
@@ -127,20 +130,20 @@ namespace flib
 		wrapped_iterator_type m_iterator;
 	};
 
-	template <typename Iterable, bool Reverse = false>
+	template <typename Iterator, bool Reverse = false>
 	struct const_iterator_wrapper
-		: public iterator_wrapper_base<Iterable, Reverse>
+		: public iterator_wrapper_base<Iterator, Reverse>
 	{
 	public:
-		typedef iterator_wrapper_base<Iterable, Reverse> super_type;	
+		typedef iterator_wrapper_base<Iterator, Reverse> super_type;	
 
-//		typedef typename iterator_traits<Iterable>::difference_type difference_type;
-		typedef typename iterator_traits<Iterable>::iterable iterable;
-		typedef typename iterator_traits<Iterable>::pointer pointer;
-		typedef typename iterator_traits<Iterable>::size_type size_type;
-		typedef typename iterator_traits<Iterable>::value_type value_type;
+//		using typename super_type::difference_type;
+		using typename super_type::pointer;
+		using typename super_type::reference;
+		using typename super_type::size_type;
+		using typename super_type::value_type;
 
-		explicit const_iterator_wrapper(iterable i = iterable())
+		explicit const_iterator_wrapper(Iterator i = Iterator())
 			: super_type(i)
 		{ }
 
@@ -185,12 +188,12 @@ namespace flib
 
 		value_type operator * () const
 		{
-			return iterator_traits<Iterable>::value_of(super_type::m_iterator);
+			return iterator_traits<Iterator>::value_of(super_type::m_iterator);
 		}
 
 		const pointer operator -> () const
 		{
-			return iterator_traits<Iterable>::pointer_of(super_type::m_iterator);
+			return iterator_traits<Iterator>::pointer_of(super_type::m_iterator);
 		}
 
 		const_iterator_wrapper next() const
@@ -211,21 +214,20 @@ namespace flib
 		}
 	};
 
-	template <typename Iterable, bool Reverse = false>
+	template <typename Iterator, bool Reverse = false>
 	struct iterator_wrapper
-		: public iterator_wrapper_base<Iterable, Reverse>
+		: public iterator_wrapper_base<Iterator, Reverse>
 	{
 	public:
-		typedef iterator_wrapper_base<Iterable, Reverse> super_type;
+		typedef iterator_wrapper_base<Iterator, Reverse> super_type;
 
-//		typedef typename iterator_traits<Iterable>::difference_type difference_type;
-		typedef typename iterator_traits<Iterable>::iterable iterable;
-		typedef typename iterator_traits<Iterable>::pointer pointer;
-		typedef typename iterator_traits<Iterable>::reference reference;
-		typedef typename iterator_traits<Iterable>::size_type size_type;
-		typedef typename iterator_traits<Iterable>::value_type value_type;
+//		using typename super_type::difference_type;
+		using typename super_type::pointer;
+		using typename super_type::reference;
+		using typename super_type::size_type;
+		using typename super_type::value_type;
 
-		explicit iterator_wrapper(iterable i = iterable())
+		explicit iterator_wrapper(Iterator i = Iterator())
 			: super_type(i)
 		{ }
 
@@ -270,22 +272,22 @@ namespace flib
 
 		reference operator * ()
 		{
-			return iterator_traits<Iterable>::reference_of(super_type::m_iterator);
+			return iterator_traits<Iterator>::reference_of(super_type::m_iterator);
 		}
 
 		value_type operator * () const
 		{
-			return iterator_traits<Iterable>::value_of(super_type::m_iterator);
+			return iterator_traits<Iterator>::value_of(super_type::m_iterator);
 		}
 
 		pointer operator -> ()
 		{
-			return iterator_traits<Iterable>::pointer_of(super_type::m_iterator);
+			return iterator_traits<Iterator>::pointer_of(super_type::m_iterator);
 		}
 
 		const pointer operator -> () const
 		{
-			return iterator_traits<Iterable>::pointer_of(super_type::m_iterator);
+			return iterator_traits<Iterator>::pointer_of(super_type::m_iterator);
 		}
 
 		iterator_wrapper next() const
@@ -525,6 +527,7 @@ namespace flib
 	struct iterator_traits<FListItem<T> *>
 	{
 		typedef FListItem<T> *iterable;
+
 //		typedef typename FListItem<T>::difference_type difference_type;
 		typedef typename FListItem<T>::pointer pointer;
 		typedef typename FListItem<T>::reference reference;
