@@ -37,34 +37,33 @@ namespace flib
 	template <typename Iterator>
 	struct iterator_traits
 	{
-		typedef Iterator iterator;
-		typedef typename iterator::difference_type difference_type;
-		typedef typename iterator::pointer pointer;
-		typedef typename iterator::reference reference;
-		typedef typename iterator::size_type size_type;
-		typedef typename iterator::value_type value_type;
+		typedef typename Iterator::difference_type difference_type;
+		typedef typename Iterator::pointer pointer;
+		typedef typename Iterator::reference reference;
+		typedef typename Iterator::size_type size_type;
+		typedef typename Iterator::value_type value_type;
 
-		static iterator next(const iterator &i)
+		static Iterator next(const Iterator &i)
 		{
 			return i.next();
 		}
 
-		static iterator previous(const iterator &i)
+		static Iterator previous(const Iterator &i)
 		{ 
 			return i.previous();
 		}
 
-		static reference reference_of(iterator i)
+		static reference reference_of(Iterator i)
 		{
 			return *i;
 		}
 
-		static pointer pointer_of(iterator i)
+		static pointer pointer_of(Iterator i)
 		{
 			return i.operator -> ();
 		}
 
-		static value_type value_of(const iterator i)
+		static value_type value_of(const Iterator i)
 		{
 			return *i;
 		}
