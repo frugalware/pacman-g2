@@ -57,13 +57,11 @@ namespace flib
 	{
 	private:
 		typedef flib::list<T> super_type;
+		typedef flib::keyed_value_traits<T> keyed_value_traits;
 
 	public:
 		using typename super_type::iterator;
-		using typename super_type::value_type;
-
-		typedef Compare key_compare;
-		typedef Compare value_compare;
+		using typename super_type::const_iterator;
 
 		using super_type::list;
 
@@ -84,33 +82,53 @@ namespace flib
 
 		using super_type::any_match_if;
 
+	public:
+		typedef typename keyed_value_traits::keyed_value_type keyed_value_type;
+		typedef typename keyed_value_traits::key_type key_type;
+		typedef typename keyed_value_traits::value_type value_type;
+
+		typedef Compare key_compare;
+		typedef Compare value_compare;
+
 		explicit operator const flib::list<T> &() const
 		{
 			return *this;
 		}
 
-		virtual iterator add(const value_type &data) override
+		virtual iterator add(const keyed_value_type &keyed_value) override
 		{
 			iterator end = this->end();
 			/* Find insertion point. */
-			iterator next = find_insertion_point(data);
+			iterator next = find_insertion_point(keyed_value_traits::value_of(keyed_value));
 
 			// ensure we don't have an egality
-			if(next == end || m_compare(data, *next)) {
-				typename super_type::data_holder add = new FListItem<T>(data);
+			if(next == end || m_compare(keyed_value, *next)) {
+				typename super_type::data_holder add = new FListItem<T>(keyed_value);
 				add->insert_after(next.previous());
 				return iterator(add);
 			}
 			return end;
 		}
 
-		iterator find(const value_type &data)
+		iterator find(const key_type &key)
 		{
 			iterator end = this->end();
-			iterator it = find_insertion_point(data);
+			iterator it = find_insertion_point(key);
 
 			// ensure we have an egality
-			if(it == end || !m_compare(data, *it)) {
+			if(it == end || !m_compare(key, *it)) {
+				return end;
+			}
+			return it;
+		}
+
+		const_iterator find(const key_type &key) const
+		{
+			const_iterator end = this->end();
+			const_iterator it = find_insertion_point(key);
+
+			// ensure we have an egality
+			if(it == end || !m_compare(key, *it)) {
 				return end;
 			}
 			return it;
@@ -129,9 +147,11 @@ namespace flib
 
 	private:
 		/* Return the first iterator where value does not satisfy Compare */
-		iterator find_insertion_point(const value_type &data)
+		iterator find_insertion_point(const key_type &key)
 		{
-			return super_type::find_if_not([&] (const T &o) -> bool { return m_compare(o, data); });
+			return super_type::find_if_not(
+					[&] (const keyed_value_type &keyed_value) -> bool
+					{ return m_compare(keyed_value_traits::value_of(keyed_value), key); });
 		}
 
 		Compare m_compare;
