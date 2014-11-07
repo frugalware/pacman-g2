@@ -61,6 +61,10 @@ template <typename T>
 static inline __pmlist_t *c_cast(flib::list<T> *obj)
 { return (__pmlist_t *)obj; }
 
+template <class T, class Compare>
+static inline __pmlist_t *c_cast(flib::set<T, Compare> &obj)
+{ return (__pmlist_t *)&obj; }
+
 static inline struct __pmpkg_t *c_cast(const libpacman::package_ptr &obj)
 { return (__pmpkg_t *)obj.get(); }
 

@@ -130,7 +130,7 @@ int Database::remove_pkgfromcache(package_ptr pkg)
 }
 
 static
-Group *_pacman_db_get_grpfromlist(const list<Group *> &list, const char *target)
+Group *_pacman_db_get_grpfromlist(const group_set &list, const char *target)
 {
 	if(_pacman_strempty(target)) {
 		return(NULL);

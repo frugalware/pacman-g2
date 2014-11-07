@@ -28,13 +28,37 @@
 
 namespace flib
 {
-	template <class T, class Compare = std::less<T>>
-	class set
-		: public flib::list<T>
+	template <class T>
+	struct keyed_value_traits
 	{
-	public:
+		typedef T keyed_value_type;
+		typedef T key_type;
+		typedef T value_type;
+
+		static const key_type &key_of(const keyed_value_type &o)
+		{
+			return o;
+		}
+
+		static value_type &value_of(keyed_value_type &o)
+		{
+			return o;
+		}
+
+		static const value_type &value_of(const keyed_value_type &o)
+		{
+			return o;
+		}
+	};
+
+	template <class T, class Compare = std::less<typename flib::keyed_value_traits<T>::key_type>>
+	class set
+		: private flib::list<T>
+	{
+	private:
 		typedef flib::list<T> super_type;
 
+	public:
 		using typename super_type::iterator;
 		using typename super_type::value_type;
 
@@ -42,6 +66,28 @@ namespace flib
 		typedef Compare value_compare;
 
 		using super_type::list;
+
+		/* Iterators */
+		using super_type::begin;
+		using super_type::end;
+		using super_type::rbegin;
+		using super_type::rend;
+
+		/* Capacity */
+		using super_type::empty;
+		using super_type::size;
+
+		/* Element access */
+		using super_type::clear;
+		using super_type::contains;
+		using super_type::remove;
+
+		using super_type::any_match_if;
+
+		explicit operator const flib::list<T> &() const
+		{
+			return *this;
+		}
 
 		virtual iterator add(const value_type &data) override
 		{
