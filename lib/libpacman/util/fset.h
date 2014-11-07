@@ -35,14 +35,13 @@ namespace flib
 	public:
 		typedef flib::list<T> super_type;
 
-		using typename super_type::iterable;
 		using typename super_type::iterator;
 		using typename super_type::value_type;
 
-		using super_type::list;
-
 		typedef Compare key_compare;
 		typedef Compare value_compare;
+
+		using super_type::list;
 
 		virtual iterator add(const value_type &data) override
 		{
@@ -52,7 +51,7 @@ namespace flib
 
 			// ensure we don't have an egality
 			if(next == end || m_compare(data, *next)) {
-				iterable add = new FListItem<T>(data);
+				typename super_type::data_holder add = new FListItem<T>(data);
 				add->insert_after(next.previous());
 				return iterator(add);
 			}

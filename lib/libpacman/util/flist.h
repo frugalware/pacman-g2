@@ -37,33 +37,35 @@ namespace flib
 	template <typename Iterator>
 	struct iterator_traits
 	{
+		typedef Iterator iterator;
+
 		typedef typename Iterator::difference_type difference_type;
 		typedef typename Iterator::pointer pointer;
 		typedef typename Iterator::reference reference;
 		typedef typename Iterator::size_type size_type;
 		typedef typename Iterator::value_type value_type;
 
-		static Iterator next(const Iterator &i)
+		static iterator next(const iterator &i)
 		{
 			return i.next();
 		}
 
-		static Iterator previous(const Iterator &i)
+		static iterator previous(const iterator &i)
 		{ 
 			return i.previous();
 		}
 
-		static reference reference_of(Iterator i)
+		static reference reference_of(iterator i)
 		{
 			return *i;
 		}
 
-		static pointer pointer_of(Iterator i)
+		static pointer pointer_of(iterator i)
 		{
 			return i.operator -> ();
 		}
 
-		static value_type value_of(const Iterator i)
+		static value_type value_of(const iterator i)
 		{
 			return *i;
 		}
@@ -399,36 +401,37 @@ namespace flib
 	template <>
 	struct iterator_traits<FCListItem *>
 	{
-		typedef FCListItem *iterable;
+		typedef FCListItem *iterator;
+
 //		typedef typename FCListItem::difference_type difference_type;
 		typedef typename FCListItem::pointer pointer;
 		typedef typename FCListItem::reference reference;
 		typedef typename FCListItem::size_type size_type;
 		typedef typename FCListItem::value_type value_type;
 
-		static iterable next(const FCListItem * const i)
+		static iterator next(const FCListItem * const i)
 		{
 			ASSERT(i != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 			return i->m_next;
 		}
 
-		static iterable previous(const FCListItem * const i)
+		static iterator previous(const FCListItem * const i)
 		{
 			ASSERT(i != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 			return i->m_previous;
 		}
 #if 0
-		static reference reference_of(iterable i)
+		static reference reference_of(iterator i)
 		{
 			return i->operator * ();
 		}
 
-		static pointer pointer_of(iterable i)
+		static pointer pointer_of(iterator i)
 		{
 			return i->operator -> ();
 		}
 
-		static value_type value_of(const iterable i)
+		static value_type value_of(const iterator i)
 		{
 			return i->operator * ();
 		}
@@ -526,7 +529,7 @@ namespace flib
 	template <typename T>
 	struct iterator_traits<FListItem<T> *>
 	{
-		typedef FListItem<T> *iterable;
+		typedef FListItem<T> *iterator;
 
 //		typedef typename FListItem<T>::difference_type difference_type;
 		typedef typename FListItem<T>::pointer pointer;
@@ -534,27 +537,27 @@ namespace flib
 		typedef typename FListItem<T>::size_type size_type;
 		typedef typename FListItem<T>::value_type value_type;
 
-		static iterable next(const iterable &i)
+		static iterator next(const iterator &i)
 		{
-			return static_cast<iterable>(iterator_traits<FCListItem *>::next(i));
+			return static_cast<iterator>(iterator_traits<FCListItem *>::next(i));
 		}
 
-		static iterable previous(const iterable &i)
+		static iterator previous(const iterator &i)
 		{
-			return static_cast<iterable>(iterator_traits<FCListItem *>::previous(i));
+			return static_cast<iterator>(iterator_traits<FCListItem *>::previous(i));
 		}
 
-		static reference reference_of(iterable i)
+		static reference reference_of(iterator i)
 		{
 			return i->operator * ();
 		}
 
-		static pointer pointer_of(iterable i)
+		static pointer pointer_of(iterator i)
 		{
 			return i->operator -> ();
 		}
 
-		static value_type value_of(const iterable i)
+		static value_type value_of(const iterator i)
 		{
 			return i->operator * ();
 		}
@@ -564,16 +567,22 @@ namespace flib
 	class list
 		: protected FCListItem
 	{
-	public:
-		typedef flib::FListItem<T> *iterable;
+	protected:
+		typedef flib::FListItem<T> *data_holder;
+		typedef flib::iterator_traits<data_holder> data_holder_traits;
 
+	public:
 		/* std::list compatibility */
-		typedef T value_type;
-		typedef flib::iterator_wrapper<iterable> iterator;
-		typedef flib::iterator_wrapper<iterable, true> reverse_iterator;
-		typedef flib::const_iterator_wrapper<iterable> const_iterator;
-		typedef flib::const_iterator_wrapper<iterable, true> const_reverse_iterator;
-		typedef size_t size_type;
+		typedef flib::iterator_wrapper<data_holder> iterator;
+		typedef flib::iterator_wrapper<data_holder, true> reverse_iterator;
+		typedef flib::const_iterator_wrapper<data_holder> const_iterator;
+		typedef flib::const_iterator_wrapper<data_holder, true> const_reverse_iterator;
+
+//		typedef typename item_type_traits::difference_type difference_type;
+		typedef typename data_holder_traits::pointer pointer;
+		typedef typename data_holder_traits::reference reference;
+		typedef typename data_holder_traits::size_type size_type;
+		typedef typename data_holder_traits::value_type value_type;
 
 		list()
 			: FCListItem(this, this)
@@ -724,8 +733,8 @@ namespace flib
 		{
 			ASSERT(position != c_end(), RET_ERR(PM_ERR_WRONG_ARGS, position));
 
-			iterable erased = (iterable)position;
-			iterable next = erased->next();
+			data_holder erased = (data_holder)position;
+			data_holder next = erased->next();
 			erased->remove();
 			delete erased;
 			return iterator(next);
@@ -798,7 +807,7 @@ namespace flib
 		virtual iterator add(const value_type &val)
 		{
 			// Default implementation is append
-			iterable newItem = new flib::FListItem<T>(val);
+			data_holder newItem = new flib::FListItem<T>(val);
 			newItem->insert_after(last());
 			return iterator(newItem);
 		}
@@ -832,22 +841,22 @@ namespace flib
 		}
 
 	public:
-		iterable c_first() const
+		data_holder c_first() const
 		{
 			ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-			return static_cast<iterable>(m_next);
+			return static_cast<data_holder>(m_next);
 		}
 
-		iterable c_last() const
+		data_holder c_last() const
 		{
 			ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-			return static_cast<iterable>(m_previous);
+			return static_cast<data_holder>(m_previous);
 		}
 
-		iterable c_end() const
+		data_holder c_end() const
 		{
 			ASSERT(this != NULL, RET_ERR(PM_ERR_WRONG_ARGS, NULL));
-			return static_cast<iterable>((FCListItem *)this);
+			return static_cast<data_holder>((FCListItem *)this);
 		}
 
 	private:
