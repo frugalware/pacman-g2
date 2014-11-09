@@ -176,7 +176,7 @@ void dump_pkg_files(PM_PKG *pkg)
 	pkgname = pacman_pkg_getinfo(pkg, PM_PKG_NAME);
 	pkgfiles = pacman_pkg_getinfo(pkg, PM_PKG_FILES);
 
-	for(pmlist_iterator_t *i = pacman_list_begin(pkgfiles), *end = pacman_list_begin(pkgfiles); i != end; i = pacman_list_next(i)) {
+	for(pmlist_iterator_t *i = pacman_list_begin(pkgfiles), *end = pacman_list_end(pkgfiles); i != end; i = pacman_list_next(i)) {
 		fprintf(stdout, "%s %s%s\n", (char *)pkgname, config->root, (char *)pacman_list_getdata(i));
 	}
 
