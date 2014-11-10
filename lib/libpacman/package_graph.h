@@ -24,7 +24,6 @@
 #include "util/fset.h"
 
 namespace libpacman {
-
 	class package_node
 		: public flib::refcounted
 	{
@@ -42,7 +41,34 @@ namespace libpacman {
 
 	typedef flib::refcounted_shared_ptr<libpacman::package_node> package_node_ptr;
 	bool operator < (const package_node_ptr &pn1, const package_node_ptr &pn2);
+} // namespace libpacman
 
+namespace flib {
+	template <>
+	struct keyed_value_traits<libpacman::package_node_ptr>
+	{
+		typedef libpacman::package_node_ptr keyed_value_type;
+		typedef flib::str key_type;
+		typedef libpacman::package_node_ptr value_type;
+
+		static const key_type &key_of(const keyed_value_type &o)
+		{
+			return o->name();
+		}
+
+		static value_type &value_of(keyed_value_type &o)
+		{
+			return o;
+		}
+
+		static const value_type &value_of(const keyed_value_type &o)
+		{
+			return o;
+		}
+	};
+} // namespace flib
+
+namespace libpacman {
 	typedef flib::set<libpacman::package_node_ptr> package_node_set;
 
 	class package_graph
