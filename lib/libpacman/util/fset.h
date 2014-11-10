@@ -99,10 +99,11 @@ namespace flib
 		{
 			iterator end = this->end();
 			/* Find insertion point. */
-			iterator next = find_insertion_point(keyed_value_traits::value_of(keyed_value));
+			iterator next = find_insertion_point(keyed_value_traits::key_of(keyed_value));
 
 			// ensure we don't have an egality
-			if(next == end || m_compare(keyed_value, *next)) {
+			if(next == end
+					|| m_compare(keyed_value_traits::key_of(keyed_value), keyed_value_traits::key_of(*next))) {
 				typename super_type::data_holder add = new FListItem<T>(keyed_value);
 				add->insert_after(next.previous());
 				return iterator(add);
@@ -151,7 +152,7 @@ namespace flib
 		{
 			return super_type::find_if_not(
 					[&] (const keyed_value_type &keyed_value) -> bool
-					{ return m_compare(keyed_value_traits::value_of(keyed_value), key); });
+					{ return m_compare(keyed_value_traits::key_of(keyed_value), key); });
 		}
 
 		Compare m_compare;
