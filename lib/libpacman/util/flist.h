@@ -700,13 +700,13 @@ namespace flib
 		template <class UnaryPredicate>
 		iterator find_if(UnaryPredicate pred)
 		{
-			return flib::find_if(begin(), end(), pred);
+			return flib::find_if<iterator, UnaryPredicate>(begin(), end(), pred);
 		}
 
 		template <class UnaryPredicate>
 		const_iterator find_if(UnaryPredicate pred) const
 		{
-			return flib::find_if(begin(), end(), pred);
+			return flib::find_if<const_iterator, UnaryPredicate>(begin(), end(), pred);
 		}
 
 		template <class UnaryPredicate>
@@ -819,25 +819,25 @@ namespace flib
 		template <class U>
 		bool all_match(const U &val) const
 		{
-			return flib::all_match(begin(), end(), val);
+			return flib::all_match<const_iterator, U>(begin(), end(), val);
 		}
 
 		template <class UnaryPredicate>
 		bool all_match_if(UnaryPredicate pred) const
 		{
-			return flib::all_match_if(begin(), end(), pred);
+			return flib::all_match_if<const_iterator, UnaryPredicate>(begin(), end(), pred);
 		}
 
 		template <class U>
 		bool any_match(const U &val) const
 		{
-			return flib::any_match(begin(), end(), val());
+			return flib::any_match<const_iterator, U>(begin(), end(), val());
 		}
 
 		template <class UnaryPredicate>
 		bool any_match_if(UnaryPredicate pred) const
 		{
-			return flib::any_match_if(begin(), end(), pred);
+			return flib::any_match_if<const_iterator, UnaryPredicate>(begin(), end(), pred);
 		}
 
 	public:
