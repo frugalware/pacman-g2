@@ -835,7 +835,7 @@ namespace flib
 		}
 
 		template <class UnaryPredicate>
-		bool any_match_if(UnaryPredicate pred)
+		bool any_match_if(UnaryPredicate pred) const
 		{
 			return flib::any_match_if(begin(), end(), pred);
 		}
