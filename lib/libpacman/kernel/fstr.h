@@ -173,14 +173,18 @@ public:
 
 	bool match(const char *s) const;
 	bool match(const flib::str &s) const;
+	bool match_all(const FStringList &l) const;
+	bool match_any(const FStringList &l) const;
 
 protected:
 	int m_flags;
 	char *m_str;
 	regex_t m_regex;
-};
 
-int f_stringlist_any_match(const FStringList *list, const FStrMatcher *matcher);
+private:
+	FStrMatcher(const FStrMatcher &o);
+	FStrMatcher &operator = (const FStrMatcher &o);
+};
 
 #endif /* F_STR_H */
 

@@ -357,18 +357,18 @@ int _pacman_strmatcher_match(const FStrMatcher *strmatcher, const package_ptr &p
 			((flags & PM_PACKAGE_FLAG_PACKAGER) && strmatcher->match(pkg->packager)) ||
 //			((flags & PM_PACKAGE_FLAG_HASH) && ) ||
 			((flags & PM_PACKAGE_FLAG_ARCH) && strmatcher->match(pkg->arch)) ||
-			((flags & PM_PACKAGE_FLAG_LOCALISED_DESCRIPTION) && f_stringlist_any_match(&pkg->desc_localized, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_LICENSE) && f_stringlist_any_match(&pkg->license, strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_REPLACES) && f_stringlist_any_match(&pkg->replaces(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_GROUPS) && f_stringlist_any_match(&pkg->groups(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_FILES) && pkg->files().any_match_if(*strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_BACKUP) && f_stringlist_any_match(&pkg->backup(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_DEPENDS) && f_stringlist_any_match(&pkg->depends(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_REMOVES) && f_stringlist_any_match(&pkg->removes(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_REQUIREDBY) && f_stringlist_any_match(&pkg->requiredby(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_CONFLICTS) && f_stringlist_any_match(&pkg->conflicts(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_PROVIDES) && f_stringlist_any_match(&pkg->provides(), strmatcher)) ||
-			((flags & PM_PACKAGE_FLAG_TRIGGERS) && f_stringlist_any_match(&pkg->triggers(), strmatcher))) {
+			((flags & PM_PACKAGE_FLAG_LOCALISED_DESCRIPTION) && strmatcher->match_any(pkg->desc_localized)) ||
+			((flags & PM_PACKAGE_FLAG_LICENSE) && strmatcher->match_any(pkg->license)) ||
+			((flags & PM_PACKAGE_FLAG_REPLACES) && strmatcher->match_any(pkg->replaces())) ||
+			((flags & PM_PACKAGE_FLAG_GROUPS) && strmatcher->match_any(pkg->groups())) ||
+			((flags & PM_PACKAGE_FLAG_FILES) && pkg->files().any_match_if<const FStrMatcher &>(*strmatcher)) ||
+			((flags & PM_PACKAGE_FLAG_BACKUP) && strmatcher->match_any(pkg->backup())) ||
+			((flags & PM_PACKAGE_FLAG_DEPENDS) && strmatcher->match_any(pkg->depends())) ||
+			((flags & PM_PACKAGE_FLAG_REMOVES) && strmatcher->match_any(pkg->removes())) ||
+			((flags & PM_PACKAGE_FLAG_REQUIREDBY) && strmatcher->match_any(pkg->requiredby())) ||
+			((flags & PM_PACKAGE_FLAG_CONFLICTS) && strmatcher->match_any(pkg->conflicts())) ||
+			((flags & PM_PACKAGE_FLAG_PROVIDES) && strmatcher->match_any(pkg->provides())) ||
+			((flags & PM_PACKAGE_FLAG_TRIGGERS) && strmatcher->match_any(pkg->triggers()))) {
 		return 1;
 	}
 	return 0;

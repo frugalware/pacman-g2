@@ -243,23 +243,14 @@ bool FStrMatcher::match(const str &s) const
 	return match(s.c_str());
 }
 
-int f_stringlist_any_match(const FStringList *list, const FStrMatcher *matcher)
+bool FStrMatcher::match_all(const FStringList &l) const
 {
-#ifndef F_NOCOMPAT
-	for(auto it = list->begin(), end = list->end(); it != end; ++it) {
-		if(matcher->match((const char *)*it) != 0) {
-			return 1;
-		}
-	}
-	return 0;
-#else
-	for(auto str: *list) {
-		if(matcher->match((const char *)str) != 0) {
-			return 1;
-		}
-	}
-	return 0;
-#endif
+	return l.all_match_if<const FStrMatcher &>(*this);
+}
+
+bool FStrMatcher::match_any(const FStringList &l) const
+{
+	return l.any_match_if<const FStrMatcher &>(*this);
 }
 
 /* vim: set ts=2 sw=2 noet: */
