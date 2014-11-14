@@ -105,9 +105,34 @@ str::size_type str::size() const
 	return 0;
 }
 
-int str::compare(const str &s) const
+int str::compare(const char *str, case_sensitivity cs) const
 {
-	return strcmp(c_str(), s.c_str());
+	switch(cs) {
+	case case_sensitive:	
+		return strcmp(c_str(), str);
+	case case_insensitive:
+		return strcasecmp(c_str(), str);
+	default:
+		abort();
+	}
+}
+
+int str::indexOf(const char *str, size_type from, case_sensitivity cs) const
+{
+	ASSERT(from >= 0 && from <= size(), RET_ERR(PM_ERR_WRONG_ARGS, -1));
+	ASSERT(!empty(), RET_ERR(PM_ERR_WRONG_ARGS, -1));
+
+	const char *start = &m_str[from];
+	const char *index = NULL;
+	switch(cs) {
+	case case_sensitive:
+		index = strstr(c_str(), start);
+	case case_insensitive:
+		index = strcasestr(c_str(), start);
+	default:
+		abort();
+	}
+	return index != NULL ? index - str: -1;
 }
 
 void str::reset(const char *s)

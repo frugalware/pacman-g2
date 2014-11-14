@@ -29,6 +29,12 @@
 #include <regex.h>
 
 namespace flib {
+	typedef enum
+	{
+		case_insensitive = 0,
+		case_sensitive = 1,
+	} case_sensitivity;
+
 	class str
 	{
 	public:
@@ -82,7 +88,40 @@ namespace flib {
 		size_type size() const;
 
 		/* Operations */
-		int compare(const str &str) const;
+		int compare(const char *str, case_sensitivity cs = case_sensitive) const;
+
+		int compare(const str &str, case_sensitivity cs = case_sensitive) const
+		{
+			return compare(str.c_str(), cs);
+		}
+
+		int contains(const char *str, case_sensitivity cs = case_sensitive) const
+		{
+			return indexOf(str, 0, cs);
+		}
+
+		int contains(const str &str, case_sensitivity cs = case_sensitive) const
+		{
+			return indexOf(str, 0, cs);
+		}
+
+		bool equals(const char *str, case_sensitivity cs = case_sensitive) const
+		{
+			return compare(str, cs) == 0;
+		}
+
+		bool equals(const str &str, case_sensitivity cs = case_sensitive) const
+		{
+			return compare(str, cs) == 0;
+		}
+
+		int indexOf(const char *str, size_type from = 0, case_sensitivity cs = case_sensitive) const;
+
+		int indexOf(const str &str, size_type from = 0, case_sensitivity cs = case_sensitive) const
+		{
+			return indexOf(str.c_str(), from, cs);
+		}
+
 		void reset(const char *s = nullptr);
 		void swap(str &o);
 
