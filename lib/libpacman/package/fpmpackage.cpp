@@ -194,6 +194,8 @@ package_ptr _pacman_fpmpackage_load(const char *pkgfile)
 			fclose(filelist);
 			has_filelist = true;
 			continue;
+		} else if (!strcmp(archive_entry_pathname (entry), ".CHANGELOG")) {
+			/* Ignore for now */
 		} else {
 			has_scriptcheck = true;
 			if(!has_filelist) {
