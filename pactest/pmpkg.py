@@ -179,6 +179,10 @@ class pmpkg:
 			os.system("tar cvf /dev/null * | sort >.FILELIST")
 			targets += " .FILELIST *"
 
+		# .CHANGELOG
+		mkfile(".CHANGELOG")
+		targets += " .CHANGELOG"
+
 		# Generate package archive
 		os.system("tar zcf %s %s" % (archive, targets))
 
