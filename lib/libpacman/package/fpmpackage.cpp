@@ -137,9 +137,7 @@ package_ptr _pacman_fpmpackage_load(const char *pkgfile)
 {
 	char *expath;
 	int i, ret;
-	int config = 0;
-	int filelist = 0;
-	int scriptcheck = 0;
+	bool has_config = false, has_filelist = false, has_scriptcheck = false;
 	register struct archive *archive;
 	struct archive_entry *entry;
 
@@ -153,7 +151,7 @@ package_ptr _pacman_fpmpackage_load(const char *pkgfile)
 	}
 
 	for(i = 0; (ret = archive_read_next_header (archive, &entry)) == ARCHIVE_OK; i++) {
-		if(config && filelist && scriptcheck) {
+		if(has_config && has_filelist && has_scriptcheck) {
 			/* we have everything we need */
 			break;
 		}
@@ -171,11 +169,11 @@ package_ptr _pacman_fpmpackage_load(const char *pkgfile)
 			if(!info->is_valid(handle->trans, pkgfile)) {
 				goto error;
 			}
-			config = 1;
+			has_config = true;
 			continue;
 		} else if(!strcmp(archive_entry_pathname (entry), "._install") || !strcmp(archive_entry_pathname (entry),  ".INSTALL")) {
 			info->scriptlet = 1;
-			scriptcheck = 1;
+			has_scriptcheck = true;
 		} else if(!strcmp(archive_entry_pathname (entry), ".FILELIST")) {
 			/* Build info->files from the filelist */
 			FILE *filelist;
@@ -194,10 +192,11 @@ package_ptr _pacman_fpmpackage_load(const char *pkgfile)
 			}
 			free(str);
 			fclose(filelist);
+			has_filelist = true;
 			continue;
 		} else {
-			scriptcheck = 1;
-			if(!filelist) {
+			has_scriptcheck = true;
+			if(!has_filelist) {
 				/* no .FILELIST present in this package..  build the filelist the */
 				/* old-fashioned way, one at a time */
 				expath = strdup(archive_entry_pathname (entry));
@@ -213,7 +212,7 @@ package_ptr _pacman_fpmpackage_load(const char *pkgfile)
 	}
 	archive_read_finish (archive);
 
-	if(!config) {
+	if(!has_config) {
 		_pacman_log(PM_LOG_ERROR, _("missing package info file in %s"), pkgfile);
 		goto error;
 	}
