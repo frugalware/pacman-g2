@@ -166,78 +166,77 @@ int querypkg(FStringList *targets)
 		return errors;
 	}
 
-		/* find packages in the db */
-		if(f_ptrlist_count(targets) == 0) {
-			/* Do not allow -Qc , -Qi , -Ql without package arg .. */
-			if(config->op_q_changelog || config->op_q_info || config->op_q_list) {
-				ERR(NL, _("This query option require an package name as argument\n"));
-				return(1);
-			}
+	/* find packages in the db */
+	if(f_ptrlist_count(targets) == 0) {
+		/* Do not allow -Qc , -Qi , -Ql without package arg .. */
+		if(config->op_q_changelog || config->op_q_info || config->op_q_list) {
+			ERR(NL, _("This query option require an package name as argument\n"));
+			return(1);
+		}
 
-			/* -Qd is not valid */
-			if(config->op_q_orphans_deps && !config->op_q_orphans) {
-				ERR(NL, _("Invalid query option , use 'pacman-g2 -Qed'\n"));
-				return(1);
-			}
+		/* -Qd is not valid */
+		if(config->op_q_orphans_deps && !config->op_q_orphans) {
+			ERR(NL, _("Invalid query option , use 'pacman-g2 -Qed'\n"));
+			return(1);
+		}
 
-			/* no target */
-			pmlist_t *cache = pacman_db_getpkgcache(db_local);
-			for(pmlist_iterator_t *lp = pacman_list_begin(cache), *end = pacman_list_end(cache); lp != end; lp = pacman_list_next(lp)) {
-				PM_PKG *tmpp = pacman_list_getdata(lp);
-				char *pkgname, *pkgver;
+		/* no target */
+		pmlist_t *cache = pacman_db_getpkgcache(db_local);
+		for(pmlist_iterator_t *lp = pacman_list_begin(cache), *end = pacman_list_end(cache); lp != end; lp = pacman_list_next(lp)) {
+			PM_PKG *tmpp = pacman_list_getdata(lp);
 
-				pkgname = pacman_pkg_getinfo(tmpp, PM_PKG_NAME);
-				pkgver = pacman_pkg_getinfo(tmpp, PM_PKG_VERSION);
-				if(config->op_q_orphans || config->op_q_foreign || config->op_q_fsck) {
-					info = pacman_db_readpkg(db_local, pkgname);
-					if(info == NULL) {
-						/* something weird happened */
-						ERR(NL, _("package \"%s\" not found\n"), pkgname);
-						return(1);
-					}
-					if(config->op_q_foreign) {
-						int match = 0;
-						for(pmlist_iterator_t *i = pacman_list_begin(pmc_syncs), *end = pacman_list_end(pmc_syncs); i != end; i = pacman_list_next(i)) {
-							PM_DB *db = list_data(i);
-							pmlist_t *cache = pacman_db_getpkgcache(db);
-							for(pmlist_iterator_t *j = pacman_list_begin(cache), *end = pacman_list_end(cache); j != end; j = pacman_list_next(j)) {
-								PM_PKG *pkg = pacman_list_getdata(j);
-								char *haystack;
-								char *needle;
-								haystack = strdup(pacman_pkg_getinfo(pkg, PM_PKG_NAME));
-								needle = strdup(pacman_pkg_getinfo(info, PM_PKG_NAME));
-								if(!strcmp(haystack, needle)) {
-									match = 1;
-								}
-								FREE(haystack);
-								FREE(needle);
-							}
-						}
-						if(match==0) {
-							MSG(NL, "%s %s\n", pkgname, pkgver);
-						}
-					}
-					if(config->op_q_orphans) {
-						int reason;
-						if(config->op_q_orphans_deps) {
-							reason = PM_PKG_REASON_EXPLICIT;
-						} else {
-							reason = PM_PKG_REASON_DEPEND;
-						}
-
-						if(pacman_pkg_getinfo(info, PM_PKG_REQUIREDBY) == NULL
-						   && (long)pacman_pkg_getinfo(info, PM_PKG_REASON) == reason) {
-							MSG(NL, "%s %s\n", pkgname, pkgver);
-						}
-					}
-					if(config->op_q_fsck) {
-						pkg_fsck(tmpp);
-					}
-				} else {
-					MSG(NL, "%s %s\n", pkgname, pkgver);
+			const char *pkgname = pacman_pkg_getinfo(tmpp, PM_PKG_NAME);
+			const char *pkgver = pacman_pkg_getinfo(tmpp, PM_PKG_VERSION);
+			if(config->op_q_orphans || config->op_q_foreign || config->op_q_fsck) {
+				info = pacman_db_readpkg(db_local, pkgname);
+				if(info == NULL) {
+					/* something weird happened */
+					ERR(NL, _("package \"%s\" not found\n"), pkgname);
+					return(1);
 				}
+				if(config->op_q_foreign) {
+					int match = 0;
+					for(pmlist_iterator_t *i = pacman_list_begin(pmc_syncs), *end = pacman_list_end(pmc_syncs); i != end; i = pacman_list_next(i)) {
+						PM_DB *db = list_data(i);
+						pmlist_t *cache = pacman_db_getpkgcache(db);
+						for(pmlist_iterator_t *j = pacman_list_begin(cache), *end = pacman_list_end(cache); j != end; j = pacman_list_next(j)) {
+							PM_PKG *pkg = pacman_list_getdata(j);
+							char *haystack;
+							char *needle;
+							haystack = strdup(pacman_pkg_getinfo(pkg, PM_PKG_NAME));
+							needle = strdup(pacman_pkg_getinfo(info, PM_PKG_NAME));
+							if(!strcmp(haystack, needle)) {
+								match = 1;
+							}
+							FREE(haystack);
+							FREE(needle);
+						}
+					}
+					if(match==0) {
+						MSG(NL, "%s %s\n", pkgname, pkgver);
+					}
+				}
+				if(config->op_q_orphans) {
+					int reason;
+					if(config->op_q_orphans_deps) {
+						reason = PM_PKG_REASON_EXPLICIT;
+					} else {
+						reason = PM_PKG_REASON_DEPEND;
+					}
+
+					if(pacman_pkg_getinfo(info, PM_PKG_REQUIREDBY) == NULL
+							&& (long)pacman_pkg_getinfo(info, PM_PKG_REASON) == reason) {
+						MSG(NL, "%s %s\n", pkgname, pkgver);
+					}
+				}
+				if(config->op_q_fsck) {
+					pkg_fsck(tmpp);
+				}
+			} else {
+				MSG(NL, "%s %s\n", pkgname, pkgver);
 			}
-		} else {
+		}
+	} else {
 		for(FPtrListIterator *targ = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); targ != end; targ = f_ptrlistitem_next(targ)) {
 			char *package = list_data(targ);
 			/* Do not allow -Qe , -Qm with package arg */
