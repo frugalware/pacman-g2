@@ -145,12 +145,12 @@ int querypkg(FStringList *targets)
 		return errors;
 	}
 
-	for(FPtrListIterator *targ = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); targ != end; targ = f_ptrlistitem_next(targ)) {
-		char *package = list_data(targ);
+	/* determine the owner of a file */
+	if(config->op_q_owns) {
+		for(FPtrListIterator *targ = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); targ != end; targ = f_ptrlistitem_next(targ)) {
+			char *package = list_data(targ);
+			PM_LIST *data;
 
-		/* determine the owner of a file */
-		if(config->op_q_owns) {
-				PM_LIST *data;
 			if((data = pacman_pkg_getowners(package)) == NULL) {
 				ERR(NL, _("No package owns %s\n"), package);
 				errors++;
@@ -163,6 +163,11 @@ int querypkg(FStringList *targets)
 			}
 			continue;
 		}
+		return errors;
+	}
+
+	for(FPtrListIterator *targ = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); targ != end; targ = f_ptrlistitem_next(targ)) {
+		char *package = list_data(targ);
 
 		/* find packages in the db */
 		if(package == NULL) {
