@@ -83,24 +83,24 @@ int querypkg(FStringList *targets)
 		return(1);
 	}
 
-	for(FPtrListIterator *targ = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); targ != end; targ = f_ptrlistitem_next(targ)) {
-		char *package = list_data(targ);
+	/* looking for groups */
+	if(config->group) {
+		if(targets == NULL) {
+			pmlist_t *cache = pacman_db_getgrpcache(db_local);
+			for(pmlist_iterator_t *lp = pacman_list_begin(cache), *end = pacman_list_end(cache); lp != end; lp = pacman_list_next(lp)) {
+				PM_GRP *grp = pacman_list_getdata(lp);
+				char *grpname = pacman_grp_getinfo(grp, PM_GRP_NAME);
+				pmlist_t *pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
 
-		/* looking for groups */
-		if(config->group) {
-			if(targets == NULL) {
-				pmlist_t *cache = pacman_db_getgrpcache(db_local);
-				for(pmlist_iterator_t *lp = pacman_list_begin(cache), *end = pacman_list_end(cache); lp != end; lp = pacman_list_next(lp)) {
-					PM_GRP *grp = pacman_list_getdata(lp);
-					char *grpname = pacman_grp_getinfo(grp, PM_GRP_NAME);
-					pmlist_t *pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
-
-					for(pmlist_iterator_t *lq = pacman_list_begin(pkgnames), *end = pacman_list_end(pkgnames); lq != end; lq = pacman_list_next(lq)) {
-						MSG(NL, "%s %s\n", grpname, (char *)pacman_list_getdata(lq));
-					}
+				for(pmlist_iterator_t *lq = pacman_list_begin(pkgnames), *end = pacman_list_end(pkgnames); lq != end; lq = pacman_list_next(lq)) {
+					MSG(NL, "%s %s\n", grpname, (char *)pacman_list_getdata(lq));
 				}
-			} else {
+			}
+		} else {
+			for(FPtrListIterator *targ = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); targ != end; targ = f_ptrlistitem_next(targ)) {
+				char *package = list_data(targ);
 				PM_GRP *grp = pacman_db_readgrp(db_local, package);
+
 				if(grp) {
 					pmlist_t *pkgnames = pacman_grp_getinfo(grp, PM_GRP_PKGNAMES);
 					for(pmlist_iterator_t *lq = pacman_list_begin(pkgnames), *end = pacman_list_end(pkgnames); lq != end; lq = pacman_list_next(lq)) {
@@ -111,8 +111,12 @@ int querypkg(FStringList *targets)
 					return(2);
 				}
 			}
-			continue;
 		}
+		return errors;
+	}
+
+	for(FPtrListIterator *targ = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); targ != end; targ = f_ptrlistitem_next(targ)) {
+		char *package = list_data(targ);
 
 		/* output info for a .tar.gz package */
 		if(config->op_q_isfile) {
