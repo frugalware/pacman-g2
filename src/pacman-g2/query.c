@@ -166,11 +166,8 @@ int querypkg(FStringList *targets)
 		return errors;
 	}
 
-	for(FPtrListIterator *targ = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); targ != end; targ = f_ptrlistitem_next(targ)) {
-		char *package = list_data(targ);
-
 		/* find packages in the db */
-		if(package == NULL) {
+		if(f_ptrlist_count(targets) == 0) {
 			/* Do not allow -Qc , -Qi , -Ql without package arg .. */
 			if(config->op_q_changelog || config->op_q_info || config->op_q_list) {
 				ERR(NL, _("This query option require an package name as argument\n"));
@@ -241,6 +238,8 @@ int querypkg(FStringList *targets)
 				}
 			}
 		} else {
+		for(FPtrListIterator *targ = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); targ != end; targ = f_ptrlistitem_next(targ)) {
+			char *package = list_data(targ);
 			/* Do not allow -Qe , -Qm with package arg */
 			if(config->op_q_orphans || config->op_q_foreign) {
 				ERR(NL, _("This query option cannot have an package argument\n"));
@@ -278,12 +277,10 @@ int querypkg(FStringList *targets)
                                char *pkgname = pacman_pkg_getinfo(info, PM_PKG_NAME);
                                char *pkgver = pacman_pkg_getinfo(info, PM_PKG_VERSION);
                                MSG(NL, "%s %s\n", pkgname, pkgver);
-
 			}
 		}
 	}
-
-	return(errors);
+	return errors;
 }
 
 /* vim: set ts=2 sw=2 noet: */
