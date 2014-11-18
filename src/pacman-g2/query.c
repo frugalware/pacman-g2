@@ -85,7 +85,7 @@ int querypkg(FStringList *targets)
 
 	/* looking for groups */
 	if(config->group) {
-		if(targets == NULL) {
+		if(f_ptrlist_count(targets) == 0) {
 			pmlist_t *cache = pacman_db_getgrpcache(db_local);
 			for(pmlist_iterator_t *lp = pacman_list_begin(cache), *end = pacman_list_end(cache); lp != end; lp = pacman_list_next(lp)) {
 				PM_GRP *grp = pacman_list_getdata(lp);
@@ -115,15 +115,16 @@ int querypkg(FStringList *targets)
 		return errors;
 	}
 
-	for(FPtrListIterator *targ = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); targ != end; targ = f_ptrlistitem_next(targ)) {
-		char *package = list_data(targ);
+	/* output info for a .tar.gz package */
+	if(config->op_q_isfile) {
+		if(f_ptrlist_count(targets) == 0) {
+			ERR(NL, _("no package file was specified for --file\n"));
+			return 1;
+		}
 
-		/* output info for a .tar.gz package */
-		if(config->op_q_isfile) {
-			if(package == NULL) {
-				ERR(NL, _("no package file was specified for --file\n"));
-				return(1);
-			}
+		for(FPtrListIterator *targ = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); targ != end; targ = f_ptrlistitem_next(targ)) {
+			char *package = list_data(targ);
+
 			if((info = pacman_pkg_load(package)) == NULL) {
 				ERR(NL, _("failed to load package '%s' (%s)\n"), package, pacman_strerror(pm_errno));
 				return(1);
@@ -140,8 +141,12 @@ int querypkg(FStringList *targets)
 				                   (char *)pacman_pkg_getinfo(info, PM_PKG_VERSION));
 			}
 			FREEPKG(info);
-			continue;
 		}
+		return errors;
+	}
+
+	for(FPtrListIterator *targ = f_ptrlist_first(targets), *end = f_ptrlist_end(targets); targ != end; targ = f_ptrlistitem_next(targ)) {
+		char *package = list_data(targ);
 
 		/* determine the owner of a file */
 		if(config->op_q_owns) {
