@@ -850,7 +850,11 @@ pmpkg_t *pacman_pkg_load(char *filename)
 	/* Sanity checks */
 	ASSERT(!_pacman_strempty(filename), RET_ERR(PM_ERR_WRONG_ARGS, NULL));
 
-	return c_cast(_pacman_fpmpackage_load(filename));
+	package_ptr pkg =  _pacman_fpmpackage_load(filename);
+	if (pkg != nullptr) {
+		pkg->acquire();
+	}
+	return c_cast(pkg);
 }
 
 /** Free a package.
@@ -866,6 +870,7 @@ int pacman_pkg_free(pmpkg_t *_pkg)
 	ASSERT(pkg != NULL, RET_ERR(PM_ERR_WRONG_ARGS, -1));
 
 	/* Only free packages loaded in user space */
+	pkg->release();
 	return 0;
 }
 
