@@ -312,7 +312,7 @@ int __pmtrans_t::add(const char *target, pmtranstype_t type, int flags, pmsyncpk
 			}
 		}
 		if(pkg_new == nullptr) {
-			RET_ERR(PM_ERR_PKG_NOT_FOUND, -1);
+			RET_DEBUG(PM_ERR_PKG_NOT_FOUND, -1);
 		}
 
 		pkg_local = db_local->find(pkg_new->name());
@@ -1032,7 +1032,7 @@ int _pacman_fpmpackage_install(package_ptr pkg, pmtranstype_t type, pmtrans_t *t
 						_pacman_log(PM_LOG_DEBUG, _("checking md5 hashes for %s"), pathname);
 						_pacman_log(PM_LOG_DEBUG, _("current:  %s"), md5_local);
 						_pacman_log(PM_LOG_DEBUG, _("new:      %s"), md5_pkg);
-					} else {	
+					} else {
 						_pacman_log(PM_LOG_DEBUG, _("checking sha1 hashes for %s"), pathname);
 						_pacman_log(PM_LOG_DEBUG, _("current:  %s"), sha1_local);
 						_pacman_log(PM_LOG_DEBUG, _("new:      %s"), sha1_pkg);
@@ -1235,7 +1235,7 @@ struct trans_event_table_item {
 		int event;
 		const char *hook;
 	} pre, post;
-	int progress;	
+	int progress;
 } trans_event_table[4] = {
 	{ 0 }, // PM_TRANS_TYPE_...
 	{ // PM_TRANS_TYPE_ADD
@@ -1702,7 +1702,7 @@ int __pmtrans_t::commit(FPtrList **data)
 		_pacman_log(PM_LOG_FLOW2, _("adding database entry '%s'"), pkg_new->name());
 		if(db_local->write(pkg_new, INFRQ_ALL)) {
 			_pacman_log(PM_LOG_ERROR, _("error updating database for %s-%s!"),
-			          pkg_new->name(), pkg_new->version());
+					  pkg_new->name(), pkg_new->version());
 			RET_ERR(PM_ERR_DB_WRITE, -1);
 		}
 		if(db_local->add_pkgincache(pkg_new) == -1) {
@@ -1740,7 +1740,7 @@ int __pmtrans_t::commit(FPtrList **data)
 			depinfo->requiredby().add(pkg_new->name());
 			if(db_local->write(depinfo, INFRQ_DEPENDS)) {
 				_pacman_log(PM_LOG_ERROR, _("could not update 'requiredby' database entry %s-%s"),
-				          depinfo->name(), depinfo->version());
+						  depinfo->name(), depinfo->version());
 			}
 		}
 

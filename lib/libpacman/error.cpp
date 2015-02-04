@@ -152,6 +152,8 @@ char *pacman_strerror(int err)
 			return _("this package is not for this architecture");
 		case PM_ERR_RETRIEVE:
 			return _("could not retrieve the file");
+		case PM_FILE_INVALID:
+			return _("invalid file");
 		default:
 			return _("unexpected error");
 	}

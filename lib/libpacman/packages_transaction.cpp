@@ -51,7 +51,7 @@ _pacman_packages_transaction_set_state(pmtrans_t *trans, int new_state)
 	trigger_function = trigger_function_table[new_state];
 
 	if(_pacman_strempty(trigger_function)) {
-		_pacman_log(PM_LOG_ERROR, _("Missing trigger_function for state: %d"), new_state);
+		_pacman_log(PM_LOG_DEBUG, _("Missing trigger_function for state: %d"), new_state);
 		/* Nothing to do */
 		return 0;
 	}

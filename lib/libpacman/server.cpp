@@ -539,6 +539,7 @@ int _pacman_downloadfiles_forreal(Handle *handle, const FPtrList &servers, const
 					_pacman_curl_fini(&curldownloader);
 					switch(success) {
 					case PM_DOWNLOAD_ERROR:
+						_pacman_log(PM_LOG_DEBUG, _("download error for file: %s\n"), output);
 						goto error;
 					case PM_DOWNLOAD_OK: {
                         if(!checkFile(dlFileType, output)) {
@@ -552,7 +553,9 @@ int _pacman_downloadfiles_forreal(Handle *handle, const FPtrList &servers, const
 						complete.add(fn);
 						/* rename "output.part" file to "output" file */
 						snprintf(completefile, PATH_MAX, "%s/%s", localpath, fn);
-						rename(output, completefile);
+						if(rename(output, completefile)) {
+								_pacman_log(PM_LOG_DEBUG, _("rename error from %s to %s\n"), output, completefile);
+						}
 						}
 						break;
 					case PM_DOWNLOAD_OK_CACHE:
