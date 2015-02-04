@@ -75,22 +75,31 @@ int checkFile(pmfiletype_t fileType, char *file)
 
 int checkXZ(char *file)
 {
-    FILE *fp;
-    fp = fopen(file, "rb");
-    if (fp == NULL) {
-        RET_ERR(PM_FILE_INVALID, 0);
-    }
-    uint8_t magicCh;
-    const uint8_t XZ_HEADER_MAGIC[6] = { 0xFD, '7', 'z', 'X', 'Z', 0x00 };
-    for(int i=0;i<6;i++) {
-        fscanf(fp, "%c", &magicCh);
-        if(magicCh != XZ_HEADER_MAGIC[i]) {
-            fclose(fp);
-            RET_ERR(PM_FILE_INVALID, 0);
-        }
-    }
-    fclose(fp);
-    return 1;
+	FILE *fp;
+	fp = fopen(file, "rb");
+	if (fp == NULL) {
+		RET_ERR(PM_FILE_INVALID, 0);
+	}
+	uint8_t magicCh;
+	const uint8_t XZ_HEADER_MAGIC[6] = { 0xFD, '7', 'z', 'X', 'Z', 0x00 };
+	//we still have bz2 archives
+	//TODO remove this once we get switch all packages to xz
+	const uint8_t BZ2_HEADER_MAGIC[3] = { 0x42, 0x5A, 0x68 };
+	int sig_len = 6;
+	for(int i=0;i<sig_len;i++) {
+		fscanf(fp, "%c", &magicCh);
+		if(magicCh == BZ2_HEADER_MAGIC[i]) {
+			sig_len = 3;
+		}
+		else {
+			if(magicCh != XZ_HEADER_MAGIC[i]) {
+				fclose(fp);
+				RET_ERR(PM_FILE_INVALID, 0);
+			}
+		}
+	}
+	fclose(fp);
+	return 1;
 }
 
 /* vim: set ts=2 sw=2 noet: */
