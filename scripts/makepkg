@@ -832,6 +832,8 @@ makepkg_init() {
 }
 
 chroot_umount() {
+    msg "Kill dirmngr if it is running"
+    gpgconf --kill dirmngr
     msg "Attempting to umount chroot directories..."
     umount $CHROOTDIR/proc >/dev/null
     umount $CHROOTDIR/sys >/dev/null
