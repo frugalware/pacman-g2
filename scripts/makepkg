@@ -1904,13 +1904,8 @@ if [ "$GENSHA1" = "0" ]; then
 					msg "Importing $pkgname.key"
 					gpg --import $startdir/$pkgname.key
 				fi
-				msg "Killing all gpg components"
-				gpgconf --kill gpg
-				gpgconf --kill gpg-agent
-				gpgconf --kill scdaemon
-				gpgconf --kill gpgsm
-				gpgconf --kill dirmngr
-				gpgconf --kill pinentry
+				msg "Killing dirmngr"
+				killall dirmngr
 				msg "Validating source files with gpg"
 				errors=0
 				idx=0
@@ -1941,13 +1936,8 @@ if [ "$GENSHA1" = "0" ]; then
 					fi
 					idx=$(($idx+1))
 				done
-				msg "Killing all gpg components"
-				gpgconf --kill gpg
-				gpgconf --kill gpg-agent
-				gpgconf --kill scdaemon
-				gpgconf --kill gpgsm
-				gpgconf --kill dirmngr
-				gpgconf --kill pinentry
+				msg "Killing dirmngr"
+				killall dirmngr
 				if [ $errors -gt 0 ]; then
 					error "One or more files did not pass the validity check!"
 					return 1
