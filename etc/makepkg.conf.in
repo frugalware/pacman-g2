@@ -96,3 +96,6 @@ SBU="1"
 
 # Uncomment the following line if you want build time to be more "human readable."
 #HRBT="1"
+
+# Options for xz used in compression
+export XZ_OPT="--threads=0 -9"
