@@ -32,6 +32,7 @@ PKGDEST=$startdir
 USE_COLOR="n"
 
 # Options
+
 BUILDSCRIPT="./FrugalBuild"
 CLEANUP=0
 CLEANCACHE=0
@@ -1344,16 +1345,23 @@ if grep -i -q "^# Compiling Time: [~0-9\.]\+ SBU$" $BUILDSCRIPT && \
 	fi
 fi
 
-if [ "`check_option NOASNEEDED`" ]; then
-	msg "Using --no-as-needed in LDFLAGS"
-	LDFLAGS+=" -Wl,--no-as-needed"
-else
-	if [ "`check_option ASNEEDED`" ]; then
-		msg "Using --as-needed in LDFLAGS"
-		LDFLAGS+=" -Wl,--as-needed"
-	fi
+
+if [ "`check_option ASNEEDED`" ]; then
+        error "You are using deprecated option 'asneeded'."
+        error "This is now default, please remove and retry."
+	exit 1
 fi
-export LDFLAGS
+
+if [ "`check_option NOASNEEDED`" ]; then
+	warning "Using --no-as-needed in LDFLAGS ( are you sure ? )"
+	LDFLAGS+=" -Wl,--no-as-needed"
+	export LDFLAGS
+else
+	msg "Using --as-needed in LDFLAGS ( default )"
+	LDFLAGS+=" -Wl,--as-needed"
+	export LDFLAGS
+fi
+
 
 # retrieve sources
 msg "Retrieving Sources..."
