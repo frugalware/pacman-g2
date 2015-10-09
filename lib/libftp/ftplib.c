@@ -956,6 +956,7 @@ GLOBALDEF int FtpWrite(void *buf, int len, netbuf *nData)
 GLOBALDEF int FtpClose(netbuf *nData)
 {
 	netbuf *ctrl;
+	int errcode;
 	switch (nData->dir)
 	{
 		case FTPLIB_WRITE:
@@ -968,8 +969,9 @@ GLOBALDEF int FtpClose(netbuf *nData)
 			shutdown(nData->handle,2);
 			net_close(nData->handle);
 			ctrl = nData->ctrl;
+			errcode = nData->errcode;
 			free(nData);
-			if (ctrl && (nData->errcode != ETIMEDOUT))
+			if (ctrl && (errcode != ETIMEDOUT))
 			{
 				ctrl->data = NULL;
 				return(readresp('2', ctrl));
