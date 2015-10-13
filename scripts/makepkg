@@ -1883,7 +1883,7 @@ elif [ "$RMDEPS" = "1" -a "$DEP_SUDO" = "1" ]; then
 	fi
 fi
 
-msg "This package was build with:"
+msg "This package was built with:"
 msg2 "HOST_CFLAGS:    $CFLAGS "
 msg2 "HOST_CXXFLAGS:  $CXXFLAGS "
 msg2 "HOST_LDFLAGS:   $LDFLAGS "
