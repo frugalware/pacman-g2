@@ -1199,7 +1199,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		chroot_clean
 		# check optimization and write it to $BUILDSCRIPT
 		msg "Checking for optimization..."
-		if grep -q -- "\($CFLAGS\|$CXXFLAGS\)" "${BUILDLOG}" ; then
+		if cat "${BUILDLOG}" | grep -v HOST_ | grep -q -- "\($CFLAGS\|$CXXFLAGS\)" ; then
 			if ! grep -q "# optimization" "${BUILDSCRIPT}" ; then
 				$ECHO -e "\n# optimization OK" >> "${BUILDSCRIPT}"
 			fi
