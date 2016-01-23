@@ -1713,9 +1713,18 @@ do
 	## try to find broken packages installing stuff in / , eg: /include
 	if [ -d ${dir}/include ] || [ -d ${dir}/share ]; then
 		error "Broken package detected files are installed in /"
+		error "eg: /include or /share .."
 		error "--prefix=/usr may be broken"
 		error "Bailing out, please fix your package!"
 		exit 1
+	fi
+	## broken /usr/share
+	if [ -d ${dir}/usr/man ] || [ -d ${dir}/usr/docs ] || [ -d ${dir}/usr/$pkgname ]; then
+		error "Broken package detected files are installed in /usr"
+		error "but should be /usr/share"
+		error "datadir may be broken!"
+		error "Bailing out, please fix your package!"
+	exit 1
 	fi
 	## wrong unit path for systemd
 	if [ -d ${dir}/usr/lib/systemd/system ]; then
@@ -1734,6 +1743,17 @@ do
 			error "but should be /lib or /usr/lib!"
 			error "Bailing out, please fix your package!"
 			exit 1
+		fi
+	fi
+	## NOTHING should own /tmp or install files in /tmp
+	## only frugalware since it has the layout
+	if [ -d ${dir}/tmp ]; then
+		if [[ ! $pkgname =~ "frugalware" ]]; then
+			error "Drunk devels detected.."
+			error "Files are installed in /tmp"
+			error "OR /tmp dir exists"
+			error "Use Frm tmp in your FrugalBuild"
+			error "Bailing out, please fix your package!"
 		fi
 	fi
 	## don't insstall files in /usr/<file>
