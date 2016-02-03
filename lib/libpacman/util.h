@@ -32,6 +32,7 @@
 #include "/usr/local/include/archive.h"
 #include "/usr/local/include/archive_entry.h"
 #else
+#include <time.h>
 #include <archive.h>
 #include <archive_entry.h>
 #endif
