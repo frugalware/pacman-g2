@@ -293,14 +293,14 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 	struct archive_entry *entry;
 	char expath[PATH_MAX];
 	pmlist_t *cache = NULL, *i;
-	DIR *handle;
+	DIR *dirhandle;
 	struct dirent *ent;
 	struct stat buf;
 
 	/* first scan though the old dir to see what package entries do we have */
-	handle = opendir(prefix);
-	if (handle != NULL) {
-		while((ent = readdir(handle)) != NULL) {
+	dirhandle = opendir(prefix);
+	if (dirhandle != NULL) {
+		while((ent = readdir(dirhandle)) != NULL) {
 			cache_t *c;
 			if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
 				continue;
@@ -318,7 +318,7 @@ int _pacman_unpack(const char *archive, const char *prefix, const char *fn)
 			cache = _pacman_list_add(cache, c);
 		}
 	}
-	closedir(handle);
+	closedir(dirhandle);
 
 	/* now extract the new entries */
 	if ((_archive = archive_read_new ()) == NULL)
