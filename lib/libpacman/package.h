@@ -103,7 +103,7 @@ int _pacman_pkg_splitname(char *target, char *name, char *version, int witharch)
 void *_pacman_pkg_getinfo(pmpkg_t *pkg, unsigned char parm);
 pmlist_t *_pacman_pkg_getowners(char *filename);
 
-int _pacman_pkg_filename(char *str, size_t size, const pmpkg_t *pkg);
+void _pacman_pkg_filename(char *str, size_t size, const pmpkg_t *pkg);
 
 #endif /* _PACMAN_PACKAGE_H */
 

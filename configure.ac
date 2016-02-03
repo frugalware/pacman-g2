@@ -439,10 +439,10 @@ if test x$strict = xyes ; then
 		-Wredundant-decls -Wunused-variable -Wunused-parameter \
 		-Wparentheses -Wno-long-long -Wwrite-strings -Wimplicit \
 		-Wnested-externs -Wno-unused -Wundef -Wpacked \
-		-Wbad-function-cast -Wunused-function -Wunused-label \
+		-Wunused-function -Wunused-label \
 		-Wunused-value -Wfloat-equal -Wchar-subscripts -Wswitch \
 		-Wmissing-braces -Wsequence-point -Wunknown-pragmas \
-		-Wdeclaration-after-statement -Wsign-compare"
+		-Wdeclaration-after-statement -Wsign-compare -Wno-deprecated-declarations"
 	AC_MSG_RESULT(yes)
 else
 	AC_MSG_RESULT(no)

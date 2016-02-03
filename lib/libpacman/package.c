@@ -645,7 +645,7 @@ pmlist_t *_pacman_pkg_getowners(char *filename)
 	return(ret);
 }
 
-int _pacman_pkg_filename(char *str, size_t size, const pmpkg_t *pkg)
+void _pacman_pkg_filename(char *str, size_t size, const pmpkg_t *pkg)
 {
 	snprintf(str, size, "%s-%s-%s%s",
 			pkg->name, pkg->version, pkg->arch, PM_EXT_PKG);
