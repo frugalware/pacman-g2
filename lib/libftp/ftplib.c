@@ -1473,7 +1473,7 @@ static int HttpSendCmd(const char *cmd, char expresp, netbuf *nControl)
  *
  * return 1 if successful, 0 otherwise
  */
-static int HttpXfer(const char *localfile, const char *path, int *size,
+static int HttpXfer(const char *localfile, int *size,
 		netbuf *nControl, int typ, int mode)
 {
 	int l,c;
@@ -1481,9 +1481,6 @@ static int HttpXfer(const char *localfile, const char *path, int *size,
 	FILE *local = NULL;
 	int rv=1;
 	int bytes = 0;
-
-	/* we don't use this 'path' variable */
-	path=NULL;
 
 	if (localfile != NULL)
 	{
@@ -1656,7 +1653,7 @@ GLOBALREF int HttpGet(const char *host, const char *outputfile, const char *path
 			break;
 	}
 
-	return HttpXfer(outputfile, path, size, nControl, FTPLIB_FILE_READ, FTPLIB_IMAGE);
+	return HttpXfer(outputfile, size, nControl, FTPLIB_FILE_READ, FTPLIB_IMAGE);
 }
 
 /*
