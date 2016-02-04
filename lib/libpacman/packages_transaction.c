@@ -42,6 +42,7 @@ int _pacman_packages_transaction_init(pmtrans_t *trans)
 	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	trans->set_state = _pacman_packages_transaction_set_state;
+	return 0;
 }
 
 /* vim: set ts=2 sw=2 noet: */
