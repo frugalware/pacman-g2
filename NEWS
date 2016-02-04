@@ -1,5 +1,6 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.9.1         - various bug fixes
 3.9.0         - various bug fixes
               - initial implementation for future hooks system
 3.8.9         - makepkg: supports kernel.org gpg signatures now
