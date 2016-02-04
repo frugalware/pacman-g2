@@ -291,7 +291,7 @@ void cb_trans_conv(unsigned char event, void *data1, void *data2, void *data3, i
 }
 
 /* FIXME: log10() want float .. */
-void cb_trans_progress(unsigned char event, char *pkgname, int percent, int count, int remaining)
+void cb_trans_progress(unsigned char event, const char *pkgname, int percent, int count, int remaining)
 {
 	static int prevpercent=0; /* for less progressbar output */
 	int i, hash;
