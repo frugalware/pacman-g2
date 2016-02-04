@@ -1564,7 +1564,7 @@ GLOBALREF int HttpGet(const char *host, const char *outputfile, const char *path
 		/* Format:
 		 * "If-Modified-Since: Sat, 29 Oct 1994 19:43:31 GMT\r\n"
 		 * We don't like strftime()'s localized output. */
-		snprintf(lang, sizeof(lang), setlocale(LC_ALL, NULL));
+		snprintf(lang, sizeof(lang), "%s", setlocale(LC_ALL, NULL));
 		setlocale(LC_ALL, "C");
 		strftime(mtime, sizeof(mtime), "%a, %d %b %Y %H:%M:%S GMT", mtime1);
 		setlocale(LC_ALL, lang);

@@ -413,13 +413,14 @@ dnl Enable or disable debug code
 AC_MSG_CHECKING(for debug mode request)
 if test x$debug = xyes ; then
 	AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xyes)
-	CFLAGS="-ggdb3 -Wall -std=c99 -DPACMAN_DEBUG"
+	CFLAGS="-ggdb3 -Wall -DPACMAN_DEBUG"
 	AC_MSG_RESULT(yes)
 else
 	AM_CONDITIONAL(PACMAN_DEBUG, test x$debug = xno)
-	CFLAGS="$CFLAGS -std=c99"
 	AC_MSG_RESULT(no)
 fi
+
+CFLAGS="$CFLAGS -std=c99 -Wformat -Wformat-security"
 
 dnl Enable or disable building with Werror
 AC_MSG_CHECKING(for building with Werror)
