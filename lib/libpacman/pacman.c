@@ -58,6 +58,7 @@
 #include "provide.h"
 #include "server.h"
 #include "pacman.h"
+#include "packages_transaction.h"
 
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 
