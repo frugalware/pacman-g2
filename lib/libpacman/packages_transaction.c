@@ -39,7 +39,7 @@ _pacman_packages_transaction_set_state(pmtrans_t *trans, int new_state)
 
 int _pacman_packages_transaction_init(pmtrans_t *trans)
 {
-	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, NULL));
+	ASSERT(trans != NULL, RET_ERR(PM_ERR_TRANS_NULL, -1));
 
 	trans->set_state = _pacman_packages_transaction_set_state;
 }
