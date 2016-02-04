@@ -104,7 +104,7 @@ void pm_fprintf(FILE *file, unsigned short line, const char *fmt, ...)
 	vsnprintf(str, LOG_STR_LEN, fmt, args);
 	va_end(args);
 
-	fprintf(file, str);
+	fprintf(file, "%s", str);
 	fflush(file);
 
 	neednl = (str[strlen(str)-1] == 10) ? 0 : 1;
