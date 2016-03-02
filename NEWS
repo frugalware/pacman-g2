@@ -1,5 +1,7 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.9.2         - makepkg fixes
+	      - added fw32-makepkg tool
 3.9.1         - various bug fixes
 3.9.0         - various bug fixes
               - initial implementation for future hooks system
