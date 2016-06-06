@@ -1734,7 +1734,7 @@ do
 	fi
 	## broken /usr/share
 	for file in man docs $pkgname; do
-		if [ -d ${dir}/usr/$file ; then
+		if [ -d ${dir}/usr/$file ]; then
 			error "Broken package detected files are installed"
 			error "in /usr/$file but should be /usr/share/$file"
 			error "Bailing out, please fix your package!"
