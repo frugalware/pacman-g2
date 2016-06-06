@@ -1733,13 +1733,14 @@ do
 		exit 1
 	fi
 	## broken /usr/share
-	if [ -d ${dir}/usr/man ] || [ -d ${dir}/usr/docs ] || [ -d ${dir}/usr/$pkgname ]; then
-		error "Broken package detected files are installed in /usr"
-		error "but should be /usr/share"
-		error "datadir may be broken!"
-		error "Bailing out, please fix your package!"
-	exit 1
-	fi
+	for file in man docs $pkgname; do
+		if [ -d ${dir}/usr/$file ; then
+			error "Broken package detected files are installed"
+			error "in /usr/$file but should be /usr/share/$file"
+			error "Bailing out, please fix your package!"
+			exit 1
+		fi
+	done
 	## wrong unit path for systemd
 	if [ -d ${dir}/usr/lib/systemd/system ]; then
 		error "Your package has broken PATH for systemd unit files"
