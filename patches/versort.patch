@@ -1,0 +1,21 @@
+diff --git a/merge/src/util/Makefile.am b/merge/src/util/Makefile.am
+index 6a89ea6..d3d9295 100644
+--- a/merge/src/util/Makefile.am
++++ b/merge/src/util/Makefile.am
+@@ -4,7 +4,7 @@ dbpath    = ${localstatedir}/lib/pacman/
+ gpgdir    = ${sysconfdir}/pacman.d/gnupg/
+ cachedir  = ${localstatedir}/cache/pacman/pkg/
+ 
+-bin_PROGRAMS = vercmp testpkg cleanupdelta pacsort pactree
++bin_PROGRAMS = vercmp testpkg cleanupdelta pacsort pactree versort
+ 
+ AM_CPPFLAGS = \
+ 	-imacros $(top_builddir)/config.h \
+@@ -33,4 +33,7 @@ testpkg_LDADD = $(top_builddir)/lib/libalpm/.libs/libalpm.la
+ vercmp_SOURCES = vercmp.c
+ vercmp_LDADD = $(top_builddir)/lib/libalpm/libalpm_la-version.lo
+ 
++versort_SOURCES = versort.c
++versort_LDADD = $(top_builddir)/lib/libalpm/libalpm_la-version.lo
++
+ # vim:set noet:
