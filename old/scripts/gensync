@@ -158,10 +158,6 @@ db_write_entry()
 		echo "%FORCE%" >>desc
 		echo "" >>desc
 	fi
-	if [ "`check_option STICK`" ]; then
-		echo "%STICK%" >>desc
-		echo "" >>desc
-	fi
 	# depends
 	: >depends
 	if [ ${#depends[*]} -gt 0 -o ${#rodepends[*]} -gt 0 ]; then

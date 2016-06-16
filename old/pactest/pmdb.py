@@ -156,9 +156,6 @@ class pmdb:
 			elif line == "%FORCE%":
 				fd.readline()
 				pkg.force = 1
-			elif line == "%STICK%":
-				fd.readline()
-				pkg.stick = 1
 		fd.close()
 		pkg.checksum["desc"] = getsha1sum(filename)
 		pkg.mtime["desc"] = getmtime(filename)
@@ -203,9 +200,6 @@ class pmdb:
 			elif line == "%FORCE%":
 				fd.readline()
 				pkg.force = 1
-			elif line == "%STICK%":
-				fd.readline()
-				pkg.stick = 1
 		fd.close()
 		pkg.checksum["depends"] = getsha1sum(filename)
 		pkg.mtime["depends"] = getmtime(filename)
@@ -267,8 +261,6 @@ class pmdb:
 				data.append(_mksection("REPLACES", pkg.replaces))
 			if pkg.force:
 				data.append(_mksection("FORCE", ""))
-			if pkg.stick:
-				data.append(_mksection("STICK", ""))
 		if data:
 			data.append("")
 		filename = os.path.join(path, "desc")
