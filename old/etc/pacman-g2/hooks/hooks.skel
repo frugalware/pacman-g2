@@ -1,5 +1,0 @@
-#!/bin/sh
-
-op=$1
-shift
-$op $*
