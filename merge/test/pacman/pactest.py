@@ -1,4 +1,4 @@
-#! /usr/bin/python2
+#! /usr/bin/python
 #
 #  pactest : run automated testing on the pacman binary
 #
