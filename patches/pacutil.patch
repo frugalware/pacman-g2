@@ -1,0 +1,27 @@
+diff --git a/merge/test/pacman/util.py b/merge/test/pacman/util.py
+old mode 100644
+new mode 100755
+index 208e2f4..81ebb0d
+--- a/merge/test/pacman/util.py
++++ b/merge/test/pacman/util.py
+@@ -25,15 +25,15 @@ SELFPATH    = os.path.abspath(os.path.dirname(__file__))
+ 
+ # ALPM
+ PM_ROOT     = "/"
+-PM_DBPATH   = "var/lib/pacman"
++PM_DBPATH   = "var/lib/pacman-g2"
+ PM_SYNCDBPATH = "var/lib/pacman/sync"
+-PM_LOCK     = "var/lib/pacman/db.lck"
+-PM_CACHEDIR = "var/cache/pacman/pkg"
+-PM_EXT_PKG  = ".pkg.tar.gz"
++PM_LOCK     = "tmp/pacman-g2.lck"
++PM_CACHEDIR = "var/cache/pacman-g2/pkg"
++PM_EXT_PKG  = ".fpm"
+ PM_HOOKDIR  = "etc/pacman.d/hooks"
+ 
+ # Pacman
+-PACCONF     = "etc/pacman.conf"
++PACCONF     = "etc/pacman-g2.conf"
+ 
+ # Pactest
+ TMPDIR      = "tmp"
