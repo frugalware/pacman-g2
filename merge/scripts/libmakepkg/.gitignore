@@ -1,0 +1,11 @@
+lint_package.sh
+lint_package/*.sh
+lint_pkgbuild.sh
+lint_pkgbuild/*.sh
+source.sh
+source/*.sh
+tidy.sh
+tidy/*.sh
+util.sh
+util/pkgbuild.sh
+util/source.sh
