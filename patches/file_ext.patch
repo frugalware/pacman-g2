@@ -1,0 +1,64 @@
+diff --git a/merge/lib/libalpm/alpm.c b/merge/lib/libalpm/alpm.c
+index 6f02913..de584cf 100644
+--- a/merge/lib/libalpm/alpm.c
++++ b/merge/lib/libalpm/alpm.c
+@@ -73,7 +73,7 @@ alpm_handle_t SYMEXPORT *alpm_initialize(const char *root, const char *dbpath,
+ 	myhandle->hookdirs = alpm_list_add(NULL, hookdir);
+ 
+ 	/* set default database extension */
+-	STRDUP(myhandle->dbext, ".db", goto cleanup);
++	STRDUP(myhandle->dbext, ".fdb", goto cleanup);
+ 
+ 	lockfilelen = strlen(myhandle->dbpath) + strlen(lf) + 1;
+ 	myhandle->lockfile = calloc(lockfilelen, sizeof(char));
+diff --git a/merge/src/pacman/callback.c b/merge/src/pacman/callback.c
+index 1e1a4cd..05c07c2 100644
+--- a/merge/src/pacman/callback.c
++++ b/merge/src/pacman/callback.c
+@@ -778,7 +778,7 @@ void cb_dl_progress(const char *filename, off_t file_xfered, off_t file_total)
+ 	fname = malloc(len + 1);
+ 	memcpy(fname, filename, len);
+ 	/* strip package or DB extension for cleaner look */
+-	if((p = strstr(fname, ".pkg")) || (p = strstr(fname, ".db")) || (p = strstr(fname, ".files"))) {
++	if((p = strstr(fname, ".fpm")) || (p = strstr(fname, ".fdb")) || (p = strstr(fname, ".files"))) {
+ 		/* tack on a .sig suffix for signatures */
+ 		if(memcmp(&filename[len - 4], ".sig", 4) == 0) {
+ 			memcpy(p, ".sig", 4);
+diff --git a/merge/src/pacman/sync.c b/merge/src/pacman/sync.c
+index 041b6b2..490f860 100644
+--- a/merge/src/pacman/sync.c
++++ b/merge/src/pacman/sync.c
+@@ -98,9 +98,9 @@ static int sync_cleandb(const char *dbpath)
+ 		}
+ 
+ 		len = strlen(dname);
+-		if(len > 3 && strcmp(dname + len - 3, ".db") == 0) {
++		if(len > 3 && strcmp(dname + len - 3, ".fdb") == 0) {
+ 			dbname = strndup(dname, len - 3);
+-		} else if(len > 7 && strcmp(dname + len - 7, ".db.sig") == 0) {
++		} else if(len > 7 && strcmp(dname + len - 7, ".fdb.sig") == 0) {
+ 			dbname = strndup(dname, len - 7);
+ 		} else if(len > 6 && strcmp(dname + len - 6, ".files") == 0) {
+ 			dbname = strndup(dname, len - 6);
+@@ -220,7 +220,7 @@ static int sync_cleancache(int level)
+ 					/* skip signature files - they are removed with their package file */
+ 					"*.sig",
+ 					/* skip package databases within the cache directory */
+-					"*.db*", "*.files*",
++					"*.fdb*", "*.files*",
+ 					/* skip source packages within the cache directory */
+ 					"*.src.tar.*",
+ 					/* skip package deltas, we aren't smart enough to clean these yet */
+diff --git a/merge/test/pacman/pmdb.py b/merge/test/pacman/pmdb.py
+index 1f20506..2409463 100644
+--- a/merge/test/pacman/pmdb.py
++++ b/merge/test/pacman/pmdb.py
+@@ -62,7 +62,7 @@ class pmdb(object):
+             self.read_pkgcache = {}
+         else:
+             self.dbdir = None
+-            self.dbfile = os.path.join(root, util.PM_SYNCDBPATH, treename + ".db")
++            self.dbfile = os.path.join(root, util.PM_SYNCDBPATH, treename + ".fdb")
+             self.is_local = False
+ 
+     def __str__(self):
