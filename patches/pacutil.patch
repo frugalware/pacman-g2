@@ -1,6 +1,4 @@
 diff --git a/merge/test/pacman/util.py b/merge/test/pacman/util.py
-old mode 100644
-new mode 100755
 index 208e2f4..81ebb0d
 --- a/merge/test/pacman/util.py
 +++ b/merge/test/pacman/util.py
