@@ -1,8 +1,0 @@
-TODO
-====
-
-Features:
-- implement gensync support
-
-Tests:
-- add test cases for pacman-g2 -D and pacman-g2 -T
