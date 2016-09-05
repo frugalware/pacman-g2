@@ -21,9 +21,6 @@ OldDelay    = 3
 # -current
 Include = /etc/pacman-g2/repos/frugalware-current
 
-# -stable
-#Include = /etc/pacman-g2/repos/frugalware
-
 # An example of a custom package repository.  See the pacman-g2 manpage for
 # tips on creating your own repositories.
 #[custom]

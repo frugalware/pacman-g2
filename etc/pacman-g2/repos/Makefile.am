@@ -1,4 +1,4 @@
-EXTRA_DIST = frugalware frugalware-current
+EXTRA_DIST = frugalware-current
 
 install-data-hook:
 	mkdir -p $(DESTDIR)$(sysconfdir)/pacman-g2/repos ; \
