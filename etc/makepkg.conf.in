@@ -23,12 +23,6 @@ case $(uname -m) in
 		CFLAGS="-march=x86-64 -mtune=generic -O2 -pipe"
 		CXXFLAGS="-march=x86-64 -mtune=generic -O2 -pipe"
 		;;
-	arm*)
-		CARCH="arm"
-		CHOST="arm-frugalware-linux"
-		CFLAGS="-march=armv5te -O2 -pipe"
-		CXXFLAGS="-march=armv5te -O2 -pipe"
-		;;
 esac
 export CARCH CHOST CFLAGS CXXFLAGS
 
