@@ -26,7 +26,7 @@ case $(uname -m) in
 esac
 export CARCH CHOST CFLAGS CXXFLAGS
 
-export LDFLAGS="-Wl,--hash-style=both"
+export LDFLAGS="-Wl,--hash-style=both -Wl,-O1"
 
 # SMP Systems
 #export MAKEFLAGS="-j2"
