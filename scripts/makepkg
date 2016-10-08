@@ -1818,12 +1818,14 @@ do
 		fi
 	fi
 	## don't insstall files in /usr/<file>
-	files=$(find ${dir}/usr -maxdepth 1 -type f)
-	if [[ ${files[@]} ]]; then
-		error "Your package seems to install files in /usr/<file>"
-		printf " --> %s\n" ${files[@]}
-		error "Bailing out, please fix your package!"
-		exit 1
+	if [  -d ${dir}/usr ]; then
+		files=$(find ${dir}/usr -maxdepth 1 -type f)
+		if [[ ${files[@]} ]]; then
+			error "Your package seems to install files in /usr/<file>"
+			printf " --> %s\n" ${files[@]}
+			error "Bailing out, please fix your package!"
+			exit 1
+		fi
 	fi
 	## don't install files in /
 	files=$(find ${dir} -maxdepth 1 -type f)
