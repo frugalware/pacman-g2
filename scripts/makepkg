@@ -1817,6 +1817,14 @@ do
 			error "Bailing out, please fix your package!"
 		fi
 	fi
+	## don't allow /etc/autostart , should be /etc/xdg/autostart
+	if [ -d ${dir}/etc/autostart ]; then
+		error "Your package installs files in /etc/autostart"
+		error "or /etc/autostart dir exists."
+		error "Use /etc/xdg/autostart"
+		error "Bailing out, please fix your package!"
+		exit 1
+	fi
 	## don't insstall files in /usr/<file>
 	if [  -d ${dir}/usr ]; then
 		files=$(find ${dir}/usr -maxdepth 1 -type f)
