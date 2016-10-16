@@ -25,7 +25,7 @@ pkgdesc="Will generate a DVD movie from a valid mpeg2 stream"
 depends=('imagemagick' 'libdvdread')
 Finclude sourceforge
 groups=('xapps')
-archs=('i686' 'x86_64')
+archs=('x86_64')
 sha1sums=('a99ea7ef6e50646b77ad47a015127925053d34ea')
 # optimization OK
 ----
@@ -90,9 +90,7 @@ available. If it's not available, it means that `gensync` will skip it when
 generating the package databases. If you are not able to provide a binary
 package for a given arch, don't include that in `archs()`! For example, no
 matter if the package could be compiled fir `x86_64`, if you haven't compiled
-it yourself, don't include it. If you're sure it won't be available on a given
-arch (for example it's written in assembly), then use !arch, for example
-`!x86_64`.
+it yourself, don't include it.
 
 The `sha1sums()` array can be generated with the `makepkg -G` command. Its
 purpose is to prevent compiling from corrupt sources, especially when the build
@@ -452,7 +450,7 @@ subpkgs=('foo' 'bar')
 subdescs=('desc of foo' 'desc of bar')
 subdepends=('foodep1 foodep2' 'bardep1 bardep2')
 subgroups=('apps' 'apps')
-subarchs=('i686 x86_64' 'i686 x86_64')
+subarchs=('x86_64' 'x86_64')
 ----
 
 You may define conflicts, replaces and other directives for your subpackages,

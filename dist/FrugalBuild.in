@@ -11,7 +11,7 @@ depends=('libarchive>=2.0.27')
 makedepends=('doxygen' 'po4a' 'swig' 'java-gcj-compat' 'ecj' 'mono')
 Finclude mono
 groups=('base' 'chroot-core')
-archs=('i686' 'x86_64' 'ppc')
+archs=('x86_64')
 up2date="@PACKAGE_VERSION@"
 source=($url/releases/$pkgname-$pkgver.tar.gz)
 sha1sums=('@SHA1SUM@')

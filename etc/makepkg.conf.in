@@ -11,12 +11,6 @@ export FTPAGENT="/usr/bin/wget -U makepkg --continue --passive-ftp --tries=3 --w
 export RSYNCAGENT="rsync -e 'ssh -q -o GlobalKnownHostsFile=$HOME/.ssh/known_hosts -i $HOME/.ssh/id_dsa' -vP"
 
 case $(uname -m) in
-	i686)
-		CARCH="i686"
-		CHOST="i686-frugalware-linux"
-		CFLAGS="-march=i686 -mtune=generic -O2 -pipe"
-		CXXFLAGS="-march=i686 -mtune=generic -O2 -pipe"
-		;;
 	x86_64)
 		CARCH="x86_64"
 		CHOST="x86_64-frugalware-linux"
