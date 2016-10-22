@@ -587,11 +587,11 @@ strip_pkg()
 	fi
 	if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
 		msg "Stripping symbols from libraries from $subpkg$1..."
-		find $dir/{,usr,usr/local,opt/*}/{lib,lib32} -type f -not -name "*.dll" -not -name "*.exe" \
+		find $dir/{,usr,usr/local,opt/*}/{lib,lib32} -type f -not -name "*.dll" -not -name "*.exe" -not -name "*.a"  -not -name "*.o" \
 			-exec /usr/bin/strip -s '{}' \; 2>&1 \
 			| grep -v "No such file" | grep -v "format not recognized"
 		msg "Stripping symbols from binaries from $subpkg$p..."
-		find $dir/{,usr,usr/local,usr/i686-frugalware-linux,opt/*}/{bin,sbin} -type f -not -name "*.dll" -not -name "*.exe" \
+		find $dir/{,usr,usr/local,usr/i686-frugalware-linux,opt/*}/{bin,sbin} -type f -not -name "*.dll" -not -name "*.exe" -not -name "*.a"  -not -name "*.o" \
 			-exec /usr/bin/strip -s '{}' \; 2>&1 \
 			| grep -v "No such file" | grep -v "format not recognized"
 	fi
