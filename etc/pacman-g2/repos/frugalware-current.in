@@ -45,3 +45,5 @@ Server = ftp://ftp12.frugalware.org/mirrors/ftp.frugalware.org/pub/frugalware/fr
 # -------
 # TDS Telecom (1 GBit)
 Server = ftp://ftp10.frugalware.org/pub/linux/frugalware/frugalware-current/frugalware-@CARCH@
+## Princeton University Mathematics Department ( 20 GBit )
+Server = https://mirror.math.princeton.edu/pub/frugalware/frugalware-current/frugalware-@CARCH@
