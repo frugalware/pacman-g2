@@ -1284,7 +1284,7 @@ if [ "$NOUP2DATE" = "0" ]; then
 					cvs)	cmd="cvs";;
 					subversion)	cmd="subversion";;
 					git) 	cmd="git";;
-					mercurial)	cmd="mercurial";;
+					mercurial)	cmd="hg";;
 					bzr)	cmd="bzr";;
 				esac
 			else
