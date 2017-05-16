@@ -1013,7 +1013,7 @@ if [ ! -z "$subpkgs" ]; then
 fi
 
 if [ ! -e "$install" -a ! -e "$startdir/$install" -a ! "`check_option GENSCRIPTLET`" ]; then
-	error "Missing install scriptlet. If this is intentional, add 'genscriptlet' to options()."
+	warning "Missing install scriptlet? If this is intentional, add 'genscriptlet' to options()."
 	exit 1
 fi
 
