@@ -56,7 +56,15 @@ NODOCS=0
 TREE=""
 CACHEURL=""
 
-PACMAN="pacman-g2.static"
+
+## we don't want to break all chroots on switch
+if [[ -e /usr/bin/pacman-g2.static ]]; then
+	PACMAN="pacman-g2.static"
+else
+	## upstream one
+	PACMAN="pacman.static"
+fi
+
 PACMAN_OPTS=
 
 # compat functions. these are useful if one would like to use makepkg outside
