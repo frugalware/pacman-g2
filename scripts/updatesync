@@ -318,16 +318,7 @@ if [ "$action" = "upd" ]; then
 			i=$(($i+1))
 		done
 	fi
-	ver=""
-	rootdir=`dirname $option`
-	if ( cd $rootdir; git rev-parse --get-root &>/dev/null); then
-		ver=`cd $rootdir; git describe 2>/dev/null`
-	fi
-	if [ -n "$ver" ]; then
-		echo ${ver//-/.} > .version
-		tar --delete -f $udb .version 2>/dev/null
-		fakeroot tar rf $udb .version
-	fi
+
 else
 	# DELETE
 	delete_entry $option
