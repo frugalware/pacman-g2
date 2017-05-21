@@ -152,28 +152,27 @@ db_write_entry()
 		echo "%STICK%" >>desc
 		echo "" >>desc
 	fi
-	# depends
-	: >depends
+
 	if [ ${#depends[*]} -gt 0 -o ${#rodepends[*]} -gt 0 ]; then
-		echo "%DEPENDS%" >>depends
+		echo "%DEPENDS%" >>desc
 		for it in ${depends[@]} ${rodepends[@]}; do
-		  echo "$it" >>depends
+		  echo "$it" >>desc
 		done
-		echo "" >>depends
+		echo "" >>desc
 	fi
 	if [ ${#conflicts[*]} -gt 0 ]; then
 		echo "%CONFLICTS%" >>depends
 		for it in ${conflicts[@]}; do
-		  echo "$it" >>depends
+		  echo "$it" >>desc
 		done
-		echo "" >>depends
+		echo "" >>desc
 	fi
 	if [ ${#provides[*]} -gt 0 ]; then
-		echo "%PROVIDES%" >>depends
+		echo "%PROVIDES%" >>desc
 		for it in ${provides[@]}; do
-		  echo "$it" >>depends
+		  echo "$it" >>desc
 		done
-		echo "" >>depends
+		echo "" >>desc
 	fi
 	cd ..
 	fakeroot tar rf $udb $1-$pkgver-$pkgrel
