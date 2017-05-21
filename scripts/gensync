@@ -285,22 +285,12 @@ for file in `find $rootdir -name $BUILDSCRIPT`; do
 	fi
 done
 
-if [ ! "$check_only" ]; then
-ver=""
-if ( cd $rootdir; git rev-parse --get-root &>/dev/null); then
-	ver=`cd $rootdir; git describe 2>/dev/null`
-fi
-extra=""
-if [ -n "$ver" ]; then
-	echo ${ver//-/.} > $gstmpdir/.version
-	extra=".version"
-fi
 
 echo "gensync: compressing to $destfile..." >&2
 cd $gstmpdir
-fakeroot tar --use-compress-program=xz -cf $destfile $extra *
+fakeroot tar --use-compress-program=xz -cf $destfile *
 [ $? -gt 0 ] && die "error writing to $destfile"
 
 rm -rf $gstmpdir
-fi
+
 exit 0
