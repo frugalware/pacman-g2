@@ -30,6 +30,7 @@ ECHO="/bin/echo"
 startdir=`pwd`
 PKGDEST=$startdir
 USE_COLOR="n"
+FORCE_BUILDTYPE="0"
 
 # Options
 
@@ -1400,16 +1401,18 @@ fi
 ## seems to use veryyyyyy old makepkg.conf even witout --hash-style=both..
 ## check here and workaround this when needed..
 
-if ! $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=both" ; then
+if ! $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=gnu" ; then
         warning "Broken LDFLAGS found, -Wl,--hash-style=both is missing from makepkg.conf!!"
-        warning "Enabling workaround, please fix your setup!!"
-        LDFLAGS+=" -Wl,--hash-style=both"
+        warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
+	FORCE_BUILDTYPE="1"
+        LDFLAGS+=" -Wl,--hash-style=gnu"
         export LDFLAGS
 fi
 
 if ! $ECHO $LDFLAGS | grep -q "\-Wl,-O1" ; then
         warning "Broken LDFLAGS found, -Wl,-O1 is missing from makepkg.conf!!"
-        warning "Enabling workaround, please fix your setup!!"
+        warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
+	FORCE_BUILDTYPE="1"
         LDFLAGS+=" -Wl,-O1"
         export LDFLAGS
 fi
@@ -2005,7 +2008,7 @@ fi
 
 # get some package meta info
 builddate=`LC_ALL= ; LANG= ; date -u "+%a %b %e %H:%M:%S %Y"`
-if [ "$INCHROOT" != "1" ]; then
+if [ "$INCHROOT" != "1" -a "$FORCE_BUILDTYPE" != 0 ]; then
 	buildtype="custom"
 else
 	buildtype="chroot"
