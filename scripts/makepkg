@@ -1439,7 +1439,6 @@ if [ "`check_option NOASNEEDED`" ]; then
 	LDFLAGS+=" -Wl,--no-as-needed"
 	export LDFLAGS
 else
-	msg "Using --as-needed in LDFLAGS ( default )"
 	LDFLAGS+=" -Wl,--as-needed"
 	export LDFLAGS
 fi
