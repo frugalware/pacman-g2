@@ -1128,18 +1128,28 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	if [ -d ~/.pacman-g2/repos ]; then
 		cp -pf ~/.pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
 	fi
-	# mtab can be removed once Frugalware-1.4 is out
-	for i in makepkg.conf resolv.conf passwd shadow group fstab mtab
+
+	for i in resolv.conf passwd shadow group fstab
 	do
 		if [ -h $CHROOTDIR/etc/$i ]; then
 			# it's a symlink, don't touch it
 			continue
 		fi
 		cp -pf /etc/$i $CHROOTDIR/etc >/dev/null
-		if [ -e $HOME/.$i ]; then
-			cp $HOME/.$i $CHROOTDIR/etc/$i >/dev/null
-		fi
 	done
+	## makepkg.conf is _special_ we may want to have different trees
+        ## we build for, with different flags etc .. copy the file only
+	## when not found in chroot .. we have checks for C/CXX/LD flags
+	## in makepkg itself... How that ever worked for the stable tree ?!?
+	if [ ! -e $CHROOTDIR/etc/makepkg.conf ]; then
+		## try first $HOME since devels may have different build users
+		## for different trees or don't want to touch system one all the time
+		if [ -e $HOME/.makepkg.conf ]; then
+			cp -pf $HOME/.makepkg.conf $CHROOTDIR/etc/makepkg.conf >/dev/null
+		else
+			cp -pf /etc/makepkg.conf $CHROOTDIR/etc/makepkg.conf >/dev/null
+		fi
+	fi
 	chmod 644 $CHROOTDIR/etc/sudoers
 	$ECHO "fst ALL=(ALL)       NOPASSWD: ALL" >$CHROOTDIR/etc/sudoers
 	chmod 440 $CHROOTDIR/etc/sudoers
