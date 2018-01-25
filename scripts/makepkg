@@ -658,7 +658,7 @@ if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
 	if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
 		USE_COLOR="n"
 		warning "Disabling color as the terminal does not support it."
-	fi 
+	fi
 fi
 
 if [ -z "$PKG_EXT" ]; then
@@ -1171,6 +1171,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 				echo "fst:x:19:2::/var/tmp/fst:" >> $CHROOTDIR/etc/passwd
 			fi
 			# add fst to the ccache group if necessary
+			## ehh FIXME: that's wrong as well mount for that is wrong -- crazy --
 			if ! getent group ccache|grep -q fst; then
 				/usr/sbin/chroot $CHROOTDIR \
 					/usr/sbin/usermod -a -G ccache fst
