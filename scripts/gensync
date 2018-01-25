@@ -162,30 +162,31 @@ db_write_entry()
 		echo "%STICK%" >>desc
 		echo "" >>desc
 	fi
-
+	# depends
+	: >depends
 	if [ ${#depends[*]} -gt 0 -o ${#rodepends[*]} -gt 0 ]; then
-		echo "%DEPENDS%" >>desc
+		echo "%DEPENDS%" >>depends
 		for it in ${depends[@]} ${rodepends[@]}; do
-		  echo "$it" >>desc
+		  echo "$it" >>depends
 		done
-		echo "" >>desc
+		echo "" >>depends
 	fi
 	if [ ${#conflicts[*]} -gt 0 ]; then
-		echo "%CONFLICTS%" >>desc
+		echo "%CONFLICTS%" >>depends
 		for it in ${conflicts[@]}; do
-		  echo "$it" >>desc
+		  echo "$it" >>depends
 		done
-		echo "" >>desc
+		echo "" >>depends
 	fi
 	if [ ${#provides[*]} -gt 0 ]; then
-		echo "%PROVIDES%" >>desc
+		echo "%PROVIDES%" >>depends
 		for it in ${provides[@]}; do
-		  echo "$it" >>desc
+		  echo "$it" >>depends
 		done
-		echo "" >>desc
+		echo "" >>depends
 	fi
 	# preserve the modification time
-	touch -r $file desc
+	touch -r $file desc depends
 }
 
 in_array()
@@ -285,12 +286,22 @@ for file in `find $rootdir -name $BUILDSCRIPT`; do
 	fi
 done
 
+if [ ! "$check_only" ]; then
+ver=""
+if ( cd $rootdir; git rev-parse --get-root &>/dev/null); then
+	ver=`cd $rootdir; git describe 2>/dev/null`
+fi
+extra=""
+if [ -n "$ver" ]; then
+	echo ${ver//-/.} > $gstmpdir/.version
+	extra=".version"
+fi
 
 echo "gensync: compressing to $destfile..." >&2
 cd $gstmpdir
-fakeroot tar --use-compress-program=xz -cf $destfile *
+fakeroot tar --use-compress-program=xz -cf $destfile $extra *
 [ $? -gt 0 ] && die "error writing to $destfile"
 
 rm -rf $gstmpdir
-
+fi
 exit 0

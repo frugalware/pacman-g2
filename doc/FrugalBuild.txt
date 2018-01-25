@@ -57,7 +57,12 @@ not allowed. Use the commit message to mention others if you wish.
 
 `pkgname` defines the package name. It should not contain any uppercase
 letters.  The package version defines the upstream version, while the package
-release tracks the Frugalware-specific changes. `pkgrel` should be an integer.
+release tracks the Frugalware-specific changes. `pkgrel` should be an integer,
+the ones like `5wanda1` are reserved for security updates. In the later case
+the rule is the following: If the original package's `pkgrel` was 4, then
+increment it once when you add a security patch, but then use `5wanda1`,
+`5wanda2` and so on. This way the user can easily upgrade to `pkgrel=5` which
+is in `-current`.
 
 `pkgdesc` is a short one-line description for the package. Usually taken from the
 project's homepage or manpage. Try to keep the length under 80 chars.
@@ -223,8 +228,8 @@ source (array)::
 	they have a fully-qualified URL. Then if the source file does not already exist
 	in `/var/cache/pacman-g2/src`, the file is downloaded by wget.
 
-sha256sums (array)::
-	If this field is present, it should contain an SHA256 hash for every source file
+sha1sums (array)::
+	If this field is present, it should contain an SHA1 hash for every source file
 	specified in the source array (in the same order). `makepkg` will use this to
 	verify source file integrity during subsequent builds. To easily update
 	sha1sums in the FrugalBuild, run `makepkg -G`.
@@ -474,6 +479,7 @@ installation/deinstallation:
 ----
 post_install()
 {
+        chkconfig --add rc.foobar
         # On install (not upgrade), enable (but don't start) the
         # units by default
         systemctl enable foobar.service >/dev/null 2>&1
@@ -484,11 +490,16 @@ post_upgrade()
         # Reload init system configuration, to make systemd honour changed
 	# unit files
         systemctl daemon-reload >/dev/null 2>&1
+        if [ `vercmp $2 4.4-5` -lt 0 ]; then
+                if chkconfig rc.foobar; then
+                        post_install
+                fi
+        fi
 }
 
 pre_remove()
 {
-        
+        chkconfig --del rc.foobar
         # On uninstall (not upgrade), disable and stop the units
         systemctl --no-reload disable foobar.service >/dev/null 2>&1
         systemctl stop foobar.service >/dev/null 2>&1
@@ -504,10 +515,10 @@ post_remove()
 
 == SEE ALSO
 
-*makepkg*(8), *pacman*(8)
+*makepkg*(8), *pacman-g2*(8)
 
 include::bugs.txt[]
 
 == AUTHORS
 
-See /usr/share/doc/pacman-*/AUTHORS.
+See /usr/share/doc/pacman-g2-*/AUTHORS.
