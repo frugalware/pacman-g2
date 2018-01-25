@@ -86,4 +86,4 @@ SBU="1"
 #HRBT="1"
 
 # Options for xz used in compression
-export XZ_OPT="--threads=0 -9"
+export XZ_OPT="--threads=0"
