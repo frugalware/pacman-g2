@@ -1406,10 +1406,11 @@ if grep -i -q "^# Compiling Time: [~0-9\.]\+ SBU$" $BUILDSCRIPT && \
 	fi
 fi
 
-### we use at least -Wl,--hash-style=both and conditional
+### we use at least -Wl,--hash-style=xx and conditional
 ## -Wl,--as-needed. Gcc6 WIP will add -Wl,-O1.. HOWEVER some build server(s)
-## seems to use veryyyyyy old makepkg.conf even witout --hash-style=both..
+## seems to use veryyyyyy old makepkg.conf even witout --hash-style=xxx..
 ## check here and workaround this when needed..
+
 
 if ! $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=gnu" ; then
         warning "Broken LDFLAGS found, -Wl,--hash-style=gnu is missing from makepkg.conf!!"
@@ -1443,6 +1444,22 @@ else
 	export LDFLAGS
 fi
 
+if [ "`check_option NOFORTIFY`" ]; then
+	warning "Disabling -D_FORTIFY_SOURCE=2.."
+	export OFORTIFY=0
+else
+	msg "Enabling -Wp,-D_FORTIFY_SOURCE=2"
+	CFLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
+	CXXFLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
+fi
+
+if [ "`check_option NORELRO`" ]; then
+	warning "Disabling LDFLAGS: -z,relro and -z,now"
+	export ORELRO=0
+else
+	msg "Enabling LDFLAGS: -z,relro and -z,now.."
+	LDFLAGS+=" -Wl,-z,relro,-z,now"
+fi
 
 # retrieve sources
 msg "Retrieving Sources..."
