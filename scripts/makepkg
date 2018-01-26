@@ -1413,7 +1413,7 @@ fi
 ## check here and workaround this when needed..
 
 
-if [ "$INCHROOT" == "1" ]
+if [ "$INCHROOT" == "1" ]; then
 	if ! $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=gnu" ; then
         	warning "Broken LDFLAGS found, -Wl,--hash-style=gnu is missing from makepkg.conf!!"
         	warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
