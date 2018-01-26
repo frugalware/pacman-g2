@@ -1413,55 +1413,58 @@ fi
 ## check here and workaround this when needed..
 
 
-if ! $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=gnu" ; then
-        warning "Broken LDFLAGS found, -Wl,--hash-style=gnu is missing from makepkg.conf!!"
-        warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
-	FORCE_BUILDTYPE="1"
-        LDFLAGS+=" -Wl,--hash-style=gnu"
-        export LDFLAGS
+if [ "$INCHROOT" == "1" ]
+	if ! $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=gnu" ; then
+        	warning "Broken LDFLAGS found, -Wl,--hash-style=gnu is missing from makepkg.conf!!"
+        	warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
+		FORCE_BUILDTYPE="1"
+        	LDFLAGS+=" -Wl,--hash-style=gnu"
+        	export LDFLAGS
+	fi
+
+	if ! $ECHO $LDFLAGS | grep -q "\-Wl,-O1" ; then
+        	warning "Broken LDFLAGS found, -Wl,-O1 is missing from makepkg.conf!!"
+        	warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
+		FORCE_BUILDTYPE="1"
+        	LDFLAGS+=" -Wl,-O1"
+		export LDFLAGS
+	fi
+
+
+	if [ "`check_option ASNEEDED`" ]; then
+        	error "You are using deprecated option 'asneeded'."
+        	error "This is now default, please remove and retry."
+		exit 1
+	fi
+
+	if [ "`check_option NOASNEEDED`" ]; then
+		warning "Using --no-as-needed in LDFLAGS ( are you sure ? )"
+		LDFLAGS+=" -Wl,--no-as-needed"
+		export LDFLAGS
+	else
+		LDFLAGS+=" -Wl,--as-needed"
+		export LDFLAGS
+	fi
+
+	if [ "`check_option NOFORTIFY`" ]; then
+		warning "Disabling -D_FORTIFY_SOURCE=2.."
+		export OFORTIFY=0
+	else
+		msg "Enabling -Wp,-D_FORTIFY_SOURCE=2"
+		CFLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
+		CXXFLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
+		export CFLAGS CXXFLAGS
+	fi
+
+	if [ "`check_option NORELRO`" ]; then
+		warning "Disabling LDFLAGS: -z,relro and -z,now"
+		export ORELRO=0
+	else
+		msg "Enabling LDFLAGS: -z,relro and -z,now.."
+		LDFLAGS+=" -Wl,-z,relro,-z,now"
+		export LDFLAGS
+	fi
 fi
-
-if ! $ECHO $LDFLAGS | grep -q "\-Wl,-O1" ; then
-        warning "Broken LDFLAGS found, -Wl,-O1 is missing from makepkg.conf!!"
-        warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
-	FORCE_BUILDTYPE="1"
-        LDFLAGS+=" -Wl,-O1"
-        export LDFLAGS
-fi
-
-
-if [ "`check_option ASNEEDED`" ]; then
-        error "You are using deprecated option 'asneeded'."
-        error "This is now default, please remove and retry."
-	exit 1
-fi
-
-if [ "`check_option NOASNEEDED`" ]; then
-	warning "Using --no-as-needed in LDFLAGS ( are you sure ? )"
-	LDFLAGS+=" -Wl,--no-as-needed"
-	export LDFLAGS
-else
-	LDFLAGS+=" -Wl,--as-needed"
-	export LDFLAGS
-fi
-
-if [ "`check_option NOFORTIFY`" ]; then
-	warning "Disabling -D_FORTIFY_SOURCE=2.."
-	export OFORTIFY=0
-else
-	msg "Enabling -Wp,-D_FORTIFY_SOURCE=2"
-	CFLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
-	CXXFLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
-fi
-
-if [ "`check_option NORELRO`" ]; then
-	warning "Disabling LDFLAGS: -z,relro and -z,now"
-	export ORELRO=0
-else
-	msg "Enabling LDFLAGS: -z,relro and -z,now.."
-	LDFLAGS+=" -Wl,-z,relro,-z,now"
-fi
-
 # retrieve sources
 msg "Retrieving Sources..."
 mkdir -p src
