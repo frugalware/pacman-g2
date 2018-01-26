@@ -31,6 +31,7 @@ startdir=`pwd`
 PKGDEST=$startdir
 USE_COLOR="n"
 FORCE_BUILDTYPE="0"
+OFORTIFY="1"
 
 # Options
 
@@ -2099,10 +2100,18 @@ elif [ "$RMDEPS" = "1" -a "$DEP_SUDO" = "1" ]; then
 	fi
 fi
 
+
 msg "This package was built with:"
 msg2 "HOST_CFLAGS:    $CFLAGS "
 msg2 "HOST_CXXFLAGS:  $CXXFLAGS "
 msg2 "HOST_LDFLAGS:   $LDFLAGS "
+if [ "$OFORTIFY" == "0" ]; then
+	msg2 "FORTIFY_FLAGS:   OFF "
+fi
+
+if [ "$ONORELRO" == "0" ]; then
+	msg2 "RELRO_LDFLAGS:   OFF "
+fi
 
 msg "Finished making: $pkgname  (`date`)"
 
