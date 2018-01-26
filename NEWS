@@ -1,5 +1,8 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.9.3         - update for new gcc7 based tool chain
+              - added nofortify and norelro options
+	      - makepkg and makepkg.conf fixes
 3.9.2         - makepkg fixes
 	      - added fw32-makepkg tool
 3.9.1         - various bug fixes
