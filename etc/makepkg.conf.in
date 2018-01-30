@@ -23,6 +23,7 @@ esac
 ## from FrugalBuild. Eg, to use ..=${CFLAGS/-fstack-protector-strong/}
 export CARCH CHOST CFLAGS CXXFLAGS
 
+## -Wl,--as-needed is set from makepkg. Disable with options+=('noasneeded')
 ## -Wl,z,now is set from makepkg. Disable with options+=('nonow')
 ## -Wl,z,relro is set from makepkg. Disable with options+=('norelro')
 export LDFLAGS="-Wl,--hash-style=gnu -Wl,-O1 -Wl,--sort-common"
