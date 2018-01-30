@@ -1430,6 +1430,13 @@ if [ "$INCHROOT" == "1" ]; then
 		export LDFLAGS
 	fi
 
+	if ! $ECHO $LDFLAGS | grep -q "\-Wl,--sort-common" ; then
+		warning "Broken LDFLAGS found, -Wl,--sort-common is missing from makepkg.conf!!"
+		warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
+		FORCE_BUILDTYPE="1"
+		LDFLAGS+=" -Wl,--sort-common"
+		export LDFLAGS
+	fi
 
 	if [ "`check_option ASNEEDED`" ]; then
         	error "You are using deprecated option 'asneeded'."
@@ -1457,11 +1464,20 @@ if [ "$INCHROOT" == "1" ]; then
 	fi
 
 	if [ "`check_option NORELRO`" ]; then
-		warning "Disabling LDFLAGS: -z,relro and -z,now"
+		warning "Disabling LDFLAGS: -z,relro"
 		export ORELRO=0
 	else
-		msg "Enabling LDFLAGS: -z,relro and -z,now.."
-		LDFLAGS+=" -Wl,-z,relro,-z,now"
+		msg "Enabling LDFLAGS: -z,relro"
+		LDFLAGS+=" -Wl,-z,relro"
+		export LDFLAGS
+	fi
+
+	if [ "`check_option NONOW`" ]; then
+		warning "Disabling LDFLAGS: -z,now"
+		export ONOW=0
+	else
+		msg "Enabling LDFLAGS: -z,now"
+		LDFLAGS+=" -Wl,-z,now"
 		export LDFLAGS
 	fi
 fi
@@ -2114,6 +2130,10 @@ fi
 
 if [ "$ONORELRO" == "0" ]; then
 	msg2 "RELRO_LDFLAGS:   OFF "
+fi
+
+if [ "$ONONOW" == "0" ]; then
+	msg2 "BINDNOW_LDFLAGS:   OFF "
 fi
 
 msg "Finished making: $pkgname  (`date`)"
