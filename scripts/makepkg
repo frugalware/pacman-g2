@@ -1234,7 +1234,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		if grep -q "\pointer will break strict-aliasing rules" "${BUILDLOG}"  2>/dev/null; then
 			msg "Your package has coding issues"
 			warning "Broken strict-aliasing rules detected"
-			warning "CFLAGS need -fno-strict-aliasing"
+			warning "C/CXX FLAGS need -fno-strict-aliasing"
 			warning "Please recompile with right CFLAGS"
 		fi
 		# copy build log to LOGDIR if set
