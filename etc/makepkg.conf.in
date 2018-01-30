@@ -18,8 +18,13 @@ case $(uname -m) in
 		CXXFLAGS="-march=x86-64 -mtune=generic -O2 -pipe -fstack-protector-strong -fno-plt"
 		;;
 esac
+
+## options+=('noprotector') allows to manipulate -fstack-protector-strong
+## from FrugalBuild. Eg, to use ..=${CFLAGS/-fstack-protector-strong/}
 export CARCH CHOST CFLAGS CXXFLAGS
 
+## -Wl,z,now is set from makepkg. Disable with options+=('nonow')
+## -Wl,z,relro is set from makepkg. Disable with options+=('norelro')
 export LDFLAGS="-Wl,--hash-style=gnu -Wl,-O1 -Wl,--sort-common"
 
 # SMP Systems
