@@ -1422,6 +1422,30 @@ if [ "$INCHROOT" == "1" ]; then
 		exit 1
 	fi
 
+	if ! $ECHO $CFLAGS | grep -q "\-fstack-protector-strong" ; then
+		if [ "`check_option NOPROTECTOR`" ]; then
+			warning "You disabled stack-protector.. Do that *ONLY*"
+			warning "when you have a very GOOD reason.."
+		else
+			error "Your build/makepkg.conf is broken"
+			error "-fstack-protector-strong missing in CFLAGS and"
+			error "options+=('noprotector') is not set.."
+			exit 1
+		fi
+	fi
+
+	if ! $ECHO $CXXFLAGS | grep -q "\-fstack-protector-strong" ; then
+		if [ "`check_option NOPROTECTOR`" ]; then
+			warning "You disabled stack-protector.. Do that *ONLY*"
+			warning "when you have a very GOOD reason.."
+		else
+			error "Your build/makepkg.conf is broken"
+			error "-fstack-protector-strong missing in CFLAGS and"
+			error "options+=('noprotector') is not set.."
+			ext 1
+		fi
+	fi
+
 	if ! $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=gnu" ; then
         	warning "Broken LDFLAGS found, -Wl,--hash-style=gnu is missing from makepkg.conf!!"
         	warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
