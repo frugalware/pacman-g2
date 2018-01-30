@@ -1,5 +1,7 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+3.9.4         - makepkg updates
+              - added 'nonow' and 'noprotect' options
 3.9.3         - update for new gcc7 based tool chain
               - added nofortify and norelro options
 	      - makepkg and makepkg.conf fixes
