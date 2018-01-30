@@ -1187,10 +1187,11 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 				echo "fst:x:19:2::/var/tmp/fst:" >> $CHROOTDIR/etc/passwd
 			fi
 			# add fst to the ccache group if necessary
-			## ehh FIXME: that's wrong as well mount for that is wrong -- crazy --
-			if ! getent group ccache|grep -q fst; then
-				/usr/sbin/chroot $CHROOTDIR \
-					/usr/sbin/usermod -a -G ccache fst
+			if [ "$NOCCACHE" = "0" -a -d /usr/lib/ccache/bin -a ! "`check_option NOCCACHE`" ]; then
+				if ! getent group ccache|grep -q fst; then
+					/usr/sbin/chroot $CHROOTDIR \
+						/usr/sbin/usermod -a -G ccache fst
+				fi
 			fi
 			/usr/sbin/chroot $CHROOTDIR /usr/sbin/pwconv
 			/usr/sbin/chroot $CHROOTDIR \
