@@ -1442,7 +1442,7 @@ if [ "$INCHROOT" == "1" ]; then
 			error "Your build/makepkg.conf is broken"
 			error "CXXFLAGS is missing -fstack-protector-strong missing"
 			error "and options+=('noprotector') is not set.."
-			ext 1
+			exit 1
 		fi
 	fi
 
