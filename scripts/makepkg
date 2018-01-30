@@ -2127,7 +2127,7 @@ if [ "$ONORELRO" == "0" ]; then
 	msg2 "RELRO_LDFLAGS:   OFF "
 fi
 
-if [ "$ONONOW" == "0" ]; then
+if [ "$ONOW" == "0" ]; then
 	msg2 "BINDNOW_LDFLAGS:   OFF "
 fi
 
