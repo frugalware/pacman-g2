@@ -327,6 +327,18 @@ options (array)::
 	nofakeroot: Don't drop privileges after chrooting. Required by some broken
 	packages.
 
+	noasneeded: changes the default -Wl,--as-needed to -Wl,--no-as-needed in LDLAGS
+
+	nonow: removes -Wl,-z,now from LDFLAGS
+
+	norelro: removes -Wl,-z,relro from LDFLAGS
+
+	noprotector: allows to manipulate stack protector C/CXX FLAGS
+
+	static: builds static libs for the package
+
+	libtool: won't remove or use  workarounds for libtool's la files
+
 	scriptlet: Don't skip executing scriptlets even if we're in chroot.
 
 	nomirror: This means that the source should not be mirrored.
