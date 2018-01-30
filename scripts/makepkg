@@ -1415,7 +1415,7 @@ fi
 
 if [ "$INCHROOT" == "1" ]; then
 
-	if ! $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=both" ; then
+	if  $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=both" ; then
 		error "You are using -Wl,--hash-style=both"
 		error "LDFLAGS changed to -Wl,--hash-style=gnu"
 		error "Fix your makepkg.conf"
@@ -1428,8 +1428,8 @@ if [ "$INCHROOT" == "1" ]; then
 			warning "when you have a very GOOD reason.."
 		else
 			error "Your build/makepkg.conf is broken"
-			error "-fstack-protector-strong missing in CFLAGS and"
-			error "options+=('noprotector') is not set.."
+			error "CFLAGS is missing -fstack-protector-strong"
+			error "and options+=('noprotector') is not set.."
 			exit 1
 		fi
 	fi
@@ -1440,8 +1440,8 @@ if [ "$INCHROOT" == "1" ]; then
 			warning "when you have a very GOOD reason.."
 		else
 			error "Your build/makepkg.conf is broken"
-			error "-fstack-protector-strong missing in CFLAGS and"
-			error "options+=('noprotector') is not set.."
+			error "CXXFLAGS is missing -fstack-protector-strong missing"
+			error "and options+=('noprotector') is not set.."
 			ext 1
 		fi
 	fi
