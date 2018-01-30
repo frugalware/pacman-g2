@@ -379,7 +379,9 @@ chroot_umount() {
     umount $CHROOTDIR/sys >/dev/null
     umount $CHROOTDIR/dev >/dev/null
     umount $CHROOTDIR/var/cache/pacman-g2 >/dev/null
-    umount $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
+    if [ "$NOCCACHE" = "0" -a -d /usr/lib/ccache/bin -a ! "`check_option NOCCACHE`" ]; then
+	umount $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
+    fi
     if [ "$?" != "0" ]; then
 	error "An error occurred while attempting to umount chroot directories."
 	exit 1
@@ -394,8 +396,10 @@ chroot_mount() {
     mount -t devtmpfs none $CHROOTDIR/dev >/dev/null
     mount -o bind /dev/shm $CHROOTDIR/dev/shm
     mount -o bind /var/cache/pacman-g2 $CHROOTDIR/var/cache/pacman-g2 >/dev/null
-    mount -o bind $CCACHE_BASEDIR/$pkgname \
-    $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
+    if [ "$NOCCACHE" = "0" -a -d /usr/lib/ccache/bin -a ! "`check_option NOCCACHE`" ]; then
+	mount -o bind $CCACHE_BASEDIR/$pkgname \
+	$CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
+    fi
     if [ "$?" != "0" ]; then
 	error "An error occurred while attempting to mount chroot directories."
 	exit 1
