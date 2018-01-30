@@ -1996,11 +1996,6 @@ do
 		rm -rf $d/usr/man
 	fi
 
-	if [ -d "$d/usr/share/icons/hicolor" ]; then
-		if [ -z "$_F_gnome_iconcache" ]; then
-			warning "Package $pkgname contains hicolor icons but _F_gnome_iconcache is not set"
-		fi
-	fi
 done
 
 # compress info and manual pages
