@@ -1240,7 +1240,7 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			msg "Your package has coding issues"
 			warning "Broken strict-aliasing rules detected"
 			warning "C/CXX FLAGS need -fno-strict-aliasing"
-			warning "Please recompile with right CFLAGS"
+			warning "Please recompile with right C/CXX FLAGS"
 		fi
 		# copy build log to LOGDIR if set
 		if [ -d "$LOGDIR" ]; then
