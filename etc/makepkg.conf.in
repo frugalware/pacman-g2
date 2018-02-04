@@ -14,11 +14,13 @@ case $(uname -m) in
 	x86_64)
 		CARCH="x86_64"
 		CHOST="x86_64-frugalware-linux"
-		CFLAGS="-march=x86-64 -mtune=generic -O2 -pipe -fstack-protector-strong -fno-plt"
-		CXXFLAGS="-march=x86-64 -mtune=generic -O2 -pipe -fstack-protector-strong -fno-plt"
+		CFLAGS="-march=x86-64 -mtune=generic -O2 -pipe -fstack-protector-strong"
+		CXXFLAGS="-march=x86-64 -mtune=generic -O2 -pipe -fstack-protector-strong"
 		;;
 esac
 
+## FLAGS added from makepkg:
+## -fno-plt : can be disbled with options+=('plt')
 ## options+=('noprotector') allows to manipulate -fstack-protector-strong
 ## from FrugalBuild. Eg, to use ..=${CFLAGS/-fstack-protector-strong/}
 export CARCH CHOST CFLAGS CXXFLAGS

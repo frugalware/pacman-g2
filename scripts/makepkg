@@ -1500,6 +1500,14 @@ if [ "$INCHROOT" == "1" ]; then
 		export CFLAGS CXXFLAGS
 	fi
 
+	if [ "`check_option PLT`" ]; then
+		 warning "Disabling -fno-plt FLAGS"
+	else
+		msg "Enabling -fno-plt in C/CXX FLAGS"
+		CFLAGS+=" -fno-plt"
+		CXXFLAGS+=" -fno-plt"
+	fi
+
 	if [ "`check_option NORELRO`" ]; then
 		warning "Disabling LDFLAGS: -z,relro"
 		export ORELRO=0
