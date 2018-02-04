@@ -1428,10 +1428,7 @@ if [ "$INCHROOT" == "1" ]; then
 	fi
 
 	if ! $ECHO $CFLAGS | grep -q "\-fstack-protector-strong" ; then
-		if [ "`check_option NOPROTECTOR`" ]; then
-			warning "You disabled stack-protector.. Do that *ONLY*"
-			warning "when you have a very GOOD reason.."
-		else
+		if [ ! "`check_option NOPROTECTOR`" ]; then
 			error "Your build/makepkg.conf is broken"
 			error "CFLAGS is missing -fstack-protector-strong"
 			error "and options+=('noprotector') is not set.."
@@ -1440,12 +1437,9 @@ if [ "$INCHROOT" == "1" ]; then
 	fi
 
 	if ! $ECHO $CXXFLAGS | grep -q "\-fstack-protector-strong" ; then
-		if [ "`check_option NOPROTECTOR`" ]; then
-			warning "You disabled stack-protector.. Do that *ONLY*"
-			warning "when you have a very GOOD reason.."
-		else
+		if [ ! "`check_option NOPROTECTOR`" ]; then
 			error "Your build/makepkg.conf is broken"
-			error "CXXFLAGS is missing -fstack-protector-strong missing"
+			error "CXXFLAGS is missing -fstack-protector-strong"
 			error "and options+=('noprotector') is not set.."
 			exit 1
 		fi
@@ -1500,12 +1494,24 @@ if [ "$INCHROOT" == "1" ]; then
 		export CFLAGS CXXFLAGS
 	fi
 
+	## add before PLT
+	if [ "`check_option NOPROTECTOR`" ]; then
+		warning "Disabling -fstack-protector-strong in C/CXX FLAGS."
+		warning "Do that only with an GOOD reason.."
+	else
+		msg "Enabling -fstack-protector-strong in C/CXX FLAGS"
+		CFLAGS+=" -fstack-protector-strong"
+		CXXFLAGS+=" -fstack-protector-strong"
+		export CFLAGS CXXFLAGS
+	fi
+
 	if [ "`check_option PLT`" ]; then
-		 warning "Disabling -fno-plt FLAGS"
+		 warning "Disabling -fno-plt C/CXX FLAGS"
 	else
 		msg "Enabling -fno-plt in C/CXX FLAGS"
 		CFLAGS+=" -fno-plt"
 		CXXFLAGS+=" -fno-plt"
+		export CFLAGS CXXFLAGS
 	fi
 
 	if [ "`check_option NORELRO`" ]; then
