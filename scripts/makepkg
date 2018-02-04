@@ -1420,6 +1420,17 @@ fi
 
 if [ "$INCHROOT" == "1" ]; then
 
+	## add before PLT
+	if [ "`check_option NOPROTECTOR`" ]; then
+		warning "Disabling -fstack-protector-strong in C/CXX FLAGS."
+		warning "Do that only with an GOOD reason.."
+	else
+		msg "Enabling -fstack-protector-strong in C/CXX FLAGS"
+		CFLAGS+=" -fstack-protector-strong"
+		CXXFLAGS+=" -fstack-protector-strong"
+		export CFLAGS CXXFLAGS
+	fi
+
 	if  $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=both" ; then
 		error "You are using -Wl,--hash-style=both"
 		error "LDFLAGS changed to -Wl,--hash-style=gnu"
@@ -1494,16 +1505,6 @@ if [ "$INCHROOT" == "1" ]; then
 		export CFLAGS CXXFLAGS
 	fi
 
-	## add before PLT
-	if [ "`check_option NOPROTECTOR`" ]; then
-		warning "Disabling -fstack-protector-strong in C/CXX FLAGS."
-		warning "Do that only with an GOOD reason.."
-	else
-		msg "Enabling -fstack-protector-strong in C/CXX FLAGS"
-		CFLAGS+=" -fstack-protector-strong"
-		CXXFLAGS+=" -fstack-protector-strong"
-		export CFLAGS CXXFLAGS
-	fi
 
 	if [ "`check_option PLT`" ]; then
 		 warning "Disabling -fno-plt C/CXX FLAGS"
