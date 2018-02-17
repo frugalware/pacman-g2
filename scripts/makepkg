@@ -1424,10 +1424,10 @@ if [ "$INCHROOT" == "1" ]; then
 
 	## add before PLT
 	if [ "`check_option NOPROTECTOR`" ]; then
-		warning "Disabling -fstack-protector-strong in C/CXX FLAGS."
+		warning "Disabling C/CXX FLAGS: -fstack-protector-strong"
 		warning "Do that only with an GOOD reason.."
 	else
-		msg "Enabling -fstack-protector-strong in C/CXX FLAGS"
+		msg "Enabling C/CXX FLAGS: -fstack-protector-strong"
 		CFLAGS+=" -fstack-protector-strong"
 		CXXFLAGS+=" -fstack-protector-strong"
 		export CFLAGS CXXFLAGS
@@ -1489,19 +1489,20 @@ if [ "$INCHROOT" == "1" ]; then
 	fi
 
 	if [ "`check_option NOASNEEDED`" ]; then
-		warning "Using --no-as-needed in LDFLAGS ( are you sure ? )"
+		warning "Using LDFLAGS: --no-as-needed ( are you sure ? )"
 		LDFLAGS+=" -Wl,--no-as-needed"
 		export LDFLAGS
 	else
+		msg "Enabling LDFLAGS: -Wl,--as-needed"
 		LDFLAGS+=" -Wl,--as-needed"
 		export LDFLAGS
 	fi
 
 	if [ "`check_option NOFORTIFY`" ]; then
-		warning "Disabling -D_FORTIFY_SOURCE=2.."
+		warning "Disabling C/CXX FLAGS: -D_FORTIFY_SOURCE=2"
 		export OFORTIFY=0
 	else
-		msg "Enabling -Wp,-D_FORTIFY_SOURCE=2"
+		msg "Enabling C/CXX FLAGS: -Wp,-D_FORTIFY_SOURCE=2"
 		CFLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
 		CXXFLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
 		export CFLAGS CXXFLAGS
@@ -1509,11 +1510,19 @@ if [ "$INCHROOT" == "1" ]; then
 
 
 	if [ "`check_option PLT`" ]; then
-		 warning "Disabling -fno-plt C/CXX FLAGS"
+		 warning "Disabling C/CXX FLAGS: -fno-plt"
 	else
-		msg "Enabling -fno-plt in C/CXX FLAGS"
+		msg "Enabling C/CXX FLAGS: -fno-plt"
 		CFLAGS+=" -fno-plt"
 		CXXFLAGS+=" -fno-plt"
+		export CFLAGS CXXFLAGS
+	fi
+
+	if [ "`check_option NOPIE`" ]; then
+		warning "Disabling C/CXX FLAGS: -pie"
+		msg "Enabling C/CXX FLAGS: -fno-PIE"
+		CFLAGS+=" -fno-PIE"
+		CXXFLAGS+=" -fno-PIE"
 		export CFLAGS CXXFLAGS
 	fi
 
