@@ -1146,15 +1146,17 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
         ## we build for, with different flags etc .. copy the file only
 	## when not found in chroot .. we have checks for C/CXX/LD flags
 	## in makepkg itself... How that ever worked for the stable tree ?!?
-	if [ ! -e $CHROOTDIR/etc/makepkg.conf ]; then
-		## try first $HOME since devels may have different build users
-		## for different trees or don't want to touch system one all the time
-		if [ -e $HOME/.makepkg.conf ]; then
-			cp -pf $HOME/.makepkg.conf $CHROOTDIR/etc/makepkg.conf >/dev/null
-		else
-			cp -pf /etc/makepkg.conf $CHROOTDIR/etc/makepkg.conf >/dev/null
-		fi
+	## FIXME add per-tree-makepkg.conf support
+	## try first $HOME since devels may have different build users
+	## for different trees or don't want to touch system one all the time
+	if [ -e $HOME/.makepkg.conf ]; then
+		msg "Copying makepkg.conf from HOME.."
+		cp -pf $HOME/.makepkg.conf $CHROOTDIR/etc/makepkg.conf >/dev/null
+	else
+		msg "Copying /etc/makepkg.conf over.."
+		cp -pf /etc/makepkg.conf $CHROOTDIR/etc/makepkg.conf >/dev/null
 	fi
+
 	chmod 644 $CHROOTDIR/etc/sudoers
 	$ECHO "fst ALL=(ALL)       NOPASSWD: ALL" >$CHROOTDIR/etc/sudoers
 	chmod 440 $CHROOTDIR/etc/sudoers
