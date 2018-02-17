@@ -1875,6 +1875,14 @@ do
 		error "Bailing out, please fix your package!"
 		exit 1
 	fi
+	## invalid /libexec/ dirs
+	if [ -d ${dir}/usr/libexec ]; then
+		error "Your package has broken /libexec/ PATH"
+		error "Files are installed in /usr/libexec"
+		error "but should be /usr/lib/<pkgname>"
+		error "Bailing out, please fix your package!"
+		exit 1
+	fi
 	## invalid /usr/etc
 	if [ -d ${dir}/usr/etc ]; then
 		error "Your package has broken /etc PATH"
