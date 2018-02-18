@@ -22,6 +22,8 @@ esac
 ## FLAGS added from makepkg:
 ## -fno-plt : can be disbled with options+=('plt')
 ## -fstack-protector-strong : can be disabled with options+=('noprotector')
+## -pie ( added by gcc as default ) : can be disabled with options+=('nopie')
+## -Wp,-D_FORTIFY_SOURCE=2 : can be disabled with options+=('nofortify')
 export CARCH CHOST CFLAGS CXXFLAGS
 
 ## -Wl,--as-needed is set from makepkg. Disable with options+=('noasneeded')
