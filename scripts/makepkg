@@ -2088,6 +2088,11 @@ find $startdir/{pkg,pkg.*}/{usr{,/local,/share},opt/*}/{info,man} -type f 2>/dev
 			rm -f "$ln"
 			ln -sf "${fn}.gz" "${ln}.gz"
 		done
+		# we have some weird formatting bug for xml
+		# and some custom made ones. untill we figure
+		# workaround it - crazy -
+		# drop spaces , tabs and all empty lines..
+		sed -i -e 's/^[ \t]*//' -e '/^$/d' "$i"
 		# compress the original
 		gzip -9 "$i"
 	fi
