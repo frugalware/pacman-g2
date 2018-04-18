@@ -182,7 +182,7 @@ static void version(void)
 {
 	printf("\n");
 	printf(" .--.                  Pacman-G2 v%s - libpacman v%s\n", PACKAGE_VERSION, PM_VERSION);
-	printf("/ _.-' .-.  .-.  .-.   Copyright (C) 2002-2010 Pacman-G2 Team\n");
+	printf("/ _.-' .-.  .-.  .-.   Copyright (C) 2002-2018 Pacman-G2 Team\n");
 	printf("\\  '-. '-'  '-'  '-'   See /usr/share/doc/pacman-g2-%s/AUTHORS for more info.\n", PACKAGE_VERSION);
 	printf(" '--'                  \n");
 	printf(_("                       This program may be freely redistributed under\n"));
