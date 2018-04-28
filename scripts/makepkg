@@ -1426,130 +1426,128 @@ fi
 ## check here and workaround this when needed..
 
 
-if [ "$INCHROOT" == "1" ]; then
+## add before PLT
+if [ "`check_option NOPROTECTOR`" ]; then
+	warning "Disabling C/CXX FLAGS: -fstack-protector-strong"
+	warning "Do that only with an GOOD reason.."
+else
+	msg "Enabling C/CXX FLAGS: -fstack-protector-strong"
+	CFLAGS+=" -fstack-protector-strong"
+	CXXFLAGS+=" -fstack-protector-strong"
+	export CFLAGS CXXFLAGS
+fi
 
-	## add before PLT
-	if [ "`check_option NOPROTECTOR`" ]; then
-		warning "Disabling C/CXX FLAGS: -fstack-protector-strong"
-		warning "Do that only with an GOOD reason.."
-	else
-		msg "Enabling C/CXX FLAGS: -fstack-protector-strong"
-		CFLAGS+=" -fstack-protector-strong"
-		CXXFLAGS+=" -fstack-protector-strong"
-		export CFLAGS CXXFLAGS
-	fi
+if  $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=both" ; then
+	error "You are using -Wl,--hash-style=both"
+	error "LDFLAGS changed to -Wl,--hash-style=gnu"
+	error "Fix your makepkg.conf"
+	exit 1
+fi
 
-	if  $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=both" ; then
-		error "You are using -Wl,--hash-style=both"
-		error "LDFLAGS changed to -Wl,--hash-style=gnu"
-		error "Fix your makepkg.conf"
+if ! $ECHO $CFLAGS | grep -q "\-fstack-protector-strong" ; then
+	if [ ! "`check_option NOPROTECTOR`" ]; then
+		error "Your build/makepkg.conf is broken"
+		error "CFLAGS is missing -fstack-protector-strong"
+		error "and options+=('noprotector') is not set.."
 		exit 1
-	fi
-
-	if ! $ECHO $CFLAGS | grep -q "\-fstack-protector-strong" ; then
-		if [ ! "`check_option NOPROTECTOR`" ]; then
-			error "Your build/makepkg.conf is broken"
-			error "CFLAGS is missing -fstack-protector-strong"
-			error "and options+=('noprotector') is not set.."
-			exit 1
-		fi
-	fi
-
-	if ! $ECHO $CXXFLAGS | grep -q "\-fstack-protector-strong" ; then
-		if [ ! "`check_option NOPROTECTOR`" ]; then
-			error "Your build/makepkg.conf is broken"
-			error "CXXFLAGS is missing -fstack-protector-strong"
-			error "and options+=('noprotector') is not set.."
-			exit 1
-		fi
-	fi
-
-	if ! $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=gnu" ; then
-        	warning "Broken LDFLAGS found, -Wl,--hash-style=gnu is missing from makepkg.conf!!"
-        	warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
-		FORCE_BUILDTYPE="1"
-        	LDFLAGS+=" -Wl,--hash-style=gnu"
-        	export LDFLAGS
-	fi
-
-	if ! $ECHO $LDFLAGS | grep -q "\-Wl,-O1" ; then
-        	warning "Broken LDFLAGS found, -Wl,-O1 is missing from makepkg.conf!!"
-        	warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
-		FORCE_BUILDTYPE="1"
-        	LDFLAGS+=" -Wl,-O1"
-		export LDFLAGS
-	fi
-
-	if ! $ECHO $LDFLAGS | grep -q "\-Wl,--sort-common" ; then
-		warning "Broken LDFLAGS found, -Wl,--sort-common is missing from makepkg.conf!!"
-		warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
-		FORCE_BUILDTYPE="1"
-		LDFLAGS+=" -Wl,--sort-common"
-		export LDFLAGS
-	fi
-
-	if [ "`check_option ASNEEDED`" ]; then
-        	error "You are using deprecated option 'asneeded'."
-        	error "This is now default, please remove and retry."
-		exit 1
-	fi
-
-	if [ "`check_option NOASNEEDED`" ]; then
-		warning "Using LDFLAGS: --no-as-needed ( are you sure ? )"
-		LDFLAGS+=" -Wl,--no-as-needed"
-		export LDFLAGS
-	else
-		msg "Enabling LDFLAGS: -Wl,--as-needed"
-		LDFLAGS+=" -Wl,--as-needed"
-		export LDFLAGS
-	fi
-
-	if [ "`check_option NOFORTIFY`" ]; then
-		warning "Disabling C/CXX FLAGS: -D_FORTIFY_SOURCE=2"
-		export OFORTIFY=0
-	else
-		msg "Enabling C/CXX FLAGS: -Wp,-D_FORTIFY_SOURCE=2"
-		CFLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
-		CXXFLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
-		export CFLAGS CXXFLAGS
-	fi
-
-
-	if [ "`check_option PLT`" ]; then
-		 warning "Disabling C/CXX FLAGS: -fno-plt"
-	else
-		msg "Enabling C/CXX FLAGS: -fno-plt"
-		CFLAGS+=" -fno-plt"
-		CXXFLAGS+=" -fno-plt"
-		export CFLAGS CXXFLAGS
-	fi
-
-	if [ "`check_option NOPIE`" ]; then
-		warning "Disabling C/CXX FLAGS: -pie"
-		msg "Enabling C/CXX FLAGS: -fno-PIE"
-		CFLAGS+=" -fno-PIE"
-		CXXFLAGS+=" -fno-PIE"
-		export CFLAGS CXXFLAGS
-	fi
-
-	if [ "`check_option NORELRO`" ]; then
-		warning "Disabling LDFLAGS: -z,relro"
-		export ORELRO=0
-	else
-		msg "Enabling LDFLAGS: -z,relro"
-		LDFLAGS+=" -Wl,-z,relro"
-		export LDFLAGS
-	fi
-
-	if [ "`check_option NONOW`" ]; then
-		warning "Disabling LDFLAGS: -z,now"
-		export ONOW=0
-	else
-		msg "Enabling LDFLAGS: -z,now"
-		LDFLAGS+=" -Wl,-z,now"
-		export LDFLAGS
 	fi
 fi
+
+if ! $ECHO $CXXFLAGS | grep -q "\-fstack-protector-strong" ; then
+	if [ ! "`check_option NOPROTECTOR`" ]; then
+		error "Your build/makepkg.conf is broken"
+		error "CXXFLAGS is missing -fstack-protector-strong"
+		error "and options+=('noprotector') is not set.."
+		exit 1
+	fi
+fi
+
+if ! $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=gnu" ; then
+        warning "Broken LDFLAGS found, -Wl,--hash-style=gnu is missing from makepkg.conf!!"
+        warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
+	FORCE_BUILDTYPE="1"
+        LDFLAGS+=" -Wl,--hash-style=gnu"
+        export LDFLAGS
+fi
+
+if ! $ECHO $LDFLAGS | grep -q "\-Wl,-O1" ; then
+        warning "Broken LDFLAGS found, -Wl,-O1 is missing from makepkg.conf!!"
+        warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
+	FORCE_BUILDTYPE="1"
+        LDFLAGS+=" -Wl,-O1"
+	export LDFLAGS
+fi
+
+if ! $ECHO $LDFLAGS | grep -q "\-Wl,--sort-common" ; then
+	warning "Broken LDFLAGS found, -Wl,--sort-common is missing from makepkg.conf!!"
+	warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
+	FORCE_BUILDTYPE="1"
+	LDFLAGS+=" -Wl,--sort-common"
+	export LDFLAGS
+fi
+
+if [ "`check_option ASNEEDED`" ]; then
+        error "You are using deprecated option 'asneeded'."
+        error "This is now default, please remove and retry."
+	exit 1
+fi
+
+if [ "`check_option NOASNEEDED`" ]; then
+	warning "Using LDFLAGS: --no-as-needed ( are you sure ? )"
+	LDFLAGS+=" -Wl,--no-as-needed"
+	export LDFLAGS
+else
+	msg "Enabling LDFLAGS: -Wl,--as-needed"
+	LDFLAGS+=" -Wl,--as-needed"
+	export LDFLAGS
+fi
+
+if [ "`check_option NOFORTIFY`" ]; then
+	warning "Disabling C/CXX FLAGS: -D_FORTIFY_SOURCE=2"
+	export OFORTIFY=0
+else
+	msg "Enabling C/CXX FLAGS: -Wp,-D_FORTIFY_SOURCE=2"
+	CFLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
+	CXXFLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
+	export CFLAGS CXXFLAGS
+fi
+
+
+if [ "`check_option PLT`" ]; then
+	warning "Disabling C/CXX FLAGS: -fno-plt"
+else
+	msg "Enabling C/CXX FLAGS: -fno-plt"
+	CFLAGS+=" -fno-plt"
+	CXXFLAGS+=" -fno-plt"
+	export CFLAGS CXXFLAGS
+fi
+
+if [ "`check_option NOPIE`" ]; then
+	warning "Disabling C/CXX FLAGS: -pie"
+	msg "Enabling C/CXX FLAGS: -fno-PIE"
+	CFLAGS+=" -fno-PIE"
+	CXXFLAGS+=" -fno-PIE"
+	export CFLAGS CXXFLAGS
+fi
+
+if [ "`check_option NORELRO`" ]; then
+	warning "Disabling LDFLAGS: -z,relro"
+	export ORELRO=0
+else
+	msg "Enabling LDFLAGS: -z,relro"
+	LDFLAGS+=" -Wl,-z,relro"
+	export LDFLAGS
+fi
+
+if [ "`check_option NONOW`" ]; then
+	warning "Disabling LDFLAGS: -z,now"
+	export ONOW=0
+else
+	msg "Enabling LDFLAGS: -z,now"
+	LDFLAGS+=" -Wl,-z,now"
+	export LDFLAGS
+fi
+
 # retrieve sources
 msg "Retrieving Sources..."
 mkdir -p src
