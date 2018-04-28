@@ -1524,9 +1524,9 @@ fi
 
 if [ "`check_option NOPIE`" ]; then
 	warning "Disabling C/CXX FLAGS: -pie"
-	msg "Enabling C/CXX FLAGS: -fno-PIE"
-	CFLAGS+=" -fno-PIE"
-	CXXFLAGS+=" -fno-PIE"
+	msg "Enabling C/CXX FLAGS: -no-pie"
+	CFLAGS+=" -no-pie"
+	CXXFLAGS+=" -no-pie"
 	export CFLAGS CXXFLAGS
 fi
 
