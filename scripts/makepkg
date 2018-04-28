@@ -28,7 +28,7 @@
 ## bash's 'echo' is buggy and does not check on write() for errors
 ECHO="/bin/echo"
 startdir=`pwd`
-PKGDEST=$startdir
+PKGDEST="$startdir"
 USE_COLOR="n"
 FORCE_BUILDTYPE="0"
 OFORTIFY="1"
@@ -119,8 +119,14 @@ Fextract() {
 }
 
 # Frugalware extensions to makepkg
-[ -e /usr/lib/frugalware/fwmakepkg ] && . /usr/lib/frugalware/fwmakepkg
+if [ -e /usr/lib/frugalware/fwmakepkg ]; then
+	. /usr/lib/frugalware/fwmakepkg
+else
+	error "Cannot find fwmakepkg, abording.."
+	Fdie
+fi
 
+### FIXME
 # repoman.conf for $fst_root
 [ -f /etc/repoman.conf ] && source /etc/repoman.conf
 [ -n "$repos" ] && TREE="$repos"
