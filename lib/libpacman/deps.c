@@ -712,7 +712,7 @@ int _pacman_depcmp(pmpkg_t *pkg, pmdepend_t *dep)
 
 		if(strlen(dep->version) > 0) {
 			_pacman_log(PM_LOG_DEBUG, _("depcmp: %s-%s %s %s-%s => %s"),
-								_pacman_pkg_getinfo(pkg, PM_PKG_NAME), _pacman_pkg_getinfo(pkg, PM_PKG_NAME),
+								_pacman_pkg_getinfo(pkg, PM_PKG_NAME), _pacman_pkg_getinfo(pkg, PM_PKG_VERSION),
 								mod, dep->name, dep->version,
 								(equal ? "match" : "no match"));
 		} else {
