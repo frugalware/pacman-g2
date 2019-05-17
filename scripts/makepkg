@@ -31,7 +31,6 @@ startdir=`pwd`
 PKGDEST="$startdir"
 USE_COLOR="n"
 FORCE_BUILDTYPE="0"
-OFORTIFY="1"
 
 # Options
 
@@ -384,18 +383,18 @@ chroot_umount() {
     msg "Attempting to umount chroot directories..."
     umount $CHROOTDIR/dev/shm >/dev/null
     if [ "$PTS" = "1" ]; then
-	umount $CHROOTDIR/dev/pts >/dev/null
+		umount $CHROOTDIR/dev/pts >/dev/null
     fi
     umount $CHROOTDIR/proc >/dev/null
     umount $CHROOTDIR/sys >/dev/null
     umount $CHROOTDIR/dev >/dev/null
     umount $CHROOTDIR/var/cache/pacman-g2 >/dev/null
     if [ "$NOCCACHE" = "0" -a -d /usr/lib/ccache/bin -a ! "`check_option NOCCACHE`" ]; then
-	umount $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
+		umount $CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
     fi
     if [ "$?" != "0" ]; then
-	error "An error occurred while attempting to umount chroot directories."
-	exit 1
+		error "An error occurred while attempting to umount chroot directories."
+		exit 1
     fi
     msg "Successfully umounted chroot directories."
 }
@@ -407,16 +406,16 @@ chroot_mount() {
     mount -t devtmpfs none $CHROOTDIR/dev >/dev/null
     mount -o bind /dev/shm $CHROOTDIR/dev/shm
     if [ "$PTS" = "1" ]; then
-	mount -o bind /dev/pts $CHROOTDIR/dev/pts >/dev/null
+		mount -o bind /dev/pts $CHROOTDIR/dev/pts >/dev/null
     fi
     mount -o bind /var/cache/pacman-g2 $CHROOTDIR/var/cache/pacman-g2 >/dev/null
     if [ "$NOCCACHE" = "0" -a -d /usr/lib/ccache/bin -a ! "`check_option NOCCACHE`" ]; then
-	mount -o bind $CCACHE_BASEDIR/$pkgname \
-	$CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
+		mount -o bind $CCACHE_BASEDIR/$pkgname \
+		$CHROOTDIR/var/cache/ccache/$pkgname >/dev/null
     fi
     if [ "$?" != "0" ]; then
-	error "An error occurred while attempting to mount chroot directories."
-	exit 1
+		error "An error occurred while attempting to mount chroot directories."
+		exit 1
     fi
     msg "Successfully mounted chroot directories."
 }
@@ -1430,135 +1429,182 @@ if grep -i -q "^# Compiling Time: [~0-9\.]\+ SBU$" $BUILDSCRIPT && \
 	fi
 fi
 
-### we use at least -Wl,--hash-style=xx and conditional
-## -Wl,--as-needed. Gcc6 WIP will add -Wl,-O1.. HOWEVER some build server(s)
-## seems to use veryyyyyy old makepkg.conf even witout --hash-style=xxx..
-## check here and workaround this when needed..
 
 
-## add before PLT
-if [ "`check_option NOPROTECTOR`" ]; then
-	warning "Disabling C/CXX FLAGS: -fstack-protector-strong"
-	warning "Do that only with an GOOD reason.."
-else
-	msg "Enabling C/CXX FLAGS: -fstack-protector-strong"
-	CFLAGS+=" -fstack-protector-strong"
-	CXXFLAGS+=" -fstack-protector-strong"
-	export CFLAGS CXXFLAGS
-fi
+## ignore flags are still in makepkg.conf
+setflags() {
 
-if  $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=both" ; then
-	error "You are using -Wl,--hash-style=both"
-	error "LDFLAGS changed to -Wl,--hash-style=gnu"
-	error "Fix your makepkg.conf"
-	exit 1
-fi
+	unset LDFLAGS CFLAGS CXXFLAGS
 
-if ! $ECHO $CFLAGS | grep -q "\-fstack-protector-strong" ; then
-	if [ ! "`check_option NOPROTECTOR`" ]; then
-		error "Your build/makepkg.conf is broken"
-		error "CFLAGS is missing -fstack-protector-strong"
-		error "and options+=('noprotector') is not set.."
+	if [ -z "$BUILD_TYPE" ]; then
+		error "BUILD_TYPE cannot be empty, please fix your makepkg.conf"
 		exit 1
 	fi
-fi
 
-if ! $ECHO $CXXFLAGS | grep -q "\-fstack-protector-strong" ; then
-	if [ ! "`check_option NOPROTECTOR`" ]; then
-		error "Your build/makepkg.conf is broken"
-		error "CXXFLAGS is missing -fstack-protector-strong"
-		error "and options+=('noprotector') is not set.."
+	case "$BUILD_TYPE" in
+		generic)
+				_MFLAGS="-march=x86-64 -mtune=generic"
+				;;
+		znver1)
+				_MFLAGS="-march=znver1 -mtune=znver1"
+				;;
+		none)
+				_MFLAGS=""
+				;;
+		*)
+				error "Unknow BUILD_TYPE. (valid types: generic , znver1 or none )"
+				exit 1
+				;;
+	esac
+
+	_LDFLAGS=""
+	_FLAGS=""
+
+	## Optimization level
+	# osmall  = -Os
+	# omedium = -O2 ( default )
+	# ofast   = -O3
+	# ofaster = -Ofast ( O3++ )
+	# odebug  = -O0 -ggdb
+
+	## yes I know..
+	_OFLAG="-O2"
+
+	## this is not perfect
+	echo $options
+	if [ "`check_option OSMALL`" ]; then
+			_OFLAG="-Os"
+	fi
+
+	if [ "`check_option OMEDIUM`" ]; then
+			_OFLAG="-O2"
+	fi
+
+	if [ "`check_option OFAST`" ]; then
+			_OFLAG="-O3"
+	fi
+
+	if [ "`check_option OFASTER`" ]; then
+			_OFLAG="-Ofast"
+	fi
+
+	if [ "`check_option ODEBG`" ]; then
+			_OFLAG=( -O0 -ggdb3)
+	fi
+
+	# always on.
+	LDFLAGS="-Wl,--hash-style=gnu -Wl,-O1 -Wl,--sort-common"
+
+	## add before PLT
+	if [ "`check_option NOPROTECTOR`" ]; then
+		warning "Disabling C/CXX FLAGS: -fstack-protector-strong"
+		warning "Do that only with an GOOD reason.."
+	else
+		_FLAGS+=" -fstack-protector-strong"
+	fi
+
+	if [ "`check_option NOCLASH`" ]; then
+		warning "Disabling C/CXX FLAGS: -fstack-clash-protection"
+		warning "Do that only with an GOOD reason.."
+	else
+		_FLAGS+=" -fstack-clash-protection"
+	fi
+
+	if [ "`check_option NOWFSECURITY`" ]; then
+		warning "Disabling C/CXX FLAGS: -Werror=format-security"
+	else
+		_FLAGS+=" -Wformat -Werror=format-security"
+	fi
+
+	if [ "`check_option NOFORTIFY`" ]; then
+		warning "Disabling C/CXX FLAGS: -D_FORTIFY_SOURCE=2"
+	else
+		_FLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
+	fi
+
+	if [ "`check_option PLT`" ]; then
+		warning "Disabling C/CXX FLAGS: -fno-plt"
+	else
+		_FLAGS+=" -fno-plt"
+	fi
+
+	if [ "`check_option NOPIE`" ]; then
+		warning "Disabling C/CXX FLAGS: -pie"
+		_FLAGS+=" -no-pie"
+	fi
+
+	if [ "`check_option NOLTO`" ]; then
+		warning "Disabling C/CXX FLAGS: -flto"
+		_FLAGS+=" -fno-lto"
+	else
+		_FLAGS+=" -flto"
+	fi
+
+	if [ "`check_option ASNEEDED`" ]; then
+		error "You are using deprecated option 'asneeded'."
+		error "This is now default, please remove and retry."
 		exit 1
 	fi
-fi
 
-if ! $ECHO $LDFLAGS | grep -q "\-Wl,--hash-style=gnu" ; then
-        warning "Broken LDFLAGS found, -Wl,--hash-style=gnu is missing from makepkg.conf!!"
-        warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
-	FORCE_BUILDTYPE="1"
-        LDFLAGS+=" -Wl,--hash-style=gnu"
-        export LDFLAGS
-fi
+	if [ "`check_option NOASNEEDED`" ]; then
+		warning "Using LDFLAGS: --no-as-needed ( are you sure ? )"
+		_LDFLAGS+=" -Wl,--no-as-needed"
+	else
+		_LDFLAGS+=" -Wl,--as-needed"
+	fi
 
-if ! $ECHO $LDFLAGS | grep -q "\-Wl,-O1" ; then
-        warning "Broken LDFLAGS found, -Wl,-O1 is missing from makepkg.conf!!"
-        warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
-	FORCE_BUILDTYPE="1"
-        LDFLAGS+=" -Wl,-O1"
-	export LDFLAGS
-fi
+	if [ "`check_option NORELRO`" ]; then
+		warning "Disabling LDFLAGS: -z,relro"
+	else
+		_LDFLAGS+=" -Wl,-z,relro"
+	fi
 
-if ! $ECHO $LDFLAGS | grep -q "\-Wl,--sort-common" ; then
-	warning "Broken LDFLAGS found, -Wl,--sort-common is missing from makepkg.conf!!"
-	warning "Setting BUILDTYPE=custom , fix your makepkg.conf"
-	FORCE_BUILDTYPE="1"
-	LDFLAGS+=" -Wl,--sort-common"
-	export LDFLAGS
-fi
+	if [ "`check_option NONOW`" ]; then
+		warning "Disabling LDFLAGS: -z,now"
+	else
+		_LDFLAGS+=" -Wl,-z,now"
+	fi
+	## underlinking detection
+	if [ "`check_option NODEFS`" ]; then
+		warning "Disabling LDFLAGS: -z,defs"
+	else
+		_LDFAGS+=" -Wl,-z,defs"
+	fi
+	## put all together,,
+	CFLAGS="${_MFLAGS} ${_OFLAG} ${_FLAGS} -pipe"
+	CXXFLAGS=" ${CFLAGS}"
 
-if [ "`check_option ASNEEDED`" ]; then
-        error "You are using deprecated option 'asneeded'."
-        error "This is now default, please remove and retry."
-	exit 1
-fi
+	## LTO madness
+	if [ "`check_option NOLTO`" ]; then
+		LDFLAGS+=" -fno-lto"
+	else
+		LDFLAGS+=" ${CFLAGS}"
+	fi
 
-if [ "`check_option NOASNEEDED`" ]; then
-	warning "Using LDFLAGS: --no-as-needed ( are you sure ? )"
-	LDFLAGS+=" -Wl,--no-as-needed"
-	export LDFLAGS
-else
-	msg "Enabling LDFLAGS: -Wl,--as-needed"
-	LDFLAGS+=" -Wl,--as-needed"
-	export LDFLAGS
-fi
-
-if [ "`check_option NOFORTIFY`" ]; then
-	warning "Disabling C/CXX FLAGS: -D_FORTIFY_SOURCE=2"
-	export OFORTIFY=0
-else
-	msg "Enabling C/CXX FLAGS: -Wp,-D_FORTIFY_SOURCE=2"
-	CFLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
-	CXXFLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
-	export CFLAGS CXXFLAGS
-fi
+	export LDFLAGS CFLAGS CXXFLAGS
 
 
-if [ "`check_option PLT`" ]; then
-	warning "Disabling C/CXX FLAGS: -fno-plt"
-else
-	msg "Enabling C/CXX FLAGS: -fno-plt"
-	CFLAGS+=" -fno-plt"
-	CXXFLAGS+=" -fno-plt"
-	export CFLAGS CXXFLAGS
-fi
+	if ! $ECHO $CFLAGS | grep -q "\-fstack-protector-strong" ; then
+		if [ ! "`check_option NOPROTECTOR`" ]; then
+			error "Your build is broken"
+			error "CFLAGS is missing -fstack-protector-strong"
+			error "and options+=('noprotector') is not set.."
+			exit 1
+		fi
+	fi
 
-if [ "`check_option NOPIE`" ]; then
-	warning "Disabling C/CXX FLAGS: -pie"
-	msg "Enabling C/CXX FLAGS: -no-pie"
-	CFLAGS+=" -no-pie"
-	CXXFLAGS+=" -no-pie"
-	export CFLAGS CXXFLAGS
-fi
+	if ! $ECHO $CXXFLAGS | grep -q "\-fstack-protector-strong" ; then
+		if [ ! "`check_option NOPROTECTOR`" ]; then
+			error "Your build is broken"
+			error "CXXFLAGS is missing -fstack-protector-strong"
+			error "and options+=('noprotector') is not set.."
+			exit 1
+		fi
+	fi
 
-if [ "`check_option NORELRO`" ]; then
-	warning "Disabling LDFLAGS: -z,relro"
-	export ORELRO=0
-else
-	msg "Enabling LDFLAGS: -z,relro"
-	LDFLAGS+=" -Wl,-z,relro"
-	export LDFLAGS
-fi
+}
 
-if [ "`check_option NONOW`" ]; then
-	warning "Disabling LDFLAGS: -z,now"
-	export ONOW=0
-else
-	msg "Enabling LDFLAGS: -z,now"
-	LDFLAGS+=" -Wl,-z,now"
-	export LDFLAGS
-fi
-
-# retrieve sources
+# retrieve source-s
 msg "Retrieving Sources..."
 mkdir -p src
 cd $startdir/src
@@ -1764,6 +1810,26 @@ else
 	fi
 fi
 
+setflags
+
+msg "Enabling CFLAGS: "
+for _c in ${CFLAGS[@]}
+do
+    msg "   $_c "
+done
+
+msg "Enabling CXXFLAGS: "
+for _cxx in ${CXXFLAGS[@]}
+do
+    msg "   $_cxx "
+done
+
+msg "Enabling LDFLAGS: "
+for _ld in ${LDFLAGS[@]}
+do
+    msg "   $_ld "
+done
+
 if [ "`id -u`" = "0" ]; then
 	# chown all source files to root.root
 	chown -R root.root $startdir/src
@@ -1839,7 +1905,7 @@ fi
 if [ "$SBU" == "1" ]; then
 	# $SBU not yet set
 	totaltime="$(( $(date +%s) - $stime ))"
-	if [ -z "$HRBT" ]; then 
+	if [ -z "$HRBT" ]; then
 		msg "Elapsed Time: $totaltime seconds"
 	else
 		hours="$(( $totaltime / 3600 ))"
@@ -2210,23 +2276,6 @@ elif [ "$RMDEPS" = "1" -a "$DEP_SUDO" = "1" ]; then
 		export FAKEROOTKEY=$FAKEROOTKEY2
 		unset FAKEROOTKEY2
 	fi
-fi
-
-
-msg "This package was built with:"
-msg2 "HOST_CFLAGS:    $CFLAGS "
-msg2 "HOST_CXXFLAGS:  $CXXFLAGS "
-msg2 "HOST_LDFLAGS:   $LDFLAGS "
-if [ "$OFORTIFY" == "0" ]; then
-	msg2 "FORTIFY_FLAGS:   OFF "
-fi
-
-if [ "$ONORELRO" == "0" ]; then
-	msg2 "RELRO_LDFLAGS:   OFF "
-fi
-
-if [ "$ONOW" == "0" ]; then
-	msg2 "BINDNOW_LDFLAGS:   OFF "
 fi
 
 msg "Finished making: $pkgname  (`date`)"

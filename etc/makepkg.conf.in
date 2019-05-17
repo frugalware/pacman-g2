@@ -10,26 +10,48 @@ export FTPAGENT="/usr/bin/wget -U makepkg --continue --passive-ftp --tries=3 --w
 # The rsync utility that makepkg should use to access the Frugalware mirrors
 export RSYNCAGENT="rsync -e 'ssh -q -o GlobalKnownHostsFile=$HOME/.ssh/known_hosts -i $HOME/.ssh/id_dsa' -vP"
 
+
+## to be moved after infra for znver1 is there
 case $(uname -m) in
 	x86_64)
 		CARCH="x86_64"
 		CHOST="x86_64-frugalware-linux"
-		CFLAGS="-march=x86-64 -mtune=generic -O2 -pipe"
-		CXXFLAGS="-march=x86-64 -mtune=generic -O2 -pipe"
 		;;
 esac
 
-## FLAGS added from makepkg:
-## -fno-plt : can be disbled with options+=('plt')
-## -fstack-protector-strong : can be disabled with options+=('noprotector')
-## -pie ( added by gcc as default ) : can be disabled with options+=('nopie')
-## -Wp,-D_FORTIFY_SOURCE=2 : can be disabled with options+=('nofortify')
-export CARCH CHOST CFLAGS CXXFLAGS
+export CARCH CHOST
 
-## -Wl,--as-needed is set from makepkg. Disable with options+=('noasneeded')
-## -Wl,z,now is set from makepkg. Disable with options+=('nonow')
-## -Wl,z,relro is set from makepkg. Disable with options+=('norelro')
-export LDFLAGS="-Wl,--hash-style=gnu -Wl,-O1 -Wl,--sort-common"
+### C/XX FLAGS:
+# -fno-plt : options+=('plt') to disable.
+# -fstack-protector-strong : options+=('noprotector') to disable.
+# -fstack-clash-protection : options+=('noclash') to disable.
+# -Wformat -Werror=format-security : options+=('nowfsecurity') to disable.
+# -pie ( added by gcc as default ) : options+=('nopie') to disable.
+# -Wp,-D_FORTIFY_SOURCE=2 : options+=('nofortify') to disable.
+# -flto : options+=('noflto') to disable.
+
+### LDFLAGS:
+# always ON: "-Wl,--hash-style=gnu -Wl,-O1 -Wl,--sort-common"
+# -Wl,--as-needed: options+=('noasneeded') to disable.
+# -Wl,z,now: options+=('nonow') to disable.
+# -Wl,z,relro : options+=('norelro') to disable.
+# -Wl,-z,defs : options+=('nodefs') to disable.
+
+### Optimization Levels
+# options+=('osmall')  : enables -Os
+# options+=('omedium') : enables -O2
+# options+=('ofast')   : enables -O3
+# options+=('ofaster') : enables -Ofast
+# options+=('odebug')  : enables -O0 -ggdb3 ( for now )
+### Default: omedium ( -O2 )
+
+### Build Type:
+# generic : -march=x86-64 -mtune=generic
+# znver1  : -march=znver1 -mtune=znver1 ( not fully implemented )
+# none    : empy flags
+### NOTE: Empty or/and unknow value will cause makepkg to error out!
+
+export BUILD_TYPE="generic"
 
 # SMP Systems
 #export MAKEFLAGS="-j2"
