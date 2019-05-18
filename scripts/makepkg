@@ -954,7 +954,26 @@ if [ ! -f $BUILDSCRIPT ]; then
 	exit 1
 fi
 
+
+save_flags() {
+
+	if [[ -n $CFLAGS ]]; then
+		_FB_CFLAGS="$CFLAGS"
+	fi
+	if [[ -n $CXXFLAGS ]]; then
+        _FB_CXXFLAGS="$CXXFLAGS"
+    fi
+	if [[ -n $LDFLAGS ]]; then
+        _FB_LDFLAGS="$LDFLAGS"
+    fi
+	unset CFLAGS CXXFLAGS LDFLAGS
+	export _FB_CFLAGS _FB_CXXFLAGS _FB_LDFLAGS
+}
+
 source ./$BUILDSCRIPT
+
+# save C/CXX/LD flags from FB
+save_flags
 
 # check for no-no's
 if [ -z "$pkgver" ]; then
@@ -1588,19 +1607,19 @@ setflags() {
 	else
 		_LDFLAGS+=" -Wl,-z,defs"
 	fi
-	## put all together,,
-	CFLAGS="${_MFLAGS} ${_OFLAG} ${_FLAGS} -pipe"
-	CXXFLAGS=" ${CFLAGS}"
+	## put all together.
 
-	## LTO madness
-	if [ "`check_option NOLTO`" ]; then
-		LDFLAGS="-Wl,--hash-style=gnu -Wl,-O1 -Wl,--sort-common ${_LDFLAGS} -fno-lto"
-	else
-		LDFLAGS=" -Wl,--hash-style=gnu -Wl,-O1 -Wl,--sort-common ${_LDFLAGS} ${CFLAGS}"
-	fi
+	## FB w/out build()
+	[[ -n ${_FB_CFLAGS} ]] && _FLAGS+=" ${_FB_CFLAGS}"
+	[[ -n ${_FB_CXXFLAGS} ]] && _FLAGS+=" ${_FB_CXXFLAGS}"
+	[[ -n ${_FB_LDFLAGS} ]] && _LDFLAGS+=" ${_FB_LDFLAGS}"
+
+	CFLAGS="${_MFLAGS} ${_OFLAG} ${_FLAGS} -pipe"
+	CXXFLAGS="${_MFLAGS} ${_OFLAG} ${_FLAGS} -pipe"
+	LDFLAGS=" -Wl,--hash-style=gnu -Wl,-O1 -Wl,--sort-common ${_LDFLAGS} ${CFLAGS}"
+
 
 	export LDFLAGS CFLAGS CXXFLAGS
-
 
 	if ! $ECHO $CFLAGS | grep -q "\-fstack-protector-strong" ; then
 		if [ ! "`check_option NOPROTECTOR`" ]; then
@@ -1847,6 +1866,8 @@ for _ld in ${LDFLAGS[@]}
 do
     msg "   $_ld "
 done
+
+unset _FB_CFLAGS _FB_CXXFLAGS _FB_LDFLAGS
 
 if [ "`id -u`" = "0" ]; then
 	# chown all source files to root.root
