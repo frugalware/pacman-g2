@@ -991,11 +991,8 @@ if [ "$F_makepkg_scm" = "git" -a ! "`check_option NOVERSRC`" ]; then
 	if [ -n "$_serverlist" -a "${_serverlist:0:6}" != "git://" ]; then
 		serverlist=$_serverlist
 	fi
-else
-if [ -f "$fst_root/${TREE}/_darcs/prefs/defaultrepo" ]; then
-	serverlist="`cat $fst_root/${TREE}/_darcs/prefs/defaultrepo`"
 fi
-fi
+
 if [ -z "$CACHEURL" ]; then
 	CACHEURL="${serverlist}/source/$groups/$pkgname"
 fi
@@ -1600,9 +1597,9 @@ setflags() {
 
 	## LTO madness
 	if [ "`check_option NOLTO`" ]; then
-		LDFLAGS+=" -fno-lto"
+		LDFLAGS+=" ${_LDFLAGS} -fno-lto"
 	else
-		LDFLAGS+=" ${CFLAGS}"
+		LDFLAGS+=" ${_LDFLAGS} ${CFLAGS}"
 	fi
 
 	export LDFLAGS CFLAGS CXXFLAGS
