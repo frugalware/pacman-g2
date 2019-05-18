@@ -1560,7 +1560,8 @@ setflags() {
 		warning "Disabling C/CXX FLAGS: -flto"
 		_FLAGS+=" -fno-lto"
 	else
-		_FLAGS+=" -flto"
+		_lto_cpus="$(getconf _NPROCESSORS_ONLN)"
+		_FLAGS+=" -flto=$_lto_cpus"
 	fi
 
 	if [ "`check_option ASNEEDED`" ]; then
