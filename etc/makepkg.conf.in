@@ -43,8 +43,13 @@ export CARCH CHOST
 # options+=('omedium') : enables -O2
 # options+=('ofast')   : enables -O3
 # options+=('ofaster') : enables -Ofast
-# options+=('odebug')  : enables -O0 -ggdb3 ( for now )
+# options+=('odebug')  : enables -O0 -ggdb3 (for now)
 ### Default: omedium ( -O2 )
+
+### LD options
+# options+=('ldbfd') : enabled -fuse-ld=bfd (bfd linker)
+# options+=('ldlld') : enabled -fuse-ld=lld (lld linker (clang))
+### Default is gold
 
 ### Build Type:
 # generic : -march=x86-64 -mtune=generic
