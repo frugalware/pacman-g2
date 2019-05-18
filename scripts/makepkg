@@ -715,7 +715,7 @@ if [ -z "$PKG_COMP" ]; then
 fi
 
 if [ "$USE_AUTO_MAKEFLAGS" != "n" ]; then
-	export MAKEFLAGS="-j`grep -c ^processor /proc/cpuinfo`"
+	export MAKEFLAGS="-j`getconf _NPROCESSORS_ONLN`"
 fi
 
 ARGLIST=$@
