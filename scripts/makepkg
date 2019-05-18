@@ -1632,6 +1632,11 @@ setflags() {
 	[[ -n ${_FB_CXXFLAGS} ]] && _FLAGS+=" ${_FB_CXXFLAGS}"
 	[[ -n ${_FB_LDFLAGS} ]] && _LDFLAGS+=" ${_FB_LDFLAGS}"
 
+	# need that bc we may pull in dplicated flags from FB and/or Finclde
+	# just sanitize all FLAGS here
+	_FLAGS="$(/bin/echo ${_FLAGS[@]} | tr [:space:] '\n' | awk '!a[$0]++' | tr '\n' ' ')"
+	_LDFLAGS="$(/bin/echo ${_LDFLAGS[@]} | tr [:space:] '\n' | awk '!a[$0]++' | tr '\n' ' ')"
+
 	CFLAGS="${_MFLAGS} ${_OFLAG} ${_FLAGS} ${_LD_PLUGIN} -pipe"
 	CXXFLAGS="${_MFLAGS} ${_OFLAG} ${_FLAGS} ${_LD_PLUGIN} -pipe"
 	LDFLAGS=" -Wl,--hash-style=gnu -Wl,-O1 -Wl,--sort-common ${_LDFLAGS} ${CFLAGS}"
