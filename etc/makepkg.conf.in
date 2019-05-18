@@ -22,6 +22,7 @@ esac
 export CARCH CHOST
 
 ### C/XX FLAGS:
+# -pipe : always enabled.
 # -fno-plt : options+=('plt') to disable.
 # -fstack-protector-strong : options+=('noprotector') to disable.
 # -fstack-clash-protection : options+=('noclash') to disable.
