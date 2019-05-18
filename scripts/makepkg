@@ -596,7 +596,7 @@ create_pkg()
 
 strip_pkg()
 {
-	local dir="" subpkg="" p="$1"
+	local dir="" subpkg="" p="$1" binary strip_flags lto_file
 
 	if [ "$p" = "$pkgname" ]; then
 		dir="$startdir/pkg"
@@ -604,15 +604,39 @@ strip_pkg()
 		dir="$startdir/pkg.$p"
 		subpkg="subpackage "
 	fi
+
 	if [ ! "`check_option NOSTRIP`" -a "$NOSTRIP" = "0" ]; then
-		msg "Stripping symbols from libraries from $subpkg$1..."
-		find $dir/{,usr,usr/local,opt/*}/{lib,lib32} -type f -not -name "*.dll" -not -name "*.exe" -not -name "*.a"  -not -name "*.o" \
-			-exec /usr/bin/strip -s '{}' \; 2>&1 \
-			| grep -v "No such file" | grep -v "format not recognized"
-		msg "Stripping symbols from binaries from $subpkg$p..."
-		find $dir/{,usr,usr/local,usr/i686-frugalware-linux,opt/*}/{bin,sbin} -type f -not -name "*.dll" -not -name "*.exe" -not -name "*.a"  -not -name "*.o" \
-			-exec /usr/bin/strip -s '{}' \; 2>&1 \
-			| grep -v "No such file" | grep -v "format not recognized"
+		msg "Stripping symbols from from $subpkg$1..."
+		find $dir/{,usr,usr/local,opt/*,x86_64-frugalware-linux,i686-frugalware-linux}/{lib,lib32,bin,sbin} \
+			 -type f -not -name "*.dll" -not -name "*.exe" -not -name "*.pc" -not -name "*.la" \
+			 -not -name "*.pc" -not -name "*.cmake" -perm -u+w -print0 2>/dev/null | while read -rd '' binary ; do
+		case "$(file -bi "$binary")" in
+			*application/x-sharedlib*)  # Libraries (.so)
+				strip_flags="--strip-unneeded";;
+			*application/x-archive*)    # Libraries (.a)
+				# broken with LTO
+				if readelf -s "$binary" | grep -qi "gnu_lto"; then
+					continue
+				else
+					strip_flags="--strip-debug"
+				fi;;
+			*application/x-object*)
+				case "$binary" in
+					*.ko) # Kernel module
+						strip_flags="--strip-unneeded";;
+					*)
+						continue;;
+				esac;;
+			*application/x-executable*) # Binaries
+				strip_flags="--strip-all";;
+			*application/x-pie-executable*)  # Relocatable binaries
+				strip_flags="--strip-unneeded";;
+			*)
+				continue ;;
+			esac
+			strip ${strip_flags} "$binary"
+		done
+
 	fi
 }
 
@@ -1471,7 +1495,6 @@ setflags() {
 	_OFLAG="-O2"
 
 	## this is not perfect
-	echo $options
 	if [ "`check_option OSMALL`" ]; then
 			_OFLAG="-Os"
 	fi
