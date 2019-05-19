@@ -1624,9 +1624,7 @@ setflags() {
 		_LDFLAGS+=" -Wl,-z,now"
 	fi
 	## underlinking detection
-	if [ "`check_option NODEFS`" ]; then
-		warning "Disabling LDFLAGS: -z,defs"
-	else
+	if [ "`check_option LDEFS`" ]; then
 		_LDFLAGS+=" -Wl,-z,defs"
 	fi
 
