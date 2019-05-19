@@ -36,7 +36,7 @@ export CARCH CHOST
 # -Wl,--as-needed: options+=('noasneeded') to disable.
 # -Wl,z,now: options+=('nonow') to disable.
 # -Wl,z,relro : options+=('norelro') to disable.
-# -Wl,-z,defs : options+=('nodefs') to disable.
+# -Wl,-z,defs : options+=('ldefs') to enable
 
 ### Optimization Levels
 # options+=('osmall')  : enables -Os
@@ -49,6 +49,7 @@ export CARCH CHOST
 ### LD options
 # options+=('ldbfd') : enabled -fuse-ld=bfd (bfd linker)
 # options+=('ldlld') : enabled -fuse-ld=lld (lld linker (clang))
+# options+=('ldgold') : enabled -fuse-ld=gold
 ### Default is gold
 
 ### Build Type:
