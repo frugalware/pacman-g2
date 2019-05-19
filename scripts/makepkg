@@ -1546,6 +1546,10 @@ setflags() {
 		_LD_PLUGIN=" -fuse-ld=bfd"
 	fi
 
+	if [ "`check_option LDGOLD`" ]; then
+ 		_LD_PLUGIN=" -fuse-ld=bfd"
+	fi
+
 	if [ "`check_option LDLLD`" ]; then
 		_LD_PLUGIN=" -fuse-ld=lld"
 	fi
