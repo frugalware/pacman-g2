@@ -1547,7 +1547,7 @@ setflags() {
 	fi
 
 	if [ "`check_option LDGOLD`" ]; then
- 		_LD_PLUGIN=" -fuse-ld=bfd"
+ 		_LD_PLUGIN=" -fuse-ld=gold"
 	fi
 
 	if [ "`check_option LDLLD`" ]; then
