@@ -2257,13 +2257,21 @@ for d in $startdir/{pkg,pkg.*} ; do
 			if [ "$d" = "$startdir/pkg" ]; then
 				msg2 "Maybe broken link ${l#$d} in pkg $pkgname found."
 			else
-				msg2 "Maybe broken link ${l#$d} in pkg ${d##*/pkg.} found."
+				if [[ "$(/bin/echo ${d##*/pkg.} | sed 's/.*-\(.*\)/\1/')" =~ "devel" ]]; then
+					continue
+				else
+					msg2 "Maybe broken link ${l#$d} in pkg ${d##*/pkg.} found."
+				fi
 			fi
 		elif ls -l "$l" | awk '{print $NF}' | grep -q "$startdir" ; then
 			if [ "$d" = "$startdir/pkg" ]; then
 				msg2 "Broken link ${l#$d} in pkg $pkgname found."
 			else
-				msg2 "Broken link ${l#$d} in pkg ${d##*/pkg.} found."
+				if [[ "$(/bin/echo ${d##*/pkg.} | sed 's/.*-\(.*\)/\1/')" =~ "devel" ]]; then
+					continue
+				else
+					msg2 "Broken link ${l#$d} in pkg ${d##*/pkg.} found."
+				fi
 			fi
 		fi
 	done
