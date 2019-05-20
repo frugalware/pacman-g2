@@ -148,6 +148,11 @@ fi
 
 ### SUBROUTINES ###
 
+
+if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
+	export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+fi
+
 plain() {
 	if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
 		$ECHO -e "    \033[1;1m$1\033[1;0m" >&2
