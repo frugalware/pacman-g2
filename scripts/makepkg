@@ -1505,7 +1505,7 @@ setflags() {
 				;;
 	esac
 
-	_LDFLAGS=""
+	_LDFLAGS=" -Wl,--hash-style=gnu -Wl,-O1 -Wl,--sort-common"
 	_FLAGS=""
 
 	## Optimization level
@@ -1646,7 +1646,7 @@ setflags() {
 
 	CFLAGS="${_MFLAGS} ${_OFLAG} ${_FLAGS} ${_LD_PLUGIN} -pipe"
 	CXXFLAGS="${_MFLAGS} ${_OFLAG} ${_FLAGS} ${_LD_PLUGIN} -pipe"
-	LDFLAGS=" -Wl,--hash-style=gnu -Wl,-O1 -Wl,--sort-common ${_LDFLAGS} ${CFLAGS}"
+	LDFLAGS=" ${_LDFLAGS} ${CFLAGS}"
 
 
 	export LDFLAGS CFLAGS CXXFLAGS
