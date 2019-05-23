@@ -820,7 +820,8 @@ if [ -e "/etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf" ]; then
     source /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf
 else
     error "Please update your build system and use"
-    error "per tree based makepkg.conf configurations"
+    error "per tree based makepkg.conf configurations."
+	error "eg: /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf"
     Fdie
 fi
 
@@ -836,7 +837,7 @@ if [ "$USE_AUTO_MAKEFLAGS" != "n" -o "$USE_AUTO_MAKEFLAGS" != "N" ]; then
 		export MAKEFLAGS="-j`getconf _NPROCESSORS_ONLN`"
 fi
 
-# nothing from command line , so letsset from makepkg.conf
+# nothing from command line , so lets set from makepkg.conf
 # if found , or force xz
 if [[ -z ${COMPRESS_PROGRAM} ]]; then
 	if [[ -n "$PKG_COMP" ]]; then
