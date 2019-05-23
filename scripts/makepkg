@@ -1493,7 +1493,7 @@ setflags() {
 				;;
 	esac
 
-	_LDFLAGS=" -Wl,--hash-style=gnu -Wl,-O1 -Wl,--sort-common"
+	_LDFLAGS=" -Wl,--hash-style=gnu -Wl,--sort-common"
 	_FLAGS=""
 
 	## Optimization level

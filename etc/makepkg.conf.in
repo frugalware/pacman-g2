@@ -32,7 +32,7 @@ export CARCH CHOST
 # -flto : options+=('noflto') to disable.
 
 ### LDFLAGS:
-# always ON: "-Wl,--hash-style=gnu -Wl,-O1 -Wl,--sort-common"
+# always ON: "-Wl,--hash-style=gnu -Wl,--sort-common"
 # -Wl,--as-needed: options+=('noasneeded') to disable.
 # -Wl,z,now: options+=('nonow') to disable.
 # -Wl,z,relro : options+=('norelro') to disable.
