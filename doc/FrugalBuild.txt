@@ -39,7 +39,7 @@ so we use `SBU`s instead of minutes as a unit.
 `SBU` is the Static Binutils Unit, which means the time `repoman merge
 binutils` takes on your machine. By default `makepkg` will print out how many
 seconds the build took. After you have built `binutils`, you should update your
-`/etc/makepkg.conf`:
+`/etc/makepkg.d/*makepkg.conf`:
 
 ----
 SBU="257"
@@ -333,7 +333,37 @@ options (array)::
 
 	norelro: removes -Wl,-z,relro from LDFLAGS
 
-	noprotector: allows to manipulate stack protector C/CXX FLAGS
+	nopie: disables PIE builds.
+
+	nolto: disables LTO builds.
+
+	noclash: removes -fstack-clash-protection from C/CXX FLAGS
+	
+	noprotector: removes -fstack-protector-strong from C/CXX FLAGS
+
+	nowfsecurity: removes -Wformat -Werror=format-security from C/CXX FLAGS
+
+	nofortify: removes -D_FORTIFY_SOURCE=2 from C/CXX FLAGS
+
+	plt: build with PLT enabled (default: -fno-plt)
+
+	ldefs: is adding -Wl,-z,defs to LDFLAGS
+
+	ldgold: build with gold linker
+
+	ldbfd: build with bdf linker ( default )
+
+	ldlld: build with llvm lld linker
+
+	osmall: build packages with -Os optimization
+
+	omedium: build packages with -O2 optimization ( default )
+
+	ofast: build packages with -O3 optimization
+
+	ofaster: build packages with -Ofast optimization
+
+	odebug: build packages with -O0 -ggdb3 
 
 	static: builds static libs for the package
 
@@ -462,6 +492,22 @@ subgroups=('apps' 'apps')
 subarchs=('x86_64' 'x86_64')
 ----
 
+or
+
+----
+subpkgs=('foo')
+subdescs=('desc of foo')
+subdepends=('foodep1 foodep2')
+subgroups=('apps')
+subarchs=('x86_64')
+
+subpkgs+=('bar')
+subdescs+=('desc of bar')
+subdepends+=('bardep1 bardep2')
+subgroups+=('apps')
+subarchs+=('x86_64')
+----
+
 You may define conflicts, replaces and other directives for your subpackages,
 but the requirement is only to define these 5 ones.
 
@@ -488,7 +534,6 @@ installation/deinstallation:
 ----
 post_install()
 {
-        chkconfig --add rc.foobar
         # On install (not upgrade), enable (but don't start) the
         # units by default
         systemctl enable foobar.service >/dev/null 2>&1
@@ -497,18 +542,16 @@ post_install()
 post_upgrade()
 {
         # Reload init system configuration, to make systemd honour changed
-	# unit files
+		# unit files
         systemctl daemon-reload >/dev/null 2>&1
         if [ `vercmp $2 4.4-5` -lt 0 ]; then
-                if chkconfig rc.foobar; then
-                        post_install
-                fi
+                do_domething
         fi
 }
 
 pre_remove()
 {
-        chkconfig --del rc.foobar
+
         # On uninstall (not upgrade), disable and stop the units
         systemctl --no-reload disable foobar.service >/dev/null 2>&1
         systemctl stop foobar.service >/dev/null 2>&1
