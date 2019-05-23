@@ -62,7 +62,11 @@ die() {
 
 # Frugalware functions
 CHROOT=1
-[ -e /usr/lib/frugalware/fwmakepkg ] && . /usr/lib/frugalware/fwmakepkg
+if [ -e /usr/lib/frugalware/fwmakepkg ]; then
+	. /usr/lib/frugalware/fwmakepkg
+else
+	die "Missing /usr/lib/frugalware/fwmakepkg"
+fi
 
 get_sha1checksum()
 {
