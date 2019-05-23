@@ -126,10 +126,18 @@ else
 	Fdie
 fi
 
-### FIXME
-# repoman.conf for $fst_root
-[ -f /etc/repoman.conf ] && source /etc/repoman.conf
-[ -n "$repos" ] && TREE="$repos"
+if [ -e /etc/repoman.conf ] ; then
+	source /etc/repoman.conf
+	if [ -n "$repos" ]; then
+		TREE="$repos"
+	else
+		error "Missing repos=() in repoman.conf, abording.."
+		Fdie
+	fi
+else
+		error "Missing repoman.conf, abording.."
+		Fdie
+fi
 
 # makepkg configuration
 [ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
