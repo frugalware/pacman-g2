@@ -43,7 +43,7 @@ dnl Put out version numbers to config.h
 AC_DEFINE_UNQUOTED([PM_VERSION], ["$PM_VERSION"], [libpacman version number])
 
 dnl Configuration files
-AC_CONFIG_FILES([etc/makepkg.conf] [etc/pacman-g2.conf])
+AC_CONFIG_FILES([etc/current-makepkg.conf] [etc/pacman-g2.conf])
 
 AC_PROG_CC
 AC_HEADER_STDC
