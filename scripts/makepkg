@@ -118,49 +118,6 @@ Fextract() {
 	fi
 }
 
-# Frugalware extensions to makepkg
-if [ -e /usr/lib/frugalware/fwmakepkg ]; then
-	. /usr/lib/frugalware/fwmakepkg
-else
-	error "Cannot find fwmakepkg, abording.."
-	Fdie
-fi
-
-if [ -e /etc/repoman.conf ] ; then
-	source /etc/repoman.conf
-	if [ -n "$repos" ]; then
-		TREE="$repos"
-	else
-		error "Missing repos=() in repoman.conf, abording.."
-		Fdie
-	fi
-else
-		error "Missing repoman.conf, abording.."
-		Fdie
-fi
-
-# makepkg configuration
-[ -f /etc/makepkg.conf ] && source /etc/makepkg.conf
-
-INFAKEROOT=
-if [ "$1" = "-F" ]; then
-	INFAKEROOT=1
-	shift
-fi
-
-INCHROOT=
-if [ "$1" = "--inchroot" ]; then
-	INCHROOT=1
-	shift
-fi
-
-### SUBROUTINES ###
-
-
-if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
-	export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-fi
-
 plain() {
 	if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
 		$ECHO -e "    \033[1;1m$1\033[1;0m" >&2
@@ -199,9 +156,60 @@ error() {
 	fi
 }
 
+
+# Frugalware extensions to makepkg
+if [ -e /usr/lib/frugalware/fwmakepkg ]; then
+    . /usr/lib/frugalware/fwmakepkg
+else
+    error "Cannot find fwmakepkg, abording.."
+    Fdie
+fi
+
+if [ -e /etc/repoman.conf ] ; then
+    source /etc/repoman.conf
+    if [ -n "$repos" ]; then
+        TREE="$repos"
+    else
+        error "Missing repos=() in repoman.conf, abording.."
+        Fdie
+    fi
+else
+        error "Missing repoman.conf, abording.."
+        Fdie
+fi
+
+## -t foo,bar -> foo
+MAKEPKG_TREE=$(/bin/echo $TREE | cut -d, -f1)
+
+# makepkg configuration
+if [ -e "/etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf" ]; then
+	source /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf
+else
+	error "Please update your build system and use"
+	error "per tree based makepkg.conf configurations"
+	Fdie
+fi
+
+
+INFAKEROOT=
+if [ "$1" = "-F" ]; then
+    INFAKEROOT=1
+    shift
+fi
+
+INCHROOT=
+if [ "$1" = "--inchroot" ]; then
+    INCHROOT=1
+    shift
+fi
+
+### SUBROUTINES ###
+
 strip_url() {
 	$ECHO "$1" | sed 's|^.*://.*/||g'
 }
+
+
 
 checkdeps() {
 
@@ -718,12 +726,12 @@ if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
 fi
 
 if [ -z "$PKG_EXT" ]; then
-	error "The PKG_EXT environment variable is not defined, check your /etc/makepkg.conf!"
+	error "The PKG_EXT environment variable is not defined, check your /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf!"
 	exit 1
 fi
 
 if [ -z "$PKG_COMP" ]; then
-	error "The PKG_COMP environment variable is not defined, check your /etc/makepkg.conf!"
+	error "The PKG_COMP environment variable is not defined, check your /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf"
 	exit 1
 fi
 
@@ -917,7 +925,7 @@ if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
 
 	# check for a download utility
 	if [ -z "$FTPAGENT" ]; then
-		error "FTPAGENT is not configured. Check the /etc/makepkg.conf file."
+		error "FTPAGENT is not configured. Check the /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf file."
 		msg "Aborting..."
 		exit 1
 	fi
@@ -959,7 +967,7 @@ fi
 if [ "$PACKAGER" != "" ]; then
 	packager="$PACKAGER"
 else
-	error "Please make sure that you edit /etc/makepkg.conf and set the PACKAGER= variable"
+	error "Please make sure that you edit /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf and set the PACKAGER= variable"
 	exit 1
 fi
 if [ ! -f $BUILDSCRIPT ]; then
@@ -1201,19 +1209,16 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 		fi
 		cp -pf /etc/$i $CHROOTDIR/etc >/dev/null
 	done
-	## makepkg.conf is _special_ we may want to have different trees
-        ## we build for, with different flags etc .. copy the file only
-	## when not found in chroot .. we have checks for C/CXX/LD flags
-	## in makepkg itself... How that ever worked for the stable tree ?!?
-	## FIXME add per-tree-makepkg.conf support
-	## try first $HOME since devels may have different build users
-	## for different trees or don't want to touch system one all the time
-	if [ -e $HOME/.makepkg.conf ]; then
-		msg "Copying makepkg.conf from HOME.."
-		cp -pf $HOME/.makepkg.conf $CHROOTDIR/etc/makepkg.conf >/dev/null
+
+	if [ -e "/etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf" ]; then
+		msg "Copying ${MAKEPKG_TREE}-makepkg.conf"
+		# upgrade old , new way may give some problems so lets be sure
+		[[ ! -e "$CHROOTDIR/etc/makepkg.d" ]] && mkdir -p "$CHROOTDIR/etc/makepkg.d"
+		cp -pf /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf $CHROOTDIR/etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf >/dev/null
 	else
-		msg "Copying /etc/makepkg.conf over.."
-		cp -pf /etc/makepkg.conf $CHROOTDIR/etc/makepkg.conf >/dev/null
+		error "Oupps!!. Something is wrong!!"
+		error "Cannot find /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf, abording.."
+		Fdie
 	fi
 
 	chmod 644 $CHROOTDIR/etc/sudoers
@@ -1341,7 +1346,7 @@ if [ "`id -u`" != "0" ]; then
 	else
 		warning "Running makepkg as an unprivileged user will result in non-root"
 		plain "ownership of the packaged files.  Try using the fakeroot"
-		plain "environment.  (USE_FAKEROOT=y in makepkg.conf)"
+		plain "environment.  (USE_FAKEROOT=y in /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf)"
 		plain ""
 		sleep 1
 	fi
@@ -1475,13 +1480,13 @@ fi
 
 
 
-## ignore flags are still in makepkg.conf
+## ignore flags are still in /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf
 setflags() {
 
 	unset LDFLAGS CFLAGS CXXFLAGS
 
 	if [ -z "$BUILD_TYPE" ]; then
-		error "BUILD_TYPE cannot be empty, please fix your makepkg.conf"
+		error "BUILD_TYPE cannot be empty, please fix your /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf"
 		exit 1
 	fi
 
