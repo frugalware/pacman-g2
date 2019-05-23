@@ -32,6 +32,10 @@ PKGDEST="$startdir"
 USE_COLOR="n"
 FORCE_BUILDTYPE="0"
 
+## Fixme
+PKG_EXT="fpm"
+DB_EXT="fdb"
+
 # Options
 
 BUILDSCRIPT="./FrugalBuild"
@@ -725,10 +729,6 @@ if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
 	fi
 fi
 
-if [ -z "$PKG_EXT" ]; then
-	error "The PKG_EXT environment variable is not defined, check your /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf!"
-	exit 1
-fi
 
 if [ -z "$PKG_COMP" ]; then
 	error "The PKG_COMP environment variable is not defined, check your /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf"

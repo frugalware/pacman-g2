@@ -139,12 +139,6 @@ AC_SUBST(CARCH)
 AC_SUBST(CARCHFLAGS)
 AC_SUBST(CHOST)
 
-dnl Default package file extension
-AC_ARG_WITH([package-extension],
-	[AS_HELP_STRING([--with-package-extension=<extension>], [define the default package extension (default: fpm)])],
-	[PKG_EXT="$withval"], [PKG_EXT="fpm"])
-AC_SUBST(PKG_EXT)
-
 dnl Default package file compression
 AC_ARG_WITH([package-compression],
 	[AS_HELP_STRING([--with-package-compression=<compression>], [define the default package compression (default: xz)])],
@@ -503,7 +497,6 @@ pacman-g2-$VERSION:
 	Architecture used cflag		: ${CARCHFLAGS}
 	Architecture CHOST		: ${CHOST}
 
-	Default package extension	: ${PKG_EXT}
 	Default package compression	: ${PKG_COMP}
 
 	Doxygen support			: ${DOXYSTATUS}
