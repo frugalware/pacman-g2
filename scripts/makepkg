@@ -182,19 +182,6 @@ else
         Fdie
 fi
 
-## -t foo,bar -> foo
-MAKEPKG_TREE=$(/bin/echo $TREE | cut -d, -f1)
-
-# makepkg configuration
-if [ -e "/etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf" ]; then
-	source /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf
-else
-	error "Please update your build system and use"
-	error "per tree based makepkg.conf configurations"
-	Fdie
-fi
-
-
 INFAKEROOT=
 if [ "$1" = "-F" ]; then
     INFAKEROOT=1
@@ -729,18 +716,8 @@ if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
 	fi
 fi
 
-
-if [ -z "$PKG_COMP" ]; then
-	error "The PKG_COMP environment variable is not defined, check your /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf"
-	exit 1
-fi
-
-if [ "$USE_AUTO_MAKEFLAGS" != "n" ]; then
-	export MAKEFLAGS="-j`getconf _NPROCESSORS_ONLN`"
-fi
-
 ARGLIST=$@
-COMPRESS_PROGRAM="$PKG_COMP"
+COMPRESS_PROGRAM=""
 
 while [ "$#" -ne "0" ]; do
 	case $1 in
@@ -833,6 +810,42 @@ while [ "$#" -ne "0" ]; do
 	esac
 	shift
 done
+
+
+## -t foo,bar -> foo
+MAKEPKG_TREE=$(/bin/echo $TREE | cut -d, -f1)
+
+# makepkg configuration
+if [ -e "/etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf" ]; then
+    source /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf
+else
+    error "Please update your build system and use"
+    error "per tree based makepkg.conf configurations"
+    Fdie
+fi
+
+
+if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
+    if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
+        USE_COLOR="n"
+        warning "Disabling color as the terminal does not support it."
+    fi
+fi
+
+if [ "$USE_AUTO_MAKEFLAGS" != "n" -o "$USE_AUTO_MAKEFLAGS" != "N" ]; then
+		export MAKEFLAGS="-j`getconf _NPROCESSORS_ONLN`"
+fi
+
+# nothing from command line , so letsset from makepkg.conf
+# if found , or force xz
+if [[ -z ${COMPRESS_PROGRAM} ]]; then
+	if [[ -n "$PKG_COMP" ]]; then
+		COMPRESS_PROGRAM="$PKG_COMP"
+	else
+		warning "The PKG_COMP environment variable is not defined, using 'xz'"
+		COMPRESS_PROGRAM="xz"
+	fi
+fi
 
 # see if we need to append bases to $TREE
 if ! echo $TREE |grep -q ,; then
