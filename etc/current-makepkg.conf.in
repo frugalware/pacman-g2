@@ -1,5 +1,5 @@
 #
-# /etc/makepkg.conf
+# /etc/makepkg.d/current-makepkg.conf
 #
 
 # The FTP/HTTP download utility that makepkg should use to acquire sources
@@ -125,3 +125,8 @@ SBU="1"
 
 # Options for xz used in compression
 export XZ_OPT="--threads=0"
+
+# User configuration
+if [ -e ~/.makepkg.d/current-makepkg.conf ]; then
+    source ~/.makepkg.d/current-makepkg.conf
+fi
