@@ -196,6 +196,241 @@ fi
 
 ### SUBROUTINES ###
 
+## ignore flags are still in /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf
+setflags() {
+
+	unset LDFLAGS CFLAGS CXXFLAGS
+
+	if [ -z "$BUILD_TYPE" ]; then
+		error "BUILD_TYPE cannot be empty, please fix your /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf"
+		exit 1
+	fi
+
+	case "$BUILD_TYPE" in
+		generic)
+				_MFLAGS="-march=x86-64 -mtune=generic"
+				;;
+		znver1)
+				_MFLAGS="-march=znver1 -mtune=znver1"
+				;;
+		none)
+				_MFLAGS=""
+				;;
+		*)
+				error "Unknow BUILD_TYPE. (valid types: generic , znver1 or none )"
+				exit 1
+				;;
+	esac
+
+	_LDFLAGS=" -Wl,--hash-style=gnu -Wl,--sort-common"
+	_FLAGS=""
+
+	## Optimization level
+	# osmall  = -Os
+	# omedium = -O2 ( default )
+	# ofast   = -O3
+	# ofaster = -Ofast ( O3++ )
+	# odebug  = -O0 -ggdb
+
+	## yes I know..
+	_OFLAG="-O2"
+
+	## this is not perfect
+	if [ "`check_option OSMALL`" ]; then
+			_OFLAG="-Os"
+	fi
+
+	if [ "`check_option OMEDIUM`" ]; then
+			_OFLAG="-O2"
+	fi
+
+	if [ "`check_option OFAST`" ]; then
+			_OFLAG="-O3"
+	fi
+
+	if [ "`check_option OFASTER`" ]; then
+			_OFLAG="-Ofast"
+	fi
+
+	if [ "`check_option ODEBG`" ]; then
+			_OFLAG=" -O0 -ggdb3"
+	fi
+
+	## LD's
+	# Since we try with gold default lets have
+	# options to switch them with options=()
+	if [ "`check_option LDGOLD`" -a "`check_option LDLLD`" ]; then
+		error "Having ldbfd and ldlld enabled is not possible."
+		Fdie
+	fi
+
+	if [ "`check_option LDBFD`" ]; then
+		_LD_PLUGIN=" -fuse-ld=bfd"
+	fi
+
+	if [ "`check_option LDGOLD`" ]; then
+		_LD_PLUGIN=" -fuse-ld=gold"
+	fi
+
+	if [ "`check_option LDLLD`" ]; then
+		_LD_PLUGIN=" -fuse-ld=lld"
+	fi
+
+	if [ "`check_option NOPROTECTOR`" ]; then
+		warning "Disabling C/CXX FLAGS: -fstack-protector-strong"
+		warning "Do that only with an GOOD reason.."
+	else
+		_FLAGS+=" -fstack-protector-strong"
+	fi
+
+	if [ "`check_option NOCLASH`" ]; then
+		warning "Disabling C/CXX FLAGS: -fstack-clash-protection"
+		warning "Do that only with an GOOD reason.."
+	else
+		_FLAGS+=" -fstack-clash-protection"
+	fi
+
+	if [ "`check_option NOWFSECURITY`" ]; then
+		warning "Disabling C/CXX FLAGS: -Werror=format-security"
+	else
+		_FLAGS+=" -Wformat -Werror=format-security"
+	fi
+
+	if [ "`check_option NOFORTIFY`" ]; then
+		warning "Disabling C/CXX FLAGS: -D_FORTIFY_SOURCE=2"
+	else
+		_FLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
+	fi
+
+	if [ "`check_option PLT`" ]; then
+		warning "Disabling C/CXX FLAGS: -fno-plt"
+	else
+		_FLAGS+=" -fno-plt"
+	fi
+
+	if [ "`check_option NOPIE`" ]; then
+		warning "Disabling C/CXX FLAGS: -pie"
+		_FLAGS+=" -no-pie"
+	fi
+
+	if [ "`check_option NOLTO`" ]; then
+		warning "Disabling C/CXX FLAGS: -flto"
+		_FLAGS+=" -fno-lto"
+	else
+		_lto_cpus="$(getconf _NPROCESSORS_ONLN)"
+		_FLAGS+=" -flto=$_lto_cpus"
+	fi
+
+	if [ "`check_option ASNEEDED`" ]; then
+		error "You are using deprecated option 'asneeded'."
+		error "This is now default, please remove and retry."
+		exit 1
+	fi
+
+	if [ "`check_option NOASNEEDED`" ]; then
+		warning "Using LDFLAGS: --no-as-needed ( are you sure ? )"
+		_LDFLAGS+=" -Wl,--no-as-needed"
+	else
+		_LDFLAGS+=" -Wl,--as-needed"
+	fi
+
+	if [ "`check_option NORELRO`" ]; then
+		warning "Disabling LDFLAGS: -z,relro"
+	else
+		_LDFLAGS+=" -Wl,-z,relro"
+	fi
+
+	if [ "`check_option NONOW`" ]; then
+		warning "Disabling LDFLAGS: -z,now"
+	else
+		_LDFLAGS+=" -Wl,-z,now"
+	fi
+	## underlinking detection
+	if [ "`check_option LDEFS`" ]; then
+		_LDFLAGS+=" -Wl,-z,defs"
+	fi
+
+	## put all together.
+	## FB w/out build()
+	[[ -n ${_FB_CFLAGS} ]] && _FLAGS+=" ${_FB_CFLAGS}"
+	[[ -n ${_FB_CXXFLAGS} ]] && _FLAGS+=" ${_FB_CXXFLAGS}"
+	[[ -n ${_FB_LDFLAGS} ]] && _LDFLAGS+=" ${_FB_LDFLAGS}"
+
+	# need that bc we may pull in dplicated flags from FB and/or Finclde
+	# just sanitize all FLAGS here
+
+	_LDFLAGS="$(/bin/echo ${_LDFLAGS[@]} | tr [:space:] '\n' | awk '!a[$0]++' | tr '\n' ' ')"
+	_CFLAGS="${_MFLAGS} ${_OFLAG} ${_FLAGS} ${_LD_PLUGIN} -pipe"
+	_CXXFLAGS="${_MFLAGS} ${_OFLAG} ${_FLAGS} ${_LD_PLUGIN} -pipe"
+	LDFLAGS_=" ${_LDFLAGS} ${CFLAGS} ${CXXFLAGS}"
+
+	CFLAGS="$(/bin/echo ${_CFLAGS[@]} | tr [:space:] '\n' | awk '!a[$0]++' | tr '\n' ' ')"
+	CXXFLAGS="$(/bin/echo ${_CXXFLAGS[@]} | tr [:space:] '\n' | awk '!a[$0]++' | tr '\n' ' ')"
+	LDFLAGS="$(/bin/echo ${LDFLAGS_[@]} | tr [:space:] '\n' | awk '!a[$0]++' | tr '\n' ' ')"
+
+	export LDFLAGS CFLAGS CXXFLAGS
+
+	if ! $ECHO $CFLAGS | grep -q "\-fstack-protector-strong" ; then
+		if [ ! "`check_option NOPROTECTOR`" ]; then
+			error "Your build is broken"
+			error "CFLAGS is missing -fstack-protector-strong"
+			error "and options+=('noprotector') is not set.."
+			exit 1
+		fi
+	fi
+
+	if ! $ECHO $CXXFLAGS | grep -q "\-fstack-protector-strong" ; then
+		if [ ! "`check_option NOPROTECTOR`" ]; then
+			error "Your build is broken"
+			error "CXXFLAGS is missing -fstack-protector-strong"
+			error "and options+=('noprotector') is not set.."
+			exit 1
+		fi
+	fi
+}
+
+
+build_info() {
+
+	if [[ $GENSHA1 = 0 ]]; then
+		[[ -n "$USE_FAKEROOT" ]] && _FAKEROOT=Yes || _FAKEROOT=No
+		[[ -n "$INCHROOT" ]] && _CHROOT=Yes || _CHROOT=No
+
+		plain "--------------------------------------------------------------"
+		msg2 "  Build configuration:"
+		msg2 ""
+		msg2 "   TREE:                 ${MAKEPKG_TREE}"
+		msg2 "   CARCH:                ${CARCH}"
+		msg2 "   CHOST:                ${CHOST}"
+		msg2 "   BUILD_TYPE:           ${BUILD_TYPE}"
+		msg2 "   CHROOT:               ${_CHROOT}"
+		msg2 "   FAKEROOT:             ${_FAKEROOT}"
+		msg2 "   BUILDSCRIPT:          ${BUILDSCRIPT}"
+		msg2 "   COMPRESSION:          ${COMPRESS_PROGRAM}"
+		msg2 "   MAKEFLAGS:            ${MAKEFLAGS}"
+		msg2 "   CFLAGS: "
+		for _c in ${CFLAGS}
+		do
+			msg2 "                        $_c "
+		done
+
+		msg2 "   CXXFLAGS: "
+		for _cxx in ${CXXFLAGS}
+		do
+			msg2 "                        $_cxx "
+		done
+		# Only show these in _LDFLAGS
+		# full LDFLAGS have CFLAGS too
+		msg2 "   LDFLAGS: "
+		for _ld in ${_LDFLAGS}
+		do
+			msg2 "                        $_ld "
+		done
+		plain "-------------------------------------------------------------"
+	fi
+}
+
+
 strip_url() {
 	$ECHO "$1" | sed 's|^.*://.*/||g'
 }
@@ -1129,6 +1364,7 @@ fi
 # Generate the Changelog if necessary.
 indir=n
 
+
 git rev-parse --git-dir &>/dev/null && indir=y
 
 if [ "$indir" = "y" ] && [ "$GENSHA1" = "0" -a "$NOBUILD" = "0" ]; then
@@ -1342,7 +1578,6 @@ fi
 if [ "`id -u`" != "0" ]; then
 	if [ "$USE_FAKEROOT" = "y" -o "$USE_FAKEROOT" = "Y" ]; then
 		if [ `type -p fakeroot` ]; then
-			msg "Entering fakeroot environment"
 			if [ "$INCHROOT" != "1" ]; then
 				fakeroot -- $0 -F $ARGLIST
 			else
@@ -1365,6 +1600,11 @@ if [ "`id -u`" != "0" ]; then
 		sleep 1
 	fi
 fi
+
+
+## don't move these from here
+setflags
+build_info
 
 msg "Making package: $pkgname $pkgver-$pkgrel (`date`)"
 
@@ -1491,199 +1731,6 @@ if grep -i -q "^# Compiling Time: [~0-9\.]\+ SBU$" $BUILDSCRIPT && \
 		msg "Estimated build time: $hrs$mins$secs"
 	fi
 fi
-
-
-
-## ignore flags are still in /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf
-setflags() {
-
-	unset LDFLAGS CFLAGS CXXFLAGS
-
-	if [ -z "$BUILD_TYPE" ]; then
-		error "BUILD_TYPE cannot be empty, please fix your /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf"
-		exit 1
-	fi
-
-	case "$BUILD_TYPE" in
-		generic)
-				_MFLAGS="-march=x86-64 -mtune=generic"
-				;;
-		znver1)
-				_MFLAGS="-march=znver1 -mtune=znver1"
-				;;
-		none)
-				_MFLAGS=""
-				;;
-		*)
-				error "Unknow BUILD_TYPE. (valid types: generic , znver1 or none )"
-				exit 1
-				;;
-	esac
-
-	_LDFLAGS=" -Wl,--hash-style=gnu -Wl,--sort-common"
-	_FLAGS=""
-
-	## Optimization level
-	# osmall  = -Os
-	# omedium = -O2 ( default )
-	# ofast   = -O3
-	# ofaster = -Ofast ( O3++ )
-	# odebug  = -O0 -ggdb
-
-	## yes I know..
-	_OFLAG="-O2"
-
-	## this is not perfect
-	if [ "`check_option OSMALL`" ]; then
-			_OFLAG="-Os"
-	fi
-
-	if [ "`check_option OMEDIUM`" ]; then
-			_OFLAG="-O2"
-	fi
-
-	if [ "`check_option OFAST`" ]; then
-			_OFLAG="-O3"
-	fi
-
-	if [ "`check_option OFASTER`" ]; then
-			_OFLAG="-Ofast"
-	fi
-
-	if [ "`check_option ODEBG`" ]; then
-			_OFLAG=" -O0 -ggdb3"
-	fi
-
-	## LD's
-	# Since we try with gold default lets have
-	# options to switch them with options=()
-	if [ "`check_option LDBFD`" -a "`check_option LDLLD`" ]; then
-		error "Having ldbfd and ldlld enabled is not possible."
-		Fdie
-	fi
-
-	if [ "`check_option LDBFD`" ]; then
-		_LD_PLUGIN=" -fuse-ld=bfd"
-	fi
-
-	if [ "`check_option LDGOLD`" ]; then
- 		_LD_PLUGIN=" -fuse-ld=gold"
-	fi
-
-	if [ "`check_option LDLLD`" ]; then
-		_LD_PLUGIN=" -fuse-ld=lld"
-	fi
-
-	if [ "`check_option NOPROTECTOR`" ]; then
-		warning "Disabling C/CXX FLAGS: -fstack-protector-strong"
-		warning "Do that only with an GOOD reason.."
-	else
-		_FLAGS+=" -fstack-protector-strong"
-	fi
-
-	if [ "`check_option NOCLASH`" ]; then
-		warning "Disabling C/CXX FLAGS: -fstack-clash-protection"
-		warning "Do that only with an GOOD reason.."
-	else
-		_FLAGS+=" -fstack-clash-protection"
-	fi
-
-	if [ "`check_option NOWFSECURITY`" ]; then
-		warning "Disabling C/CXX FLAGS: -Werror=format-security"
-	else
-		_FLAGS+=" -Wformat -Werror=format-security"
-	fi
-
-	if [ "`check_option NOFORTIFY`" ]; then
-		warning "Disabling C/CXX FLAGS: -D_FORTIFY_SOURCE=2"
-	else
-		_FLAGS+=" -Wp,-D_FORTIFY_SOURCE=2"
-	fi
-
-	if [ "`check_option PLT`" ]; then
-		warning "Disabling C/CXX FLAGS: -fno-plt"
-	else
-		_FLAGS+=" -fno-plt"
-	fi
-
-	if [ "`check_option NOPIE`" ]; then
-		warning "Disabling C/CXX FLAGS: -pie"
-		_FLAGS+=" -no-pie"
-	fi
-
-	if [ "`check_option NOLTO`" ]; then
-		warning "Disabling C/CXX FLAGS: -flto"
-		_FLAGS+=" -fno-lto"
-	else
-		_lto_cpus="$(getconf _NPROCESSORS_ONLN)"
-		_FLAGS+=" -flto=$_lto_cpus"
-	fi
-
-	if [ "`check_option ASNEEDED`" ]; then
-		error "You are using deprecated option 'asneeded'."
-		error "This is now default, please remove and retry."
-		exit 1
-	fi
-
-	if [ "`check_option NOASNEEDED`" ]; then
-		warning "Using LDFLAGS: --no-as-needed ( are you sure ? )"
-		_LDFLAGS+=" -Wl,--no-as-needed"
-	else
-		_LDFLAGS+=" -Wl,--as-needed"
-	fi
-
-	if [ "`check_option NORELRO`" ]; then
-		warning "Disabling LDFLAGS: -z,relro"
-	else
-		_LDFLAGS+=" -Wl,-z,relro"
-	fi
-
-	if [ "`check_option NONOW`" ]; then
-		warning "Disabling LDFLAGS: -z,now"
-	else
-		_LDFLAGS+=" -Wl,-z,now"
-	fi
-	## underlinking detection
-	if [ "`check_option LDEFS`" ]; then
-		_LDFLAGS+=" -Wl,-z,defs"
-	fi
-
-	## put all together.
-	## FB w/out build()
-	[[ -n ${_FB_CFLAGS} ]] && _FLAGS+=" ${_FB_CFLAGS}"
-	[[ -n ${_FB_CXXFLAGS} ]] && _FLAGS+=" ${_FB_CXXFLAGS}"
-	[[ -n ${_FB_LDFLAGS} ]] && _LDFLAGS+=" ${_FB_LDFLAGS}"
-
-	# need that bc we may pull in dplicated flags from FB and/or Finclde
-	# just sanitize all FLAGS here
-	_FLAGS="$(/bin/echo ${_FLAGS[@]} | tr [:space:] '\n' | awk '!a[$0]++' | tr '\n' ' ')"
-	_LDFLAGS="$(/bin/echo ${_LDFLAGS[@]} | tr [:space:] '\n' | awk '!a[$0]++' | tr '\n' ' ')"
-
-	CFLAGS="${_MFLAGS} ${_OFLAG} ${_FLAGS} ${_LD_PLUGIN} -pipe"
-	CXXFLAGS="${_MFLAGS} ${_OFLAG} ${_FLAGS} ${_LD_PLUGIN} -pipe"
-	LDFLAGS=" ${_LDFLAGS} ${CFLAGS}"
-
-
-	export LDFLAGS CFLAGS CXXFLAGS
-
-	if ! $ECHO $CFLAGS | grep -q "\-fstack-protector-strong" ; then
-		if [ ! "`check_option NOPROTECTOR`" ]; then
-			error "Your build is broken"
-			error "CFLAGS is missing -fstack-protector-strong"
-			error "and options+=('noprotector') is not set.."
-			exit 1
-		fi
-	fi
-
-	if ! $ECHO $CXXFLAGS | grep -q "\-fstack-protector-strong" ; then
-		if [ ! "`check_option NOPROTECTOR`" ]; then
-			error "Your build is broken"
-			error "CXXFLAGS is missing -fstack-protector-strong"
-			error "and options+=('noprotector') is not set.."
-			exit 1
-		fi
-	fi
-}
 
 # retrieve sources
 msg "Retrieving Sources..."
@@ -1891,27 +1938,6 @@ else
 	fi
 fi
 
-setflags
-
-msg "Enabling CFLAGS: "
-for _c in ${CFLAGS[@]}
-do
-    msg "   $_c "
-done
-
-msg "Enabling CXXFLAGS: "
-for _cxx in ${CXXFLAGS[@]}
-do
-    msg "   $_cxx "
-done
-
-# Only show these in _LDFLAGS
-# full LDFLAGS have CFLAGS too
-msg "Enabling LDFLAGS: "
-for _ld in ${_LDFLAGS[@]}
-do
-    msg "   $_ld "
-done
 
 unset _FB_CFLAGS _FB_CXXFLAGS _FB_LDFLAGS
 unset _MFLAGS _OFLAG _FLAGS _LD_PLUGIN _LDFLAGS
