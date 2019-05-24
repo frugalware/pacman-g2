@@ -1412,9 +1412,9 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			$ECHO "Include = $CHROOTDIR/etc/pacman-g2/repos/$repo" >>$_F_makepkg_pacconf
 		done
 		mkdir -p $CHROOTDIR/{tmp,var/log,etc/pacman-g2/repos}
-		cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
+		cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos 2>/dev/null
 		if [ -d ~/.pacman-g2/repos ]; then
-			cp -pf ~/.pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
+			cp -pf ~/.pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos 2>/dev/null
 		fi
 		$PACMAN -r "$CHROOTDIR" -Syf $COREPKGS --noconfirm --config $_F_makepkg_pacconf
 		if [ "$?" != "0" ]; then
@@ -1446,9 +1446,9 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 	chmod 1777 $CHROOTDIR/{var,}/tmp
 
 	msg "Copying config files to chroot"
-	cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
+	cp -pf /etc/pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos 2>/dev/null
 	if [ -d ~/.pacman-g2/repos ]; then
-		cp -pf ~/.pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos >/dev/null
+		cp -pf ~/.pacman-g2/repos/* $CHROOTDIR/etc/pacman-g2/repos 2>/dev/null
 	fi
 
 	for i in resolv.conf passwd shadow group fstab
