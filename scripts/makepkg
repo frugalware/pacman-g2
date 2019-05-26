@@ -180,20 +180,33 @@ else
         Fdie
 fi
 
-MAKEPKG_TREE=$(git config --get --local  remote.origin.url | sed 's/.*\///g')
-CHECK_TREE=$(pwd | sed "s|$fst_root/||g" | cut -d/ -f1)
+get_tree() {
 
-# current is special ..
-if [[ ${MAKEPKG_TREE} =~ "frugalware-current" ]]; then
-	MAKEPKG_TREE="current"
-fi
+	local r
 
-if [[ ${MAKEPKG_TREE} =~ ${CHECK_TREE} ]]; then
+	MAKEPKG_TREE=$(git config --get --local  remote.origin.url 2>/dev/null)
+	r=$?
+
+	if [[ "$r" = "128" ]]; then # not a git repo
+		MAKEPKG_TREE="current"
+		warning "Not an git tree, setting TREE to current."
+	fi
+
+	MAKEPKG_TREE="$(echo $MAKEPKG_TREE | sed 's/.*\///g')"
+
+	if [[ "$MAKEPKG_TREE" =~ "frugalware-current" ]]; then
+		MAKEPKG_TREE="current"
+	fi
+
+	if [[ -n "${MAKEPKG_TREE}" ]]; then
 		TREE="${MAKEPKG_TREE}"
-else
-		## fall back to repos
-		TREE="$repos"
-fi
+	else
+		error "Your TREE is empty, please fix your build system."
+		Fdie
+	fi
+}
+
+get_tree
 
 INFAKEROOT=
 if [ "$1" = "-F" ]; then
