@@ -944,13 +944,6 @@ install_pkg()
 	exit 0
 }
 
-if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
-	if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
-		USE_COLOR="n"
-		warning "Disabling color as the terminal does not support it."
-	fi
-fi
-
 ARGLIST=$@
 COMPRESS_PROGRAM=""
 
