@@ -1206,6 +1206,7 @@ if [ ! -z "$DOWNLOAD" -a "$INFAKEROOT" != "1" ]; then
 		exit 1
 	fi
 
+	# FIXME: that need be generated from TREE info.
 	confs=`cat /etc/pacman-g2.conf |grep ^Include|sed 's/.* = \(.*\)/\1/'`
 
 	# searching for a mirror
