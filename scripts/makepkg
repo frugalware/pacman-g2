@@ -171,15 +171,23 @@ fi
 
 if [ -e /etc/repoman.conf ] ; then
     source /etc/repoman.conf
-    if [ -n "$repos" ]; then
-        TREE="$repos"
-    else
+    if [ -z "$repos" ]; then
         error "Missing repos=() in repoman.conf, abording.."
         Fdie
     fi
 else
         error "Missing repoman.conf, abording.."
         Fdie
+fi
+
+MAKEPKG_TREE=$(git config --get --local  remote.origin.url | cut -d/ -f5)
+CHECK_TREE=$(pwd | sed "s|$fst_root/||g" | cut -d/ -f1)
+
+if [[ ${MAKEPKG_TREE} =~ ${CHECK_TREE} ]]; then
+		TREE="${MAKEPKG_TREE}"
+else
+		## fall back to repos
+		TREE="$repos"
 fi
 
 INFAKEROOT=
@@ -944,12 +952,6 @@ install_pkg()
 	exit 0
 }
 
-if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
-	if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
-		USE_COLOR="n"
-		warning "Disabling color as the terminal does not support it."
-	fi
-fi
 
 ARGLIST=$@
 COMPRESS_PROGRAM=""
@@ -1010,7 +1012,7 @@ while [ "$#" -ne "0" ]; do
 						exit 0
 						;;
 					i) INSTALL=1 ;;
-					j) export MAKEFLAGS="-j$OPTARG" ;;
+					j) _MAKEFLAGS="-j$OPTARG" ;;
 					l) DOWNLOAD="$OPTARG" ;;
 					m) USE_COLOR="n" ;;
 					n) NOSTRIP=1 ;;
@@ -1046,9 +1048,8 @@ while [ "$#" -ne "0" ]; do
 	shift
 done
 
-
-## -t foo,bar -> foo
-MAKEPKG_TREE=$(/bin/echo $TREE | cut -d, -f1)
+# set MKAEFLAGS to max
+[[ -z ${MAKEFLAGS} ]] && export MAKEFLAGS="-j`getconf _NPROCESSORS_ONLN`"
 
 # makepkg configuration
 if [ -e "/etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf" ]; then
@@ -1060,17 +1061,19 @@ else
     Fdie
 fi
 
+## look for commandline and override .conf settings
+if [[ -n ${_MAKEFLAGS} ]]; then
+	warning "MAKEFLAGS"
+	export MAKEFLAGS="${_MAKEFLAGS}"
+fi
 
 if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
     if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
-        USE_COLOR="n"
+        export USE_COLOR="n"
         warning "Disabling color as the terminal does not support it."
     fi
 fi
 
-if [ "$USE_AUTO_MAKEFLAGS" != "n" -o "$USE_AUTO_MAKEFLAGS" != "N" ]; then
-		export MAKEFLAGS="-j`getconf _NPROCESSORS_ONLN`"
-fi
 
 # nothing from command line , so lets set from makepkg.conf
 # if found , or force xz
