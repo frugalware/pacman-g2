@@ -944,6 +944,7 @@ install_pkg()
 	exit 0
 }
 
+
 ARGLIST=$@
 COMPRESS_PROGRAM=""
 
@@ -1003,7 +1004,7 @@ while [ "$#" -ne "0" ]; do
 						exit 0
 						;;
 					i) INSTALL=1 ;;
-					j) export MAKEFLAGS="-j$OPTARG" ;;
+					j) _MAKEFLAGS="-j$OPTARG" ;;
 					l) DOWNLOAD="$OPTARG" ;;
 					m) USE_COLOR="n" ;;
 					n) NOSTRIP=1 ;;
@@ -1043,6 +1044,8 @@ done
 ## -t foo,bar -> foo
 MAKEPKG_TREE=$(/bin/echo $TREE | cut -d, -f1)
 
+[[ -z ${MAKEFLAGS} ]] && export MAKEFLAGS="-j`getconf _NPROCESSORS_ONLN`"
+
 # makepkg configuration
 if [ -e "/etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf" ]; then
     source /etc/makepkg.d/${MAKEPKG_TREE}-makepkg.conf
@@ -1053,6 +1056,9 @@ else
     Fdie
 fi
 
+if [[ -n ${_MAKEFLAGS} ]]; then
+       export MAKEFLAGS="${_MAKEFLAGS}"
+fi
 
 if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
     if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
@@ -1061,9 +1067,6 @@ if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
     fi
 fi
 
-if [ "$USE_AUTO_MAKEFLAGS" != "n" -o "$USE_AUTO_MAKEFLAGS" != "N" ]; then
-		export MAKEFLAGS="-j`getconf _NPROCESSORS_ONLN`"
-fi
 
 # nothing from command line , so lets set from makepkg.conf
 # if found , or force xz
