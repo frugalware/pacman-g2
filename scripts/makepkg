@@ -183,6 +183,11 @@ fi
 MAKEPKG_TREE=$(git config --get --local  remote.origin.url | cut -d/ -f5)
 CHECK_TREE=$(pwd | sed "s|$fst_root/||g" | cut -d/ -f1)
 
+# current is special ..
+if [[ ${MAKEPKG_TREE} =~ "frugalware-current" ]]; then
+	MAKEPKG_TREE="current"
+fi
+
 if [[ ${MAKEPKG_TREE} =~ ${CHECK_TREE} ]]; then
 		TREE="${MAKEPKG_TREE}"
 else
