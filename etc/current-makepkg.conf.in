@@ -31,7 +31,6 @@ export BUILD_TYPE="generic"
 
 # SMP Systems
 #export MAKEFLAGS="-j2"
-export USE_AUTO_MAKEFLAGS="y"
 
 # Default name of build scripts
 export BUILDSCRIPT="FrugalBuild"
