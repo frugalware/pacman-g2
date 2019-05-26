@@ -180,7 +180,7 @@ else
         Fdie
 fi
 
-MAKEPKG_TREE=$(git config --get --local  remote.origin.url | sed 's/.*\///g')
+MAKEPKG_TREE=$(git config --get --local  remote.origin.url | cut -d/ -f5)
 CHECK_TREE=$(pwd | sed "s|$fst_root/||g" | cut -d/ -f1)
 
 # current is special ..
