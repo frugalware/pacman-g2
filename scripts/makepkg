@@ -1555,6 +1555,13 @@ if [ "$CHROOT" = "1" -a "$INCHROOT" != "1" ]; then
 			warning "C/CXX FLAGS need -fno-strict-aliasing"
 			warning "Please recompile with right C/CXX FLAGS"
 		fi
+
+		if grep -q "\needed to handle lto object" "${BUILDLOG}"  2>/dev/null; then
+			msg "Your package may have LTO building problems!"
+			warning "Please check your Build log."
+			msg2 "eg: grep '\needed to handle lto object' ${BUILDLOG}"
+			warning "If unsure add 'options+=('nolto')' and rebuild the package."
+		fi
 		# copy build log to LOGDIR if set
 		if [ -d "$LOGDIR" ]; then
 			msg "Creating permanent copy of build log"
