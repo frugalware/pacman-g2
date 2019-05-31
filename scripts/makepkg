@@ -283,11 +283,14 @@ setflags() {
 		_FLAGS+=" -fstack-protector-strong"
 	fi
 
-	if [ "`check_option NOCLASH`" ]; then
-		warning "Disabling C/CXX FLAGS: -fstack-clash-protection"
-		warning "Do that only with an GOOD reason.."
-	else
-		_FLAGS+=" -fstack-clash-protection"
+	# clang does not have this
+	if [ ! "`check_option CLANG`" ]; then
+		if [ "`check_option NOCLASH`" ]; then
+			warning "Disabling C/CXX FLAGS: -fstack-clash-protection"
+			warning "Do that only with an GOOD reason.."
+		else
+			_FLAGS+=" -fstack-clash-protection"
+		fi
 	fi
 
 	if [ "`check_option NOWFSECURITY`" ]; then
