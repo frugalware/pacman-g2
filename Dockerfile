@@ -6,6 +6,7 @@ RUN dnf -y install gcc intltool gettext git libtool pkg-config bzip2-devel \
 	perl-ExtUtils-Embed mono-core po4a
 WORKDIR /tmp/fst
 COPY . /tmp/fst
+RUN ./autogen.sh
 RUN ./configure --disable-dependency-tracking --disable-python --disable-java --prefix=/usr
 RUN make clean
 RUN make 
