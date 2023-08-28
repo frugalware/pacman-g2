@@ -2061,14 +2061,6 @@ cd $startdir
 for dir in {pkg,pkg.*}
 do
 	[ ! -d ${dir} ] && continue
-	## wrong pkgconfig path
-	if [ -d ${dir}/usr/share/pkgconfig ]; then
-		error "Your package has broken pkgconfig PATH"
-		error "Files are installed in /usr/share/pkgconfig"
-		error "but should be /usr/lib/pkgconfig"
-		error "Bailing out, please fix your package!"
-		exit 1
-	fi
 	## invalid /security/ dir
 	if [ -d ${dir}/usr/lib/security ]; then
 		error "Your package installs PAM files in wrong PATH"
