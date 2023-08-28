@@ -10,9 +10,7 @@ for i in range(1000):
 	p.files = ["usr/share/pkg%03d" % i]
 	self.addpkg(p)
 
-_list = []
-[_list.append(p.filename()) for p in self.localpkgs]
-self.args = "-A %s" % " ".join(_list)
+self.args = "-A %s" % " ".join([p.filename() for p in self.localpkgs])
 
 self.addrule("PACMAN_RETCODE=0")
 #for i in range(1000):

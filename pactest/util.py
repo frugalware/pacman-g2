@@ -118,7 +118,7 @@ def mkfile(name, data = ""):
 		os.symlink(link, os.path.basename(filename))
 		os.chdir(curdir)
 	else:
-		fd = file(filename, "w")
+		fd = open(filename, "w")
 		if data:
 			fd.write(data)
 			if data[-1] != "\n":
@@ -247,15 +247,15 @@ def getsha1sum(filename):
 	except IOError:
 		pass
 	digest = checksum.digest()
-	return "%02x"*len(digest) % tuple(map(ord, digest))
+	return "%02x"*len(digest)
 
 def mksha1sum(data):
 	"""
 	"""
 	checksum = hashlib.new("sha1")
-	checksum.update("%s\n" % data)
+	checksum.update(data.encode())
 	digest = checksum.digest()
-	return "%02x"*len(digest) % tuple(map(ord, digest))
+	return "%02x"*len(digest)
 
 
 #
@@ -275,7 +275,7 @@ def getmtime(filename):
 
 def grep(filename, pattern):
 	found = 0
-	fd = file(filename, "r")
+	fd = open(filename, "r")
 	while 1 and not found:
 		line = fd.readline()
 		if not line:

@@ -123,7 +123,7 @@ class pmdb:
 
 		# desc
 		filename = os.path.join(path, "desc")
-		fd = file(filename, "r")
+		fd = open(filename, "r")
 		while 1:
 			line = fd.readline()
 			if not line:
@@ -165,7 +165,7 @@ class pmdb:
 
 		# files
 		filename = os.path.join(path, "files")
-		fd = file(filename, "r")
+		fd = open(filename, "r")
 		while 1:
 			line = fd.readline()
 			if not line:
@@ -184,7 +184,7 @@ class pmdb:
 
 		# depends
 		filename = os.path.join(path, "depends")
-		fd = file(filename, "r")
+		fd = open(filename, "r")
 		while 1:
 			line = fd.readline()
 			if not line:
