@@ -2,7 +2,7 @@ ENV_CFLAGS=$CFLAGS
 
 AC_PREREQ(2.59)
 dnl Update it right before the release since $pkgver_foo are all _post_ release snapshots
-AC_INIT([pacman-g2 package manager], 3.10.0, [frugalware-devel@frugalware.org], pacman-g2)
+AC_INIT([pacman-g2 package manager], 3.10.1, [frugalware-devel@frugalware.org], pacman-g2)
 AC_CONFIG_MACRO_DIR([m4])
 AC_LANG(C)
 AC_CONFIG_HEADERS(config.h)
