@@ -167,7 +167,7 @@ class pmpkg:
 
 		# .INSTALL
 		empty = 1
-		for value in self.install.values():
+		for value in list(self.install.values()):
 			if value:
 				empty = 0
 		if not empty:
@@ -188,4 +188,4 @@ class pmpkg:
 
 if __name__ == "__main__":
 	pkg = pmpkg("dummy")
-	print pkg
+	print(pkg)

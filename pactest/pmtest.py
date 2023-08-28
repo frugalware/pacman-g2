@@ -88,7 +88,7 @@ class pmtest:
 		self.files = []
 		
 		if os.path.isfile(self.name):
-			execfile(self.name)
+			exec(compile(open(self.name, "rb").read(), self.name, 'exec'))
 		else:
 			err("file %s does not exist!" % self.name)
 
@@ -96,7 +96,7 @@ class pmtest:
 		"""
 		"""
 
-		print "==> Generating test environment"
+		print("==> Generating test environment")
 
 		# Cleanup leftover files from a previous test session
 		if os.path.isdir(self.root):
@@ -114,7 +114,7 @@ class pmtest:
 		for dir in [dbdir, cachedir, syncdir, tmpdir, logdir, etcdir]:
 			if not os.path.isdir(dir):
 				vprint("\t%s" % dir[len(self.root)+1:])
-				os.makedirs(dir, 0755)
+				os.makedirs(dir, 0o755)
 
 		# Configuration file
 		vprint("    Creating configuration file")
@@ -126,7 +126,7 @@ class pmtest:
 		for pkg in self.localpkgs:
 			vprint("\t%s" % os.path.join(TMPDIR, pkg.filename()))
 			pkg.makepkg(tmpdir)
-		for key, value in self.db.iteritems():
+		for key, value in self.db.items():
 			if key == "local":
 				continue
 			for pkg in value.pkgs:
@@ -138,7 +138,7 @@ class pmtest:
 
 		# Populating databases
 		vprint("    Populating databases")
-		for key, value in self.db.iteritems():
+		for key, value in self.db.items():
 			for pkg in value.pkgs:
 				vprint("\t%s/%s" % (key, pkg.fullname()))
 				if key == "local":
@@ -147,7 +147,7 @@ class pmtest:
 
 		# Creating sync database archives
 		vprint("    Creating sync database archives")
-		for key, value in self.db.iteritems():
+		for key, value in self.db.items():
 			if key == "local":
 				continue
 			vprint("\t" + value.treename)
@@ -179,10 +179,10 @@ class pmtest:
 		"""
 
 		if os.path.isfile(PM_LOCK):
-			print "\tERROR: another pacman-g2 session is on-going -- skipping"
+			print("\tERROR: another pacman-g2 session is on-going -- skipping")
 			return
 
-		print "==> Running test"
+		print("==> Running test")
 		vprint("\tpacman-g2 %s" % self.args)
 
 		if "FAKEROOTKEY" in os.environ:
@@ -226,20 +226,20 @@ class pmtest:
 		if self.retcode \
 		   and grep(os.path.join(self.root, LOGFILE),
 		            "you cannot perform this operation unless you are root"):
-			print "\tERROR: pacman-g2 support for fakeroot is not disabled"
+			print("\tERROR: pacman-g2 support for fakeroot is not disabled")
 		# Check if the lock is still there
 		if os.path.isfile(PM_LOCK):
-			print "\tERROR: %s not removed" % PM_LOCK
+			print("\tERROR: %s not removed" % PM_LOCK)
 			os.unlink(PM_LOCK)
 		# Look for a core file
 		if os.path.isfile(os.path.join(self.root, TMPDIR, "core")):
-			print "\tERROR: pacman-g2 dumped a core file"
+			print("\tERROR: pacman-g2 dumped a core file")
 
 	def check(self):
 		"""
 		"""
 
-		print "==> Checking rules"
+		print("==> Checking rules")
 
 		for i in self.rules:
 			success = i.check(self.root, self.retcode, self.db["local"], self.files)
@@ -251,10 +251,10 @@ class pmtest:
 				self.result["ko"] += 1
 			else:
 				msg = "SKIP"
-			print "\t[%s] %s" % (msg, i.rule)
+			print("\t[%s] %s" % (msg, i.rule))
 			i.result = success
 
 
 if __name__ == "__main__":
 	test = pmtest("test1", "./root")
-	print test
+	print(test)

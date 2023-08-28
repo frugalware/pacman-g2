@@ -68,7 +68,7 @@ class authors:
 				else:
 					sys.stdout.write("%s" % j)
 			sys.stdout.write(" by ")
-			if i.name in self.aliases.keys():
+			if i.name in list(self.aliases.keys()):
 				i.name = self.aliases[i.name]
 			sys.stdout.write("%s\n" % i.name)
 
@@ -91,5 +91,5 @@ for i in ["lib/libpacman"]:
 	for root, dirs, files in os.walk(i):
 		for file in files:
 			if file[-2:] == ".h":
-				print "==> %s/%s:" % (root, file)
+				print(("==> %s/%s:" % (root, file)))
 				gencopy("%s/%s" % (root, file))

@@ -14,7 +14,7 @@ p2 = pmpkg("pkg2", "1.0-2")
 for p in p1, p2:
 	self.addpkg(p)
 
-self.args = "-U %s" % " ".join([p.filename() for p in p1, p2])
+self.args = "-U %s" % " ".join([p.filename() for p in (p1, p2)])
 #self.args = "-Qi %s" % " ".join([p.name for p in lp1, lp2])
 
 self.addrule("PACMAN_RETCODE=0")

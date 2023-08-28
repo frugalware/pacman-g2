@@ -49,9 +49,9 @@ class pmfile:
 		mtime = getmtime(filename)
 
 		if debug:
-			print "ismodified(%s)" % self.name
-			print "old: %s / %s" % (self.checksum, self.mtime)
-			print "new: %s / %s" % (checksum, mtime)
+			print("ismodified(%s)" % self.name)
+			print("old: %s / %s" % (self.checksum, self.mtime))
+			print("new: %s / %s" % (checksum, mtime))
 
 		if not self.checksum == checksum \
 		   or not (self.mtime[1], self.mtime[2]) == (mtime[1], mtime[2]):
@@ -62,4 +62,4 @@ class pmfile:
 
 if __name__ == "__main__":
 	f = pmfile("/tmp", "foobar")
-	print f
+	print(f)

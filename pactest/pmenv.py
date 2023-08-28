@@ -57,12 +57,12 @@ class pmenv:
 		"""
 
 		for t in self.testcases:
-			print "=========="*8
-			print "Running '%s'" % t.name.strip(".py")
+			print("=========="*8)
+			print("Running '%s'" % t.name.strip(".py"))
 
 			t.load()
-			print t.description
-			print "----------"*8
+			print(t.description)
+			print("----------"*8)
 
 			t.generate()
 			# Hack for mtimes consistency
@@ -76,42 +76,42 @@ class pmenv:
 			t.run(self.pacman)
 
 			t.check()
-			print "==> Test result"
+			print("==> Test result")
 			if t.result["ko"] == 0:
-				print "\tPASSED"
+				print("\tPASSED")
 			else:
-				print "\tFAILED"
-			print
+				print("\tFAILED")
+			print()
 
 	def results(self):
 		"""
 		"""
 		passed = 0
-		print "=========="*8
-		print "Results"
-		print "----------"*8
+		print("=========="*8)
+		print("Results")
+		print("----------"*8)
 		for test in self.testcases:
 			ok = test.result["ok"]
 			ko = test.result["ko"]
 			rules = len(test.rules)
 			if ko == 0:
-				print "[PASSED]",
+				print("[PASSED]", end=' ')
 				passed += 1
 			else:
-				print "[FAILED]",
-			print test.name.strip(".py").ljust(38),
-			print "Rules:",
-			print "OK = %2u KO = %2u SKIP = %2u" % (ok, ko, rules-(ok+ko))
-		print "----------"*8
+				print("[FAILED]", end=' ')
+			print(test.name.strip(".py").ljust(38), end=' ')
+			print("Rules:", end=' ')
+			print("OK = %2u KO = %2u SKIP = %2u" % (ok, ko, rules-(ok+ko)))
+		print("----------"*8)
 		total = len(self.testcases)
 		failed = total - passed
-		print "TOTAL  = %3u" % total
+		print("TOTAL  = %3u" % total)
 		if total:
-			print "PASSED = %3u (%6.2f%%)" % (passed, float(passed)*100/total)
-			print "FAILED = %3u (%6.2f%%)" % (failed, float(failed)*100/total)
-		print
+			print("PASSED = %3u (%6.2f%%)" % (passed, float(passed)*100/total))
+			print("FAILED = %3u (%6.2f%%)" % (failed, float(failed)*100/total))
+		print()
 
 
 if __name__ == "__main__":
 	env = pmenv("/tmp")
-	print env
+	print(env)

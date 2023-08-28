@@ -42,7 +42,7 @@ for i in xmldoc.getElementsByTagName('mirror'):
 	except KeyError:
 		mirrors[m.country] = []
 	mirrors[m.country].append(m)
-countries = mirrors.keys()
+countries = list(mirrors.keys())
 countries.sort()
 sock = open(out, "w")
 sock.write("""#

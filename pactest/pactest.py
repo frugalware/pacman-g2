@@ -34,7 +34,7 @@ __version__ = "0.3"
 def usage(retcode):
 	"""
 	"""
-	print "Usage: %s [options] [[--test=<path/to/testfile.py>] ...]\n\n" % __file__
+	print("Usage: %s [options] [[--test=<path/to/testfile.py>] ...]\n\n" % __file__)
 	sys.exit(retcode)
 
 if __name__ == "__main__":

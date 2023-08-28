@@ -315,7 +315,7 @@ class pmdb:
 		# install
 		if self.treename == "local":
 			empty = 1
-			for value in pkg.install.values():
+			for value in list(pkg.install.values()):
 				if value:
 					empty = 0
 			if not empty:
@@ -351,7 +351,7 @@ class pmdb:
 		dbg("oldpkg.checksum : %s" % oldpkg.checksum)
 		dbg("oldpkg.mtime    : %s" % oldpkg.mtime)
 
-		for key in pkg.mtime.keys():
+		for key in list(pkg.mtime.keys()):
 			if key == "install" \
 			   and oldpkg.mtime[key] == (0, 0, 0) \
 			   and pkg.mtime[key] == (0, 0, 0):
@@ -364,4 +364,4 @@ class pmdb:
 
 if __name__ == "__main__":
 	db = pmdb("local")
-	print db
+	print(db)

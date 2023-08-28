@@ -50,16 +50,16 @@ debug = 0
 
 
 def err(msg):
-	print "error: " + msg
+	print("error: " + msg)
 	sys.exit(1)
 
 def vprint(msg):
 	if verbose:
-		print msg
+		print(msg)
 
 def dbg(msg):
 	if debug:
-		print msg
+		print(msg)
 
 
 #
@@ -106,7 +106,7 @@ def mkfile(name, data = ""):
 		path = os.path.dirname(filename)
 	try:
 		if path and not os.path.isdir(path):
-			os.makedirs(path, 0755)
+			os.makedirs(path, 0o755)
 	except:
 		error("mkfile: could not create directory hierarchy '%s'" % path)
 
@@ -175,7 +175,7 @@ def mkinstallfile(filename, install):
 	"""
 	"""
 	data = []
-	for key, value in install.iteritems():
+	for key, value in install.items():
 		if value:
 			data.append("%s() {\n%s\n}" % (key, value))
 			
@@ -186,14 +186,14 @@ def mkcfgfile(filename, root, option, db):
 	"""
 	# Options
 	data = ["[options]"]
-	for key, value in option.iteritems():
+	for key, value in option.items():
 		data.extend(["%s = %s" % (key, j) for j in value])
 
 	# Repositories
 	data.extend(["[%s]\n" \
 	             "server = file://%s\n" \
 	             % (value.treename, os.path.join(root, SYNCREPO, value.treename)) \
-	             for key, value in db.iteritems() if not key == "local"])
+	             for key, value in db.items() if not key == "local"])
 
 	mkfile(os.path.join(root, filename), "\n".join(data))
 
