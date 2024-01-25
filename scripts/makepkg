@@ -1066,7 +1066,7 @@ if [[ -n ${_MAKEFLAGS} ]]; then
        export MAKEFLAGS="${_MAKEFLAGS}"
 fi
 
-if [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
+if [ -n "$TERM" ] - a [ "$USE_COLOR" = "Y" -o "$USE_COLOR" = "y" ]; then
     if [ "$(/usr/bin/tput colors)" -lt 3 ]; then
         USE_COLOR="n"
         warning "Disabling color as the terminal does not support it."
