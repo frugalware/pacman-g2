@@ -2279,7 +2279,8 @@ done
 # check symbolic links
 msg "Checking symbolic links..."
 for d in $startdir/{pkg,pkg.*} ; do
-	for l in `find $d -type l 2> /dev/null` ; do
+	find $d -type l -print0 2> /dev/null | while read -d $'\0' l; do
+		IFS=''
 		if [ ! -e "$l" -a ! -e "$d/`ls -l $l | awk '{print $NF}'`" ]; then
 			if [ "$d" = "$startdir/pkg" ]; then
 				msg2 "Maybe broken link ${l#$d} in pkg $pkgname found."
