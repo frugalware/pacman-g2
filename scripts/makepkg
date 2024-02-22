@@ -2061,14 +2061,6 @@ cd $startdir
 for dir in {pkg,pkg.*}
 do
 	[ ! -d ${dir} ] && continue
-	## invalid /security/ dir
-	if [ -d ${dir}/usr/lib/security ]; then
-		error "Your package installs PAM files in wrong PATH"
-		error "Files are installed in /usr/lib/security"
-		error "but should be /lib/security"
-		error "Bailing out, please fix your package!"
-		exit 1
-	fi
 	## invalid /libexec/ dirs
 	if [ -d ${dir}/usr/libexec ]; then
 		error "Your package has broken /libexec/ PATH"
