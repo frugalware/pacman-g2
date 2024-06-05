@@ -208,7 +208,7 @@ setflags() {
 
 	case "$BUILD_TYPE" in
 		generic)
-				_MFLAGS="-march=x86-64 -mtune=generic"
+				_MFLAGS="-march=x86-64-v2 -mtune=generic"
 				;;
 		znver1)
 				_MFLAGS="-march=znver1 -mtune=znver1"
