@@ -370,9 +370,9 @@ setflags() {
 		warning "Syncing enabled"
 	else
 		if [ -z "$LD_PRELOAD" ]; then
-			  LD_PRELOAD=/usr/lib/libeatmydata/libeatmydata.so
+			  LD_PRELOAD=/usr/lib/libeatmydata.so
 		  else
-			    LD_PRELOAD="$LD_PRELOAD":/usr/lib/libeatmydata/libeatmydata.so
+			    LD_PRELOAD="$LD_PRELOAD":/usr/lib/libeatmydata.so
 		fi
 		export LD_PRELOAD
 	fi
