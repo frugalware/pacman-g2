@@ -59,6 +59,7 @@ RMDEPS=0
 CHROOT=1
 NOUP2DATE=0
 NODOCS=0
+SYNCFS=0
 TREE=""
 CACHEURL=""
 
@@ -363,6 +364,17 @@ setflags() {
 	## underlinking detection
 	if [ "`check_option LDEFS`" ]; then
 		_LDFLAGS+=" -Wl,-z,defs"
+	fi
+
+	if [ "`check_option SYNCFS`" ]; then
+		warning "Syncing enabled"
+	else
+		if [ -z "$LD_PRELOAD" ]; then
+			  LD_PRELOAD=/usr/lib/libeatmydata/libeatmydata.so
+		  else
+			    LD_PRELOAD="$LD_PRELOAD":/usr/lib/libeatmydata/libeatmydata.so
+		fi
+		export LD_PRELOAD
 	fi
 
 	## put all together.
