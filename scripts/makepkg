@@ -1855,16 +1855,6 @@ if [ "$GENSHA1" = "0" ]; then
 		# gpg validation
 		if [ ${#signatures[@]} -eq ${#source[@]} ]; then
 			if [ `type -p gpg` ]; then
-				if [ ! -d ~/.gnupg ]; then
-					msg "Configuring gpg..."
-					gpg --list-keys
-					$ECHO "keyserver hkp://pool.sks-keyservers.net" >>~/.gnupg/gpg.conf
-					$ECHO "keyserver-options auto-key-retrieve" >>~/.gnupg/gpg.conf
-				fi
-				if [ -e $startdir/$pkgname.key ]; then
-					msg "Importing $pkgname.key"
-					gpg --no-autostart --import $startdir/$pkgname.key
-				fi
 				errors=0
 				idx=0
 				for netfile in "${source[@]}"; do
@@ -1882,7 +1872,7 @@ if [ "$GENSHA1" = "0" ]; then
 						else
 							cmd='cat'
 						fi
-						$cmd $file | gpgv $sig - >/dev/null 2>&1
+						$cmd $file | sqv --keyring $startdir/$pkgname.key $sig - >/dev/null 2>&1
 						if [ $? -ne 0 ]; then
 							$ECHO "FAILED" >&2
 							errors=1
@@ -1894,8 +1884,6 @@ if [ "$GENSHA1" = "0" ]; then
 					fi
 					idx=$(($idx+1))
 				done
-				msg "Killing dirmngr"
-				killall -u fst dirmngr
 				if [ $errors -gt 0 ]; then
 					error "One or more files did not pass the validity check!"
 					exit 1
